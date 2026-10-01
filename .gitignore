@@ -398,3 +398,7 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+# Per-project ReSharper/Rider layers: Rider writes machine-specific state
+# into them (e.g. the WinForms designer toolbox NuGet path under
+# C:\Users\<name>\...). Shared team settings belong in <solution>.sln.DotSettings.
+*.csproj.DotSettings
