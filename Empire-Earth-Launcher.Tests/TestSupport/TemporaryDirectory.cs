@@ -11,9 +11,11 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
     {
         public TemporaryDirectory()
         {
-            Path = System.IO.Path.Combine(System.IO.Path.GetTempPath(),
+            string path = System.IO.Path.Combine(System.IO.Path.GetTempPath(),
                 "Empire-Earth-Launcher.Tests-" + Guid.NewGuid().ToString("N"));
-            Directory.CreateDirectory(Path);
+            // The full path of the existing folder: the temporary folder may be given as a Windows short
+            // (8.3) path, which Path.GetFullPath expands, and the code under test calls GetFullPath.
+            Path = Directory.CreateDirectory(path).FullName;
         }
 
         /// <summary>Full path of the folder.</summary>
