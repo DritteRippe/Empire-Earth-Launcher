@@ -68,15 +68,17 @@ namespace Empire_Earth_Launcher
         /// </summary>
         public void SetUserDirectory(string directory)
         {
-            settings.GameDirectory = string.IsNullOrWhiteSpace(directory) ? string.Empty : directory.Trim();
             try
             {
+                // Inside the try: with a damaged user.config the setter throws as well (it loads the values).
+                settings.GameDirectory = string.IsNullOrWhiteSpace(directory) ? string.Empty : directory.Trim();
                 settings.Save();
             }
             catch (Exception ex) when (ex is System.Configuration.ConfigurationException || ex is IOException ||
                                        ex is UnauthorizedAccessException)
             {
-                // The folder is still used for this session.
+                // If only Save failed, the folder is still used for this session; if the settings cannot be
+                // read at all, Refresh falls back to automatic detection.
                 logger.Error("Unable to save the launcher settings.", ex);
             }
             Refresh();

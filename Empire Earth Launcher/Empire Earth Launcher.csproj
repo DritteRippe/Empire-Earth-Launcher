@@ -92,6 +92,7 @@
     </Compile>
     <Compile Include="KryptonThemeService.cs" />
     <Compile Include="TraceFileLogger.cs" />
+    <Compile Include="UserSettingsRecovery.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

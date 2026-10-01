@@ -39,6 +39,7 @@ namespace Empire_Earth_Launcher
             Application.SetCompatibleTextRenderingDefault(true);
 
             Settings settings = Settings.Default;
+            UserSettingsRecovery.EnsureReadable(settings, nameof(Settings.ThemeName), logger);
             var themeService = new KryptonThemeService(logger, LauncherPaths.ThemesDirectory);
             ApplySavedTheme(themeService, settings);
 
@@ -85,20 +86,25 @@ namespace Empire_Earth_Launcher
         /// NeoServerPort, NeoTimeoutMilliseconds and PlayerListPollIntervalMilliseconds in
         /// "Empire Earth Launcher.exe.config").
         /// </summary>
-        /// <returns>null if the settings are invalid (logged); the launcher then runs without the player list.</returns>
+        /// <returns>
+        /// null if the settings are invalid or cannot be read (logged); the launcher then runs without the player
+        /// list.
+        /// </returns>
         private static NeoApiClient CreateNeoClient(Settings settings, out int playerListPollIntervalMilliseconds)
         {
-            playerListPollIntervalMilliseconds = settings.PlayerListPollIntervalMilliseconds;
+            playerListPollIntervalMilliseconds = 0;
             try
             {
+                playerListPollIntervalMilliseconds = settings.PlayerListPollIntervalMilliseconds;
                 if (playerListPollIntervalMilliseconds <= 0)
                     throw new ArgumentOutOfRangeException(nameof(settings.PlayerListPollIntervalMilliseconds),
                         playerListPollIntervalMilliseconds, "The poll interval must be positive.");
                 return new NeoApiClient(new NeoServerEndpoint(settings.NeoServerHost, settings.NeoServerPort,
                     settings.NeoTimeoutMilliseconds));
             }
-            catch (ArgumentException ex)
+            catch (Exception ex) when (ex is ArgumentException || ex is System.Configuration.ConfigurationException)
             {
+                // Like a damaged user.config (see UserSettingsRecovery), this must not prevent the start.
                 logger.Error("The Neo server settings are invalid, the online player list is disabled.", ex);
                 return null;
             }

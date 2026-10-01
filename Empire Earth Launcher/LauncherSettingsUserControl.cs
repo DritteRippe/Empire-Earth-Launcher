@@ -121,9 +121,11 @@ namespace Empire_Earth_Launcher
                 return;
             }
 
-            settings.ThemeName = themeName;
-            settings.CustomThemeFile = string.Empty;
-            SaveSettings();
+            SaveSettings(() =>
+            {
+                settings.ThemeName = themeName;
+                settings.CustomThemeFile = string.Empty;
+            });
         }
 
         private void SelectCustomThemeFile()
@@ -143,8 +145,8 @@ namespace Empire_Earth_Launcher
                 return;
             }
 
-            settings.CustomThemeFile = themeService.CurrentThemeFile;
-            SaveSettings();
+            string currentThemeFile = themeService.CurrentThemeFile;
+            SaveSettings(() => settings.CustomThemeFile = currentThemeFile);
         }
 
         private void ShowThemeNotLoaded()
@@ -211,10 +213,15 @@ namespace Empire_Earth_Launcher
             gameDirectory.SetUserDirectory(null);
         }
 
-        private void SaveSettings()
+        /// <summary>
+        /// Changes and saves the settings. Both are in the try block: with a damaged user.config the setters
+        /// throw as well, because they load all values first.
+        /// </summary>
+        private void SaveSettings(Action change)
         {
             try
             {
+                change();
                 settings.Save();
             }
             catch (Exception ex) when (ex is System.Configuration.ConfigurationException || ex is IOException ||

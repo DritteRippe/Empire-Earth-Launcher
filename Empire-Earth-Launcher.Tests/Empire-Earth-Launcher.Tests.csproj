@@ -47,14 +47,17 @@
       <HintPath>..\packages\NUnitLite.3.14.0\lib\net40\nunitlite.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Launcher\GameDirectoryLocatorTests.cs" />
     <Compile Include="Launcher\LogTrimmingTests.cs" />
+    <Compile Include="Launcher\UserSettingsRecoveryTests.cs" />
     <Compile Include="Mod\ModArchiveTests.cs" />
     <Compile Include="Mod\ModAssetsTests.cs" />
     <Compile Include="Mod\ModDataTests.cs" />
