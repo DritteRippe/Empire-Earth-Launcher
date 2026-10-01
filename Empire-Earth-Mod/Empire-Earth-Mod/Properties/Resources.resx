@@ -235,6 +235,10 @@ If you need to simply rename it double click on the variant name cell.</value>
 {0}</value>
     <comment>{0}: error message.</comment>
   </data>
+  <data name="UseBuildButton" xml:space="preserve">
+    <value>Use the "Build" button of the files page to build the mod.</value>
+    <comment>Shown when the build page is chosen through its tab header before the mod was built.</comment>
+  </data>
   <data name="ModSavedFormat" xml:space="preserve">
     <value>The mod has been saved to:
 {0}</value>

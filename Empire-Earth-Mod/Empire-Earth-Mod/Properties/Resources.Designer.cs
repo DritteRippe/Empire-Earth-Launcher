@@ -277,6 +277,15 @@ namespace Empire_Earth_Mod.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Use the &quot;Build&quot; button of the files page to build the mod..
+        /// </summary>
+        internal static string UseBuildButton {
+            get {
+                return ResourceManager.GetString("UseBuildButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Variant already exists.
         /// </summary>
         internal static string VariantExists {

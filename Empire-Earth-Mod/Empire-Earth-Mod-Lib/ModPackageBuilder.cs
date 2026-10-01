@@ -227,12 +227,18 @@ namespace Empire_Earth_Mod_Lib
         /// GDI+ images are not thread-safe.
         /// </remarks>
         /// <param name="eemPath">Path of the mod archive to create.</param>
-        /// <exception cref="InvalidOperationException">The mod is not complete (e.g. it has no icon).</exception>
+        /// <exception cref="InvalidOperationException">The mod is not complete (no icon, name or version).</exception>
         public void Build(string eemPath)
         {
             ThrowIfDisposed();
             if (assets.Icon == null)
                 throw new InvalidOperationException("The mod has no icon. Select an icon before building the mod.");
+            // The mod creator validates these on its first page; checked here too, so that no caller can
+            // publish an archive that the launcher could not identify.
+            if (string.IsNullOrWhiteSpace(mod.Name))
+                throw new InvalidOperationException("The mod has no name.");
+            if (mod.Version == null)
+                throw new InvalidOperationException("The mod has no version.");
 
             ExportModInfos();
             ExportBannersAndIcon();

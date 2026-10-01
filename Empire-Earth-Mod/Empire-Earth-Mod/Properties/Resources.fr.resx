@@ -222,6 +222,9 @@ Pour simplement la renommer, double-cliquez sur la cellule de son nom.</value>
 
 {0}</value>
   </data>
+  <data name="UseBuildButton" xml:space="preserve">
+    <value>Utilisez le bouton « Créer » de la page des fichiers pour créer le mod.</value>
+  </data>
   <data name="ModSavedFormat" xml:space="preserve">
     <value>Le mod a été enregistré dans :
 {0}</value>

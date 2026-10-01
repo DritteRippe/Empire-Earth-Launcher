@@ -34,6 +34,9 @@ namespace Empire_Earth_Mod
         private readonly BackgroundWorker buildWorker;
         private bool modBuilt;
 
+        /// <summary>True while <see cref="GoToStep"/> changes the page, which already prepared it.</summary>
+        private bool changingStepByCode;
+
         /// <summary>Index of the banner shown for the selected variant.</summary>
         private int bannerIndex;
 
@@ -48,13 +51,7 @@ namespace Empire_Earth_Mod
             buildWorker = new BackgroundWorker();
             buildWorker.DoWork += buildWorker_DoWork;
             buildWorker.RunWorkerCompleted += buildWorker_RunWorkerCompleted;
-            // While the mod is built in the background, the pages that edit it must not be reachable through
-            // the tab headers.
-            wizardTabControl.Selecting += (sender, e) =>
-            {
-                if (buildWorker.IsBusy && e.TabPageIndex != (int)WizardStep.Build)
-                    e.Cancel = true;
-            };
+            wizardTabControl.Selecting += wizardTabControl_Selecting;
             // Keeps Back/Next right however a page is reached (buttons or tab headers).
             wizardTabControl.Selected += (sender, e) => UpdateNavigationButtons();
 
@@ -70,8 +67,56 @@ namespace Empire_Earth_Mod
 
         private void GoToStep(WizardStep step)
         {
-            wizardTabControl.SelectedIndex = (int)step;
+            changingStepByCode = true;
+            try
+            {
+                wizardTabControl.SelectedIndex = (int)step;
+            }
+            finally
+            {
+                changingStepByCode = false;
+            }
             UpdateNavigationButtons();
+        }
+
+        /// <summary>
+        /// Page changes through the tab headers. They must not skip what "Next" does: moving forward validates
+        /// and commits every page that is left (an invalid first page keeps the wizard there) and prepares the
+        /// pages that are entered. Moving back loses nothing and is always allowed.
+        /// </summary>
+        private void wizardTabControl_Selecting(object sender, TabControlCancelEventArgs e)
+        {
+            if (changingStepByCode || e.TabPageIndex < 0)
+                return;
+
+            // While the mod is built in the background, the pages that edit it must not be reachable.
+            if (buildWorker.IsBusy)
+            {
+                e.Cancel = e.TabPageIndex != (int)WizardStep.Build;
+                return;
+            }
+
+            var target = (WizardStep)e.TabPageIndex;
+            if (target <= CurrentStep)
+                return;
+
+            // Building is started by the "Build" button only (it asks where to save the archive). Once the mod
+            // is built, the result page can be shown again.
+            if (target == WizardStep.Build && !modBuilt)
+            {
+                e.Cancel = true;
+                ShowWarning(Resources.UseBuildButton);
+                return;
+            }
+
+            for (WizardStep step = CurrentStep; step < target; step++)
+            {
+                if (!PrepareNextStep(step))
+                {
+                    e.Cancel = true;
+                    return;
+                }
+            }
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -129,26 +174,46 @@ namespace Empire_Earth_Mod
             switch (CurrentStep)
             {
                 case WizardStep.General:
-                    if (!CommitGeneralStep())
-                        return;
-                    EnterImagesStep();
-                    break;
                 case WizardStep.Images:
-                    EnterFilesStep();
+                    if (!PrepareNextStep(CurrentStep))
+                        return;
                     break;
                 case WizardStep.Files:
                     if (!StartBuild())
                         return;
                     break;
                 case WizardStep.Build:
-                    // After a successful build the button reads "Close". The page can also be reached through
-                    // its tab header without building; there is no next page then.
+                    // There is no next page: the button reads "Close" after a successful build and is disabled
+                    // while building (the tab header cannot open this page before the build).
                     if (modBuilt)
                         Close();
                     return;
             }
 
             GoToStep(CurrentStep + 1);
+        }
+
+        /// <summary>
+        /// Leaves <paramref name="step"/> towards the following page: validates and commits its input and
+        /// prepares the following page. Used by "Next" and by the tab headers.
+        /// </summary>
+        /// <returns>false if the input of <paramref name="step"/> is invalid (the user was told why).</returns>
+        private bool PrepareNextStep(WizardStep step)
+        {
+            switch (step)
+            {
+                case WizardStep.General:
+                    if (!CommitGeneralStep())
+                        return false;
+                    EnterImagesStep();
+                    return true;
+                case WizardStep.Images:
+                    EnterFilesStep();
+                    return true;
+                default:
+                    // The files page has nothing to commit before the build (StartBuild saves the grid).
+                    return true;
+            }
         }
 
         private void backKryptonButton_Click(object sender, EventArgs e)

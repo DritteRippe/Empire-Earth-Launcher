@@ -238,6 +238,25 @@ namespace Empire_Earth_Launcher.Tests.Mod
             Assert.That(eemPath, Does.Not.Exist);
         }
 
+        [TestCase(null, "1.0", TestName = "Build_WithoutName_FailsWithoutWritingAnArchive")]
+        [TestCase("  ", "1.0", TestName = "Build_WithBlankName_FailsWithoutWritingAnArchive")]
+        [TestCase("Named", null, TestName = "Build_WithoutVersion_FailsWithoutWritingAnArchive")]
+        public void Build_IncompleteMod_FailsWithoutWritingAnArchive(string name, string version)
+        {
+            // The mod creator validates its first page, but the library must not rely on it (the page could
+            // be skipped through the tab headers before that was fixed).
+            var mod = new ModData { Name = name, Version = version == null ? null : new Version(version) };
+            var assets = new ModAssets { Icon = CreateImage(ModImageRules.IconSize, ModImageRules.IconSize, Color.Red) };
+            string eemPath = directory.Combine("incomplete" + EemFormat.Extension);
+
+            using (var builder = new ModPackageBuilder(mod, assets, directory.Combine("workspace"), true))
+            {
+                Assert.That(() => builder.Build(eemPath), Throws.TypeOf<InvalidOperationException>());
+            }
+
+            Assert.That(eemPath, Does.Not.Exist);
+        }
+
         [Test]
         public void ExportToZip_ExistingArchive_IsReplaced()
         {
