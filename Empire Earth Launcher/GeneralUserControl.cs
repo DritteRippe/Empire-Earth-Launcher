@@ -1,8 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Empire_Earth_Launcher.Properties;
@@ -22,8 +21,11 @@ namespace Empire_Earth_Launcher
 
         /// <summary>Delay between two requests of the online player list.</summary>
         private int playerListPollIntervalMilliseconds;
-        private LobbyPersistentData.LobbyGlobalData lobbyGlobalData;
-        private LobbyPersistentData.LobbyUserData lobbyUserData;
+        private LobbyProfileRepository lobbyProfiles;
+
+        /// <summary>Profiles shown in the user list, in the same order.</summary>
+        private IList<LobbyPersistentData.LobbyGlobalData.PlayerInfoGlobalData> profiles =
+            new LobbyPersistentData.LobbyGlobalData.PlayerInfoGlobalData[0];
 
         /// <summary>
         /// True while the player list cannot be fetched, so that an outage is logged once and not every poll.
@@ -71,6 +73,7 @@ namespace Empire_Earth_Launcher
                 throw new ArgumentOutOfRangeException(nameof(playerListPollIntervalMilliseconds));
 
             this.logger = logger;
+            lobbyProfiles = new LobbyProfileRepository(logger);
             this.gameDirectory = gameDirectory;
             this.neoClient = neoClient;
             this.playerListPollIntervalMilliseconds = playerListPollIntervalMilliseconds;
@@ -105,52 +108,34 @@ namespace Empire_Earth_Launcher
 
         /// <summary>
         /// Fills the user combo box from the lobby profiles of the game. A missing or unreadable file is not
-        /// fatal: it is logged and shown in the UI, and the rest of the launcher keeps working.
+        /// fatal: <see cref="LobbyProfileRepository"/> logs it, it is shown in the UI, and the rest of the
+        /// launcher keeps working.
         /// </summary>
         private void LoadLobbyProfiles()
         {
-            lobbyGlobalData = null;
-            lobbyUserData = null;
             usersLobbyKryptonComboBox.Items.Clear();
             usersLobbyKryptonComboBox.Enabled = true;
             neoOnlineKryptonGroupBox.Values.Description = string.Empty;
 
-            if (gameDirectory.Location == null)
-            {
-                ShowLobbyProfilesUnavailable(Resources.GameDirectoryNotFound);
-                return;
-            }
-
             // Both lobby files come from the same game folder (the profile list used to be read relative to the
             // current directory and the user files from a hard-coded installation path).
-            string globalDataFile = Path.Combine(gameDirectory.Location, LobbyPersistentData.GlobalDataFileName);
-            if (!File.Exists(globalDataFile))
+            switch (lobbyProfiles.LoadProfiles(gameDirectory.Location, out profiles))
             {
-                logger.Warning("No lobby profiles found (" + globalDataFile + " does not exist).");
-                ShowLobbyProfilesUnavailable(Resources.NoLobbyProfileFound);
-                return;
+                case LobbyProfilesStatus.Loaded:
+                    foreach (var profile in profiles)
+                        usersLobbyKryptonComboBox.Items.Add(profile.Username);
+                    usersLobbyKryptonComboBox.SelectedIndex = 0;
+                    break;
+                case LobbyProfilesStatus.GameDirectoryNotFound:
+                    ShowLobbyProfilesUnavailable(Resources.GameDirectoryNotFound);
+                    break;
+                case LobbyProfilesStatus.Unreadable:
+                    ShowLobbyProfilesUnavailable(Resources.LobbyProfilesUnreadable);
+                    break;
+                default:
+                    ShowLobbyProfilesUnavailable(Resources.NoLobbyProfileFound);
+                    break;
             }
-
-            try
-            {
-                lobbyGlobalData = new LobbyPersistentData.LobbyGlobalData(globalDataFile);
-            }
-            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is InvalidDataException)
-            {
-                logger.Error("Unable to read the lobby profiles from " + globalDataFile, ex);
-                ShowLobbyProfilesUnavailable(Resources.LobbyProfilesUnreadable);
-                return;
-            }
-
-            foreach (var playerInfo in lobbyGlobalData.PlayerInfos.OrderByDescending(d => d.LastUse))
-            {
-                usersLobbyKryptonComboBox.Items.Add(playerInfo.Username);
-            }
-
-            if (usersLobbyKryptonComboBox.Items.Count > 0)
-                usersLobbyKryptonComboBox.SelectedIndex = 0;
-            else
-                ShowLobbyProfilesUnavailable(Resources.NoLobbyProfileFound);
         }
 
         private void ShowLobbyProfilesUnavailable(string reason)
@@ -276,35 +261,24 @@ namespace Empire_Earth_Launcher
 
         private void usersLobbyKryptonComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (lobbyGlobalData == null)
+            int index = usersLobbyKryptonComboBox.SelectedIndex;
+            if (index < 0 || index >= profiles.Count || gameDirectory.Location == null)
                 return;
 
-            LobbyPersistentData.LobbyGlobalData.PlayerInfoGlobalData selectedPlayer = lobbyGlobalData.PlayerInfos
-                .FirstOrDefault(playerInfo => playerInfo.Username.Equals(usersLobbyKryptonComboBox.Text));
-
-            if (selectedPlayer == null)
-                return;
-
-            lobbyUserData = null;
-            neoOnlineKryptonGroupBox.Values.Description = string.Empty;
-            FileInfo fileInfo = new FileInfo(Path.Combine(gameDirectory.Location,
-                LobbyPersistentData.GetUserDataFileName(selectedPlayer.FileID)));
-            if (!fileInfo.Exists)
-                return;
-
-            try
+            IDictionary<string, uint> friends;
+            switch (lobbyProfiles.LoadFriends(gameDirectory.Location, profiles[index], out friends))
             {
-                lobbyUserData = new LobbyPersistentData.LobbyUserData(fileInfo.FullName);
+                case LobbyFriendsStatus.Loaded:
+                    neoOnlineKryptonGroupBox.Values.Description =
+                        string.Format(CultureInfo.CurrentCulture, Resources.FriendsFormat, friends.Count);
+                    break;
+                case LobbyFriendsStatus.Unreadable:
+                    neoOnlineKryptonGroupBox.Values.Description = Resources.FriendsUnreadable;
+                    break;
+                default:
+                    neoOnlineKryptonGroupBox.Values.Description = string.Empty;
+                    break;
             }
-            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is InvalidDataException)
-            {
-                logger.Error("Unable to read the lobby user data from " + fileInfo.FullName, ex);
-                lobbyUserData = null;
-                neoOnlineKryptonGroupBox.Values.Description = Resources.FriendsUnreadable;
-                return;
-            }
-            neoOnlineKryptonGroupBox.Values.Description =
-                string.Format(CultureInfo.CurrentCulture, Resources.FriendsFormat, lobbyUserData.Friends.Count);
         }
     }
 }
