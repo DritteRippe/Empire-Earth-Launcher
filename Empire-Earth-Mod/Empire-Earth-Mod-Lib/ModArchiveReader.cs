@@ -48,8 +48,7 @@ namespace Empire_Earth_Mod_Lib
                     throw new InvalidDataException("Invalid mod archive: the \"" + EemFormat.DataEntryName + "\" entry is missing.");
                 if (dataEntry.FileSize > EemFormat.MaxDataEntryBytes)
                     throw new InvalidDataException("Invalid mod archive: the \"" + EemFormat.DataEntryName + "\" entry is too large.");
-                if (!zip.ExtractFile(dataEntry, out data) || data.Length == 0)
-                    throw new InvalidDataException("Invalid mod archive: the \"" + EemFormat.DataEntryName + "\" entry cannot be read.");
+                data = ExtractEntry(zip, dataEntry);
             }
 
             ModData modData;
@@ -69,6 +68,55 @@ namespace Empire_Earth_Mod_Lib
             if (modData == null)
                 throw new InvalidDataException("Invalid mod archive: the \"" + EemFormat.DataEntryName + "\" entry is empty.");
             return modData;
+        }
+
+        /// <summary>
+        /// Extracts an entry whose size was already checked against <see cref="EemFormat.MaxDataEntryBytes"/>.
+        /// </summary>
+        /// <remarks>
+        /// The vendored ZipStorer copies until it has written the size declared in the central directory and
+        /// does not stop when the input ends early (Read() returns 0): a damaged or crafted archive that
+        /// declares more bytes than it contains would make it loop forever. <see cref="BoundedWriteStream"/>
+        /// turns that case into an <see cref="InvalidDataException"/> without changing the third-party code.
+        /// </remarks>
+        private static byte[] ExtractEntry(ZipStorer zip, ZipStorer.ZipFileEntry entry)
+        {
+            using (var output = new BoundedWriteStream(entry.FileSize))
+            {
+                if (!zip.ExtractFile(entry, output) || output.Length == 0)
+                    throw new InvalidDataException("Invalid mod archive: the \"" + entry.FilenameInZip + "\" entry cannot be read.");
+                return output.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Write-only memory stream that rejects an empty write (the input of the extraction ended before the
+        /// declared size was reached) and any write beyond the declared size.
+        /// </summary>
+        private sealed class BoundedWriteStream : MemoryStream
+        {
+            private readonly long maxLength;
+
+            public BoundedWriteStream(long maxLength)
+            {
+                this.maxLength = maxLength;
+            }
+
+            public override void Write(byte[] buffer, int offset, int count)
+            {
+                if (count == 0)
+                    throw new InvalidDataException("Invalid mod archive: an entry is shorter than its declared size.");
+                if (Length + count > maxLength)
+                    throw new InvalidDataException("Invalid mod archive: an entry is longer than its declared size.");
+                base.Write(buffer, offset, count);
+            }
+
+            public override void WriteByte(byte value)
+            {
+                if (Length + 1 > maxLength)
+                    throw new InvalidDataException("Invalid mod archive: an entry is longer than its declared size.");
+                base.WriteByte(value);
+            }
         }
     }
 }

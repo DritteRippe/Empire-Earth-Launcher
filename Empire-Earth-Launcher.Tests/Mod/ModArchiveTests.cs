@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Empire_Earth_Launcher.Tests.TestSupport;
 using Empire_Earth_Mod_Lib;
 using NUnit.Framework;
@@ -288,6 +289,93 @@ namespace Empire_Earth_Launcher.Tests.Mod
             {
                 Assert.That(() => ModArchiveReader.ReadModData(archive), Throws.TypeOf<InvalidDataException>());
             }
+        }
+
+        /// <summary>
+        /// An archive whose "data" entry declares more uncompressed bytes in the central directory than it
+        /// contains. The vendored ZipStorer used to loop forever on such an entry (bugs-security review).
+        /// </summary>
+        private static MemoryStream CreateArchiveWithOversizedDataEntry(ZipStorer.Compression method)
+        {
+            var stream = new MemoryStream();
+            using (ZipStorer zip = ZipStorer.Create(stream, string.Empty, true))
+            {
+                zip.ForceDeflating = true;
+                string json = new ModData { Name = "Truncated", Version = new Version(1, 0) }.ToString();
+                using (var content = new MemoryStream(Encoding.UTF8.GetBytes(json)))
+                {
+                    zip.AddStream(method, EemFormat.DataEntryName, content, DateTime.Now);
+                }
+            }
+
+            byte[] bytes = stream.ToArray();
+            int patched = 0;
+            for (int i = 0; i + 28 <= bytes.Length; i++)
+            {
+                // Central directory file header: signature 0x02014b50, uncompressed size at offset 24.
+                if (BitConverter.ToUInt32(bytes, i) != 0x02014b50)
+                    continue;
+                BitConverter.GetBytes(100000u).CopyTo(bytes, i + 24);
+                patched++;
+            }
+            Assert.That(patched, Is.EqualTo(1), "central directory entries");
+            return new MemoryStream(bytes);
+        }
+
+        /// <summary>
+        /// Runs <paramref name="action"/> on a background thread and fails the test if it does not finish in
+        /// time. NUnit's [Timeout] cannot interrupt a tight loop on every runtime, so a regression would hang
+        /// the whole test run instead of failing this test.
+        /// </summary>
+        private static Exception RunWithDeadline(Action action)
+        {
+            Exception thrown = null;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    action();
+                }
+                catch (Exception ex)
+                {
+                    thrown = ex;
+                }
+            }) { IsBackground = true };
+            thread.Start();
+            if (!thread.Join(TimeSpan.FromSeconds(20)))
+                Assert.Fail("Reading the archive did not finish (endless loop on a truncated entry).");
+            return thrown;
+        }
+
+        [TestCase(ZipStorer.Compression.Deflate, TestName = "ReadModData_DeflatedEntryShorterThanDeclared_ThrowsInvalidData")]
+        [TestCase(ZipStorer.Compression.Store, TestName = "ReadModData_StoredEntryShorterThanDeclared_ThrowsInvalidData")]
+        public void ReadModData_EntryShorterThanDeclared_ThrowsInvalidData(ZipStorer.Compression method)
+        {
+            using (MemoryStream archive = CreateArchiveWithOversizedDataEntry(method))
+            {
+                Exception thrown = RunWithDeadline(() => ModArchiveReader.ReadModData(archive));
+
+                Assert.That(thrown, Is.TypeOf<InvalidDataException>());
+            }
+        }
+
+        [Test]
+        public void ModManager_ArchiveWithOversizedEntry_IsReportedInsteadOfHanging()
+        {
+            string mods = Directory.CreateDirectory(directory.Combine("mods")).FullName;
+            using (MemoryStream archive = CreateArchiveWithOversizedDataEntry(ZipStorer.Compression.Deflate))
+            {
+                File.WriteAllBytes(Path.Combine(mods, "crafted" + EemFormat.Extension), archive.ToArray());
+            }
+            var manager = new ModManager(mods);
+            bool loadedEverything = true;
+
+            Exception thrown = RunWithDeadline(() => loadedEverything = manager.Init());
+
+            Assert.That(thrown, Is.Null);
+            Assert.That(loadedEverything, Is.False);
+            Assert.That(manager.Mods, Is.Empty);
+            Assert.That(manager.LoadErrors.Count, Is.EqualTo(1));
         }
 
         [Test]

@@ -23,6 +23,11 @@ Local modifications (keep this list up to date when touching the file):
 The class keeps the upstream namespace `System.IO.Compression`. Treat the file as third-party code:
 do not refactor it in place; update it from upstream and record the version here instead.
 
+Known issue of this version: `ExtractFile` keeps reading until the size declared in the central directory
+is reached and never stops when the input ends early, so a damaged or crafted archive makes it loop forever.
+`ModArchiveReader` therefore extracts into a bounded stream that turns this case into an
+`InvalidDataException`. Keep that guard (or check the upstream fix) when updating the file.
+
 ## NuGet packages
 
 Restored into `packages/` at build time, not committed.
