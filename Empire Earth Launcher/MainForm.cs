@@ -1,13 +1,5 @@
 ﻿using Krypton.Toolkit;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Net.Sockets;
-using System.Text;
 using System.Windows.Forms;
 using Empire_Earth_Launcher.Properties;
 using Empire_Earth_WON;
@@ -16,6 +8,9 @@ namespace Empire_Earth_Launcher
 {
     public partial class MainForm : KryptonForm
     {
+        /// <summary>Buttons of the navigation bar; the Tag of each one is its page (or null).</summary>
+        private readonly KryptonCheckButton[] navigationButtons;
+
         /// <param name="logger">Log of the launcher.</param>
         /// <param name="themeService">Theme of the launcher windows.</param>
         /// <param name="settings">Settings of the launcher.</param>
@@ -36,61 +31,34 @@ namespace Empire_Earth_Launcher
                 playerListPollIntervalMilliseconds);
             settingsUserControl.Initialize(themeService);
             launcherSettingsUserControl.Initialize(logger, themeService, settings, gameDirectory);
+
+            // A page cannot be assigned to Tag in the designer, so the navigation is wired up here.
+            playKryptonCheckButton.Tag = generalUserControl;
+            modsKryptonCheckButton.Tag = null;
+            settingsKryptonCheckButton.Tag = settingsUserControl;
+            launcherKryptonCheckButton.Tag = launcherSettingsUserControl;
+            navigationButtons = new[]
+            {
+                playKryptonCheckButton, modsKryptonCheckButton, settingsKryptonCheckButton, launcherKryptonCheckButton
+            };
         }
 
-
-        // Fake Button as Radio Button
-
-        private void playKryptonCheckButton_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Shared Click handler of the navigation buttons, which behave like radio buttons: the clicked button
+        /// stays checked (a second click does not uncheck it), all others are unchecked, and only the page in
+        /// the clicked button's Tag is visible. A button without a page (Mods, not implemented yet) hides all
+        /// pages.
+        /// </summary>
+        private void navigationKryptonCheckButton_Click(object sender, EventArgs e)
         {
-            if (!playKryptonCheckButton.Checked)
-                playKryptonCheckButton.Checked = true;
-            modsKryptonCheckButton.Checked = false;
-            settingsKryptonCheckButton.Checked = false;
-            launcherKryptonCheckButton.Checked = false;
-
-            generalUserControl.Visible = true;
-            settingsUserControl.Visible = false;
-            launcherSettingsUserControl.Visible = false;
-        }
-        private void settingsKryptonCheckButton_Click(object sender, EventArgs e)
-        {
-            if (!settingsKryptonCheckButton.Checked)
-                settingsKryptonCheckButton.Checked = true;
-            playKryptonCheckButton.Checked = false;
-            modsKryptonCheckButton.Checked = false;
-            launcherKryptonCheckButton.Checked = false;
-
-            generalUserControl.Visible = false;
-            settingsUserControl.Visible = true;
-            launcherSettingsUserControl.Visible = false;
-        }
-
-        private void modsKryptonCheckButton_Click(object sender, EventArgs e)
-        {
-            if (!modsKryptonCheckButton.Checked)
-                modsKryptonCheckButton.Checked = true;
-            playKryptonCheckButton.Checked = false;
-            settingsKryptonCheckButton.Checked = false;
-            launcherKryptonCheckButton.Checked = false;
-
-
-            generalUserControl.Visible = false;
-            settingsUserControl.Visible = false;
-            launcherSettingsUserControl.Visible = false;
-        }
-
-        private void launcherSettingsKryptonCheckButton_Click(object sender, EventArgs e)
-        {
-            if (!launcherKryptonCheckButton.Checked)
-                launcherKryptonCheckButton.Checked = true;
-            playKryptonCheckButton.Checked = false;
-            modsKryptonCheckButton.Checked = false;
-            settingsKryptonCheckButton.Checked = false;
-
-            generalUserControl.Visible = false;
-            settingsUserControl.Visible = false;
-            launcherSettingsUserControl.Visible = true;
+            var selectedButton = (KryptonCheckButton)sender;
+            foreach (KryptonCheckButton button in navigationButtons)
+            {
+                bool selected = button == selectedButton;
+                button.Checked = selected;
+                if (button.Tag is Control page)
+                    page.Visible = selected;
+            }
         }
     }
 }

@@ -119,7 +119,7 @@ namespace Empire_Earth_Launcher
             | Krypton.Toolkit.PaletteDrawBorders.Right)));
             this.playKryptonCheckButton.StateCommon.Border.Rounding = 0F;
             this.playKryptonCheckButton.Values.Text = resources.GetString("playKryptonCheckButton.Values.Text");
-            this.playKryptonCheckButton.Click += new System.EventHandler(this.playKryptonCheckButton_Click);
+            this.playKryptonCheckButton.Click += new System.EventHandler(this.navigationKryptonCheckButton_Click);
             // 
             // modsKryptonCheckButton
             // 
@@ -136,7 +136,7 @@ namespace Empire_Earth_Launcher
             | Krypton.Toolkit.PaletteDrawBorders.Right)));
             this.modsKryptonCheckButton.StateCommon.Border.Rounding = 0F;
             this.modsKryptonCheckButton.Values.Text = resources.GetString("modsKryptonCheckButton.Values.Text");
-            this.modsKryptonCheckButton.Click += new System.EventHandler(this.modsKryptonCheckButton_Click);
+            this.modsKryptonCheckButton.Click += new System.EventHandler(this.navigationKryptonCheckButton_Click);
             // 
             // settingsKryptonCheckButton
             // 
@@ -153,7 +153,7 @@ namespace Empire_Earth_Launcher
             | Krypton.Toolkit.PaletteDrawBorders.Right)));
             this.settingsKryptonCheckButton.StateCommon.Border.Rounding = 0F;
             this.settingsKryptonCheckButton.Values.Text = resources.GetString("settingsKryptonCheckButton.Values.Text");
-            this.settingsKryptonCheckButton.Click += new System.EventHandler(this.settingsKryptonCheckButton_Click);
+            this.settingsKryptonCheckButton.Click += new System.EventHandler(this.navigationKryptonCheckButton_Click);
             // 
             // launcherKryptonCheckButton
             // 
@@ -166,7 +166,7 @@ namespace Empire_Earth_Launcher
             | Krypton.Toolkit.PaletteDrawBorders.Right)));
             this.launcherKryptonCheckButton.StateCommon.Border.Rounding = 0F;
             this.launcherKryptonCheckButton.Values.Text = resources.GetString("launcherKryptonCheckButton.Values.Text");
-            this.launcherKryptonCheckButton.Click += new System.EventHandler(this.launcherSettingsKryptonCheckButton_Click);
+            this.launcherKryptonCheckButton.Click += new System.EventHandler(this.navigationKryptonCheckButton_Click);
             // 
             // generalUserControl
             // 
