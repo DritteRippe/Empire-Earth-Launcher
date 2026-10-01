@@ -46,7 +46,7 @@ namespace Empire_Earth_Mod
                 if (!(kryptonDataGridView1.Columns[4] is DataGridViewComboBoxColumn columnAlternative))
                     return;
                 Enum.GetValues(typeof(ModFile.ModFileType)).Cast<ModFile.ModFileType>()
-                    .Select(ModFile.GetModFileName).ToList()
+                    .Select(fileType => fileType.GetDescription()).ToList()
                     .ForEach(fileName => columnAlternative.Items.Add(fileName));
             }
         }
@@ -524,17 +524,17 @@ namespace Empire_Earth_Mod
             }
         }
 
+        /// <summary>
+        /// Copies the file types chosen in the grid into the mod files. Each row keeps its <see cref="ModFile"/>
+        /// in Tag, so the file does not have to be found again from the displayed product and path.
+        /// </summary>
         private void _SaveVariantFilesFromGrid()
         {
-            var modFileTypes = new Dictionary<string, ModFile.ModFileType>();
             foreach (DataGridViewRow fileRow in kryptonDataGridView1.Rows)
             {
-                string productPath = ModFile.ParseModFileProduct(ModFile.GetProduct(fileRow.Cells[3].Value.ToString()));
-                string builder = productPath + Path.DirectorySeparatorChar + fileRow.Cells[2].Value;
-                creator.UpdateModFiles(
-                    Guid.Parse(fileRow.Cells[1].Value.ToString()),
-                    builder,
-                    ModFile.ParseModFileType(fileRow.Cells[4].Value.ToString()));
+                if (fileRow.Tag is ModFile modFile)
+                    modFile.FileType = EnumExtensions.ParseDescription<ModFile.ModFileType>(
+                        Convert.ToString(fileRow.Cells[4].Value));
             }
         }
 
@@ -551,12 +551,12 @@ namespace Empire_Earth_Mod
                 if (!modFile.TryGetProduct(out product))
                     continue;
 
-                kryptonDataGridView1.Rows.Add(null,
+                int rowIndex = kryptonDataGridView1.Rows.Add(null,
                     variantUuid.ToString(),
                     modFile.GetPathInProduct(),
-                    product == ModFile.ModFileProduct.EEC ? "EEC" :
-                        product == ModFile.ModFileProduct.AOC ? "AOC" : "Both",
-                    ModFile.GetModFileName(modFile.FileType));
+                    product.GetDescription(),
+                    modFile.FileType.GetDescription());
+                kryptonDataGridView1.Rows[rowIndex].Tag = modFile;
             }
         }
 

@@ -10,7 +10,7 @@ namespace Empire_Earth_Mod
         public MainForm()
         {
             InitializeComponent();
-            windowsVersionLabel.Text += WindowsVersion.GetWindowsVersionName(WindowsVersion.GetCurrentWindowsVersion());
+            windowsVersionLabel.Text += WindowsVersion.GetCurrentWindowsVersion().GetDescription();
         }
 
         private void createModButton_Click(object sender, EventArgs e)

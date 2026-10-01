@@ -26,7 +26,10 @@ namespace Empire_Earth_Mod_Lib
         [DataMember(Name = "md5")]
         public string Md5 { get; set; }
 
-        // Each description must be unique
+        /// <remarks>
+        /// The [Description] is the name shown to the user (see <see cref="EnumExtensions.GetDescription"/>);
+        /// each description must be unique.
+        /// </remarks>
         public enum ModFileType
         {
             [Description("Data")] Data = 0,
@@ -34,14 +37,29 @@ namespace Empire_Earth_Mod_Lib
             [Description("Executable")] Executable = 2
         }
 
+        /// <remarks>
+        /// The [Description] is the name shown to the user, the folder of a product in a variant is defined
+        /// by <see cref="GetFolderName"/>.
+        /// </remarks>
         public enum ModFileProduct
         {
             // ReSharper disable once InconsistentNaming
-            EEC = 0,
+            [Description("EEC")] EEC = 0,
             // ReSharper disable once InconsistentNaming
-            AOC = 1,
-            Both = 2
+            [Description("AOC")] AOC = 1,
+            [Description("Both")] Both = 2
         }
+
+        /// <summary>
+        /// The only mapping between the products and their folders in a variant (see <see cref="EemFormat"/>).
+        /// </summary>
+        private static readonly Dictionary<ModFileProduct, string> ProductFolderNames =
+            new Dictionary<ModFileProduct, string>
+            {
+                { ModFileProduct.EEC, EemFormat.ProductFolderEec },
+                { ModFileProduct.AOC, EemFormat.ProductFolderAoc },
+                { ModFileProduct.Both, EemFormat.ProductFolderBoth }
+            };
 
         public ModFile(string relativeFilePath, ModFileType type, Guid uuid, string md5)
         {
@@ -51,46 +69,44 @@ namespace Empire_Earth_Mod_Lib
             Variant = uuid;
         }
 
-        public static string GetModFileName(ModFileType value)
+        /// <summary>Folder of <paramref name="product"/> in a variant, e.g. "all" for <see cref="ModFileProduct.Both"/>.</summary>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="product"/> is not a defined product.</exception>
+        public static string GetFolderName(ModFileProduct product)
         {
-            DescriptionAttribute attribute = value.GetType()
-                .GetField(value.ToString())
-                .GetCustomAttributes(typeof(DescriptionAttribute), false)
-                .SingleOrDefault() as DescriptionAttribute;
-            return attribute == null ? value.ToString() : attribute.Description;
+            string folderName;
+            if (!ProductFolderNames.TryGetValue(product, out folderName))
+                throw new ArgumentOutOfRangeException(nameof(product), product, "Unknown product.");
+            return folderName;
         }
 
-        public static ModFileType ParseModFileType(string description)
+        /// <summary>
+        /// Product of a product folder, e.g. <see cref="ModFileProduct.Both"/> for "all" (case-insensitive).
+        /// </summary>
+        /// <returns>false if <paramref name="folderName"/> is not a product folder.</returns>
+        public static bool TryParseFolderName(string folderName, out ModFileProduct product)
         {
-            var type = typeof(ModFileType);
-            if (!type.IsEnum)
-                throw new ArgumentException();
-            var fields = type.GetFields();
-            var field = fields
-                .SelectMany(f => f.GetCustomAttributes(
-                    typeof(DescriptionAttribute), false), (
-                    f, a) => new { Field = f, Att = a }).SingleOrDefault(a => ((DescriptionAttribute)a.Att)
-                    .Description == description);
-            return field == null ? default : (ModFileType)field.Field.GetRawConstantValue();
+            foreach (KeyValuePair<ModFileProduct, string> entry in ProductFolderNames)
+            {
+                if (string.Equals(entry.Value, folderName, StringComparison.OrdinalIgnoreCase))
+                {
+                    product = entry.Key;
+                    return true;
+                }
+            }
+            product = default;
+            return false;
         }
 
-        public static ModFileProduct GetProduct(string filePath)
-        {
-            if (filePath.StartsWith("EEC"))
-                return ModFileProduct.EEC;
-            if (filePath.StartsWith("AOC"))
-                return ModFileProduct.AOC;
-            if (filePath.StartsWith("Both"))
-                return ModFileProduct.Both;
-            throw new Exception("Unknown product");
-        }
-        
+        /// <summary>
+        /// Product of the file, taken from the product folder its path starts with.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The file is not inside a product folder.</exception>
         public ModFileProduct GetProduct()
         {
             ModFileProduct product;
-            if (TryGetProduct(out product))
-                return product;
-            throw new Exception("Unknown product");
+            if (!TryGetProduct(out product))
+                throw new InvalidOperationException("The mod file " + RelativeFilePath + " is not inside a product folder.");
+            return product;
         }
 
         /// <summary>
@@ -100,21 +116,7 @@ namespace Empire_Earth_Mod_Lib
         /// <returns>false if the file is not inside a product folder.</returns>
         public bool TryGetProduct(out ModFileProduct product)
         {
-            switch (EemFormat.GetProductFolder(RelativeFilePath))
-            {
-                case EemFormat.ProductFolderEec:
-                    product = ModFileProduct.EEC;
-                    return true;
-                case EemFormat.ProductFolderAoc:
-                    product = ModFileProduct.AOC;
-                    return true;
-                case EemFormat.ProductFolderBoth:
-                    product = ModFileProduct.Both;
-                    return true;
-                default:
-                    product = default;
-                    return false;
-            }
+            return TryParseFolderName(EemFormat.GetProductFolder(RelativeFilePath), out product);
         }
 
         /// <summary>
@@ -125,21 +127,6 @@ namespace Empire_Earth_Mod_Lib
             string relativePath = EemFormat.NormalizeRelativePath(RelativeFilePath);
             int separator = relativePath.IndexOf(Path.DirectorySeparatorChar);
             return separator < 0 ? relativePath : relativePath.Substring(separator + 1);
-        }
-        
-        public static string ParseModFileProduct(ModFileProduct product)
-        {
-            switch (product)
-            {
-                case ModFileProduct.EEC:
-                    return EemFormat.ProductFolderEec;
-                case ModFileProduct.AOC:
-                    return EemFormat.ProductFolderAoc;
-                case ModFileProduct.Both:
-                    return EemFormat.ProductFolderBoth;
-                default:
-                    throw new Exception("Unknown product");
-            }
         }
 
         /// <summary>

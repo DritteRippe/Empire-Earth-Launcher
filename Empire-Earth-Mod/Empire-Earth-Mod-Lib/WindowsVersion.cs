@@ -9,8 +9,9 @@ namespace Empire_Earth_Mod_Lib
     {
         
         /// <summary>
+        /// The [Description] is the name shown to the user (see <see cref="EnumExtensions.GetDescription"/>).
         /// Version are using big numbers in case we want to add another version
-        /// and still being able to compare with < and > operators.
+        /// and still being able to compare with &lt; and &gt; operators.
         /// Because ModData will store the version as number, changing the order will result
         /// in an invalid version or invalid comparison.
         /// </summary>
@@ -104,15 +105,6 @@ namespace Empire_Earth_Mod_Lib
                 default:
                     return WindowsVersionEnum.Error;
             }
-        }
-
-        public static string GetWindowsVersionName(WindowsVersionEnum value)
-        {
-            DescriptionAttribute attribute = value.GetType()
-                .GetField(value.ToString())
-                .GetCustomAttributes(typeof(DescriptionAttribute), false)
-                .SingleOrDefault() as DescriptionAttribute;
-            return attribute == null ? value.ToString() : attribute.Description;
         }
     }
 }

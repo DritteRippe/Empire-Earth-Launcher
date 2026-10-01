@@ -44,6 +44,7 @@
     <ItemGroup>
         <Compile Include="BuildInfo.cs" />
         <Compile Include="EemFormat.cs" />
+        <Compile Include="EnumExtensions.cs" />
         <Compile Include="ModData.cs" />
         <Compile Include="ModFile.cs" />
         <Compile Include="ModManager.cs" />

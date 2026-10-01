@@ -683,18 +683,6 @@ namespace Empire_Earth_Mod_Lib
                        fileName.EndsWith(EemFormat.BannerFileExtension, StringComparison.OrdinalIgnoreCase);
             }
 
-            public void UpdateModFiles(Guid variant, string relativePath, ModFile.ModFileType modFileType)
-            {
-                ThrowIfDisposed();
-                string normalizedPath = EemFormat.NormalizeRelativePath(relativePath);
-                var find = ModData.ModFiles.Find(
-                    modFile => modFile.Variant == variant
-                               && EemFormat.NormalizeRelativePath(modFile.RelativeFilePath).Equals(normalizedPath,
-                                   StringComparison.OrdinalIgnoreCase));
-                if (find != null)
-                    find.FileType = modFileType;
-            }
-
             public string GetWorkingDir()
             {
                 return WorkingDir;
