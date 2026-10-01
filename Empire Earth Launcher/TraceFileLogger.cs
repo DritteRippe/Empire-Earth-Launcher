@@ -15,12 +15,12 @@ namespace Empire_Earth_Launcher
         /// <summary>
         /// Size above which the log file is trimmed when the launcher starts.
         /// </summary>
-        private const long MaxLogFileBytes = 1024 * 1024; // 1 MiB
+        internal const long MaxLogFileBytes = 1024 * 1024; // 1 MiB
 
         /// <summary>
         /// Number of most recent lines that are kept when the log file is trimmed.
         /// </summary>
-        private const int LinesKeptAfterTrim = 500;
+        internal const int LinesKeptAfterTrim = 500;
 
         /// <summary>
         /// Sends all trace output of the process to <paramref name="logFile"/> and the console. Create only
@@ -77,8 +77,10 @@ namespace Empire_Earth_Launcher
         /// The trimmed log is written to a temporary file first and only then swapped in, and the complete
         /// previous log is kept as "&lt;log_file&gt;.old", so a failure in the middle never loses the log.
         /// Any I/O problem leaves the log untouched instead of aborting the start of the launcher.
+        /// Internal for the unit tests, which call it directly: the constructor would also replace the
+        /// process-wide trace listeners.
         /// </remarks>
-        private static void TrimLogFile(string logFile)
+        internal static void TrimLogFile(string logFile)
         {
             string trimmedFile = logFile + ".tmp";
             try
