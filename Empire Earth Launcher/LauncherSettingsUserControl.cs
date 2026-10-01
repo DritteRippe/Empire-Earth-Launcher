@@ -12,27 +12,31 @@ namespace Empire_Earth_Launcher
 {
     public partial class LauncherSettingsUserControl : UserControl
     {
-        private DirectoryInfo themeDirectoryInfo;
+        private IThemeService themeService;
 
         public LauncherSettingsUserControl()
         {
             InitializeComponent();
-            this.themeDirectoryInfo = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, "themes"));
-
-            Program.LauncherKryptonTheme.AddPalette(launcherKryptonPalette, this);
-
-            GetThemeAvailaible();
         }
 
-        private void GetThemeAvailaible()
+        /// <summary>
+        /// Passes the services in. The control is created by the designer, which needs a parameterless
+        /// constructor, so its owner calls this right after InitializeComponent.
+        /// </summary>
+        public void Initialize(IThemeService themeService)
         {
-            if (!themeDirectoryInfo.Exists)
-                return;
+            if (themeService == null)
+                throw new ArgumentNullException(nameof(themeService));
+            this.themeService = themeService;
+            themeService.Register(launcherKryptonPalette, this);
 
-            foreach (FileInfo fileinfo in themeDirectoryInfo.GetFiles())
-            {
-                themeKryptonComboBox.Items.Add(Path.GetFileNameWithoutExtension(fileinfo.Name));
-            }
+            LoadAvailableThemes();
+        }
+
+        private void LoadAvailableThemes()
+        {
+            foreach (string themeName in themeService.GetAvailableThemeNames())
+                themeKryptonComboBox.Items.Add(themeName);
         }
 
         private void themeKryptonComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -40,7 +44,7 @@ namespace Empire_Earth_Launcher
             string selected_theme_name = (string) themeKryptonComboBox.SelectedItem;
 
             if (themeKryptonComboBox.SelectedIndex > 0)
-                Program.LauncherKryptonTheme.SwitchThemeFromName(selected_theme_name);
+                themeService.ApplyTheme(selected_theme_name);
             else
             {
                 OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -50,7 +54,7 @@ namespace Empire_Earth_Launcher
                 {
                     if (openFileDialog.FileName == null)
                         return;
-                    Program.LauncherKryptonTheme.SwitchThemeFromFile(openFileDialog.FileName);
+                    themeService.ApplyThemeFile(openFileDialog.FileName);
                 }
             }
 

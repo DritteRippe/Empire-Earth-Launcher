@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Empire_Earth_Launcher.Properties;
 using Empire_Earth_WON;
 
 namespace Empire_Earth_Launcher
@@ -22,9 +21,10 @@ namespace Empire_Earth_Launcher
         private const int CancellationCheckMilliseconds = 100;
 
         private BackgroundWorker backgroundWorker;
+        private ILogger logger;
         private NeoApiClient neoClient;
 
-        /// <summary>Delay between two requests of the online player list (from the settings).</summary>
+        /// <summary>Delay between two requests of the online player list.</summary>
         private int playerListPollIntervalMilliseconds;
         private LobbyPersistentData.LobbyGlobalData lobbyGlobalData;
         private LobbyPersistentData.LobbyUserData lobbyUserData;
@@ -37,7 +37,6 @@ namespace Empire_Earth_Launcher
         public GeneralUserControl()
         {
             InitializeComponent();
-            Program.LauncherKryptonTheme.AddPalette(launcherKryptonPalette, this);
 
             // No file or network I/O here: the constructor also runs inside the Visual Studio designer and
             // during Form1.InitializeComponent, where an exception would prevent the launcher from starting.
@@ -53,40 +52,49 @@ namespace Empire_Earth_Launcher
             Disposed += (sender, e) => backgroundWorker.CancelAsync();
         }
 
+        /// <summary>
+        /// Passes the services in. The control is created by the designer, which needs a parameterless
+        /// constructor, so its owner calls this right after InitializeComponent, before the control is loaded.
+        /// </summary>
+        /// <param name="logger">Log of the launcher.</param>
+        /// <param name="themeService">Theme of the launcher.</param>
+        /// <param name="neoClient">Client for the online player list; null disables the list (invalid server
+        /// settings).</param>
+        /// <param name="playerListPollIntervalMilliseconds">Delay between two requests of the player list.</param>
+        public void Initialize(ILogger logger, IThemeService themeService, NeoApiClient neoClient,
+            int playerListPollIntervalMilliseconds)
+        {
+            if (logger == null)
+                throw new ArgumentNullException(nameof(logger));
+            if (themeService == null)
+                throw new ArgumentNullException(nameof(themeService));
+            if (neoClient != null && playerListPollIntervalMilliseconds <= 0)
+                throw new ArgumentOutOfRangeException(nameof(playerListPollIntervalMilliseconds));
+
+            this.logger = logger;
+            this.neoClient = neoClient;
+            this.playerListPollIntervalMilliseconds = playerListPollIntervalMilliseconds;
+            themeService.Register(launcherKryptonPalette, this);
+        }
+
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            if (DesignMode)
+            // Not initialized in the designer.
+            if (DesignMode || logger == null)
                 return;
 
             LoadLobbyProfiles();
             StartPlayerListPolling();
         }
 
-        /// <summary>
-        /// Starts polling the online player list from the Neo server configured in the application settings
-        /// (NeoServerHost, NeoServerPort, NeoTimeoutMilliseconds, PlayerListPollIntervalMilliseconds in
-        /// "Empire Earth Launcher.exe.config"). Invalid settings are logged and shown instead of crashing.
-        /// </summary>
         private void StartPlayerListPolling()
         {
-            Settings settings = Settings.Default;
-            try
+            if (neoClient == null)
             {
-                if (settings.PlayerListPollIntervalMilliseconds <= 0)
-                    throw new ArgumentOutOfRangeException(nameof(settings.PlayerListPollIntervalMilliseconds),
-                        settings.PlayerListPollIntervalMilliseconds, "The poll interval must be positive.");
-                neoClient = new NeoApiClient(new NeoServerEndpoint(settings.NeoServerHost, settings.NeoServerPort,
-                    settings.NeoTimeoutMilliseconds));
-            }
-            catch (ArgumentException ex)
-            {
-                Program.Logging.Log("The Neo server settings are invalid, the online player list is disabled.", ex);
                 neoOnlineKryptonGroupBox.Values.Heading = "Online Players (invalid server settings, see log.txt)";
                 return;
             }
-
-            playerListPollIntervalMilliseconds = settings.PlayerListPollIntervalMilliseconds;
             backgroundWorker.RunWorkerAsync();
         }
 
@@ -101,7 +109,7 @@ namespace Empire_Earth_Launcher
 
             if (!File.Exists(LobbyGlobalDataFile))
             {
-                Program.Logging.Log("No lobby profiles found (" + Path.GetFullPath(LobbyGlobalDataFile) + " does not exist).", Logging.LogLevel.Warning);
+                logger.Warning("No lobby profiles found (" + Path.GetFullPath(LobbyGlobalDataFile) + " does not exist).");
                 ShowLobbyProfilesUnavailable("No lobby profile found");
                 return;
             }
@@ -112,7 +120,7 @@ namespace Empire_Earth_Launcher
             }
             catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is InvalidDataException)
             {
-                Program.Logging.Log("Unable to read the lobby profiles from " + Path.GetFullPath(LobbyGlobalDataFile), ex);
+                logger.Error("Unable to read the lobby profiles from " + Path.GetFullPath(LobbyGlobalDataFile), ex);
                 ShowLobbyProfilesUnavailable("Lobby profiles could not be read (see log.txt)");
                 return;
             }
@@ -149,7 +157,7 @@ namespace Empire_Earth_Launcher
         {
             if (playerListUnavailable)
             {
-                Program.Logging.Log("The online player list is available again.");
+                logger.Info("The online player list is available again.");
                 playerListUnavailable = false;
             }
 
@@ -168,8 +176,8 @@ namespace Empire_Earth_Launcher
         {
             if (!playerListUnavailable)
             {
-                Program.Logging.Log("The online player list of " + neoClient.Endpoint + " is unavailable, retrying every " +
-                                    playerListPollIntervalMilliseconds + " ms.", error);
+                logger.Error("The online player list of " + neoClient.Endpoint + " is unavailable, retrying every " +
+                             playerListPollIntervalMilliseconds + " ms.", error);
                 playerListUnavailable = true;
             }
 
@@ -225,7 +233,7 @@ namespace Empire_Earth_Launcher
             if (e.Error == null)
                 return;
 
-            Program.Logging.Log("The online player list polling stopped unexpectedly.", e.Error);
+            logger.Error("The online player list polling stopped unexpectedly.", e.Error);
             if (!IsDisposed)
                 neoOnlineKryptonGroupBox.Values.Heading = "Online Players (unavailable, see log.txt)";
         }
@@ -253,7 +261,7 @@ namespace Empire_Earth_Launcher
             }
             catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is InvalidDataException)
             {
-                Program.Logging.Log("Unable to read the lobby user data from " + fileInfo.FullName, ex);
+                logger.Error("Unable to read the lobby user data from " + fileInfo.FullName, ex);
                 lobbyUserData = null;
                 neoOnlineKryptonGroupBox.Values.Description = "Friends could not be read (see log.txt)";
                 return;

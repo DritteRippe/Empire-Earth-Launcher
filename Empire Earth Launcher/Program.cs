@@ -1,19 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using Empire_Earth_Launcher.Properties;
+using Empire_Earth_WON;
 
 namespace Empire_Earth_Launcher
 {
     static class Program
     {
-        
-        public readonly static Logging Logging =  new Logging("log.txt");
-        public readonly static LauncherKryptonTheme LauncherKryptonTheme = new LauncherKryptonTheme();
+        /// <summary>Theme applied at start.</summary>
+        private const string DefaultThemeName = "Light";
 
         /// <summary>
-        /// Point d'entrée principal de l'application.
+        /// Only for the global exception handlers below, which cannot get it passed in. Everything else
+        /// receives the logger from <see cref="Main"/>.
+        /// </summary>
+        private static ILogger logger;
+
+        /// <summary>
+        /// The main entry point of the application and its composition root: the services (logger, theme,
+        /// Neo client) are created here, once, and passed to the windows that need them.
         /// </summary>
         [STAThread]
         static void Main()
@@ -26,14 +32,43 @@ namespace Empire_Earth_Launcher
             Application.ThreadException += OnUiThreadException;
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 
-            Logging.Log("Starting Empire Earth Launcher v" + Application.ProductVersion);
+            logger = new TraceFileLogger(LauncherPaths.LogFile);
+            logger.Info("Starting Empire Earth Launcher v" + Application.ProductVersion);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(true);
 
-            LauncherKryptonTheme.SwitchThemeFromName("Light");
+            var themeService = new KryptonThemeService(logger, LauncherPaths.ThemesDirectory);
+            themeService.ApplyTheme(DefaultThemeName);
 
-            Logging.Log("Starting Empire Earth Launcher Form");
-            Application.Run(new Form1());
+            int playerListPollIntervalMilliseconds;
+            NeoApiClient neoClient = CreateNeoClient(Settings.Default, out playerListPollIntervalMilliseconds);
+
+            logger.Info("Starting Empire Earth Launcher Form");
+            Application.Run(new Form1(logger, themeService, neoClient, playerListPollIntervalMilliseconds));
+        }
+
+        /// <summary>
+        /// Creates the client for the Neo server configured in the application settings (NeoServerHost,
+        /// NeoServerPort, NeoTimeoutMilliseconds and PlayerListPollIntervalMilliseconds in
+        /// "Empire Earth Launcher.exe.config").
+        /// </summary>
+        /// <returns>null if the settings are invalid (logged); the launcher then runs without the player list.</returns>
+        private static NeoApiClient CreateNeoClient(Settings settings, out int playerListPollIntervalMilliseconds)
+        {
+            playerListPollIntervalMilliseconds = settings.PlayerListPollIntervalMilliseconds;
+            try
+            {
+                if (playerListPollIntervalMilliseconds <= 0)
+                    throw new ArgumentOutOfRangeException(nameof(settings.PlayerListPollIntervalMilliseconds),
+                        playerListPollIntervalMilliseconds, "The poll interval must be positive.");
+                return new NeoApiClient(new NeoServerEndpoint(settings.NeoServerHost, settings.NeoServerPort,
+                    settings.NeoTimeoutMilliseconds));
+            }
+            catch (ArgumentException ex)
+            {
+                logger.Error("The Neo server settings are invalid, the online player list is disabled.", ex);
+                return null;
+            }
         }
 
         private static void OnUiThreadException(object sender, ThreadExceptionEventArgs e)
@@ -50,9 +85,16 @@ namespace Empire_Earth_Launcher
         {
             try
             {
-                Logging.Log(isTerminating
-                    ? "Unhandled exception, the launcher has to close."
-                    : "Unhandled exception on the UI thread, the launcher continues.", exception);
+                if (logger != null)
+                {
+                    logger.Error(isTerminating
+                        ? "Unhandled exception, the launcher has to close."
+                        : "Unhandled exception on the UI thread, the launcher continues.", exception);
+                }
+                else
+                {
+                    Console.Error.WriteLine(exception);
+                }
             }
             catch (Exception logException)
             {
@@ -66,7 +108,7 @@ namespace Empire_Earth_Launcher
                              + Environment.NewLine + Environment.NewLine
                              + (exception != null ? exception.Message : "Unknown error.")
                              + Environment.NewLine + Environment.NewLine
-                             + "Details have been written to log.txt.";
+                             + "Details have been written to " + LauncherPaths.LogFile + ".";
             MessageBox.Show(message, "Empire Earth Launcher", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }

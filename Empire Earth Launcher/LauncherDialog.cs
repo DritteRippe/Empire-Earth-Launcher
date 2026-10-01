@@ -12,10 +12,12 @@ namespace Empire_Earth_Launcher
 {
     public partial class LauncherDialog : KryptonForm
     {
-        public LauncherDialog(string title, string message, MessageBoxButtons buttons)
+        public LauncherDialog(IThemeService themeService, string title, string message, MessageBoxButtons buttons)
         {
+            if (themeService == null)
+                throw new ArgumentNullException(nameof(themeService));
             InitializeComponent();
-            Program.LauncherKryptonTheme.AddPalette(launcherKryptonPalette, this);
+            themeService.Register(launcherKryptonPalette, this);
 
             pictureBox2.Image.RotateFlip(RotateFlipType.Rotate180FlipNone);
             pictureBox3.Image.RotateFlip(RotateFlipType.RotateNoneFlipX);

@@ -6,7 +6,11 @@ using System.Linq;
 
 namespace Empire_Earth_Launcher
 {
-    class Logging
+    /// <summary>
+    /// <see cref="ILogger"/> that writes timestamped lines to a log file (and the console) through
+    /// <see cref="Trace"/>.
+    /// </summary>
+    internal sealed class TraceFileLogger : ILogger
     {
         /// <summary>
         /// Size above which the log file is trimmed when the launcher starts.
@@ -18,14 +22,9 @@ namespace Empire_Earth_Launcher
         /// </summary>
         private const int LinesKeptAfterTrim = 500;
 
-        public enum LogLevel
-        {
-            Info, Warning, Error
-        }
-
         /// <summary>
-        /// Launcher logging, this will redirect the console to log file
-        /// <br>Don't call it multiple time or previous the one will not work !</br>
+        /// Sends all trace output of the process to <paramref name="logFile"/> and the console. Create only
+        /// one instance: a second one replaces the listeners of the first.
         /// </summary>
         /// <remarks>
         /// Side effect: all trace listeners of the process (including the default debugger listener) are
@@ -33,23 +32,41 @@ namespace Empire_Earth_Launcher
         /// This constructor never throws because of the log file: logging must not prevent the launcher
         /// from starting.
         /// </remarks>
-        public Logging(string log_file)
+        /// <param name="logFile">Full path of the log file; its folder is created if needed.</param>
+        public TraceFileLogger(string logFile)
         {
             Trace.Listeners.Clear();
 
-            TrimLogFile(log_file);
+            CreateLogDirectory(logFile);
+            TrimLogFile(logFile);
 
-            TextWriterTraceListener twtl = new TextWriterTraceListener(log_file);
-            twtl.Name = "Empire Earth Launcher Logger";
+            var fileListener = new TextWriterTraceListener(logFile);
+            fileListener.Name = "Empire Earth Launcher Logger";
 
-            ConsoleTraceListener ctl = new ConsoleTraceListener(false);
-            ctl.TraceOutputOptions = TraceOptions.DateTime;
+            var consoleListener = new ConsoleTraceListener(false);
+            consoleListener.TraceOutputOptions = TraceOptions.DateTime;
 
-            Trace.Listeners.Add(twtl);
-            Trace.Listeners.Add(ctl);
+            Trace.Listeners.Add(fileListener);
+            Trace.Listeners.Add(consoleListener);
             Trace.AutoFlush = true;
 
             Trace.WriteLine("");
+        }
+
+        private static void CreateLogDirectory(string logFile)
+        {
+            try
+            {
+                string directory = Path.GetDirectoryName(Path.GetFullPath(logFile));
+                if (!string.IsNullOrEmpty(directory))
+                    Directory.CreateDirectory(directory);
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException ||
+                                       ex is NotSupportedException || ex is ArgumentException)
+            {
+                // The trace listeners are not set up yet, so the console is the only place to report this.
+                Console.Error.WriteLine("Unable to create the folder of the log file " + logFile + ": " + ex.Message);
+            }
         }
 
         /// <summary>
@@ -91,22 +108,13 @@ namespace Empire_Earth_Launcher
             }
         }
 
-        public void Log(object log, LogLevel level)
+        public void Log(LogLevel level, string message, Exception exception = null)
         {
             // ISO 8601 timestamp: independent of the user's culture and sortable.
             string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
-            Trace.WriteLine("[" + timestamp + "] " + level + " : " + log);
-        }
-
-        public void Log(object log)
-        {
-            Log(log, LogLevel.Info);
-        }
-
-        public void Log(object log, Exception ex)
-        {
             // Exception.ToString() includes the type, the message, inner exceptions and the stack trace.
-            Log(log + Environment.NewLine + (ex != null ? ex.ToString() : "(no exception details)"), LogLevel.Error);
+            string details = exception != null ? Environment.NewLine + exception : string.Empty;
+            Trace.WriteLine("[" + timestamp + "] " + level + " : " + message + details);
         }
     }
 }
