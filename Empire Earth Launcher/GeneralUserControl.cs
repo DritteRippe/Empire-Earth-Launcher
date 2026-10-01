@@ -153,7 +153,11 @@ namespace Empire_Earth_Launcher
             BackgroundWorker worker = (BackgroundWorker)sender;
             while (!worker.CancellationPending)
             {
-                worker.ReportProgress(0, RequestConnectedPlayers());
+                object result = RequestConnectedPlayers();
+                // A request can take several seconds; the control may have been disposed meanwhile.
+                if (worker.CancellationPending)
+                    break;
+                worker.ReportProgress(0, result);
 
                 for (int waited = 0;
                      waited < PlayerListPollIntervalMilliseconds && !worker.CancellationPending;
