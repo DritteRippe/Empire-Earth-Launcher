@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Empire_Earth_Mod_Lib;
 using Empire_Earth_Mod_Lib.Serialization;
@@ -14,8 +14,13 @@ namespace Empire_Earth_Mod
 {
     public partial class ModCreatorForm : KryptonForm
     {
+        /// <summary>Index of the "Building Mod..." page, the last page of the wizard.</summary>
+        private const int BuildTabIndex = 3;
+
         private ModData mod;
         private ModData.Creator creator;
+        private readonly BackgroundWorker buildWorker;
+        private bool modBuilt;
 
         public ModCreatorForm()
         {
@@ -23,6 +28,17 @@ namespace Empire_Earth_Mod
             mod = new ModData();
             // Unique working directory below %LOCALAPPDATA%, released in OnFormClosed.
             creator = new ModData.Creator(mod);
+
+            buildWorker = new BackgroundWorker();
+            buildWorker.DoWork += buildWorker_DoWork;
+            buildWorker.RunWorkerCompleted += buildWorker_RunWorkerCompleted;
+            // While the mod is built in the background, the pages that edit it must not be reachable through
+            // the tab headers.
+            tabControl1.Selecting += (sender, e) =>
+            {
+                if (buildWorker.IsBusy && e.TabPageIndex != BuildTabIndex)
+                    e.Cancel = true;
+            };
 
             if (kryptonDataGridView1.Columns[4] is DataGridViewComboBoxColumn)
             {
@@ -32,6 +48,17 @@ namespace Empire_Earth_Mod
                     .Select(ModFile.GetModFileName).ToList()
                     .ForEach(fileName => columnAlternative.Items.Add(fileName));
             }
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            if (buildWorker.IsBusy)
+            {
+                MessageBox.Show("Please wait until the mod has been built.", "Mod Creator",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                e.Cancel = true;
+            }
+            base.OnFormClosing(e);
         }
 
         protected override void OnFormClosed(FormClosedEventArgs e)
@@ -75,6 +102,15 @@ namespace Empire_Earth_Mod
         /* Variants Management */
         private void kryptonButton1_Click(object sender, EventArgs e)
         {
+            if (tabControl1.SelectedIndex == BuildTabIndex)
+            {
+                // After a successful build the button reads "Close". The page can also be reached through
+                // its tab header without building; there is no next page then.
+                if (modBuilt)
+                    Close();
+                return;
+            }
+
             if (tabControl1.SelectedIndex == 0)
             {
                 mod.Name = nameKryptonTextBox.Text;
@@ -127,13 +163,8 @@ namespace Empire_Earth_Mod
 
             if (tabControl1.SelectedIndex == 2)
             {
-                nextKryptonButton.Enabled = false;
-                nextKryptonButton.Text = "Building...";
-                backKryptonButton.Visible = false;
-
-                Task.Factory.StartNew(creator.ExportModInfos)
-                    .ContinueWith(creator.ExportBannersAndIcon)
-                    .ContinueWith(creator.ExportToZip);
+                if (!StartBuild())
+                    return;
             }
 
             tabControl1.SelectTab(tabControl1.SelectedTab.TabIndex + 1);
@@ -142,6 +173,91 @@ namespace Empire_Earth_Mod
             Debug.WriteLine(
                 JsonSerializer<ModData>.Serialize(
                     BinarySerializer<ModData>.Deserialize(BinarySerializer<ModData>.Serialize(mod))));
+        }
+
+        /// <summary>
+        /// Checks that the mod can be built, asks where to save it and starts the build in the background.
+        /// </summary>
+        /// <returns>false if the build was not started (incomplete mod or cancelled by the user).</returns>
+        private bool StartBuild()
+        {
+            if (mod.GetIcon() == null)
+            {
+                MessageBox.Show("Please select an icon for the mod before building it.", "Warning",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            string eemPath;
+            using (SaveFileDialog sfd = new SaveFileDialog())
+            {
+                sfd.Filter = "Empire Earth Mod (*.eem)|*.eem";
+                sfd.DefaultExt = "eem";
+                sfd.AddExtension = true;
+                sfd.FileName = _GetDefaultArchiveName();
+                if (sfd.ShowDialog(this) != DialogResult.OK)
+                    return false;
+                eemPath = sfd.FileName;
+            }
+
+            // Keep the file types edited in the grid of the variant that is currently displayed.
+            _SaveVariantFilesFromGrid();
+
+            nextKryptonButton.Enabled = false;
+            nextKryptonButton.Text = "Building...";
+            backKryptonButton.Visible = false;
+            label1.Text = "Building Mod...";
+
+            // The worker saves the icon and banner bitmaps. GDI+ images must not be used by two threads at
+            // once, so the previews let go of them until the build is finished.
+            iconPictureBox.Image = null;
+            bannersPictureBox.Image = null;
+
+            buildWorker.RunWorkerAsync(eemPath);
+            return true;
+        }
+
+        private string _GetDefaultArchiveName()
+        {
+            string name = string.IsNullOrWhiteSpace(mod.Name) ? mod.Uuid.ToString() : mod.Name.Trim();
+            foreach (char invalidChar in Path.GetInvalidFileNameChars())
+                name = name.Replace(invalidChar, '_');
+            return name + ".eem";
+        }
+
+        private void buildWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            string eemPath = (string)e.Argument;
+            creator.Build(eemPath);
+            e.Result = eemPath;
+        }
+
+        private void buildWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            iconPictureBox.Image = mod.GetIcon();
+            // Shows the banners of the selected variant again (from the first one).
+            bannersVariantsKryptonComboBox_SelectedIndexChanged(bannersVariantsKryptonComboBox, EventArgs.Empty);
+
+            if (e.Error != null)
+            {
+                label1.Text = "Build failed";
+                MessageBox.Show("The mod could not be built:\n\n" + e.Error.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                // Back to the files page, so the author can fix the problem and build again.
+                tabControl1.SelectTab(BuildTabIndex - 1);
+                nextKryptonButton.Text = "Build >";
+                nextKryptonButton.Enabled = true;
+                backKryptonButton.Visible = true;
+                return;
+            }
+
+            modBuilt = true;
+            label1.Text = "Mod built";
+            nextKryptonButton.Text = "Close";
+            nextKryptonButton.Enabled = true;
+            MessageBox.Show("The mod has been saved to:\n" + e.Result, "Mod Creator",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void backKryptonButton_Click(object sender, EventArgs e)

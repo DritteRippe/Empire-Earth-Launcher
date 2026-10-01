@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Threading.Tasks;
 using Empire_Earth_Mod_Lib.Serialization;
 
 namespace Empire_Earth_Mod_Lib
@@ -391,8 +391,32 @@ namespace Empire_Earth_Mod_Lib
                 }
             }
 
-            public void ExportBannersAndIcon(Task task = null)
+            /// <summary>
+            /// Runs all build steps in order: <see cref="ExportModInfos"/>, <see cref="ExportBannersAndIcon"/>
+            /// and <see cref="ExportToZip"/>. A failing step throws and stops the build.
+            /// </summary>
+            /// <remarks>
+            /// Synchronous; for large mods call it from a background thread. The icon and banner images of the
+            /// mod are saved by the calling thread, so nothing else (e.g. a PictureBox) may use them meanwhile:
+            /// GDI+ images are not thread-safe.
+            /// </remarks>
+            /// <param name="eemPath">Path of the mod archive to create.</param>
+            /// <exception cref="InvalidOperationException">The mod is not complete (e.g. it has no icon).</exception>
+            public void Build(string eemPath)
             {
+                ThrowIfDisposed();
+                if (ModData.Icon == null)
+                    throw new InvalidOperationException("The mod has no icon. Select an icon before building the mod.");
+
+                ExportModInfos();
+                ExportBannersAndIcon();
+                ExportToZip(eemPath);
+            }
+
+            public void ExportBannersAndIcon()
+            {
+                if (ModData.Icon == null)
+                    throw new InvalidOperationException("The mod has no icon. Select an icon before building the mod.");
                 GenerateVariantsFolders();
 
                 // Delete old banners and icon
@@ -408,13 +432,14 @@ namespace Empire_Earth_Mod_Lib
                     }
                 }
 
-                // Export banners and icon
-                ModData.Icon.Save(Path.Combine(WorkingDir, "Icon.png"));
+                // Export banners and icon. The format is explicit: Image.Save(path) would keep the format the
+                // image was loaded from (e.g. JPEG) despite the .png name.
+                ModData.Icon.Save(Path.Combine(WorkingDir, "Icon.png"), ImageFormat.Png);
                 foreach (var variant in ModData.Variants.Keys.Where(variant => ModData.HasBanner(variant)))
                 {
                     for (int i = 0; i != ModData.GetBanners(variant).Count; ++i)
                         ModData.GetBanners(variant)[i].Save(Path.Combine(WorkingDir,
-                            variant.ToString(), "Banner" + i + ".png"));
+                            variant.ToString(), "Banner" + i + ".png"), ImageFormat.Png);
                 }
             }
 
@@ -424,15 +449,41 @@ namespace Empire_Earth_Mod_Lib
                 File.WriteAllText(Path.Combine(WorkingDir, "data"), ModData.ToString());
             }
 
-            public void ExportToZip(Task task = null)
+            /// <summary>
+            /// Packs the working directory into the mod archive <paramref name="eemPath"/>. The archive is
+            /// written to a temporary file first, so a failed build neither leaves a partial archive nor
+            /// destroys an existing one.
+            /// </summary>
+            /// <exception cref="ArgumentException"><paramref name="eemPath"/> is empty or inside the working directory.</exception>
+            public void ExportToZip(string eemPath)
             {
                 ThrowIfDisposed();
-                var parentDir = new DirectoryInfo(WorkingDir).Parent;
-                if (parentDir == null)
-                    return;
-                using (ZipStorer zipStore =
-                       ZipStorer.Create(Path.Combine(parentDir.FullName,
-                           ModData.Uuid.ToString())))
+                if (string.IsNullOrEmpty(eemPath))
+                    throw new ArgumentException("The path of the mod archive is missing.", nameof(eemPath));
+
+                string archivePath = Path.GetFullPath(eemPath);
+                if (archivePath.StartsWith(WorkingDir + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                    throw new ArgumentException("The mod archive cannot be saved inside the working directory.", nameof(eemPath));
+
+                string temporaryPath = archivePath + ".tmp";
+                try
+                {
+                    WriteArchive(temporaryPath);
+                    if (File.Exists(archivePath))
+                        File.Replace(temporaryPath, archivePath, null);
+                    else
+                        File.Move(temporaryPath, archivePath);
+                }
+                finally
+                {
+                    if (File.Exists(temporaryPath))
+                        File.Delete(temporaryPath);
+                }
+            }
+
+            private void WriteArchive(string archivePath)
+            {
+                using (ZipStorer zipStore = ZipStorer.Create(archivePath))
                 {
                     zipStore.AddDirectory(ZipStorer.Compression.Deflate,
                         WorkingDir,
