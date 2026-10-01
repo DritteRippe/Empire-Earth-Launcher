@@ -1,4 +1,6 @@
 using System.IO;
+using System.Reflection;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 
@@ -32,12 +34,22 @@ namespace Empire_Earth_Mod_Lib.Serialization
         /// <summary>
         /// Reads one object from the current position of <paramref name="stream"/>; the stream is not closed.
         /// </summary>
-        /// <exception cref="System.Runtime.Serialization.SerializationException">The data is not valid JSON for
-        /// <typeparamref name="TType"/>.</exception>
+        /// <exception cref="SerializationException">The data is not valid JSON for <typeparamref name="TType"/>,
+        /// or a [DataMember] setter rejected a value (e.g. an invalid mod version).</exception>
         public static TType Deserialize(Stream stream)
         {
             var serializer = new DataContractJsonSerializer(typeof(TType));
-            return serializer.ReadObject(stream) as TType;
+            try
+            {
+                return serializer.ReadObject(stream) as TType;
+            }
+            catch (TargetInvocationException ex) when (ex.InnerException is SerializationException)
+            {
+                // Depending on the runtime, the serializer calls the [DataMember] setters directly (their
+                // exceptions arrive unchanged) or through reflection, which wraps them (seen on Mono). Unwrap
+                // them, so that callers get the documented SerializationException on every runtime.
+                throw new SerializationException(ex.InnerException.Message, ex.InnerException);
+            }
         }
     }
 }
