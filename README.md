@@ -32,8 +32,9 @@ Some very critical parts of the Launcher can be censored like WON and NeoEE rela
 ### Building
 
 All projects target the **.NET Framework 4.0** (to keep old Windows versions supported) and are pinned to
-**C# 8.0** (`LangVersion` in every `.csproj`), the newest language version Visual Studio 2019 understands.
-Do not use newer language features or APIs that do not exist in .NET 4.0 (no `async`/`await`, no `Task.Run`, ...).
+**C# 8.0** (`LangVersion` in every `.csproj`), so every contributor compiles the same language with Visual
+Studio 2019 or newer, MSBuild or Mono. Do not use newer language features or APIs that do not exist in
+.NET 4.0 (no `async`/`await`, no `Task.Run`, ...).
 
 **Visual Studio (Windows)**: open `Empire-Earth.sln` and build. NuGet restores the packages into the root
 `packages/` folder automatically.
