@@ -8,7 +8,7 @@ namespace Empire_Earth_Launcher
 {
     static class Program
     {
-        /// <summary>Theme applied at start.</summary>
+        /// <summary>Theme applied when the saved theme cannot be loaded.</summary>
         private const string DefaultThemeName = "Light";
 
         /// <summary>
@@ -37,14 +37,42 @@ namespace Empire_Earth_Launcher
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(true);
 
+            Settings settings = Settings.Default;
             var themeService = new KryptonThemeService(logger, LauncherPaths.ThemesDirectory);
-            themeService.ApplyTheme(DefaultThemeName);
+            ApplySavedTheme(themeService, settings);
 
             int playerListPollIntervalMilliseconds;
-            NeoApiClient neoClient = CreateNeoClient(Settings.Default, out playerListPollIntervalMilliseconds);
+            NeoApiClient neoClient = CreateNeoClient(settings, out playerListPollIntervalMilliseconds);
 
             logger.Info("Starting Empire Earth Launcher Form");
-            Application.Run(new Form1(logger, themeService, neoClient, playerListPollIntervalMilliseconds));
+            Application.Run(new Form1(logger, themeService, settings, neoClient, playerListPollIntervalMilliseconds));
+        }
+
+        /// <summary>
+        /// Applies the theme the user selected last time (a custom theme file or a theme of the themes
+        /// folder); if it cannot be loaded, the default theme. Problems are logged, never fatal.
+        /// </summary>
+        private static void ApplySavedTheme(IThemeService themeService, Settings settings)
+        {
+            string themeName = DefaultThemeName;
+            string customThemeFile = null;
+            try
+            {
+                themeName = settings.ThemeName;
+                customThemeFile = settings.CustomThemeFile;
+            }
+            catch (System.Configuration.ConfigurationException ex)
+            {
+                // A damaged user.config must not prevent the launcher from starting.
+                logger.Error("Unable to read the launcher settings, the default theme is used.", ex);
+            }
+
+            if (!string.IsNullOrEmpty(customThemeFile) && themeService.ApplyThemeFile(customThemeFile))
+                return;
+            if (!string.IsNullOrEmpty(themeName) && themeService.ApplyTheme(themeName))
+                return;
+            if (themeName != DefaultThemeName)
+                themeService.ApplyTheme(DefaultThemeName);
         }
 
         /// <summary>

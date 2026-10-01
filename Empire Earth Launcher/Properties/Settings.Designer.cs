@@ -26,6 +26,36 @@ namespace Empire_Earth_Launcher.Properties
             }
         }
 
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Light")]
+        public string ThemeName
+        {
+            get
+            {
+                return ((string)(this["ThemeName"]));
+            }
+            set
+            {
+                this["ThemeName"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string CustomThemeFile
+        {
+            get
+            {
+                return ((string)(this["CustomThemeFile"]));
+            }
+            set
+            {
+                this["CustomThemeFile"] = value;
+            }
+        }
+
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("titan.empireearth.eu")]

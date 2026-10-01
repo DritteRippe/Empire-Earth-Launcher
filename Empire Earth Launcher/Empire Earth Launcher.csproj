@@ -43,6 +43,7 @@
       <HintPath>..\packages\Krypton.Toolkit.5.550.2108.1\lib\net40\Krypton.Toolkit.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Design" />
     <Reference Include="System.Windows.Forms.DataVisualization" />

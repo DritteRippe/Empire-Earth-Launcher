@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Windows.Forms;
+using Empire_Earth_Launcher.Properties;
 using Empire_Earth_WON;
 
 namespace Empire_Earth_Launcher
@@ -17,9 +18,10 @@ namespace Empire_Earth_Launcher
     {
         /// <param name="logger">Log of the launcher.</param>
         /// <param name="themeService">Theme of the launcher windows.</param>
+        /// <param name="settings">Settings of the launcher.</param>
         /// <param name="neoClient">Client for the online player list; null if the server settings are invalid.</param>
         /// <param name="playerListPollIntervalMilliseconds">Delay between two requests of the player list.</param>
-        public Form1(ILogger logger, IThemeService themeService, NeoApiClient neoClient,
+        internal Form1(ILogger logger, IThemeService themeService, Settings settings, NeoApiClient neoClient,
             int playerListPollIntervalMilliseconds)
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint |
@@ -31,7 +33,7 @@ namespace Empire_Earth_Launcher
             // so they receive their services here.
             generalUserControl.Initialize(logger, themeService, neoClient, playerListPollIntervalMilliseconds);
             settingsUserControl.Initialize(themeService);
-            launcherSettingsUserControl.Initialize(themeService);
+            launcherSettingsUserControl.Initialize(logger, themeService, settings);
         }
 
 
