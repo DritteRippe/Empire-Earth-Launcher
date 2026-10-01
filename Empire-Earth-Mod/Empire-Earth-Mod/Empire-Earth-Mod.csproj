@@ -13,7 +13,7 @@
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
         <Deterministic>true</Deterministic>
         <ApplicationManifest>app.manifest</ApplicationManifest>
-        <LangVersion>latestmajor</LangVersion>
+        <LangVersion>8.0</LangVersion>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>

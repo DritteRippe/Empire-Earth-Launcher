@@ -127,7 +127,7 @@ namespace Empire_Earth_Mod_Lib
             if (Math.Round(double.Parse(banner.Width.ToString()) /
                            double.Parse(banner.Height.ToString()), 2) != 1.78)
                 throw new FormatException("Banner must be 16:9");
-            if (banner.Width is < 1280 or > 1920 || banner.Height is < 720 or > 1080)
+            if (banner.Width < 1280 || banner.Width > 1920 || banner.Height < 720 || banner.Height > 1080)
                 throw new FormatException("Banner must be >= 1280x720 and <= 1920x1080");
             Banners[variant].Add(banner);
         }

@@ -25,7 +25,7 @@ namespace Empire_Earth_Mod
 
             if (kryptonDataGridView1.Columns[4] is DataGridViewComboBoxColumn)
             {
-                if (kryptonDataGridView1.Columns[4] is not DataGridViewComboBoxColumn columnAlternative)
+                if (!(kryptonDataGridView1.Columns[4] is DataGridViewComboBoxColumn columnAlternative))
                     return;
                 Enum.GetValues(typeof(ModFile.ModFileType)).Cast<ModFile.ModFileType>()
                     .Select(ModFile.GetModFileName).ToList()
@@ -350,9 +350,9 @@ namespace Empire_Earth_Mod
         {
             bool validClick = (e.RowIndex != -1 && e.ColumnIndex != -1);
 
-            if (sender is not DataGridView dataGridView)
+            if (!(sender is DataGridView dataGridView))
                 return;
-            if (dataGridView.Columns[e.ColumnIndex] is not DataGridViewComboBoxColumn || !validClick)
+            if (!(dataGridView.Columns[e.ColumnIndex] is DataGridViewComboBoxColumn) || !validClick)
                 return;
             dataGridView.BeginEdit(true);
             ((ComboBox)dataGridView.EditingControl).DroppedDown = true;

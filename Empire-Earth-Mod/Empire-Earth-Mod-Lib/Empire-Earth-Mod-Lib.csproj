@@ -11,7 +11,7 @@
         <AssemblyName>Empire_Earth_Mod_Lib</AssemblyName>
         <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
-        <LangVersion>latestmajor</LangVersion>
+        <LangVersion>8.0</LangVersion>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>

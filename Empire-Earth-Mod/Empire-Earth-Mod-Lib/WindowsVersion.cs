@@ -90,7 +90,7 @@ namespace Empire_Earth_Mod_Lib
                                     return WindowsVersionEnum.Seven;
                                 default:
                                 {
-                                    return operatingSystem.Version.Minor is 2 or 3 ?
+                                    return operatingSystem.Version.Minor == 2 || operatingSystem.Version.Minor == 3 ?
                                         WindowsVersionEnum.Eight : WindowsVersionEnum.Error;
                                 }
                             }
