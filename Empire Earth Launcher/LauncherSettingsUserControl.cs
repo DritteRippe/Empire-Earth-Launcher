@@ -16,6 +16,7 @@ namespace Empire_Earth_Launcher
         private ILogger logger;
         private IThemeService themeService;
         private Settings settings;
+        private GameDirectoryService gameDirectory;
 
         /// <summary>True while the theme list is changed by code, so that no theme is applied then.</summary>
         private bool updatingThemeSelection;
@@ -32,7 +33,9 @@ namespace Empire_Earth_Launcher
         /// <param name="logger">Log of the launcher.</param>
         /// <param name="themeService">Theme of the launcher.</param>
         /// <param name="settings">User settings; the selected theme is saved there.</param>
-        internal void Initialize(ILogger logger, IThemeService themeService, Settings settings)
+        /// <param name="gameDirectory">The Empire Earth folder, which can be chosen on this page.</param>
+        internal void Initialize(ILogger logger, IThemeService themeService, Settings settings,
+            GameDirectoryService gameDirectory)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
@@ -40,13 +43,21 @@ namespace Empire_Earth_Launcher
                 throw new ArgumentNullException(nameof(themeService));
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
+            if (gameDirectory == null)
+                throw new ArgumentNullException(nameof(gameDirectory));
             this.logger = logger;
             this.themeService = themeService;
             this.settings = settings;
+            this.gameDirectory = gameDirectory;
             themeService.Register(launcherKryptonPalette, this);
 
             LoadAvailableThemes();
             SelectCurrentTheme();
+
+            EventHandler showGameDirectory = (sender, e) => ShowGameDirectory();
+            gameDirectory.Changed += showGameDirectory;
+            Disposed += (sender, e) => gameDirectory.Changed -= showGameDirectory;
+            ShowGameDirectory();
         }
 
         private void LoadAvailableThemes()
@@ -140,6 +151,60 @@ namespace Empire_Earth_Launcher
             MessageBox.Show(this, "The theme could not be loaded. Details have been written to " +
                                   LauncherPaths.LogFile + ".", "Empire Earth Launcher",
                 MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+
+        private void ShowGameDirectory()
+        {
+            string location = gameDirectory.Location;
+            gameDirectoryKryptonTextBox.Text = location ?? string.Empty;
+            switch (gameDirectory.Source)
+            {
+                case GameDirectorySource.UserSetting:
+                    gameDirectorySourceKryptonLabel.Values.Text = Directory.Exists(location)
+                        ? "Chosen manually"
+                        : "Chosen manually, but the folder does not exist";
+                    break;
+                case GameDirectorySource.Registry:
+                    gameDirectorySourceKryptonLabel.Values.Text = "Detected from the game installation";
+                    break;
+                case GameDirectorySource.LauncherFolder:
+                    gameDirectorySourceKryptonLabel.Values.Text = "Detected in the launcher folder";
+                    break;
+                default:
+                    gameDirectorySourceKryptonLabel.Values.Text = "Not found, please choose the folder of Empire Earth.exe";
+                    break;
+            }
+        }
+
+        private void browseGameDirectoryKryptonButton_Click(object sender, EventArgs e)
+        {
+            string folder;
+            using (var folderBrowserDialog = new FolderBrowserDialog())
+            {
+                folderBrowserDialog.Description = "Select the Empire Earth folder (the folder of " +
+                                                  GameDirectoryLocator.GameExecutableName + ").";
+                folderBrowserDialog.ShowNewFolderButton = false;
+                if (gameDirectory.Location != null && Directory.Exists(gameDirectory.Location))
+                    folderBrowserDialog.SelectedPath = gameDirectory.Location;
+                if (folderBrowserDialog.ShowDialog(this) != DialogResult.OK)
+                    return;
+                folder = folderBrowserDialog.SelectedPath;
+            }
+
+            if (!GameDirectoryLocator.IsGameDirectory(folder) &&
+                MessageBox.Show(this, "This folder does not contain " + GameDirectoryLocator.GameExecutableName +
+                                      ":\n" + folder + "\n\nUse it anyway?", "Empire Earth Launcher",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+            {
+                return;
+            }
+
+            gameDirectory.SetUserDirectory(folder);
+        }
+
+        private void detectGameDirectoryKryptonButton_Click(object sender, EventArgs e)
+        {
+            gameDirectory.SetUserDirectory(null);
         }
 
         private void SaveSettings()

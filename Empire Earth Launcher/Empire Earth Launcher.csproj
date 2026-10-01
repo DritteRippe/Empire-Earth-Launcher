@@ -74,6 +74,8 @@
     <Compile Include="LauncherSettingsUserControl.Designer.cs">
       <DependentUpon>LauncherSettingsUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="GameDirectoryLocator.cs" />
+    <Compile Include="GameDirectoryService.cs" />
     <Compile Include="GeneralUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

@@ -18,8 +18,8 @@ namespace Empire_Earth_Launcher
         private static ILogger logger;
 
         /// <summary>
-        /// The main entry point of the application and its composition root: the services (logger, theme,
-        /// Neo client) are created here, once, and passed to the windows that need them.
+        /// The main entry point of the application and its composition root: the services (logger, theme, game
+        /// folder, Neo client) are created here, once, and passed to the windows that need them.
         /// </summary>
         [STAThread]
         static void Main()
@@ -41,11 +41,15 @@ namespace Empire_Earth_Launcher
             var themeService = new KryptonThemeService(logger, LauncherPaths.ThemesDirectory);
             ApplySavedTheme(themeService, settings);
 
+            var gameDirectory = new GameDirectoryService(logger, settings, new GameDirectoryLocator());
+            gameDirectory.Refresh();
+
             int playerListPollIntervalMilliseconds;
             NeoApiClient neoClient = CreateNeoClient(settings, out playerListPollIntervalMilliseconds);
 
             logger.Info("Starting Empire Earth Launcher Form");
-            Application.Run(new Form1(logger, themeService, settings, neoClient, playerListPollIntervalMilliseconds));
+            Application.Run(new Form1(logger, themeService, settings, gameDirectory, neoClient,
+                playerListPollIntervalMilliseconds));
         }
 
         /// <summary>

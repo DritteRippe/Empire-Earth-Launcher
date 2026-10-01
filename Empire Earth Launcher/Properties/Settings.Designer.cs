@@ -28,6 +28,21 @@ namespace Empire_Earth_Launcher.Properties
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string GameDirectory
+        {
+            get
+            {
+                return ((string)(this["GameDirectory"]));
+            }
+            set
+            {
+                this["GameDirectory"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Light")]
         public string ThemeName
         {

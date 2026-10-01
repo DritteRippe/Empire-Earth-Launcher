@@ -33,6 +33,11 @@ namespace Empire_Earth_Launcher
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LauncherSettingsUserControl));
             this.launcherKryptonPalette = new Krypton.Toolkit.KryptonPalette(this.components);
             this.kryptonGroupBox1 = new Krypton.Toolkit.KryptonGroupBox();
+            this.gameDirectorySourceKryptonLabel = new Krypton.Toolkit.KryptonLabel();
+            this.detectGameDirectoryKryptonButton = new Krypton.Toolkit.KryptonButton();
+            this.browseGameDirectoryKryptonButton = new Krypton.Toolkit.KryptonButton();
+            this.gameDirectoryKryptonTextBox = new Krypton.Toolkit.KryptonTextBox();
+            this.gameDirectoryKryptonLabel = new Krypton.Toolkit.KryptonLabel();
             this.kryptonCheckBox2 = new Krypton.Toolkit.KryptonCheckBox();
             this.kryptonLabel3 = new Krypton.Toolkit.KryptonLabel();
             this.kryptonComboBox2 = new Krypton.Toolkit.KryptonComboBox();
@@ -120,6 +125,11 @@ namespace Empire_Earth_Launcher
             // 
             // kryptonGroupBox1.Panel
             // 
+            this.kryptonGroupBox1.Panel.Controls.Add(this.gameDirectorySourceKryptonLabel);
+            this.kryptonGroupBox1.Panel.Controls.Add(this.detectGameDirectoryKryptonButton);
+            this.kryptonGroupBox1.Panel.Controls.Add(this.browseGameDirectoryKryptonButton);
+            this.kryptonGroupBox1.Panel.Controls.Add(this.gameDirectoryKryptonTextBox);
+            this.kryptonGroupBox1.Panel.Controls.Add(this.gameDirectoryKryptonLabel);
             this.kryptonGroupBox1.Panel.Controls.Add(this.kryptonCheckBox2);
             this.kryptonGroupBox1.Panel.Controls.Add(this.kryptonLabel3);
             this.kryptonGroupBox1.Panel.Controls.Add(this.kryptonComboBox2);
@@ -131,6 +141,58 @@ namespace Empire_Earth_Launcher
             this.kryptonGroupBox1.Size = new System.Drawing.Size(540, 350);
             this.kryptonGroupBox1.TabIndex = 2;
             this.kryptonGroupBox1.Values.Heading = "Launcher Settings";
+            // 
+            // gameDirectorySourceKryptonLabel
+            // 
+            this.gameDirectorySourceKryptonLabel.Location = new System.Drawing.Point(168, 196);
+            this.gameDirectorySourceKryptonLabel.Name = "gameDirectorySourceKryptonLabel";
+            this.gameDirectorySourceKryptonLabel.Palette = this.launcherKryptonPalette;
+            this.gameDirectorySourceKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.gameDirectorySourceKryptonLabel.Size = new System.Drawing.Size(6, 2);
+            this.gameDirectorySourceKryptonLabel.TabIndex = 14;
+            this.gameDirectorySourceKryptonLabel.Values.Text = "";
+            // 
+            // detectGameDirectoryKryptonButton
+            // 
+            this.detectGameDirectoryKryptonButton.Location = new System.Drawing.Point(417, 167);
+            this.detectGameDirectoryKryptonButton.Name = "detectGameDirectoryKryptonButton";
+            this.detectGameDirectoryKryptonButton.Palette = this.launcherKryptonPalette;
+            this.detectGameDirectoryKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.detectGameDirectoryKryptonButton.Size = new System.Drawing.Size(100, 25);
+            this.detectGameDirectoryKryptonButton.TabIndex = 13;
+            this.detectGameDirectoryKryptonButton.Values.Text = "Auto-detect";
+            this.detectGameDirectoryKryptonButton.Click += new System.EventHandler(this.detectGameDirectoryKryptonButton_Click);
+            // 
+            // browseGameDirectoryKryptonButton
+            // 
+            this.browseGameDirectoryKryptonButton.Location = new System.Drawing.Point(374, 167);
+            this.browseGameDirectoryKryptonButton.Name = "browseGameDirectoryKryptonButton";
+            this.browseGameDirectoryKryptonButton.Palette = this.launcherKryptonPalette;
+            this.browseGameDirectoryKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.browseGameDirectoryKryptonButton.Size = new System.Drawing.Size(37, 25);
+            this.browseGameDirectoryKryptonButton.TabIndex = 12;
+            this.browseGameDirectoryKryptonButton.Values.Text = "...";
+            this.browseGameDirectoryKryptonButton.Click += new System.EventHandler(this.browseGameDirectoryKryptonButton_Click);
+            // 
+            // gameDirectoryKryptonTextBox
+            // 
+            this.gameDirectoryKryptonTextBox.Location = new System.Drawing.Point(168, 168);
+            this.gameDirectoryKryptonTextBox.Name = "gameDirectoryKryptonTextBox";
+            this.gameDirectoryKryptonTextBox.Palette = this.launcherKryptonPalette;
+            this.gameDirectoryKryptonTextBox.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.gameDirectoryKryptonTextBox.ReadOnly = true;
+            this.gameDirectoryKryptonTextBox.Size = new System.Drawing.Size(200, 23);
+            this.gameDirectoryKryptonTextBox.TabIndex = 11;
+            // 
+            // gameDirectoryKryptonLabel
+            // 
+            this.gameDirectoryKryptonLabel.Location = new System.Drawing.Point(13, 170);
+            this.gameDirectoryKryptonLabel.Name = "gameDirectoryKryptonLabel";
+            this.gameDirectoryKryptonLabel.Palette = this.launcherKryptonPalette;
+            this.gameDirectoryKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.gameDirectoryKryptonLabel.Size = new System.Drawing.Size(122, 20);
+            this.gameDirectoryKryptonLabel.TabIndex = 10;
+            this.gameDirectoryKryptonLabel.Values.Text = "Empire Earth folder :";
             // 
             // kryptonCheckBox2
             // 
@@ -255,5 +317,10 @@ namespace Empire_Earth_Launcher
         private Krypton.Toolkit.KryptonComboBox kryptonComboBox2;
         private Krypton.Toolkit.KryptonLabel kryptonLabel2;
         private Krypton.Toolkit.KryptonComboBox kryptonComboBox1;
+        private Krypton.Toolkit.KryptonLabel gameDirectoryKryptonLabel;
+        private Krypton.Toolkit.KryptonTextBox gameDirectoryKryptonTextBox;
+        private Krypton.Toolkit.KryptonButton browseGameDirectoryKryptonButton;
+        private Krypton.Toolkit.KryptonButton detectGameDirectoryKryptonButton;
+        private Krypton.Toolkit.KryptonLabel gameDirectorySourceKryptonLabel;
     }
 }

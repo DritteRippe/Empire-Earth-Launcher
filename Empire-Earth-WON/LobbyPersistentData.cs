@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -19,7 +20,25 @@ namespace Empire_Earth_WON
     /// </remarks>
     public static class LobbyPersistentData
     {
+        /// <summary>
+        /// File in the game folder with the lobby profiles of all users (<see cref="LobbyGlobalData"/>).
+        /// </summary>
+        public const string GlobalDataFileName = "_wonlobbypersistent.dat";
+
+        private const string UserDataFilePrefix = "_wonuser";
+        private const string UserDataFileExtension = ".dat";
+
         private const string FileSignaturePrefix = "WONPER";
+
+        /// <summary>
+        /// File in the game folder with the data of one lobby profile (<see cref="LobbyUserData"/>), e.g.
+        /// "_wonuser3.dat".
+        /// </summary>
+        /// <param name="fileId"><see cref="LobbyGlobalData.PlayerInfoGlobalData.FileID"/> of the profile.</param>
+        public static string GetUserDataFileName(ushort fileId)
+        {
+            return UserDataFilePrefix + fileId.ToString(CultureInfo.InvariantCulture) + UserDataFileExtension;
+        }
 
         /// <summary>
         /// Creates the reader used by all parsers. The reader is intentionally never disposed: on .NET 4.0

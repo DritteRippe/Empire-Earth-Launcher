@@ -19,10 +19,11 @@ namespace Empire_Earth_Launcher
         /// <param name="logger">Log of the launcher.</param>
         /// <param name="themeService">Theme of the launcher windows.</param>
         /// <param name="settings">Settings of the launcher.</param>
+        /// <param name="gameDirectory">The Empire Earth folder.</param>
         /// <param name="neoClient">Client for the online player list; null if the server settings are invalid.</param>
         /// <param name="playerListPollIntervalMilliseconds">Delay between two requests of the player list.</param>
-        internal Form1(ILogger logger, IThemeService themeService, Settings settings, NeoApiClient neoClient,
-            int playerListPollIntervalMilliseconds)
+        internal Form1(ILogger logger, IThemeService themeService, Settings settings,
+            GameDirectoryService gameDirectory, NeoApiClient neoClient, int playerListPollIntervalMilliseconds)
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.OptimizedDoubleBuffer, true);
@@ -31,9 +32,10 @@ namespace Empire_Earth_Launcher
 
             // The pages are created by InitializeComponent (designer), which needs parameterless constructors,
             // so they receive their services here.
-            generalUserControl.Initialize(logger, themeService, neoClient, playerListPollIntervalMilliseconds);
+            generalUserControl.Initialize(logger, themeService, gameDirectory, neoClient,
+                playerListPollIntervalMilliseconds);
             settingsUserControl.Initialize(themeService);
-            launcherSettingsUserControl.Initialize(logger, themeService, settings);
+            launcherSettingsUserControl.Initialize(logger, themeService, settings, gameDirectory);
         }
 
 

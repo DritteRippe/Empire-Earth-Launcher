@@ -15,13 +15,12 @@ namespace Empire_Earth_Launcher
 {
     public partial class GeneralUserControl : UserControl
     {
-        private const string LobbyGlobalDataFile = "./_wonlobbypersistent.dat";
-
         /// <summary>Granularity of the poll delay, so that cancelling the worker does not wait for a whole interval.</summary>
         private const int CancellationCheckMilliseconds = 100;
 
         private BackgroundWorker backgroundWorker;
         private ILogger logger;
+        private GameDirectoryService gameDirectory;
         private NeoApiClient neoClient;
 
         /// <summary>Delay between two requests of the online player list.</summary>
@@ -58,23 +57,31 @@ namespace Empire_Earth_Launcher
         /// </summary>
         /// <param name="logger">Log of the launcher.</param>
         /// <param name="themeService">Theme of the launcher.</param>
+        /// <param name="gameDirectory">Game folder with the WON lobby files; they are read again when it changes.</param>
         /// <param name="neoClient">Client for the online player list; null disables the list (invalid server
         /// settings).</param>
         /// <param name="playerListPollIntervalMilliseconds">Delay between two requests of the player list.</param>
-        public void Initialize(ILogger logger, IThemeService themeService, NeoApiClient neoClient,
-            int playerListPollIntervalMilliseconds)
+        internal void Initialize(ILogger logger, IThemeService themeService, GameDirectoryService gameDirectory,
+            NeoApiClient neoClient, int playerListPollIntervalMilliseconds)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
             if (themeService == null)
                 throw new ArgumentNullException(nameof(themeService));
+            if (gameDirectory == null)
+                throw new ArgumentNullException(nameof(gameDirectory));
             if (neoClient != null && playerListPollIntervalMilliseconds <= 0)
                 throw new ArgumentOutOfRangeException(nameof(playerListPollIntervalMilliseconds));
 
             this.logger = logger;
+            this.gameDirectory = gameDirectory;
             this.neoClient = neoClient;
             this.playerListPollIntervalMilliseconds = playerListPollIntervalMilliseconds;
             themeService.Register(launcherKryptonPalette, this);
+
+            EventHandler reloadLobbyProfiles = (sender, e) => LoadLobbyProfiles();
+            gameDirectory.Changed += reloadLobbyProfiles;
+            Disposed += (sender, e) => gameDirectory.Changed -= reloadLobbyProfiles;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -104,23 +111,35 @@ namespace Empire_Earth_Launcher
         /// </summary>
         private void LoadLobbyProfiles()
         {
-            usersLobbyKryptonComboBox.Items.Clear();
             lobbyGlobalData = null;
+            lobbyUserData = null;
+            usersLobbyKryptonComboBox.Items.Clear();
+            usersLobbyKryptonComboBox.Enabled = true;
+            neoOnlineKryptonGroupBox.Values.Description = string.Empty;
 
-            if (!File.Exists(LobbyGlobalDataFile))
+            if (gameDirectory.Location == null)
             {
-                logger.Warning("No lobby profiles found (" + Path.GetFullPath(LobbyGlobalDataFile) + " does not exist).");
+                ShowLobbyProfilesUnavailable("Empire Earth installation not found");
+                return;
+            }
+
+            // Both lobby files come from the same game folder (the profile list used to be read relative to the
+            // current directory and the user files from a hard-coded installation path).
+            string globalDataFile = Path.Combine(gameDirectory.Location, LobbyPersistentData.GlobalDataFileName);
+            if (!File.Exists(globalDataFile))
+            {
+                logger.Warning("No lobby profiles found (" + globalDataFile + " does not exist).");
                 ShowLobbyProfilesUnavailable("No lobby profile found");
                 return;
             }
 
             try
             {
-                lobbyGlobalData = new LobbyPersistentData.LobbyGlobalData(LobbyGlobalDataFile);
+                lobbyGlobalData = new LobbyPersistentData.LobbyGlobalData(globalDataFile);
             }
             catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is InvalidDataException)
             {
-                logger.Error("Unable to read the lobby profiles from " + Path.GetFullPath(LobbyGlobalDataFile), ex);
+                logger.Error("Unable to read the lobby profiles from " + globalDataFile, ex);
                 ShowLobbyProfilesUnavailable("Lobby profiles could not be read (see log.txt)");
                 return;
             }
@@ -249,9 +268,10 @@ namespace Empire_Earth_Launcher
             if (selectedPlayer == null)
                 return;
 
-            string tmppath = @"C:\Program Files (x86)\Neo Empire Earth\Empire Earth";
-            FileInfo fileInfo = new FileInfo(Path.Combine(tmppath, "_wonuser" + selectedPlayer.FileID + ".dat"));
-
+            lobbyUserData = null;
+            neoOnlineKryptonGroupBox.Values.Description = string.Empty;
+            FileInfo fileInfo = new FileInfo(Path.Combine(gameDirectory.Location,
+                LobbyPersistentData.GetUserDataFileName(selectedPlayer.FileID)));
             if (!fileInfo.Exists)
                 return;
 
