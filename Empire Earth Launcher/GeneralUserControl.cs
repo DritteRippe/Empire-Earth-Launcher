@@ -131,7 +131,7 @@ namespace Empire_Earth_Launcher
             foreach (NeoAPI.ConnectedPlayersMessage.PlayerInfo pInfo in message.PlayersInfo)
             {
                 if (!usersLobbyKryptonComboBox.Text.Equals(pInfo.Name, StringComparison.InvariantCultureIgnoreCase))
-                    onlinePlayersKryptonDataGridView.Rows.Add(pInfo.Name, pInfo.GameStateToString(pInfo.GameState));
+                    onlinePlayersKryptonDataGridView.Rows.Add(pInfo.Name, pInfo.GameStateToString());
             }
         }
 
@@ -173,10 +173,14 @@ namespace Empire_Earth_Launcher
         {
             try
             {
-                return new NeoAPI.ConnectedPlayersMessage();
+                NeoAPI.ConnectedPlayersMessage message;
+                Exception error;
+                return NeoAPI.ConnectedPlayersMessage.TryRequest(out message, out error) ? (object)message : error;
             }
             catch (Exception ex)
             {
+                // TryRequest already turns network and protocol errors into a result; anything else is a
+                // bug, but it must not end the polling either.
                 return ex;
             }
         }
