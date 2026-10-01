@@ -98,8 +98,6 @@
       <DependentUpon>SettingsUserControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Utils\ControlUpdater.cs" />
-    <Compile Include="WON\LobbyPersistentData.cs" />
-    <Compile Include="WON\NeoAPI.cs" />
     <EmbeddedResource Include="Form1.fr.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -187,6 +185,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\DialogBorderLeft.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Empire-Earth-WON\Empire-Earth-WON.csproj">
+      <Project>{8434796d-a702-4665-bd95-f5fb6106e825}</Project>
+      <Name>Empire-Earth-WON</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

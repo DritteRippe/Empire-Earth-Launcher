@@ -1,5 +1,6 @@
 ﻿// Version information shared by every assembly of Empire-Earth.sln
-// (Empire Earth Launcher, Empire-Earth-Mod-Lib and Empire-Earth-Mod).
+// (Empire Earth Launcher, Empire-Earth-WON, Empire-Earth-Mod-Lib and
+// Empire-Earth-Mod).
 //
 // The projects live in one repository and are released together, so they
 // carry one version number. Change it here and only here; every project

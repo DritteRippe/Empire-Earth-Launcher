@@ -6,7 +6,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 
-namespace Empire_Earth_Launcher.WON
+namespace Empire_Earth_WON
 {
     // Well it's not a lot be enough for minimal informations
 

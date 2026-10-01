@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Empire_Earth_Launcher.WON;
+using Empire_Earth_WON;
 
 namespace Empire_Earth_Launcher
 {

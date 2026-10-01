@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Empire-Earth-Mod-Lib", "Emp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Empire-Earth-Mod", "Empire-Earth-Mod\Empire-Earth-Mod\Empire-Earth-Mod.csproj", "{0112D089-8DC3-4BAC-AAAD-DE70B7A314DF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Empire-Earth-WON", "Empire-Earth-WON\Empire-Earth-WON.csproj", "{8434796D-A702-4665-BD95-F5FB6106E825}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{0112D089-8DC3-4BAC-AAAD-DE70B7A314DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0112D089-8DC3-4BAC-AAAD-DE70B7A314DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0112D089-8DC3-4BAC-AAAD-DE70B7A314DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8434796D-A702-4665-BD95-F5FB6106E825}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8434796D-A702-4665-BD95-F5FB6106E825}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8434796D-A702-4665-BD95-F5FB6106E825}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8434796D-A702-4665-BD95-F5FB6106E825}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

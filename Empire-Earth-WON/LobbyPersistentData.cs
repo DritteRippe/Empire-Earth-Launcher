@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Empire_Earth_Launcher.WON
+namespace Empire_Earth_WON
 {
     /// <summary>
     /// LobbyGlobalData: Parsing fully done

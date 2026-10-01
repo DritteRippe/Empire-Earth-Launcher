@@ -93,10 +93,11 @@ Empire-Earth.sln                  Root solution containing every project
 SharedAssemblyInfo.cs             Version information shared by all assemblies
 THIRD-PARTY-NOTICES.md            Vendored code and NuGet dependencies with their licenses
 Empire Earth Launcher/            The launcher (WinForms + Krypton UI)
-├─ WON/NeoAPI.cs                  Client for the NeoEE lobby server
-├─ WON/LobbyPersistentData.cs     Parser for _wonlobbypersistent.dat
 ├─ Utils/                         UI helpers
 └─ Resources/                     Images and icon used by the UI
+Empire-Earth-WON/                 WON/NeoEE library, no UI (used by the launcher)
+├─ NeoAPI.cs                      Client for the NeoEE lobby server
+└─ LobbyPersistentData.cs         Parser for the WON lobby files (_wonlobbypersistent.dat, _wonuser*.dat)
 Empire-Earth-Mod/
 ├─ Empire-Earth-Mod-Lib/          Mod library: mod data model, .eem packages, Windows version detection
 │                                 (ZipStorer.cs is a vendored third-party ZIP library)
