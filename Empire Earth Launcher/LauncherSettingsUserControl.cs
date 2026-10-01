@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
 using Empire_Earth_Launcher.Properties;
@@ -130,7 +131,7 @@ namespace Empire_Earth_Launcher
             string themeFile;
             using (var openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.Filter = "Theme File (*.xml)|*.xml|All files (*.*)|*.*";
+                openFileDialog.Filter = Resources.ThemeFileFilter;
                 if (openFileDialog.ShowDialog(this) != DialogResult.OK)
                     return;
                 themeFile = openFileDialog.FileName;
@@ -148,9 +149,9 @@ namespace Empire_Earth_Launcher
 
         private void ShowThemeNotLoaded()
         {
-            MessageBox.Show(this, "The theme could not be loaded. Details have been written to " +
-                                  LauncherPaths.LogFile + ".", "Empire Earth Launcher",
-                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show(this,
+                string.Format(CultureInfo.CurrentCulture, Resources.ThemeNotLoadedFormat, LauncherPaths.LogFile),
+                Resources.LauncherTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         private void ShowGameDirectory()
@@ -161,17 +162,18 @@ namespace Empire_Earth_Launcher
             {
                 case GameDirectorySource.UserSetting:
                     gameDirectorySourceKryptonLabel.Values.Text = Directory.Exists(location)
-                        ? "Chosen manually"
-                        : "Chosen manually, but the folder does not exist";
+                        ? Resources.GameDirectorySourceUser
+                        : Resources.GameDirectorySourceUserMissing;
                     break;
                 case GameDirectorySource.Registry:
-                    gameDirectorySourceKryptonLabel.Values.Text = "Detected from the game installation";
+                    gameDirectorySourceKryptonLabel.Values.Text = Resources.GameDirectorySourceRegistry;
                     break;
                 case GameDirectorySource.LauncherFolder:
-                    gameDirectorySourceKryptonLabel.Values.Text = "Detected in the launcher folder";
+                    gameDirectorySourceKryptonLabel.Values.Text = Resources.GameDirectorySourceLauncherFolder;
                     break;
                 default:
-                    gameDirectorySourceKryptonLabel.Values.Text = "Not found, please choose the folder of Empire Earth.exe";
+                    gameDirectorySourceKryptonLabel.Values.Text = string.Format(CultureInfo.CurrentCulture,
+                        Resources.GameDirectoryNotFoundHintFormat, GameDirectoryLocator.GameExecutableName);
                     break;
             }
         }
@@ -181,8 +183,8 @@ namespace Empire_Earth_Launcher
             string folder;
             using (var folderBrowserDialog = new FolderBrowserDialog())
             {
-                folderBrowserDialog.Description = "Select the Empire Earth folder (the folder of " +
-                                                  GameDirectoryLocator.GameExecutableName + ").";
+                folderBrowserDialog.Description = string.Format(CultureInfo.CurrentCulture,
+                    Resources.SelectGameDirectoryFormat, GameDirectoryLocator.GameExecutableName);
                 folderBrowserDialog.ShowNewFolderButton = false;
                 if (gameDirectory.Location != null && Directory.Exists(gameDirectory.Location))
                     folderBrowserDialog.SelectedPath = gameDirectory.Location;
@@ -192,9 +194,11 @@ namespace Empire_Earth_Launcher
             }
 
             if (!GameDirectoryLocator.IsGameDirectory(folder) &&
-                MessageBox.Show(this, "This folder does not contain " + GameDirectoryLocator.GameExecutableName +
-                                      ":\n" + folder + "\n\nUse it anyway?", "Empire Earth Launcher",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+                MessageBox.Show(this,
+                    string.Format(CultureInfo.CurrentCulture, Resources.GameExecutableMissingFormat,
+                        GameDirectoryLocator.GameExecutableName, folder),
+                    Resources.LauncherTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
+                    MessageBoxDefaultButton.Button2) != DialogResult.Yes)
             {
                 return;
             }

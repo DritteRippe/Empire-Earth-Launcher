@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using Empire_Earth_Launcher.Properties;
 using Empire_Earth_WON;
 
 namespace Empire_Earth_Launcher
@@ -99,9 +96,10 @@ namespace Empire_Earth_Launcher
         {
             if (neoClient == null)
             {
-                neoOnlineKryptonGroupBox.Values.Heading = "Online Players (invalid server settings, see log.txt)";
+                neoOnlineKryptonGroupBox.Values.Heading = Resources.OnlinePlayersInvalidSettings;
                 return;
             }
+            neoOnlineKryptonGroupBox.Values.Heading = Resources.OnlinePlayersLoading;
             backgroundWorker.RunWorkerAsync();
         }
 
@@ -119,7 +117,7 @@ namespace Empire_Earth_Launcher
 
             if (gameDirectory.Location == null)
             {
-                ShowLobbyProfilesUnavailable("Empire Earth installation not found");
+                ShowLobbyProfilesUnavailable(Resources.GameDirectoryNotFound);
                 return;
             }
 
@@ -129,7 +127,7 @@ namespace Empire_Earth_Launcher
             if (!File.Exists(globalDataFile))
             {
                 logger.Warning("No lobby profiles found (" + globalDataFile + " does not exist).");
-                ShowLobbyProfilesUnavailable("No lobby profile found");
+                ShowLobbyProfilesUnavailable(Resources.NoLobbyProfileFound);
                 return;
             }
 
@@ -140,7 +138,7 @@ namespace Empire_Earth_Launcher
             catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is InvalidDataException)
             {
                 logger.Error("Unable to read the lobby profiles from " + globalDataFile, ex);
-                ShowLobbyProfilesUnavailable("Lobby profiles could not be read (see log.txt)");
+                ShowLobbyProfilesUnavailable(Resources.LobbyProfilesUnreadable);
                 return;
             }
 
@@ -152,7 +150,7 @@ namespace Empire_Earth_Launcher
             if (usersLobbyKryptonComboBox.Items.Count > 0)
                 usersLobbyKryptonComboBox.SelectedIndex = 0;
             else
-                ShowLobbyProfilesUnavailable("No lobby profile found");
+                ShowLobbyProfilesUnavailable(Resources.NoLobbyProfileFound);
         }
 
         private void ShowLobbyProfilesUnavailable(string reason)
@@ -182,12 +180,31 @@ namespace Empire_Earth_Launcher
 
             onlinePlayersKryptonDataGridView.Rows.Clear();
 
-            neoOnlineKryptonGroupBox.Values.Heading = "Online Players (" + message.OnlinePlayers + ")";
+            neoOnlineKryptonGroupBox.Values.Heading =
+                string.Format(CultureInfo.CurrentCulture, Resources.OnlinePlayersFormat, message.OnlinePlayers);
 
             foreach (NeoApiClient.ConnectedPlayersMessage.PlayerInfo pInfo in message.PlayersInfo)
             {
                 if (!usersLobbyKryptonComboBox.Text.Equals(pInfo.Name, StringComparison.InvariantCultureIgnoreCase))
-                    onlinePlayersKryptonDataGridView.Rows.Add(pInfo.Name, pInfo.GameStateToString());
+                    onlinePlayersKryptonDataGridView.Rows.Add(pInfo.Name, GetGameStateText(pInfo.GameState));
+            }
+        }
+
+        /// <summary>
+        /// Display text of a player's game state, with a fallback for states the launcher does not know.
+        /// </summary>
+        private static string GetGameStateText(NeoApiClient.ConnectedPlayersMessage.PlayerInfo.PlayerGameState gameState)
+        {
+            switch (gameState)
+            {
+                case NeoApiClient.ConnectedPlayersMessage.PlayerInfo.PlayerGameState.Lobby:
+                    return Resources.PlayerStateLobby;
+                case NeoApiClient.ConnectedPlayersMessage.PlayerInfo.PlayerGameState.Room:
+                    return Resources.PlayerStateRoom;
+                case NeoApiClient.ConnectedPlayersMessage.PlayerInfo.PlayerGameState.Playing:
+                    return Resources.PlayerStatePlaying;
+                default:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.PlayerStateUnknownFormat, (int)gameState);
             }
         }
 
@@ -201,7 +218,7 @@ namespace Empire_Earth_Launcher
             }
 
             onlinePlayersKryptonDataGridView.Rows.Clear();
-            neoOnlineKryptonGroupBox.Values.Heading = "Online Players (unavailable)";
+            neoOnlineKryptonGroupBox.Values.Heading = Resources.OnlinePlayersUnavailable;
         }
 
         private void backgroundWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -254,7 +271,7 @@ namespace Empire_Earth_Launcher
 
             logger.Error("The online player list polling stopped unexpectedly.", e.Error);
             if (!IsDisposed)
-                neoOnlineKryptonGroupBox.Values.Heading = "Online Players (unavailable, see log.txt)";
+                neoOnlineKryptonGroupBox.Values.Heading = Resources.OnlinePlayersUnavailableSeeLog;
         }
 
         private void usersLobbyKryptonComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -283,10 +300,11 @@ namespace Empire_Earth_Launcher
             {
                 logger.Error("Unable to read the lobby user data from " + fileInfo.FullName, ex);
                 lobbyUserData = null;
-                neoOnlineKryptonGroupBox.Values.Description = "Friends could not be read (see log.txt)";
+                neoOnlineKryptonGroupBox.Values.Description = Resources.FriendsUnreadable;
                 return;
             }
-            neoOnlineKryptonGroupBox.Values.Description = "Friends (" + lobbyUserData.Friends.Count + ")";
+            neoOnlineKryptonGroupBox.Values.Description =
+                string.Format(CultureInfo.CurrentCulture, Resources.FriendsFormat, lobbyUserData.Friends.Count);
         }
     }
 }

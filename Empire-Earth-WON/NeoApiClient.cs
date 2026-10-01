@@ -320,24 +320,6 @@ namespace Empire_Earth_WON
                     WonId = wonId;
                     GameState = gameState;
                 }
-
-                /// <summary>
-                /// Display text of <see cref="GameState"/>, with a fallback for states the launcher does not know.
-                /// </summary>
-                public string GameStateToString()
-                {
-                    switch (GameState)
-                    {
-                        case PlayerGameState.Lobby:
-                            return "Lobby";
-                        case PlayerGameState.Room:
-                            return "Room";
-                        case PlayerGameState.Playing:
-                            return "Playing";
-                        default:
-                            return "Unknown (" + (int)GameState + ")";
-                    }
-                }
             }
 
             public int OnlinePlayers { get; private set; }

@@ -117,167 +117,98 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="DialogBackground" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\DialogBackground.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="radio_checked" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\radio_checked.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="combo" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\combo.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="DialogBorder" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\DialogBorder.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="combo_disabled" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\combo_disabled.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="unchecked" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\unchecked.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="ee_book" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\ee_book.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="radio_unchecked_disabled" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\radio_unchecked_disabled.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="DialogEdge" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\DialogEdge.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="radio_checked_disabled" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\radio_checked_disabled.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="radio_unchecked" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\radio_unchecked.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="checked" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\checked.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="eegenericbutton_gold" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\eegenericbutton_gold.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="eegenericbutton_gold_pressed" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\eegenericbutton_gold_pressed.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="EmpireEarthLauncher" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\EmpireEarthLauncher.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="unchecked_disabled" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\unchecked_disabled.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="checked_disabled" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\checked_disabled.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="DialogBorderLeft" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\DialogBorderLeft.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="LauncherTitle" xml:space="preserve">
     <value>Empire Earth Launcher</value>
-    <comment>Caption of the launcher's message boxes.</comment>
   </data>
   <data name="UnexpectedErrorClosing" xml:space="preserve">
-    <value>An unexpected error occurred and the launcher has to close.</value>
+    <value>Une erreur inattendue s'est produite et le launcher doit se fermer.</value>
   </data>
   <data name="UnexpectedErrorContinuing" xml:space="preserve">
-    <value>An unexpected error occurred. The launcher will try to continue.</value>
+    <value>Une erreur inattendue s'est produite. Le launcher va essayer de continuer.</value>
   </data>
   <data name="UnknownError" xml:space="preserve">
-    <value>Unknown error.</value>
+    <value>Erreur inconnue.</value>
   </data>
   <data name="DetailsWrittenToLogFormat" xml:space="preserve">
-    <value>Details have been written to {0}.</value>
-    <comment>{0}: full path of the log file.</comment>
+    <value>Les détails ont été écrits dans {0}.</value>
   </data>
   <data name="OnlinePlayersFormat" xml:space="preserve">
-    <value>Online Players ({0})</value>
-    <comment>{0}: number of players.</comment>
+    <value>Joueurs en ligne ({0})</value>
   </data>
   <data name="OnlinePlayersLoading" xml:space="preserve">
-    <value>Online Players (...)</value>
-    <comment>Shown until the first player list arrives.</comment>
+    <value>Joueurs en ligne (...)</value>
   </data>
   <data name="OnlinePlayersUnavailable" xml:space="preserve">
-    <value>Online Players (unavailable)</value>
+    <value>Joueurs en ligne (indisponible)</value>
   </data>
   <data name="OnlinePlayersUnavailableSeeLog" xml:space="preserve">
-    <value>Online Players (unavailable, see the log)</value>
+    <value>Joueurs en ligne (indisponible, voir le journal)</value>
   </data>
   <data name="OnlinePlayersInvalidSettings" xml:space="preserve">
-    <value>Online Players (invalid server settings, see the log)</value>
+    <value>Joueurs en ligne (paramètres du serveur invalides, voir le journal)</value>
   </data>
   <data name="GameDirectoryNotFound" xml:space="preserve">
-    <value>Empire Earth installation not found</value>
+    <value>Installation d'Empire Earth introuvable</value>
   </data>
   <data name="NoLobbyProfileFound" xml:space="preserve">
-    <value>No lobby profile found</value>
+    <value>Aucun profil de lobby trouvé</value>
   </data>
   <data name="LobbyProfilesUnreadable" xml:space="preserve">
-    <value>Lobby profiles could not be read (see the log)</value>
+    <value>Impossible de lire les profils du lobby (voir le journal)</value>
   </data>
   <data name="FriendsFormat" xml:space="preserve">
-    <value>Friends ({0})</value>
-    <comment>{0}: number of friends.</comment>
+    <value>Amis ({0})</value>
   </data>
   <data name="FriendsUnreadable" xml:space="preserve">
-    <value>Friends could not be read (see the log)</value>
+    <value>Impossible de lire les amis (voir le journal)</value>
   </data>
   <data name="PlayerStateLobby" xml:space="preserve">
     <value>Lobby</value>
-    <comment>Game state of an online player.</comment>
   </data>
   <data name="PlayerStateRoom" xml:space="preserve">
-    <value>Room</value>
-    <comment>Game state of an online player.</comment>
+    <value>Salon</value>
   </data>
   <data name="PlayerStatePlaying" xml:space="preserve">
-    <value>Playing</value>
-    <comment>Game state of an online player.</comment>
+    <value>En jeu</value>
   </data>
   <data name="PlayerStateUnknownFormat" xml:space="preserve">
-    <value>Unknown ({0})</value>
-    <comment>{0}: state number sent by the server.</comment>
+    <value>Inconnu ({0})</value>
   </data>
   <data name="ThemeFileFilter" xml:space="preserve">
-    <value>Theme File (*.xml)|*.xml|All files (*.*)|*.*</value>
-    <comment>File dialog filter: keep the | separators and patterns.</comment>
+    <value>Fichier de thème (*.xml)|*.xml|Tous les fichiers (*.*)|*.*</value>
   </data>
   <data name="ThemeNotLoadedFormat" xml:space="preserve">
-    <value>The theme could not be loaded. Details have been written to {0}.</value>
-    <comment>{0}: full path of the log file.</comment>
+    <value>Impossible de charger le thème. Les détails ont été écrits dans {0}.</value>
   </data>
   <data name="GameDirectorySourceUser" xml:space="preserve">
-    <value>Chosen manually</value>
+    <value>Choisi manuellement</value>
   </data>
   <data name="GameDirectorySourceUserMissing" xml:space="preserve">
-    <value>Chosen manually, but the folder does not exist</value>
+    <value>Choisi manuellement, mais le dossier n'existe pas</value>
   </data>
   <data name="GameDirectorySourceRegistry" xml:space="preserve">
-    <value>Detected from the game installation</value>
+    <value>Détecté à partir de l'installation du jeu</value>
   </data>
   <data name="GameDirectorySourceLauncherFolder" xml:space="preserve">
-    <value>Detected in the launcher folder</value>
+    <value>Détecté dans le dossier du launcher</value>
   </data>
   <data name="GameDirectoryNotFoundHintFormat" xml:space="preserve">
-    <value>Not found, please choose the folder of {0}</value>
-    <comment>{0}: name of the game executable.</comment>
+    <value>Introuvable, veuillez choisir le dossier de {0}</value>
   </data>
   <data name="SelectGameDirectoryFormat" xml:space="preserve">
-    <value>Select the Empire Earth folder (the folder of {0}).</value>
-    <comment>{0}: name of the game executable.</comment>
+    <value>Sélectionnez le dossier d'Empire Earth (le dossier de {0}).</value>
   </data>
   <data name="GameExecutableMissingFormat" xml:space="preserve">
-    <value>This folder does not contain {0}:
+    <value>Ce dossier ne contient pas {0} :
 {1}
 
-Use it anyway?</value>
-    <comment>{0}: name of the game executable, {1}: folder.</comment>
+L'utiliser quand même ?</value>
   </data>
   <data name="CompatibilityHintTitle" xml:space="preserve">
-    <value>Compatibility options</value>
+    <value>Options de compatibilité</value>
   </data>
   <data name="CompatibilityHintMessage" xml:space="preserve">
-    <value>Change one option at a time and start the game to check it.
-If the game gets worse, undo the last change.</value>
+    <value>Modifiez une option à la fois et lancez le jeu pour la vérifier.
+Si le jeu fonctionne moins bien, annulez la dernière modification.</value>
   </data>
 </root>

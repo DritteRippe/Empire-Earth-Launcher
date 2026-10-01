@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Threading;
 using System.Windows.Forms;
 using Empire_Earth_Launcher.Properties;
@@ -134,14 +135,13 @@ namespace Empire_Earth_Launcher
                 Console.Error.WriteLine(logException);
             }
 
-            string message = (isTerminating
-                                 ? "An unexpected error occurred and the launcher has to close."
-                                 : "An unexpected error occurred. The launcher will try to continue.")
+            string message = (isTerminating ? Resources.UnexpectedErrorClosing : Resources.UnexpectedErrorContinuing)
                              + Environment.NewLine + Environment.NewLine
-                             + (exception != null ? exception.Message : "Unknown error.")
+                             + (exception != null ? exception.Message : Resources.UnknownError)
                              + Environment.NewLine + Environment.NewLine
-                             + "Details have been written to " + LauncherPaths.LogFile + ".";
-            MessageBox.Show(message, "Empire Earth Launcher", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                             + string.Format(CultureInfo.CurrentCulture, Resources.DetailsWrittenToLogFormat,
+                                 LauncherPaths.LogFile);
+            MessageBox.Show(message, Resources.LauncherTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }

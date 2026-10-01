@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
+using Empire_Earth_Launcher.Properties;
 
 namespace Empire_Earth_Launcher
 {
@@ -34,8 +29,8 @@ namespace Empire_Earth_Launcher
         {
             compatibilityWarningKryptonPanel.Visible = false;
             // ShowDialog does not dispose the form; the using block releases it (and its theme registration).
-            using (var dialog = new LauncherDialog(themeService, "Simple Question Dialog",
-                       "This a very basic question blabla\nanother line here wow", MessageBoxButtons.OK))
+            using (var dialog = new LauncherDialog(themeService, Resources.CompatibilityHintTitle,
+                       Resources.CompatibilityHintMessage, MessageBoxButtons.OK))
             {
                 dialog.ShowDialog(this);
             }
