@@ -86,6 +86,13 @@ the `bin/Release` folders (a test program reports failure through a non-zero exi
 **Line endings**: `.gitattributes` stores text files with LF and checks C#, `.resx` and other Visual Studio
 files out with CRLF, so no extra `core.autocrlf` configuration is needed.
 
+**Code style**: `.editorconfig` defines the .NET naming conventions (shown as suggestions in Visual Studio and
+Rider). Code comments are written in English.
+
+**Localization**: texts set from code live in `Properties/Resources.resx` (English) and
+`Properties/Resources.fr.resx` (French) of each application; the launcher's navigation buttons are translated
+in `MainForm.fr.resx`. Add a language by adding `*.<culture>.resx` files next to them.
+
 ### Project layout
 
 ```
@@ -93,17 +100,41 @@ Empire-Earth.sln                  Root solution containing every project
 SharedAssemblyInfo.cs             Version information shared by all assemblies
 THIRD-PARTY-NOTICES.md            Vendored code and NuGet dependencies with their licenses
 Empire Earth Launcher/            The launcher (WinForms + Krypton UI)
+├─ Program.cs                     Entry point and composition root: creates and passes on the services
+├─ ILogger.cs                     Logging interface (implemented by TraceFileLogger.cs)
+├─ IThemeService.cs               Theme interface (implemented by KryptonThemeService.cs)
+├─ GameDirectory*.cs              Detection of the Empire Earth folder
+├─ LauncherPaths.cs               File locations of the launcher
 └─ Resources/                     Images and icon used by the UI
 Empire-Earth-WON/                 WON/NeoEE library, no UI (used by the launcher)
 ├─ NeoApiClient.cs                Client for the NeoEE lobby server
+├─ NeoServerEndpoint.cs           Server address and timeout
 └─ LobbyPersistentData.cs         Parser for the WON lobby files (_wonlobbypersistent.dat, _wonuser*.dat)
 Empire-Earth-Mod/
-├─ Empire-Earth-Mod-Lib/          Mod library: mod data model, .eem packages, Windows version detection
+├─ Empire-Earth-Mod-Lib/          Mod library: ModData (mod description), ModAssets (icon/banners),
+│                                 ModPackageBuilder/ModArchiveReader (.eem packages), Windows version detection
 │                                 (ZipStorer.cs is a vendored third-party ZIP library)
 └─ Empire-Earth-Mod/              Mod creator (WinForms), uses Empire-Earth-Mod-Lib
 packages/                         NuGet packages, restored on build (not committed)
 .github/workflows/build.yml       CI build
 ```
+
+### Configuration and files
+
+- **Game folder**: the launcher reads the WON lobby files from the Empire Earth folder. It uses the folder
+  chosen on the *Launcher* page, otherwise the installation registered by the Empire Earth setups
+  (`Installed From Volume` + `Installed From Directory` below `Software\Neo\Empire Earth` or
+  `Software\SSSI\Empire Earth`, HKCU before HKLM), otherwise its own folder if it contains `Empire Earth.exe`.
+- **User settings** (game folder, theme) are saved by .NET in the user's `user.config` below
+  `%LOCALAPPDATA%`.
+- **Server settings**: `NeoServerHost`, `NeoServerPort`, `NeoTimeoutMilliseconds` and
+  `PlayerListPollIntervalMilliseconds` are application settings in `Empire Earth Launcher.exe.config`
+  (generated from `App.config`) and can be changed there without rebuilding. The NeoEE status service is plain
+  TCP without TLS or server authentication (a property of the server); the launcher only reads public status
+  data from it and validates every reply.
+- **Themes**: Krypton palette files (`*.xml`) in the `themes` folder next to the executable, or any file chosen
+  with *Custom*. No theme files are shipped yet; without them the designer colors are used.
+- **Log**: `%LOCALAPPDATA%\Empire Earth Launcher\log.txt` (the installation folder may be read-only).
 
 ## 🔨 Contributing
 Pull requests are welcome.\
