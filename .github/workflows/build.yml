@@ -1,0 +1,84 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build (Release) and run tests
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      SOLUTION: Empire-Earth.sln
+      CONFIGURATION: Release
+      REFASM_PACKAGE: Microsoft.NETFramework.ReferenceAssemblies.net40
+      REFASM_VERSION: 1.0.3
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore NuGet packages
+        run: nuget restore $env:SOLUTION -NonInteractive
+
+      # All projects target .NET Framework 4.0 (old Windows support, see
+      # README). Current Visual Studio images no longer ship the 4.0 targeting
+      # pack, so build against Microsoft's reference assemblies from NuGet.
+      # Nothing is installed into the projects; the path is only passed to
+      # MSBuild below.
+      - name: Fetch .NET Framework 4.0 reference assemblies
+        run: |
+          nuget install $env:REFASM_PACKAGE -Version $env:REFASM_VERSION -OutputDirectory "$env:RUNNER_TEMP\refasm" -NonInteractive
+          $root = Join-Path $env:RUNNER_TEMP "refasm\$env:REFASM_PACKAGE.$env:REFASM_VERSION\build"
+          if (-not (Test-Path -LiteralPath (Join-Path $root '.NETFramework\v4.0\mscorlib.dll'))) {
+            throw "Reference assemblies not found under $root"
+          }
+          "REFASM_ROOT=$root" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Build
+        run: >-
+          msbuild $env:SOLUTION /nologo /m /v:minimal
+          "/p:Configuration=$env:CONFIGURATION"
+          "/p:TargetFrameworkRootPath=$env:REFASM_ROOT"
+          "/p:FrameworkPathOverride=$env:REFASM_ROOT\.NETFramework\v4.0"
+
+      # Test projects are console programs named *Tests.exe that return a
+      # non-zero exit code on failure. The step passes if there are none yet.
+      - name: Run tests
+        run: |
+          $tests = @(Get-ChildItem -Path . -Recurse -File -Filter '*Tests.exe' |
+            Where-Object { $_.FullName -like "*\bin\$env:CONFIGURATION\*" })
+          if ($tests.Count -eq 0) {
+            Write-Host 'No *Tests.exe found, nothing to run.'
+            exit 0
+          }
+          $failed = @()
+          foreach ($test in $tests) {
+            Write-Host "::group::$($test.Name)"
+            Push-Location -LiteralPath $test.DirectoryName
+            try {
+              & $test.FullName
+              $code = $LASTEXITCODE
+            } finally {
+              Pop-Location
+            }
+            Write-Host '::endgroup::'
+            if ($code -ne 0) {
+              Write-Host "::error title=Tests failed::$($test.Name) exited with code $code"
+              $failed += $test.Name
+            }
+          }
+          if ($failed.Count -gt 0) { exit 1 }
+          exit 0
