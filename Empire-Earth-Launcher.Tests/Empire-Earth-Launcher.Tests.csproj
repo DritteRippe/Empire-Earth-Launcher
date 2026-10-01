@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6CB9BF29-C53C-4C49-9B34-BC672786B7A5}</ProjectGuid>
+    <!-- A console program that runs its own tests with NUnitLite (see Program.cs): no test adapter or
+         nunit3-console is needed, and the exit code is non-zero when a test fails. -->
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Empire_Earth_Launcher.Tests</RootNamespace>
+    <!-- The name must end with "Tests": CI and the build scripts run every *Tests.exe. The launcher grants
+         InternalsVisibleTo to this name. -->
+    <AssemblyName>Empire-Earth-Launcher.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>Empire_Earth_Launcher.Tests.Program</StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="nunit.framework, Version=3.12.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.3.12.0\lib\net40\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="nunitlite, Version=3.12.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnitLite.3.12.0\lib\net40\nunitlite.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="TestSupport\ChunkedReadStream.cs" />
+    <Compile Include="TestSupport\TemporaryDirectory.cs" />
+    <Compile Include="Won\LobbyFileBuilder.cs" />
+    <Compile Include="Won\LobbyPersistentDataTests.cs" />
+    <Compile Include="Won\NeoApiClientTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Empire Earth Launcher\Empire Earth Launcher.csproj">
+      <Project>{71CA6797-5F6D-4DEF-8F1F-9E7D87A76268}</Project>
+      <Name>Empire Earth Launcher</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Empire-Earth-Mod\Empire-Earth-Mod-Lib\Empire-Earth-Mod-Lib.csproj">
+      <Project>{DF1CF00A-454B-4ECE-911A-CBB577D7360C}</Project>
+      <Name>Empire-Earth-Mod-Lib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Empire-Earth-WON\Empire-Earth-WON.csproj">
+      <Project>{8434796D-A702-4665-BD95-F5FB6106E825}</Project>
+      <Name>Empire-Earth-WON</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
