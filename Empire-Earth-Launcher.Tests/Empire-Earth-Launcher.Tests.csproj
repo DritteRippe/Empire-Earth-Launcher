@@ -53,6 +53,8 @@
     <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Launcher\GameDirectoryLocatorTests.cs" />
+    <Compile Include="Launcher\LogTrimmingTests.cs" />
     <Compile Include="Mod\ModArchiveTests.cs" />
     <Compile Include="Mod\ModAssetsTests.cs" />
     <Compile Include="Mod\ModDataTests.cs" />
