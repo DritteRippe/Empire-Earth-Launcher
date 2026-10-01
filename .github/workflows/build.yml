@@ -58,7 +58,7 @@ jobs:
       # Empire-Earth-Launcher.Tests, NUnitLite) that return a non-zero exit
       # code on failure. Finding none means the test project was not built,
       # which fails the job. Each program writes an NUnit 3 result file that
-      # is kept as an artifact (test results only, no binaries).
+      # is kept as the test-results artifact.
       - name: Run tests
         run: |
           $tests = @(Get-ChildItem -Path . -Recurse -File -Filter '*Tests.exe' |
@@ -87,6 +87,45 @@ jobs:
           }
           if ($failed.Count -gt 0) { exit 1 }
           exit 0
+
+      # Test builds for manual testing, only when all tests passed: the Release
+      # output of both applications, together with the license texts that
+      # binary copies must carry. Prototype builds, not releases (see README).
+      - name: Package test builds
+        run: |
+          $dist = Join-Path $env:RUNNER_TEMP 'dist'
+          $apps = @(
+            @{ Name = 'Empire-Earth-Launcher';    Bin = "Empire Earth Launcher\bin\$env:CONFIGURATION" },
+            @{ Name = 'Empire-Earth-Mod-Creator'; Bin = "Empire-Earth-Mod\Empire-Earth-Mod\bin\$env:CONFIGURATION" }
+          )
+          foreach ($app in $apps) {
+            if (-not (Test-Path -LiteralPath $app.Bin -PathType Container)) {
+              throw "Build output not found: $($app.Bin)"
+            }
+            $target = Join-Path $dist $app.Name
+            New-Item -ItemType Directory -Force -Path $target | Out-Null
+            Copy-Item -Path (Join-Path $app.Bin '*') -Destination $target -Recurse
+            Copy-Item -LiteralPath 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'licenses\THIRD-PARTY-LICENSES.txt' -Destination $target
+            if (-not @(Get-ChildItem -LiteralPath $target -Filter '*.exe' -File)) {
+              throw "No executable in $target"
+            }
+          }
+
+      - name: Upload launcher test build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Empire-Earth-Launcher-testbuild
+          path: ${{ runner.temp }}/dist/Empire-Earth-Launcher/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload mod creator test build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Empire-Earth-Mod-Creator-testbuild
+          path: ${{ runner.temp }}/dist/Empire-Earth-Mod-Creator/
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Upload test results
         if: always()

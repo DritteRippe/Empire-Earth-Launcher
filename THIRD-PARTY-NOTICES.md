@@ -45,3 +45,10 @@ Tests only (`Empire-Earth-Launcher.Tests`, not shipped):
 
 Build-time only (CI, not shipped): `Microsoft.NETFramework.ReferenceAssemblies.net40` 1.0.3,
 .NET Framework 4.0 reference assemblies by Microsoft.
+
+## License texts in binary distributions
+
+Binary copies (including the CI test builds) must carry the license texts of the shipped components:
+`licenses/THIRD-PARTY-LICENSES.txt` contains the BSD-3-Clause text of Krypton.Toolkit (with the copyright
+line of the package's nuspec) and the MIT text of ZipStorer. The CI copies it next to the executables together
+with `LICENSE` and this file. Update it when a shipped component or its version changes.

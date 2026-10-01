@@ -100,6 +100,13 @@ helpers visible to the test assembly (`InternalsVisibleTo`), and so does the WON
 the `bin/Release` folders (a test program reports failure through a non-zero exit code; finding no test
 program fails the build). The NUnit result files are kept as the `test-results` artifact.
 
+**Test builds**: when all tests pass, the CI run also keeps the Release output of both applications for 30 days,
+as the artifacts `Empire-Earth-Launcher-testbuild` and `Empire-Earth-Mod-Creator-testbuild` (open the run under
+*Actions*, section *Artifacts*; downloading needs a GitHub login). Each zip contains the executables, their
+libraries, the French resources, the debug symbols (`.pdb`, for readable crash logs), `LICENSE`,
+`THIRD-PARTY-NOTICES.md` and `THIRD-PARTY-LICENSES.txt` (from `licenses/`). Unzip and run the
+`.exe`; .NET Framework 4 or newer is required. These are prototype builds for testing, not releases.
+
 **Versioning**: the version of all assemblies is maintained in one place, `SharedAssemblyInfo.cs`
 (currently `0.1.0-alpha`, nothing has been released yet).
 
