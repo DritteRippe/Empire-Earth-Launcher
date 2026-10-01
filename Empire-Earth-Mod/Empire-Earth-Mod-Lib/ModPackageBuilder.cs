@@ -26,15 +26,18 @@ namespace Empire_Earth_Mod_Lib
 
         /// <summary>
         /// Default parent folder of the working directories:
-        /// %LOCALAPPDATA%\Empire Earth Launcher\Mod Creator.
+        /// %LOCALAPPDATA%\Empire Earth Launcher\Mod Creator, or the same below the temporary folder for
+        /// accounts without a profile (like the launcher's LauncherPaths.UserDataDirectory).
         /// </summary>
         public static string DefaultWorkspaceRoot
         {
             get
             {
-                return Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "Empire Earth Launcher", "Mod Creator");
+                string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                // Empty for accounts without a profile; a relative root would be rejected by the constructor.
+                if (string.IsNullOrEmpty(localAppData))
+                    localAppData = Path.GetTempPath();
+                return Path.Combine(localAppData, "Empire Earth Launcher", "Mod Creator");
             }
         }
 
@@ -348,7 +351,7 @@ namespace Empire_Earth_Mod_Lib
         }
 
         /// <summary>
-        /// Synchronizes the <see cref="Empire_Earth_Mod_Lib.mod.ModFiles"/> of a variant with its folder: indexes new files
+        /// Synchronizes the <see cref="ModData.ModFiles"/> of a variant with its folder: indexes new files
         /// and removes the entries of deleted files. Only files inside a product folder
         /// (<see cref="EemFormat.ProductFolders"/>) are mod files.
         /// </summary>

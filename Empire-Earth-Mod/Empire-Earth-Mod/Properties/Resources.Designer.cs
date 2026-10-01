@@ -232,6 +232,17 @@ namespace Empire_Earth_Mod.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The mod creator could not create its working folder:
+        ///
+        ///{0}.
+        /// </summary>
+        internal static string ModCreatorNotStartedFormat {
+            get {
+                return ResourceManager.GetString("ModCreatorNotStartedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Mod Creator.
         /// </summary>
         internal static string ModCreatorTitle {

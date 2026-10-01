@@ -222,6 +222,11 @@ Pour simplement la renommer, double-cliquez sur la cellule de son nom.</value>
 
 {0}</value>
   </data>
+  <data name="ModCreatorNotStartedFormat" xml:space="preserve">
+    <value>Le créateur de mod n'a pas pu créer son dossier de travail :
+
+{0}</value>
+  </data>
   <data name="UseBuildButton" xml:space="preserve">
     <value>Utilisez le bouton « Créer » de la page des fichiers pour créer le mod.</value>
   </data>

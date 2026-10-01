@@ -40,13 +40,17 @@ namespace Empire_Earth_Mod
         /// <summary>Index of the banner shown for the selected variant.</summary>
         private int bannerIndex;
 
+        /// <exception cref="IOException">The working directory cannot be created.</exception>
+        /// <exception cref="UnauthorizedAccessException">The working directory cannot be created.</exception>
         public ModCreatorForm()
         {
-            InitializeComponent();
             mod = new ModData();
             assets = new ModAssets();
-            // Unique working directory below %LOCALAPPDATA%, released in OnFormClosed.
+            // Unique working directory below %LOCALAPPDATA%, released in OnFormClosed. Created before the
+            // controls, so that a failure leaves no half-built window behind.
             packageBuilder = new ModPackageBuilder(mod, assets);
+
+            InitializeComponent();
 
             buildWorker = new BackgroundWorker();
             buildWorker.DoWork += buildWorker_DoWork;
