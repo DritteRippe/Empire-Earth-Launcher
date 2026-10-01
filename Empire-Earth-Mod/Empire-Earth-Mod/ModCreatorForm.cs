@@ -36,15 +36,15 @@ namespace Empire_Earth_Mod
             buildWorker.RunWorkerCompleted += buildWorker_RunWorkerCompleted;
             // While the mod is built in the background, the pages that edit it must not be reachable through
             // the tab headers.
-            tabControl1.Selecting += (sender, e) =>
+            wizardTabControl.Selecting += (sender, e) =>
             {
                 if (buildWorker.IsBusy && e.TabPageIndex != BuildTabIndex)
                     e.Cancel = true;
             };
 
-            if (kryptonDataGridView1.Columns[4] is DataGridViewComboBoxColumn)
+            if (variantFilesKryptonDataGridView.Columns[4] is DataGridViewComboBoxColumn)
             {
-                if (!(kryptonDataGridView1.Columns[4] is DataGridViewComboBoxColumn columnAlternative))
+                if (!(variantFilesKryptonDataGridView.Columns[4] is DataGridViewComboBoxColumn columnAlternative))
                     return;
                 Enum.GetValues(typeof(ModFile.ModFileType)).Cast<ModFile.ModFileType>()
                     .Select(fileType => fileType.GetDescription()).ToList()
@@ -102,9 +102,9 @@ namespace Empire_Earth_Mod
         }
 
         /* Variants Management */
-        private void kryptonButton1_Click(object sender, EventArgs e)
+        private void nextKryptonButton_Click(object sender, EventArgs e)
         {
-            if (tabControl1.SelectedIndex == BuildTabIndex)
+            if (wizardTabControl.SelectedIndex == BuildTabIndex)
             {
                 // After a successful build the button reads "Close". The page can also be reached through
                 // its tab header without building; there is no next page then.
@@ -113,7 +113,7 @@ namespace Empire_Earth_Mod
                 return;
             }
 
-            if (tabControl1.SelectedIndex == 0)
+            if (wizardTabControl.SelectedIndex == 0)
             {
                 if (!_ApplyBasicInformation())
                     return;
@@ -134,16 +134,16 @@ namespace Empire_Earth_Mod
                 else
                 {
                     bannersPictureBox.Image = null;
-                    kryptonButton5.Enabled = false;
-                    kryptonButton6.Enabled = false;
+                    addBannerKryptonButton.Enabled = false;
+                    removeBannerKryptonButton.Enabled = false;
                     prevBannerKryptonButton.Enabled = false;
                     nextBannerKryptonButton.Enabled = false;
-                    kryptonLabel7.Values.ExtraText = string.Empty;
+                    bannerCounterKryptonLabel.Values.ExtraText = string.Empty;
                 }
                 backKryptonButton.Visible = true;
             }
 
-            if (tabControl1.SelectedIndex == 1)
+            if (wizardTabControl.SelectedIndex == 1)
             {
                 filesKryptonComboBox.Items.Clear();
 
@@ -156,13 +156,13 @@ namespace Empire_Earth_Mod
                 nextKryptonButton.Text = "Build >";
             }
 
-            if (tabControl1.SelectedIndex == 2)
+            if (wizardTabControl.SelectedIndex == 2)
             {
                 if (!StartBuild())
                     return;
             }
 
-            tabControl1.SelectTab(tabControl1.SelectedTab.TabIndex + 1);
+            wizardTabControl.SelectTab(wizardTabControl.SelectedTab.TabIndex + 1);
         }
 
         /// <summary>
@@ -186,14 +186,14 @@ namespace Empire_Earth_Mod
                 mod.Variants[Guid.Empty]
             };
             var variants = new List<KeyValuePair<Guid, string>>();
-            foreach (DataGridViewRow row in variantsKryptonDataGridView1.Rows)
+            foreach (DataGridViewRow row in variantsKryptonDataGridView.Rows)
             {
                 string variantName = Convert.ToString(row.Cells[0].Value).Trim();
                 if (variantName.Length == 0)
-                    return _RejectInput("Every variant needs a name.", variantsKryptonDataGridView1);
+                    return _RejectInput("Every variant needs a name.", variantsKryptonDataGridView);
                 if (!variantNames.Add(variantName))
                     return _RejectInput("The variant name \"" + variantName + "\" is used more than once.",
-                        variantsKryptonDataGridView1);
+                        variantsKryptonDataGridView);
                 variants.Add(new KeyValuePair<Guid, string>(Guid.Parse(Convert.ToString(row.Cells[1].Value)), variantName));
             }
 
@@ -249,7 +249,7 @@ namespace Empire_Earth_Mod
             nextKryptonButton.Enabled = false;
             nextKryptonButton.Text = "Building...";
             backKryptonButton.Visible = false;
-            label1.Text = "Building Mod...";
+            buildStatusLabel.Text = "Building Mod...";
 
             // The worker saves the icon and banner bitmaps. GDI+ images must not be used by two threads at
             // once, so the previews let go of them until the build is finished.
@@ -283,12 +283,12 @@ namespace Empire_Earth_Mod
 
             if (e.Error != null)
             {
-                label1.Text = "Build failed";
+                buildStatusLabel.Text = "Build failed";
                 MessageBox.Show("The mod could not be built:\n\n" + e.Error.Message, "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 // Back to the files page, so the author can fix the problem and build again.
-                tabControl1.SelectTab(BuildTabIndex - 1);
+                wizardTabControl.SelectTab(BuildTabIndex - 1);
                 nextKryptonButton.Text = "Build >";
                 nextKryptonButton.Enabled = true;
                 backKryptonButton.Visible = true;
@@ -296,7 +296,7 @@ namespace Empire_Earth_Mod
             }
 
             modBuilt = true;
-            label1.Text = "Mod built";
+            buildStatusLabel.Text = "Mod built";
             nextKryptonButton.Text = "Close";
             nextKryptonButton.Enabled = true;
             MessageBox.Show("The mod has been saved to:\n" + e.Result, "Mod Creator",
@@ -305,9 +305,9 @@ namespace Empire_Earth_Mod
 
         private void backKryptonButton_Click(object sender, EventArgs e)
         {
-            tabControl1.SelectTab(tabControl1.SelectedTab.TabIndex - 1);
+            wizardTabControl.SelectTab(wizardTabControl.SelectedTab.TabIndex - 1);
             nextKryptonButton.Text = "Next >";
-            if (tabControl1.SelectedTab.TabIndex == 0)
+            if (wizardTabControl.SelectedTab.TabIndex == 0)
                 backKryptonButton.Visible = false;
         }
 
@@ -315,7 +315,7 @@ namespace Empire_Earth_Mod
         {
             if (!string.IsNullOrWhiteSpace(variantKryptonTextBox.Text))
             {
-                if (variantsKryptonDataGridView1.Rows.Cast<DataGridViewRow>().Any(x =>
+                if (variantsKryptonDataGridView.Rows.Cast<DataGridViewRow>().Any(x =>
                         (x.Cells[0].Value.ToString().Equals(variantKryptonTextBox.Text,
                             StringComparison.InvariantCultureIgnoreCase))))
                 {
@@ -324,21 +324,21 @@ namespace Empire_Earth_Mod
                     return;
                 }
 
-                variantsKryptonDataGridView1.Rows.Add(variantKryptonTextBox.Text, Guid.NewGuid());
+                variantsKryptonDataGridView.Rows.Add(variantKryptonTextBox.Text, Guid.NewGuid());
                 variantKryptonTextBox.Clear();
             }
         }
 
         private void removeVariantKryptonButton_Click(object sender, EventArgs e)
         {
-            if (variantsKryptonDataGridView1.SelectedRows.Count != 1)
+            if (variantsKryptonDataGridView.SelectedRows.Count != 1)
                 return;
 
             if (MessageBox.Show("Are you sure you want to remove this variant?\n" +
                                 "If you need to simply rename it double click on the variant name cell.", "Warning",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
-                Guid variantId = Guid.Parse(variantsKryptonDataGridView1.SelectedRows[0].Cells[1].Value.ToString());
+                Guid variantId = Guid.Parse(variantsKryptonDataGridView.SelectedRows[0].Cells[1].Value.ToString());
                 // Variants only reach the mod when the first page is confirmed with "Next"; one added since
                 // then exists only in the grid and has no data to delete.
                 if (mod.DoesVariantExist(variantId))
@@ -366,13 +366,13 @@ namespace Empire_Earth_Mod
                     }
                 }
 
-                variantsKryptonDataGridView1.Rows.RemoveAt(variantsKryptonDataGridView1.SelectedRows[0].Index);
+                variantsKryptonDataGridView.Rows.RemoveAt(variantsKryptonDataGridView.SelectedRows[0].Index);
             }
         }
 
         /* Icon Management */
 
-        private void iconKryptonButton4_Click(object sender, EventArgs e)
+        private void selectIconKryptonButton_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
@@ -400,7 +400,7 @@ namespace Empire_Earth_Mod
         /* Banner Management */
         private int _bannerIndex = 0;
 
-        private void kryptonButton5_Click(object sender, EventArgs e)
+        private void addBannerKryptonButton_Click(object sender, EventArgs e)
         {
             if (bannersVariantsKryptonComboBox.SelectedIndex == -1)
             {
@@ -443,7 +443,7 @@ namespace Empire_Earth_Mod
             }
         }
 
-        private void kryptonButton6_Click(object sender, EventArgs e)
+        private void removeBannerKryptonButton_Click(object sender, EventArgs e)
         {
             if (bannersVariantsKryptonComboBox.SelectedIndex == -1)
                 return;
@@ -504,22 +504,22 @@ namespace Empire_Earth_Mod
             if (!assets.HasBanner(variantUuid))
             {
                 bannersPictureBox.Image = null;
-                kryptonButton5.Enabled = true;
-                kryptonButton6.Enabled = false;
+                addBannerKryptonButton.Enabled = true;
+                removeBannerKryptonButton.Enabled = false;
                 prevBannerKryptonButton.Enabled = false;
                 nextBannerKryptonButton.Enabled = false;
-                kryptonLabel7.Values.ExtraText = string.Empty;
+                bannerCounterKryptonLabel.Values.ExtraText = string.Empty;
             }
             else
             {
                 int bannerStrIndex = assets.GetBanners(variantUuid).Count > 0 ? _bannerIndex + 1 : 0;
 
                 bannersPictureBox.Image = assets.GetBanners(variantUuid)[_bannerIndex];
-                kryptonButton5.Enabled = true;
-                kryptonButton6.Enabled = true;
+                addBannerKryptonButton.Enabled = true;
+                removeBannerKryptonButton.Enabled = true;
                 prevBannerKryptonButton.Enabled = true;
                 nextBannerKryptonButton.Enabled = true;
-                kryptonLabel7.Values.ExtraText = "(" + bannerStrIndex + "/" + assets.GetBanners(variantUuid).Count + ")";
+                bannerCounterKryptonLabel.Values.ExtraText = "(" + bannerStrIndex + "/" + assets.GetBanners(variantUuid).Count + ")";
             }
         }
 
@@ -529,7 +529,7 @@ namespace Empire_Earth_Mod
         /// </summary>
         private void _SaveVariantFilesFromGrid()
         {
-            foreach (DataGridViewRow fileRow in kryptonDataGridView1.Rows)
+            foreach (DataGridViewRow fileRow in variantFilesKryptonDataGridView.Rows)
             {
                 if (fileRow.Tag is ModFile modFile)
                     modFile.FileType = EnumExtensions.ParseDescription<ModFile.ModFileType>(
@@ -540,7 +540,7 @@ namespace Empire_Earth_Mod
         private void _UpdateVariantFilesPreview(Guid variantUuid)
         {
             _SaveVariantFilesFromGrid();
-            kryptonDataGridView1.Rows.Clear();
+            variantFilesKryptonDataGridView.Rows.Clear();
 
             foreach (var modFile in mod.ModFiles.FindAll(modFile => modFile.Variant == variantUuid))
             {
@@ -550,12 +550,12 @@ namespace Empire_Earth_Mod
                 if (!modFile.TryGetProduct(out product))
                     continue;
 
-                int rowIndex = kryptonDataGridView1.Rows.Add(null,
+                int rowIndex = variantFilesKryptonDataGridView.Rows.Add(null,
                     variantUuid.ToString(),
                     modFile.GetPathInProduct(),
                     product.GetDescription(),
                     modFile.FileType.GetDescription());
-                kryptonDataGridView1.Rows[rowIndex].Tag = modFile;
+                variantFilesKryptonDataGridView.Rows[rowIndex].Tag = modFile;
             }
         }
 
@@ -590,7 +590,7 @@ namespace Empire_Earth_Mod
             }
         }
 
-        private void kryptonDataGridView1_CellEnter(object sender, DataGridViewCellEventArgs e)
+        private void variantFilesKryptonDataGridView_CellEnter(object sender, DataGridViewCellEventArgs e)
         {
             bool validClick = (e.RowIndex != -1 && e.ColumnIndex != -1);
 
