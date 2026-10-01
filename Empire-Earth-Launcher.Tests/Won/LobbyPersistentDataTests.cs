@@ -87,12 +87,15 @@ namespace Empire_Earth_Launcher.Tests.Won
             Assert.That(() => ParseGlobal(file), Throws.TypeOf<InvalidDataException>());
         }
 
+        /// <summary>Size of the optional lobby settings after the profiles: two flags and the adapter.</summary>
+        private const int GlobalSettingsBytes = 1 + 1 + 4;
+
         [Test]
-        public void GlobalData_EveryTruncation_ThrowsADocumentedException()
+        public void GlobalData_EveryTruncationBeforeTheSettings_ThrowsADocumentedException()
         {
             byte[] file = LobbyFileBuilder.GlobalFile(true, true, 3, GermanName, "Bob");
 
-            for (int length = 0; length < file.Length; length++)
+            for (int length = 0; length < file.Length - GlobalSettingsBytes; length++)
             {
                 byte[] truncated = file.Take(length).ToArray();
                 Assert.That(() => ParseGlobal(truncated),
@@ -101,13 +104,31 @@ namespace Empire_Earth_Launcher.Tests.Won
             }
         }
 
-        [Test]
-        public void GlobalData_TruncatedInTheTrailingSettings_ThrowsEndOfStream()
+        [TestCase(0, TestName = "GlobalData_WithoutTheSettings_KeepsTheProfiles")]
+        [TestCase(1, TestName = "GlobalData_CutAfterTheFirstSettingsFlag_KeepsTheProfiles")]
+        [TestCase(4, TestName = "GlobalData_CutInTheNetworkAdapter_KeepsTheProfiles")]
+        public void GlobalData_MissingOrCutSettings_KeepTheProfiles(int settingsBytesPresent)
         {
-            byte[] file = LobbyFileBuilder.GlobalFile(true, true, 3, "Alice");
-            byte[] truncated = file.Take(file.Length - 2).ToArray(); // half of the network adapter
+            // The launcher only needs the profiles; the original parser accepted such files too.
+            byte[] file = LobbyFileBuilder.GlobalFile(true, true, 3, GermanName, "Bob");
+            byte[] truncated = file.Take(file.Length - GlobalSettingsBytes + settingsBytesPresent).ToArray();
 
-            Assert.That(() => ParseGlobal(truncated), Throws.TypeOf<EndOfStreamException>());
+            LobbyPersistentData.LobbyGlobalData data = ParseGlobal(truncated);
+
+            Assert.That(data.PlayerInfos.Select(p => p.Username), Is.EqualTo(new[] { GermanName, "Bob" }));
+            Assert.That(data.HasLobbySettings, Is.False);
+            // Defaults, not the half that could be read.
+            Assert.That(data.LobbySoundEffects, Is.False);
+            Assert.That(data.GlobalLobbyMusic, Is.False);
+            Assert.That(data.NetworkAdapter, Is.EqualTo(0u));
+        }
+
+        [Test]
+        public void GlobalData_CompleteFile_HasTheSettings()
+        {
+            LobbyPersistentData.LobbyGlobalData data = ParseGlobal(LobbyFileBuilder.GlobalFile(false, false, 0, "Alice"));
+
+            Assert.That(data.HasLobbySettings, Is.True);
         }
 
         [Test]
@@ -196,7 +217,8 @@ namespace Empire_Earth_Launcher.Tests.Won
                 var data = new LobbyPersistentData.LobbyGlobalData(path);
 
                 byte[] newFile = LobbyFileBuilder.GlobalFile(false, false, 6, "Bob", "Carol");
-                File.WriteAllBytes(path, newFile.Take(newFile.Length - 1).ToArray());
+                // Cut inside the last profile (a cut in the optional settings would be accepted).
+                File.WriteAllBytes(path, newFile.Take(newFile.Length - GlobalSettingsBytes - 1).ToArray());
 
                 Assert.That(() => data.Reload(), Throws.InstanceOf<IOException>().Or.TypeOf<InvalidDataException>());
                 Assert.That(data.PlayerInfos.Select(p => p.Username), Is.EqualTo(new[] { GermanName }));

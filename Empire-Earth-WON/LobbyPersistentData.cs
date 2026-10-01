@@ -110,6 +110,14 @@ namespace Empire_Earth_WON
 
             public List<PlayerInfoGlobalData> PlayerInfos { get; private set; }
 
+            /// <summary>
+            /// Whether the file contains the lobby settings that follow the profiles (<see cref="LobbySoundEffects"/>,
+            /// <see cref="GlobalLobbyMusic"/>, <see cref="NetworkAdapter"/>). They are optional: a file that ends
+            /// before or inside them is still accepted, its profiles are kept and these settings have their
+            /// default values. The launcher only needs the profiles, and the original parser tolerated such files.
+            /// </summary>
+            public bool HasLobbySettings { get; private set; }
+
             public bool LobbySoundEffects { get; private set; }
             public bool GlobalLobbyMusic { get; private set; }
             public uint NetworkAdapter { get; private set; }
@@ -188,14 +196,31 @@ namespace Empire_Earth_WON
                     playerInfos.Add(new PlayerInfoGlobalData(reader));
                 }
 
-                bool lobbySoundEffects = reader.ReadByte() != 0;
-                bool globalLobbyMusic = reader.ReadByte() != 0;
-                uint networkAdapter = reader.ReadUInt32();
+                // Optional trailer, see HasLobbySettings. A truncated profile above still throws.
+                bool hasLobbySettings = false;
+                bool lobbySoundEffects = false;
+                bool globalLobbyMusic = false;
+                uint networkAdapter = 0;
+                try
+                {
+                    lobbySoundEffects = reader.ReadByte() != 0;
+                    globalLobbyMusic = reader.ReadByte() != 0;
+                    networkAdapter = reader.ReadUInt32();
+                    hasLobbySettings = true;
+                }
+                catch (EndOfStreamException)
+                {
+                    // Missing or cut off: keep the defaults, not half of the values.
+                    lobbySoundEffects = false;
+                    globalLobbyMusic = false;
+                    networkAdapter = 0;
+                }
 
                 // Only publish a completely parsed file.
                 FileSignature = fileSignature;
                 PlayerInfos.Clear();
                 PlayerInfos.AddRange(playerInfos);
+                HasLobbySettings = hasLobbySettings;
                 LobbySoundEffects = lobbySoundEffects;
                 GlobalLobbyMusic = globalLobbyMusic;
                 NetworkAdapter = networkAdapter;
