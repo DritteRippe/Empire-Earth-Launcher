@@ -193,7 +193,7 @@ namespace Empire_Earth_Mod
                 return RejectInput(Resources.EnterModName, nameKryptonTextBox);
 
             Version version;
-            if (!Version.TryParse(versionKryptonTextBox.Text.Trim(), out version))
+            if (!ModData.TryParseVersion(versionKryptonTextBox.Text, out version))
                 return RejectInput(Resources.EnterValidVersion, versionKryptonTextBox);
 
             // The variant lists of the other pages show the names, so they must be unique and not empty.

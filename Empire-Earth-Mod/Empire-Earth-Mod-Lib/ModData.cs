@@ -74,10 +74,22 @@ namespace Empire_Earth_Mod_Lib
                 }
 
                 System.Version version;
-                if (!System.Version.TryParse(value, out version))
+                if (!TryParseVersion(value, out version))
                     throw new SerializationException("Invalid mod version \"" + value + "\".");
                 Version = version;
             }
+        }
+
+        /// <summary>
+        /// The rule for mod versions, shared by the mod creator (input of the author) and the mod archive
+        /// reader: two to four non-negative numbers separated by dots, e.g. "1.0" or "1.2.3.4". White space
+        /// around the text is ignored.
+        /// </summary>
+        /// <returns>false, and null in <paramref name="version"/>, if <paramref name="text"/> is not a valid version.</returns>
+        public static bool TryParseVersion(string text, out Version version)
+        {
+            version = null;
+            return !string.IsNullOrWhiteSpace(text) && Version.TryParse(text.Trim(), out version);
         }
 
         [DataMember(Name = "minWindows")]
