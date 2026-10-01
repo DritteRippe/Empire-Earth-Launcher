@@ -1,0 +1,40 @@
+# Line-ending policy for this repository.
+#
+# Text files are stored with LF in the repository and converted on checkout.
+# The Visual Studio / WinForms designer files are always checked out with CRLF,
+# on every OS, so that the designer, ReSharper/Rider and git diffs agree and a
+# commit never rewrites every line of a file just because it was saved on a
+# different machine.
+
+# Default: let git detect text files and normalize them.
+* text=auto
+
+# C# sources and Visual Studio project/designer files: CRLF in the working tree.
+*.cs        text eol=crlf diff=csharp
+*.resx      text eol=crlf
+*.settings  text eol=crlf
+*.config    text eol=crlf
+*.manifest  text eol=crlf
+*.csproj    text eol=crlf
+*.sln       text eol=crlf
+*.props     text eol=crlf
+*.targets   text eol=crlf
+
+# Shell scripts must keep LF, they are executed on Linux/macOS (e.g. mono builds).
+*.sh        text eol=lf
+
+# Binary assets: never touch line endings, never try to diff or merge them.
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.bmp       binary
+*.ico       binary
+*.dll       binary
+*.exe       binary
+*.pdb       binary
+*.zip       binary
+*.nupkg     binary
+# Empire Earth mod packages and WON lobby data files (e.g. test fixtures).
+*.eem       binary
+*.dat       binary
