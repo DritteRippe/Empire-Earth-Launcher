@@ -202,7 +202,7 @@ namespace Empire_Earth_Launcher
             this.associateModFilesKryptonCheckBox.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.associateModFilesKryptonCheckBox.Size = new System.Drawing.Size(394, 20);
             this.associateModFilesKryptonCheckBox.TabIndex = 9;
-            this.associateModFilesKryptonCheckBox.Values.Text = "Assotiate Empire Earth Mod file extention (.eem) with the Launcher";
+            this.associateModFilesKryptonCheckBox.Values.Text = "Associate Empire Earth Mod files (.eem) with the Launcher";
             // 
             // gameCloseKryptonLabel
             // 

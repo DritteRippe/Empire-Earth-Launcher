@@ -433,7 +433,7 @@ namespace Empire_Earth_Launcher
             this.directXWrapperKryptonCheckBox.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.directXWrapperKryptonCheckBox.Size = new System.Drawing.Size(117, 20);
             this.directXWrapperKryptonCheckBox.TabIndex = 27;
-            this.directXWrapperKryptonCheckBox.Values.Text = "DirecX Wrapper";
+            this.directXWrapperKryptonCheckBox.Values.Text = "DirectX Wrapper";
             // 
             // gameFontKryptonLabel
             // 

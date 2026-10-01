@@ -27,7 +27,7 @@ To use the Launcher you will only need the .NET Framework >= 4 on your computer.
 
 ## Dev
 You just need to clone the repo and open `Empire-Earth.sln` with Visual Studio **2019** or newer (and C#/.NET 4 installed in Visual Studio Installer)\
-Some very critical parts of the Launcher can be censored like WON and NeoEE related important operation but most of the reverse WON C# implementation is availaible 💪
+Some very critical parts of the Launcher can be censored like WON and NeoEE related important operation but most of the reverse WON C# implementation is available 💪
 
 ### Building
 

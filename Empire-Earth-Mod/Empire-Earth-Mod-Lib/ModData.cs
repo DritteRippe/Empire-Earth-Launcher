@@ -50,7 +50,7 @@ namespace Empire_Earth_Mod_Lib
         [DataMember(Name = "licenseName")]
         public string LicenseName { get; set; }
         [DataMember(Name = "licenseText")]
-        public string LicenseTxt { get; set; }
+        public string LicenseText { get; set; }
 
         // Mod Version
         public Version Version { get; set; }

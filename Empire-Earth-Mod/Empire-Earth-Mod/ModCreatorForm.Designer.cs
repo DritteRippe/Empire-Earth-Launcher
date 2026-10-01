@@ -587,7 +587,7 @@ namespace Empire_Earth_Mod
             this.generalStepLabel.Name = "generalStepLabel";
             this.generalStepLabel.Size = new System.Drawing.Size(100, 23);
             this.generalStepLabel.TabIndex = 5;
-            this.generalStepLabel.Text = "Basic Informations";
+            this.generalStepLabel.Text = "Basic Information";
             // 
             // imagesStepLabel
             // 
@@ -603,7 +603,7 @@ namespace Empire_Earth_Mod
             this.filesStepLabel.Name = "filesStepLabel";
             this.filesStepLabel.Size = new System.Drawing.Size(100, 23);
             this.filesStepLabel.TabIndex = 7;
-            this.filesStepLabel.Text = "Files Informations";
+            this.filesStepLabel.Text = "File Information";
             // 
             // archiveStepLabel
             // 
