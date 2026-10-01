@@ -25,5 +25,49 @@ namespace Empire_Earth_Launcher.Properties
                 return defaultInstance;
             }
         }
+
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("titan.empireearth.eu")]
+        public string NeoServerHost
+        {
+            get
+            {
+                return ((string)(this["NeoServerHost"]));
+            }
+        }
+
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10005")]
+        public int NeoServerPort
+        {
+            get
+            {
+                return ((int)(this["NeoServerPort"]));
+            }
+        }
+
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3000")]
+        public int NeoTimeoutMilliseconds
+        {
+            get
+            {
+                return ((int)(this["NeoTimeoutMilliseconds"]));
+            }
+        }
+
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5000")]
+        public int PlayerListPollIntervalMilliseconds
+        {
+            get
+            {
+                return ((int)(this["PlayerListPollIntervalMilliseconds"]));
+            }
+        }
     }
 }

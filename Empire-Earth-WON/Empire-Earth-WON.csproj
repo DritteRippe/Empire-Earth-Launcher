@@ -40,6 +40,7 @@
   <ItemGroup>
     <Compile Include="LobbyPersistentData.cs" />
     <Compile Include="NeoApiClient.cs" />
+    <Compile Include="NeoServerEndpoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>

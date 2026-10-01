@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Empire_Earth_Launcher.Properties;
 using Empire_Earth_WON;
 
 namespace Empire_Earth_Launcher
@@ -17,13 +18,14 @@ namespace Empire_Earth_Launcher
     {
         private const string LobbyGlobalDataFile = "./_wonlobbypersistent.dat";
 
-        /// <summary>Delay between two requests of the online player list.</summary>
-        private const int PlayerListPollIntervalMilliseconds = 5000;
-
         /// <summary>Granularity of the poll delay, so that cancelling the worker does not wait for a whole interval.</summary>
         private const int CancellationCheckMilliseconds = 100;
 
         private BackgroundWorker backgroundWorker;
+        private NeoApiClient neoClient;
+
+        /// <summary>Delay between two requests of the online player list (from the settings).</summary>
+        private int playerListPollIntervalMilliseconds;
         private LobbyPersistentData.LobbyGlobalData lobbyGlobalData;
         private LobbyPersistentData.LobbyUserData lobbyUserData;
 
@@ -58,6 +60,33 @@ namespace Empire_Earth_Launcher
                 return;
 
             LoadLobbyProfiles();
+            StartPlayerListPolling();
+        }
+
+        /// <summary>
+        /// Starts polling the online player list from the Neo server configured in the application settings
+        /// (NeoServerHost, NeoServerPort, NeoTimeoutMilliseconds, PlayerListPollIntervalMilliseconds in
+        /// "Empire Earth Launcher.exe.config"). Invalid settings are logged and shown instead of crashing.
+        /// </summary>
+        private void StartPlayerListPolling()
+        {
+            Settings settings = Settings.Default;
+            try
+            {
+                if (settings.PlayerListPollIntervalMilliseconds <= 0)
+                    throw new ArgumentOutOfRangeException(nameof(settings.PlayerListPollIntervalMilliseconds),
+                        settings.PlayerListPollIntervalMilliseconds, "The poll interval must be positive.");
+                neoClient = new NeoApiClient(new NeoServerEndpoint(settings.NeoServerHost, settings.NeoServerPort,
+                    settings.NeoTimeoutMilliseconds));
+            }
+            catch (ArgumentException ex)
+            {
+                Program.Logging.Log("The Neo server settings are invalid, the online player list is disabled.", ex);
+                neoOnlineKryptonGroupBox.Values.Heading = "Online Players (invalid server settings, see log.txt)";
+                return;
+            }
+
+            playerListPollIntervalMilliseconds = settings.PlayerListPollIntervalMilliseconds;
             backgroundWorker.RunWorkerAsync();
         }
 
@@ -139,8 +168,8 @@ namespace Empire_Earth_Launcher
         {
             if (!playerListUnavailable)
             {
-                Program.Logging.Log("The online player list is unavailable, retrying every " +
-                                    PlayerListPollIntervalMilliseconds / 1000 + " s.", error);
+                Program.Logging.Log("The online player list of " + neoClient.Endpoint + " is unavailable, retrying every " +
+                                    playerListPollIntervalMilliseconds + " ms.", error);
                 playerListUnavailable = true;
             }
 
@@ -160,7 +189,7 @@ namespace Empire_Earth_Launcher
                 worker.ReportProgress(0, result);
 
                 for (int waited = 0;
-                     waited < PlayerListPollIntervalMilliseconds && !worker.CancellationPending;
+                     waited < playerListPollIntervalMilliseconds && !worker.CancellationPending;
                      waited += CancellationCheckMilliseconds)
                 {
                     Thread.Sleep(CancellationCheckMilliseconds);
@@ -173,17 +202,17 @@ namespace Empire_Earth_Launcher
         /// Runs on the worker thread. Returns the message on success, otherwise the error, so that one
         /// failed request never ends the polling.
         /// </summary>
-        private static object RequestConnectedPlayers()
+        private object RequestConnectedPlayers()
         {
             try
             {
                 NeoApiClient.ConnectedPlayersMessage message;
                 Exception error;
-                return NeoApiClient.ConnectedPlayersMessage.TryRequest(out message, out error) ? (object)message : error;
+                return neoClient.TryGetConnectedPlayers(out message, out error) ? (object)message : error;
             }
             catch (Exception ex)
             {
-                // TryRequest already turns network and protocol errors into a result; anything else is a
+                // TryGetConnectedPlayers already turns network and protocol errors into a result; anything else is a
                 // bug, but it must not end the polling either.
                 return ex;
             }

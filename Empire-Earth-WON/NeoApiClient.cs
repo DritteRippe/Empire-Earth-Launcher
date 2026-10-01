@@ -2,56 +2,99 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 
 namespace Empire_Earth_WON
 {
-    // Well it's not a lot be enough for minimal informations
-
     /// <summary>
-    /// Client for the NeoEE lobby status service.
+    /// Client for the NeoEE lobby status service. Only the requests the launcher needs are implemented.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// Framing: every packet starts with a 2-byte little endian size that counts the whole packet,
     /// including the size field itself. A request is the size (3) followed by the <see cref="RequestType"/>
     /// byte. A reply is the size followed by (size - 2) bytes of UTF-8 text whose fields are separated by a
     /// request specific character.
+    /// </para>
+    /// <para>
+    /// Security: the status service is plain TCP, without TLS and without any way to authenticate the
+    /// server. That is how the NeoEE server is built and a client cannot change it. Someone on the network
+    /// path can therefore read and forge replies. The client only requests public status information and
+    /// never sends credentials, and every reply is treated as untrusted input: sizes, counts and numbers are
+    /// validated before they are used (see <see cref="ReadReply"/> and the Parse methods).
+    /// </para>
+    /// <para>
+    /// The library has no built-in server address: the caller passes a <see cref="NeoServerEndpoint"/>
+    /// (the launcher reads it from its configuration).
+    /// </para>
     /// </remarks>
     public class NeoApiClient
     {
-        public const string DefaultHost = "titan.empireearth.eu";
-        public const int DefaultPort = 10005;
-
-        /// <summary>
-        /// Default limit for connecting (including the DNS lookup), for sending and for each receive.
-        /// </summary>
-        public const int DefaultTimeoutMilliseconds = 3000;
-
         /// <summary>Size of the length field that starts every packet.</summary>
         public const int HeaderSize = 2;
-
-        private string ip;
-        private int port;
-        private int timeoutMilliseconds;
 
         public enum RequestType
         {
             Info = 7, ConnectedPlayers = 8, Games = 9, Chat = 10
         }
 
-        private RequestType requestType;
+        private readonly NeoServerEndpoint endpoint;
 
-        public NeoApiClient(RequestType requestType, string ip = DefaultHost, int port = DefaultPort,
-            int timeoutMilliseconds = DefaultTimeoutMilliseconds)
+        public NeoApiClient(NeoServerEndpoint endpoint)
         {
-            if (timeoutMilliseconds <= 0)
-                throw new ArgumentOutOfRangeException(nameof(timeoutMilliseconds), "The timeout must be positive.");
-            this.requestType = requestType;
-            this.ip = ip;
-            this.port = port;
-            this.timeoutMilliseconds = timeoutMilliseconds;
+            if (endpoint == null)
+                throw new ArgumentNullException(nameof(endpoint));
+            this.endpoint = endpoint;
+        }
+
+        /// <summary>Server this client talks to.</summary>
+        public NeoServerEndpoint Endpoint
+        {
+            get { return endpoint; }
+        }
+
+        /// <summary>
+        /// Requests the server information. Never throws for network or protocol errors.
+        /// </summary>
+        /// <returns>true and the message, or false and the error.</returns>
+        public bool TryGetServerInfo(out InfoMessage message, out Exception error)
+        {
+            return TryRequest(RequestType.Info, InfoMessage.Separator, InfoMessage.Parse, out message, out error);
+        }
+
+        /// <summary>
+        /// Requests the list of connected players. Never throws for network or protocol errors.
+        /// </summary>
+        /// <returns>true and the message, or false and the error.</returns>
+        public bool TryGetConnectedPlayers(out ConnectedPlayersMessage message, out Exception error)
+        {
+            return TryRequest(RequestType.ConnectedPlayers, ConnectedPlayersMessage.Separator,
+                ConnectedPlayersMessage.Parse, out message, out error);
+        }
+
+        private bool TryRequest<TMessage>(RequestType requestType, char separator, Func<string[], TMessage> parse,
+            out TMessage message, out Exception error) where TMessage : class
+        {
+            message = null;
+            Reply reply = SendRequest(requestType, separator);
+            if (!reply.Success)
+            {
+                error = reply.Error;
+                return false;
+            }
+
+            try
+            {
+                message = parse(reply.Fields);
+            }
+            catch (FormatException ex)
+            {
+                error = ex;
+                return false;
+            }
+            error = null;
+            return true;
         }
 
         /// <summary>
@@ -98,13 +141,14 @@ namespace Empire_Earth_WON
         /// closed connection, invalid size) do not throw: they are returned in <see cref="Reply.Error"/>, so
         /// the caller decides how to report them (e.g. once per outage instead of every poll).
         /// </summary>
-        public Reply SendRequest(char split)
+        public Reply SendRequest(RequestType requestType, char split)
         {
+            int timeoutMilliseconds = endpoint.TimeoutMilliseconds;
             try
             {
                 using (var tcpClient = new TcpClient())
                 {
-                    Connect(tcpClient, ip, port, timeoutMilliseconds);
+                    Connect(tcpClient, endpoint.Host, endpoint.Port, timeoutMilliseconds);
                     tcpClient.SendTimeout = timeoutMilliseconds;
                     tcpClient.ReceiveTimeout = timeoutMilliseconds;
 
@@ -247,33 +291,6 @@ namespace Empire_Earth_WON
                     OnlinePlayers = ParseCount(fields[3], "online player count")
                 };
             }
-
-            /// <summary>
-            /// Requests the server information. Never throws for network or protocol errors.
-            /// </summary>
-            /// <returns>true and the message, or false and the error.</returns>
-            public static bool TryRequest(out InfoMessage message, out Exception error)
-            {
-                message = null;
-                Reply reply = new NeoApiClient(RequestType.Info).SendRequest(Separator);
-                if (!reply.Success)
-                {
-                    error = reply.Error;
-                    return false;
-                }
-
-                try
-                {
-                    message = Parse(reply.Fields);
-                }
-                catch (FormatException ex)
-                {
-                    error = ex;
-                    return false;
-                }
-                error = null;
-                return true;
-            }
         }
 
         public class ConnectedPlayersMessage
@@ -364,33 +381,6 @@ namespace Empire_Earth_WON
                 }
 
                 return new ConnectedPlayersMessage(onlinePlayers, playersInfo);
-            }
-
-            /// <summary>
-            /// Requests the list of connected players. Never throws for network or protocol errors.
-            /// </summary>
-            /// <returns>true and the message, or false and the error.</returns>
-            public static bool TryRequest(out ConnectedPlayersMessage message, out Exception error)
-            {
-                message = null;
-                Reply reply = new NeoApiClient(RequestType.ConnectedPlayers).SendRequest(Separator);
-                if (!reply.Success)
-                {
-                    error = reply.Error;
-                    return false;
-                }
-
-                try
-                {
-                    message = Parse(reply.Fields);
-                }
-                catch (FormatException ex)
-                {
-                    error = ex;
-                    return false;
-                }
-                error = null;
-                return true;
             }
 
             private static uint ParseWonId(string text)
