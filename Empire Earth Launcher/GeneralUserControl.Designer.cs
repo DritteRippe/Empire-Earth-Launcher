@@ -197,8 +197,8 @@ namespace Empire_Earth_Launcher
             this.neoOnlineKryptonGroupBox.Panel.Controls.Add(this.usersLobbyKryptonComboBox);
             this.neoOnlineKryptonGroupBox.Size = new System.Drawing.Size(210, 267);
             this.neoOnlineKryptonGroupBox.TabIndex = 9;
-            this.neoOnlineKryptonGroupBox.Values.Description = "Friends : %d";
-            this.neoOnlineKryptonGroupBox.Values.Heading = "Online Players: %d";
+            this.neoOnlineKryptonGroupBox.Values.Description = "";
+            this.neoOnlineKryptonGroupBox.Values.Heading = "Online Players";
             // 
             // lobbyUserKryptonLabel
             // 
@@ -236,7 +236,7 @@ namespace Empire_Earth_Launcher
             this.modsInUseKryptonLabel.Size = new System.Drawing.Size(210, 20);
             this.modsInUseKryptonLabel.StateCommon.ShortText.TextH = Krypton.Toolkit.PaletteRelativeAlign.Center;
             this.modsInUseKryptonLabel.TabIndex = 11;
-            this.modsInUseKryptonLabel.Values.Text = "Using %d mods";
+            this.modsInUseKryptonLabel.Values.Text = "No mods in use";
             // 
             // gameSettingsKryptonGroupBox
             // 
@@ -386,7 +386,7 @@ namespace Empire_Earth_Launcher
             this.rankingUserKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.rankingUserKryptonLabel.Size = new System.Drawing.Size(56, 20);
             this.rankingUserKryptonLabel.TabIndex = 0;
-            this.rankingUserKryptonLabel.Values.Text = "User: %s";
+            this.rankingUserKryptonLabel.Values.Text = "User: -";
             // 
             // rankingPointsKryptonLabel
             // 
@@ -396,7 +396,7 @@ namespace Empire_Earth_Launcher
             this.rankingPointsKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.rankingPointsKryptonLabel.Size = new System.Drawing.Size(68, 20);
             this.rankingPointsKryptonLabel.TabIndex = 1;
-            this.rankingPointsKryptonLabel.Values.Text = "Points: %d";
+            this.rankingPointsKryptonLabel.Values.Text = "Points: -";
             // 
             // rankingRankKryptonLabel
             // 
@@ -406,7 +406,7 @@ namespace Empire_Earth_Launcher
             this.rankingRankKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.rankingRankKryptonLabel.Size = new System.Drawing.Size(61, 20);
             this.rankingRankKryptonLabel.TabIndex = 2;
-            this.rankingRankKryptonLabel.Values.Text = "Rank: %d";
+            this.rankingRankKryptonLabel.Values.Text = "Rank: -";
             // 
             // onlineRankingKryptonGroupBox
             // 

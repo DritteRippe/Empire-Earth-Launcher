@@ -229,7 +229,6 @@ namespace Empire_Earth_Mod
             this.contactKryptonTextBox.Name = "contactKryptonTextBox";
             this.contactKryptonTextBox.Size = new System.Drawing.Size(125, 23);
             this.contactKryptonTextBox.TabIndex = 7;
-            this.contactKryptonTextBox.Text = "an@email.world";
             // 
             // versionKryptonTextBox
             // 
@@ -254,7 +253,6 @@ namespace Empire_Earth_Mod
             this.descriptionKryptonTextBox.Name = "descriptionKryptonTextBox";
             this.descriptionKryptonTextBox.Size = new System.Drawing.Size(182, 100);
             this.descriptionKryptonTextBox.TabIndex = 4;
-            this.descriptionKryptonTextBox.Text = "TestMod description";
             // 
             // descriptionKryptonLabel
             // 
@@ -278,7 +276,6 @@ namespace Empire_Earth_Mod
             this.nameKryptonTextBox.Name = "nameKryptonTextBox";
             this.nameKryptonTextBox.Size = new System.Drawing.Size(133, 23);
             this.nameKryptonTextBox.TabIndex = 0;
-            this.nameKryptonTextBox.Text = "TestMod";
             // 
             // imagesTabPage
             // 
