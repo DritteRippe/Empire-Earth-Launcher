@@ -103,7 +103,6 @@
     <Compile Include="SettingsUserControl.Designer.cs">
       <DependentUpon>SettingsUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Utils\ControlUpdater.cs" />
     <EmbeddedResource Include="MainForm.fr.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

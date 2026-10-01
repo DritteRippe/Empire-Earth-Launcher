@@ -93,7 +93,6 @@ Empire-Earth.sln                  Root solution containing every project
 SharedAssemblyInfo.cs             Version information shared by all assemblies
 THIRD-PARTY-NOTICES.md            Vendored code and NuGet dependencies with their licenses
 Empire Earth Launcher/            The launcher (WinForms + Krypton UI)
-├─ Utils/                         UI helpers
 └─ Resources/                     Images and icon used by the UI
 Empire-Earth-WON/                 WON/NeoEE library, no UI (used by the launcher)
 ├─ NeoApiClient.cs                Client for the NeoEE lobby server
