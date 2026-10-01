@@ -18,6 +18,11 @@ namespace Empire_Earth_Mod_Lib
         public ModFileType FileType { get; set; }
         [DataMember(Name = "variant")]
         public Guid Variant { get; set; }
+        /// <summary>
+        /// Reserved, not used yet: the Creator always stores an empty string and nothing verifies it. MD5
+        /// would only detect accidental corruption, not tampering; an integrity check for installing mods
+        /// should use SHA-256 (and a trusted source for executable content) instead.
+        /// </summary>
         [DataMember(Name = "md5")]
         public string Md5 { get; set; }
 
@@ -137,20 +142,31 @@ namespace Empire_Earth_Mod_Lib
             }
         }
 
+        /// <summary>
+        /// Suggested <see cref="ModFileType"/> for a file extension (e.g. ".exe"), compared case-insensitively.
+        /// The mod author can change it in the mod creator, so it is a default and not a security check.
+        /// </summary>
         public static ModFileType GetDefaultModFileType(string fileExtension)
         {
-            var fileExtensions = new Dictionary<ModFileType, List<string>>
+            var fileExtensions = new Dictionary<ModFileType, HashSet<string>>
             {
                 {
-                    ModFileType.Executable, new List<string>
+                    ModFileType.Executable, new HashSet<string>(StringComparer.OrdinalIgnoreCase)
                     {
                         ".exe",
+                        ".dll",
                         ".bat",
-                        ".cmd"
+                        ".cmd",
+                        ".com",
+                        ".scr",
+                        ".msi",
+                        ".ps1",
+                        ".vbs",
+                        ".js"
                     }
                 },
                 {
-                    ModFileType.ConfigFile, new List<string>
+                    ModFileType.ConfigFile, new HashSet<string>(StringComparer.OrdinalIgnoreCase)
                     {
                         ".json",
                         ".cfg",
@@ -161,7 +177,7 @@ namespace Empire_Earth_Mod_Lib
                 }
             };
             
-            return fileExtensions.Keys.FirstOrDefault(fileType => fileExtensions[fileType].Contains(fileExtension));
+            return fileExtensions.Keys.FirstOrDefault(fileType => fileExtensions[fileType].Contains(fileExtension ?? string.Empty));
         }
     }
 }
