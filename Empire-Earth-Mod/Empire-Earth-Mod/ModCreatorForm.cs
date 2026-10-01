@@ -191,8 +191,8 @@ namespace Empire_Earth_Mod
             string eemPath;
             using (SaveFileDialog sfd = new SaveFileDialog())
             {
-                sfd.Filter = "Empire Earth Mod (*.eem)|*.eem";
-                sfd.DefaultExt = "eem";
+                sfd.Filter = "Empire Earth Mod (" + EemFormat.SearchPattern + ")|" + EemFormat.SearchPattern;
+                sfd.DefaultExt = EemFormat.Extension.TrimStart('.');
                 sfd.AddExtension = true;
                 sfd.FileName = _GetDefaultArchiveName();
                 if (sfd.ShowDialog(this) != DialogResult.OK)
@@ -222,7 +222,7 @@ namespace Empire_Earth_Mod
             string name = string.IsNullOrWhiteSpace(mod.Name) ? mod.Uuid.ToString() : mod.Name.Trim();
             foreach (char invalidChar in Path.GetInvalidFileNameChars())
                 name = name.Replace(invalidChar, '_');
-            return name + ".eem";
+            return name + EemFormat.Extension;
         }
 
         private void buildWorker_DoWork(object sender, DoWorkEventArgs e)

@@ -2,15 +2,22 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace Empire_Earth_Mod_Lib
 {
+    /// <remarks>The [DataMember] names are part of the mod archive format, see <see cref="EemFormat"/>.</remarks>
     [Serializable]
+    [DataContract(Name = "ModFile", Namespace = "")]
     public class ModFile
     {
+        [DataMember(Name = "path")]
         public string RelativeFilePath { get; set; }
+        [DataMember(Name = "type")]
         public ModFileType FileType { get; set; }
+        [DataMember(Name = "variant")]
         public Guid Variant { get; set; }
+        [DataMember(Name = "md5")]
         public string Md5 { get; set; }
 
         // Each description must be unique
