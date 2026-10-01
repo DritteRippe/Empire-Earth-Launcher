@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 
 namespace Empire_Earth_Mod_Lib
 {
@@ -64,6 +65,33 @@ namespace Empire_Earth_Mod_Lib
             if (index < 0)
                 throw new ArgumentOutOfRangeException(nameof(index));
             return BannerFilePrefix + index + BannerFileExtension;
+        }
+
+        /// <summary>
+        /// Normalizes a path relative to a variant folder for comparisons and display: directory separators of
+        /// the current OS, no leading or trailing separator.
+        /// </summary>
+        public static string NormalizeRelativePath(string relativePath)
+        {
+            if (relativePath == null)
+                throw new ArgumentNullException(nameof(relativePath));
+            return relativePath
+                .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar)
+                .Trim(Path.DirectorySeparatorChar);
+        }
+
+        /// <summary>
+        /// Product folder that a path relative to a variant folder starts with, e.g. "EEC" for
+        /// "EEC\Data\file.xml" (case-insensitive, returned as defined in <see cref="ProductFolders"/>).
+        /// </summary>
+        /// <returns>null for a file that is not inside a product folder, e.g. directly in the variant folder.</returns>
+        public static string GetProductFolder(string relativePath)
+        {
+            string[] parts = NormalizeRelativePath(relativePath)
+                .Split(new[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length < 2)
+                return null;
+            return ProductFolders.FirstOrDefault(folder => folder.Equals(parts[0], StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>

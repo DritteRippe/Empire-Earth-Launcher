@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 
@@ -81,13 +82,44 @@ namespace Empire_Earth_Mod_Lib
         
         public ModFileProduct GetProduct()
         {
-            if (RelativeFilePath.StartsWith("EEC"))
-                return ModFileProduct.EEC;
-            if (RelativeFilePath.StartsWith("AOC"))
-                return ModFileProduct.AOC;
-            if (RelativeFilePath.StartsWith("all"))
-                return ModFileProduct.Both;
+            ModFileProduct product;
+            if (TryGetProduct(out product))
+                return product;
             throw new Exception("Unknown product");
+        }
+
+        /// <summary>
+        /// Product of the file, taken from the product folder its path starts with (see
+        /// <see cref="EemFormat.ProductFolders"/>).
+        /// </summary>
+        /// <returns>false if the file is not inside a product folder.</returns>
+        public bool TryGetProduct(out ModFileProduct product)
+        {
+            switch (EemFormat.GetProductFolder(RelativeFilePath))
+            {
+                case EemFormat.ProductFolderEec:
+                    product = ModFileProduct.EEC;
+                    return true;
+                case EemFormat.ProductFolderAoc:
+                    product = ModFileProduct.AOC;
+                    return true;
+                case EemFormat.ProductFolderBoth:
+                    product = ModFileProduct.Both;
+                    return true;
+                default:
+                    product = default;
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// Path of the file below its product folder, e.g. "Data\file.xml" for "EEC\Data\file.xml".
+        /// </summary>
+        public string GetPathInProduct()
+        {
+            string relativePath = EemFormat.NormalizeRelativePath(RelativeFilePath);
+            int separator = relativePath.IndexOf(Path.DirectorySeparatorChar);
+            return separator < 0 ? relativePath : relativePath.Substring(separator + 1);
         }
         
         public static string ParseModFileProduct(ModFileProduct product)
@@ -95,11 +127,11 @@ namespace Empire_Earth_Mod_Lib
             switch (product)
             {
                 case ModFileProduct.EEC:
-                    return "EEC";
+                    return EemFormat.ProductFolderEec;
                 case ModFileProduct.AOC:
-                    return "AOC";
+                    return EemFormat.ProductFolderAoc;
                 case ModFileProduct.Both:
-                    return "all";
+                    return EemFormat.ProductFolderBoth;
                 default:
                     throw new Exception("Unknown product");
             }

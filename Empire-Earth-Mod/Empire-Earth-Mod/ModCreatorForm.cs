@@ -481,11 +481,17 @@ namespace Empire_Earth_Mod
 
             foreach (var modFile in mod.ModFiles.FindAll(modFile => modFile.Variant == variantUuid))
             {
+                // Only files inside a product folder are indexed; skip anything else (e.g. from a mod archive)
+                // instead of failing on it.
+                ModFile.ModFileProduct product;
+                if (!modFile.TryGetProduct(out product))
+                    continue;
+
                 kryptonDataGridView1.Rows.Add(null,
                     variantUuid.ToString(),
-                    modFile.RelativeFilePath.Substring(4),
-                    modFile.GetProduct() == ModFile.ModFileProduct.EEC ? "EEC" :
-                        modFile.GetProduct() == ModFile.ModFileProduct.AOC ? "AOC" : "Both",
+                    modFile.GetPathInProduct(),
+                    product == ModFile.ModFileProduct.EEC ? "EEC" :
+                        product == ModFile.ModFileProduct.AOC ? "AOC" : "Both",
                     ModFile.GetModFileName(modFile.FileType));
             }
         }
@@ -497,8 +503,28 @@ namespace Empire_Earth_Mod
             Guid selectedVariantUuid = Guid.Parse(mod.Variants.First(value =>
                 value.Value.ToString() == filesKryptonComboBox.Text).Key.ToString());
 
-            creator.ReloadModFiles(selectedVariantUuid);
+            List<string> ignoredFiles;
+            try
+            {
+                ignoredFiles = creator.ReloadModFiles(selectedVariantUuid);
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+            {
+                MessageBox.Show("The files of the variant could not be read: " + ex.Message, "Warning",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             _UpdateVariantFilesPreview(selectedVariantUuid);
+
+            if (ignoredFiles.Count > 0)
+            {
+                const int maxListedFiles = 10;
+                MessageBox.Show("These files are ignored because they are not inside one of the folders " +
+                                string.Join(", ", EemFormat.ProductFolders) + ":\n\n" +
+                                string.Join("\n", ignoredFiles.Take(maxListedFiles)) +
+                                (ignoredFiles.Count > maxListedFiles ? "\n..." : string.Empty), "Warning",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         private void kryptonDataGridView1_CellEnter(object sender, DataGridViewCellEventArgs e)

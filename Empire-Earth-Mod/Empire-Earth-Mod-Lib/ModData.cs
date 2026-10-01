@@ -459,10 +459,7 @@ namespace Empire_Earth_Mod_Lib
                 }
 
                 // Create new variants
-                List<string> baseFilesProduct = new List<string>
-                {
-                    "all", "EEC", "AOC"
-                };
+                IList<string> baseFilesProduct = EemFormat.ProductFolders;
 
                 List<string> baseFilesStructure = new List<string>
                 {
@@ -620,67 +617,79 @@ namespace Empire_Earth_Mod_Lib
                 return fullPath.Substring(prefix.Length);
             }
 
-            public void ReloadModFiles(Guid variant)
+            /// <summary>
+            /// Synchronizes the <see cref="ModData.ModFiles"/> of a variant with its folder: indexes new files
+            /// and removes the entries of deleted files. Only files inside a product folder
+            /// (<see cref="EemFormat.ProductFolders"/>) are mod files.
+            /// </summary>
+            /// <returns>
+            /// Paths (relative to the variant folder) of the files that are ignored because they are not inside
+            /// a product folder. The banners written by the export are not reported.
+            /// </returns>
+            public List<string> ReloadModFiles(Guid variant)
             {
                 GenerateVariantsFolders();
-                
-                var allFiles = new DirectoryInfo(Path.Combine(WorkingDir, variant.ToString()))
-                    .EnumerateFiles("*", SearchOption.AllDirectories).ToList();
+
+                string variantDir = Path.Combine(WorkingDir, variant.ToString());
+                var existingFiles = new List<string>();
+                var existingFileSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                var ignoredFiles = new List<string>();
+                foreach (var file in new DirectoryInfo(variantDir).EnumerateFiles("*", SearchOption.AllDirectories))
+                {
+                    string relativePath = GetRelativePath(variantDir, file.FullName);
+                    if (EemFormat.GetProductFolder(relativePath) == null)
+                    {
+                        if (!IsExportedBanner(relativePath))
+                            ignoredFiles.Add(relativePath);
+                        continue;
+                    }
+
+                    if (existingFileSet.Add(relativePath))
+                        existingFiles.Add(relativePath);
+                }
+
+                // Remove old files. RemoveAll instead of Remove inside a foreach over the same list, which threw
+                // "Collection was modified" as soon as one file had been deleted.
+                ModData.ModFiles.RemoveAll(modFile => modFile.Variant == variant &&
+                    !existingFileSet.Contains(EemFormat.NormalizeRelativePath(modFile.RelativeFilePath)));
 
                 // Index new files
-                foreach (var file in allFiles)
+                var indexedFileSet = new HashSet<string>(
+                    ModData.ModFiles.Where(modFile => modFile.Variant == variant)
+                        .Select(modFile => EemFormat.NormalizeRelativePath(modFile.RelativeFilePath)),
+                    StringComparer.OrdinalIgnoreCase);
+                foreach (string relativePath in existingFiles)
                 {
-                    string localFilePath = file.FullName.Replace(
-                        Path.Combine(WorkingDir, variant.ToString()), string.Empty);
-                    if (localFilePath.StartsWith(Path.DirectorySeparatorChar.ToString()))
-                        localFilePath = localFilePath.Substring(1);
-
-                    // Avoid Banner indexation
-                    if (localFilePath.StartsWith("Banner"))
-                        continue;
-
-                    bool containsFile = ModData.ModFiles.Any(modFile =>
-                        modFile.Variant == variant &&
-                        modFile.RelativeFilePath.Equals(localFilePath, StringComparison.InvariantCultureIgnoreCase));
-
-                    if (!containsFile)
+                    if (indexedFileSet.Add(relativePath))
                     {
-                        ModData.ModFiles.Add(new ModFile(localFilePath,
-                            ModFile.GetDefaultModFileType(Path.GetExtension(localFilePath)),
+                        ModData.ModFiles.Add(new ModFile(relativePath,
+                            ModFile.GetDefaultModFileType(Path.GetExtension(relativePath)),
                             variant, string.Empty));
                     }
                 }
 
+                return ignoredFiles;
+            }
 
-                // Remove old files
-                foreach (var modFile in ModData.ModFiles.Where(modFile => modFile.Variant == variant))
-                {
-                    bool exist = false;
-                    foreach (var file in allFiles)
-                    {
-                        string localFilePath =
-                            file.FullName.Replace(Path.Combine(WorkingDir, variant.ToString()), string.Empty);
-                        if (localFilePath.StartsWith(Path.DirectorySeparatorChar.ToString()))
-                            localFilePath = localFilePath.Substring(1);
-                        if (localFilePath.Equals(modFile.RelativeFilePath, StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            exist = true;
-                            break;
-                        }
-                    }
-
-                    if (!exist)
-                        ModData.ModFiles.Remove(modFile);
-                }
+            /// <summary>
+            /// True for a banner written by <see cref="ExportBannersAndIcon"/> (directly in the variant folder).
+            /// </summary>
+            private static bool IsExportedBanner(string relativePath)
+            {
+                string fileName = Path.GetFileName(relativePath);
+                return fileName == relativePath &&
+                       fileName.StartsWith(EemFormat.BannerFilePrefix, StringComparison.OrdinalIgnoreCase) &&
+                       fileName.EndsWith(EemFormat.BannerFileExtension, StringComparison.OrdinalIgnoreCase);
             }
 
             public void UpdateModFiles(Guid variant, string relativePath, ModFile.ModFileType modFileType)
             {
                 ThrowIfDisposed();
+                string normalizedPath = EemFormat.NormalizeRelativePath(relativePath);
                 var find = ModData.ModFiles.Find(
                     modFile => modFile.Variant == variant
-                               && modFile.RelativeFilePath.Equals(relativePath,
-                                   StringComparison.InvariantCultureIgnoreCase));
+                               && EemFormat.NormalizeRelativePath(modFile.RelativeFilePath).Equals(normalizedPath,
+                                   StringComparison.OrdinalIgnoreCase));
                 if (find != null)
                     find.FileType = modFileType;
             }
