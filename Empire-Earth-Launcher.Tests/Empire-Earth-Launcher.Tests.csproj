@@ -70,6 +70,7 @@
     </Compile>
     <Compile Include="TestSupport\ChunkedReadStream.cs" />
     <Compile Include="TestSupport\TemporaryDirectory.cs" />
+    <Compile Include="Won\DeadlineStreamTests.cs" />
     <Compile Include="Won\LobbyFileBuilder.cs" />
     <Compile Include="Won\LobbyPersistentDataTests.cs" />
     <Compile Include="Won\NeoApiClientTests.cs" />

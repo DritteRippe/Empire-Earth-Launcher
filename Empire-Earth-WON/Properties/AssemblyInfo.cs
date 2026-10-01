@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
@@ -20,6 +21,9 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("8434796D-A702-4665-BD95-F5FB6106E825")]
+
+// The tests reach internal helpers (e.g. DeadlineStream). Must match the AssemblyName of the test project.
+[assembly: InternalsVisibleTo("Empire-Earth-Launcher.Tests")]
 
 // AssemblyVersion, AssemblyFileVersion and AssemblyInformationalVersion are
 // shared by all projects and maintained in one place: SharedAssemblyInfo.cs

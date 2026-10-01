@@ -38,6 +38,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DeadlineStream.cs" />
     <Compile Include="LobbyPersistentData.cs" />
     <Compile Include="NeoApiClient.cs" />
     <Compile Include="NeoServerEndpoint.cs" />

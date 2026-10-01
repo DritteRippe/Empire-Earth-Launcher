@@ -25,6 +25,10 @@ namespace Empire_Earth_WON
     /// validated before they are used (see <see cref="ReadReply"/> and the Parse methods).
     /// </para>
     /// <para>
+    /// Time limits: connecting and the exchange that follows each get <see cref="NeoServerEndpoint.TimeoutMilliseconds"/>,
+    /// so a request takes at most about twice that, however slowly the server sends its reply.
+    /// </para>
+    /// <para>
     /// The library has no built-in server address: the caller passes a <see cref="NeoServerEndpoint"/>
     /// (the launcher reads it from its configuration).
     /// </para>
@@ -152,11 +156,10 @@ namespace Empire_Earth_WON
                     tcpClient.SendTimeout = timeoutMilliseconds;
                     tcpClient.ReceiveTimeout = timeoutMilliseconds;
 
-                    using (NetworkStream stream = tcpClient.GetStream())
+                    using (NetworkStream networkStream = tcpClient.GetStream())
                     {
-                        stream.WriteTimeout = timeoutMilliseconds;
-                        stream.ReadTimeout = timeoutMilliseconds;
-
+                        // One budget for the whole exchange, not only per read (see DeadlineStream).
+                        var stream = new DeadlineStream(networkStream, timeoutMilliseconds);
                         WriteRequest(stream, requestType);
                         return Reply.Succeeded(ReadReply(stream, split));
                     }
