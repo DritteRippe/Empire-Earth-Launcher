@@ -88,7 +88,7 @@ namespace Empire_Earth_Launcher
                 return;
             }
 
-            foreach (var playerInfo in lobbyGlobalData.PlayerInfoGlobalDatas.OrderByDescending(d => d.LastUse))
+            foreach (var playerInfo in lobbyGlobalData.PlayerInfos.OrderByDescending(d => d.LastUse))
             {
                 usersLobbyKryptonComboBox.Items.Add(playerInfo.Username);
             }
@@ -110,13 +110,13 @@ namespace Empire_Earth_Launcher
             if (IsDisposed)
                 return;
 
-            if (e.UserState is NeoAPI.ConnectedPlayersMessage message)
+            if (e.UserState is NeoApiClient.ConnectedPlayersMessage message)
                 ShowOnlinePlayers(message);
             else
                 ShowPlayerListUnavailable(e.UserState as Exception);
         }
 
-        private void ShowOnlinePlayers(NeoAPI.ConnectedPlayersMessage message)
+        private void ShowOnlinePlayers(NeoApiClient.ConnectedPlayersMessage message)
         {
             if (playerListUnavailable)
             {
@@ -128,7 +128,7 @@ namespace Empire_Earth_Launcher
 
             neoOnlineKryptonGroupBox.Values.Heading = "Online Players (" + message.OnlinePlayers + ")";
 
-            foreach (NeoAPI.ConnectedPlayersMessage.PlayerInfo pInfo in message.PlayersInfo)
+            foreach (NeoApiClient.ConnectedPlayersMessage.PlayerInfo pInfo in message.PlayersInfo)
             {
                 if (!usersLobbyKryptonComboBox.Text.Equals(pInfo.Name, StringComparison.InvariantCultureIgnoreCase))
                     onlinePlayersKryptonDataGridView.Rows.Add(pInfo.Name, pInfo.GameStateToString());
@@ -177,9 +177,9 @@ namespace Empire_Earth_Launcher
         {
             try
             {
-                NeoAPI.ConnectedPlayersMessage message;
+                NeoApiClient.ConnectedPlayersMessage message;
                 Exception error;
-                return NeoAPI.ConnectedPlayersMessage.TryRequest(out message, out error) ? (object)message : error;
+                return NeoApiClient.ConnectedPlayersMessage.TryRequest(out message, out error) ? (object)message : error;
             }
             catch (Exception ex)
             {
@@ -206,7 +206,7 @@ namespace Empire_Earth_Launcher
             if (lobbyGlobalData == null)
                 return;
 
-            LobbyPersistentData.LobbyGlobalData.PlayerInfoGlobalData selectedPlayer = lobbyGlobalData.PlayerInfoGlobalDatas
+            LobbyPersistentData.LobbyGlobalData.PlayerInfoGlobalData selectedPlayer = lobbyGlobalData.PlayerInfos
                 .FirstOrDefault(playerInfo => playerInfo.Username.Equals(usersLobbyKryptonComboBox.Text));
 
             if (selectedPlayer == null)

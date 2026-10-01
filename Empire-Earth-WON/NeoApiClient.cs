@@ -19,7 +19,7 @@ namespace Empire_Earth_WON
     /// byte. A reply is the size followed by (size - 2) bytes of UTF-8 text whose fields are separated by a
     /// request specific character.
     /// </remarks>
-    public class NeoAPI
+    public class NeoApiClient
     {
         public const string DefaultHost = "titan.empireearth.eu";
         public const int DefaultPort = 10005;
@@ -38,12 +38,12 @@ namespace Empire_Earth_WON
 
         public enum RequestType
         {
-            INFO_MESSAGE = 7, CONNECTED_PLAYERS_MESSAGE = 8, GAMES_MESSAGE = 9, CHAT_MESSAGE = 10
+            Info = 7, ConnectedPlayers = 8, Games = 9, Chat = 10
         }
 
         private RequestType requestType;
 
-        public NeoAPI(RequestType requestType, string ip = DefaultHost, int port = DefaultPort,
+        public NeoApiClient(RequestType requestType, string ip = DefaultHost, int port = DefaultPort,
             int timeoutMilliseconds = DefaultTimeoutMilliseconds)
         {
             if (timeoutMilliseconds <= 0)
@@ -102,13 +102,13 @@ namespace Empire_Earth_WON
         {
             try
             {
-                using (var tcpclient = new TcpClient())
+                using (var tcpClient = new TcpClient())
                 {
-                    Connect(tcpclient, ip, port, timeoutMilliseconds);
-                    tcpclient.SendTimeout = timeoutMilliseconds;
-                    tcpclient.ReceiveTimeout = timeoutMilliseconds;
+                    Connect(tcpClient, ip, port, timeoutMilliseconds);
+                    tcpClient.SendTimeout = timeoutMilliseconds;
+                    tcpClient.ReceiveTimeout = timeoutMilliseconds;
 
-                    using (NetworkStream stream = tcpclient.GetStream())
+                    using (NetworkStream stream = tcpClient.GetStream())
                     {
                         stream.WriteTimeout = timeoutMilliseconds;
                         stream.ReadTimeout = timeoutMilliseconds;
@@ -129,16 +129,16 @@ namespace Empire_Earth_WON
         /// Connects with a timeout. TcpClient.Connect ignores SendTimeout/ReceiveTimeout and blocks for the
         /// OS connect timeout when the server does not answer; BeginConnect also covers the DNS lookup.
         /// </summary>
-        private static void Connect(TcpClient tcpclient, string host, int port, int timeoutMilliseconds)
+        private static void Connect(TcpClient tcpClient, string host, int port, int timeoutMilliseconds)
         {
-            IAsyncResult pendingConnect = tcpclient.BeginConnect(host, port, null, null);
+            IAsyncResult pendingConnect = tcpClient.BeginConnect(host, port, null, null);
             if (!pendingConnect.AsyncWaitHandle.WaitOne(timeoutMilliseconds))
             {
-                tcpclient.Close(); // aborts the pending connect
+                tcpClient.Close(); // aborts the pending connect
                 throw new TimeoutException("Connecting to " + host + ":" + port + " timed out after " +
                                            timeoutMilliseconds + " ms.");
             }
-            tcpclient.EndConnect(pendingConnect);
+            tcpClient.EndConnect(pendingConnect);
         }
 
         /// <summary>
@@ -205,12 +205,12 @@ namespace Empire_Earth_WON
 
         public class InfoMessage
         {
-            /// <summary>Field separator of an INFO_MESSAGE reply.</summary>
+            /// <summary>Field separator of an Info reply.</summary>
             public const char Separator = ' ';
 
             public enum ServerState
             {
-                OFFLINE = 0, ONLINE = 1, BUSY = 2, INSTALLING = 3
+                Offline = 0, Online = 1, Busy = 2, Installing = 3
             }
 
             public Version Version { get; private set; }
@@ -225,7 +225,7 @@ namespace Empire_Earth_WON
             }
 
             /// <summary>
-            /// Parses the fields of an INFO_MESSAGE reply: version, code name, server state, online players.
+            /// Parses the fields of an Info reply: version, code name, server state, online players.
             /// </summary>
             /// <exception cref="FormatException">The fields are missing or not valid.</exception>
             public static InfoMessage Parse(string[] fields)
@@ -255,7 +255,7 @@ namespace Empire_Earth_WON
             public static bool TryRequest(out InfoMessage message, out Exception error)
             {
                 message = null;
-                Reply reply = new NeoAPI(RequestType.INFO_MESSAGE).SendRequest(Separator);
+                Reply reply = new NeoApiClient(RequestType.Info).SendRequest(Separator);
                 if (!reply.Success)
                 {
                     error = reply.Error;
@@ -278,7 +278,7 @@ namespace Empire_Earth_WON
 
         public class ConnectedPlayersMessage
         {
-            /// <summary>Field separator of a CONNECTED_PLAYERS_MESSAGE reply.</summary>
+            /// <summary>Field separator of a ConnectedPlayers reply.</summary>
             public const char Separator = '\x0B';
 
             /// <summary>Number of reply fields per player: name, WON ID, game state.</summary>
@@ -288,11 +288,11 @@ namespace Empire_Earth_WON
             {
                 public enum PlayerGameState
                 {
-                    LOBBY = 0, ROOM = 1, PLAYING = 2
+                    Lobby = 0, Room = 1, Playing = 2
                 }
 
                 public string Name { get; private set; }
-                public uint WON_ID { get; private set; }
+                public uint WonId { get; private set; }
 
                 /// <summary>Game state; may be a value newer than the known <see cref="PlayerGameState"/> members.</summary>
                 public PlayerGameState GameState { get; private set; }
@@ -300,7 +300,7 @@ namespace Empire_Earth_WON
                 public PlayerInfo(string name, uint wonId, PlayerGameState gameState)
                 {
                     Name = name;
-                    WON_ID = wonId;
+                    WonId = wonId;
                     GameState = gameState;
                 }
 
@@ -311,11 +311,11 @@ namespace Empire_Earth_WON
                 {
                     switch (GameState)
                     {
-                        case PlayerGameState.LOBBY:
+                        case PlayerGameState.Lobby:
                             return "Lobby";
-                        case PlayerGameState.ROOM:
+                        case PlayerGameState.Room:
                             return "Room";
-                        case PlayerGameState.PLAYING:
+                        case PlayerGameState.Playing:
                             return "Playing";
                         default:
                             return "Unknown (" + (int)GameState + ")";
@@ -333,7 +333,7 @@ namespace Empire_Earth_WON
             }
 
             /// <summary>
-            /// Parses the fields of a CONNECTED_PLAYERS_MESSAGE reply: the player count followed by
+            /// Parses the fields of a ConnectedPlayers reply: the player count followed by
             /// <see cref="FieldsPerPlayer"/> fields per player. The message is only created when the whole
             /// reply is valid, so a bad reply never yields a half filled list.
             /// </summary>
@@ -373,7 +373,7 @@ namespace Empire_Earth_WON
             public static bool TryRequest(out ConnectedPlayersMessage message, out Exception error)
             {
                 message = null;
-                Reply reply = new NeoAPI(RequestType.CONNECTED_PLAYERS_MESSAGE).SendRequest(Separator);
+                Reply reply = new NeoApiClient(RequestType.ConnectedPlayers).SendRequest(Separator);
                 if (!reply.Success)
                 {
                     error = reply.Error;

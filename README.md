@@ -96,7 +96,7 @@ Empire Earth Launcher/            The launcher (WinForms + Krypton UI)
 ├─ Utils/                         UI helpers
 └─ Resources/                     Images and icon used by the UI
 Empire-Earth-WON/                 WON/NeoEE library, no UI (used by the launcher)
-├─ NeoAPI.cs                      Client for the NeoEE lobby server
+├─ NeoApiClient.cs                Client for the NeoEE lobby server
 └─ LobbyPersistentData.cs         Parser for the WON lobby files (_wonlobbypersistent.dat, _wonuser*.dat)
 Empire-Earth-Mod/
 ├─ Empire-Earth-Mod-Lib/          Mod library: mod data model, .eem packages, Windows version detection

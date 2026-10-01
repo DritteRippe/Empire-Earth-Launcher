@@ -90,7 +90,7 @@ namespace Empire_Earth_WON
             private readonly string path;
             public uint FileSignature { get; private set; }
 
-            public List<PlayerInfoGlobalData> PlayerInfoGlobalDatas { get; private set; }
+            public List<PlayerInfoGlobalData> PlayerInfos { get; private set; }
 
             public bool LobbySoundEffects { get; private set; }
             public bool GlobalLobbyMusic { get; private set; }
@@ -112,8 +112,8 @@ namespace Empire_Earth_WON
                     reader.ReadUInt32(); // gameTOUTime, not used by the launcher
 
                     // Skip the password part, it is not needed by the launcher
-                    ushort passlen = reader.ReadUInt16();
-                    SkipBytes(reader, passlen);
+                    ushort passwordLength = reader.ReadUInt16();
+                    SkipBytes(reader, passwordLength);
                 }
             }
 
@@ -126,7 +126,7 @@ namespace Empire_Earth_WON
             public LobbyGlobalData(string path)
             {
                 this.path = path;
-                PlayerInfoGlobalDatas = new List<PlayerInfoGlobalData>();
+                PlayerInfos = new List<PlayerInfoGlobalData>();
 
                 Reload();
             }
@@ -139,7 +139,7 @@ namespace Empire_Earth_WON
             /// <exception cref="InvalidDataException">The data is not a valid lobby file.</exception>
             public LobbyGlobalData(Stream input)
             {
-                PlayerInfoGlobalDatas = new List<PlayerInfoGlobalData>();
+                PlayerInfos = new List<PlayerInfoGlobalData>();
                 Load(input);
             }
 
@@ -162,10 +162,10 @@ namespace Empire_Earth_WON
                 BinaryReader reader = CreateReader(input);
                 uint fileSignature = ReadFileSignature(reader);
 
-                ushort aNumUserNames = reader.ReadUInt16();
-                EnsureAvailable(reader, (long)aNumUserNames * MinPlayerInfoRecordBytes);
-                var playerInfos = new List<PlayerInfoGlobalData>(aNumUserNames);
-                for (int i = 0; i < aNumUserNames; ++i)
+                ushort userNameCount = reader.ReadUInt16();
+                EnsureAvailable(reader, (long)userNameCount * MinPlayerInfoRecordBytes);
+                var playerInfos = new List<PlayerInfoGlobalData>(userNameCount);
+                for (int i = 0; i < userNameCount; ++i)
                 {
                     playerInfos.Add(new PlayerInfoGlobalData(reader));
                 }
@@ -176,8 +176,8 @@ namespace Empire_Earth_WON
 
                 // Only publish a completely parsed file.
                 FileSignature = fileSignature;
-                PlayerInfoGlobalDatas.Clear();
-                PlayerInfoGlobalDatas.AddRange(playerInfos);
+                PlayerInfos.Clear();
+                PlayerInfos.AddRange(playerInfos);
                 LobbySoundEffects = lobbySoundEffects;
                 GlobalLobbyMusic = globalLobbyMusic;
                 NetworkAdapter = networkAdapter;
@@ -248,19 +248,19 @@ namespace Empire_Earth_WON
                 BinaryReader reader = CreateReader(input);
                 uint fileSignature = ReadFileSignature(reader);
 
-                ushort numReconnectIds = reader.ReadUInt16();
-                EnsureAvailable(reader, (long)numReconnectIds * ReconnectIdRecordBytes);
-                SkipBytes(reader, numReconnectIds * ReconnectIdRecordBytes);
+                ushort reconnectIdCount = reader.ReadUInt16();
+                EnsureAvailable(reader, (long)reconnectIdCount * ReconnectIdRecordBytes);
+                SkipBytes(reader, reconnectIdCount * ReconnectIdRecordBytes);
 
-                ushort numIgnored = reader.ReadUInt16();
-                EnsureAvailable(reader, (long)numIgnored * MinIgnoredRecordBytes);
-                for (int i = 0; i < numIgnored; ++i)
+                ushort ignoredCount = reader.ReadUInt16();
+                EnsureAvailable(reader, (long)ignoredCount * MinIgnoredRecordBytes);
+                for (int i = 0; i < ignoredCount; ++i)
                     ReadWideString(reader);
 
-                ushort numFriend = reader.ReadUInt16();
-                EnsureAvailable(reader, (long)numFriend * MinFriendRecordBytes);
+                ushort friendCount = reader.ReadUInt16();
+                EnsureAvailable(reader, (long)friendCount * MinFriendRecordBytes);
                 var friends = new Dictionary<string, uint>();
-                for (int i = 0; i < numFriend; ++i)
+                for (int i = 0; i < friendCount; ++i)
                 {
                     string name = ReadWideString(reader);
                     uint wonId = reader.ReadUInt32();
