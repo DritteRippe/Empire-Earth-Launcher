@@ -15,9 +15,8 @@ namespace Empire_Earth_Mod_Lib
     /// <remarks>
     /// The [DataMember] names define the JSON of the <see cref="EemFormat.DataEntryName"/> entry of a mod
     /// archive; without [DataContract] the JSON keys were compiler generated backing field names such as
-    /// "&lt;Uuid&gt;k__BackingField". [Serializable] stays for the binary serializer.
+    /// "&lt;Uuid&gt;k__BackingField".
     /// </remarks>
-    [Serializable]
     [DataContract(Name = "ModData", Namespace = "")]
     public class ModData
     {
@@ -29,9 +28,9 @@ namespace Empire_Earth_Mod_Lib
         public Guid Uuid { get; set; }
 
         // Mod Image & Banner(s)
-        [field: NonSerialized] private Image Icon { get; set; }
+        private Image Icon { get; set; }
 
-        [field: NonSerialized] private Dictionary<Guid, List<Image>> Banners { get; set; }
+        private Dictionary<Guid, List<Image>> Banners { get; set; }
 
         // Mod Basic Info
         [DataMember(Name = "name")]
@@ -108,14 +107,10 @@ namespace Empire_Earth_Mod_Lib
         }
 
         /// <summary>
-        /// Deserialization (JSON and binary) does not run the constructor. Creates the members that are not
-        /// serialized (otherwise Banners stayed null and AddOrUpdateVariant/HasBanner threw a
-        /// NullReferenceException) and tolerates collections missing from a data file.
+        /// Deserialization does not run the constructor. Creates the members that are not serialized
+        /// (otherwise Banners stayed null and AddOrUpdateVariant/HasBanner threw a NullReferenceException) and
+        /// tolerates collections missing from a data file.
         /// </summary>
-        /// <remarks>
-        /// The contents of <see cref="Variants"/> must not be touched here: the binary serializer fills a
-        /// Dictionary only after this callback.
-        /// </remarks>
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
         {
@@ -273,7 +268,7 @@ namespace Empire_Earth_Mod_Lib
                 // A new stream starts at position 0; the deserializer reads from the current position.
                 using (var dataStream = new MemoryStream(data))
                 {
-                    modData = JsonSerializer<ModData>.Deserialize(dataStream);
+                    modData = DataContractJsonHelper<ModData>.Deserialize(dataStream);
                 }
             }
             catch (SerializationException ex)
@@ -292,7 +287,7 @@ namespace Empire_Earth_Mod_Lib
         /// <returns></returns>
         public override string ToString()
         {
-            return JsonSerializer<ModData>.Serialize(this);
+            return DataContractJsonHelper<ModData>.Serialize(this);
         }
 
         /// <summary>

@@ -52,7 +52,7 @@
         <Compile Include="..\..\SharedAssemblyInfo.cs">
             <Link>Properties\SharedAssemblyInfo.cs</Link>
         </Compile>
-        <Compile Include="Serializer.cs" />
+        <Compile Include="Serialization\DataContractJsonHelper.cs" />
         <Compile Include="WindowsVersion.cs" />
         <Compile Include="ZipStorer.cs" />
     </ItemGroup>

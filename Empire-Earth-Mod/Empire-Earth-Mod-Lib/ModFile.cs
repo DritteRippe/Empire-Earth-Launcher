@@ -8,7 +8,6 @@ using System.Runtime.Serialization;
 namespace Empire_Earth_Mod_Lib
 {
     /// <remarks>The [DataMember] names are part of the mod archive format, see <see cref="EemFormat"/>.</remarks>
-    [Serializable]
     [DataContract(Name = "ModFile", Namespace = "")]
     public class ModFile
     {

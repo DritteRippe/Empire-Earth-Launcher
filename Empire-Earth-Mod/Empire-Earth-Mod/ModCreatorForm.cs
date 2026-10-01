@@ -8,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Empire_Earth_Mod_Lib;
-using Empire_Earth_Mod_Lib.Serialization;
 using Krypton.Toolkit;
 
 namespace Empire_Earth_Mod
@@ -162,11 +161,6 @@ namespace Empire_Earth_Mod
             }
 
             tabControl1.SelectTab(tabControl1.SelectedTab.TabIndex + 1);
-
-            Debug.WriteLine("STEP " + tabControl1.SelectedTab.TabIndex);
-            Debug.WriteLine(
-                JsonSerializer<ModData>.Serialize(
-                    BinarySerializer<ModData>.Deserialize(BinarySerializer<ModData>.Serialize(mod))));
         }
 
         /// <summary>
