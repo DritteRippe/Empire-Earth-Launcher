@@ -12,16 +12,28 @@ using Krypton.Toolkit;
 
 namespace Empire_Earth_Mod
 {
+    /// <summary>
+    /// Wizard that creates a mod archive: general information and variants, icon and banners, files, build.
+    /// </summary>
     public partial class ModCreatorForm : KryptonForm
     {
-        /// <summary>Index of the "Building Mod..." page, the last page of the wizard.</summary>
-        private const int BuildTabIndex = 3;
+        /// <summary>Pages of the wizard; the values are the indexes of the tab pages.</summary>
+        private enum WizardStep
+        {
+            General = 0,
+            Images = 1,
+            Files = 2,
+            Build = 3
+        }
 
-        private ModData mod;
-        private ModAssets assets;
+        private readonly ModData mod;
+        private readonly ModAssets assets;
         private ModPackageBuilder packageBuilder;
         private readonly BackgroundWorker buildWorker;
         private bool modBuilt;
+
+        /// <summary>Index of the banner shown for the selected variant.</summary>
+        private int bannerIndex;
 
         public ModCreatorForm()
         {
@@ -38,18 +50,26 @@ namespace Empire_Earth_Mod
             // the tab headers.
             wizardTabControl.Selecting += (sender, e) =>
             {
-                if (buildWorker.IsBusy && e.TabPageIndex != BuildTabIndex)
+                if (buildWorker.IsBusy && e.TabPageIndex != (int)WizardStep.Build)
                     e.Cancel = true;
             };
+            // Keeps Back/Next right however a page is reached (buttons or tab headers).
+            wizardTabControl.Selected += (sender, e) => UpdateNavigationButtons();
 
-            if (variantFilesKryptonDataGridView.Columns[4] is DataGridViewComboBoxColumn)
-            {
-                if (!(variantFilesKryptonDataGridView.Columns[4] is DataGridViewComboBoxColumn columnAlternative))
-                    return;
-                Enum.GetValues(typeof(ModFile.ModFileType)).Cast<ModFile.ModFileType>()
-                    .Select(fileType => fileType.GetDescription()).ToList()
-                    .ForEach(fileName => columnAlternative.Items.Add(fileName));
-            }
+            fileTypeColumn.Items.AddRange(Enum.GetValues(typeof(ModFile.ModFileType)).Cast<ModFile.ModFileType>()
+                .Select(fileType => (object)fileType.GetDescription()).ToArray());
+            UpdateNavigationButtons();
+        }
+
+        private WizardStep CurrentStep
+        {
+            get { return (WizardStep)wizardTabControl.SelectedIndex; }
+        }
+
+        private void GoToStep(WizardStep step)
+        {
+            wizardTabControl.SelectedIndex = (int)step;
+            UpdateNavigationButtons();
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -66,14 +86,14 @@ namespace Empire_Earth_Mod
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             base.OnFormClosed(e);
-            ReleaseCreator();
+            ReleasePackageBuilder();
         }
 
         /// <summary>
         /// Ends the creator session. The working directory is deleted when it holds no mod files, or when
         /// the author agrees; otherwise it is kept, so closing the window never loses copied files.
         /// </summary>
-        private void ReleaseCreator()
+        private void ReleasePackageBuilder()
         {
             if (packageBuilder == null)
                 return;
@@ -101,86 +121,82 @@ namespace Empire_Earth_Mod
             }
         }
 
-        /* Variants Management */
+        /* Wizard navigation */
+
         private void nextKryptonButton_Click(object sender, EventArgs e)
         {
-            if (wizardTabControl.SelectedIndex == BuildTabIndex)
+            switch (CurrentStep)
             {
-                // After a successful build the button reads "Close". The page can also be reached through
-                // its tab header without building; there is no next page then.
-                if (modBuilt)
-                    Close();
-                return;
-            }
-
-            if (wizardTabControl.SelectedIndex == 0)
-            {
-                if (!_ApplyBasicInformation())
-                    return;
-
-                bannersVariantsKryptonComboBox.Items.Clear();
-                bannersVariantsKryptonComboBox.Items.AddRange(
-                    mod.Variants.Values.Select(x => x.ToString() as object).ToArray());
-
-                if (bannersVariantsKryptonComboBox.SelectedIndex == -1 &&
-                    bannersVariantsKryptonComboBox.Items.Count > 0)
-                {
-                    bannersVariantsKryptonComboBox.SelectedIndex = 0;
-                    Guid selectedVariantUuid = Guid.Parse(mod.Variants.First(value =>
-                        value.Value.ToString() == bannersVariantsKryptonComboBox.Text).Key.ToString());
-                    _bannerIndex = 0;
-                    _UpdateBannerPreview(selectedVariantUuid);
-                }
-                else
-                {
-                    bannersPictureBox.Image = null;
-                    addBannerKryptonButton.Enabled = false;
-                    removeBannerKryptonButton.Enabled = false;
-                    prevBannerKryptonButton.Enabled = false;
-                    nextBannerKryptonButton.Enabled = false;
-                    bannerCounterKryptonLabel.Values.ExtraText = string.Empty;
-                }
-                backKryptonButton.Visible = true;
-            }
-
-            if (wizardTabControl.SelectedIndex == 1)
-            {
-                filesKryptonComboBox.Items.Clear();
-
-
-                filesKryptonComboBox.Items.AddRange(
-                    mod.Variants.Values.Select(x => x.ToString() as object).ToArray());
-
-                packageBuilder.GenerateVariantsFolders();
-                // packageBuilder.ExportBannersAndIcon();
-                nextKryptonButton.Text = "Build >";
-            }
-
-            if (wizardTabControl.SelectedIndex == 2)
-            {
-                if (!StartBuild())
+                case WizardStep.General:
+                    if (!CommitGeneralStep())
+                        return;
+                    EnterImagesStep();
+                    break;
+                case WizardStep.Images:
+                    EnterFilesStep();
+                    break;
+                case WizardStep.Files:
+                    if (!StartBuild())
+                        return;
+                    break;
+                case WizardStep.Build:
+                    // After a successful build the button reads "Close". The page can also be reached through
+                    // its tab header without building; there is no next page then.
+                    if (modBuilt)
+                        Close();
                     return;
             }
 
-            wizardTabControl.SelectTab(wizardTabControl.SelectedTab.TabIndex + 1);
+            GoToStep(CurrentStep + 1);
         }
+
+        private void backKryptonButton_Click(object sender, EventArgs e)
+        {
+            if (CurrentStep != WizardStep.General)
+                GoToStep(CurrentStep - 1);
+        }
+
+        private void UpdateNavigationButtons()
+        {
+            bool building = buildWorker.IsBusy;
+            WizardStep step = CurrentStep;
+            backKryptonButton.Visible = step != WizardStep.General && !building && !(step == WizardStep.Build && modBuilt);
+
+            switch (step)
+            {
+                case WizardStep.Files:
+                    nextKryptonButton.Text = "Build >";
+                    nextKryptonButton.Enabled = true;
+                    break;
+                case WizardStep.Build:
+                    nextKryptonButton.Text = building ? "Building..." : "Close";
+                    nextKryptonButton.Enabled = !building && modBuilt;
+                    break;
+                default:
+                    nextKryptonButton.Text = "Next >";
+                    nextKryptonButton.Enabled = true;
+                    break;
+            }
+        }
+
+        /* Step 1: general information and variants */
 
         /// <summary>
         /// Validates the first page and copies it into the mod.
         /// </summary>
         /// <returns>false, after telling the user why, if an input is invalid; the mod is not changed then.</returns>
-        private bool _ApplyBasicInformation()
+        private bool CommitGeneralStep()
         {
             string name = nameKryptonTextBox.Text.Trim();
             if (name.Length == 0)
-                return _RejectInput("Please enter a name for the mod.", nameKryptonTextBox);
+                return RejectInput("Please enter a name for the mod.", nameKryptonTextBox);
 
             Version version;
             if (!Version.TryParse(versionKryptonTextBox.Text.Trim(), out version))
-                return _RejectInput("Please enter a valid version, e.g. 1.0 or 1.0.0.0.", versionKryptonTextBox);
+                return RejectInput("Please enter a valid version, e.g. 1.0 or 1.0.0.0.", versionKryptonTextBox);
 
-            // The other pages look variants up by their name, so names must be unique and not empty. Renaming
-            // a variant in the grid is not checked by the add button, hence the check here.
+            // The variant lists of the other pages show the names, so they must be unique and not empty.
+            // Renaming a variant in the grid is not checked by the add button, hence the check here.
             var variantNames = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
             {
                 mod.Variants[Guid.Empty]
@@ -188,18 +204,19 @@ namespace Empire_Earth_Mod
             var variants = new List<KeyValuePair<Guid, string>>();
             foreach (DataGridViewRow row in variantsKryptonDataGridView.Rows)
             {
-                string variantName = Convert.ToString(row.Cells[0].Value).Trim();
+                string variantName = Convert.ToString(row.Cells[variantNameColumn.Index].Value).Trim();
                 if (variantName.Length == 0)
-                    return _RejectInput("Every variant needs a name.", variantsKryptonDataGridView);
+                    return RejectInput("Every variant needs a name.", variantsKryptonDataGridView);
                 if (!variantNames.Add(variantName))
-                    return _RejectInput("The variant name \"" + variantName + "\" is used more than once.",
+                    return RejectInput("The variant name \"" + variantName + "\" is used more than once.",
                         variantsKryptonDataGridView);
-                variants.Add(new KeyValuePair<Guid, string>(Guid.Parse(Convert.ToString(row.Cells[1].Value)), variantName));
+                variants.Add(new KeyValuePair<Guid, string>(GetVariantId(row), variantName));
             }
 
             mod.Name = name;
             mod.Description = descriptionKryptonTextBox.Text;
             mod.Version = version;
+            mod.Contact = contactKryptonTextBox.Text.Trim();
             // Replaced, not appended: the page can be confirmed several times (Back, then Next again).
             mod.Authors = authorsKryptonTextBox.Text
                 .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
@@ -211,12 +228,301 @@ namespace Empire_Earth_Mod
             return true;
         }
 
-        private static bool _RejectInput(string message, Control control)
+        private Guid GetVariantId(DataGridViewRow variantRow)
+        {
+            return Guid.Parse(Convert.ToString(variantRow.Cells[variantIdColumn.Index].Value));
+        }
+
+        private static bool RejectInput(string message, Control control)
         {
             MessageBox.Show(message, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             control.Focus();
             return false;
         }
+
+        private void addVariantKryptonButton_Click(object sender, EventArgs e)
+        {
+            string variantName = variantKryptonTextBox.Text.Trim();
+            if (variantName.Length == 0)
+                return;
+
+            if (variantsKryptonDataGridView.Rows.Cast<DataGridViewRow>().Any(row =>
+                    Convert.ToString(row.Cells[variantNameColumn.Index].Value)
+                        .Equals(variantName, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                MessageBox.Show("Variant already exists", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            int rowIndex = variantsKryptonDataGridView.Rows.Add();
+            DataGridViewRow newRow = variantsKryptonDataGridView.Rows[rowIndex];
+            newRow.Cells[variantNameColumn.Index].Value = variantName;
+            newRow.Cells[variantIdColumn.Index].Value = Guid.NewGuid();
+            variantKryptonTextBox.Clear();
+        }
+
+        private void removeVariantKryptonButton_Click(object sender, EventArgs e)
+        {
+            if (variantsKryptonDataGridView.SelectedRows.Count != 1)
+                return;
+
+            if (MessageBox.Show("Are you sure you want to remove this variant?\n" +
+                                "If you need to simply rename it double click on the variant name cell.", "Warning",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+                return;
+
+            DataGridViewRow selectedRow = variantsKryptonDataGridView.SelectedRows[0];
+            Guid variantId = GetVariantId(selectedRow);
+            // Variants only reach the mod when the first page is confirmed with "Next"; one added since then
+            // exists only in the grid and has no data to delete.
+            if (mod.DoesVariantExist(variantId))
+            {
+                bool relatedDataDeleted;
+                try
+                {
+                    // Both always run: the files belong to the mod data, the banners to the assets.
+                    bool filesRemoved = mod.RemoveVariant(variantId);
+                    bool bannersRemoved = assets.RemoveVariant(variantId);
+                    relatedDataDeleted = filesRemoved || bannersRemoved;
+                }
+                catch (DataException ex)
+                {
+                    MessageBox.Show("The variant cannot be removed: " + ex.Message, "Warning",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (relatedDataDeleted)
+                {
+                    MessageBox.Show(
+                        "Variant removed, some related data to that variant (banners, files, etc...) has been deleted.",
+                        "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+
+            variantsKryptonDataGridView.Rows.Remove(selectedRow);
+        }
+
+        /* Step 2: icon and banners */
+
+        /// <summary>Lists the variants and shows the banners of the first one.</summary>
+        private void EnterImagesStep()
+        {
+            FillVariantList(bannersVariantsKryptonComboBox);
+            // Selecting the first variant shows its banners (SelectedIndexChanged).
+            if (bannersVariantsKryptonComboBox.Items.Count > 0)
+                bannersVariantsKryptonComboBox.SelectedIndex = 0;
+            else
+                UpdateBannerPreview();
+        }
+
+        private void selectIconKryptonButton_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog ofd = new OpenFileDialog())
+            {
+                ofd.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png";
+                if (ofd.ShowDialog() != DialogResult.OK || string.IsNullOrWhiteSpace(ofd.FileName))
+                    return;
+                try
+                {
+                    assets.Icon = Image.FromFile(ofd.FileName);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error while loading icon: " + ex.Message, "Warning",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                iconPictureBox.Image = assets.Icon;
+            }
+        }
+
+        private void addBannerKryptonButton_Click(object sender, EventArgs e)
+        {
+            Guid? variant = GetSelectedVariant(bannersVariantsKryptonComboBox);
+            if (variant == null)
+            {
+                MessageBox.Show("Please select a variant to add a banner for it", "Warning",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            using (OpenFileDialog ofd = new OpenFileDialog())
+            {
+                ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png";
+                if (ofd.ShowDialog() != DialogResult.OK || string.IsNullOrWhiteSpace(ofd.FileName))
+                    return;
+                try
+                {
+                    assets.AddBanner(variant.Value, Image.FromFile(ofd.FileName));
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error while adding banner: " + ex.Message, "Warning",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                bannerIndex = assets.GetBanners(variant.Value).Count - 1;
+                UpdateBannerPreview();
+            }
+        }
+
+        private void removeBannerKryptonButton_Click(object sender, EventArgs e)
+        {
+            Guid? variant = GetSelectedVariant(bannersVariantsKryptonComboBox);
+            if (variant == null || !assets.HasBanner(variant.Value))
+                return;
+            assets.RemoveBanner(variant.Value, bannerIndex);
+            if (bannerIndex != 0)
+                bannerIndex--;
+            UpdateBannerPreview();
+        }
+
+        private void bannersVariantsKryptonComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            bannerIndex = 0;
+            UpdateBannerPreview();
+        }
+
+        private void nextBannerKryptonButton_Click(object sender, EventArgs e)
+        {
+            Guid? variant = GetSelectedVariant(bannersVariantsKryptonComboBox);
+            if (variant == null || bannerIndex + 1 >= assets.GetBanners(variant.Value).Count)
+                return;
+            bannerIndex++;
+            UpdateBannerPreview();
+        }
+
+        private void prevBannerKryptonButton_Click(object sender, EventArgs e)
+        {
+            Guid? variant = GetSelectedVariant(bannersVariantsKryptonComboBox);
+            if (variant == null || bannerIndex == 0)
+                return;
+            bannerIndex--;
+            UpdateBannerPreview();
+        }
+
+        /// <summary>Shows banner <see cref="bannerIndex"/> of the selected variant and the matching buttons.</summary>
+        private void UpdateBannerPreview()
+        {
+            Guid? variant = GetSelectedVariant(bannersVariantsKryptonComboBox);
+            IList<Image> banners = variant == null ? new Image[0] : assets.GetBanners(variant.Value);
+            bool hasBanner = banners.Count > 0;
+            if (bannerIndex >= banners.Count)
+                bannerIndex = Math.Max(0, banners.Count - 1);
+
+            bannersPictureBox.Image = hasBanner ? banners[bannerIndex] : null;
+            addBannerKryptonButton.Enabled = variant != null;
+            removeBannerKryptonButton.Enabled = hasBanner;
+            prevBannerKryptonButton.Enabled = hasBanner;
+            nextBannerKryptonButton.Enabled = hasBanner;
+            bannerCounterKryptonLabel.Values.ExtraText = hasBanner
+                ? "(" + (bannerIndex + 1) + "/" + banners.Count + ")"
+                : string.Empty;
+        }
+
+        /* Step 3: files */
+
+        /// <summary>Creates the variant folders in the working directory and lists the variants.</summary>
+        private void EnterFilesStep()
+        {
+            packageBuilder.GenerateVariantsFolders();
+            // No variant is preselected: selecting one reads its folder and may report ignored files.
+            FillVariantList(filesKryptonComboBox);
+        }
+
+        private void filesKryptonComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Guid? variant = GetSelectedVariant(filesKryptonComboBox);
+            if (variant == null)
+                return;
+
+            List<string> ignoredFiles;
+            try
+            {
+                ignoredFiles = packageBuilder.ReloadModFiles(variant.Value);
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+            {
+                MessageBox.Show("The files of the variant could not be read: " + ex.Message, "Warning",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            UpdateVariantFilesPreview(variant.Value);
+
+            if (ignoredFiles.Count > 0)
+            {
+                const int maxListedFiles = 10;
+                MessageBox.Show("These files are ignored because they are not inside one of the folders " +
+                                string.Join(", ", EemFormat.ProductFolders) + ":\n\n" +
+                                string.Join("\n", ignoredFiles.Take(maxListedFiles)) +
+                                (ignoredFiles.Count > maxListedFiles ? "\n..." : string.Empty), "Warning",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        /// <summary>
+        /// Copies the file types chosen in the grid into the mod files. Each row keeps its <see cref="ModFile"/>
+        /// in Tag, so the file does not have to be found again from the displayed product and path.
+        /// </summary>
+        private void SaveVariantFilesFromGrid()
+        {
+            foreach (DataGridViewRow fileRow in variantFilesKryptonDataGridView.Rows)
+            {
+                if (fileRow.Tag is ModFile modFile)
+                    modFile.FileType = EnumExtensions.ParseDescription<ModFile.ModFileType>(
+                        Convert.ToString(fileRow.Cells[fileTypeColumn.Index].Value));
+            }
+        }
+
+        private void UpdateVariantFilesPreview(Guid variant)
+        {
+            SaveVariantFilesFromGrid();
+            variantFilesKryptonDataGridView.Rows.Clear();
+
+            foreach (var modFile in mod.ModFiles.FindAll(modFile => modFile.Variant == variant))
+            {
+                // Only files inside a product folder are indexed; skip anything else (e.g. from a mod archive)
+                // instead of failing on it.
+                ModFile.ModFileProduct product;
+                if (!modFile.TryGetProduct(out product))
+                    continue;
+
+                DataGridViewRow row = variantFilesKryptonDataGridView.Rows[variantFilesKryptonDataGridView.Rows.Add()];
+                row.Cells[variantColumn.Index].Value = variant.ToString();
+                row.Cells[fileNameColumn.Index].Value = modFile.GetPathInProduct();
+                row.Cells[productColumn.Index].Value = product.GetDescription();
+                row.Cells[fileTypeColumn.Index].Value = modFile.FileType.GetDescription();
+                row.Tag = modFile;
+            }
+        }
+
+        private void variantFilesKryptonDataGridView_CellEnter(object sender, DataGridViewCellEventArgs e)
+        {
+            bool validClick = (e.RowIndex != -1 && e.ColumnIndex != -1);
+
+            if (!(sender is DataGridView dataGridView))
+                return;
+            if (!(dataGridView.Columns[e.ColumnIndex] is DataGridViewComboBoxColumn) || !validClick)
+                return;
+            dataGridView.BeginEdit(true);
+            ((ComboBox)dataGridView.EditingControl).DroppedDown = true;
+        }
+
+        private void updateVariantsFilesKryptonButton_Click(object sender, EventArgs e)
+        {
+            Guid? variant = GetSelectedVariant(filesKryptonComboBox);
+            if (variant == null)
+                return;
+
+            // Quoted: the working directory contains spaces ("Empire Earth Launcher").
+            Process.Start("explorer.exe",
+                "\"" + Path.Combine(packageBuilder.WorkingDirectory, variant.Value.ToString()) + "\"");
+        }
+
+        /* Step 4: build */
 
         /// <summary>
         /// Checks that the mod can be built, asks where to save it and starts the build in the background.
@@ -237,18 +543,15 @@ namespace Empire_Earth_Mod
                 sfd.Filter = "Empire Earth Mod (" + EemFormat.SearchPattern + ")|" + EemFormat.SearchPattern;
                 sfd.DefaultExt = EemFormat.Extension.TrimStart('.');
                 sfd.AddExtension = true;
-                sfd.FileName = _GetDefaultArchiveName();
+                sfd.FileName = GetDefaultArchiveName();
                 if (sfd.ShowDialog(this) != DialogResult.OK)
                     return false;
                 eemPath = sfd.FileName;
             }
 
             // Keep the file types edited in the grid of the variant that is currently displayed.
-            _SaveVariantFilesFromGrid();
+            SaveVariantFilesFromGrid();
 
-            nextKryptonButton.Enabled = false;
-            nextKryptonButton.Text = "Building...";
-            backKryptonButton.Visible = false;
             buildStatusLabel.Text = "Building Mod...";
 
             // The worker saves the icon and banner bitmaps. GDI+ images must not be used by two threads at
@@ -260,7 +563,7 @@ namespace Empire_Earth_Mod
             return true;
         }
 
-        private string _GetDefaultArchiveName()
+        private string GetDefaultArchiveName()
         {
             string name = string.IsNullOrWhiteSpace(mod.Name) ? mod.Uuid.ToString() : mod.Name.Trim();
             foreach (char invalidChar in Path.GetInvalidFileNameChars())
@@ -279,7 +582,8 @@ namespace Empire_Earth_Mod
         {
             iconPictureBox.Image = assets.Icon;
             // Shows the banners of the selected variant again (from the first one).
-            bannersVariantsKryptonComboBox_SelectedIndexChanged(bannersVariantsKryptonComboBox, EventArgs.Empty);
+            bannerIndex = 0;
+            UpdateBannerPreview();
 
             if (e.Error != null)
             {
@@ -288,329 +592,50 @@ namespace Empire_Earth_Mod
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 // Back to the files page, so the author can fix the problem and build again.
-                wizardTabControl.SelectTab(BuildTabIndex - 1);
-                nextKryptonButton.Text = "Build >";
-                nextKryptonButton.Enabled = true;
-                backKryptonButton.Visible = true;
+                GoToStep(WizardStep.Files);
                 return;
             }
 
             modBuilt = true;
             buildStatusLabel.Text = "Mod built";
-            nextKryptonButton.Text = "Close";
-            nextKryptonButton.Enabled = true;
+            UpdateNavigationButtons();
             MessageBox.Show("The mod has been saved to:\n" + e.Result, "Mod Creator",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void backKryptonButton_Click(object sender, EventArgs e)
-        {
-            wizardTabControl.SelectTab(wizardTabControl.SelectedTab.TabIndex - 1);
-            nextKryptonButton.Text = "Next >";
-            if (wizardTabControl.SelectedTab.TabIndex == 0)
-                backKryptonButton.Visible = false;
-        }
+        /* Variant lists */
 
-        private void addVariantKryptonButton_Click(object sender, EventArgs e)
+        /// <summary>Item of the variant lists: shows the name, identifies the variant by its id.</summary>
+        private sealed class VariantItem
         {
-            if (!string.IsNullOrWhiteSpace(variantKryptonTextBox.Text))
+            public VariantItem(Guid id, string name)
             {
-                if (variantsKryptonDataGridView.Rows.Cast<DataGridViewRow>().Any(x =>
-                        (x.Cells[0].Value.ToString().Equals(variantKryptonTextBox.Text,
-                            StringComparison.InvariantCultureIgnoreCase))))
-                {
-                    MessageBox.Show("Variant already exists", "Warning",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
+                Id = id;
+                Name = name;
+            }
 
-                variantsKryptonDataGridView.Rows.Add(variantKryptonTextBox.Text, Guid.NewGuid());
-                variantKryptonTextBox.Clear();
+            public Guid Id { get; }
+
+            public string Name { get; }
+
+            public override string ToString()
+            {
+                return Name;
             }
         }
 
-        private void removeVariantKryptonButton_Click(object sender, EventArgs e)
+        private void FillVariantList(KryptonComboBox comboBox)
         {
-            if (variantsKryptonDataGridView.SelectedRows.Count != 1)
-                return;
-
-            if (MessageBox.Show("Are you sure you want to remove this variant?\n" +
-                                "If you need to simply rename it double click on the variant name cell.", "Warning",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-            {
-                Guid variantId = Guid.Parse(variantsKryptonDataGridView.SelectedRows[0].Cells[1].Value.ToString());
-                // Variants only reach the mod when the first page is confirmed with "Next"; one added since
-                // then exists only in the grid and has no data to delete.
-                if (mod.DoesVariantExist(variantId))
-                {
-                    bool relatedDataDeleted;
-                    try
-                    {
-                        // Both always run: the files belong to the mod data, the banners to the assets.
-                        bool filesRemoved = mod.RemoveVariant(variantId);
-                        bool bannersRemoved = assets.RemoveVariant(variantId);
-                        relatedDataDeleted = filesRemoved || bannersRemoved;
-                    }
-                    catch (DataException ex)
-                    {
-                        MessageBox.Show("The variant cannot be removed: " + ex.Message, "Warning",
-                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-
-                    if (relatedDataDeleted)
-                    {
-                        MessageBox.Show(
-                            "Variant removed, some related data to that variant (banners, files, etc...) has been deleted.",
-                            "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                }
-
-                variantsKryptonDataGridView.Rows.RemoveAt(variantsKryptonDataGridView.SelectedRows[0].Index);
-            }
+            comboBox.Items.Clear();
+            foreach (KeyValuePair<Guid, string> variant in mod.Variants)
+                comboBox.Items.Add(new VariantItem(variant.Key, variant.Value));
         }
 
-        /* Icon Management */
-
-        private void selectIconKryptonButton_Click(object sender, EventArgs e)
+        /// <returns>The variant selected in <paramref name="comboBox"/>, or null if none is selected.</returns>
+        private static Guid? GetSelectedVariant(KryptonComboBox comboBox)
         {
-            using (OpenFileDialog ofd = new OpenFileDialog())
-            {
-                ofd.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png";
-                if (ofd.ShowDialog() == DialogResult.OK)
-                {
-                    if (string.IsNullOrWhiteSpace(ofd.FileName))
-                        return;
-                    try
-                    {
-                        assets.Icon = Image.FromFile(ofd.FileName);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Error while loading icon: " + ex.Message, "Warning",
-                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-
-                    iconPictureBox.Image = assets.Icon;
-                }
-            }
-        }
-
-        /* Banner Management */
-        private int _bannerIndex = 0;
-
-        private void addBannerKryptonButton_Click(object sender, EventArgs e)
-        {
-            if (bannersVariantsKryptonComboBox.SelectedIndex == -1)
-            {
-                MessageBox.Show("Please select a variant to add a banner for it", "Warning",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            Guid selectedVariantUuid = Guid.Parse(mod.Variants.First(value =>
-                value.Value.ToString() == bannersVariantsKryptonComboBox.Text).Key.ToString());
-
-            if (!mod.DoesVariantExist(selectedVariantUuid))
-            {
-                MessageBox.Show("Variant does not exist", "Warning", MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
-                return;
-            }
-
-            using (OpenFileDialog ofd = new OpenFileDialog())
-            {
-                ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png";
-                if (ofd.ShowDialog() == DialogResult.OK)
-                {
-                    if (string.IsNullOrWhiteSpace(ofd.FileName))
-                        return;
-                    try
-                    {
-                        assets.AddBanner(selectedVariantUuid, Image.FromFile(ofd.FileName));
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Error while adding banner: " + ex.Message, "Warning",
-                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-
-                    _bannerIndex = assets.GetBanners(selectedVariantUuid).Count - 1;
-                    _UpdateBannerPreview(selectedVariantUuid);
-                }
-            }
-        }
-
-        private void removeBannerKryptonButton_Click(object sender, EventArgs e)
-        {
-            if (bannersVariantsKryptonComboBox.SelectedIndex == -1)
-                return;
-            Guid selectedVariantUuid = Guid.Parse(mod.Variants.First(value =>
-                value.Value.ToString() == bannersVariantsKryptonComboBox.Text).Key.ToString());
-
-            if (!assets.HasBanner(selectedVariantUuid))
-                return;
-            assets.RemoveBanner(selectedVariantUuid, _bannerIndex);
-            if (_bannerIndex != 0)
-                _bannerIndex--;
-            _UpdateBannerPreview(selectedVariantUuid);
-        }
-
-        private void bannersVariantsKryptonComboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (bannersVariantsKryptonComboBox.SelectedIndex == -1)
-            {
-                _UpdateBannerPreview(Guid.Empty);
-            }
-            else
-            {
-                Guid selectedVariantUuid = Guid.Parse(mod.Variants.First(value =>
-                    value.Value.ToString() == bannersVariantsKryptonComboBox.Text).Key.ToString());
-                _bannerIndex = 0;
-                _UpdateBannerPreview(selectedVariantUuid);
-            }
-        }
-
-        private void nextBannerKryptonButton_Click(object sender, EventArgs e)
-        {
-            if (bannersVariantsKryptonComboBox.SelectedIndex == -1)
-                return;
-            Guid selectedVariantUuid = Guid.Parse(mod.Variants.First(value =>
-                value.Value.ToString() == bannersVariantsKryptonComboBox.Text).Key.ToString());
-
-            if (!assets.HasBanner(selectedVariantUuid) || _bannerIndex + 1 == assets.GetBanners(selectedVariantUuid).Count)
-                return;
-            _bannerIndex++;
-            _UpdateBannerPreview(selectedVariantUuid);
-        }
-
-        private void prevBannerKryptonButton_Click(object sender, EventArgs e)
-        {
-            if (bannersVariantsKryptonComboBox.SelectedIndex == -1)
-                return;
-            Guid selectedVariantUuid = Guid.Parse(mod.Variants.First(value =>
-                value.Value.ToString() == bannersVariantsKryptonComboBox.Text).Key.ToString());
-
-            if (!assets.HasBanner(selectedVariantUuid) || _bannerIndex == 0)
-                return;
-            _bannerIndex--;
-            _UpdateBannerPreview(selectedVariantUuid);
-        }
-
-        private void _UpdateBannerPreview(Guid variantUuid)
-        {
-            if (!assets.HasBanner(variantUuid))
-            {
-                bannersPictureBox.Image = null;
-                addBannerKryptonButton.Enabled = true;
-                removeBannerKryptonButton.Enabled = false;
-                prevBannerKryptonButton.Enabled = false;
-                nextBannerKryptonButton.Enabled = false;
-                bannerCounterKryptonLabel.Values.ExtraText = string.Empty;
-            }
-            else
-            {
-                int bannerStrIndex = assets.GetBanners(variantUuid).Count > 0 ? _bannerIndex + 1 : 0;
-
-                bannersPictureBox.Image = assets.GetBanners(variantUuid)[_bannerIndex];
-                addBannerKryptonButton.Enabled = true;
-                removeBannerKryptonButton.Enabled = true;
-                prevBannerKryptonButton.Enabled = true;
-                nextBannerKryptonButton.Enabled = true;
-                bannerCounterKryptonLabel.Values.ExtraText = "(" + bannerStrIndex + "/" + assets.GetBanners(variantUuid).Count + ")";
-            }
-        }
-
-        /// <summary>
-        /// Copies the file types chosen in the grid into the mod files. Each row keeps its <see cref="ModFile"/>
-        /// in Tag, so the file does not have to be found again from the displayed product and path.
-        /// </summary>
-        private void _SaveVariantFilesFromGrid()
-        {
-            foreach (DataGridViewRow fileRow in variantFilesKryptonDataGridView.Rows)
-            {
-                if (fileRow.Tag is ModFile modFile)
-                    modFile.FileType = EnumExtensions.ParseDescription<ModFile.ModFileType>(
-                        Convert.ToString(fileRow.Cells[4].Value));
-            }
-        }
-
-        private void _UpdateVariantFilesPreview(Guid variantUuid)
-        {
-            _SaveVariantFilesFromGrid();
-            variantFilesKryptonDataGridView.Rows.Clear();
-
-            foreach (var modFile in mod.ModFiles.FindAll(modFile => modFile.Variant == variantUuid))
-            {
-                // Only files inside a product folder are indexed; skip anything else (e.g. from a mod archive)
-                // instead of failing on it.
-                ModFile.ModFileProduct product;
-                if (!modFile.TryGetProduct(out product))
-                    continue;
-
-                int rowIndex = variantFilesKryptonDataGridView.Rows.Add(null,
-                    variantUuid.ToString(),
-                    modFile.GetPathInProduct(),
-                    product.GetDescription(),
-                    modFile.FileType.GetDescription());
-                variantFilesKryptonDataGridView.Rows[rowIndex].Tag = modFile;
-            }
-        }
-
-        private void filesKryptonComboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (filesKryptonComboBox.SelectedIndex == -1)
-                return;
-            Guid selectedVariantUuid = Guid.Parse(mod.Variants.First(value =>
-                value.Value.ToString() == filesKryptonComboBox.Text).Key.ToString());
-
-            List<string> ignoredFiles;
-            try
-            {
-                ignoredFiles = packageBuilder.ReloadModFiles(selectedVariantUuid);
-            }
-            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
-            {
-                MessageBox.Show("The files of the variant could not be read: " + ex.Message, "Warning",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-            _UpdateVariantFilesPreview(selectedVariantUuid);
-
-            if (ignoredFiles.Count > 0)
-            {
-                const int maxListedFiles = 10;
-                MessageBox.Show("These files are ignored because they are not inside one of the folders " +
-                                string.Join(", ", EemFormat.ProductFolders) + ":\n\n" +
-                                string.Join("\n", ignoredFiles.Take(maxListedFiles)) +
-                                (ignoredFiles.Count > maxListedFiles ? "\n..." : string.Empty), "Warning",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-        }
-
-        private void variantFilesKryptonDataGridView_CellEnter(object sender, DataGridViewCellEventArgs e)
-        {
-            bool validClick = (e.RowIndex != -1 && e.ColumnIndex != -1);
-
-            if (!(sender is DataGridView dataGridView))
-                return;
-            if (!(dataGridView.Columns[e.ColumnIndex] is DataGridViewComboBoxColumn) || !validClick)
-                return;
-            dataGridView.BeginEdit(true);
-            ((ComboBox)dataGridView.EditingControl).DroppedDown = true;
-        }
-
-        private void updateVariantsFilesKryptonButton_Click(object sender, EventArgs e)
-        {
-            if (filesKryptonComboBox.SelectedIndex == -1)
-                return;
-            Guid selectedVariantUuid = Guid.Parse(mod.Variants.First(value =>
-                value.Value.ToString() == filesKryptonComboBox.Text).Key.ToString());
-
-            Process.Start("explorer.exe",
-                packageBuilder.WorkingDirectory + Path.DirectorySeparatorChar + selectedVariantUuid);
+            var item = comboBox.SelectedItem as VariantItem;
+            return item == null ? (Guid?)null : item.Id;
         }
     }
 }
