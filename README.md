@@ -87,12 +87,13 @@ mono Empire-Earth-Launcher.Tests/bin/Debug/Empire-Earth-Launcher.Tests.exe      
 
 NUnitLite options can be passed, e.g. `--where "class =~ LobbyPersistentData"` to run some tests only or
 `--result=TestResult.xml` to write an NUnit 3 result file (by default no result file is written). The tests
-cover the WON lobby file parser, the NeoEE protocol framing and reply parsing, the mod library (product
-folders, file types, versions, the working directory of the mod creator, `.eem` export/import) and the log
-trimming and game folder detection of the launcher. They only use folders below the temporary folder, never
-contact a server, never read the registry and never show UI. Tests that depend on Windows path semantics are
+cover the WON lobby file parser, the NeoEE protocol framing, reply parsing and request deadline, the mod
+library (product folders, file types, versions, the working directory of the mod creator, `.eem`
+export/import including damaged archives) and the log trimming, game folder detection, lobby profile loading
+and recovery from a damaged `user.config` of the launcher. They only use folders below the temporary folder,
+never contact a server, never read the registry and never show UI. Tests that depend on Windows path semantics are
 marked `[Platform(Include = "Win")]` and reported as skipped under Mono. The launcher makes its internal
-helpers visible to the test assembly (`InternalsVisibleTo`).
+helpers visible to the test assembly (`InternalsVisibleTo`), and so does the WON library.
 
 **Continuous integration**: `.github/workflows/build.yml` restores and builds the solution in Release on
 `windows-latest` for every push to `main` and every pull request, then runs every `*Tests.exe` it finds in
@@ -123,11 +124,14 @@ Empire Earth Launcher/            The launcher (WinForms + Krypton UI)
 ├─ ILogger.cs                     Logging interface (implemented by TraceFileLogger.cs)
 ├─ IThemeService.cs               Theme interface (implemented by KryptonThemeService.cs)
 ├─ GameDirectory*.cs              Detection of the Empire Earth folder
+├─ LobbyProfileRepository.cs      Lobby profiles and friends of the game folder, without UI
+├─ UserSettingsRecovery.cs        Start-up recovery from a damaged user.config
 ├─ LauncherPaths.cs               File locations of the launcher
 └─ Resources/                     Images and icon used by the UI
 Empire-Earth-WON/                 WON/NeoEE library, no UI (used by the launcher)
 ├─ NeoApiClient.cs                Client for the NeoEE lobby server
 ├─ NeoServerEndpoint.cs           Server address and timeout
+├─ DeadlineStream.cs              One time budget for a whole request/reply exchange
 └─ LobbyPersistentData.cs         Parser for the WON lobby files (_wonlobbypersistent.dat, _wonuser*.dat)
 Empire-Earth-Mod/
 ├─ Empire-Earth-Mod-Lib/          Mod library: ModData (mod description), ModAssets (icon/banners),
@@ -135,7 +139,7 @@ Empire-Earth-Mod/
 │                                 (ZipStorer.cs is a vendored third-party ZIP library)
 └─ Empire-Earth-Mod/              Mod creator (WinForms), uses Empire-Earth-Mod-Lib
 Empire-Earth-Launcher.Tests/      Unit tests (NUnitLite console program), one folder per tested project:
-├─ Launcher/                      Log trimming, game folder detection
+├─ Launcher/                      Log trimming, game folder detection, lobby profiles, settings recovery
 ├─ Won/                           WON lobby files, NeoEE protocol
 ├─ Mod/                           Mod library and .eem archives
 └─ TestSupport/                   Temporary folders, chunked streams
@@ -150,14 +154,17 @@ packages/                         NuGet packages, restored on build (not committ
   (`Installed From Volume` + `Installed From Directory` below `Software\Neo\Empire Earth` or
   `Software\SSSI\Empire Earth`, HKCU before HKLM), otherwise its own folder if it contains `Empire Earth.exe`.
 - **User settings** (game folder, theme) are saved by .NET in the user's `user.config` below
-  `%LOCALAPPDATA%`.
+  `%LOCALAPPDATA%`. If that file is damaged (e.g. after a crash while saving), the launcher renames it to
+  `user.config.damaged`, logs it and starts with the default settings.
 - **Server settings**: `NeoServerHost`, `NeoServerPort`, `NeoTimeoutMilliseconds` and
   `PlayerListPollIntervalMilliseconds` are application settings in `Empire Earth Launcher.exe.config`
-  (generated from `App.config`) and can be changed there without rebuilding. The NeoEE status service is plain
-  TCP without TLS or server authentication (a property of the server); the launcher only reads public status
+  (generated from `App.config`) and can be changed there without rebuilding. `NeoTimeoutMilliseconds` limits
+  the connect and, separately, the whole request/reply exchange (not only each read). The NeoEE status
+  service is plain TCP without TLS or server authentication (a property of the server); the launcher only reads public status
   data from it and validates every reply.
 - **Themes**: Krypton palette files (`*.xml`) in the `themes` folder next to the executable, or any file chosen
-  with *Custom*. No theme files are shipped yet; without them the designer colors are used.
+  with *Custom*. No theme files are shipped yet; without them the designer colors are used (a missing default
+  theme `Light` is only logged as information).
 - **Log**: `%LOCALAPPDATA%\Empire Earth Launcher\log.txt` (the installation folder may be read-only).
 
 ## 🔨 Contributing
