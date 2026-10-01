@@ -10,88 +10,110 @@ namespace Empire_Earth_Launcher.WON
     /// LobbyGlobalData: Parsing fully done
     /// LobbyUserData: Only friends parsing done
     /// </summary>
-    class LobbyPersistentData
+    /// <remarks>
+    /// File layout: "WONPER" signature followed by a 32-bit value, then the records. Numbers are little
+    /// endian, strings are a 16-bit character count followed by that many UTF-16LE code units.
+    /// Every parser either reads a complete, consistent file or throws: <see cref="InvalidDataException"/>
+    /// for a wrong signature or for data (string, record list) that cannot fit into the rest of the file,
+    /// <see cref="EndOfStreamException"/> for a file that ends in the middle of a value.
+    /// </remarks>
+    public static class LobbyPersistentData
     {
-        private static ulong ReadFileSignature(Stream input)
+        private const string FileSignaturePrefix = "WONPER";
+
+        /// <summary>
+        /// Creates the reader used by all parsers. The reader is intentionally never disposed: on .NET 4.0
+        /// disposing a BinaryReader also closes the stream, which belongs to the caller.
+        /// </summary>
+        private static BinaryReader CreateReader(Stream input)
         {
-            if (input.Length < (6 + 4) || !ReadString(6, input).Equals("WONPER", StringComparison.InvariantCultureIgnoreCase))
-                return 0;
-            return ReadLong_x86(input);
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+            // Encoding.Unicode is UTF-16LE, the encoding of the WON lobby strings.
+            return new BinaryReader(input, Encoding.Unicode);
         }
 
-        private static string ReadString(int len, Stream input)
+        private static uint ReadFileSignature(BinaryReader reader)
         {
-            string result = null;
-
-            for (int i = 0; i < len; ++i)
-            {
-                int read = input.ReadByte();
-                result += (char)read;
-            }
-            return result;
+            string prefix = Encoding.ASCII.GetString(ReadBytesExactly(reader, FileSignaturePrefix.Length));
+            if (!prefix.Equals(FileSignaturePrefix, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException("Not a WON lobby file: the \"" + FileSignaturePrefix + "\" signature is missing.");
+            return reader.ReadUInt32();
         }
 
-        private static string ReadWideString(Stream input)
+        private static string ReadWideString(BinaryReader reader)
         {
-            int len = ReadShort(input);
-            string result = null;
-
-            for (int i = 0; i < len; ++i)
-            {
-                byte[] buff = new byte[2];
-                buff[0] = (byte)input.ReadByte();
-                buff[1] = (byte)input.ReadByte();
-                // I don't think that very good
-                result += (Encoding.UTF8.GetString(buff)[0]).ToString();
-            }
-            return result;
+            int length = reader.ReadUInt16();
+            // Decode the exact number of bytes instead of using ReadChars, so that the stream position
+            // stays correct even for invalid UTF-16 (e.g. a lone surrogate) in a corrupted file.
+            return Encoding.Unicode.GetString(ReadBytesExactly(reader, length * 2));
         }
 
-        private static ushort ReadShort(Stream input)
+        private static void SkipBytes(BinaryReader reader, int count)
         {
-            byte[] result = new byte[2];
-
-            for (int i = 0; i < 2; ++i)
-                result[i] = (byte)input.ReadByte();
-
-            return BitConverter.ToUInt16(result, 0);
+            ReadBytesExactly(reader, count);
         }
 
-        private static ulong ReadLong_x86(Stream input)
+        private static byte[] ReadBytesExactly(BinaryReader reader, int count)
         {
-            byte[] result = new byte[4];
+            EnsureAvailable(reader, count);
+            byte[] bytes = reader.ReadBytes(count);
+            if (bytes.Length != count)
+                throw new EndOfStreamException("Unexpected end of the WON lobby file: " + count + " bytes expected, " + bytes.Length + " found.");
+            return bytes;
+        }
 
-            for (int i = 0; i < 4; ++i)
-                result[i] = (byte)input.ReadByte();
-
-            return BitConverter.ToUInt32(result, 0);
+        /// <summary>
+        /// Rejects data that cannot fit into the rest of the stream (typically a length or record count
+        /// read from a corrupted file) before anything is allocated or read for it.
+        /// </summary>
+        /// <param name="reader">Reader positioned at the start of the data.</param>
+        /// <param name="minimumBytes">Smallest number of bytes the data can occupy.</param>
+        private static void EnsureAvailable(BinaryReader reader, long minimumBytes)
+        {
+            Stream stream = reader.BaseStream;
+            if (!stream.CanSeek)
+                return; // ReadBytes/ReadUInt16/... still throw at the end of the stream
+            long remaining = stream.Length - stream.Position;
+            if (minimumBytes > remaining)
+                throw new InvalidDataException("Corrupted WON lobby file: " + minimumBytes + " bytes needed at offset " +
+                                               stream.Position + " but only " + remaining + " bytes left.");
         }
 
         public class LobbyGlobalData
         {
-            private string path;
-            public ulong FileSignature { get; private set; }
+            /// <summary>
+            /// Smallest possible size of a <see cref="PlayerInfoGlobalData"/> record (all strings empty).
+            /// </summary>
+            private const int MinPlayerInfoRecordBytes = 2 + 4 + 2 + 4 + 4 + 2;
+
+            private readonly string path;
+            public uint FileSignature { get; private set; }
 
             public List<PlayerInfoGlobalData> PlayerInfoGlobalDatas { get; private set; }
+
+            public bool LobbySoundEffects { get; private set; }
+            public bool GlobalLobbyMusic { get; private set; }
+            public uint NetworkAdapter { get; private set; }
 
             public class PlayerInfoGlobalData
             {
                 public string Username { get; private set; }
-                public ulong LastUse { get; private set; }
+                public uint LastUse { get; private set; }
                 public ushort FileID { get; private set; }
 
-                public PlayerInfoGlobalData(Stream input)
+                internal PlayerInfoGlobalData(BinaryReader reader)
                 {
-                    Username = ReadWideString(input);
-                    LastUse = ReadLong_x86(input);
-                    FileID = ReadShort(input);
+                    Username = ReadWideString(reader);
+                    LastUse = reader.ReadUInt32();
+                    FileID = reader.ReadUInt16();
 
-                    ulong sysTOUTime = ReadLong_x86(input);
-                    ulong gameTOUTime = ReadLong_x86(input);
+                    reader.ReadUInt32(); // sysTOUTime, not used by the launcher
+                    reader.ReadUInt32(); // gameTOUTime, not used by the launcher
 
-                    // Fake read the password part, not very hard or even secure lol but not required anyway
-                    ushort passlen = ReadShort(input);
-                    ReadString(passlen, input);
+                    // Skip the password part, it is not needed by the launcher
+                    ushort passlen = reader.ReadUInt16();
+                    SkipBytes(reader, passlen);
                 }
             }
 
@@ -99,6 +121,8 @@ namespace Empire_Earth_Launcher.WON
             /// Will automatically parse the given lobby user file
             /// </summary>
             /// <param name="path">Path to the lobby user file (_wonlobbypersistent.dat)</param>
+            /// <exception cref="IOException">The file cannot be read or is truncated (<see cref="EndOfStreamException"/>).</exception>
+            /// <exception cref="InvalidDataException">The file is not a valid lobby file.</exception>
             public LobbyGlobalData(string path)
             {
                 this.path = path;
@@ -107,84 +131,147 @@ namespace Empire_Earth_Launcher.WON
                 Reload();
             }
 
+            /// <summary>
+            /// Parses lobby data (content of _wonlobbypersistent.dat) from the current position of
+            /// <paramref name="input"/>. The stream is not closed.
+            /// </summary>
+            /// <exception cref="EndOfStreamException">The data is truncated.</exception>
+            /// <exception cref="InvalidDataException">The data is not a valid lobby file.</exception>
+            public LobbyGlobalData(Stream input)
+            {
+                PlayerInfoGlobalDatas = new List<PlayerInfoGlobalData>();
+                Load(input);
+            }
+
+            /// <summary>
+            /// Parses the file again. On error the previously loaded data is kept.
+            /// </summary>
+            /// <exception cref="InvalidOperationException">The data was parsed from a stream, not from a file.</exception>
             public void Reload()
             {
-                PlayerInfoGlobalDatas.Clear();
+                if (path == null)
+                    throw new InvalidOperationException("This lobby data was read from a stream and cannot be reloaded.");
                 using (Stream input = File.OpenRead(path))
                 {
-                    FileSignature = ReadFileSignature(input);
-
-                    if (FileSignature == 0)
-                        return;
-
-                    ushort aNumUserNames = ReadShort(input);
-
-                    for (int i = 0; i < aNumUserNames; ++i)
-                    {
-                        PlayerInfoGlobalDatas.Add(new PlayerInfoGlobalData(input));
-                    }
-
-                    bool lobbySoundEffects = input.ReadByte() != 0;
-                    bool globalLobbyMusic = input.ReadByte() != 0;
-                    ulong networkAdapter = ReadLong_x86(input);
+                    Load(input);
                 }
+            }
+
+            private void Load(Stream input)
+            {
+                BinaryReader reader = CreateReader(input);
+                uint fileSignature = ReadFileSignature(reader);
+
+                ushort aNumUserNames = reader.ReadUInt16();
+                EnsureAvailable(reader, (long)aNumUserNames * MinPlayerInfoRecordBytes);
+                var playerInfos = new List<PlayerInfoGlobalData>(aNumUserNames);
+                for (int i = 0; i < aNumUserNames; ++i)
+                {
+                    playerInfos.Add(new PlayerInfoGlobalData(reader));
+                }
+
+                bool lobbySoundEffects = reader.ReadByte() != 0;
+                bool globalLobbyMusic = reader.ReadByte() != 0;
+                uint networkAdapter = reader.ReadUInt32();
+
+                // Only publish a completely parsed file.
+                FileSignature = fileSignature;
+                PlayerInfoGlobalDatas.Clear();
+                PlayerInfoGlobalDatas.AddRange(playerInfos);
+                LobbySoundEffects = lobbySoundEffects;
+                GlobalLobbyMusic = globalLobbyMusic;
+                NetworkAdapter = networkAdapter;
             }
         }
 
         public class LobbyUserData
         {
-            private string path;
+            /// <summary>Size of a reconnect id record: 6 bytes id plus two 32-bit values.</summary>
+            private const int ReconnectIdRecordBytes = 6 + 4 + 4;
+            /// <summary>Smallest possible ignored player record (empty name).</summary>
+            private const int MinIgnoredRecordBytes = 2;
+            /// <summary>Smallest possible friend record (empty name plus WON ID).</summary>
+            private const int MinFriendRecordBytes = 2 + 4;
 
-            public ulong FileSignature { get; private set; }
+            private readonly string path;
+
+            public uint FileSignature { get; private set; }
 
             /// <summary>
             /// Dictionary of Friends, key is the player name and value is it's WON ID
             /// </summary>
-            public IDictionary<string, int> Friends { get; private set; }
+            /// <remarks>If a name appears more than once, the last entry of the file wins.</remarks>
+            public IDictionary<string, uint> Friends { get; private set; }
 
             /// <summary>
             /// Will automatically parse the given lobby user file
             /// </summary>
             /// <param name="path">Path to the lobby user file (_wonuser.dat)</param>
+            /// <exception cref="IOException">The file cannot be read or is truncated (<see cref="EndOfStreamException"/>).</exception>
+            /// <exception cref="InvalidDataException">The file is not a valid lobby user file.</exception>
             public LobbyUserData(string path)
             {
                 this.path = path;
-                this.Friends = new Dictionary<string, int>();
+                this.Friends = new Dictionary<string, uint>();
 
                 Reload();
             }
 
+            /// <summary>
+            /// Parses lobby user data (content of _wonuser&lt;id&gt;.dat) from the current position of
+            /// <paramref name="input"/>. The stream is not closed.
+            /// </summary>
+            /// <exception cref="EndOfStreamException">The data is truncated.</exception>
+            /// <exception cref="InvalidDataException">The data is not a valid lobby user file.</exception>
+            public LobbyUserData(Stream input)
+            {
+                this.Friends = new Dictionary<string, uint>();
+                Load(input);
+            }
+
+            /// <summary>
+            /// Parses the file again. On error the previously loaded data is kept.
+            /// </summary>
+            /// <exception cref="InvalidOperationException">The data was parsed from a stream, not from a file.</exception>
             public void Reload()
             {
-                Friends.Clear();
+                if (path == null)
+                    throw new InvalidOperationException("This lobby user data was read from a stream and cannot be reloaded.");
                 using (Stream input = File.OpenRead(path))
                 {
-                    FileSignature = ReadFileSignature(input);
-
-                    if (FileSignature == 0)
-                        return;
-
-                    ushort numReconnectIds = ReadShort(input);
-                    for (int i = 0; i < numReconnectIds; ++i)
-                    {
-                        ReadString(6, input);
-
-                        ReadLong_x86(input);
-                        ReadLong_x86(input);
-                    }
-
-                    ushort numIgnored = ReadShort(input);
-                    for (int i = 0; i < numIgnored; ++i)
-                        ReadWideString(input);
-
-                    ushort numFriend = ReadShort(input);
-                    for (int i = 0; i < numFriend; ++i)
-                    {
-                        string name = ReadWideString(input);
-                        ulong won_id = ReadLong_x86(input);
-                        Friends.Add(name, (int)won_id);
-                    }
+                    Load(input);
                 }
+            }
+
+            private void Load(Stream input)
+            {
+                BinaryReader reader = CreateReader(input);
+                uint fileSignature = ReadFileSignature(reader);
+
+                ushort numReconnectIds = reader.ReadUInt16();
+                EnsureAvailable(reader, (long)numReconnectIds * ReconnectIdRecordBytes);
+                SkipBytes(reader, numReconnectIds * ReconnectIdRecordBytes);
+
+                ushort numIgnored = reader.ReadUInt16();
+                EnsureAvailable(reader, (long)numIgnored * MinIgnoredRecordBytes);
+                for (int i = 0; i < numIgnored; ++i)
+                    ReadWideString(reader);
+
+                ushort numFriend = reader.ReadUInt16();
+                EnsureAvailable(reader, (long)numFriend * MinFriendRecordBytes);
+                var friends = new Dictionary<string, uint>();
+                for (int i = 0; i < numFriend; ++i)
+                {
+                    string name = ReadWideString(reader);
+                    uint wonId = reader.ReadUInt32();
+                    friends[name] = wonId;
+                }
+
+                // Only publish a completely parsed file.
+                FileSignature = fileSignature;
+                Friends.Clear();
+                foreach (var friend in friends)
+                    Friends.Add(friend.Key, friend.Value);
             }
         }
     }
