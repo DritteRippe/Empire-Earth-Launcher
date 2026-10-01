@@ -15,7 +15,11 @@ namespace Empire_Earth_Mod
 
         private void button1_Click(object sender, EventArgs e)
         {
-            new ModCreatorForm().ShowDialog();
+            // ShowDialog does not dispose the form; the using block releases it and its resources.
+            using (var modCreatorForm = new ModCreatorForm())
+            {
+                modCreatorForm.ShowDialog(this);
+            }
         }
     }
 }

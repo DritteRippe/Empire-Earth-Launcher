@@ -21,7 +21,8 @@ namespace Empire_Earth_Mod
         {
             InitializeComponent();
             mod = new ModData();
-            creator = new ModData.Creator(mod, "./creator");
+            // Unique working directory below %LOCALAPPDATA%, released in OnFormClosed.
+            creator = new ModData.Creator(mod);
 
             if (kryptonDataGridView1.Columns[4] is DataGridViewComboBoxColumn)
             {
@@ -30,6 +31,44 @@ namespace Empire_Earth_Mod
                 Enum.GetValues(typeof(ModFile.ModFileType)).Cast<ModFile.ModFileType>()
                     .Select(ModFile.GetModFileName).ToList()
                     .ForEach(fileName => columnAlternative.Items.Add(fileName));
+            }
+        }
+
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            base.OnFormClosed(e);
+            ReleaseCreator();
+        }
+
+        /// <summary>
+        /// Ends the creator session. The working directory is deleted when it holds no mod files, or when
+        /// the author agrees; otherwise it is kept, so closing the window never loses copied files.
+        /// </summary>
+        private void ReleaseCreator()
+        {
+            if (creator == null)
+                return;
+
+            string workingDir = creator.GetWorkingDir();
+            try
+            {
+                bool delete = !creator.ContainsModFiles() || MessageBox.Show(
+                    "Delete the working folder of this mod, including the files you copied into it?\n\n" +
+                    workingDir + "\n\nChoose \"No\" to keep the folder.", "Mod Creator",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button2) == DialogResult.Yes;
+                if (delete)
+                    creator.DeleteWorkingDirectory();
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+            {
+                MessageBox.Show("The working folder could not be deleted:\n" + workingDir + "\n\n" + ex.Message,
+                    "Mod Creator", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            finally
+            {
+                creator.Dispose();
+                creator = null;
             }
         }
 

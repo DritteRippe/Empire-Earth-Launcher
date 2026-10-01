@@ -187,25 +187,140 @@ namespace Empire_Earth_Mod_Lib
             return JsonSerializer<ModData>.Serialize(this);
         }
 
-        public class Creator
+        /// <summary>
+        /// Prepares the files of a mod in a working directory and packs them into a mod archive.
+        /// </summary>
+        /// <remarks>
+        /// Every Creator works in its own, newly created directory (a GUID below
+        /// <see cref="DefaultWorkspaceRoot"/> or the given root), never in a path relative to the current
+        /// directory, and never deletes anything it did not create. The working directory is only deleted
+        /// on request (<see cref="DeleteWorkingDirectory"/>, or <see cref="Dispose"/> with
+        /// <see cref="EraseDataOnDispose"/>), because the mod author copies the mod files into it.
+        /// </remarks>
+        public sealed class Creator : IDisposable
         {
             private ModData ModData { get; set; }
             private string WorkingDir { get; set; }
+            private bool disposed;
 
-            public Creator(ModData mod, string workingDir, bool eraseData = true)
+            /// <summary>
+            /// Default parent folder of the working directories:
+            /// %LOCALAPPDATA%\Empire Earth Launcher\Mod Creator.
+            /// </summary>
+            public static string DefaultWorkspaceRoot
             {
-                ModData = mod;
-                WorkingDir = Path.GetFullPath(workingDir);
-                if (eraseData && Directory.Exists(WorkingDir))
-                    Directory.Delete(WorkingDir, true);
-                if (!Directory.Exists(WorkingDir))
-                    Directory.CreateDirectory(WorkingDir);
+                get
+                {
+                    return Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                        "Empire Earth Launcher", "Mod Creator");
+                }
             }
 
-            ~Creator()
+            /// <summary>
+            /// Whether <see cref="Dispose"/> deletes the working directory and everything in it.
+            /// </summary>
+            public bool EraseDataOnDispose { get; set; }
+
+            /// <summary>
+            /// Creates a new working directory below <see cref="DefaultWorkspaceRoot"/>.
+            /// </summary>
+            /// <param name="mod">The mod to build.</param>
+            /// <param name="eraseData">Delete the working directory on <see cref="Dispose"/>. Off by default so
+            /// that files copied into it are never lost by accident.</param>
+            public Creator(ModData mod, bool eraseData = false)
+                : this(mod, DefaultWorkspaceRoot, eraseData)
+            {
+            }
+
+            /// <summary>
+            /// Creates a new working directory below <paramref name="workspaceRoot"/>.
+            /// </summary>
+            /// <param name="mod">The mod to build.</param>
+            /// <param name="workspaceRoot">Absolute path of the folder that receives the working directory.</param>
+            /// <param name="eraseData">Delete the working directory on <see cref="Dispose"/>. Off by default so
+            /// that files copied into it are never lost by accident.</param>
+            /// <exception cref="ArgumentException"><paramref name="workspaceRoot"/> is not an absolute path.</exception>
+            public Creator(ModData mod, string workspaceRoot, bool eraseData = false)
+            {
+                if (mod == null)
+                    throw new ArgumentNullException(nameof(mod));
+                if (string.IsNullOrEmpty(workspaceRoot) || !Path.IsPathRooted(workspaceRoot))
+                    throw new ArgumentException("The workspace root must be an absolute path.", nameof(workspaceRoot));
+
+                string workingDir = Path.Combine(Path.GetFullPath(workspaceRoot), Guid.NewGuid().ToString("N"));
+                // Practically impossible with a new GUID, but an existing folder must never be adopted (and
+                // later deleted) as if this instance had created it.
+                if (Directory.Exists(workingDir))
+                    throw new IOException("The working directory " + workingDir + " already exists.");
+                Directory.CreateDirectory(workingDir);
+
+                ModData = mod;
+                WorkingDir = workingDir;
+                EraseDataOnDispose = eraseData;
+            }
+
+            /// <summary>
+            /// Ends the session. With <see cref="EraseDataOnDispose"/> the working directory created by this
+            /// instance is deleted; errors (e.g. a file still opened in Explorer) are ignored here, call
+            /// <see cref="DeleteWorkingDirectory"/> first to get them reported.
+            /// </summary>
+            public void Dispose()
+            {
+                if (disposed)
+                    return;
+                disposed = true;
+
+                if (!EraseDataOnDispose)
+                    return;
+                try
+                {
+                    DeleteWorkingDirectoryCore();
+                }
+                catch (IOException)
+                {
+                    // Best effort, see summary.
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    // Best effort, see summary.
+                }
+            }
+
+            /// <summary>
+            /// Deletes the working directory created by this instance, including the files the mod author
+            /// copied into it.
+            /// </summary>
+            public void DeleteWorkingDirectory()
+            {
+                ThrowIfDisposed();
+                DeleteWorkingDirectoryCore();
+            }
+
+            private void DeleteWorkingDirectoryCore()
             {
                 if (Directory.Exists(WorkingDir))
                     Directory.Delete(WorkingDir, true);
+            }
+
+            /// <summary>
+            /// True if the mod author put files into the product folders of any variant, i.e. deleting the
+            /// working directory would lose work.
+            /// </summary>
+            public bool ContainsModFiles()
+            {
+                ThrowIfDisposed();
+                if (!Directory.Exists(WorkingDir))
+                    return false;
+                return new DirectoryInfo(WorkingDir).GetDirectories()
+                    .SelectMany(variantDir => variantDir.GetDirectories())
+                    .Any(productDir => productDir.EnumerateFiles("*", SearchOption.AllDirectories).Any());
+            }
+
+            private void ThrowIfDisposed()
+            {
+                if (disposed)
+                    throw new ObjectDisposedException(GetType().Name);
             }
 
             /// <summary>
@@ -215,6 +330,7 @@ namespace Empire_Earth_Mod_Lib
             /// </summary>
             public void GenerateVariantsFolders()
             {
+                ThrowIfDisposed();
                 if (!Directory.Exists(WorkingDir))
                     Directory.CreateDirectory(WorkingDir);
 
@@ -304,11 +420,13 @@ namespace Empire_Earth_Mod_Lib
 
             public void ExportModInfos()
             {
+                ThrowIfDisposed();
                 File.WriteAllText(Path.Combine(WorkingDir, "data"), ModData.ToString());
             }
 
             public void ExportToZip(Task task = null)
             {
+                ThrowIfDisposed();
                 var parentDir = new DirectoryInfo(WorkingDir).Parent;
                 if (parentDir == null)
                     return;
@@ -379,6 +497,7 @@ namespace Empire_Earth_Mod_Lib
 
             public void UpdateModFiles(Guid variant, string relativePath, ModFile.ModFileType modFileType)
             {
+                ThrowIfDisposed();
                 var find = ModData.ModFiles.Find(
                     modFile => modFile.Variant == variant
                                && modFile.RelativeFilePath.Equals(relativePath,
