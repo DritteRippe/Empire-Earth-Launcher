@@ -18,7 +18,8 @@ namespace Empire_Earth_Mod
         private const int BuildTabIndex = 3;
 
         private ModData mod;
-        private ModData.Creator creator;
+        private ModAssets assets;
+        private ModPackageBuilder packageBuilder;
         private readonly BackgroundWorker buildWorker;
         private bool modBuilt;
 
@@ -26,8 +27,9 @@ namespace Empire_Earth_Mod
         {
             InitializeComponent();
             mod = new ModData();
+            assets = new ModAssets();
             // Unique working directory below %LOCALAPPDATA%, released in OnFormClosed.
-            creator = new ModData.Creator(mod);
+            packageBuilder = new ModPackageBuilder(mod, assets);
 
             buildWorker = new BackgroundWorker();
             buildWorker.DoWork += buildWorker_DoWork;
@@ -73,19 +75,19 @@ namespace Empire_Earth_Mod
         /// </summary>
         private void ReleaseCreator()
         {
-            if (creator == null)
+            if (packageBuilder == null)
                 return;
 
-            string workingDir = creator.GetWorkingDir();
+            string workingDir = packageBuilder.WorkingDirectory;
             try
             {
-                bool delete = !creator.ContainsModFiles() || MessageBox.Show(
+                bool delete = !packageBuilder.ContainsModFiles() || MessageBox.Show(
                     "Delete the working folder of this mod, including the files you copied into it?\n\n" +
                     workingDir + "\n\nChoose \"No\" to keep the folder.", "Mod Creator",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question,
                     MessageBoxDefaultButton.Button2) == DialogResult.Yes;
                 if (delete)
-                    creator.DeleteWorkingDirectory();
+                    packageBuilder.DeleteWorkingDirectory();
             }
             catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
             {
@@ -94,8 +96,8 @@ namespace Empire_Earth_Mod
             }
             finally
             {
-                creator.Dispose();
-                creator = null;
+                packageBuilder.Dispose();
+                packageBuilder = null;
             }
         }
 
@@ -149,8 +151,8 @@ namespace Empire_Earth_Mod
                 filesKryptonComboBox.Items.AddRange(
                     mod.Variants.Values.Select(x => x.ToString() as object).ToArray());
 
-                creator.GenerateVariantsFolders();
-                // creator.ExportBannersAndIcon();
+                packageBuilder.GenerateVariantsFolders();
+                // packageBuilder.ExportBannersAndIcon();
                 nextKryptonButton.Text = "Build >";
             }
 
@@ -222,7 +224,7 @@ namespace Empire_Earth_Mod
         /// <returns>false if the build was not started (incomplete mod or cancelled by the user).</returns>
         private bool StartBuild()
         {
-            if (mod.GetIcon() == null)
+            if (assets.Icon == null)
             {
                 MessageBox.Show("Please select an icon for the mod before building it.", "Warning",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -269,13 +271,13 @@ namespace Empire_Earth_Mod
         private void buildWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             string eemPath = (string)e.Argument;
-            creator.Build(eemPath);
+            packageBuilder.Build(eemPath);
             e.Result = eemPath;
         }
 
         private void buildWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            iconPictureBox.Image = mod.GetIcon();
+            iconPictureBox.Image = assets.Icon;
             // Shows the banners of the selected variant again (from the first one).
             bannersVariantsKryptonComboBox_SelectedIndexChanged(bannersVariantsKryptonComboBox, EventArgs.Empty);
 
@@ -344,7 +346,10 @@ namespace Empire_Earth_Mod
                     bool relatedDataDeleted;
                     try
                     {
-                        relatedDataDeleted = mod.RemoveVariant(variantId);
+                        // Both always run: the files belong to the mod data, the banners to the assets.
+                        bool filesRemoved = mod.RemoveVariant(variantId);
+                        bool bannersRemoved = assets.RemoveVariant(variantId);
+                        relatedDataDeleted = filesRemoved || bannersRemoved;
                     }
                     catch (DataException ex)
                     {
@@ -378,7 +383,7 @@ namespace Empire_Earth_Mod
                         return;
                     try
                     {
-                        mod.SetIcon(Image.FromFile(ofd.FileName));
+                        assets.Icon = Image.FromFile(ofd.FileName);
                     }
                     catch (Exception ex)
                     {
@@ -387,7 +392,7 @@ namespace Empire_Earth_Mod
                         return;
                     }
 
-                    iconPictureBox.Image = mod.GetIcon();
+                    iconPictureBox.Image = assets.Icon;
                 }
             }
         }
@@ -423,7 +428,7 @@ namespace Empire_Earth_Mod
                         return;
                     try
                     {
-                        mod.AddBanner(Image.FromFile(ofd.FileName), selectedVariantUuid);
+                        assets.AddBanner(selectedVariantUuid, Image.FromFile(ofd.FileName));
                     }
                     catch (Exception ex)
                     {
@@ -432,7 +437,7 @@ namespace Empire_Earth_Mod
                         return;
                     }
 
-                    _bannerIndex = mod.GetBanners(selectedVariantUuid).Count - 1;
+                    _bannerIndex = assets.GetBanners(selectedVariantUuid).Count - 1;
                     _UpdateBannerPreview(selectedVariantUuid);
                 }
             }
@@ -445,9 +450,9 @@ namespace Empire_Earth_Mod
             Guid selectedVariantUuid = Guid.Parse(mod.Variants.First(value =>
                 value.Value.ToString() == bannersVariantsKryptonComboBox.Text).Key.ToString());
 
-            if (!mod.HasBanner(selectedVariantUuid))
+            if (!assets.HasBanner(selectedVariantUuid))
                 return;
-            mod.GetBanners(selectedVariantUuid).RemoveAt(_bannerIndex);
+            assets.RemoveBanner(selectedVariantUuid, _bannerIndex);
             if (_bannerIndex != 0)
                 _bannerIndex--;
             _UpdateBannerPreview(selectedVariantUuid);
@@ -475,7 +480,7 @@ namespace Empire_Earth_Mod
             Guid selectedVariantUuid = Guid.Parse(mod.Variants.First(value =>
                 value.Value.ToString() == bannersVariantsKryptonComboBox.Text).Key.ToString());
 
-            if (!mod.HasBanner(selectedVariantUuid) || _bannerIndex + 1 == mod.GetBanners(selectedVariantUuid).Count)
+            if (!assets.HasBanner(selectedVariantUuid) || _bannerIndex + 1 == assets.GetBanners(selectedVariantUuid).Count)
                 return;
             _bannerIndex++;
             _UpdateBannerPreview(selectedVariantUuid);
@@ -488,7 +493,7 @@ namespace Empire_Earth_Mod
             Guid selectedVariantUuid = Guid.Parse(mod.Variants.First(value =>
                 value.Value.ToString() == bannersVariantsKryptonComboBox.Text).Key.ToString());
 
-            if (!mod.HasBanner(selectedVariantUuid) || _bannerIndex == 0)
+            if (!assets.HasBanner(selectedVariantUuid) || _bannerIndex == 0)
                 return;
             _bannerIndex--;
             _UpdateBannerPreview(selectedVariantUuid);
@@ -496,7 +501,7 @@ namespace Empire_Earth_Mod
 
         private void _UpdateBannerPreview(Guid variantUuid)
         {
-            if (!mod.HasBanner(variantUuid))
+            if (!assets.HasBanner(variantUuid))
             {
                 bannersPictureBox.Image = null;
                 kryptonButton5.Enabled = true;
@@ -507,14 +512,14 @@ namespace Empire_Earth_Mod
             }
             else
             {
-                int bannerStrIndex = mod.GetBanners(variantUuid).Count > 0 ? _bannerIndex + 1 : 0;
+                int bannerStrIndex = assets.GetBanners(variantUuid).Count > 0 ? _bannerIndex + 1 : 0;
 
-                bannersPictureBox.Image = mod.GetBanners(variantUuid)[_bannerIndex];
+                bannersPictureBox.Image = assets.GetBanners(variantUuid)[_bannerIndex];
                 kryptonButton5.Enabled = true;
                 kryptonButton6.Enabled = true;
                 prevBannerKryptonButton.Enabled = true;
                 nextBannerKryptonButton.Enabled = true;
-                kryptonLabel7.Values.ExtraText = "(" + bannerStrIndex + "/" + mod.GetBanners(variantUuid).Count + ")";
+                kryptonLabel7.Values.ExtraText = "(" + bannerStrIndex + "/" + assets.GetBanners(variantUuid).Count + ")";
             }
         }
 
@@ -564,7 +569,7 @@ namespace Empire_Earth_Mod
             List<string> ignoredFiles;
             try
             {
-                ignoredFiles = creator.ReloadModFiles(selectedVariantUuid);
+                ignoredFiles = packageBuilder.ReloadModFiles(selectedVariantUuid);
             }
             catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
             {
@@ -605,7 +610,7 @@ namespace Empire_Earth_Mod
                 value.Value.ToString() == filesKryptonComboBox.Text).Key.ToString());
 
             Process.Start("explorer.exe",
-                creator.GetWorkingDir() + Path.DirectorySeparatorChar + selectedVariantUuid);
+                packageBuilder.WorkingDirectory + Path.DirectorySeparatorChar + selectedVariantUuid);
         }
     }
 }

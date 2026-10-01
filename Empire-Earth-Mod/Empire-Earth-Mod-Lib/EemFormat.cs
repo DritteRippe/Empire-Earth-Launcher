@@ -6,8 +6,8 @@ using System.Linq;
 namespace Empire_Earth_Mod_Lib
 {
     /// <summary>
-    /// Layout of an Empire Earth Mod archive (.eem). Export (<see cref="ModData.Creator"/>) and import
-    /// (<see cref="ModData.LoadFromEEM(Stream)"/>) both use these definitions, so they cannot drift apart.
+    /// Layout of an Empire Earth Mod archive (.eem). Export (<see cref="ModPackageBuilder"/>) and import
+    /// (<see cref="ModArchiveReader"/>) both use these definitions, so they cannot drift apart.
     /// </summary>
     /// <remarks>
     /// An .eem file is a ZIP archive. Entry names are UTF-8, use '/' as separator and are relative to the
@@ -18,7 +18,7 @@ namespace Empire_Earth_Mod_Lib
     /// {variant}/Banner{i}.png   banners of a variant; {variant} is the variant GUID, {i} starts at 0
     /// {variant}/{product}/...   game files of a variant; {product} is "all", "EEC" or "AOC"
     /// </code>
-    /// The working directory of <see cref="ModData.Creator"/> has the same layout on disk.
+    /// The working directory of <see cref="ModPackageBuilder"/> has the same layout on disk.
     /// </remarks>
     public static class EemFormat
     {
