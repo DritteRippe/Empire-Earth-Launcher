@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -113,15 +114,8 @@ namespace Empire_Earth_Mod
 
             if (tabControl1.SelectedIndex == 0)
             {
-                mod.Name = nameKryptonTextBox.Text;
-                mod.Description = descriptionKryptonTextBox.Text;
-                mod.Version = new Version(versionKryptonTextBox.Text);
-                mod.Authors.Add(authorsKryptonTextBox.Text);
-
-                foreach (DataGridViewRow row in variantsKryptonDataGridView1.Rows)
-                {
-                    mod.AddOrUpdateVariant(Guid.Parse(row.Cells[1].Value.ToString()), row.Cells[0].Value.ToString());
-                }
+                if (!_ApplyBasicInformation())
+                    return;
 
                 bannersVariantsKryptonComboBox.Items.Clear();
                 bannersVariantsKryptonComboBox.Items.AddRange(
@@ -173,6 +167,59 @@ namespace Empire_Earth_Mod
             Debug.WriteLine(
                 JsonSerializer<ModData>.Serialize(
                     BinarySerializer<ModData>.Deserialize(BinarySerializer<ModData>.Serialize(mod))));
+        }
+
+        /// <summary>
+        /// Validates the first page and copies it into the mod.
+        /// </summary>
+        /// <returns>false, after telling the user why, if an input is invalid; the mod is not changed then.</returns>
+        private bool _ApplyBasicInformation()
+        {
+            string name = nameKryptonTextBox.Text.Trim();
+            if (name.Length == 0)
+                return _RejectInput("Please enter a name for the mod.", nameKryptonTextBox);
+
+            Version version;
+            if (!Version.TryParse(versionKryptonTextBox.Text.Trim(), out version))
+                return _RejectInput("Please enter a valid version, e.g. 1.0 or 1.0.0.0.", versionKryptonTextBox);
+
+            // The other pages look variants up by their name, so names must be unique and not empty. Renaming
+            // a variant in the grid is not checked by the add button, hence the check here.
+            var variantNames = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
+            {
+                mod.Variants[Guid.Empty]
+            };
+            var variants = new List<KeyValuePair<Guid, string>>();
+            foreach (DataGridViewRow row in variantsKryptonDataGridView1.Rows)
+            {
+                string variantName = Convert.ToString(row.Cells[0].Value).Trim();
+                if (variantName.Length == 0)
+                    return _RejectInput("Every variant needs a name.", variantsKryptonDataGridView1);
+                if (!variantNames.Add(variantName))
+                    return _RejectInput("The variant name \"" + variantName + "\" is used more than once.",
+                        variantsKryptonDataGridView1);
+                variants.Add(new KeyValuePair<Guid, string>(Guid.Parse(Convert.ToString(row.Cells[1].Value)), variantName));
+            }
+
+            mod.Name = name;
+            mod.Description = descriptionKryptonTextBox.Text;
+            mod.Version = version;
+            // Replaced, not appended: the page can be confirmed several times (Back, then Next again).
+            mod.Authors = authorsKryptonTextBox.Text
+                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(author => author.Trim())
+                .Where(author => author.Length > 0)
+                .ToList();
+            foreach (var variant in variants)
+                mod.AddOrUpdateVariant(variant.Key, variant.Value);
+            return true;
+        }
+
+        private static bool _RejectInput(string message, Control control)
+        {
+            MessageBox.Show(message, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            control.Focus();
+            return false;
         }
 
         /// <summary>
@@ -296,11 +343,28 @@ namespace Empire_Earth_Mod
                     MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 Guid variantId = Guid.Parse(variantsKryptonDataGridView1.SelectedRows[0].Cells[1].Value.ToString());
-                if (mod.RemoveVariant(variantId))
+                // Variants only reach the mod when the first page is confirmed with "Next"; one added since
+                // then exists only in the grid and has no data to delete.
+                if (mod.DoesVariantExist(variantId))
                 {
-                    MessageBox.Show(
-                        "Variant removed, some related data to that variant (banners, files, etc...) has been deleted.",
-                        "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    bool relatedDataDeleted;
+                    try
+                    {
+                        relatedDataDeleted = mod.RemoveVariant(variantId);
+                    }
+                    catch (DataException ex)
+                    {
+                        MessageBox.Show("The variant cannot be removed: " + ex.Message, "Warning",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    if (relatedDataDeleted)
+                    {
+                        MessageBox.Show(
+                            "Variant removed, some related data to that variant (banners, files, etc...) has been deleted.",
+                            "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
                 }
 
                 variantsKryptonDataGridView1.Rows.RemoveAt(variantsKryptonDataGridView1.SelectedRows[0].Index);

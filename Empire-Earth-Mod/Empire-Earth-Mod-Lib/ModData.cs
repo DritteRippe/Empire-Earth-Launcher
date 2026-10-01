@@ -154,10 +154,10 @@ namespace Empire_Earth_Mod_Lib
         }
 
         /// <summary>
-        /// Remove a variant from the mod
+        /// Remove a variant from the mod, together with its banners and its entries in <see cref="ModFiles"/>
         /// </summary>
         /// <param name="uuid">The variant UUID</param>
-        /// <returns>true if some related variant data got deleted, false if not</returns>
+        /// <returns>true if some related variant data (banners, files) got deleted, false if not</returns>
         /// <exception cref="DataException">variant don't exist or trying to delete default variant</exception>
         public bool RemoveVariant(Guid uuid)
         {
@@ -165,10 +165,11 @@ namespace Empire_Earth_Mod_Lib
                 throw new DataException("Variant does not exist");
             if (uuid == Guid.Empty)
                 throw new DataException("Unable to delete the default variant");
-            bool affected = Banners.ContainsKey(uuid);
+            bool hadBanners = HasBanner(uuid);
+            bool hadFiles = ModFiles.RemoveAll(modFile => modFile.Variant == uuid) > 0;
             Variants.Remove(uuid);
             Banners.Remove(uuid);
-            return affected;
+            return hadBanners || hadFiles;
         }
 
         public bool DoesVariantExist(Guid variant)
