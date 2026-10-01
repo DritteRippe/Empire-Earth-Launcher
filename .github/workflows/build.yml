@@ -54,22 +54,27 @@ jobs:
           "/p:TargetFrameworkRootPath=$env:REFASM_ROOT"
           "/p:FrameworkPathOverride=$env:REFASM_ROOT\.NETFramework\v4.0"
 
-      # Test projects are console programs named *Tests.exe that return a
-      # non-zero exit code on failure. The step passes if there are none yet.
+      # Test projects are console programs named *Tests.exe (currently
+      # Empire-Earth-Launcher.Tests, NUnitLite) that return a non-zero exit
+      # code on failure. Finding none means the test project was not built,
+      # which fails the job. Each program writes an NUnit 3 result file that
+      # is kept as an artifact (test results only, no binaries).
       - name: Run tests
         run: |
           $tests = @(Get-ChildItem -Path . -Recurse -File -Filter '*Tests.exe' |
             Where-Object { $_.FullName -like "*\bin\$env:CONFIGURATION\*" })
           if ($tests.Count -eq 0) {
-            Write-Host 'No *Tests.exe found, nothing to run.'
-            exit 0
+            Write-Host "::error title=No tests::No *Tests.exe found below bin\$env:CONFIGURATION."
+            exit 1
           }
+          $resultDir = Join-Path $env:RUNNER_TEMP 'test-results'
+          New-Item -ItemType Directory -Force -Path $resultDir | Out-Null
           $failed = @()
           foreach ($test in $tests) {
             Write-Host "::group::$($test.Name)"
             Push-Location -LiteralPath $test.DirectoryName
             try {
-              & $test.FullName
+              & $test.FullName "--result=$(Join-Path $resultDir ($test.BaseName + '.xml'))"
               $code = $LASTEXITCODE
             } finally {
               Pop-Location
@@ -82,3 +87,11 @@ jobs:
           }
           if ($failed.Count -gt 0) { exit 1 }
           exit 0
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ${{ runner.temp }}/test-results/
+          if-no-files-found: ignore

@@ -31,5 +31,12 @@ Restored into `packages/` at build time, not committed.
 |---|---|---|---|
 | Krypton.Toolkit | 5.550.2108.1 | BSD-3-Clause | https://github.com/Krypton-Suite/Standard-Toolkit |
 
+Tests only (`Empire-Earth-Launcher.Tests`, not shipped):
+
+| Package | Version | License | Project |
+|---|---|---|---|
+| NUnit | 3.14.0 | MIT | https://nunit.org/ |
+| NUnitLite | 3.14.0 | MIT | https://nunit.org/ |
+
 Build-time only (CI, not shipped): `Microsoft.NETFramework.ReferenceAssemblies.net40` 1.0.3,
 .NET Framework 4.0 reference assemblies by Microsoft.

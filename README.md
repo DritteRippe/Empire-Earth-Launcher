@@ -76,9 +76,28 @@ mono nuget.exe restore Empire-Earth.sln
 xbuild Empire-Earth.sln /p:CscToolPath=$HOME/.local/roslyn/Microsoft.Net.Compilers.4.2.0 /p:CscToolExe=csc-mono
 ```
 
+**Tests**: `Empire-Earth-Launcher.Tests` is a console program built with the solution. It runs its NUnit
+tests with NUnitLite (NUnit 3.14, the last NUnit 3 release; NUnit 4 needs .NET Framework 4.6.2) and exits
+with 0 only when every test passed (otherwise with the number of failed tests). Run it after building:
+
+```sh
+Empire-Earth-Launcher.Tests\bin\Release\Empire-Earth-Launcher.Tests.exe          # Windows
+mono Empire-Earth-Launcher.Tests/bin/Debug/Empire-Earth-Launcher.Tests.exe       # Mono
+```
+
+NUnitLite options can be passed, e.g. `--where "class =~ LobbyPersistentData"` to run some tests only or
+`--result=TestResult.xml` to write an NUnit 3 result file (by default no result file is written). The tests
+cover the WON lobby file parser, the NeoEE protocol framing and reply parsing, the mod library (product
+folders, file types, versions, the working directory of the mod creator, `.eem` export/import) and the log
+trimming and game folder detection of the launcher. They only use folders below the temporary folder, never
+contact a server, never read the registry and never show UI. Tests that depend on Windows path semantics are
+marked `[Platform(Include = "Win")]` and reported as skipped under Mono. The launcher makes its internal
+helpers visible to the test assembly (`InternalsVisibleTo`).
+
 **Continuous integration**: `.github/workflows/build.yml` restores and builds the solution in Release on
 `windows-latest` for every push to `main` and every pull request, then runs every `*Tests.exe` it finds in
-the `bin/Release` folders (a test program reports failure through a non-zero exit code).
+the `bin/Release` folders (a test program reports failure through a non-zero exit code; finding no test
+program fails the build). The NUnit result files are kept as the `test-results` artifact.
 
 **Versioning**: the version of all assemblies is maintained in one place, `SharedAssemblyInfo.cs`
 (currently `0.1.0-alpha`, nothing has been released yet).
@@ -115,8 +134,13 @@ Empire-Earth-Mod/
 │                                 ModPackageBuilder/ModArchiveReader (.eem packages), Windows version detection
 │                                 (ZipStorer.cs is a vendored third-party ZIP library)
 └─ Empire-Earth-Mod/              Mod creator (WinForms), uses Empire-Earth-Mod-Lib
+Empire-Earth-Launcher.Tests/      Unit tests (NUnitLite console program), one folder per tested project:
+├─ Launcher/                      Log trimming, game folder detection
+├─ Won/                           WON lobby files, NeoEE protocol
+├─ Mod/                           Mod library and .eem archives
+└─ TestSupport/                   Temporary folders, chunked streams
 packages/                         NuGet packages, restored on build (not committed)
-.github/workflows/build.yml       CI build
+.github/workflows/build.yml       CI build and test run
 ```
 
 ### Configuration and files
