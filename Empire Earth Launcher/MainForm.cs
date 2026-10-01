@@ -14,7 +14,7 @@ using Empire_Earth_WON;
 
 namespace Empire_Earth_Launcher
 {
-    public partial class Form1 : KryptonForm
+    public partial class MainForm : KryptonForm
     {
         /// <param name="logger">Log of the launcher.</param>
         /// <param name="themeService">Theme of the launcher windows.</param>
@@ -22,7 +22,7 @@ namespace Empire_Earth_Launcher
         /// <param name="gameDirectory">The Empire Earth folder.</param>
         /// <param name="neoClient">Client for the online player list; null if the server settings are invalid.</param>
         /// <param name="playerListPollIntervalMilliseconds">Delay between two requests of the player list.</param>
-        internal Form1(ILogger logger, IThemeService themeService, Settings settings,
+        internal MainForm(ILogger logger, IThemeService themeService, Settings settings,
             GameDirectoryService gameDirectory, NeoApiClient neoClient, int playerListPollIntervalMilliseconds)
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint |

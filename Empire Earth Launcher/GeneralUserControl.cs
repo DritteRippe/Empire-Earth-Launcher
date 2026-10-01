@@ -38,7 +38,7 @@ namespace Empire_Earth_Launcher
             InitializeComponent();
 
             // No file or network I/O here: the constructor also runs inside the Visual Studio designer and
-            // during Form1.InitializeComponent, where an exception would prevent the launcher from starting.
+            // during MainForm.InitializeComponent, where an exception would prevent the launcher from starting.
             // Loading happens in OnLoad.
             backgroundWorker = new BackgroundWorker()
             {

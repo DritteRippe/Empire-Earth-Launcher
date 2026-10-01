@@ -118,25 +118,25 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="kryptonCheckButton.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="playKryptonCheckButton.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
-  <data name="kryptonCheckButton.Values.Text" xml:space="preserve">
+  <data name="playKryptonCheckButton.Values.Text" xml:space="preserve">
     <value>Jouer</value>
   </data>
-  <data name="kryptonCheckButton2.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="modsKryptonCheckButton.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
-  <data name="kryptonCheckButton3.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="settingsKryptonCheckButton.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
-  <data name="kryptonCheckButton3.Values.Text" xml:space="preserve">
+  <data name="settingsKryptonCheckButton.Values.Text" xml:space="preserve">
     <value>Compatibilité</value>
   </data>
-  <data name="kryptonCheckButton4.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="launcherKryptonCheckButton.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
-  <data name="kryptonCheckButton4.Values.Text" xml:space="preserve">
+  <data name="launcherKryptonCheckButton.Values.Text" xml:space="preserve">
     <value>Paramètres</value>
   </data>
 </root>

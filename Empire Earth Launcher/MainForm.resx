@@ -616,7 +616,7 @@
     <value>Krypton.Toolkit.KryptonPalette, Krypton.Toolkit, Version=5.550.2108.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
-    <value>Form1</value>
+    <value>MainForm</value>
   </data>
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
     <value>Krypton.Toolkit.KryptonForm, Krypton.Toolkit, Version=5.550.2108.0, Culture=neutral, PublicKeyToken=null</value>

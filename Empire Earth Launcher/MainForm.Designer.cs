@@ -2,7 +2,7 @@
 namespace Empire_Earth_Launcher
 {
 
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         /// Variable nécessaire au concepteur.
@@ -31,7 +31,7 @@ namespace Empire_Earth_Launcher
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.launcherKryptonPalette = new Krypton.Toolkit.KryptonPalette(this.components);
             this.playKryptonCheckButton = new Krypton.Toolkit.KryptonCheckButton();
             this.modsKryptonCheckButton = new Krypton.Toolkit.KryptonCheckButton();
@@ -185,7 +185,7 @@ namespace Empire_Earth_Launcher
             resources.ApplyResources(this.settingsUserControl, "settingsUserControl");
             this.settingsUserControl.Name = "settingsUserControl";
             // 
-            // Form1
+            // MainForm
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -197,7 +197,7 @@ namespace Empire_Earth_Launcher
             this.Controls.Add(this.settingsKryptonCheckButton);
             this.Controls.Add(this.modsKryptonCheckButton);
             this.Controls.Add(this.playKryptonCheckButton);
-            this.Name = "Form1";
+            this.Name = "MainForm";
             this.Palette = this.launcherKryptonPalette;
             this.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.StateCommon.Border.DrawBorders = ((Krypton.Toolkit.PaletteDrawBorders)((((Krypton.Toolkit.PaletteDrawBorders.Top | Krypton.Toolkit.PaletteDrawBorders.Bottom) 

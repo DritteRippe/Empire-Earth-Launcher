@@ -48,7 +48,7 @@ namespace Empire_Earth_Launcher
             NeoApiClient neoClient = CreateNeoClient(settings, out playerListPollIntervalMilliseconds);
 
             logger.Info("Starting Empire Earth Launcher Form");
-            Application.Run(new Form1(logger, themeService, settings, gameDirectory, neoClient,
+            Application.Run(new MainForm(logger, themeService, settings, gameDirectory, neoClient,
                 playerListPollIntervalMilliseconds));
         }
 
