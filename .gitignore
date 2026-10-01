@@ -396,6 +396,10 @@ FodyWeavers.xsd
 *.msm
 *.msp
 
+# Compiled resources (resgen output). The build writes them below obj/; a manual resgen run
+# leaves them next to the .resx files.
+*.resources
+
 # JetBrains Rider
 *.sln.iml
 # Per-project ReSharper/Rider layers: Rider writes machine-specific state
