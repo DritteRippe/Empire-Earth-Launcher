@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Empire_Earth_Launcher.Properties;
@@ -75,9 +76,20 @@ namespace Empire_Earth_Launcher
 
             if (!string.IsNullOrEmpty(customThemeFile) && themeService.ApplyThemeFile(customThemeFile))
                 return;
+
+            // No theme files are shipped yet (see README). A missing default theme is the normal case then, not
+            // a problem worth a warning on every start: the designer colors are used.
+            bool defaultThemeInstalled = themeService.GetAvailableThemeNames()
+                .Contains(DefaultThemeName, StringComparer.OrdinalIgnoreCase);
+            if (string.Equals(themeName, DefaultThemeName, StringComparison.OrdinalIgnoreCase) && !defaultThemeInstalled)
+            {
+                logger.Info("The default theme \"" + DefaultThemeName + "\" is not installed, the built-in colors are used.");
+                return;
+            }
+
             if (!string.IsNullOrEmpty(themeName) && themeService.ApplyTheme(themeName))
                 return;
-            if (themeName != DefaultThemeName)
+            if (themeName != DefaultThemeName && defaultThemeInstalled)
                 themeService.ApplyTheme(DefaultThemeName);
         }
 
