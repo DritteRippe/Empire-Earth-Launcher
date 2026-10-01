@@ -36,7 +36,7 @@
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="Krypton.Toolkit, Version=5.550.2108.0, Culture=neutral, processorArchitecture=MSIL">
-          <HintPath>..\packages\Krypton.Toolkit.5.550.2108.1\lib\net40\Krypton.Toolkit.dll</HintPath>
+          <HintPath>..\..\packages\Krypton.Toolkit.5.550.2108.1\lib\net40\Krypton.Toolkit.dll</HintPath>
         </Reference>
         <Reference Include="System" />
         <Reference Include="System.Core" />
