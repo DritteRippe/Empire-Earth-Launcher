@@ -319,7 +319,7 @@ namespace Empire_Earth_Mod_Lib
                     zipStore.AddDirectory(ZipStorer.Compression.Deflate,
                         WorkingDir,
                         Path.DirectorySeparatorChar.ToString(),
-                        "Created with Launcher v" + Environment.Version);
+                        "Created with Launcher v" + BuildInfo.InformationalVersion);
                 }
             }
 
