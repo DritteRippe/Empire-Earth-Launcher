@@ -4,9 +4,11 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using Empire_Earth_Mod.Properties;
 using Empire_Earth_Mod_Lib;
 using Krypton.Toolkit;
 
@@ -76,7 +78,7 @@ namespace Empire_Earth_Mod
         {
             if (buildWorker.IsBusy)
             {
-                MessageBox.Show("Please wait until the mod has been built.", "Mod Creator",
+                MessageBox.Show(Resources.WaitForBuild, Resources.ModCreatorTitle,
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 e.Cancel = true;
             }
@@ -102,8 +104,7 @@ namespace Empire_Earth_Mod
             try
             {
                 bool delete = !packageBuilder.ContainsModFiles() || MessageBox.Show(
-                    "Delete the working folder of this mod, including the files you copied into it?\n\n" +
-                    workingDir + "\n\nChoose \"No\" to keep the folder.", "Mod Creator",
+                    Format(Resources.DeleteWorkingFolderFormat, workingDir), Resources.ModCreatorTitle,
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question,
                     MessageBoxDefaultButton.Button2) == DialogResult.Yes;
                 if (delete)
@@ -111,8 +112,8 @@ namespace Empire_Earth_Mod
             }
             catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
             {
-                MessageBox.Show("The working folder could not be deleted:\n" + workingDir + "\n\n" + ex.Message,
-                    "Mod Creator", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(Format(Resources.WorkingFolderNotDeletedFormat, workingDir, ex.Message),
+                    Resources.ModCreatorTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             finally
             {
@@ -165,15 +166,15 @@ namespace Empire_Earth_Mod
             switch (step)
             {
                 case WizardStep.Files:
-                    nextKryptonButton.Text = "Build >";
+                    nextKryptonButton.Text = Resources.BuildButton;
                     nextKryptonButton.Enabled = true;
                     break;
                 case WizardStep.Build:
-                    nextKryptonButton.Text = building ? "Building..." : "Close";
+                    nextKryptonButton.Text = building ? Resources.BuildingButton : Resources.CloseButton;
                     nextKryptonButton.Enabled = !building && modBuilt;
                     break;
                 default:
-                    nextKryptonButton.Text = "Next >";
+                    nextKryptonButton.Text = Resources.NextButton;
                     nextKryptonButton.Enabled = true;
                     break;
             }
@@ -189,11 +190,11 @@ namespace Empire_Earth_Mod
         {
             string name = nameKryptonTextBox.Text.Trim();
             if (name.Length == 0)
-                return RejectInput("Please enter a name for the mod.", nameKryptonTextBox);
+                return RejectInput(Resources.EnterModName, nameKryptonTextBox);
 
             Version version;
             if (!Version.TryParse(versionKryptonTextBox.Text.Trim(), out version))
-                return RejectInput("Please enter a valid version, e.g. 1.0 or 1.0.0.0.", versionKryptonTextBox);
+                return RejectInput(Resources.EnterValidVersion, versionKryptonTextBox);
 
             // The variant lists of the other pages show the names, so they must be unique and not empty.
             // Renaming a variant in the grid is not checked by the add button, hence the check here.
@@ -206,9 +207,9 @@ namespace Empire_Earth_Mod
             {
                 string variantName = Convert.ToString(row.Cells[variantNameColumn.Index].Value).Trim();
                 if (variantName.Length == 0)
-                    return RejectInput("Every variant needs a name.", variantsKryptonDataGridView);
+                    return RejectInput(Resources.VariantNameMissing, variantsKryptonDataGridView);
                 if (!variantNames.Add(variantName))
-                    return RejectInput("The variant name \"" + variantName + "\" is used more than once.",
+                    return RejectInput(Format(Resources.VariantNameDuplicateFormat, variantName),
                         variantsKryptonDataGridView);
                 variants.Add(new KeyValuePair<Guid, string>(GetVariantId(row), variantName));
             }
@@ -235,7 +236,7 @@ namespace Empire_Earth_Mod
 
         private static bool RejectInput(string message, Control control)
         {
-            MessageBox.Show(message, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            ShowWarning(message);
             control.Focus();
             return false;
         }
@@ -250,7 +251,7 @@ namespace Empire_Earth_Mod
                     Convert.ToString(row.Cells[variantNameColumn.Index].Value)
                         .Equals(variantName, StringComparison.InvariantCultureIgnoreCase)))
             {
-                MessageBox.Show("Variant already exists", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ShowWarning(Resources.VariantExists);
                 return;
             }
 
@@ -266,8 +267,7 @@ namespace Empire_Earth_Mod
             if (variantsKryptonDataGridView.SelectedRows.Count != 1)
                 return;
 
-            if (MessageBox.Show("Are you sure you want to remove this variant?\n" +
-                                "If you need to simply rename it double click on the variant name cell.", "Warning",
+            if (MessageBox.Show(Resources.ConfirmRemoveVariant, Resources.WarningTitle,
                     MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
                 return;
 
@@ -287,16 +287,14 @@ namespace Empire_Earth_Mod
                 }
                 catch (DataException ex)
                 {
-                    MessageBox.Show("The variant cannot be removed: " + ex.Message, "Warning",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    ShowWarning(Format(Resources.VariantNotRemovedFormat, ex.Message));
                     return;
                 }
 
                 if (relatedDataDeleted)
                 {
-                    MessageBox.Show(
-                        "Variant removed, some related data to that variant (banners, files, etc...) has been deleted.",
-                        "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(Resources.VariantRemovedWithData, Resources.InfoTitle,
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
 
@@ -320,7 +318,7 @@ namespace Empire_Earth_Mod
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
-                ofd.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png";
+                ofd.Filter = Resources.IconFileFilter;
                 if (ofd.ShowDialog() != DialogResult.OK || string.IsNullOrWhiteSpace(ofd.FileName))
                     return;
                 try
@@ -329,8 +327,7 @@ namespace Empire_Earth_Mod
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error while loading icon: " + ex.Message, "Warning",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    ShowWarning(Format(Resources.IconNotLoadedFormat, ex.Message));
                     return;
                 }
 
@@ -343,14 +340,13 @@ namespace Empire_Earth_Mod
             Guid? variant = GetSelectedVariant(bannersVariantsKryptonComboBox);
             if (variant == null)
             {
-                MessageBox.Show("Please select a variant to add a banner for it", "Warning",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ShowWarning(Resources.SelectVariantForBanner);
                 return;
             }
 
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
-                ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png";
+                ofd.Filter = Resources.BannerFileFilter;
                 if (ofd.ShowDialog() != DialogResult.OK || string.IsNullOrWhiteSpace(ofd.FileName))
                     return;
                 try
@@ -359,8 +355,7 @@ namespace Empire_Earth_Mod
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error while adding banner: " + ex.Message, "Warning",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    ShowWarning(Format(Resources.BannerNotAddedFormat, ex.Message));
                     return;
                 }
 
@@ -446,8 +441,7 @@ namespace Empire_Earth_Mod
             }
             catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
             {
-                MessageBox.Show("The files of the variant could not be read: " + ex.Message, "Warning",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ShowWarning(Format(Resources.VariantFilesUnreadableFormat, ex.Message));
                 return;
             }
             UpdateVariantFilesPreview(variant.Value);
@@ -455,11 +449,9 @@ namespace Empire_Earth_Mod
             if (ignoredFiles.Count > 0)
             {
                 const int maxListedFiles = 10;
-                MessageBox.Show("These files are ignored because they are not inside one of the folders " +
-                                string.Join(", ", EemFormat.ProductFolders) + ":\n\n" +
-                                string.Join("\n", ignoredFiles.Take(maxListedFiles)) +
-                                (ignoredFiles.Count > maxListedFiles ? "\n..." : string.Empty), "Warning",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ShowWarning(Format(Resources.IgnoredFilesFormat, string.Join(", ", EemFormat.ProductFolders),
+                    string.Join("\n", ignoredFiles.Take(maxListedFiles)) +
+                    (ignoredFiles.Count > maxListedFiles ? "\n..." : string.Empty)));
             }
         }
 
@@ -532,15 +524,14 @@ namespace Empire_Earth_Mod
         {
             if (assets.Icon == null)
             {
-                MessageBox.Show("Please select an icon for the mod before building it.", "Warning",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ShowWarning(Resources.SelectIconBeforeBuild);
                 return false;
             }
 
             string eemPath;
             using (SaveFileDialog sfd = new SaveFileDialog())
             {
-                sfd.Filter = "Empire Earth Mod (" + EemFormat.SearchPattern + ")|" + EemFormat.SearchPattern;
+                sfd.Filter = Format(Resources.ModArchiveFilterFormat, EemFormat.SearchPattern);
                 sfd.DefaultExt = EemFormat.Extension.TrimStart('.');
                 sfd.AddExtension = true;
                 sfd.FileName = GetDefaultArchiveName();
@@ -552,7 +543,7 @@ namespace Empire_Earth_Mod
             // Keep the file types edited in the grid of the variant that is currently displayed.
             SaveVariantFilesFromGrid();
 
-            buildStatusLabel.Text = "Building Mod...";
+            buildStatusLabel.Text = Resources.BuildStatusBuilding;
 
             // The worker saves the icon and banner bitmaps. GDI+ images must not be used by two threads at
             // once, so the previews let go of them until the build is finished.
@@ -587,8 +578,8 @@ namespace Empire_Earth_Mod
 
             if (e.Error != null)
             {
-                buildStatusLabel.Text = "Build failed";
-                MessageBox.Show("The mod could not be built:\n\n" + e.Error.Message, "Error",
+                buildStatusLabel.Text = Resources.BuildStatusFailed;
+                MessageBox.Show(Format(Resources.BuildFailedFormat, e.Error.Message), Resources.ErrorTitle,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 // Back to the files page, so the author can fix the problem and build again.
@@ -597,10 +588,22 @@ namespace Empire_Earth_Mod
             }
 
             modBuilt = true;
-            buildStatusLabel.Text = "Mod built";
+            buildStatusLabel.Text = Resources.BuildStatusDone;
             UpdateNavigationButtons();
-            MessageBox.Show("The mod has been saved to:\n" + e.Result, "Mod Creator",
+            MessageBox.Show(Format(Resources.ModSavedFormat, e.Result), Resources.ModCreatorTitle,
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /* Helpers */
+
+        private static string Format(string format, params object[] args)
+        {
+            return string.Format(CultureInfo.CurrentCulture, format, args);
+        }
+
+        private static void ShowWarning(string message)
+        {
+            MessageBox.Show(message, Resources.WarningTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         /* Variant lists */

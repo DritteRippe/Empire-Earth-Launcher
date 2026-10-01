@@ -115,129 +115,115 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ModCreatorTitle" xml:space="preserve">
-    <value>Mod Creator</value>
-    <comment>Caption of the mod creator's message boxes.</comment>
+    <value>Créateur de mod</value>
   </data>
   <data name="WarningTitle" xml:space="preserve">
-    <value>Warning</value>
+    <value>Avertissement</value>
   </data>
   <data name="ErrorTitle" xml:space="preserve">
-    <value>Error</value>
+    <value>Erreur</value>
   </data>
   <data name="InfoTitle" xml:space="preserve">
-    <value>Info</value>
+    <value>Information</value>
   </data>
   <data name="WaitForBuild" xml:space="preserve">
-    <value>Please wait until the mod has been built.</value>
+    <value>Veuillez attendre la fin de la création du mod.</value>
   </data>
   <data name="DeleteWorkingFolderFormat" xml:space="preserve">
-    <value>Delete the working folder of this mod, including the files you copied into it?
+    <value>Supprimer le dossier de travail de ce mod, y compris les fichiers que vous y avez copiés ?
 
 {0}
 
-Choose "No" to keep the folder.</value>
-    <comment>{0}: folder.</comment>
+Choisissez « Non » pour conserver le dossier.</value>
   </data>
   <data name="WorkingFolderNotDeletedFormat" xml:space="preserve">
-    <value>The working folder could not be deleted:
+    <value>Impossible de supprimer le dossier de travail :
 {0}
 
 {1}</value>
-    <comment>{0}: folder, {1}: error message.</comment>
   </data>
   <data name="NextButton" xml:space="preserve">
-    <value>Next &gt;</value>
+    <value>Suivant &gt;</value>
   </data>
   <data name="BuildButton" xml:space="preserve">
-    <value>Build &gt;</value>
+    <value>Créer &gt;</value>
   </data>
   <data name="BuildingButton" xml:space="preserve">
-    <value>Building...</value>
+    <value>Création...</value>
   </data>
   <data name="CloseButton" xml:space="preserve">
-    <value>Close</value>
+    <value>Fermer</value>
   </data>
   <data name="EnterModName" xml:space="preserve">
-    <value>Please enter a name for the mod.</value>
+    <value>Veuillez saisir un nom pour le mod.</value>
   </data>
   <data name="EnterValidVersion" xml:space="preserve">
-    <value>Please enter a valid version, e.g. 1.0 or 1.0.0.0.</value>
+    <value>Veuillez saisir une version valide, par ex. 1.0 ou 1.0.0.0.</value>
   </data>
   <data name="VariantNameMissing" xml:space="preserve">
-    <value>Every variant needs a name.</value>
+    <value>Chaque variante a besoin d'un nom.</value>
   </data>
   <data name="VariantNameDuplicateFormat" xml:space="preserve">
-    <value>The variant name "{0}" is used more than once.</value>
-    <comment>{0}: variant name.</comment>
+    <value>Le nom de variante « {0} » est utilisé plusieurs fois.</value>
   </data>
   <data name="VariantExists" xml:space="preserve">
-    <value>Variant already exists</value>
+    <value>Cette variante existe déjà</value>
   </data>
   <data name="ConfirmRemoveVariant" xml:space="preserve">
-    <value>Are you sure you want to remove this variant?
-If you need to simply rename it double click on the variant name cell.</value>
+    <value>Voulez-vous vraiment supprimer cette variante ?
+Pour simplement la renommer, double-cliquez sur la cellule de son nom.</value>
   </data>
   <data name="VariantNotRemovedFormat" xml:space="preserve">
-    <value>The variant cannot be removed: {0}</value>
-    <comment>{0}: error message.</comment>
+    <value>Impossible de supprimer la variante : {0}</value>
   </data>
   <data name="VariantRemovedWithData" xml:space="preserve">
-    <value>Variant removed, some related data to that variant (banners, files, etc...) has been deleted.</value>
+    <value>Variante supprimée, des données liées à cette variante (bannières, fichiers, etc.) ont été supprimées.</value>
   </data>
   <data name="IconFileFilter" xml:space="preserve">
-    <value>Image Files|*.bmp;*.jpg;*.jpeg;*.png</value>
-    <comment>File dialog filter: keep the | separator and the patterns.</comment>
+    <value>Fichiers image|*.bmp;*.jpg;*.jpeg;*.png</value>
   </data>
   <data name="BannerFileFilter" xml:space="preserve">
-    <value>Image Files|*.jpg;*.jpeg;*.png</value>
-    <comment>File dialog filter: keep the | separator and the patterns.</comment>
+    <value>Fichiers image|*.jpg;*.jpeg;*.png</value>
   </data>
   <data name="IconNotLoadedFormat" xml:space="preserve">
-    <value>Error while loading icon: {0}</value>
-    <comment>{0}: error message.</comment>
+    <value>Erreur lors du chargement de l'icône : {0}</value>
   </data>
   <data name="SelectVariantForBanner" xml:space="preserve">
-    <value>Please select a variant to add a banner for it</value>
+    <value>Veuillez sélectionner une variante pour lui ajouter une bannière</value>
   </data>
   <data name="BannerNotAddedFormat" xml:space="preserve">
-    <value>Error while adding banner: {0}</value>
-    <comment>{0}: error message.</comment>
+    <value>Erreur lors de l'ajout de la bannière : {0}</value>
   </data>
   <data name="VariantFilesUnreadableFormat" xml:space="preserve">
-    <value>The files of the variant could not be read: {0}</value>
-    <comment>{0}: error message.</comment>
+    <value>Impossible de lire les fichiers de la variante : {0}</value>
   </data>
   <data name="IgnoredFilesFormat" xml:space="preserve">
-    <value>These files are ignored because they are not inside one of the folders {0}:
+    <value>Ces fichiers sont ignorés car ils ne se trouvent dans aucun des dossiers {0} :
 
 {1}</value>
-    <comment>{0}: product folders, {1}: one file per line.</comment>
   </data>
   <data name="SelectIconBeforeBuild" xml:space="preserve">
-    <value>Please select an icon for the mod before building it.</value>
+    <value>Veuillez sélectionner une icône pour le mod avant de le créer.</value>
   </data>
   <data name="ModArchiveFilterFormat" xml:space="preserve">
-    <value>Empire Earth Mod ({0})|{0}</value>
-    <comment>File dialog filter, {0}: file pattern. Keep the | separator.</comment>
+    <value>Mod Empire Earth ({0})|{0}</value>
   </data>
   <data name="BuildStatusBuilding" xml:space="preserve">
-    <value>Building Mod...</value>
+    <value>Création du mod...</value>
   </data>
   <data name="BuildStatusFailed" xml:space="preserve">
-    <value>Build failed</value>
+    <value>Échec de la création</value>
   </data>
   <data name="BuildStatusDone" xml:space="preserve">
-    <value>Mod built</value>
+    <value>Mod créé</value>
   </data>
   <data name="BuildFailedFormat" xml:space="preserve">
-    <value>The mod could not be built:
+    <value>Impossible de créer le mod :
 
 {0}</value>
-    <comment>{0}: error message.</comment>
   </data>
   <data name="ModSavedFormat" xml:space="preserve">
-    <value>The mod has been saved to:
+    <value>Le mod a été enregistré dans :
 {0}</value>
-    <comment>{0}: path of the mod archive.</comment>
   </data>
 </root>
