@@ -13,6 +13,67 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
 
 ### Added
 
+- Game settings for the Windows account that runs the launcher (contract 3, R1, R3, R4;
+  `Empire-Earth-Launcher-Core/GameSettings`): the table of contract 3.2 with its classes S ("Installed From"), D
+  (display) and P (player defaults), the computed values of 3.3 and the defaults marker of 3.5
+  (`HKCU\Software\Empire Earth Community\GameDefaults\<Product>`, values `EE` and `AoC`). After every discovery, and
+  only for an installation that is the only one using its game settings key (ADR 0015) and while no setup and no game
+  runs: missing "Installed From" values are created when both are missing (never changed at the start); without a
+  marker the first run creates the missing P and D values and the GPU preference (Windows 10 and later with the task
+  `compatibility_windows`, 3.4), asks once whether existing display values that differ should be replaced, and writes
+  the marker with either answer; a lower marker creates only the values added since. A marker of a newer contract
+  changes nothing. Every value written or deleted is logged with old and new value. `SynchronizeInstalledFrom` keeps
+  class S in step with the game that is started (for the Play button of L-WP6).
+- *Settings* page with the game settings of the selected installation (no placeholders, ADR 0014): the defaults state
+  of each game, the display question, "Apply recommended display", "Reset game settings" with an inline confirmation,
+  the hints of the consistency checks with a "Play page" checkbox each, the compatibility options and the result of
+  the last action. The *Play* page shows the display question or the first visible hint in an info bar ("Details"
+  opens the *Settings* page, "Hide" hides that hint).
+- `.reg` backups ([ADR 0007](docs/adr/0007-registry-write-scope-and-reg-backups.md)) in
+  `%LOCALAPPDATA%\Empire Earth Launcher\Backups\<yyyy-MM-dd_HHmmss>_<action>\`, one file per game
+  (`<time>_<Product>_<EE|AoC>.reg`): the game settings key with its subkeys, a delete line for every value the action
+  creates, and the GPU preference and the marker. The files are UTF-16 LE with BOM and CRLF like those of `regedit`
+  (`.gitattributes` treats `.reg` as binary); a double-click restores exactly the previous state. A backup that cannot
+  be written and read back completely means that nothing is changed. The display settings, the answer "replace" to the
+  display question, the reset and the removal of `~ RUNASADMIN` write one; switching a compatibility option does not
+  (switching back is its undo).
+- Reset of the game settings of an installation: S, D, P and the GPU preference written again (a value of another
+  type deleted first, like the setup's `deletevalue`), the markers last; values outside the table (player names, CD
+  keys, anything else) stay as they are. Refused for an installation of a newer contract.
+- Consistency checks at every start, shown with an offer and never fixed by themselves: `Game Bit Depth` other than
+  `Texture Bit Depth`, 16 bit on Windows 8 and later, a `Rasterizer Name` against the wrapper rule of 3.3, a game
+  window larger than the screen as the game sees it (physical pixels with an effective `HIGHDPIAWARE` in HKCU or HKLM,
+  else the size a DPI-unaware program sees; [ADR 0011](docs/adr/0011-screen-size-in-physical-pixels.md)), a window
+  that fits only with `HIGHDPIAWARE`, a screen lower than 768 pixels, a game folder without a drive letter and a game
+  folder with characters outside the ANSI code page of Windows, which the game may not open (ADR 0015, forum test
+  case 20). A hint hidden from the *Play* page is stored per finding, game settings key and values (or folder) as
+  `HiddenHints` in `settings.json` (an optional member of schema 1) and comes back when they change.
+- Compatibility options (contract 3.7): from Windows 8 on and outside Wine the entries `DWM8And16BitMitigation`,
+  `HIGHDPIAWARE`, `HeapClearAllocation` and `WIN7RTM` as switches for the programs of the installation, written into
+  HKCU only with every other entry of the value kept; the HKLM value is shown read-only, no second Windows version
+  mode is offered, and switching `HIGHDPIAWARE` off at a scaling above 100 % asks first. On every Windows an HKCU value
+  that is exactly `~ RUNASADMIN` can be removed (with a backup). On Windows 7 and under Wine there are no switches;
+  old values of earlier setups are shown read-only with the advice to run the current setup, except for an
+  installation with the setup's opt-in task `compatibility_legacy`, whose values are its own (contract 3.7,
+  revision 2).
+- `ISystemInfo` with its Windows implementation `WindowsSystemInfo` in the core (created by `Program`): the Windows
+  version from `RtlGetVersion`, Wine, the primary screen in physical pixels (`EnumDisplaySettings`) and as a
+  DPI-unaware program sees it (`GetSystemMetrics`), and whether a path fits the ANSI code page; the log names the
+  version and the screen at the start
+  (`Windows NT 10.0.19045, primary screen 1920x1080 physical, 1536x864 for DPI-unaware programs (125 %)`).
+- 51 new texts in English, German and French for the game settings (now 125).
+- Test plan: cases WP5-01 to WP5-20 (first run for a second account, the display question, ambiguous installations,
+  the reset with its `.reg` files and their import, 100 % and 150 % scaling with and without `HIGHDPIAWARE`, the
+  compatibility options on Windows 10/11 and Windows 7, the GPU preference, a running setup or game, hidden hints, the
+  three languages), and section 7, which maps the requirements R1 to R10 and R17 and the forum test cases 1 to 22 to
+  cases, later work packages, the setup or "dropped".
+- Tests: the value table against the table of contract 3.2 and the old values and rows against 3.7 (both read
+  `docs/CONTRACT.md`, category `SourceTree`); the computed values with the real folder (`C:\Games\EE`,
+  `D:\Empire Earth`, a network path, Turkish culture); the marker, the first run, the display question and class S at
+  the start (a second account, ambiguous installations, one value missing, a running setup); the reset and the
+  restore of its backup by import; golden files of every value type for the `.reg` writer; the consistency checks
+  with 100 % and 150 % and `HIGHDPIAWARE` in HKCU and HKLM; the compatibility options and their write policy; every
+  writing action blocked by a running setup and by a running game; the test plan rules (`TestPlanTests`).
 - Discovery of every Empire Earth installation (contract 1.4, `Empire-Earth-Launcher-Core/Installations`), in place of
   the old game folder detection. Five sources: the folder chosen on the *Launcher* page, the install records of setups
   since v2 (HKCU, HKLM 64-bit, HKLM 32-bit view; NeoEE before EE), the uninstall keys `{<GUID>}_is1` of community
@@ -101,6 +162,24 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
 
 ### Changed
 
+- The registry write policy is narrower ([ADR 0007](docs/adr/0007-registry-write-scope-and-reg-backups.md) plan
+  review): every allowed key lists its value names (the values of contract 3.2 per game settings key, `EE` and `AoC`
+  for the marker); in `UserGpuPreferences` and `AppCompatFlags\Layers` only the full path of a game program is a
+  valid value name; and a compatibility value may only change by the entries the launcher may switch on this
+  Windows (no `RUNASADMIN` or Windows version mode added, no other entry removed; the policy reads the current value
+  for that). The launcher's list moved from `RegistryWritePolicy.Default` to `LauncherWritePolicy` in the game
+  settings, which without Windows 8 or under Wine allows no switch at all.
+- `Program` composes the game settings: system information (logged), the write policy for this Windows, the mutation
+  guard with the real mutexes, the backup folder and `GameSettingsModel`, which the *Settings* and *Play* pages
+  share. The *Settings* page no longer shows only the compatibility warning: it shows the game settings, and the
+  warning stands in place of the compatibility options until the player confirms it.
+- `.gitignore` no longer hides the folders `Backup` of the core library and of the tests (its pattern `Backup*/` is
+  meant for Visual Studio's conversion backups).
+- Every test that reads the source tree is in the NUnit category `SourceTree` (before only those of L-WP5), so the
+  laptop package can run the others with `--where "cat != SourceTree"`; `RepositoryRoot` fails a test method that
+  reads the source tree without the category ([ADR 0012](docs/adr/0012-test-strategy.md)).
+- ADR 0007, 0011, 0012, 0015 and 0016 record the implementation details of the game settings in amendments
+  ("implementation, L-WP5"); `docs/TRANSLATING.md` lists the 125 texts and how to check the *Settings* page.
 - `docs/CONTRACT.md`, revision 2 (identical to the copy in the setup repository; contract version still 1, draft):
   tables of the window size limits (3.3) and of the GPU preference values (3.4); the setup's opt-in task
   `compatibility_legacy` with the flags on Windows 7, without a Windows version layer, and the marker `(opt-in)` in

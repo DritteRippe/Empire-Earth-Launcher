@@ -1,6 +1,7 @@
 # 0012 Test strategy
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review), see the Amendment sections
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review; implementation in L-WP5), see the
+Amendment sections
 
 ## Context
 
@@ -108,3 +109,31 @@ UI (briefing D6, contract 7).
   case ids are unique; its mapping table assigns every requirement R1 to R10 and R17 and every forum test case 1
   to 22 (forum report section 8) to case ids, to "offen (L-WPn)" until that package, or to "Setup"/"entfällt" with
   a reason; every case id it names exists. From L-WP9 on, no "offen" is allowed.
+
+## Amendment 2026-10-02 (implementation, L-WP5)
+
+- **`TestPlanTests`** (`Architecture/`, category `SourceTree`) implements the coverage test of the plan review: the
+  case ids (`WPn-nn`, `W7-nn`) of `docs/TEST-PLAN.de.md` are unique; the package named in the plan's "Stand" line has
+  its own section with cases; every case id named in the plan, the README, the CHANGELOG, `ARCHITECTURE.md`,
+  `TRANSLATING.md` and the ADRs exists; the mapping table of section 7 has every requirement R1 to R10 and R17 and
+  every forum test case 1 to 22 exactly once; each of its assignments is a case id, "offen (L-WPn)" for a package after
+  the plan's state (none from L-WP9 on), or "Setup: ..." / "entfällt: ..." with a reason. A self-test runs the rules
+  against broken samples.
+- **Category `SourceTree` for every test that reads the source tree.** The plan review gave the category to the tests
+  that use `RepositoryRoot`; L-WP5 adds it to the existing ones too (project conventions, resource parity,
+  `ApplyTexts`, contract names as whole fixtures; the core dependency, placeholder and discovery rule tests only on the
+  methods that read files, so their checks of the built assemblies still run on the laptop). `RepositoryRoot` fails a
+  test method that reads the source tree without the category (on the method or its fixture); test case sources and
+  one-time set-ups are not checked by it, which is why fixtures that read files there carry the category as a whole.
+  A copy of the test program outside the repository runs `--where "cat != SourceTree"` with 2073 passed tests and no
+  failure (Mono, L-WP5).
+- **Golden files** for the `.reg` writer are in `Core/Backup/Golden/` (copied to the output folder); they hold only
+  synthetic names and values (`FixtureProvenanceTests` comes with L-WP7, when the first hashes are added).
+- **Value table against the contract.** `GameSettingsTableContractTests` reads the table of contract 3.2 and compares
+  name, key, type, class and data of every row with `GameSettingsTable`; `CompatibilityLayersTests` reads the rows and
+  the old values of 3.7. In addition, a one-off check outside the repository compared the table with the
+  `GameSettings` block of the setup's `setup_is6.iss` (27 values, flags, data per game, the window limits, the
+  rasterizer lines, the "Installed From" formula and the settings keys of `config_ee.iss`/`config_neoee.iss`): no
+  difference.
+- **Windows adapters** (`WindowsSystemInfo`, the `.reg` import by double-click, the UI) are covered by the test plan
+  cases WP5-01 to WP5-20.

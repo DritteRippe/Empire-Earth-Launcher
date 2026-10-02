@@ -35,7 +35,8 @@ Contents: [Languages](#languages) · [Where the texts are](#where-the-texts-are)
   same keys in `Resources.de.resx` and `Resources.fr.resx`, in the same order.
 - The designer files (`*.Designer.cs`, `MainForm.resx`) hold only placeholders for the Visual Studio designer.
   Each window and page sets its real texts in its `ApplyTexts()` method, and `Texts.cs` picks the text for a
-  result (player state, lobby profiles, where the game folder comes from). Do not translate designer texts; an
+  result (player state, lobby profiles, where the game folder comes from, the state of the game settings, the
+  hints of the consistency checks, the result of a reset or a compatibility change). Do not translate designer texts; an
   architecture test fails if a designer text is not set again in `ApplyTexts()`.
 - Images, icons and other files are entries of the neutral `Resources.resx` only; the language files inherit
   them and must not contain any.
@@ -52,7 +53,10 @@ Contents: [Languages](#languages) · [Where the texts are](#where-the-texts-are)
 - **File dialog filters** (`ThemeFileFilter`): `description|pattern|description|pattern` - translate the
   descriptions, keep every `|` and the patterns (`*.xml`, `*.*`).
 - **Not translated**: the names of the games (Empire Earth, The Art of Conquest), NeoEE, file names
-  (`Empire Earth.exe`), and "Launcher" where German and French use the English word as well.
+  (`Empire Earth.exe`), and "Launcher" where German and French use the English word as well. The game settings
+  texts also keep the registry names the player may look up: value names (`Game Bit Depth`, `Rasterizer Name`,
+  "Installed From"), renderer names (`Direct3D Hardware TnL`), `.reg`, and the compatibility entries in parentheses
+  (`HIGHDPIAWARE`, `~ RUNASADMIN`); translate the words around them.
 - **Length**: buttons and labels have a fixed size. Where a comment gives a limit ("at most about 12 characters"),
   stay below it; otherwise stay close to the length of the English text. The screenshots of the laptop test show
   texts that do not fit.
@@ -101,22 +105,28 @@ Changing the English text of an existing key means checking the German and Frenc
   the navigation, *Play* (game choice, player list, profile), *Settings* (compatibility warning and its dialog),
   *Launcher* (labels, theme list and its file dialog, game folder dialogs and the question when the folder does
   not contain `Empire Earth.exe`, the list of installations with its column headers, types, states and tooltips,
-  and the hints below it). `log.txt` names the language in use (`UI language: de (launcher setting)`).
-  The German test plan has these cases (sections L-WP3 and L-WP4, WP4-17).
+  and the hints below it). The *Settings* page holds the game settings: scroll to its end, it has the defaults
+  state, the display question, the buttons with their confirmations in place, the hints with their checkbox
+  "Play page", the compatibility options and the result lines; the *Play* page shows the display question or a
+  hint in an info bar. Long texts there wrap and push the following controls down; the buttons do not wrap, so
+  keep their limits. `log.txt` names the language in use (`UI language: de (launcher setting)`).
+  The German test plan has these cases (sections L-WP3 to L-WP5, WP4-17 and WP5-17).
 
 ## Status
 
-74 texts (state of L-WP4: 21 texts of the list of installations were added).
+125 texts (state of L-WP5: 51 texts of the game settings were added; L-WP4 added 21 for the list of installations).
 
 | Language | Translated | Review |
 |---|---|---|
-| English | 74 | source |
-| German `de` | 74 | proof-reading by a native speaker in the laptop test ([TEST-PLAN.de.md](TEST-PLAN.de.md), cases WP3-* and WP4-17); open until that test |
-| French `fr` | 74 | **open**: only `NavigationPlay` ("Jouer") and `NavigationSettings` ("Paramètres") come from the original French authors; all other French texts were written during the review fixes and v2 without a native speaker |
+| English | 125 | source |
+| German `de` | 125 | proof-reading by a native speaker in the laptop test ([TEST-PLAN.de.md](TEST-PLAN.de.md), cases WP3-*, WP4-17 and WP5-17); open until that test |
+| French `fr` | 125 | **open**: only `NavigationPlay` ("Jouer") and `NavigationSettings` ("Paramètres") come from the original French authors; all other French texts were written during the review fixes and v2 without a native speaker |
 
 ### Help wanted
 
-- **French**: a native speaker who reads the 72 French texts other than the two navigation texts in
-  `Resources.fr.resx`, ideally while looking at each page.
+- **French**: a native speaker who reads the 123 French texts other than the two navigation texts in
+  `Resources.fr.resx`, ideally while looking at each page. The 51 texts of the game settings (keys from
+  `GameSettingsDefaultsHeading` to `FindingFolderNotAnsiFormat`, at the end of the file) are the newest and
+  the longest.
 - **Other languages**: Portuguese (Brazil), Chinese, Spanish, Italian, Polish, Russian and Korean are game
   languages of the setup; the launcher shows English for them. See [Adding a language](#adding-a-language).

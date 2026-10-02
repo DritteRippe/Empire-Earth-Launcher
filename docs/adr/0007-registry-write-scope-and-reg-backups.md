@@ -1,7 +1,7 @@
 # 0007 Registry write scope, protected keys and .reg backups
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; implementation in L-WP2; plan review), see
-the Amendment sections
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; implementation in L-WP2; plan review;
+implementation in L-WP5), see the Amendment sections
 
 ## Context
 
@@ -170,3 +170,47 @@ contract no longer allows, and that the advice text of the cleanup table named `
   (test of the UI mapping, ADR 0014); README and CHANGELOG describe R5 as "cleanup of HKCU entries; HKLM entries
   are only shown, with advice". Test-plan cases collect real HKCU leftovers of retail and GOG installations as
   evidence for later entries.
+
+## Amendment 2026-10-02 (implementation, L-WP5)
+
+The game settings package writes the first backups and narrows the allow-list to the value names, as planned.
+Refinements made while implementing, all keeping the decision:
+
+- **Writer and export** (`Backup.RegFileWriter`, `Backup.RegistryExport`): the export reads a key with all its subkeys
+  through `IRegistry` and fails as a whole if one of them cannot be read; then nothing is changed. Golden files of
+  every case of the design review amendment are in `Empire-Earth-Launcher.Tests/Core/Backup/Golden/`;
+  `.gitattributes` marks `*.reg` as binary, so git keeps the UTF-16 LE bytes and the CRLF. `Backup.BackupLocations`
+  creates `Backups\<yyyy-MM-dd_HHmmss>_<what>` (`_2`, `_3`, ... if that folder exists), writes each file through a
+  temporary file and reads it back; a file that differs or cannot be read is a failed backup.
+- **What a backup holds**: one file per game, `<yyyy-MM-dd_HHmmss>_<Product>_<EE|AoC>.reg`, with the game settings key
+  and its subkeys, a delete line for every value the action will create, and the values outside that key that the
+  action changes (GPU preference, marker), as they are or as a delete line. Removing `~ RUNASADMIN` writes
+  `<yyyy-MM-dd_HHmmss>_Layers.reg` with the values it removes. A test imports each backup into the in-memory registry
+  (a test-only importer) and compares the result with the state before the action.
+- **Where no backup is written**: creating a missing value (first run, class S at start) changes nothing that
+  existed. The synchronization of class S before a game starts and the compatibility switches overwrite without a
+  backup and log every value with its old and new data: the first runs before every Play and would fill the backup
+  folder with copies of two values derived from the folder, the second is undone by the same switch on the same
+  page (ARCHITECTURE 14). Every overwrite of D or P values (display settings, the answer "replace", reset) and the
+  removal of `~ RUNASADMIN` write one.
+- **Allow-list with value names** (`GameSettings.LauncherWritePolicy`, in place of `RegistryWritePolicy.Default`,
+  which is removed): each game settings key and its `Game Options` subkey allow exactly the value names of contract
+  3.2 for that key, the marker keys `EE` and `AoC`; `UserGpuPreferences` and `Layers` allow a value name only if it
+  is a fully qualified, normalized path whose file name is `Empire Earth.exe` or `EE-AOC.exe`. The policy does not
+  know the discovery, so "of a discovered installation" stays a duty of the callers, which only use the program
+  paths of an `Installation`. The list lives with the game settings because it is built from their table; the
+  platform keeps the mechanism (`RegistryWriteRule`, `RegistryWritePolicy`) and the protected keys.
+- **Layer content**: `PolicyCheckedRegistry` gives the policy the new value and a function that reads the current
+  one. Only the launcher's entries may be added or removed; every other entry keeps its order and spelling and a
+  `~` prefix stays (`CompatibilityLayers.IsAllowedChange`). A current value that cannot be read is refused.
+  `LauncherWritePolicy.For(ISystemInfo)` allows no entry below Windows 8 and under Wine; then only deleting a value
+  that is exactly `~ RUNASADMIN` or has no entries remains. The denials have their own codes (`ValueNotAllowed`,
+  `LayerContent`), so log and tests tell them from the key denials.
+- **Contract 3.7, revision 2**: the read-only list of old values is not shown for an installation whose `Tasks`
+  contain the setup's opt-in task `compatibility_legacy`; such a value is the task's own.
+
+Evidence: `Core/Backup/RegFileWriterTests` (23 tests with the golden files), `RegistryExportTests`,
+`BackupLocationsTests`, `Core/GameSettings/LauncherWritePolicyTests` (62), `GameDefaultsServiceTests` (restore by
+import, a failed backup changes nothing), `CompatibilityOptionsTests`; `Architecture/RegistryAliasPolicyTests`
+(936 cases) now runs against `LauncherWritePolicy.Default`. Allowing `WINXPSP3` in `CompatibilityLayers` locally made
+12 tests fail; ignoring the task `compatibility_legacy` made 2 fail (both not committed).

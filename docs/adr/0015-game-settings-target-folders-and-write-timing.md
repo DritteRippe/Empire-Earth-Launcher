@@ -1,7 +1,7 @@
 # 0015 Game settings: target folders and when the launcher writes
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation of the discovery in L-WP4; plan review), see the
-Amendment sections
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation of the discovery in L-WP4; plan review;
+implementation in L-WP5), see the Amendment sections
 
 ## Context
 
@@ -135,3 +135,38 @@ is class S) without being listed as a clarification.
 - The difference to contract 3.6 (at start only creation, and only for unambiguous installations) is listed in
   ARCHITECTURE 14 as a clarification for the next contract change in both repositories. The test plan gets the
   case "second account opens the launcher, closes it, starts AoC through the shortcut".
+
+## Amendment 2026-10-02 (implementation, L-WP5)
+
+The game settings package implements the decision and the plan review amendment in `GameSettings.GameDefaultsService`,
+`ConsistencyChecker`, `HintVisibility` and `CompatibilityOptions`. Details decided while implementing, keeping the
+decision:
+
+- **When**: the launcher-start part runs after **every** discovery (`GameSettingsModel.ApplyAfterDiscoveryAsync`), so a
+  folder the player chooses on the Launcher page gets its defaults at once (a choice makes the installation
+  unambiguous). The first run of an ambiguous installation waits for the first Play (L-WP6, `ApplyDefaultsIfNeeded`)
+  or the reset, which the Settings page offers with the reason ("several installations share these settings"); there
+  is no separate "apply defaults" button, the reset is that action.
+- **Class S** at start: created only when both values of a game are missing; one value missing -> nothing, logged;
+  values present -> untouched. Before Play (`SynchronizeInstalledFrom`, public for L-WP6): written only if the
+  normalized values differ, also for an installation of a newer contract (contract 5 keeps class S). A game folder
+  without drive letter gets no values and a hint.
+- **Display question**: one question for the differing D values of every game of every unambiguous installation,
+  non-blocking (info bar of the Play page and the Settings page). Both answers write the markers of these games; if
+  the backup for "replace" fails, nothing is written, so the question comes again. The markers of a game wait for the
+  answer, so a launcher closed without answering asks again at the next start (ARCHITECTURE 14).
+- **Hidden hints**: stored in `settings.json` as `HiddenHints` entries with the finding and the game settings key
+  (`BitDepthMismatch HKCU\Software\Neo\Empire Earth`, `screen` for the screen) and the values the finding is about
+  (`Game Bit Depth=16; Texture Bit Depth=32`, the folder for the folder hints, the screen size). A change of these
+  values shows the hint again; the Settings page lists every hint and its checkbox "Play page" hides or shows it.
+- **Folder outside the ANSI code page**: `ISystemInfo.IsInAnsiCodePage` (the system code page with an exception
+  fallback, so no best-fit mapping); the hint is information only, the values are written as for any folder.
+- **HKLM version layer**: with a Windows version mode in the HKLM value (or another one in HKCU) no other version mode
+  is offered; one that is on in HKCU can still be switched off.
+- **Newer contract**: no defaults, no display settings and no reset (`NewerContract` result and status); class S stays.
+
+Evidence: `Core/GameSettings/GameDefaultsServiceTests` (second account, unambiguous, both values missing -> created;
+present and different -> untouched; ambiguous -> nothing; one value missing -> nothing and a log line; blocked by
+the guard -> nothing; `C:\Games\EE`, `D:\Empire Earth`, network folder; newer contract), `ComputedValuesTests`
+(`tr-TR`), `ConsistencyChecksTests`, `HintVisibilityTests`, `CompatibilityOptionsTests`, `Launcher/GameSettingsModelTests`;
+test plan WP5-01 to WP5-04 and WP5-19.

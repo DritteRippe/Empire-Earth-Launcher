@@ -54,11 +54,12 @@ Empire-Earth.sln
 ├─ SharedAssemblyInfo.cs                  one version for all assemblies
 ├─ Empire-Earth-Launcher-Core/            NEW  Empire_Earth_Launcher_Core.dll - UI-free, no WinForms/Krypton
 │  ├─ Contract/        fixed names of the contract: products, keys, folders, publishers, mutexes, file
-│  │                   classes, contract version
+│  │                   classes, contract version; CompatibilityLayers (entries of 3.7, old values)
 │  ├─ Platform/        abstractions + Windows implementations (ADR 0006):
 │  │                   IRegistry / WindowsRegistry (hive + view always explicit), IFileSystem /
 │  │                   LocalFileSystem, WinPath (Windows path rules as pure string logic), IProcessStarter,
-│  │                   IMutexProbe, ISystemInfo (Windows version, Wine, primary screen in physical pixels),
+│  │                   IMutexProbe, ISystemInfo (Windows version, Wine, primary screen in physical and in
+│  │                   DPI-unaware pixels, ANSI code page),
 │  │                   IClock, IHttpsClient (ADR 0008), INetworkInfo; RegistryPath (canonical form:
 │  │                   WOW6432Node, registry VirtualStore), RegistryWritePolicy and PolicyCheckedRegistry
 │  │                   (the IRegistry wrapper every change passes, ADR 0007)
@@ -70,11 +71,13 @@ Empire-Earth.sln
 │  │                   (contract 1, ADR 0015); EffectivePathResolver (VirtualStore, ADR 0016)
 │  ├─ Integrity/       ManifestReader, FileClassifier, IntegrityChecker (quick/full), IntegrityReport
 │  │                   (contract 2)
-│  ├─ GameSettings/    default value table, computed values, defaults marker, DefaultsService (first run,
-│  │                   before start, reset), consistency checks, GPU preference, compatibility layers
-│  │                   (contract 3)
-│  ├─ Backup/          RegFileWriter (.reg export), FileBackup (move files into a dated backup folder),
-│  │                   backup locations (ADR 0007)
+│  ├─ GameSettings/    GameSettingsTable (3.2), ComputedValues and RecommendedValues (3.3), GameDefaultsService
+│  │                   (marker, class S at start and before Play, first run, display question, display
+│  │                   settings, reset, GPU preference), ConsistencyChecker and HintVisibility (3.6),
+│  │                   CompatibilityOptions (3.7), LauncherWritePolicy (the launcher's allow-list, ADR 0007)
+│  │                   (contract 3, L-WP5)
+│  ├─ Backup/          RegFileWriter (.reg export), RegistryExport, BackupLocations (ADR 0007, L-WP5);
+│  │                   FileBackup (move files into a dated backup folder, L-WP8)
 │  ├─ Play/            GameStarter, running-game and running-setup detection, MutationGuard
 │  │                   (contract 4.2, 3.7, ADR 0010, ADR 0016)
 │  ├─ Repair/          UpdateUrlPolicy (port of the setup's IsAllowedUpdateUrl), SetupDownloadLocator,
@@ -93,7 +96,9 @@ Empire-Earth.sln
 ├─ Empire Earth Launcher/                 Empire Earth Launcher.exe - thin UI:
 │                                         Program (composition root), MainForm, pages, dialogs,
 │                                         Texts (core results -> localized strings), UiOperation (async
-│                                         event handler helper), KryptonThemeService, app.manifest
+│                                         event handler helper), InstallationService, GameSettingsModel
+│                                         (state of the game settings for two pages), KryptonThemeService,
+│                                         app.manifest
 └─ Empire-Earth-Launcher.Tests/           one NUnitLite program: Core/, Launcher/, Won/, Mod/,
                                           Architecture/ (dependency, project and resource rules),
                                           Fakes/ (in-memory registry and file system, fake HTTP, process,
@@ -113,7 +118,7 @@ The navigation keeps the existing look (MainForm, Krypton palette, gold buttons)
 | Page | Content | Requirements |
 |---|---|---|
 | **Play** | selected installation (product, folder, kind, integrity badge), file versions of `Empire Earth.exe` / `EE-AOC.exe`, choice EE / AoC (AoC only if installed), Play, "setup is running" and "game is running" states (with the hanging-process hint), non-modal warnings that can be hidden per value, lobby profiles and online player list (existing) | R2, R3 |
-| **Game settings** | defaults state, consistency warnings, apply recommended display settings, reset (with backup), compatibility options (HKCU only, HKLM read-only; Windows 8 and later only, on Windows 7 only removing `~ RUNASADMIN` and the old values shown, ADR 0007 plan review), screen warning below 768 pixels | R1, R4 |
+| **Game settings** (the *Settings* navigation button) | defaults state, consistency warnings, apply recommended display settings, reset (with backup), compatibility options (HKCU only, HKLM read-only; Windows 8 and later only, on Windows 7 only removing `~ RUNASADMIN` and the old values shown, ADR 0007 plan review), screen warning below 768 pixels | R1, R4 |
 | **Tools** | integrity details and full check, repair advice, registry cleanup, WON login reset, VirtualStore check, saved games and scenarios, network diagnostics, "copy diagnostics report", open backup folder | R2, R5 to R10 |
 | **Launcher** | installations found and the user's choice, hint when several installations share one game settings key, theme, language (system, English, German, French) | R1, R17 |
 
@@ -122,8 +127,10 @@ work, so that none of them was translated
 ([ADR 0014](adr/0014-only-working-features-in-the-ui.md), amendment: the exact list of control names, which
 an architecture test checks; it includes the "collect diagnostic data" checkbox, which contradicts "no
 telemetry"). The README keeps them as planned features. Until the pages are filled by their work packages, the
-Play page keeps the game choice and the Play button without function (L-WP6) and the Settings page shows only the
-compatibility warning (L-WP5).
+Play page keeps the game choice and the Play button without function (L-WP6). Since L-WP5 the *Settings* page is the
+Game settings page (one scrolling panel; the compatibility warning stands in place of the compatibility options until
+it is confirmed), and the Play page shows the display question or the first visible hint in an info bar with "Hide"
+and "Details".
 
 ## 3. Dependency rules
 
@@ -198,8 +205,19 @@ Empire_Earth_Mod.exe ──> Empire_Earth_Mod_Lib.dll ──> BCL only
    start**: both values of a game missing -> written for an unambiguous installation, existing values are never
    changed at start (ADR 0015 plan review); otherwise the first run waits for the first Play of that game. No defaults and no reset for an
    installation whose `ContractVersion` is higher than the launcher knows (contract 5).
+   Implemented in L-WP5 (`GameDefaultsService.ApplyAtLauncherStart`, run by `GameSettingsModel` after **every**
+   discovery, so a folder the player chooses gets its defaults at once): the question collects the differing D
+   values of every game of every unambiguous installation; it is shown in the info bar of the Play page and on the
+   Settings page, and the markers of these games are written with the answer (if the backup of "replace" fails,
+   no marker is written and the question comes again). A marker lower than the contract version creates only the
+   values added since; for an ambiguous installation the Settings page says why nothing was set up and offers the
+   reset, which sets everything up for the selected one.
 7. **Consistency checks** (contract 3.6) -> listed on the Game settings page with the offer to reset; on the
-   Play page a non-modal info bar that can be hidden per value and content (ADR 0015).
+   Play page a non-modal info bar that can be hidden per value and content (ADR 0015). Implemented in L-WP5
+   (`ConsistencyChecker`, read-only): bit depths, 16 bit on Windows 8 and later, rasterizer against the wrapper rule,
+   window against the screen as the game sees it (ADR 0011), screen below 768 pixels, game folder without drive letter
+   or outside the ANSI code page. Hidden hints are `HiddenHints` entries of `settings.json` (finding and game
+   settings key, plus the values or the folder); the checkbox "Play page" on the Settings page hides or shows them.
 8. Online player list polling starts (existing behaviour, now `PlayerListPoller`).
 9. The setup-mutex watcher starts (every 2 s while the launcher runs).
 
@@ -236,6 +254,14 @@ previous values exactly (ADR 0007 amendment) -> if the backup fails nothing is c
 preference overwritten (a value of another type is deleted first) -> marker written -> result with the backup
 path. Values outside the contract table are never touched. Refused with "update the launcher" when the
 installation's `ContractVersion` is higher than the launcher knows (contract 5).
+
+Implemented in L-WP5 (`GameDefaultsService.Reset`): the confirmation is inline on the Settings page (it names the
+backup folder); the backup folder is `<yyyy-MM-dd_HHmmss>_reset-game-settings`, one file per game
+`<yyyy-MM-dd_HHmmss>_<Product>_<EE|AoC>.reg` with the game settings key and its subkeys, the delete lines, and the
+GPU preference and marker values (as they are, or as delete lines); every file is read back before the first
+change; the markers are written after all other values. "Apply recommended display" works the same way with the
+D values only (`..._display-settings`). The result names the folder, or says that nothing changed because the backup
+failed, or that the change stopped halfway (then the backup restores it).
 
 ### 4.5 Repair hand-off
 
@@ -369,10 +395,10 @@ Decided in [ADR 0005](adr/0005-own-settings-file-instead-of-user-config.md):
 
 | What | Where | Format |
 |---|---|---|
-| user settings: chosen folder, theme, custom theme file, UI language, last game, hidden warnings (value name + value) | `%LOCALAPPDATA%\Empire Earth Launcher\settings.json` | JSON (`DataContractJsonSerializer`), `SchemaVersion`, unknown members kept, written as `.tmp` then replaced; damaged file renamed to `settings.json.damaged` and defaults used; a file that cannot be read or has a higher `SchemaVersion` is never overwritten (ADR 0005 amendment) |
+| user settings: chosen folder, theme, custom theme file, UI language, last game, hidden hints (`HiddenHints`: finding and game settings key, values or folder; L-WP5) | `%LOCALAPPDATA%\Empire Earth Launcher\settings.json` | JSON (`DataContractJsonSerializer`), `SchemaVersion`, unknown members kept, written as `.tmp` then replaced; damaged file renamed to `settings.json.damaged` and defaults used; a file that cannot be read or has a higher `SchemaVersion` is never overwritten (ADR 0005 amendment) |
 | server settings: NeoEE host, port, timeout, poll interval | `Empire Earth Launcher.exe.config` next to the program | `applicationSettings` (read-only, admin-editable, as today) |
 | log | `%LOCALAPPDATA%\Empire Earth Launcher\log.txt` | text |
-| backups (`.reg`, moved WON files) | `%LOCALAPPDATA%\Empire Earth Launcher\Backups\<yyyy-MM-dd_HHmmss>_<what>\` | `.reg` (Windows Registry Editor 5.00, UTF-16 LE) and original files |
+| backups (`.reg`, moved WON files) | `%LOCALAPPDATA%\Empire Earth Launcher\Backups\<yyyy-MM-dd_HHmmss>_<what>\` (L-WP5: `display-settings`, `reset-game-settings`, `remove-runasadmin`) | `.reg` (Windows Registry Editor 5.00, UTF-16 LE with BOM, CRLF) per game `<time>_<Product>_<EE|AoC>.reg` or `<time>_Layers.reg`, and original files |
 | exports of saved games | chosen by the user | zip or folder |
 | mod creator working data | `%LOCALAPPDATA%\Empire Earth Launcher\...` (existing) | unchanged |
 
@@ -395,8 +421,9 @@ Decided in [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md):
   (comments removed, entries with `type` or `mimetype` skipped): the same keys in `en`, `de`, `fr`; no empty
   value; the same `{n}` placeholders. A second test checks that image and file entries exist only in the
   neutral resx; further tests check the generated `Resources` class, the project items and the built satellite
-  assemblies. Since L-WP4 the three languages have the same 74 string keys (L-WP3: 53; before: `en` and `fr` 30
-  each and about 50 designer-only texts, [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md), corrected evidence).
+  assemblies. Since L-WP5 the three languages have the same 125 string keys (L-WP4: 74; L-WP3: 53; before: `en` and
+  `fr` 30 each and about 50 designer-only texts, [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md), corrected
+  evidence).
 - German is proof-read by the user in the laptop test; French texts are marked "review open" in
   `docs/TRANSLATING.md` until a French speaker has read them.
 - The UI language follows Windows unless the setting `UiCulture` (Launcher page) chooses one; it is applied at
@@ -459,7 +486,8 @@ Decided in [ADR 0012](adr/0012-test-strategy.md):
 - **Only checkable criteria** ([ADR 0012](adr/0012-test-strategy.md) amendment): "does not block" is a test
   that the async method returns an unfinished task with a blocking fake; performance is counted (file opens,
   hashes), not timed; translation quality and layout are test-plan cases.
-- **Golden files** for `.reg` output and the diagnostics report.
+- **Golden files** for `.reg` output (since L-WP5: `Core/Backup/Golden/`, one file per value type, delete lines,
+  escaping; `.gitattributes` marks `*.reg` binary so that the UTF-16 bytes stay exact) and the diagnostics report.
 - **Windows adapters** (registry, mutex, shell execute, display, HTTP) are thin and checked on real Windows
   by the German test plan `docs/TEST-PLAN.de.md`; the UI is tested manually with it. The test plan is created
   in the first work package and every package adds its cases in the same commit.
@@ -468,7 +496,8 @@ Decided in [ADR 0012](adr/0012-test-strategy.md):
   (`FixtureProvenanceTests`); `docs/contract-samples/` holds byte samples of `install.ini`, `files.sha256` and the
   record, shared with the setup repository; the tests run on the laptop too (`Tests\` in the laptop package,
   category `SourceTree` excluded); `TestPlanTests` checks that the test plan assigns every requirement and every
-  forum test case.
+  forum test case. Implemented in L-WP5: `TestPlanTests`, and the category on every test that reads the source tree,
+  enforced by `RepositoryRoot` (ADR 0012 amendment of L-WP5).
 
 ## 12. Build and CI
 
@@ -567,7 +596,19 @@ change (contract 5); the launcher already implements the stated reading:
   taken over identically by the setup repository, its unit tests compare the writer's bytes with it and
   `ci/compare_contract.py` compares the folder (ADR 0012 plan review). Until then the launcher's copy is a proposal.
 - **Old Windows 7 compatibility values in HKCU**: the launcher only shows them and advises running the setup;
-  letting the launcher remove them would be a contract change (ADR 0007 plan review).
+  letting the launcher remove them would be a contract change (ADR 0007 plan review). Since contract revision 2 it
+  does not show them for an installation whose `Tasks` contain the setup's opt-in task `compatibility_legacy` (3.7
+  MUST NOT, implemented in L-WP5); it offers no switches on Windows 7 although 3.7 now allows the values of that row
+  (MAY), because the setup sets them on request and the plan keeps the launcher's switches to Windows 8 and later.
+- **Backups of class S and of the compatibility switches** (L-WP5): ADR 0007 asks for a backup before every
+  overwrite. Class S is synchronized before every Play (contract 3.6) and logged with old and new value; a `.reg`
+  file per start would fill the backup folder with copies of two derived values. A compatibility switch changes one
+  entry the player chose on the same page and is undone by the same switch (logged with old and new value). Both
+  therefore write no backup; removing `~ RUNASADMIN`, which the launcher cannot add back, and every change of D and P
+  values write one (ADR 0007 amendment of L-WP5).
+- **3.6 Display question**: the contract says the launcher asks once; the launcher asks once per start of the
+  launcher until it is answered (the markers wait for the answer), so a launcher closed without an answer asks again.
+  Proposed wording for the next contract change: "asks until the user answers".
 
 Platform: Windows 8.0 is not supported (.NET 4.8); Windows 7 SP1 is supported but not tested on the laptop
 (optional VM case in the test plan; TLS cipher suites of Windows 7 against `api.empireearth.eu` unknown, the
@@ -598,9 +639,9 @@ of L-WP9 need the results of every tool, and L-WP8 holds the WON login reset, a 
 | L-WP8 | Maintenance tools | registry cleanup by the table of 4.6 (HKCU only, advice never names `Software\Sierra`), WON login reset, VirtualStore, saves and scenarios, name checks, all behind the mutation guard |
 | L-WP9 | Network diagnostics, report, laptop package | adapters, DNS, `NeoEE.cfg`, `upnp_info.txt`, `CDKeyCheck`, outage hint, report with the privacy rules of ADR 0013, final docs, test plan without "offen", Release zip with `Tests\` and SHA-256 |
 
-Done so far: L-WP1 to L-WP4 (see the CHANGELOG). Implementation details of L-WP2 that refine ADR 0004, 0005, 0007
-and 0016, of L-WP3 that refine ADR 0009 and 0014, and of L-WP4 that refine ADR 0004, 0006, 0015 and 0016 are recorded
-in their amendments.
+Done so far: L-WP1 to L-WP5 (see the CHANGELOG). Implementation details of L-WP2 that refine ADR 0004, 0005, 0007
+and 0016, of L-WP3 that refine ADR 0009 and 0014, of L-WP4 that refine ADR 0004, 0006, 0015 and 0016, and of L-WP5
+that refine ADR 0007, 0011, 0012, 0015 and 0016 are recorded in their amendments.
 
 ## 16. Not in v2
 

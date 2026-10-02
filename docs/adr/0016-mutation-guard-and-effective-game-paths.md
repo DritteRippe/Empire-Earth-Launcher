@@ -1,7 +1,7 @@
 # 0016 Mutation guard and effective game paths
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2 and L-WP4; plan review), see the
-Amendment sections
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2 and L-WP4; plan review;
+implementation in L-WP5), see the Amendment sections
 
 ## Context
 
@@ -112,3 +112,16 @@ disk, antivirus scan) fails to delete or replace it with a sharing violation (`D
   (ARCHITECTURE 4.3). A setup holds its mutex from its first window on, long before it copies files.
 - Tests: a fake mutex that appears while a file is hashed -> cancelled, no findings, file closed; no start while
   the mutex exists. Test plan: start a full check, then the setup; the setup runs without an error dialog.
+
+## Amendment 2026-10-02 (implementation, L-WP5)
+
+The game settings are the first actions behind the guard. Every writing action asks it first and returns
+`Blocked(SetupRunning)` or `Blocked(GameRunning)` without any change and without a backup: the defaults at launcher
+start, the first run before Play, the answer to the display question (both answers), the synchronization of class S,
+"Apply recommended display", the reset, switching a compatibility entry and removing `~ RUNASADMIN`. The start writes
+nothing at all while the guard blocks (one log line), and the next discovery tries again. The guard is asked once per
+action, before the backup; the registry work of an action takes milliseconds.
+
+Evidence: `GameDefaultsServiceTests.EveryWritingAction_IsBlockedBySetupAndGame` (7 actions x setup and game mutex,
+14 cases: no change, no backup folder), `CompatibilityOptionsTests.EveryChange_IsBlockedBySetupAndGame` (4 cases),
+`Launcher/GameSettingsModelTests` (the start blocked by a setup).

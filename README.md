@@ -19,6 +19,12 @@ removed and the features behind them are listed below.
 - Detection of every Empire Earth installation: community setups (current and up to 1.7.2, admin, user and
   portable), retail, GOG and copies with their real folders; the *Launcher* page lists them with their state
   (a missing `Empire Earth.exe` shows as damaged) and lets the player choose one or another folder
+- Game settings for your Windows account: the recommended defaults of the community setup for a second Windows
+  account or after a manual install, one question before your display settings are replaced, "Apply recommended
+  display", a reset with a `.reg` backup that restores your previous settings on a double-click, hints when settings
+  do not fit together (bit depths, 16 bit, renderer, window larger than the screen at 150 % scaling, screen lower
+  than 768 pixels, a folder name the game cannot read), and the compatibility options for your account from Windows 8
+  on (*Settings* page; the *Play* page shows a hint bar)
 - Themes (Krypton palette files)
 - English, German and French user interface, following Windows or chosen on the *Launcher* page
   ([docs/TRANSLATING.md](docs/TRANSLATING.md))
@@ -28,7 +34,6 @@ removed and the features behind them are listed below.
 **Coming with v2** (each with its work package, ARCHITECTURE section 15)
 
 - Play Empire Earth or The Art of Conquest safely: detection of a running game or setup, start log, file versions
-- Per-user default game settings, reset with a `.reg` backup, compatibility options
 - Integrity check of the installation and repair advice (CD keys are repaired by re-running the community setup;
   the launcher never touches them)
 - Maintenance tools: registry cleanup of old installations, WON login reset, VirtualStore check, saved games and
@@ -165,10 +170,14 @@ cover:
   test with a case for every rule of contract 1.4 and 1.5, real folders of foreign installations, every form of
   the user choice, one log line per dropped candidate, no write, no duplicates on 32-bit Windows, a discovery that
   does not block its caller, the VirtualStore paths, and the cases of the old game folder tests under their
-  names);
+  names), the `.reg` writer (golden files of every value type in `Core/Backup/Golden/`) and the backup folder, and the
+  game settings (`GameSettings/`: the value table against contract 3.2, the computed values, the marker, the first
+  run, the display question, the reset and the restore of its backup by import, the consistency checks at 100 % and
+  150 % scaling, the hidden hints, the compatibility options and the launcher's write policy, every writing action
+  blocked by a running setup and game);
 - the UI helpers of the launcher (`Launcher/`): `UiOperation`, the "unexpected error" message, the logging of
-  unobserved task exceptions, the texts chosen for results (`Texts`), the UI language applied at start and the
-  installation service;
+  unobserved task exceptions, the texts chosen for results (`Texts`), the UI language applied at start, the
+  installation service and the model of the game settings pages (`GameSettingsModel`);
 - the WON lobby file parser, the NeoEE protocol framing, reply parsing and request deadline (`Won/`), and the mod
   library (`Mod/`: product folders, file types, versions, the working directory of the mod creator, `.eem`
   export/import including damaged archives);
@@ -178,15 +187,19 @@ cover:
   (`WOW6432Node`, registry VirtualStore, `/`, case) and every ancestor, for every operation, and the UI texts:
   the removed placeholder controls stay removed (`PlaceholderControlsTests`), every designer text is set again
   in `ApplyTexts()` (`ApplyTextsTests`), and English, German and French have the same texts, placeholders and
-  built satellite assemblies (`ResourceParityTests`).
+  built satellite assemblies (`ResourceParityTests`); and the test plan (`TestPlanTests`): unique case IDs, the
+  cases of the current work package, every case named in the documents exists, and the mapping of the requirements
+  and forum test cases is complete.
 
 Architecture tests read the project files, `packages.config`, `App.config`, `app.manifest`, the core's sources,
-the launcher's designer files, code and `.resx` files, `docs/CONTRACT.md`, ADR 0014, the CI workflow and the built
-satellite assemblies; they find the source tree by walking up from the test program to
+the launcher's designer files, code and `.resx` files, `docs/CONTRACT.md`, ADR 0014, the test plan and the other
+documents, the CI workflow and the built satellite assemblies (the tests that read the documents carry the category
+`SourceTree`); they find the source tree by walking up from the test program to
 `Empire-Earth.sln`, so run the test program from its build folder inside the repository. The tests use fakes
 (`Fakes/`: in-memory registry with both HKLM views and a 32-bit Windows mode, in-memory file system with Windows
-path rules, mutex probe, clock, logger) and only write below the temporary folder; they never contact a server,
-never touch the real registry or `%LOCALAPPDATA%` and never show UI. Path logic is `WinPath` string logic, so every
+path rules, mutex probe, clock, logger, system information with Windows version, Wine, screen and code page) and
+only write below the temporary folder; they never contact a server, never touch the real registry or
+`%LOCALAPPDATA%` and never show UI. Path logic is `WinPath` string logic, so every
 test also runs under Mono; no test is skipped. The core, the launcher and the WON library make their internal helpers
 visible to the test assembly (`InternalsVisibleTo`).
 
@@ -233,7 +246,13 @@ docs/                             ARCHITECTURE.md (v2 target), CONTRACT.md (shar
                                   TRANSLATING.md (languages, how to translate)
 Empire-Earth-Launcher-Core/       UI-free core library of the launcher (Empire_Earth_Launcher_Core.dll, ADR 0003):
 │                                 only the BCL and the WON library, no WinForms, System.Drawing or Krypton
-├─ Contract/                      Fixed names of docs/CONTRACT.md: products, games, keys, files, contract version
+├─ Contract/                      Fixed names of docs/CONTRACT.md: products, games, keys, files, contract version;
+│                                 CompatibilityLayers (the entries of contract 3.7 and the old values)
+├─ Backup/                        RegFileWriter (.reg files like regedit's), RegistryExport, BackupLocations
+│                                 (%LOCALAPPDATA%\Empire Earth Launcher\Backups, ADR 0007)
+├─ GameSettings/                  Contract 3: GameSettingsTable, ComputedValues, GameDefaultsService (marker, first
+│                                 run, display question, Installed From, reset), ConsistencyChecker, HintVisibility,
+│                                 CompatibilityOptions, LauncherWritePolicy (the launcher's allow-list)
 ├─ Installations/                 Discovery of the installations (contract 1.4): install records, install.ini,
 │                                 uninstall keys, "Installed From" values, launcher folder -> InstallationDiscovery
 │                                 -> Installation with real EE/AoC folders (ADR 0015); EffectivePathResolver
@@ -241,7 +260,8 @@ Empire-Earth-Launcher-Core/       UI-free core library of the launcher (Empire_E
 ├─ Platform/                      Windows behind interfaces (ADR 0006): IRegistry/WindowsRegistry (explicit views),
 │                                 RegistryLocation, RegistryValue, RegistryPath (canonical form), RegistryWritePolicy
 │                                 and PolicyCheckedRegistry (protected keys, allow-list, ADR 0007), IFileSystem/
-│                                 LocalFileSystem, WinPath (Windows path rules), IMutexProbe/WindowsMutexProbe, IClock
+│                                 LocalFileSystem, WinPath (Windows path rules), IMutexProbe/WindowsMutexProbe, IClock,
+│                                 ISystemInfo/WindowsSystemInfo (Windows version, Wine, screen size, code page)
 ├─ Logging/                       ILogger, TraceFileLogger (log file with trimming)
 ├─ Settings/                      LauncherSettings, SettingsStore (settings.json, ADR 0005), LauncherPaths,
 │                                 UiLanguage (the language setting, ADR 0009)
@@ -255,6 +275,7 @@ Empire Earth Launcher/            The launcher (WinForms + Krypton UI)
 ├─ Properties/Resources*.resx     All UI texts: English (neutral), German (.de), French (.fr), and the images
 ├─ IThemeService.cs               Theme interface (implemented by KryptonThemeService.cs)
 ├─ InstallationService.cs         The installations found and the selected one (runs the core's discovery)
+├─ GameSettingsModel.cs           State and actions of the game settings for the Settings and Play pages
 └─ Resources/                     Images and icon used by the UI
 Empire-Earth-WON/                 WON/NeoEE library, no UI (used by the launcher)
 ├─ NeoApiClient.cs                Client for the NeoEE lobby server
@@ -313,7 +334,7 @@ packages/                         NuGet packages, restored on build (not committ
   core library, thin WinForms UI on .NET Framework 4.8), data flows, threading, error handling, logging,
   localization and tests; the decisions behind it are recorded in [docs/adr/](docs/adr/README.md). Until v2 is
   complete, this README describes what exists today.
-- **User settings** (game folder, theme, custom theme file, UI language) are kept in
+- **User settings** (game folder, theme, custom theme file, UI language, hints hidden from the *Play* page) are kept in
   `%LOCALAPPDATA%\Empire Earth Launcher\settings.json` (UTF-8 JSON with a `SchemaVersion`,
   [ADR 0005](docs/adr/0005-own-settings-file-instead-of-user-config.md)), so they survive moving or updating
   the launcher. The file is written as `settings.json.tmp` first and then swapped in, so a crash never leaves
@@ -340,9 +361,22 @@ packages/                         NuGet packages, restored on build (not committ
   background tasks that nobody handled are logged there as well.
 - **Registry**: the core opens every HKLM key with an explicit view (64- or 32-bit) and never depends on the
   launcher's own bitness (contract 0). Every change of the registry passes the write policy of
-  [ADR 0007](docs/adr/0007-registry-write-scope-and-reg-backups.md): only HKCU keys of an allow-list, and never
+  [ADR 0007](docs/adr/0007-registry-write-scope-and-reg-backups.md): only HKCU keys of an allow-list with their
+  value names (`LauncherWritePolicy`: the game settings keys of contract 3.1 with the values of 3.2, the defaults
+  marker, the GPU preference and the compatibility values of the game programs), and never
   `Software\Sierra\CDKeys` (the NeoEE CD keys), the install records or the uninstall keys, in no hive, view or
-  alias. The launcher does not change the registry yet; the game settings follow in a later work package.
+  alias. Nothing is changed while a setup or a game runs (ADR 0016). HKLM is only read.
+- **Game settings** ([contract 3](docs/CONTRACT.md#3-per-user-default-game-settings)): after each search the launcher
+  sets up the recommended game settings for the Windows account that runs it, once per game and account (the
+  marker `HKCU\Software\Empire Earth Community\GameDefaults\<NeoEE|EE>`, values `EE` and `AoC`), but only for an
+  installation that is the only one using its settings key; it creates missing values only, and asks before it
+  replaces display settings that differ. Values outside the table of the contract (player names and the like) are
+  never touched. The *Settings* page shows the state, the hints and the compatibility options; its reset and
+  "Apply recommended display" write a backup first.
+- **Backups**: `%LOCALAPPDATA%\Empire Earth Launcher\Backups\<yyyy-MM-dd_HHmmss>_<action>\` with one `.reg` file per
+  game (`<time>_<NeoEE|EE>_<EE|AoC>.reg`, or `<time>_Layers.reg` for the compatibility values). Double-click a file
+  (or `reg import <file>`) to restore the settings exactly as they were before, including the removal of values the
+  action created. The launcher never deletes backups.
 
 ## 🔨 Contributing
 Pull requests are welcome.\
