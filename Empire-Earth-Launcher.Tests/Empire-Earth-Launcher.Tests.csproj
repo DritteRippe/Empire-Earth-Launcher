@@ -63,6 +63,11 @@
     <Compile Include="Architecture\RegistryAliasPolicyTests.cs" />
     <Compile Include="Architecture\ResourceParityTests.cs" />
     <Compile Include="Core\Contract\ContractNamesTests.cs" />
+    <Compile Include="Core\Installations\GameFoldersTests.cs" />
+    <Compile Include="Core\Installations\InstalledFromReaderTests.cs" />
+    <Compile Include="Core\Installations\InstallInfoFileTests.cs" />
+    <Compile Include="Core\Installations\InstallRecordReaderTests.cs" />
+    <Compile Include="Core\Installations\UninstallKeyScannerTests.cs" />
     <Compile Include="Core\Lobby\LobbyProfileRepositoryTests.cs" />
     <Compile Include="Core\Logging\LogTrimmingTests.cs" />
     <Compile Include="Core\Logging\TraceFileLoggerTests.cs" />
@@ -86,6 +91,8 @@
     <Compile Include="Fakes\InMemoryRegistry.cs" />
     <Compile Include="Fakes\InMemoryRegistryTests.cs" />
     <Compile Include="Fakes\RecordingLogger.cs" />
+    <Compile Include="Fakes\WriteForbiddingFileSystem.cs" />
+    <Compile Include="Fakes\WriteForbiddingRegistry.cs" />
     <Compile Include="Launcher\GameDirectoryLocatorTests.cs" />
     <Compile Include="Launcher\TextsTests.cs" />
     <Compile Include="Launcher\UiLanguageStartupTests.cs" />
@@ -102,6 +109,7 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="TestSupport\ChunkedReadStream.cs" />
+    <Compile Include="TestSupport\InstallationWorld.cs" />
     <Compile Include="TestSupport\ProjectFile.cs" />
     <Compile Include="TestSupport\RepositoryRoot.cs" />
     <Compile Include="TestSupport\TemporaryDirectory.cs" />

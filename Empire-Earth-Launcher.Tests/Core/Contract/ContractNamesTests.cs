@@ -98,6 +98,31 @@ namespace Empire_Earth_Launcher.Tests.Core.Contract
         }
 
         [Test]
+        public void Section1_ValuesOfRecordInstallIniUninstallKeyAndInstalledFrom()
+        {
+            foreach (string name in new[]
+                     {
+                         ContractNames.ContractVersionName, ContractNames.InstallPathName, ContractNames.InstallModeName,
+                         ContractNames.AppIdName, ContractNames.GameVersionName, ContractNames.SetupVersionName,
+                         ContractNames.SetupBuildName, ContractNames.ProductName, ContractNames.ComponentsName,
+                         ContractNames.TasksName, ContractNames.WrittenName, ContractNames.AdminInstallMode,
+                         ContractNames.UserInstallMode, ContractNames.PortableInstallMode, ContractNames.ArtOfConquestComponent,
+                         ContractNames.DirectXWrapperComponent, ContractNames.UninstallAppPathName,
+                         ContractNames.UninstallInstallLocationName, ContractNames.UninstallPublisherName,
+                         ContractNames.UninstallDisplayNameName, ContractNames.UninstallDisplayVersionName,
+                         ContractNames.UninstallComponentsName, ContractNames.UninstallTasksName,
+                         ContractNames.UninstallContractVersionName, ContractNames.InstalledFromVolumeName,
+                         ContractNames.InstalledFromDirectoryName
+                     })
+            {
+                AssertCode(name);
+            }
+            AssertCode(ContractNames.LanguageComponentPrefix + "<language>");
+            AssertCode("[" + ContractNames.MissingAfterInstallSectionName + "]");
+            Assert.That(contract, Does.Contain("[" + ContractNames.InstallInfoSectionName + "]"));
+        }
+
+        [Test]
         public void Products_NeoEEBeforeEE()
         {
             Assert.That(Product.All, Is.EqualTo(new[] { Product.NeoEE, Product.EE }), "contract 1.4: NeoEE before EE");

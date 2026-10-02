@@ -45,6 +45,14 @@
     <Compile Include="Contract\ContractNames.cs" />
     <Compile Include="Contract\Game.cs" />
     <Compile Include="Contract\Product.cs" />
+    <Compile Include="Installations\GameFolders.cs" />
+    <Compile Include="Installations\InstallationEnums.cs" />
+    <Compile Include="Installations\InstalledFromReader.cs" />
+    <Compile Include="Installations\InstallInfoFile.cs" />
+    <Compile Include="Installations\InstallRecordReader.cs" />
+    <Compile Include="Installations\RegistryReads.cs" />
+    <Compile Include="Installations\SetupNameList.cs" />
+    <Compile Include="Installations\UninstallKeyScanner.cs" />
     <Compile Include="Lobby\LobbyProfileRepository.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Logging\TraceFileLogger.cs" />
