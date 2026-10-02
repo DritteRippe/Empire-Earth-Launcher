@@ -77,6 +77,9 @@
     <Compile Include="Core\Contract\ContractSampleTests.cs" />
     <Compile Include="Core\Contract\ContractNamesTests.cs" />
     <Compile Include="Core\Contract\GameTests.cs" />
+    <Compile Include="Core\Diagnostics\AddressClassifierTests.cs" />
+    <Compile Include="Core\Diagnostics\GameConfigReadersTests.cs" />
+    <Compile Include="Core\Diagnostics\UpnpInfoParserTests.cs" />
     <Compile Include="Core\GameSettings\CompatibilityOptionsTests.cs" />
     <Compile Include="Core\GameSettings\ComputedValuesTests.cs" />
     <Compile Include="Core\GameSettings\ConsistencyChecksTests.cs" />
