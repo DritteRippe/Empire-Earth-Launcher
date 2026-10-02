@@ -236,4 +236,5 @@ UI (briefing D6, contract 7).
   its rule samples as it leaves out its own.
 - **The laptop package of L-WP9** (`Empire-Earth-Launcher-v2-L-WP9.zip` with `.sha256`, built in the scratch folder from
   the local Release build like CI, never committed) was checked with `sha256sum -c`, unpacked outside the repository,
-  and its `Tests\` ran with `--where "cat != SourceTree"`: 2891 passed, none failed.
+  and its `Tests\` ran with `--where "cat != SourceTree"`: 2893 passed, none failed (3071 tests in the repository;
+  the 178 others read the source tree). After the package was built, `git status` showed no file in the repository.
