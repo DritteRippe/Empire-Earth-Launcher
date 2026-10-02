@@ -11,21 +11,29 @@ namespace Empire_Earth_Launcher.Tests.Architecture
 {
     /// <summary>
     /// The German test plan <c>docs/TEST-PLAN.de.md</c> (ADR 0012, amendment "plan review"): its case ids are unique, every
-    /// id named in it or in the other documents exists, and its mapping table (section 7) assigns every requirement R1 to
-    /// R10 and R17 and every test case 1 to 22 of the forum report (section 8) to cases, to "offen (L-WPn)" for a later
-    /// work package, or to "Setup:"/"entfällt:" with a reason. From L-WP9 on, nothing may be "offen".
+    /// id named in it or in the other documents exists, every work package up to the one of its line "Stand" has cases, and
+    /// its mapping table (section 7) assigns every requirement R1 to R10 and R17 and every test case 1 to 22 of the forum
+    /// report (section 8) to cases, to "offen (L-WPn)" for a later work package, or to "Setup:"/"entfällt:" with a reason.
+    /// From L-WP9 on, nothing may be "offen" anywhere in the plan, and the table "Vertrag 7" assigns each launcher item of the
+    /// implementation checklist of <c>docs/CONTRACT.md</c> (section 7) to existing cases.
     /// </summary>
     [TestFixture]
     [Category(TestCategories.SourceTree)]
     public class TestPlanTests
     {
         private const string TestPlan = "docs/TEST-PLAN.de.md";
+        private const string Contract = "docs/CONTRACT.md";
+
+        /// <summary>The last work package of the launcher v2; from it on the plan is complete.</summary>
+        private const int LastPackage = 9;
 
         private static readonly Regex CaseId = new Regex(@"^(?:WP\d+-\d{2}|W7-\d{2})$", RegexOptions.CultureInvariant);
         private static readonly Regex CaseReference = new Regex(@"(?<![\w-])(?:WP\d+-\d{2}|W7-\d{2})(?![\w-])", RegexOptions.CultureInvariant);
         private static readonly Regex Open = new Regex(@"^offen \(L-WP(\d+)\)$", RegexOptions.CultureInvariant);
         private static readonly Regex Reason = new Regex(@"^(?:Setup|entfällt): \S.{2,}$", RegexOptions.CultureInvariant);
         private static readonly Regex Stand = new Regex(@"^\| Stand \| Fälle von L-WP1 bis L-WP(\d+)[;| ]", RegexOptions.CultureInvariant);
+        private static readonly Regex OpenAnywhere = new Regex(@"offen \(L-WP\d+\)|[Ww]ird mit L-WP\d+|kommt mit L-WP\d+",
+            RegexOptions.CultureInvariant);
 
         private static readonly string[] RequiredRows =
             new[] { "R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10", "R17" }
@@ -90,6 +98,38 @@ namespace Empire_Earth_Launcher.Tests.Architecture
             return rows;
         }
 
+        /// <summary>The rows of the table "Vertrag 7" (launcher items of the contract checklist): (key, assignment, line).</summary>
+        private static List<Tuple<string, string, int>> ContractRows()
+        {
+            int header = Array.FindIndex(lines, line => line.StartsWith("| Vertrag 7 | Punkt | Zuordnung |", StringComparison.Ordinal));
+            Assert.That(header, Is.GreaterThanOrEqualTo(0), "the test plan has no table Vertrag 7 | Punkt | Zuordnung");
+            var rows = new List<Tuple<string, string, int>>();
+            for (int i = header + 2; i < lines.Length && lines[i].StartsWith("|", StringComparison.Ordinal); i++)
+            {
+                string[] cells = Cells(lines[i]);
+                Assert.That(cells, Has.Length.EqualTo(3), TestPlan + ":" + (i + 1));
+                rows.Add(Tuple.Create(cells[0], cells[2], i + 1));
+            }
+            return rows;
+        }
+
+        /// <summary>The number of launcher items of the implementation checklist (CONTRACT.md section 7, list "Launcher v2").</summary>
+        private static int ContractLauncherItems()
+        {
+            string[] contract = File.ReadAllLines(RepositoryRoot.GetFullPath(Contract));
+            int section = Array.FindIndex(contract, line => line.StartsWith("## 7. Implementation checklist", StringComparison.Ordinal));
+            Assert.That(section, Is.GreaterThanOrEqualTo(0), Contract + " has no section 7. Implementation checklist");
+            int launcher = Array.FindIndex(contract, section, line => line.StartsWith("Launcher v2", StringComparison.Ordinal));
+            Assert.That(launcher, Is.GreaterThan(section), Contract + " section 7 has no list Launcher v2");
+            int items = 0;
+            for (int i = launcher + 1; i < contract.Length && !contract[i].StartsWith("#", StringComparison.Ordinal); i++)
+            {
+                if (contract[i].StartsWith("- ", StringComparison.Ordinal))
+                    items++;
+            }
+            return items;
+        }
+
         /// <summary>The work package the test plan has reached (line "Stand").</summary>
         private static int CurrentPackage()
         {
@@ -109,13 +149,60 @@ namespace Empire_Earth_Launcher.Tests.Architecture
         }
 
         [Test]
-        public void TheCurrentPackage_HasItsCases()
+        public void EveryPackageUpToTheCurrent_HasItsCases()
         {
-            int package = CurrentPackage();
+            int current = CurrentPackage();
+            List<string> ids = DefinedCases().Select(c => c.Item1).ToList();
 
-            Assert.That(DefinedCases().Select(c => c.Item1),
-                Has.Some.StartsWith("WP" + package.ToString(CultureInfo.InvariantCulture) + "-"),
-                "the test plan names L-WP" + package + " in its line Stand, so it has cases WP" + package + "-xx");
+            Assert.That(current, Is.InRange(1, LastPackage));
+            for (int package = 1; package <= current; package++)
+            {
+                Assert.That(ids, Has.Some.StartsWith("WP" + package.ToString(CultureInfo.InvariantCulture) + "-"),
+                    "the test plan names L-WP" + current + " in its line Stand, so it has cases WP" + package + "-xx");
+            }
+        }
+
+        /// <summary>From L-WP9 on, the plan is complete: no "offen (L-WPn)" and no "wird/kommt mit L-WPn" anywhere.</summary>
+        [Test]
+        public void FromTheLastPackageOn_NothingIsOpen()
+        {
+            if (CurrentPackage() < LastPackage)
+                Assert.Ignore("the test plan has not reached L-WP" + LastPackage);
+            var open = OutsideCode(lines).Where(line => OpenAnywhere.IsMatch(line.Item2))
+                                         .Select(line => TestPlan + ":" + line.Item1 + ": " + OpenAnywhere.Match(line.Item2).Value);
+
+            Assert.That(open, Is.Empty);
+        }
+
+        /// <summary>
+        /// Every launcher item of the contract's implementation checklist (section 7) has exactly one row "Launcher n" in the
+        /// table "Vertrag 7", with existing case ids only (ADR 0012, L-WP9).
+        /// </summary>
+        [Test]
+        public void TheContractChecklist_HasEveryLauncherItemOnce()
+        {
+            if (CurrentPackage() < LastPackage)
+                Assert.Ignore("the table Vertrag 7 comes with L-WP" + LastPackage);
+            var defined = new HashSet<string>(DefinedCases().Select(c => c.Item1));
+            List<Tuple<string, string, int>> rows = ContractRows();
+            int items = ContractLauncherItems();
+            var problems = new List<string>();
+            foreach (var row in rows)
+            {
+                string[] ids = row.Item2.Split(',').Select(id => id.Trim()).ToArray();
+                foreach (string id in ids)
+                {
+                    if (!CaseId.IsMatch(id))
+                        problems.Add(TestPlan + ":" + row.Item3 + " (" + row.Item1 + "): \"" + id + "\" is no case id");
+                    else if (!defined.Contains(id))
+                        problems.Add(TestPlan + ":" + row.Item3 + " (" + row.Item1 + "): the case " + id + " does not exist");
+                }
+            }
+
+            Assert.That(items, Is.EqualTo(5), "the contract lists five launcher items; a new one needs a row and this number");
+            Assert.That(rows.Select(row => row.Item1),
+                Is.EqualTo(Enumerable.Range(1, items).Select(n => "Launcher " + n.ToString(CultureInfo.InvariantCulture))));
+            Assert.That(problems, Is.Empty);
         }
 
         /// <summary>Every case id named in the test plan or in another document of the repository is defined.</summary>
@@ -202,6 +289,9 @@ namespace Empire_Earth_Launcher.Tests.Architecture
                 Is.EqualTo(new[] { "WP4-16", "WP5-02" }));
             Assert.That(Open.IsMatch("offen (L-WP7)"), Is.True);
             Assert.That(Open.IsMatch("offen L-WP7"), Is.False);
+            Assert.That(OpenAnywhere.IsMatch("| R7 | Netzwerk | offen (L-WP9) |"), Is.True);
+            Assert.That(OpenAnywhere.IsMatch("Wird mit L-WP9 ausgearbeitet."), Is.True);
+            Assert.That(OpenAnywhere.IsMatch("Bis L-WP8 hieß „offen (L-WPn)“ ...; den Launcher offen lassen"), Is.False);
             Assert.That(Reason.IsMatch("Setup: TP-76 (Firewall)"), Is.True);
             Assert.That(Reason.IsMatch("Setup"), Is.False);
             Assert.That(Reason.IsMatch("entfällt:"), Is.False);

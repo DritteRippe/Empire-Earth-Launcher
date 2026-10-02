@@ -7,7 +7,7 @@ von Krypton und die Texte der Oberfläche ([ADR 0012](adr/0012-test-strategy.md)
 
 | | |
 |---|---|
-| Stand | Fälle von L-WP1 bis L-WP8; jedes weitere Arbeitspaket ergänzt seinen Abschnitt in 5 und die Zuordnung in 7 im selben Commit |
+| Stand | Fälle von L-WP1 bis L-WP9; der Plan ist vollständig: Jede Anforderung und jeder Forum-Testfall ist zugeordnet (Abschnitt 7), kein Paket ist offen |
 | Sprache | Deutsch (die Programmtexte gibt es auf Englisch, Deutsch und Französisch) |
 | Gehört zu | [ARCHITECTURE.md](ARCHITECTURE.md), Abschnitt 11 und 15 |
 
@@ -47,8 +47,9 @@ Inhalt: [1. Voraussetzungen](#1-voraussetzungen) · [2. Paket holen und prüfen]
   (`titan.empireearth.eu`, Port 10005, eingestellt in `Empire Earth Launcher.exe.config`). Ab L-WP7 fragt er nur auf
   Wunsch (Reparatur-Hinweise, „Version prüfen“, „Nach Updates suchen“) per HTTPS `api.empireearth.eu` nach dem
   Download des aktuellen Setups und nach den Versionen; gesendet werden nur die AppId der Installation und die Version
-  (WP7-10 bis WP7-12). Weitere Verbindungen kommen erst mit späteren Arbeitspaketen dazu und stehen dann bei deren
-  Testfällen.
+  (WP7-10 bis WP7-12). Ab L-WP9 kommt nur auf Wunsch die Netzwerkprüfung dazu: Namensauflösung (DNS) der NeoEE-Server,
+  dieselbe Anfrage an den Update-Server und an den Statusserver; kein Dienst für die öffentliche Adresse, nichts an die
+  Ports 10002/10003 (WP9-01). Weitere Verbindungen gibt es nicht.
 
 ## 2. Paket holen und prüfen
 
@@ -65,7 +66,8 @@ kommt nicht ins Repository. Es besteht aus zwei Dateien:
 
 Pakete ab L-WP6 enthalten zusätzlich den Ordner `Tests\` mit dem Testprogramm `Empire-Earth-Launcher.Tests.exe` und
 seinen Bibliotheken (ohne Quelltexte), damit die automatischen Tests einmal unter dem echten .NET Framework 4.8
-laufen (WP1-11; [ADR 0012](adr/0012-test-strategy.md), Ergänzung nach der Planprüfung).
+laufen (WP1-11; [ADR 0012](adr/0012-test-strategy.md), Ergänzung nach der Planprüfung). Das Paket für den Laptop-Test nach
+L-WP9 heißt `Empire-Earth-Launcher-v2-L-WP9.zip`; sein Inhalt wird in WP9-15 geprüft.
 
 Beide Dateien kommen als Dateianhang aus der Claude-Sitzung (oder per USB-Stick) auf den Laptop. Vor dem
 Entpacken die Prüfsumme vergleichen:
@@ -134,7 +136,10 @@ Der Export der Spielstände (ab L-WP8) schreibt nur in den Ordner, den man wähl
 `Empire Earth saves <yyyy-MM-dd_HHmmss>`), nie unter `%LOCALAPPDATA%\Empire Earth Launcher\`.
 
 Datenschutz: `log.txt` enthält Pfade mit dem Benutzernamen; vor dem Weitergeben ansehen. Der Ordner `Backups`
-enthält ab L-WP8 Login-Daten des Spiels (WON-Dateien) und wird nie weitergegeben.
+enthält ab L-WP8 Login-Daten des Spiels (WON-Dateien) und wird nie weitergegeben. Für das Forum ist ab L-WP9 der
+Diagnosebericht gedacht (*Werkzeuge* → „Bericht kopieren“ oder „Bericht speichern ...“): Er ersetzt Benutzer- und
+Rechnernamen, zeigt keine MAC- oder öffentliche IP-Adresse, keine Spielernamen und keine CD-Keys (WP9-11). Gespeichert wird
+er nur in die Datei, die man wählt, nie in einen Spielordner.
 
 ## 4. Ergebnisse festhalten
 
@@ -400,7 +405,41 @@ oder hatte, macht WP8-02 zuerst, vor allen Fällen, die Schlüssel anlegen.
 
 ### L-WP9 – Netzwerkdiagnose, Bericht, Laptop-Paket
 
-Wird mit L-WP9 ergänzt.
+Die Seite *Werkzeuge* endet mit zwei neuen Abschnitten. „Netzwerk“ prüft nur auf Knopfdruck (oder über den Link der Seite
+*Spielen*): die Netzwerkadapter dieses Rechners (Typ, Treibername, IPv4 mit Gateway, IPv6 nur als „keine“/„nur
+Link-local“/„vorhanden“, virtuelle und VPN-Adapter markiert), die Namensauflösung (DNS) des NeoEE-Statusservers und des
+Servers aus `NeoEE.cfg`, den Update-Server (`api.empireearth.eu`, gesendet wird nur die AppId wie in WP7-12), den
+NeoEE-Statusserver (dieselbe Anfrage wie die Spielerliste), `NeoEE.cfg` und `WONLobby.cfg` beider Spielordner (nur lesend)
+mit der Tabelle der Portweiterleitung und `upnp_info.txt`. Daraus entstehen das Ergebnis (zum Beispiel „Vermutlich ein
+Serverausfall, nicht Ihr PC“) und Hinweise. Der Launcher fragt keinen Dienst nach der öffentlichen Adresse und verbindet sich
+nie mit den Ports 10002/10003 von NeoEE. „Diagnosebericht“ kopiert einen englischen Text mit allem, was der Launcher gefunden
+hat, in die Zwischenablage oder speichert ihn; er enthält keine CD-Keys, keine Login-Daten, keine Spielernamen, keine MAC-
+oder öffentliche IP-Adresse und keinen Benutzer- oder Rechnernamen, und der Launcher sendet ihn nie. Auf der Seite *Spielen*
+steht unter einer Spielerliste „Spieler online (nicht verfügbar)“ der Link „Warum? Netzwerk prüfen“.
+
+Vorbereitung: `ipconfig /all` und `getmac` in einer Eingabeaufforderung ausführen und die Ausgabe **nur lokal** aufheben
+(sie enthält MAC-Adressen und Namen; nicht ins Protokoll kopieren), dazu den eigenen Benutzernamen (`echo %USERNAME%`) und
+Rechnernamen (`hostname`). Für WP9-05 und WP9-06 die Datei `Empire Earth Launcher.exe.config` im entpackten Ordner vorher
+kopieren. Die Fälle nennen die deutschen Texte.
+
+| Fall | Schritte | Erwartet |
+|---|---|---|
+| WP9-01 | R7, Netzwerkadapter: Launcher starten, *Werkzeuge* → „Netzwerk prüfen“. Ergebnis mit `ipconfig /all` vergleichen. | Höchstens etwa 20 Sekunden „Das Netzwerk wird geprüft ...“, das Fenster bleibt bedienbar. Danach „Der NeoEE-Server antwortet (… Spieler online). …“ und im Textfeld je Adapter eine Zeile wie `Ethernet „Intel(R) …“: IPv4 192.168.178.20/24, Gateway 192.168.178.1, IPv6 nur Link-local`: Typ, Treibername (wie „Beschreibung“ in `ipconfig /all`), IPv4-Adresse, Präfix und Gateway stimmen; der Adaptername aus `ipconfig` (z. B. „Ethernet 2“, „WLAN“) und die MAC-Adresse stehen **nicht** da. Dazu „Namensauflösung titan.empireearth.eu: OK“, „Update-Server: antwortet (HTTP 200)“, „NeoEE-Statusserver titan.empireearth.eu:10005: antwortet, … Spieler online“. `log.txt`: Zeilen `Network diagnostics: …` und genau eine `Update API: GET https://api.empireearth.eu/setup/?product=<AppId>: …`. |
+| WP9-02 | R7, Forum 4.10 und Forenbericht Abschnitt 8 Testfall 12 (Netzwerkadapter): mit einem verbundenen VPN, Hamachi oder einem virtuellen Adapter (VirtualBox, Hyper-V) „Netzwerk prüfen“. Dann im Spiel unter „Mehrspieler → Optionen“ und in den Lobby-Optionen den Netzwerkadapter ansehen und ein Spiel hosten. Sammelaufgabe (t=32479): vor und nach dem Ändern der Adapterwahl im Spiel `reg export "HKCU\Software\Neo" "%TEMP%\neo-adapter-vorher.reg"` bzw. `…-nachher.reg` und `fc` der beiden Dateien; ebenso `_wonlobbypersistent.dat` (Größe/Änderungszeit) vergleichen. | Der virtuelle Adapter trägt „, virtuell oder VPN“; Hinweis „… virtuelle oder VPN-Adapter sind verbunden …“ mit dem Rat, in Lobby und Spiel denselben echten Adapter zu wählen. Eine öffentliche oder Hamachi-Adresse (25.x.x.x) erscheint nur als „öffentliche Adresse“. Notieren: welche Adapter das Spiel anbietet, ob das gehostete Spiel in der Lobby erscheint, ob etwas abstürzt (t=1576, t=3128), und **wo die Adapterwahl gespeichert wird** (geänderter Registry-Wert oder Datei; offener Punkt in ARCHITECTURE 14). |
+| WP9-03 | R7: Kabel und WLAN gleichzeitig verbunden, „Netzwerk prüfen“. | Hinweis „2 Netzwerkadapter sind mit einem Gateway verbunden …“; die Zeile der Portweiterleitung nennt „… an die IPv4-Adresse dieses Rechners“ statt einer Adresse. Mit nur einem Adapter steht dort dessen IPv4-Adresse (wie in `ipconfig`). |
+| WP9-04 | R7, Forenbericht Abschnitt 8 Testfall 20 (ohne Netz): Flugmodus ein (oder Kabel ziehen und WLAN aus), „Netzwerk prüfen“; danach Netz wieder ein. | „Dieser Rechner scheint keine Internetverbindung zu haben: …“ und der Hinweis „Kein verbundener Netzwerkadapter hat ein IPv4-Gateway …“; „Namensauflösung …: fehlgeschlagen“ oder „keine Antwort“, „Update-Server: keine Antwort (keine Verbindung)“ oder „… (keine Antwort innerhalb von 10 Sekunden)“. Kein Fehlerdialog, das Fenster bleibt bedienbar. |
+| WP9-05 | Ausfall-Hinweis (Forenbericht Abschnitt 8 Zeile 9, nicht streichbar): Launcher schließen, in `Empire Earth Launcher.exe.config` den Wert von `NeoServerPort` von `10005` auf `10099` ändern (ein Port, auf dem der Server nicht antwortet), Launcher starten, Seite *Spielen* etwa 30 Sekunden offen lassen; dann auf „Warum? Netzwerk prüfen“ klicken. Danach die Kopie der `.exe.config` zurücklegen. | *Spielen*: „Spieler online (nicht verfügbar)“ und darunter der Link „Warum? Netzwerk prüfen“. Der Klick öffnet *Werkzeuge* am Abschnitt „Netzwerk“ und startet die Prüfung; Ergebnis: „Vermutlich ein Serverausfall, nicht Ihr PC: Die Servernamen werden aufgelöst und der Update-Server antwortet, aber der NeoEE-Server nicht. …“. Mit der zurückgelegten Datei verschwindet der Link, sobald die Liste wieder kommt. `log.txt`: `Network diagnostics: probably a server outage, not this computer …`. |
+| WP9-06 | R7: wie WP9-05, aber `NeoServerHost` auf `gibtesnicht.empireearth.eu` setzen (Port wieder 10005); „Netzwerk prüfen“. Optional (als Administrator): eine ausgehende Firewall-Regel nur für `Empire Earth Launcher.exe` (`netsh advfirewall firewall add rule name="EE-Launcher-Test" dir=out action=block program="<Pfad>\Empire Earth Launcher.exe"`), prüfen, danach `netsh advfirewall firewall delete rule name="EE-Launcher-Test"`. Am Ende die Kopie der `.exe.config` zurücklegen. | Falscher Name: „Der Update-Server antwortet, aber der Name gibtesnicht.empireearth.eu des NeoEE-Servers lässt sich nicht auflösen. …“. Mit der Firewall-Regel: „Kein Server antwortet, obwohl die Namen aufgelöst werden. Vielleicht blockiert eine Firewall …“. |
+| WP9-07 | R7 ohne Community-Installation (nur wenn eine CD-/GOG-Installation oder Kopie gewählt ist und keine Installation des Community-Setups existiert, sonst „nicht geprüft“): „Netzwerk prüfen“. | „Update-Server: nicht gefragt (keine Installation des Community-Setups mit AppId)“; im Protokoll keine Zeile `Update API: GET`. Antwortet der Statusserver nicht, lautet das Ergebnis „… Ob er ausgefallen ist, lässt sich nicht sagen …“. |
+| WP9-08 | R7, Forum 4.9 und Forenbericht Abschnitt 8 Testfall 11 (Hosting): NeoEE-Installation, „Netzwerk prüfen“; `NeoEE.cfg` und `WONLobby.cfg` beider Spielordner im Editor ansehen. Dann ein Standardspiel über NeoEE hosten (RIP-Hosting, ohne Portweiterleitung) und, wenn möglich, ein Szenario oder einen Spielstand mit Portweiterleitung nach der angezeigten Tabelle; optional zwei Rechner hinter einem Router (t=3320, t=3340). | Zeilen „Empire Earth, NeoEE.cfg: RIP-Hosting an, Server titan.neoee.net, Spielport 33334, Relay-Ports 33340, Portprüfung an, UPnP an“ und „…, WONLobby.cfg: CDKeyCheck true, Dateiübertragungsport 33335, Lobby-Port 33336“ mit denselben Werten wie die Dateien; „Namensauflösung“ auch für den Server aus `NeoEE.cfg`; „Portweiterleitung zum Hosten (Empire Earth, The Art of Conquest): 33334 TCP+UDP, 33335 TCP, 33336 TCP+UDP an <IPv4 dieses Rechners>“. Ergebnisse des Hostens notieren (Ping, „RIP“, Beitritt). Die Dateien sind danach unverändert (Änderungsdatum im Explorer). |
+| WP9-09 | Forenbericht Abschnitt 8 Testfall 13 (`CDKeyCheck`) und RIP-Hosting aus: Als Administrator `NeoEE.cfg` und `WONLobby.cfg` des Ordners `Empire Earth` sichern (kopieren) und dann `Active: false` bzw. `CDKeyCheck: false` eintragen. „Netzwerk prüfen“. Danach beide Sicherungen zurückkopieren. | Hinweise „NeoEE.cfg von Empire Earth: Das RIP-Hosting ist ausgeschaltet (Active: false). …“ und „WONLobby.cfg von Empire Earth: CDKeyCheck ist nicht true. … Community-Setup als Reparatur …“. Der Launcher bietet keine Änderung der Dateien an; ihre Änderungszeit bleibt (nur gelesen). Bei einer EE-Installation ohne NeoEE gibt es zu `CDKeyCheck: false` keinen Hinweis. |
+| WP9-10 | Sammelaufgabe `upnp_info.txt` (ARCHITECTURE 14, Format unbekannt): nach dem Hosten aus WP9-08 im Spielordner und im VirtualStore (`%LOCALAPPDATA%\VirtualStore\…\Empire Earth`) nach `upnp_info.txt` suchen; „Netzwerk prüfen“. Wenn die Datei existiert: ihren Inhalt ins Protokoll kopieren und **die externe IP-Adresse durch `x.x.x.x` ersetzen**. Router und Anschlussart notieren (DSL, Kabel, Glasfaser; laut Router „DS-Lite“ oder „IPv4“). | Zeile „Empire Earth, upnp_info.txt: …“: „nicht vorhanden“, „unbekanntes Format“ oder „externe Adresse <Klasse>, lokale Adresse …“ – nie die externe Adresse selbst. Bei einem DS-Lite- oder CGNAT-Anschluss erscheint ein Hinweis zu DS-Lite bzw. Carrier-Grade-NAT (t=11057 p=48100), bei einem zweiten Router davor einer zu doppeltem NAT. Ergebnis und Dateiinhalt (anonymisiert) sind die Belege für den Parser. |
+| WP9-11 | Diagnosebericht prüfen (ADR 0013, Ergänzung nach der Planprüfung): nach WP9-01 *Werkzeuge* → „Bericht kopieren“, in Notepad einfügen und lesen. Mit Strg+F nach dem eigenen Benutzernamen, dem Rechnernamen (`hostname`), den MAC-Adressen und Adapternamen aus der Vorbereitung, der öffentlichen IP-Adresse (Router-Oberfläche) und nach eigenen Spieler- und Lobby-Profilnamen suchen. | „Der Bericht wurde in die Zwischenablage kopiert; er steht unten.“; der Text steht auch im Textfeld. Er enthält: Launcher- und Windows-Version, Bildschirm, die Installationen mit Ordnern, Dateiversionen, Integrität mit Befunden, Standardwerte, Hinweise der Einstellungen, VirtualStore, „CD keys: … exists/missing“ ohne Werte, die Netzwerkprüfung. **Keiner** der gesuchten Werte kommt vor; Pfade unter dem Benutzerordner beginnen mit `%USERPROFILE%` oder `%LOCALAPPDATA%`, andere Vorkommen des Benutzernamens als Ordner stehen als `<user>`, Spielernamen nur als „EE lobby profile 1: characters outside printable ASCII“. |
+| WP9-12 | „Bericht speichern ...“ in `Dokumente`; dann noch einmal mit dem Spielordner als Ziel. Datei in Notepad öffnen. | Vorgeschlagener Name „Empire Earth Launcher Bericht <Datum>.txt“; „Der Bericht wurde gespeichert: …“; Notepad zeigt denselben Text mit Umlauten korrekt (UTF-8). Im Spielordner: „Der Bericht wird nicht in einem Spielordner oder im Installationsordner gespeichert …“, keine Datei dort. `log.txt`: `Diagnostics report: saved to %USERPROFILE%\Documents\…` bzw. `not saved into the installation`. |
+| WP9-13 | Datenschutz im Protokoll: nach WP9-01 bis WP9-12 `log.txt` nach den Werten aus WP9-11 durchsuchen (Benutzername nur in den Zeilen, die nicht mit `Network diagnostics:` oder `Diagnostics report:` beginnen, ist erlaubt). | In den Zeilen `Network diagnostics: …` und `Diagnostics report: …` keine MAC, kein Adaptername, keine öffentliche oder externe IP-Adresse, keine IPv6-Adresse, kein Benutzer- oder Rechnername; `upnp_info.txt` nur mit „external address <Klasse>“. |
+| WP9-14 | Seiten *Werkzeuge* (Abschnitte „Netzwerk“ mit Ergebnis, Hinweisen und Textfeld, „Diagnosebericht“ mit Textfeld) und *Spielen* (mit dem Link aus WP9-05) auf Deutsch, Englisch und Französisch, je bei 100 % und 150 %; Screenshots. | Nichts abgeschnitten oder überlappend; der Link „Warum? Netzwerk prüfen“ ist vollständig lesbar und liegt über der leeren Spielerliste; die Seite *Werkzeuge* scrollt bis zum Bericht. Deutsche Texte gegenlesen wie in WP3-03; französische Texte notieren, die unklar wirken. |
+| WP9-15 | Laptop-Paket (Abschnitt 2.1): Zip öffnen und den Inhalt ansehen; WP1-11 mit diesem Paket ausführen. | Ordner `Empire-Earth-Launcher\` (mit `de\`, `fr\`, `Empire_Earth_Launcher_Core.dll`), `Empire-Earth-Mod-Creator\`, `Tests\`, dazu `LICENSE`, `THIRD-PARTY-NOTICES.md`, `THIRD-PARTY-LICENSES.txt`; die Prüfsumme stimmt (WP1-02); WP1-11: `Failed: 0`, Exit-Code 0. |
+| WP9-16 | Nach allen Fällen `log.txt` durchsehen. | Keine `Unhandled exception`, keine `A background task failed`; jede Prüfung beginnt mit `Network diagnostics: started on request.` und endet mit einer Zeile mit dem Ergebnis; keine Netzwerkprüfung ohne Klick (keine solche Zeile beim Start). |
 
 ## 6. Optional: Windows 7 SP1 in einer VM
 
@@ -418,15 +457,16 @@ verlangt Microsoft, dass das Stammzertifikat „Microsoft Root Certificate Autho
 | W7-03 | `log.txt` öffnen. | Startzeilen wie in WP1-04, keine weiteren `Error`-Zeilen als dort genannt. |
 | W7-04 | Mod-Creator starten. | „You are using: Windows 7“. |
 | W7-05 | Ab L-WP7: Reparatur-Hinweis öffnen bzw. Update-Prüfung starten. | Entweder Antwort von `api.empireearth.eu` (TLS 1.2) oder die feste Seite `https://empireearth.eu/download`; `log.txt` nennt bei der Ersatzseite den Grund (z. B. TLS-Handshake). |
+| W7-06 | Ab L-WP9: *Werkzeuge* → „Netzwerk prüfen“, „Bericht kopieren“. | Adapterzeilen wie in WP9-01 (auch unter Windows 7 ohne Adapternamen und MAC); „Update-Server: antwortet“ oder „keine Antwort (die sichere Verbindung ist fehlgeschlagen)“ bei fehlendem TLS 1.2 – dann lautet das Ergebnis nicht „Serverausfall“; der Bericht nennt „Windows: NT 6.1.7601, …“. |
 
 ## 7. Zuordnung der Anforderungen und Forum-Testfälle
 
 Jede Anforderung R1 bis R10 und R17 der v2-Planung und jeder Testfall für echtes Windows aus dem Forenbericht
-(Abschnitt 8, Nummern 1 bis 22) ist hier Fällen dieses Plans zugeordnet. „offen (L-WPn)“ heißt: Die Fälle kommen mit
-diesem Arbeitspaket. „Setup:“ heißt: Der Fall gehört (auch) in den Testplan des Setup-Repositorys, mit dessen
-Fall-IDs; „entfällt:“ nennt den Grund. Mehrere Angaben sind durch `;` getrennt. Ein automatischer Test
-(`TestPlanTests`) prüft die Tabelle: jede Zeile genau einmal, jede genannte Fall-ID existiert, „offen“ nur für
-Pakete nach dem Stand dieses Plans und ab L-WP9 gar nicht mehr.
+(Abschnitt 8, Nummern 1 bis 22) ist hier Fällen dieses Plans zugeordnet. „Setup:“ heißt: Der Fall gehört (auch) in den
+Testplan des Setup-Repositorys, mit dessen Fall-IDs; „entfällt:“ nennt den Grund. Mehrere Angaben sind durch `;`
+getrennt. Bis L-WP8 hieß „offen (L-WPn)“, dass die Fälle mit diesem Arbeitspaket kommen; seit L-WP9 ist keine Zeile mehr
+offen. Ein automatischer Test (`TestPlanTests`) prüft die Tabelle: jede Zeile genau einmal, jede genannte Fall-ID
+existiert, kein „offen“ mehr, und jede Zeile „Setup:“ oder „entfällt:“ hat einen Grund.
 
 | Bezug | Thema | Zuordnung |
 |---|---|---|
@@ -436,11 +476,11 @@ Pakete nach dem Stand dieses Plans und ab L-WP9 gar nicht mehr.
 | R4 | Spieleinstellungen zurücksetzen mit `.reg`-Sicherung | WP5-08, WP5-09, WP5-10, WP5-11 |
 | R5 | Registry-Bereinigung | WP8-01, WP8-02, WP8-03, WP8-04, WP8-05, WP8-13 |
 | R6 | WON-Login zurücksetzen | WP8-06, WP8-07, WP8-14 |
-| R7 | Netzwerkdiagnose | offen (L-WP9) |
+| R7 | Netzwerkdiagnose | WP9-01, WP9-02, WP9-03, WP9-04, WP9-05, WP9-06, WP9-07, WP9-08, WP9-09, WP9-10, WP9-13 |
 | R8 | VirtualStore | WP4-16, WP8-08, WP8-09, WP8-11 |
 | R9 | Reparatur über das Setup | WP6-05, WP6-06, WP6-10, WP6-11, WP7-02, WP7-04, WP7-12 |
 | R10 | Spielstände und Szenarien | WP8-09, WP8-10, WP8-11, WP8-12 |
-| R17 | Texte auf Englisch, Deutsch, Französisch | WP3-01, WP3-03, WP3-11, WP3-12, WP4-17, WP5-17, WP6-14, WP7-14, WP8-15 |
+| R17 | Texte auf Englisch, Deutsch, Französisch | WP3-01, WP3-03, WP3-11, WP3-12, WP4-17, WP5-17, WP6-14, WP7-14, WP8-15, WP9-14 |
 | Forum 1 | Frische Installation, Standardnutzer, zweites Konto | WP4-06, WP4-16, WP5-02, WP8-08, WP8-11; Setup: TP-41, TP-71 (Installation und Rechte) |
 | Forum 2 | Versionsanzeige, Mehrspieler ohne Versionskonflikt | WP6-02, WP7-10, WP7-11; Setup: TP-70, TP-72 (Version im Hauptmenü) |
 | Forum 3 | Grafikmatrix mit und ohne Wrapper | WP5-05; Setup: TP-23 (Wrapper und Renderer installiert das Setup) |
@@ -451,15 +491,27 @@ Pakete nach dem Stand dieses Plans und ab L-WP9 gar nicht mehr.
 | Forum 8 | Alt-Installation (CD, GOG) vorhanden | WP4-08, WP4-15, WP8-02, WP8-04 |
 | Forum 9 | EE und NeoEE parallel, eines deinstallieren | WP4-12; Setup: TP-62, TP-75 (Deinstallation) |
 | Forum 10 | Firewall beim Hosten | Setup: TP-76 (Firewall-Regeln legt nur das Setup an, der Launcher ändert die Firewall nicht) |
-| Forum 11 | Hosting-Varianten, Portweiterleitung | offen (L-WP9) |
-| Forum 12 | Netzwerkadapter (VPN, Hamachi) | offen (L-WP9) |
-| Forum 13 | CD-Keys: Server gesperrt, VM, `CDKeyCheck` | WP8-01; offen (L-WP9); Setup: TP-77 (nur das Setup registriert CD-Keys) |
+| Forum 11 | Hosting-Varianten, Portweiterleitung | WP9-08, WP9-10; Setup: TP-76 (Firewall-Regeln für das Hosten legt das Setup an) |
+| Forum 12 | Netzwerkadapter (VPN, Hamachi) | WP9-02, WP9-03 |
+| Forum 13 | CD-Keys: Server gesperrt, VM, `CDKeyCheck` | WP8-01, WP9-09, WP9-11; Setup: TP-77 (nur das Setup registriert CD-Keys) |
 | Forum 14 | Antivirus löscht Dateien | WP4-13, WP6-10, WP7-02; Setup: TP-50 (Hinweis am Ende der Installation) |
 | Forum 15 | Offline, nur Spiegel, manipulierter Download | Setup: TP-00, TP-10, TP-11, TP-16 (Downloads macht nur das Setup) |
 | Forum 16 | Sprachen: Deutsch für EE und AoC | Setup: TP-78 (Sprachdateien des Spiels installiert das Setup) |
 | Forum 17 | Spielstände im Mehrspieler, Namen mit Sonderzeichen | WP8-09, WP8-10, WP8-12 |
 | Forum 18 | Laufende Instanz | WP5-10, WP6-07, WP6-08, WP8-07, WP8-13; Setup: TP-79 |
 | Forum 19 | Kampagnen-Tribut | entfällt: Spiellogik der Spieldateien, die weder Launcher noch Setup ändern |
-| Forum 20 | Launcher: Spielerliste ohne Netz, beschädigte Einstellungen, Pfad mit Umlauten | WP1-04, WP2-05, WP5-19, WP6-12 |
+| Forum 20 | Launcher: Spielerliste ohne Netz, beschädigte Einstellungen, Pfad mit Umlauten | WP1-04, WP2-05, WP5-19, WP6-12, WP9-04, WP9-05 |
 | Forum 21 | GOG als Basis | WP4-08; Setup: TP-63 |
 | Forum 22 | NeoEE-Wartungsmodus über kaputter Installation | WP6-11; Setup: TP-73 (die Reparatur macht das Setup) |
+
+Die Launcher-Punkte der Implementierungs-Checkliste des Vertrags ([CONTRACT.md](CONTRACT.md), Abschnitt 7) sind ebenso
+Fällen zugeordnet; `TestPlanTests` prüft, dass jeder der fünf Punkte genau eine Zeile mit existierenden Fall-IDs hat. Die
+automatischen Tests dazu nennt die abgehakte Checkliste in [ARCHITECTURE.md](ARCHITECTURE.md), Abschnitt 15.
+
+| Vertrag 7 | Punkt | Zuordnung |
+|---|---|---|
+| Launcher 1 | Erkennung mit allen fünf Quellen, Setups bis 1.7.2, fremde und beschädigte Installationen, Zusammenführen (1.4) | WP4-02, WP4-03, WP4-04, WP4-05, WP4-06, WP4-07, WP4-08, WP4-10, WP4-13, WP4-15 |
+| Launcher 2 | Manifest lesen und prüfen: BOM, CRLF, ungültige Zeilen, Pfade außerhalb, Klassen, Zustände, Uninstall-Regel (2) | WP7-01, WP7-02, WP7-03, WP7-05, WP7-06, WP7-07, WP7-08, WP7-09, WP7-13 |
+| Launcher 3 | Standardwerte, Marker, Konsistenzprüfungen, Zurücksetzen mit Sicherung (3) | WP5-01, WP5-02, WP5-03, WP5-04, WP5-05, WP5-06, WP5-08, WP5-09, WP5-15 |
+| Launcher 4 | Reparatur-Übergabe und Versionsprüfung mit den URL-Fällen des Setups (4) | WP6-10, WP6-11, WP7-02, WP7-10, WP7-11, WP7-12, W7-05 |
+| Launcher 5 | Setup- und Spiel-Mutexe: kein Start, kein Lesen von `install.ini`/Manifest und keine Prüfung während eines Setups, laufende Prüfung abgebrochen, Freigabemodi; Start per Shell (4.2) | WP6-01, WP6-05, WP6-06, WP6-07, WP6-09, WP7-04 |
