@@ -86,6 +86,7 @@
     </Compile>
     <Compile Include="GameSettingsModel.cs" />
     <Compile Include="InstallationService.cs" />
+    <Compile Include="IntegrityModel.cs" />
     <Compile Include="IThemeService.cs" />
     <Compile Include="PlayModel.cs" />
     <Compile Include="Program.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="Texts.cs" />
     <Compile Include="UiOperation.cs" />
     <Compile Include="UnexpectedError.cs" />
+    <Compile Include="UpdateModel.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

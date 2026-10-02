@@ -145,12 +145,14 @@
     <Compile Include="Fakes\WriteForbiddingRegistry.cs" />
     <Compile Include="Launcher\GameSettingsModelTests.cs" />
     <Compile Include="Launcher\InstallationServiceTests.cs" />
+    <Compile Include="Launcher\IntegrityModelTests.cs" />
     <Compile Include="Launcher\PlayModelTests.cs" />
     <Compile Include="Launcher\SingleInstanceStartupTests.cs" />
     <Compile Include="Launcher\TextsTests.cs" />
     <Compile Include="Launcher\UiLanguageStartupTests.cs" />
     <Compile Include="Launcher\UiOperationTests.cs" />
     <Compile Include="Launcher\UnexpectedErrorTests.cs" />
+    <Compile Include="Launcher\UpdateModelTests.cs" />
     <Compile Include="Mod\ModArchiveTests.cs" />
     <Compile Include="Mod\ModAssetsTests.cs" />
     <Compile Include="Mod\ModDataTests.cs" />
