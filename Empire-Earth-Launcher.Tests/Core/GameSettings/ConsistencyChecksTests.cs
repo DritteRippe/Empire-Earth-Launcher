@@ -202,6 +202,50 @@ namespace Empire_Earth_Launcher.Tests.Core.GameSettings
             Assert.That(findings.Select(f => f.Code), Is.EqualTo(new[] { FindingCode.InstalledFromNotOnADrive }));
         }
 
+        /// <summary>
+        /// A game folder with characters outside the ANSI code page (ADR 0015, forum report section 8 test case 20): an
+        /// information hint per game, hidden per folder.
+        /// </summary>
+        [TestCase(@"C:\Παιχνίδια\Empire Earth")]
+        [TestCase(@"D:\Игры\Empire Earth")]
+        [TestCase(@"E:\游戏\Empire Earth")]
+        public void FolderOutsideTheAnsiCodePage_HasAFinding(string folder)
+        {
+            w = new GameSettingsWorld();
+            w.World.AddEmpireEarth(folder);
+            Installation installation = w.Discover(folder).Selected;
+
+            ConsistencyFinding finding = new ConsistencyChecker(w.Registry, w.FileSystem, w.SystemInfo).Check(installation).Single();
+
+            Assert.That(finding.Code, Is.EqualTo(FindingCode.FolderOutsideAnsiCodePage));
+            Assert.That(finding.Game, Is.EqualTo(Game.EmpireEarth));
+            Assert.That(finding.HintValues, Is.EqualTo(folder));
+        }
+
+        /// <summary>Umlauts are in the ANSI code page of a German or French Windows: no hint (WP5-19).</summary>
+        [Test]
+        public void FolderWithUmlauts_InTheAnsiCodePage_NoFinding()
+        {
+            w = new GameSettingsWorld();
+            w.World.AddEmpireEarth(@"C:\Spiele\Ägypten\Empire Earth");
+
+            Assert.That(new ConsistencyChecker(w.Registry, w.FileSystem, w.SystemInfo).Check(w.Discover(@"C:\Spiele\Ägypten\Empire Earth").Selected),
+                Is.Empty);
+        }
+
+        /// <summary>The same folder on a Windows whose ANSI code page lacks the umlauts (e.g. Greek, 1253): the hint.</summary>
+        [Test]
+        public void FolderWithUmlauts_OutsideAnotherAnsiCodePage_HasAFinding()
+        {
+            w = new GameSettingsWorld(new FakeSystemInfo { IsAnsiCharacter = c => c < 0x80 || (c >= 0x0386 && c <= 0x03CE) });
+            w.World.AddEmpireEarth(@"C:\Spiele\Ägypten\Empire Earth");
+
+            IReadOnlyList<ConsistencyFinding> findings =
+                new ConsistencyChecker(w.Registry, w.FileSystem, w.SystemInfo).Check(w.Discover(@"C:\Spiele\Ägypten\Empire Earth").Selected);
+
+            Assert.That(findings.Select(f => f.Code), Is.EqualTo(new[] { FindingCode.FolderOutsideAnsiCodePage }));
+        }
+
         [Test]
         public void TheChecksOnlyRead()
         {

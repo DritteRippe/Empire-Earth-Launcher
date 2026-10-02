@@ -488,6 +488,15 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0}: the folder {1} contains characters that Windows does not have for non-Unicode programs such as [rest of string was truncated].
+        /// </summary>
+        internal static string FindingFolderNotAnsiFormat {
+            get {
+                return ResourceManager.GetString("FindingFolderNotAnsiFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0}: the folder {1} is not on a drive letter, so the "Installed From" values cannot point to it. Con[rest of string was truncated].
         /// </summary>
         internal static string FindingNotOnADriveFormat {

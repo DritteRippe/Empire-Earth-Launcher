@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using System.Text;
 using Empire_Earth_Launcher.Core.Logging;
 
 namespace Empire_Earth_Launcher.Core.Platform
@@ -9,8 +10,9 @@ namespace Empire_Earth_Launcher.Core.Platform
     /// <see cref="ISystemInfo"/> on Windows (ADR 0011): the version from <c>RtlGetVersion</c> (independent of the
     /// manifest), Wine from <c>ntdll.dll</c>, the physical size of the primary screen from <c>EnumDisplayDevices</c> and
     /// <c>EnumDisplaySettings(ENUM_CURRENT_SETTINGS)</c> (the current display mode, in physical pixels whatever the DPI
-    /// awareness of the process), and the size a DPI-unaware program sees from <c>GetSystemMetrics</c> (the launcher is
-    /// DPI-unaware like the game, ADR 0011).
+    /// awareness of the process), the size a DPI-unaware program sees from <c>GetSystemMetrics</c> (the launcher is
+    /// DPI-unaware like the game, ADR 0011), and the ANSI code page from <see cref="Encoding.Default"/>, which is the
+    /// ANSI code page of the system on the .NET Framework.
     /// </summary>
     /// <remarks>
     /// A thin adapter, checked on real Windows by the test plan (100 % and 150 %, Windows 7 and 10/11); the unit tests use
@@ -27,6 +29,8 @@ namespace Empire_Earth_Launcher.Core.Platform
         private readonly Lazy<Version> windowsVersion;
         private readonly Lazy<bool> isWine;
         private bool screenProblemLogged;
+        private Encoding ansiEncoding;
+        private bool ansiProblemLogged;
 
         public WindowsSystemInfo(ILogger logger)
         {
@@ -63,6 +67,35 @@ namespace Empire_Earth_Launcher.Core.Platform
                     LogScreenProblem("The display functions of Windows are not available.", ex);
                 }
                 return ScreenSize.Empty;
+            }
+        }
+
+        public bool IsInAnsiCodePage(string text)
+        {
+            if (text == null)
+                throw new ArgumentNullException(nameof(text));
+            try
+            {
+                // An exception fallback also switches off the "best fit" mapping, which would turn e.g. a Greek letter
+                // into a Latin one: the game would then look for another folder.
+                if (ansiEncoding == null)
+                    ansiEncoding = Encoding.GetEncoding(Encoding.Default.CodePage, EncoderFallback.ExceptionFallback,
+                        DecoderFallback.ExceptionFallback);
+                ansiEncoding.GetByteCount(text);
+                return true;
+            }
+            catch (EncoderFallbackException)
+            {
+                return false;
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException)
+            {
+                if (!ansiProblemLogged)
+                {
+                    ansiProblemLogged = true;
+                    logger.Warning("The ANSI code page of Windows (" + Encoding.Default.CodePage + ") is not available: " + ex.Message);
+                }
+                return true;
             }
         }
 

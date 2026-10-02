@@ -65,8 +65,9 @@ namespace Empire_Earth_Launcher.Core.Platform
     }
 
     /// <summary>
-    /// What the launcher needs to know about the Windows it runs on (ADR 0006, ADR 0011): the Windows version, Wine, and
-    /// the size of the primary screen in physical pixels and as a DPI-unaware program such as the game sees it.
+    /// What the launcher needs to know about the Windows it runs on (ADR 0006, ADR 0011): the Windows version, Wine, the
+    /// size of the primary screen in physical pixels and as a DPI-unaware program such as the game sees it, and which
+    /// characters an ANSI program such as the game can use in a path (ADR 0015).
     /// </summary>
     /// <remarks>
     /// Implemented by <see cref="WindowsSystemInfo"/> and checked on real Windows by the test plan; the tests use a fake.
@@ -95,6 +96,13 @@ namespace Empire_Earth_Launcher.Core.Platform
         /// <c>HIGHDPIAWARE</c> (contract O4, ADR 0011 plan review); <see cref="ScreenSize.Empty"/> if unknown.
         /// </summary>
         ScreenSize PrimaryScreenUnaware { get; }
+
+        /// <summary>
+        /// True if every character of <paramref name="text"/> exists in the ANSI code page of Windows (the code page for
+        /// non-Unicode programs). The game is such a program: it cannot open a path with other characters (forum report
+        /// section 8, test case 20; ADR 0015). True if the code page cannot be determined.
+        /// </summary>
+        bool IsInAnsiCodePage(string text);
     }
 
     /// <summary>Questions about <see cref="ISystemInfo"/> that follow from its values.</summary>

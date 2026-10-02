@@ -43,7 +43,13 @@ namespace Empire_Earth_Launcher.Core.GameSettings
         ScreenTooLow,
 
         /// <summary>The game folder is not on a drive letter: the "Installed From" values cannot name it (contract 3.3).</summary>
-        InstalledFromNotOnADrive
+        InstalledFromNotOnADrive,
+
+        /// <summary>
+        /// The game folder has characters outside the ANSI code page of Windows: the game, a non-Unicode program, may not
+        /// open it (forum report section 8, test case 20; ADR 0015). Information only.
+        /// </summary>
+        FolderOutsideAnsiCodePage
     }
 
     /// <summary>One finding: what, for which game, the values it is about and what is recommended.</summary>
@@ -98,8 +104,10 @@ namespace Empire_Earth_Launcher.Core.GameSettings
         {
             get
             {
-                if (Code == FindingCode.ScreenTooLow || Code == FindingCode.InstalledFromNotOnADrive)
-                    return GameScreen.ToString() + (Code == FindingCode.InstalledFromNotOnADrive ? " " + Installation.GetGameFolder(Game) : string.Empty);
+                if (Code == FindingCode.ScreenTooLow)
+                    return GameScreen.ToString();
+                if (Code == FindingCode.InstalledFromNotOnADrive || Code == FindingCode.FolderOutsideAnsiCodePage)
+                    return Installation.GetGameFolder(Game);
                 return string.Join("; ", Values.Select(value => value.Key + "=" + Data(value.Value))) +
                        (GameScreen.IsEmpty ? string.Empty : "; screen=" + GameScreen);
             }
@@ -131,8 +139,8 @@ namespace Empire_Earth_Launcher.Core.GameSettings
     /// <summary>
     /// The consistency checks of contract 3.6, computed at every start and shown with an offer, never fixed by themselves:
     /// bit depths that differ, 16 bit on Windows 8 and later, a rasterizer against the wrapper rule, a window larger than
-    /// the screen as the game sees it (ADR 0011 plan review), a screen lower than 768 pixels (R13), and a game folder that
-    /// "Installed From" cannot name. Only reads.
+    /// the screen as the game sees it (ADR 0011 plan review), a screen lower than 768 pixels (R13), a game folder that
+    /// "Installed From" cannot name, and a game folder with characters outside the ANSI code page (ADR 0015). Only reads.
     /// </summary>
     public sealed class ConsistencyChecker
     {
@@ -171,8 +179,11 @@ namespace Empire_Earth_Launcher.Core.GameSettings
             var findings = new List<ConsistencyFinding>();
             RegistryLocation key = GameDefaultsService.SettingsKey(installation, game);
 
-            if (!InstalledFromValues.TryCompute(installation.GetGameFolder(game), out _))
+            string folder = installation.GetGameFolder(game);
+            if (!InstalledFromValues.TryCompute(folder, out _))
                 findings.Add(new ConsistencyFinding(FindingCode.InstalledFromNotOnADrive, installation, game, null, null, ScreenSize.Empty));
+            if (folder != null && !systemInfo.IsInAnsiCodePage(folder))
+                findings.Add(new ConsistencyFinding(FindingCode.FolderOutsideAnsiCodePage, installation, game, null, null, ScreenSize.Empty));
 
             int? gameBits = DWord(key, GameSettingsTable.GameBitDepth);
             int? textureBits = DWord(key, GameSettingsTable.TextureBitDepth);

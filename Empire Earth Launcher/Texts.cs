@@ -300,9 +300,14 @@ namespace Empire_Earth_Launcher
                         finding.GameScreen);
                 case FindingCode.ScreenTooLow:
                     return string.Format(CultureInfo.CurrentCulture, Resources.FindingScreenTooLowFormat, finding.GameScreen.Height);
-                default:
+                case FindingCode.InstalledFromNotOnADrive:
                     return string.Format(CultureInfo.CurrentCulture, Resources.FindingNotOnADriveFormat, game,
                         finding.Installation.GetGameFolder(finding.Game));
+                case FindingCode.FolderOutsideAnsiCodePage:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.FindingFolderNotAnsiFormat, game,
+                        finding.Installation.GetGameFolder(finding.Game));
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(finding), finding.Code, "Unknown finding.");
             }
         }
 

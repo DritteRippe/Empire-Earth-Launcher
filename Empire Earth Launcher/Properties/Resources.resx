@@ -662,4 +662,8 @@ Your current settings are saved first as .reg files in {1}; double-click such a 
     <value>Switch off</value>
     <comment>Button of the confirmation before switching HIGHDPIAWARE off; at most about 28 characters.</comment>
   </data>
+  <data name="FindingFolderNotAnsiFormat" xml:space="preserve">
+    <value>{0}: the folder {1} contains characters that Windows does not have for non-Unicode programs such as the game, so the game may not find its files. If it does not start, copy it to a folder whose name has only the letters A to Z and digits.</value>
+    <comment>Hint (ADR 0015, forum test case 20): the game folder has characters outside the ANSI code page. {0}: Empire Earth or The Art of Conquest, {1}: the folder.</comment>
+  </data>
 </root>

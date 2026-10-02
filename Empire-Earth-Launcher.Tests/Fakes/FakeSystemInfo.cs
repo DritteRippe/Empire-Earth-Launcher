@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Empire_Earth_Launcher.Core.Platform;
 
 namespace Empire_Earth_Launcher.Tests.Fakes
@@ -16,6 +17,14 @@ namespace Empire_Earth_Launcher.Tests.Fakes
         public ScreenSize PrimaryScreen { get; set; } = new ScreenSize(1920, 1080);
 
         public ScreenSize PrimaryScreenUnaware { get; set; } = new ScreenSize(1920, 1080);
+
+        /// <summary>The characters of the ANSI code page; by default those of Latin-1, close to code page 1252.</summary>
+        public Func<char, bool> IsAnsiCharacter { get; set; } = c => c < 0x100;
+
+        public bool IsInAnsiCodePage(string text)
+        {
+            return text.All(IsAnsiCharacter);
+        }
 
         /// <summary>Windows 7 SP1 (NT 6.1).</summary>
         public static FakeSystemInfo Windows7()

@@ -176,6 +176,21 @@ namespace Empire_Earth_Launcher.Tests.Launcher
         }
 
         [Test]
+        public void Finding_FolderOutsideTheAnsiCodePage()
+        {
+            var world = new GameSettingsWorld();
+            world.World.AddEmpireEarth(@"C:\Παιχνίδια\Empire Earth");
+            Installation installation = world.Discover(@"C:\Παιχνίδια\Empire Earth").Selected;
+
+            ConsistencyFinding finding = new ConsistencyChecker(world.Registry, world.FileSystem, world.SystemInfo).Check(installation).Single();
+
+            Assert.That(Texts.Finding(finding), Is.EqualTo(
+                "Empire Earth: the folder C:\\Παιχνίδια\\Empire Earth contains characters that Windows does not have for non-Unicode " +
+                "programs such as the game, so the game may not find its files. If it does not start, copy it to a folder whose name " +
+                "has only the letters A to Z and digits."));
+        }
+
+        [Test]
         public void GameSettingsResult_NamesTheBackupFolderOrTheProblem()
         {
             GameSettingsWorld world = GameSettings();

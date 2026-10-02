@@ -499,4 +499,7 @@ Ihre jetzigen Einstellungen werden vorher als .reg-Dateien in {1} gesichert; ein
   <data name="HighDpiOffConfirmButton" xml:space="preserve">
     <value>Ausschalten</value>
   </data>
+  <data name="FindingFolderNotAnsiFormat" xml:space="preserve">
+    <value>{0}: Der Ordner {1} enthält Zeichen, die Windows für Nicht-Unicode-Programme wie das Spiel nicht kennt; das Spiel findet seine Dateien dann eventuell nicht. Startet es nicht, kopieren Sie es in einen Ordner, dessen Name nur die Buchstaben A bis Z und Ziffern enthält.</value>
+  </data>
 </root>
