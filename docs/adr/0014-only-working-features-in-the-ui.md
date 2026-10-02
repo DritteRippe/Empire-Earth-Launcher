@@ -1,7 +1,7 @@
 # 0014 Only working features in the UI
 
 Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review and implementation in L-WP3; implementation in
-L-WP6), see the Amendment sections
+L-WP6 and L-WP7), see the Amendment sections
 
 ## Context
 
@@ -104,3 +104,16 @@ Details:
 The game choice and the Play button, which L-WP3 kept without function as the only exception of this record, work:
 Play starts the chosen game (ADR 0010), The Art of Conquest can only be chosen when the installation has it, and the
 group shows the file versions and a state line. No control without function is left on the *Play* page.
+
+## Amendment 2026-10-02 (implementation, L-WP7)
+
+- The *Tools* page of the target UI (ARCHITECTURE 2) exists with the functions of L-WP7 only: the integrity state and
+  its files, "Check all files" with progress and "Cancel check", "Repair advice" and "Check for updates". The tools of
+  L-WP8 and L-WP9 get their controls with their functions; the page is laid out from its texts and scrolls, so they can
+  be added below. New controls have new names (`toolsKryptonCheckButton`, `toolsUserControl`, `fullCheckKryptonButton`,
+  `integrityKryptonWrapLabel`, `versionCheckKryptonButton`, ...); none is a name of the list above.
+- **Navigation**: *Tools* sits between *Settings* and *Launcher* (the order of the page table of ARCHITECTURE 2); the
+  *Launcher* button moved down by one place (its location in `MainForm.resx`).
+- **Play page**: the game group grew by 20 pixels for the integrity state, its "Details"/"Repair..." button, the result
+  line and "Check version"; the info bar below it is 20 pixels lower (90 instead of 110 pixels of text). Test plan
+  WP7-14 checks with screenshots that its texts stay readable.

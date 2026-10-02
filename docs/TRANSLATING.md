@@ -112,28 +112,37 @@ Changing the English text of an existing key means checking the German and Frenc
   keep their limits. The *Play* page shows the file versions and a state line below the game choice; its messages
   (a running game with the Task Manager hint, the question before starting the second game, start errors) are
   Windows message boxes, and the window "Repair the installation" (a missing program) wraps its text and grows
-  with it. Some texts quote what another program shows in the same language: the Task Manager of Windows
-  (`StartHangingHintFormat`), the install mode options of Inno Setup (`RepairStepKeepFolderAllUsersFormat`,
-  `RepairStepKeepFolderCurrentUserFormat`) and the CD-key task of the setup (`RepairStepCdKeys`); keep them equal
-  to those programs. `log.txt` names the language in use (`UI language: de (launcher setting)`).
-  The German test plan has these cases (sections L-WP3 to L-WP6, WP4-17, WP5-17 and WP6-14).
+  with it. Below the versions the *Play* page shows the result of "Check version" and the integrity state
+  ("Files: ...", at most about 40 characters, one line) with its button ("Details" or "Repair...", at most about 14
+  characters). The *Tools* page (since L-WP7) holds the integrity check: its explanation, the list of files with what
+  is wrong with each (`IntegrityFile*Format`), the progress of the full check, three buttons in one row (at most about
+  26 characters each) and the version check; it scrolls like the *Settings* page. The repair window now also shows
+  the files of the check and, while it asks the update server, "Asking the update server ..."; to see the note of the
+  general download page (`RepairFallbackFormat`), open it without network. Some texts quote what another program
+  shows in the same language: the Task Manager of Windows (`StartHangingHintFormat`), the install mode options of
+  Inno Setup (`RepairStepKeepFolderAllUsersFormat`, `RepairStepKeepFolderCurrentUserFormat`) and the CD-key task of
+  the setup (`RepairStepCdKeys`); keep them equal to those programs. `IntegrityCheckInfo` quotes `FullCheckButton`;
+  keep both equal. `log.txt` names the language in use (`UI language: de (launcher setting)`).
+  The German test plan has these cases (sections L-WP3 to L-WP7, WP4-17, WP5-17, WP6-14 and WP7-14).
 
 ## Status
 
-154 texts (state of L-WP6: 29 texts of Play, the repair advice, a running setup and a second launcher were added;
-L-WP5 added 51 for the game settings, L-WP4 21 for the list of installations).
+213 texts (state of L-WP7: 59 texts of the integrity check, the *Tools* page, the version check and the download of the
+update API were added; L-WP6 added 29 for Play, the repair advice, a running setup and a second launcher, L-WP5 51
+for the game settings, L-WP4 21 for the list of installations).
 
 | Language | Translated | Review |
 |---|---|---|
-| English | 154 | source |
-| German `de` | 154 | proof-reading by a native speaker in the laptop test ([TEST-PLAN.de.md](TEST-PLAN.de.md), cases WP3-*, WP4-17, WP5-17 and WP6-14); open until that test |
-| French `fr` | 154 | **open**: only `NavigationPlay` ("Jouer") and `NavigationSettings` ("Paramètres") come from the original French authors; all other French texts were written during the review fixes and v2 without a native speaker |
+| English | 213 | source |
+| German `de` | 213 | proof-reading by a native speaker in the laptop test ([TEST-PLAN.de.md](TEST-PLAN.de.md), cases WP3-*, WP4-17, WP5-17, WP6-14 and WP7-14); open until that test |
+| French `fr` | 213 | **open**: only `NavigationPlay` ("Jouer") and `NavigationSettings` ("Paramètres") come from the original French authors; all other French texts were written during the review fixes and v2 without a native speaker |
 
 ### Help wanted
 
-- **French**: a native speaker who reads the 152 French texts other than the two navigation texts in
-  `Resources.fr.resx`, ideally while looking at each page. The 29 texts of Play and the repair advice (keys from
-  `LauncherAlreadyRunning` to `RepairPageNotOpenedFormat`, at the end of the file) are the newest; before them the 51
-  texts of the game settings (from `GameSettingsDefaultsHeading` to `FindingFolderNotAnsiFormat`) are the longest.
+- **French**: a native speaker who reads the 211 French texts other than the two navigation texts in
+  `Resources.fr.resx`, ideally while looking at each page. The 59 texts of the integrity check and the update API (keys
+  from `NavigationTools` to `RepairFallbackFormat`, at the end of the file) are the newest; before them come the 29
+  texts of Play and the repair advice (from `LauncherAlreadyRunning` to `RepairPageNotOpenedFormat`), and the 51 texts
+  of the game settings (from `GameSettingsDefaultsHeading` to `FindingFolderNotAnsiFormat`) are the longest.
 - **Other languages**: Portuguese (Brazil), Chinese, Spanish, Italian, Polish, Russian and Korean are game
   languages of the setup; the launcher shows English for them. See [Adding a language](#adding-a-language).

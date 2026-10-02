@@ -13,6 +13,73 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
 
 ### Added
 
+- Integrity check (R2, contract 2, `Empire-Earth-Launcher-Core/Integrity`, `IntegrityModel`): the launcher reads the
+  manifest `_setupdata_<Product>\files.sha256` and `install.ini` that the community setup writes since v2. The reader
+  accepts what the contract says readers must (BOM, LF, CRLF, uppercase hex digits, the binary marker ` *`, empty
+  lines) and refuses the whole manifest for one invalid line or an unsafe path (absolute, drive, `:`, `\`, `..`), so it
+  never opens a file outside the install root. Files are classed by the table of contract 2.4 (`code`: the
+  `CodeFileExtensions` of the setup; `mutable`: `cfg ini conf config log`; `data`: the rest). After every search of
+  the installations, so at start and after a setup has ended, the quick check runs in the background: every listed
+  file must exist and the `code` files are hashed, each file opened once, no `data` file hashed. The states of
+  contract 2.5: OK, Modified (a changed data file, only information), Incomplete, Damaged (the worst finding wins;
+  files of `[MissingAfterInstall]` count as missing), Unknown (setup up to 1.7.2, a newer contract, no or an invalid
+  manifest, unreadable files, or the uninstall key of the same root without `Empire Earth Community: ContractVersion`:
+  an older setup ran afterwards), "not checked" for foreign installations, and "unreliable" when EE and NeoEE share
+  the folder (O11). Changed NeoEE program files are worded neutrally, "changed since the installation" (O2). The check
+  only reads, logs every finding once with path, class, expected and actual hash, and never blocks Play.
+- A running setup wins over the check (contract 4.2, [ADR 0016](docs/adr/0016-mutation-guard-and-effective-game-paths.md)
+  plan review): no check starts while `EE_Setup` or `NeoEE_Setup` exists, a check stops (no findings, file closed)
+  when one appears, and it runs again when the setup has ended; files are opened with
+  `FileShare.ReadWrite | FileShare.Delete`, so a setup can delete and rename a file the launcher is reading.
+- *Tools* page (new, between *Settings* and *Launcher*): the integrity state of the selected installation with its
+  explanation and every missing or changed file, "Check all files" (the full check of contract 2.5, also the game data,
+  with progress and "Cancel check"), "Repair advice" and "Check for updates". The page is laid out from its texts and
+  scrolls. The *Play* page shows the state below the file versions, with "Details" (the *Tools* page) or, when the
+  state offers the repair, "Repair...": a legacy installation only gets its badge, never the advice, a foreign one
+  nothing (contract 2.5).
+- Repair hand-off through the update API (R9, contract 4.3, [ADR 0008](docs/adr/0008-https-policy-and-update-api.md);
+  `SetupDownloadLocator`, `UpdateUrlPolicy`): the repair advice asks
+  `https://api.empireearth.eu/setup/?product=<AppId>` (the AppId as read, the query of the setup) when it opens and
+  shows the answer only if the port of the setup's `IsAllowedUpdateUrl` allows it (`https`, no user information, port,
+  backslash, space, control or non-ASCII character; `empireearth.eu`, `neoee.net` and subdomains, or
+  `github.com/EE-modders/...` without `..` or `%`). Without an AppId, with another status than 200 (also a redirect),
+  after a timeout, a TLS error or a network error, or with a refused answer it uses
+  `https://empireearth.eu/download`; the window says so below the address and the log names the reason. For damaged or
+  incomplete installations the advice names the files (at most ten) and puts the antivirus exception first.
+- Version check on request (contract 4.5, `UpdateChecker`): "Check version" on the *Play* page asks
+  `&type=game&version=<GameVersion>`, "Check for updates" on the *Tools* page also `&type=setup&version=<SetupVersion>`,
+  for every installation with an AppId, also those of setups up to 1.7.2 (AppId and versions of the uninstall key). As
+  in the setup, the answer `false` means outdated; then the latest version is asked and shown only if it has at most 32
+  characters of `0-9 . - _ space A-Z a-z`, else `?`, and the hand-off of the repair advice opens. Unlike the setup, a
+  missing answer is "could not be asked", never "up to date". The game version check is not droppable (ADR 0008 plan
+  review); the setup version check, which could have been dropped, is implemented as well.
+- HTTPS client (`HttpsClient`, [ADR 0008](docs/adr/0008-https-policy-and-update-api.md)): one `HttpClient` for the
+  launcher's lifetime with the certificate check of Windows, no redirects, no cookies, 10 seconds and answers of at
+  most 4 KiB; errors are results (timeout, TLS with the inner exception type, network). `Program` sets
+  `ServicePointManager.SecurityProtocol` once: exactly TLS 1.2 on Windows 7, the system default elsewhere.
+- `docs/contract-samples/` (ADR 0012 plan review): synthetic byte samples of `install.ini` of the three install modes
+  (ASCII, CRLF; the user one with `[MissingAfterInstall]`), `files.sha256` (ASCII, LF, sorted ignoring case) and the
+  admin install record as a `.reg` file (UTF-16 LE with BOM, CRLF); `.gitattributes` keeps every byte (`-text`). The
+  launcher's readers are tested against them, the record against the `RegFileWriter` export of the discovery seed. The
+  setup repository is to take the folder over (ARCHITECTURE 14).
+- 59 new texts in English, German and French for the integrity check, the *Tools* page, the version check and the
+  download of the update API (now 213).
+- Test plan: cases WP7-01 to WP7-15 (the quick check at start, a renamed program and data file with the repair window,
+  the full check with cancel, a setup started during the full check, the full check after playing for O6, the NeoEE
+  updater for O2, legacy and foreign installations, an uninstall key without the contract version, the version check
+  on both pages, the download of the update API with and without network, two products in one folder, the three
+  languages, the log); the mapping of section 7 has no "offen (L-WP7)" any more.
+- Tests: the manifest reader, the file classes against the table of contract 2.4 (read from `docs/CONTRACT.md`), the
+  state table of 2.5 with every rule, the counted cost of both checks, a setup mutex that appears while a file is
+  hashed, a check that never writes (write-forbidding fakes); the URL policy with the 13 cases of the setup's
+  `TestIsAllowedUpdateUrl` under the same names plus ports, capitals, spaces, non-ASCII and escapes; the locator with
+  every fallback and the query of the setup; the version check; the HTTPS client's handler and limits (no request);
+  the share mode of `LocalFileSystem.OpenRead`; the readers against the contract samples; `IntegrityModel` and
+  `UpdateModel`; the texts. Architecture tests: no certificate override in any source
+  (`NoCertificateOverrideTests`, the list of ADR 0008), no `Tls13`, `Tls11`, `Tls`, `Ssl3` and no `SecurityProtocol`
+  assignment outside `Program` (`TlsSettingTests`), and every 64-hex token of the fixtures and samples is the SHA-256 of
+  `sample-<n>` (`FixtureProvenanceTests`, no hash of real game data).
+
 - Play (R3, [ADR 0010](docs/adr/0010-game-start-and-mutex-probing.md), contract 3.6, 3.7, 4.2;
   `Empire-Earth-Launcher-Core/Play/GameStarter.cs`): the *Play* page starts Empire Earth or The Art of Conquest of the
   selected installation (The Art of Conquest only if the installation has an AoC folder; the choice is saved as
@@ -211,6 +278,20 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
 - This changelog.
 
 ### Changed
+
+- The repair advice window asks the update API for the download when it opens; "Open download page" waits for the
+  answer (at most 10 seconds) and a closed window cancels the request. The download page opens through `UpdateModel`
+  (`PlayModel` no longer does).
+- `LocalFileSystem.OpenRead` shares the file for reading, writing and deleting (`FileShare.ReadWrite |
+  FileShare.Delete`, before without `Delete`), so that a setup can replace a file the integrity check is reading.
+- The navigation has a fourth button, *Tools*, between *Settings* and *Launcher*; the *Launcher* button moved down by
+  one place. On the *Play* page the game group grew by 20 pixels for the integrity state and the version check, and the
+  info bar below it is 20 pixels lower.
+- `Program` composes the integrity check (`IntegrityChecker` on the real file system, registry and mutexes, and
+  `IntegrityModel`) and the update API (one `HttpsClient`, disposed at the end, `SetupDownloadLocator`,
+  `UpdateChecker`, `UpdateModel`); closing the main window cancels a running check.
+- ADR 0004, 0008, 0012, 0014 and 0016 record the implementation of L-WP7 in amendments; `docs/TRANSLATING.md` lists
+  213 texts and the new screens to check.
 
 - The online player list is polled by `PlayerListPoller` in the core (`async` loop with `Task.Delay`,
   [ADR 0004](docs/adr/0004-async-await-threading-model.md)) instead of a `BackgroundWorker` of the *Play* page. It keeps

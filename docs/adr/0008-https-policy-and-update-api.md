@@ -1,6 +1,7 @@
 # 0008 HTTPS policy and use of the update API
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review), see the Amendment sections
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review; implementation in L-WP7), see the
+Amendment sections
 
 ## Context
 
@@ -85,3 +86,43 @@ certificate problems are real and must not be "fixed" by turning validation off.
   including `community-legacy` ones (AppId from the uninstall key name, version from the key). It runs on request
   (Tools page and the version line of the Play page), like the rest of the update check. Only the setup version
   check (`&type=setup`) may be dropped if time runs out.
+
+## Amendment 2026-10-02 (implementation, L-WP7)
+
+The decision is implemented as planned. Details decided while implementing, keeping the decision:
+
+- **One client for the launcher's lifetime**: `Program` creates one `Platform.HttpsClient` (an `HttpClient` over an
+  `HttpClientHandler` with `AllowAutoRedirect = false`, `UseCookies = false`, `Timeout` 10 s,
+  `MaxResponseContentBufferSize` 4096) and disposes it when the main window has closed. Errors are `HttpsResponse`
+  results, never exceptions: `Timeout`, `TlsError` (an `AuthenticationException` anywhere in the inner exceptions; the
+  log names the chain of types, e.g. `HttpRequestException/WebException/AuthenticationException`) and `NetworkError`
+  (also an answer larger than 4 KiB); the log line of a request has the status or the error and the duration, never the
+  body. Only absolute `https` URLs are accepted (a programming error otherwise).
+- **TLS**: `Program.TlsProtocolsFor` gives exactly `Tls12` for NT 6.1 and nothing else (the system default stays) and
+  `ConfigureTls` makes the only assignment of `ServicePointManager.SecurityProtocol`, before the first request.
+  `TlsSettingTests` checks both rules on the sources, `NoCertificateOverrideTests` the broad list of the design review
+  plus `ICertificatePolicy`/`CertificatePolicy` (the .NET 1.x way) and `CheckCertificateRevocationList = false`, each
+  with self-tests on forbidden and allowed samples.
+- **`UpdateUrlPolicy`** ports `IsAllowedUpdateUrl`, `SplitHttpsUrl` and `IsDomainOrSubdomain` of the setup's `utils.iss`
+  character by character; its tests hold the 13 cases of `TestIsAllowedUpdateUrl` (setup `ci/tests/unit_tests.iss`
+  lines 149 to 163) with the same names, URLs and expectations, compared by a script outside the repository, plus the
+  launcher's own (ports, capitals in scheme and host, spaces, non-ASCII, percent escapes on GitHub and on the website,
+  fragments, look-alike hosts).
+- **The download** (`SetupDownloadLocator`): the query is built by `QueryUrl` exactly like the setup's
+  (`product=<AppId as read>`, `&type=`, `&version=`, every value through `Uri.EscapeDataString`); the trimmed answer of
+  an HTTP 200 is used only if the policy allows it; every other outcome gives `https://empireearth.eu/download` with a
+  `FallbackReason` (`NoAppId`, `Timeout`, `TlsError`, `NetworkError`, `StatusNotOk` - also a redirect -, `UrlRejected`)
+  that is logged and shown below the address in the repair window ("No address from the update server (...)"; nothing
+  for `NoAppId`, whose page the fixed page is). The window asks when it opens; "Open download page" waits for the
+  answer (it is the trigger of `UiOperation`), and closing the window cancels the request.
+- **The version check** (`UpdateChecker`, `UpdateModel`): "Check version" on the *Play* page asks the game version,
+  "Check for updates" on the *Tools* page the game and the setup version, only when the player clicks. As in the
+  setup, `false` means outdated, any other answer of HTTP 200 up to date, and the latest version is asked and shown only
+  with at most 32 allowed characters, else `?`; unlike the setup (`CheckUpdate` treats no answer as no update), a missing
+  answer is `Failed` and shown as "could not be asked", so the player is never told something unchecked. An outdated
+  version opens the repair window with the hand-off of contract 4.3 (`RepairAdvice.ForUpdate`). The setup version check,
+  which this ADR allowed to drop, is implemented.
+
+Evidence: `Core/Platform/HttpsClientTests`, `Architecture/TlsSettingTests`, `Architecture/NoCertificateOverrideTests`,
+`Core/Repair/UpdateUrlPolicyTests`, `Core/Repair/SetupDownloadLocatorTests`, `Core/Repair/UpdateCheckerTests`,
+`Launcher/UpdateModelTests`; test plan WP7-10 to WP7-12 and W7-05.

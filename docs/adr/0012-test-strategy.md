@@ -1,7 +1,7 @@
 # 0012 Test strategy
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review; implementation in L-WP5 and
-L-WP6), see the Amendment sections
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review; implementation in L-WP5, L-WP6
+and L-WP7), see the Amendment sections
 
 ## Context
 
@@ -157,3 +157,31 @@ UI (briefing D6, contract 7).
 - New fakes: `FakeProcessStarter` (records starts and URLs, returns a process id or null, throws a configured
   exception), `FakeProcessList`, `FakeFileVersionReader`; `FakeMutexProbe` is also an `IMutexOwner`, and it and
   `InMemoryFileSystem` can report every probe and existence check into a journal, for the order test of the start.
+
+## Amendment 2026-10-02 (implementation, L-WP7)
+
+- **`FixtureProvenanceTests`** (`Architecture/`, category `SourceTree`) implements the rule of the plan review: every
+  token of exactly 64 hex digits (not part of a longer run) in the files of the test project (sources, golden files,
+  other fixtures; not the build folders, the project and configuration files) and in `docs/contract-samples/` must be
+  the SHA-256 of `sample-<n>` with `n` from 0 to 9999 (`TestSupport/SampleHashes`); `.reg` files are read as UTF-16 LE.
+  Its self-tests show that the rule finds another hash and accepts the samples in any case. A local negative test
+  (a real hash of a game file in a fixture, not committed) made it fail. The integrity tests compute every other hash
+  at run time from synthetic file contents.
+- **`docs/contract-samples/`** exists (see the plan review amendment): `install-admin.ini`, `install-user.ini` (with
+  `[MissingAfterInstall]`), `install-portable.ini` (without the optional `SetupBuild`), `files.sha256` and `record.reg`
+  (the admin record). `.gitattributes` marks the folder `-text`, so git keeps every byte (`git check-attr` shows
+  `text: unset`). The test project copies the samples into its output folder, so `ContractSampleTests` (bytes and
+  encodings, the readers on every sample, the record sample byte for byte equal to the `RegFileWriter` export of the
+  record the discovery tests seed, a computer built from the samples that checks OK) also runs in the laptop package:
+  a copy of the test program outside the repository passed 2503 tests with `--where "cat != SourceTree"` and none
+  failed (Mono), the sample tests among them; only the test that compares the copied folder with the source tree is
+  in the category `SourceTree`. The hand-over to the setup repository is a point of ARCHITECTURE 14.
+- **Counted, not timed**: the quick check opens `install.ini`, the manifest and each `code` file once and no `data` file
+  (`QuickCheck_Ok_OpensEachFileAtMostOnce_AndHashesNoDataFile`, counting `InMemoryFileSystem`); "does not block" is a
+  check whose file read waits on an event while the search, a game start and the window go on
+  (`CheckAsync_RunsInTheBackground_AndNeverBlocksAGameStart`, `TheQuickCheck_NeverDelaysTheSearch`).
+- New fake: `FakeHttpsClient` (answers from a table, records every URL, can hold a request until it is released or
+  cancelled); `TestIsolationTests` keeps the real `HttpsClient` out of the tests. The HTTPS client's handler and limits
+  are tested on the objects it creates, without a request.
+- The UI pages (*Tools*, the state and version check of *Play*, the repair window asking the update API) are covered by
+  the test plan cases WP7-01 to WP7-15.

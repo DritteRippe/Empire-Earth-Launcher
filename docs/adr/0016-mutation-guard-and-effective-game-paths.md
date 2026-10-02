@@ -1,7 +1,7 @@
 # 0016 Mutation guard and effective game paths
 
 Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2 and L-WP4; plan review;
-implementation in L-WP5 and L-WP6), see the Amendment sections
+implementation in L-WP5, L-WP6 and L-WP7), see the Amendment sections
 
 ## Context
 
@@ -137,3 +137,26 @@ Evidence: `GameDefaultsServiceTests.EveryWritingAction_IsBlockedBySetupAndGame` 
   L-WP6); the settings follow at the next start without the other game.
 - **Discovery while a setup runs**: the search of the installations waits for the end of the setup instead of reading
   `install.ini` (contract 4.2); the integrity check of L-WP7 uses the same hooks to cancel and rerun.
+
+## Amendment 2026-10-02 (implementation, L-WP7)
+
+The integrity check gives way to a setup as the plan review decided:
+
+- `LocalFileSystem.OpenRead` opens with `FileShare.ReadWrite | FileShare.Delete`. The adapter test checks the share mode
+  and renames, deletes and writes a file that is open; under Mono the share mode is not enforced, so the test proves
+  the share mode on Windows only (the `Tests\` folder of the laptop package runs it).
+- `IntegrityChecker` probes `EE_Setup` and `NeoEE_Setup` before it reads `install.ini`, before every file and after
+  every MiB it reads, and returns `Cancelled` (reason `SetupRunning`) without findings, the open file closed; a cancelled
+  token is reported as `SetupRunning` too when a setup mutex exists, else as `Requested`. `IntegrityModel` cancels the
+  running check on the `SetupStarted` hook of the watcher, so the check stops within two seconds even between two
+  probes; the quick check runs again after the search that follows `SetupFinished`. Neither the search nor the check
+  reads `install.ini` or the manifest while a setup runs (contract 4.2).
+- The check is read-only (no guard needed): it writes, deletes and moves nothing, which the tests check with
+  write-forbidding fakes of the file system and the registry.
+
+Evidence: `Core/Platform/LocalFileSystemTests` (`OpenRead_LetsOthersRenameAndDeleteTheOpenFile`,
+`OpenRead_LetsOthersWriteTheOpenFile`), `Core/Integrity/IntegrityCheckerTests` (`Section4_2_NotStarted_WhileASetupMutexExists`,
+`Section4_2_ASetupThatStartsWhileAFileIsHashed_CancelsTheCheck_AndTheFileIsClosed`,
+`TheCheck_NeverWritesDeletesOrMovesAFile`), `Launcher/IntegrityModelTests`
+(`Contract_4_2_ASetupThatStartsDuringTheCheck_CancelsIt_AndTheCheckRunsAgainAfterIt`,
+`Contract_4_2_WhileASetupRuns_NoCheckStarts`); test plan WP7-04.

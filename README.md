@@ -19,9 +19,19 @@ removed and the features behind them are listed below.
   game, keeps the "Installed From" values of the game in step, starts the program through Windows so that its
   compatibility settings apply (also "Run as administrator"), shows the file versions of both programs and logs every
   start
-- Repair advice when a program is missing: what to do with the community setup (antivirus exception first, same folder
-  and install mode, keep the NeoEE CD-key task) and a button that opens the download page; the launcher never
-  downloads, starts or elevates the setup itself
+- Integrity check of community installations since setup v2: at every start and after a setup, in the background, the
+  launcher checks that every file of the setup's list is there and that the program files are unchanged; the *Play*
+  page shows the state ("Files: OK", "damaged", "incomplete", ...), the new *Tools* page explains it, lists every
+  missing or changed file and runs the full check of all game data on request (with progress and cancel). It only
+  reads: it never changes, deletes, restores or downloads a game file, never blocks Play and gives way to a running
+  setup (forum: antivirus programs that delete game files)
+- Repair advice when a program is missing, files are damaged or an update is available: what to do with the community
+  setup (antivirus exception first, same folder and install mode, keep the NeoEE CD-key task), the files concerned, and
+  the download of the current setup as the community's update API names it (only `https` addresses of the project,
+  else `https://empireearth.eu/download`, with the reason); the launcher never downloads, starts or elevates the setup
+  itself
+- Version check on request (*Play* page: the game; *Tools* page: game and setup) against the update API of the
+  community setup, for community installations also of setups up to 1.7.2 (forum: version conflicts in multiplayer)
 - One launcher at a time (a second start says so and ends)
 - NeoEE online player list, with the lobby profiles and friends of the game folder (also when the game keeps them
   in the VirtualStore)
@@ -42,8 +52,6 @@ removed and the features behind them are listed below.
 
 **Coming with v2** (each with its work package, ARCHITECTURE section 15)
 
-- Integrity check of the installation, the download address of the update API for the repair advice and the game
-  version check (CD keys are repaired by re-running the community setup; the launcher never touches them)
 - Maintenance tools: registry cleanup of old installations, WON login reset, VirtualStore check, saved games and
   scenarios export/import
 - Network diagnostics and a configuration report
@@ -59,8 +67,10 @@ removed and the features behind them are listed below.
 - Writing the GPU driver version into the log (the diagnostics report names the display adapter)
 
 **No telemetry**: the old checkbox "Allow us to collect diagnostic data" is gone. The launcher collects no usage or
-diagnostic data; today its only connection is the request for the NeoEE player list (the download page of the repair
-advice opens in your browser only when you click its button).
+diagnostic data. Its connections are the request for the NeoEE player list and, only when you ask for it (repair
+advice, version check), an HTTPS request to `api.empireearth.eu` that sends nothing but the AppId of the installation
+and the version; the download page opens in your browser only when you click its button. CD keys are repaired by
+re-running the community setup; the launcher never touches them.
 
 ## 🌐 Download
 Sorry, at the moment the launcher is **ABSOLUTELY NOT** available for download in its current state.\
@@ -185,12 +195,19 @@ cover:
   150 % scaling, the hidden hints, the compatibility options and the launcher's write policy, every writing action
   blocked by a running setup and game), Play (`Play/`: the order of `GameStarter` with fakes and with the real game
   settings, every refusal and start error as a result, the setup watcher with a fake clock, the single instance, the
-  file versions), the repair advice (`Repair/`), the online player list poller (`Lobby/`) and the start information of
-  the shell starter;
+  file versions), the integrity check (`Integrity/`: the manifest reader with BOM, CRLF, uppercase hex, the binary
+  marker and every unsafe path, the file classes against the table of contract 2.4, the state table of 2.5 with the
+  uninstall key rule, NeoEE wording, two products in one folder, the counted cost of the quick and full check, a
+  setup that starts during a check, and that the check never writes), the repair hand-off (`Repair/`: the advice, the
+  URL policy with the 13 cases of the setup's `TestIsAllowedUpdateUrl` and the launcher's own, the download locator
+  with every fallback, the version check), the byte samples of `docs/contract-samples/` read by the launcher's
+  readers (`Contract/`), the HTTPS client's settings, the online player list poller (`Lobby/`) and the start
+  information of the shell starter;
 - the UI helpers of the launcher (`Launcher/`): `UiOperation`, the "unexpected error" message, the logging of
   unobserved task exceptions, the texts chosen for results (`Texts`), the UI language applied at start, the
-  installation service (also while a setup runs), the models of the game settings pages (`GameSettingsModel`) and of
-  the Play page (`PlayModel`), and the message of a second launcher;
+  installation service (also while a setup runs), the models of the game settings pages (`GameSettingsModel`), of
+  the Play page (`PlayModel`), of the integrity check (`IntegrityModel`: the quick check after every search and after a
+  setup, never while one runs, cancel) and of the update API (`UpdateModel`), and the message of a second launcher;
 - the WON lobby file parser, the NeoEE protocol framing, reply parsing and request deadline (`Won/`), and the mod
   library (`Mod/`: product folders, file types, versions, the working directory of the mod creator, `.eem`
   export/import including damaged archives);
@@ -204,7 +221,10 @@ cover:
   cases of the current work package, every case named in the documents exists, and the mapping of the requirements
   and forum test cases is complete; the tests themselves touch no registry, network or launcher file
   (`TestIsolationTests`), and only the shell starter starts programs, never without the shell or elevated, and
-  nothing ends a process (`ProcessRulesTests`).
+  nothing ends a process (`ProcessRulesTests`); no source overrides the certificate check
+  (`NoCertificateOverrideTests`), names an old or explicit TLS version or sets it outside `Program`
+  (`TlsSettingTests`), and every SHA-256 in the fixtures and the contract samples is the hash of a synthetic text
+  (`FixtureProvenanceTests`).
 
 Architecture tests read the project files, `packages.config`, `App.config`, `app.manifest`, the core's sources,
 the launcher's designer files, code and `.resx` files, `docs/CONTRACT.md`, ADR 0014, the test plan and the other
@@ -214,7 +234,7 @@ documents, the CI workflow and the built satellite assemblies (the tests that re
 `Tests\` folder of the laptop package) runs the others with `--where "cat != SourceTree"`. The tests use fakes
 (`Fakes/`: in-memory registry with both HKLM views and a 32-bit Windows mode, in-memory file system with Windows
 path rules, mutex probe and owner, clock, logger, system information with Windows version, Wine, screen and code
-page, process starter, process list, file versions) and
+page, process starter, process list, file versions, an HTTPS client that answers from a table) and
 only write below the temporary folder; they never contact a server, never touch the real registry or
 `%LOCALAPPDATA%` and never show UI. Path logic is `WinPath` string logic, so every
 test also runs under Mono; no test is skipped. The core, the launcher and the WON library make their internal helpers
@@ -260,7 +280,8 @@ CHANGELOG.md                      Changes of each version (Keep a Changelog)
 THIRD-PARTY-NOTICES.md            Vendored code and NuGet dependencies with their licenses
 docs/                             ARCHITECTURE.md (v2 target), CONTRACT.md (shared with the setup), adr/
                                   (decision records), TEST-PLAN.de.md (manual test on Windows, German),
-                                  TRANSLATING.md (languages, how to translate)
+                                  TRANSLATING.md (languages, how to translate), contract-samples/ (byte samples
+                                  of install.ini, files.sha256 and the install record, shared with the setup)
 Empire-Earth-Launcher-Core/       UI-free core library of the launcher (Empire_Earth_Launcher_Core.dll, ADR 0003):
 │                                 only the BCL and the WON library, no WinForms, System.Drawing or Krypton
 ├─ Contract/                      Fixed names of docs/CONTRACT.md: products, games, keys, files, contract version;
@@ -270,6 +291,8 @@ Empire-Earth-Launcher-Core/       UI-free core library of the launcher (Empire_E
 ├─ GameSettings/                  Contract 3: GameSettingsTable, ComputedValues, GameDefaultsService (marker, first
 │                                 run, display question, Installed From, reset), ConsistencyChecker, HintVisibility,
 │                                 CompatibilityOptions, LauncherWritePolicy (the launcher's allow-list)
+├─ Integrity/                     Contract 2: ManifestReader (files.sha256), FileClassifier (code, mutable, data),
+│                                 IntegrityChecker (quick and full check, cancelled by a setup), IntegrityReport
 ├─ Installations/                 Discovery of the installations (contract 1.4): install records, install.ini,
 │                                 uninstall keys, "Installed From" values, launcher folder -> InstallationDiscovery
 │                                 -> Installation with real EE/AoC folders (ADR 0015); EffectivePathResolver
@@ -280,7 +303,8 @@ Empire-Earth-Launcher-Core/       UI-free core library of the launcher (Empire_E
 │                                 LocalFileSystem, WinPath (Windows path rules), IMutexProbe/WindowsMutexProbe,
 │                                 IMutexOwner/WindowsMutexOwner (single instance), IClock, ISystemInfo/WindowsSystemInfo
 │                                 (Windows version, Wine, screen size, code page), IProcessStarter/ShellProcessStarter
-│                                 (shell execute), IProcessList, IFileVersionReader
+│                                 (shell execute), IProcessList, IFileVersionReader, IHttpsClient/HttpsClient
+│                                 (no redirects, 10 s, 4 KiB, certificate check of Windows, ADR 0008)
 ├─ Logging/                       ILogger, TraceFileLogger (log file with trimming)
 ├─ Settings/                      LauncherSettings, SettingsStore (settings.json, ADR 0005), LauncherPaths,
 │                                 UiLanguage (the language setting, ADR 0009)
@@ -289,7 +313,8 @@ Empire-Earth-Launcher-Core/       UI-free core library of the launcher (Empire_E
 ├─ Play/                          GameStarter (ADR 0010: setup, game, program, Installed From, first run, shell start),
 │                                 RunningGameDetector, SetupWatcher (setup mutexes every 2 s), ProgramVersions,
 │                                 SingleInstance, MutationGuard (no change while a setup or a game runs, ADR 0016)
-└─ Repair/                        RepairAdvice: the steps of contract 4.4 and the download page
+└─ Repair/                        RepairAdvice (the steps of contract 4.4), UpdateUrlPolicy (the setup's
+                                  IsAllowedUpdateUrl), SetupDownloadLocator (contract 4.3), UpdateChecker (4.5)
 Empire Earth Launcher/            The launcher (WinForms + Krypton UI)
 ├─ Program.cs                     Entry point and composition root: creates and passes on the services
 ├─ app.manifest                   Application manifest: asInvoker, Windows 7 to 11, not DPI-aware
@@ -300,6 +325,9 @@ Empire Earth Launcher/            The launcher (WinForms + Krypton UI)
 ├─ InstallationService.cs         The installations found and the selected one (runs the core's discovery)
 ├─ GameSettingsModel.cs           State and actions of the game settings for the Settings and Play pages
 ├─ PlayModel.cs                   State and actions of the Play page (game choice, versions, start)
+├─ IntegrityModel.cs              The integrity check of the selected installation (quick check, full check)
+├─ UpdateModel.cs                 The update API: version check, download of the repair advice
+├─ ToolsUserControl.cs            The Tools page (integrity, repair advice, version check)
 ├─ RepairAdviceDialog.cs          The repair advice window (built in code, wraps every language)
 └─ Resources/                     Images and icon used by the UI
 Empire-Earth-WON/                 WON/NeoEE library, no UI (used by the launcher)
@@ -315,13 +343,13 @@ Empire-Earth-Mod/
 Empire-Earth-Launcher.Tests/      Unit tests (NUnitLite console program), one folder per tested project:
 ├─ Architecture/                  Rules for the whole solution (project settings, core dependencies, registry aliases,
 │                                 placeholder controls, ApplyTexts, resource parity, test plan, test isolation,
-│                                 process starts)
+│                                 process starts, TLS and certificate rules, synthetic fixture hashes)
 ├─ Core/                          The core library, one folder per area
 ├─ Launcher/                      UI helpers, installation service, page models, start of a second launcher
 ├─ Won/                           WON lobby files, NeoEE protocol
 ├─ Mod/                           Mod library and .eem archives
 ├─ Fakes/                         In-memory registry and file system, mutex probe, clock, logger, process starter,
-│                                 process list, file versions (with tests)
+│                                 process list, file versions, HTTPS client (with tests)
 └─ TestSupport/                   Temporary folders, chunked streams, repository root, project files
 packages/                         NuGet packages, restored on build (not committed)
 .github/workflows/build.yml       CI build and test run
@@ -356,7 +384,26 @@ packages/                         NuGet packages, restored on build (not committ
   (a program without a manifest) reads and writes there, the launcher not.
 - **Contract with the setup**: [docs/CONTRACT.md](docs/CONTRACT.md) (shared with the Empire Earth Setup
   repository, draft) specifies the install record, the integrity manifest, the per-user default game settings
-  and the repair hand-off that launcher v2 is built on.
+  and the repair hand-off that launcher v2 is built on. `docs/contract-samples/` holds synthetic byte samples of
+  `install.ini` (admin, user with `[MissingAfterInstall]`, portable), `files.sha256` and the install record as a `.reg`
+  file, which the launcher's readers are tested against; the setup repository is to take the same folder over.
+- **Integrity check** ([contract 2](docs/CONTRACT.md#2-integrity-manifest)): after every search of the installations
+  the launcher reads `_setupdata_<Product>iles.sha256` and `install.ini` of the selected community installation (setup
+  v2 or later) and checks in the background that every listed file exists and that the program files (`exe dll asi
+  ...`, the class `code` of contract 2.4) have their SHA-256; "Check all files" on the *Tools* page also hashes the game
+  data. Changed `cfg ini conf config log` files are never reported. The states: OK; Modified (only information: mods,
+  HD packs); Incomplete (a data file missing); Damaged (a program file missing or changed; for NeoEE worded "changed
+  since the installation", because the NeoEE updater may replace files); Unknown (installed by a setup up to 1.7.2, a
+  newer setup, an older setup ran later, the setup could not write its list); a foreign installation is not checked.
+  The check opens every file at most once with sharing that lets a setup delete and rename it, does not start while a
+  setup runs and stops when one starts; it never blocks Play and logs every finding with path, class, expected and
+  actual hash.
+- **Update API** ([contract 4.3, 4.5](docs/CONTRACT.md#4-repair-hand-off),
+  [ADR 0008](docs/adr/0008-https-policy-and-update-api.md)): only on request, `GET
+  https://api.empireearth.eu/setup/?product=<AppId>` (plus `&type=game|setup&version=<version>` for the version check)
+  over HTTPS with the certificate check of Windows, no redirects, 10 seconds and at most 4 KiB; on Windows 7 TLS 1.2 is
+  requested explicitly, elsewhere Windows chooses. A download address is used only if it passes the setup's own URL
+  check; every failure gives `https://empireearth.eu/download`, and the window and the log say why.
 - **Architecture of v2**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) describes the target structure (UI-free
   core library, thin WinForms UI on .NET Framework 4.8), data flows, threading, error handling, logging,
   localization and tests; the decisions behind it are recorded in [docs/adr/](docs/adr/README.md). Until v2 is

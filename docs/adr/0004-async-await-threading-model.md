@@ -1,7 +1,7 @@
 # 0004 async/await threading model
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2, L-WP4 and L-WP6, see the Amendment
-sections)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2, L-WP4, L-WP6 and L-WP7, see the
+Amendment sections)
 
 ## Context
 
@@ -119,3 +119,24 @@ Details decided while implementing, keeping the decision:
 
 Evidence: `Core/Lobby/PlayerListPollerTests`, `Core/Play/SetupWatcherTests`, `Core/Play/GameStarterTests`
 (`StartAsync_StartsOnTheThreadPool`).
+
+## Amendment 2026-10-02 (implementation, L-WP7)
+
+- **The integrity check** runs on the thread pool (`IntegrityChecker.CheckAsync` wraps the synchronous check in
+  `Task.Run`; a cancelled token gives a `Cancelled` report, not a cancelled task). `IntegrityModel` starts the quick
+  check from the `Changed` event of `InstallationService` when a search has a new result, so nobody awaits it: neither
+  the search, nor the window, nor Play. One check at a time: a new check (another installation, the full check)
+  cancels the running one, and a generation counter drops the result of a check that was overtaken. A fault of the
+  check (a bug; environment problems are results) is logged like an unobserved task exception.
+- **Progress** of the full check comes through a `Progress<IntegrityProgress>` created on the UI thread, so the page
+  gets it there; the *Tools* page shows it and its "Cancel check" calls `CancelCheck`. Closing the main window cancels a
+  running check (the operations of a window end with it).
+- **Requests to the update API** run only through `UiOperation` (version check: the clicked button is the trigger; the
+  repair window: its "Open download page" is the trigger while the download is asked, and closing the window cancels the
+  request through a `CancellationTokenSource` of the window; the cancellation ends as `Canceled` in `UiOperation`, no
+  error message).
+
+Evidence: `Launcher/IntegrityModelTests` (`TheQuickCheck_NeverDelaysTheSearch`,
+`AnotherInstallation_CancelsTheRunningCheck_AndOnlyTheLatestReportCounts`, `CancelCheck_EndsTheFullCheck_WithoutFindings_AndTheFileIsClosed`),
+`Launcher/UpdateModelTests` (`Contract_4_3_ClosingTheAdvice_CancelsTheRequest`), `Core/Integrity/IntegrityCheckerTests`
+(`CheckAsync_WithACancelledToken_ReturnsACancelledReport`).

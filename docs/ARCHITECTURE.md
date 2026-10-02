@@ -8,7 +8,7 @@ contract shared with the Empire Earth Setup.
 | | |
 |---|---|
 | Status | **Target**: describes v2 as it is being built on branch `v2`; the README describes what exists today |
-| Based on | branch `v2` at `2dc6c43` (refactor/quality-fixes plus the contract), contract version 1 (draft); revised after the design review (ADR amendments of 2026-10-02, ADR 0015, 0016) and after the plan review before L-WP5 (amendments "plan review" of ADR 0007, 0008, 0011, 0012, 0013, 0015, 0016); implementation notes of L-WP2 to L-WP6 in the sections and the ADR amendments |
+| Based on | branch `v2` at `2dc6c43` (refactor/quality-fixes plus the contract), contract version 1 (draft); revised after the design review (ADR amendments of 2026-10-02, ADR 0015, 0016) and after the plan review before L-WP5 (amendments "plan review" of ADR 0007, 0008, 0011, 0012, 0013, 0015, 0016); implementation notes of L-WP2 to L-WP7 in the sections and the ADR amendments |
 | Scope | the launcher, its UI-free core library, the WON library, the mod library and mod creator, the tests, the build |
 
 Contents: [1. Goals and constraints](#1-goals-and-constraints) · [2. Module map](#2-module-map) ·
@@ -99,7 +99,9 @@ Empire-Earth.sln
 │                                         Texts (core results -> localized strings), UiOperation (async
 │                                         event handler helper), InstallationService, GameSettingsModel
 │                                         (state of the game settings for two pages), PlayModel (the Play
-│                                         page), RepairAdviceDialog, KryptonThemeService, app.manifest
+│                                         page), IntegrityModel (the integrity check of the selected
+│                                         installation), UpdateModel (the update API), ToolsUserControl (the
+│                                         Tools page), RepairAdviceDialog, KryptonThemeService, app.manifest
 └─ Empire-Earth-Launcher.Tests/           one NUnitLite program: Core/, Launcher/, Won/, Mod/,
                                           Architecture/ (dependency, project and resource rules),
                                           Fakes/ (in-memory registry and file system, fake HTTP, process,
@@ -130,7 +132,15 @@ an architecture test checks; it includes the "collect diagnostic data" checkbox,
 telemetry"). The README keeps them as planned features. The game choice and the Play button, kept without function
 until then, work since L-WP6: below the choice the group shows the file versions of both programs and a state line
 (searching, setup running, started); refusals and start errors are message boxes, a missing program opens the repair
-advice window. Since L-WP5 the *Settings* page is the
+advice window. Since L-WP7 the navigation has the *Tools* page between *Settings* and *Launcher* (integrity state with
+explanation and files, full check with progress and cancel, repair advice, version check of game and setup; laid out
+from its texts and scrolling, so the tools of L-WP8 and L-WP9 can follow), and the Play page shows the integrity state
+below the versions ("Details" opens the *Tools* page, "Repair..." the repair advice when the state offers the repair; a
+legacy installation only its badge, a foreign one nothing) and "Check version" (ADR 0014 amendment of L-WP7). A Damaged
+or Incomplete state is not a window that opens by itself: the check runs in the background after the window is
+shown, so its message of contract 2.5 is the state on the Play page with "Repair...", the explanation on the *Tools*
+page and the repair window, which names the files and puts the antivirus exception first. Since L-WP5 the *Settings*
+page is the
 Game settings page (one scrolling panel; the compatibility warning stands in place of the compatibility options until
 it is confirmed), and the Play page shows the display question or the first visible hint in an info bar with "Hide"
 and "Details".
@@ -200,6 +210,9 @@ Empire_Earth_Mod.exe ──> Empire_Earth_Mod_Lib.dll ──> BCL only
    file and the hashes of the `code` files. Result: OK, Modified, Incomplete, Damaged or Unknown. Not started while
    a setup mutex exists, cancelled when one appears ("check cancelled", no findings), files opened with
    `FileShare.ReadWrite | FileShare.Delete` (ADR 0016 plan review).
+   Implemented in L-WP7 (`IntegrityModel`, `IntegrityChecker`): the quick check starts whenever a search has a new
+   result, so at start and after every setup, and nothing waits for it; a new check cancels the running one and only
+   the latest result counts. Neither a search nor a check runs while a setup runs (the search waits, contract 4.2).
 6. **Defaults first run** per game (contract 3.6), if the marker is missing, **only if the installation is
    unambiguous** for that game settings key (user choice, or the only installation found that uses the key;
    [ADR 0015](adr/0015-game-settings-target-folders-and-write-timing.md)) and the mutation guard allows it
@@ -264,7 +277,10 @@ refused while the mutex exists.
 Implemented in L-WP6 (`SetupWatcher`): the events "setup started" and "setup finished" are the hooks; the pages
 disable Play and every guarded change and name the setup; `InstallationService` searches again on "finished", and a
 refresh while a setup runs only waits and keeps the previous result, so `install.ini` is not read then (contract 4.2).
-A refresh that itself sees the end goes on alone. The integrity check registers the same hooks in L-WP7.
+A refresh that itself sees the end goes on alone. Implemented in L-WP7: `IntegrityModel` cancels a running check on
+"setup started" (the checker also probes the mutexes before every file and after every MiB; the result is "check
+cancelled" without findings, the file closed) and runs the quick check after the search that follows "setup finished"
+(ADR 0016 amendment of L-WP7).
 
 ### 4.4 Reset game settings
 
@@ -299,7 +315,13 @@ the task "Register NeoEE CDKeys"); the folder of a foreign installation is its E
 window (`RepairAdviceDialog`) stays open after "Open download page" and shows the address to copy if the browser
 cannot be opened. The game version check (`&type=game&version=`, contract 4.5) for installations with an AppId runs on
 request and is not optional; the setup version check is (ADR 0008 plan review). TLS: `Program` sets
-`SecurityProtocol` once, `Tls12` on Windows 7 only.
+`SecurityProtocol` once, `Tls12` on Windows 7 only. Implemented in L-WP7 (ADR 0008 amendment of L-WP7): the repair
+window asks the update API when it opens (`UpdateModel.LocateAsync`; "Open download page" waits for the answer, at most
+10 s, and closing the window cancels it) and names the reason below the address when the fixed page is used; for
+Damaged and Incomplete it shows the files (at most ten, the damaged ones first) above the steps. "Check version" on the
+Play page asks the game version, "Check for updates" on the *Tools* page also the setup version (both implemented); an
+outdated version opens the repair window with the hand-off. A missing answer is "could not be asked", never "up to
+date" (the setup's `CheckUpdate` reads it as "no update").
 
 ### 4.6 Tools
 
@@ -448,7 +470,7 @@ Decided in [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md):
   (comments removed, entries with `type` or `mimetype` skipped): the same keys in `en`, `de`, `fr`; no empty
   value; the same `{n}` placeholders. A second test checks that image and file entries exist only in the
   neutral resx; further tests check the generated `Resources` class, the project items and the built satellite
-  assemblies. Since L-WP6 the three languages have the same 154 string keys (L-WP5: 125; L-WP4: 74; L-WP3: 53; before: `en` and
+  assemblies. Since L-WP7 the three languages have the same 213 string keys (L-WP6: 154; L-WP5: 125; L-WP4: 74; L-WP3: 53; before: `en` and
   `fr` 30 each and about 50 designer-only texts, [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md), corrected
   evidence).
 - German is proof-read by the user in the laptop test; French texts are marked "review open" in
@@ -474,8 +496,8 @@ Decided in [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md):
 - **No elevation**: the manifest requests `asInvoker`; the launcher never restarts itself elevated and
   never writes HKLM or other users' hives.
 - **Network**: three destinations only - the NeoEE status server (configured, plain TCP, public data,
-  every reply validated - existing), `api.empireearth.eu` for the setup URL and the optional update check,
-  and DNS lookups in the network diagnostics. HTTPS with certificate validation, TLS 1.2 or newer, never
+  every reply validated - existing), `api.empireearth.eu` for the setup URL and the version check (both only on
+  request, since L-WP7), and DNS lookups in the network diagnostics. HTTPS with certificate validation, TLS 1.2 or newer, never
   `http://`, no redirects, timeouts, `SecurityProtocol` set once (`Tls12` on Windows 7 only, no explicit `Tls13`)
   ([ADR 0008](adr/0008-https-policy-and-update-api.md)); an architecture test
   forbids every certificate-validation override (`ServerCertificateValidationCallback`,
@@ -529,6 +551,10 @@ Decided in [ADR 0012](adr/0012-test-strategy.md):
   the launcher's real folder) and `ProcessRulesTests` (only the shell starter calls `Process.Start`, never without the
   shell or with "runas", nothing ends a process); the laptop package with `Tests\` was built once and its tests ran
   outside the repository with `--where "cat != SourceTree"`: 2213 passed, none failed (ADR 0012 amendment of L-WP6).
+  Implemented in L-WP7: `docs/contract-samples/` with the readers tested against it, `FixtureProvenanceTests` (every
+  64-hex token of the fixtures and samples is a synthetic hash), `NoCertificateOverrideTests` and `TlsSettingTests`, the
+  integrity and update models with fakes (`FakeHttpsClient`), and the counted cost of the checks (ADR 0012 amendment of
+  L-WP7).
 
 ## 12. Build and CI
 
@@ -623,9 +649,20 @@ change (contract 5); the launcher already implements the stated reading:
 - **3.6 First run at start**: "at launcher start class S is only created when both values are missing, and only for an
   installation that is unambiguous for its game settings key; it is synchronized before every start" (ADR 0015 plan
   review).
-- **Shared byte samples** (not a contract text change): `docs/contract-samples/` of the launcher (L-WP7) is to be
-  taken over identically by the setup repository, its unit tests compare the writer's bytes with it and
-  `ci/compare_contract.py` compares the folder (ADR 0012 plan review). Until then the launcher's copy is a proposal.
+- **Shared byte samples** (not a contract text change, hand-over to the setup work): `docs/contract-samples/` exists
+  in the launcher since L-WP7 (`install-admin.ini`, `install-user.ini` with `[MissingAfterInstall]`,
+  `install-portable.ini`, `files.sha256`, `record.reg`, all synthetic, `-text` in `.gitattributes`). The setup repository
+  is to take the folder over identically: its unit tests compare the bytes of `BuildInstallIniText`,
+  `BuildMissingAfterInstallText` and the manifest lines with it, and `ci/compare_contract.py` compares the folder as it
+  compares the contract (ADR 0012 plan review). Until then the launcher's copy is a proposal; a change of a sample is a
+  step in both repositories.
+- **4.5 No answer of the update API** (L-WP7): the setup's `CheckUpdate` treats a missing answer as "no update"; the
+  launcher reports it as "could not be asked" (with the reason in the log), so the player is never told that an
+  unchecked version is current. Proposed wording: "A request without an answer of HTTP 200 is no statement about the
+  version."
+- **2.5 The message of Damaged and Incomplete** (L-WP7, not a text change): the quick check runs in the background, so
+  the launcher gives the message of 2.5 as the state on the Play page with "Repair...", the explanation and the files on
+  the *Tools* page and the repair window; it opens no window by itself.
 - **Old Windows 7 compatibility values in HKCU**: the launcher only shows them and advises running the setup;
   letting the launcher remove them would be a contract change (ADR 0007 plan review). Since contract revision 2 it
   does not show them for an installation whose `Tasks` contain the setup's opt-in task `compatibility_legacy` (3.7
@@ -675,10 +712,12 @@ of L-WP9 need the results of every tool, and L-WP8 holds the WON login reset, a 
 | L-WP8 | Maintenance tools | registry cleanup by the table of 4.6 (HKCU only, advice never names `Software\Sierra`), WON login reset, VirtualStore, saves and scenarios, name checks, all behind the mutation guard |
 | L-WP9 | Network diagnostics, report, laptop package | adapters, DNS, `NeoEE.cfg`, `upnp_info.txt`, `CDKeyCheck`, outage hint, report with the privacy rules of ADR 0013, final docs, test plan without "offen", Release zip with `Tests\` and SHA-256 |
 
-Done so far: L-WP1 to L-WP6 (see the CHANGELOG). Implementation details of L-WP2 that refine ADR 0004, 0005, 0007
+Done so far: L-WP1 to L-WP7 (see the CHANGELOG). Implementation details of L-WP2 that refine ADR 0004, 0005, 0007
 and 0016, of L-WP3 that refine ADR 0009 and 0014, of L-WP4 that refine ADR 0004, 0006, 0015 and 0016, of L-WP5
-that refine ADR 0007, 0011, 0012, 0015 and 0016, and of L-WP6 that refine ADR 0004, 0005, 0010, 0012, 0014 and 0016 are
-recorded in their amendments. From L-WP6 on the laptop package can be built with `Tests\`.
+that refine ADR 0007, 0011, 0012, 0015 and 0016, of L-WP6 that refine ADR 0004, 0005, 0010, 0012, 0014 and 0016, and of
+L-WP7 that refine ADR 0004, 0008, 0012, 0014 and 0016 are recorded in their amendments. From L-WP6 on the laptop package
+can be built with `Tests\`. The MVP for the laptop test (L-WP1 to L-WP7) is complete; nothing of L-WP7 was dropped (the
+setup version check is implemented).
 
 ## 16. Not in v2
 
