@@ -127,6 +127,61 @@ namespace Empire_Earth_Launcher.Core.Platform
             });
         }
 
+        public DriveKind GetDriveKind(string path)
+        {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path));
+            // Device paths (\\?\, \\.\) are no shares; every other path with two leading backslashes is UNC.
+            if (path.StartsWith(@"\\?\", StringComparison.Ordinal) || path.StartsWith(@"\\.\", StringComparison.Ordinal))
+                return DriveKind.Unknown;
+            if (path.StartsWith(@"\\", StringComparison.Ordinal))
+                return DriveKind.Network;
+            try
+            {
+                string root = Path.GetPathRoot(path);
+                if (string.IsNullOrEmpty(root))
+                    return DriveKind.Unknown;
+                var drive = new DriveInfo(root);
+                DriveType type = drive.DriveType;
+                if (type == DriveType.NoRootDirectory)
+                    return DriveKind.NotFound;
+                if (!drive.IsReady)
+                    return DriveKind.NotFound;
+                return ToDriveKind(type);
+            }
+            catch (ArgumentException)
+            {
+                // Mono: "The drive name does not exist"; Windows reports such a drive as NoRootDirectory.
+                return DriveKind.NotFound;
+            }
+            catch (Exception ex) when (IsFileSystemError(ex))
+            {
+                return DriveKind.Unknown;
+            }
+        }
+
+        /// <summary>The kind of a ready drive of <paramref name="type"/>.</summary>
+        internal static DriveKind ToDriveKind(DriveType type)
+        {
+            switch (type)
+            {
+                case DriveType.Fixed:
+                    return DriveKind.Fixed;
+                case DriveType.Removable:
+                    return DriveKind.Removable;
+                case DriveType.Network:
+                    return DriveKind.Network;
+                case DriveType.CDRom:
+                    return DriveKind.Optical;
+                case DriveType.Ram:
+                    return DriveKind.Ram;
+                case DriveType.NoRootDirectory:
+                    return DriveKind.NotFound;
+                default:
+                    return DriveKind.Unknown;
+            }
+        }
+
         private static FileSystemResult<IReadOnlyList<string>> List(Func<string[]> list)
         {
             try

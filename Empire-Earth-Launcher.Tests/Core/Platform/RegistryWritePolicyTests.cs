@@ -120,6 +120,28 @@ namespace Empire_Earth_Launcher.Tests.Core.Platform
             }
         }
 
+        /// <summary>
+        /// The protection without an allow-list (ADR 0007 plan review: the advice of the cleanup is checked with it): the
+        /// protected keys, everything below them and every ancestor, under every alias; any other key, also in HKLM, is not
+        /// protected (the hive rule is the policy's, not the protection's).
+        /// </summary>
+        [TestCase(@"HKLM64\Software\Sierra", RegistryWriteDenial.CdKeys)]
+        [TestCase(@"HKLM64\Software\WOW6432Node\Sierra", RegistryWriteDenial.CdKeys)]
+        [TestCase(@"HKLM32\SOFTWARE", RegistryWriteDenial.CdKeys)]
+        [TestCase(@"HKCU\Software\Classes\VirtualStore\MACHINE\SOFTWARE\WOW6432Node\Sierra", RegistryWriteDenial.CdKeys)]
+        [TestCase(@"HKCU\Software\Classes", RegistryWriteDenial.CdKeys)]
+        [TestCase(@"HKCU\Software\Sierra\CDKeys\Empire Earth", RegistryWriteDenial.CdKeys)]
+        [TestCase(@"HKLM64\Software\Empire Earth Community", RegistryWriteDenial.InstallRecord)]
+        [TestCase(@"HKCU\Software\Microsoft\Windows", RegistryWriteDenial.UninstallKey)]
+        [TestCase(@"HKLM64\Software\SSSI\Empire Earth", RegistryWriteDenial.None)]
+        [TestCase(@"HKLM32\Software\Mad Doc Software\EE-AOC", RegistryWriteDenial.None)]
+        [TestCase(@"HKCU\Software\Classes\VirtualStore\MACHINE\SOFTWARE\WOW6432Node\SSSI\Empire Earth", RegistryWriteDenial.None)]
+        [TestCase(@"HKCU\Software\Sierra\Empire Earth", RegistryWriteDenial.None)]
+        public void ProtectionOf_IgnoresTheAllowList(string location, RegistryWriteDenial expected)
+        {
+            Assert.That(RegistryWritePolicy.ProtectionOf(RegistryLocation.Parse(location)), Is.EqualTo(expected));
+        }
+
         [Test]
         public void Decision_DescribesItself()
         {

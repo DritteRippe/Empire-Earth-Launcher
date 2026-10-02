@@ -114,6 +114,30 @@ namespace Empire_Earth_Launcher.Tests.Core.Platform
             Assert.That(fileSystem.GetFiles(directory.Combine("missing")).Status, Is.EqualTo(FileSystemStatus.NotFound));
         }
 
+        /// <summary>
+        /// The drive of the temporary folder is a present, fixed, local drive (on Windows its drive letter, under Mono the
+        /// root); a UNC path is on the network without asking Windows (no network access in the tests).
+        /// </summary>
+        [Test]
+        public void DriveKind_OfTheTemporaryFolder_IsFixed_UncPathsAreNetwork()
+        {
+            Assert.That(fileSystem.GetDriveKind(directory.Path), Is.EqualTo(DriveKind.Fixed));
+            Assert.That(fileSystem.GetDriveKind(@"\\server\share\Empire Earth"), Is.EqualTo(DriveKind.Network));
+            Assert.That(fileSystem.GetDriveKind(@"\\?\C:\Games"), Is.EqualTo(DriveKind.Unknown));
+        }
+
+        [TestCase(DriveType.Fixed, DriveKind.Fixed)]
+        [TestCase(DriveType.Removable, DriveKind.Removable)]
+        [TestCase(DriveType.Network, DriveKind.Network)]
+        [TestCase(DriveType.CDRom, DriveKind.Optical)]
+        [TestCase(DriveType.Ram, DriveKind.Ram)]
+        [TestCase(DriveType.NoRootDirectory, DriveKind.NotFound)]
+        [TestCase(DriveType.Unknown, DriveKind.Unknown)]
+        public void DriveKind_FollowsTheDriveTypeOfWindows(DriveType type, DriveKind expected)
+        {
+            Assert.That(LocalFileSystem.ToDriveKind(type), Is.EqualTo(expected));
+        }
+
         [Test]
         public void WriteReplaceMoveDelete()
         {

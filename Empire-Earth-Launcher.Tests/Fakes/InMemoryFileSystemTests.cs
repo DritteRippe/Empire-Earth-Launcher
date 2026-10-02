@@ -123,5 +123,21 @@ namespace Empire_Earth_Launcher.Tests.Fakes
 
             Assert.That(timed.GetFileInfo(@"C:\x\a.txt").Value.LastWriteTimeUtc, Is.EqualTo(clock.UtcNow));
         }
+
+        [Test]
+        public void DriveKinds_FixedByDefault_OthersOnRequest_UncOnTheNetwork()
+        {
+            fileSystem.AddDrive("E:", DriveKind.Removable);
+            fileSystem.AddDrive("N:", DriveKind.Network);
+            fileSystem.AddFile(@"D:\Games\EE\a.txt", "a");
+
+            Assert.That(fileSystem.GetDriveKind(@"C:\Program Files (x86)\Empire Earth"), Is.EqualTo(DriveKind.Fixed));
+            Assert.That(fileSystem.GetDriveKind(@"d:\games"), Is.EqualTo(DriveKind.Fixed), "a drive created by a file");
+            Assert.That(fileSystem.GetDriveKind(@"E:\Empire Earth"), Is.EqualTo(DriveKind.Removable));
+            Assert.That(fileSystem.GetDriveKind(@"N:\Empire Earth"), Is.EqualTo(DriveKind.Network));
+            Assert.That(fileSystem.GetDriveKind(@"Q:\Empire Earth"), Is.EqualTo(DriveKind.NotFound));
+            Assert.That(fileSystem.GetDriveKind(@"\\server\share\Empire Earth"), Is.EqualTo(DriveKind.Network));
+            Assert.That(fileSystem.GetDriveKind("Empire Earth"), Is.EqualTo(DriveKind.Unknown), "not a full path");
+        }
     }
 }

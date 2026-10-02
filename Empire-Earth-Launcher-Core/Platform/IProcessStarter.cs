@@ -32,5 +32,11 @@
         /// without a verb, i.e. with the rights of the launcher and not elevated (contract 4.3 step 4).
         /// </summary>
         void OpenUrl(string url);
+
+        /// <summary>
+        /// Opens the existing folder <paramref name="folder"/> (a full path) in the Explorer, through the shell and without a
+        /// verb: "Open backup folder" of the Tools page (ADR 0007).
+        /// </summary>
+        void OpenFolder(string folder);
     }
 }

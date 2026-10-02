@@ -30,6 +30,14 @@ namespace Empire_Earth_Launcher.Core.Platform
             }
         }
 
+        public void OpenFolder(string folder)
+        {
+            using (Process.Start(CreateFolderStartInfo(folder)))
+            {
+                // The Explorer runs on its own; the launcher keeps no handle.
+            }
+        }
+
         /// <summary>
         /// The start of a game: the program through the shell, the game folder as working folder, no arguments, no verb
         /// (no "runas": the launcher never asks for elevation itself) and no error dialog of the shell (the launcher shows
@@ -64,6 +72,25 @@ namespace Empire_Earth_Launcher.Core.Platform
             return new ProcessStartInfo
             {
                 FileName = uri.AbsoluteUri,
+                UseShellExecute = true,
+                Verb = string.Empty,
+                ErrorDialog = false
+            };
+        }
+
+        /// <summary>
+        /// The opening of a folder in the Explorer: the full path of the folder through the shell, no verb, no arguments, no
+        /// error dialog. The path must end with a separator, so that the shell can only take it as a folder and never as a
+        /// program of that name; anything but a full path is refused.
+        /// </summary>
+        public static ProcessStartInfo CreateFolderStartInfo(string folder)
+        {
+            if (!WinPath.IsFullyQualified(folder))
+                throw new ArgumentException("A full path of the folder is required: " + folder, nameof(folder));
+            return new ProcessStartInfo
+            {
+                FileName = WinPath.Normalize(folder).TrimEnd(WinPath.Separator) + WinPath.Separator,
+                Arguments = string.Empty,
                 UseShellExecute = true,
                 Verb = string.Empty,
                 ErrorDialog = false

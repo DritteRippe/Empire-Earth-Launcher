@@ -72,5 +72,10 @@ namespace Empire_Earth_Launcher.Tests.Fakes
         {
             throw new AssertionException("DeleteFile " + path + " called by read-only code.");
         }
+
+        public DriveKind GetDriveKind(string path)
+        {
+            return inner.GetDriveKind(path);
+        }
     }
 }

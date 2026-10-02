@@ -64,5 +64,32 @@ namespace Empire_Earth_Launcher.Tests.Core.Platform
         {
             Assert.That(() => ShellProcessStarter.CreateUrlStartInfo(url), Throws.ArgumentException);
         }
+
+        /// <summary>
+        /// "Open backup folder" (ADR 0007): the folder through the shell, without a verb, ending with a separator, so that the
+        /// shell takes it as a folder and never as a program of that name.
+        /// </summary>
+        [TestCase(@"C:\Users\Player\AppData\Local\Empire Earth Launcher\Backups", @"C:\Users\Player\AppData\Local\Empire Earth Launcher\Backups\")]
+        [TestCase(@"C:\Users\Player\AppData\Local\Empire Earth Launcher\Backups\", @"C:\Users\Player\AppData\Local\Empire Earth Launcher\Backups\")]
+        [TestCase(@"D:\Backups\Empire Earth.exe", @"D:\Backups\Empire Earth.exe\")]
+        [TestCase(@"\\server\share\Backups", @"\\server\share\Backups\")]
+        public void Adr0007_TheBackupFolderOpensInTheExplorerThroughTheShell(string folder, string expected)
+        {
+            ProcessStartInfo info = ShellProcessStarter.CreateFolderStartInfo(folder);
+
+            Assert.That(info.UseShellExecute, Is.True);
+            Assert.That(info.FileName, Is.EqualTo(expected));
+            Assert.That(info.Verb, Is.Empty);
+            Assert.That(info.Arguments, Is.Empty);
+            Assert.That(info.ErrorDialog, Is.False);
+        }
+
+        [TestCase("Backups", TestName = "OpenFolder_RelativePath_IsRefused")]
+        [TestCase("https://empireearth.eu/download", TestName = "OpenFolder_Url_IsRefused")]
+        [TestCase("", TestName = "OpenFolder_Empty_IsRefused")]
+        public void OnlyFullFolderPaths_AreOpened(string folder)
+        {
+            Assert.That(() => ShellProcessStarter.CreateFolderStartInfo(folder), Throws.ArgumentException);
+        }
     }
 }

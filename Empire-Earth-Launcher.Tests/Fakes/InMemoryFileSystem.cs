@@ -31,7 +31,7 @@ namespace Empire_Earth_Launcher.Tests.Fakes
     /// <see cref="Replace"/> needs an existing target. Tests can inject a failure of any operation on a path
     /// (<see cref="FailOn"/>) and count how often a file was opened (<see cref="OpenCount"/>). Drive <c>C:</c>
     /// exists from the start; other drives exist once something is created on them or <see cref="AddDrive"/> is
-    /// called.
+    /// called. Every drive is fixed unless <see cref="AddDrive"/> names another kind; UNC paths are on the network.
     /// </remarks>
     internal sealed class InMemoryFileSystem : IFileSystem
     {
@@ -49,6 +49,7 @@ namespace Empire_Earth_Launcher.Tests.Fakes
         private readonly Dictionary<string, FileData> files = new Dictionary<string, FileData>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, string> directories = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, int> openCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, DriveKind> driveKinds = new Dictionary<string, DriveKind>(StringComparer.OrdinalIgnoreCase);
         private readonly List<Tuple<string, FileSystemOperation, FileSystemStatus>> faults =
             new List<Tuple<string, FileSystemOperation, FileSystemStatus>>();
         private int openStreams;
@@ -86,11 +87,12 @@ namespace Empire_Earth_Launcher.Tests.Fakes
             get { return files.Values.Select(f => f.Path).OrderBy(p => p, StringComparer.OrdinalIgnoreCase).ToList(); }
         }
 
-        /// <summary>Makes a drive (e.g. <c>D:</c>) exist.</summary>
-        public void AddDrive(string drive)
+        /// <summary>Makes a drive (e.g. <c>D:</c>) exist, a fixed one unless <paramref name="kind"/> says otherwise.</summary>
+        public void AddDrive(string drive, DriveKind kind = DriveKind.Fixed)
         {
             string root = WinPath.Normalize(drive);
             directories[root] = root;
+            driveKinds[root] = kind;
         }
 
         /// <summary>Creates a folder and its parents (test setup, never fails).</summary>
@@ -324,6 +326,20 @@ namespace Empire_Earth_Launcher.Tests.Fakes
                 return FileSystemResult.Failure(FileSystemStatus.AccessDenied, "Access to the path " + path + " is denied.");
             files.Remove(key);
             return FileSystemResult.Success;
+        }
+
+        public DriveKind GetDriveKind(string path)
+        {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path));
+            if (!TryKey(path, out string key))
+                return DriveKind.Unknown;
+            string root = RootOf(key);
+            if (root.StartsWith(@"\\", StringComparison.Ordinal))
+                return DriveKind.Network;
+            if (driveKinds.TryGetValue(root, out DriveKind kind))
+                return kind;
+            return directories.ContainsKey(root) ? DriveKind.Fixed : DriveKind.NotFound;
         }
 
         private FileSystemResult<IReadOnlyList<string>> List(string directory, IEnumerable<string> candidates)

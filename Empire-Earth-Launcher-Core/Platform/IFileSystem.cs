@@ -107,6 +107,29 @@ namespace Empire_Earth_Launcher.Core.Platform
         }
     }
 
+    /// <summary>
+    /// The kind of drive a path is on (<see cref="IFileSystem.GetDriveKind"/>). The registry cleanup offers the game settings
+    /// of an installation only when its folder is missing from a present, fixed, local drive: a missing USB stick or network
+    /// drive is not a removed installation (ADR 0007 amendment of the design review).
+    /// </summary>
+    public enum DriveKind
+    {
+        /// <summary>The drive does not exist or is not ready (no medium, disconnected).</summary>
+        NotFound,
+        /// <summary>A local hard disk or SSD.</summary>
+        Fixed,
+        /// <summary>A USB stick, a memory card or another removable drive.</summary>
+        Removable,
+        /// <summary>A network drive or a UNC path (<c>\\server\share</c>).</summary>
+        Network,
+        /// <summary>A CD, DVD or Blu-ray drive.</summary>
+        Optical,
+        /// <summary>A RAM disk.</summary>
+        Ram,
+        /// <summary>Windows does not know the kind, or it cannot be read.</summary>
+        Unknown
+    }
+
     /// <summary>Size, time and attributes of a file.</summary>
     public sealed class FileEntry
     {
@@ -182,5 +205,11 @@ namespace Empire_Earth_Launcher.Core.Platform
 
         /// <summary>Deletes a file; <see cref="FileSystemStatus.NotFound"/> if it does not exist.</summary>
         FileSystemResult DeleteFile(string path);
+
+        /// <summary>
+        /// The kind of the drive <paramref name="path"/> is on (its root; the path itself need not exist): network for a UNC
+        /// path, <see cref="DriveKind.NotFound"/> for a drive that does not exist or is not ready. Never throws for a path.
+        /// </summary>
+        DriveKind GetDriveKind(string path);
     }
 }

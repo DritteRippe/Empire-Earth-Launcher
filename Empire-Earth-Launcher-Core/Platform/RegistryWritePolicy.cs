@@ -295,6 +295,20 @@ namespace Empire_Earth_Launcher.Core.Platform
             return new RegistryWriteDecision(operation, key, valueName, canonical, denial);
         }
 
+        /// <summary>
+        /// The protection of <paramref name="key"/> whatever an allow-list says: <see cref="RegistryWriteDenial.CdKeys"/>,
+        /// <see cref="RegistryWriteDenial.InstallRecord"/> or <see cref="RegistryWriteDenial.UninstallKey"/> if its canonical
+        /// form is a protected key, below one or an ancestor of one, in any hive, view or alias; otherwise
+        /// <see cref="RegistryWriteDenial.None"/>. The cleanup advice is checked with it: no advice may name such a key as
+        /// something to delete (ADR 0007 plan review). Never throws for a location.
+        /// </summary>
+        public static RegistryWriteDenial ProtectionOf(RegistryLocation key)
+        {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+            return FindProtection(key, RegistryPath.Canonicalize(key));
+        }
+
         /// <summary>The content check of a compatibility value (contract 3.7, ADR 0007 plan review).</summary>
         private static bool IsAllowedLayerChange(RegistryOperation operation, IReadOnlyList<string> switchable,
             RegistryValue newValue, Func<RegistryResult<RegistryValue>> readCurrentValue)
