@@ -221,14 +221,24 @@ namespace Empire_Earth_Launcher
             {
                 report = await checker.CheckAsync(installation, kind, progress, cancellation.Token);
             }
-            finally
+            catch (Exception)
             {
+                // A bug of the check (environment problems are results): the pages must not say "checking" for ever. The
+                // fault itself is logged by the continuation of Start.
                 if (current == generation)
                 {
                     running = null;
                     RunningCheck = null;
                     Progress = null;
+                    RaiseChanged();
                 }
+                throw;
+            }
+            if (current == generation)
+            {
+                running = null;
+                RunningCheck = null;
+                Progress = null;
             }
             if (current != generation)
                 return report; // a later check (another installation, the full check) has started; its result counts

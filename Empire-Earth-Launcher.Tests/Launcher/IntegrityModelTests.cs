@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -296,6 +297,30 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(firstReport.State, Is.EqualTo(IntegrityState.Cancelled));
             Assert.That(secondReport.UnknownReason, Is.EqualTo(UnknownReason.LegacySetup));
             Assert.That(model.Report, Is.SameAs(secondReport), "the report of the selected installation");
+        }
+
+        [Test]
+        public async Task ACheckThatFails_IsLogged_AndThePagesNoLongerSayChecking()
+        {
+            InstallNeoEE();
+            await SearchAndCheck();
+            world.FileSystem.OnRead = path =>
+            {
+                if (path == EeProgram)
+                    throw new InvalidOperationException("Injected bug.");
+            };
+            int before = changed;
+
+            Task<IntegrityReport> check = model.StartFullCheckAsync();
+
+            Assert.That(async () => await check, Throws.InvalidOperationException);
+            Assert.That(model.IsChecking, Is.False);
+            Assert.That(changed, Is.GreaterThanOrEqualTo(before + 2), "started and ended");
+            // The fault is logged by a continuation on the thread pool.
+            string line = "The integrity check of " + Root + " failed.";
+            for (int i = 0; i < 200 && !world.Logger.Messages.Any(message => message.Contains(line)); i++)
+                await Task.Delay(25);
+            Assert.That(world.Logger.Messages, Has.Some.Contains(line));
         }
 
         [Test]
