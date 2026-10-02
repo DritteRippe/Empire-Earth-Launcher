@@ -30,7 +30,8 @@ is reached and never stops when the input ends early, so a damaged or crafted ar
 
 ## NuGet packages
 
-Restored into `packages/` at build time, not committed.
+Restored into `packages/` at build time, not committed. The projects target the .NET Framework 4.8 and
+reference the `lib/net48` build of Krypton.Toolkit and the `lib/net45` builds of NUnit and NUnitLite.
 
 | Package | Version | License | Project |
 |---|---|---|---|
@@ -43,8 +44,10 @@ Tests only (`Empire-Earth-Launcher.Tests`, not shipped):
 | NUnit | 3.14.0 | MIT | https://nunit.org/ |
 | NUnitLite | 3.14.0 | MIT | https://nunit.org/ |
 
-Build-time only (CI, not shipped): `Microsoft.NETFramework.ReferenceAssemblies.net40` 1.0.3,
-.NET Framework 4.0 reference assemblies by Microsoft.
+Build-time only (CI and the documented command-line build, not shipped):
+`Microsoft.NETFramework.ReferenceAssemblies.net48` 1.0.3, the .NET Framework 4.8 reference assemblies by
+Microsoft (license named in the package: https://github.com/Microsoft/dotnet/blob/master/LICENSE). Nothing of
+it ends up in the build output.
 
 ## License texts in binary distributions
 

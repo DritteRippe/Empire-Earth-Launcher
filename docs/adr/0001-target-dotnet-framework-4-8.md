@@ -78,3 +78,12 @@ to the user's test laptop.
   `v4.8` folder, then the tests from `bin/Release`. The last work package packs the Release builds of launcher
   and mod creator (with `de/` and `fr/` satellite folders, `LICENSE`, `THIRD-PARTY-NOTICES.md`,
   `licenses/THIRD-PARTY-LICENSES.txt`) into a zip with a SHA-256 file for the laptop test (ADR 0012).
+
+Implementation note (L-WP1, 2026-10-02): the local Release build works as decided, with two details that the
+amendment did not know. Mono's `xbuild` ignores `FrameworkPathOverride` and resolves the framework through
+`TargetFrameworkRootPath` (the build passes both, like CI); its `ResolveAssemblyReference` reads every `.dll`
+of the framework folder and fails on the mixed-mode stubs `System.EnterpriseServices.Thunk.dll` and
+`System.EnterpriseServices.Wrapper.dll` of the package, so the local build uses a copy without these two files
+(no project references them). xbuild's `Csc` task also has no `Win32Manifest` parameter, so the local build adds
+`/win32manifest` for projects with an `ApplicationManifest` itself. The build log shows every compilation
+referencing `mscorlib` of the package; `verify_launcher.sh` (Debug) keeps using Mono's `4.8-api`.

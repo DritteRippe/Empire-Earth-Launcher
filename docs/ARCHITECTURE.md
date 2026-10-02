@@ -431,8 +431,14 @@ Decided in [ADR 0001](adr/0001-target-dotnet-framework-4-8.md) and
   `4.8-api` reference assemblies, then every `*Tests.exe` under Mono.
 - **Local Release build (CI reproduced)**: because nothing is pushed during the v2 work, the CI artifacts
   do not exist; a local script installs `Microsoft.NETFramework.ReferenceAssemblies.net48` 1.0.3 with
-  `mono nuget.exe install`, builds `/p:Configuration=Release` with `FrameworkPathOverride` on its `v4.8`
-  folder and runs the tests from `bin/Release`. The **laptop package** (zip of the Release builds of launcher
+  `mono nuget.exe install`, builds `/p:Configuration=Release` with `TargetFrameworkRootPath` and
+  `FrameworkPathOverride` on that package (as CI does) and runs the tests from `bin/Release`. It lives in the
+  scratch folder of the v2 work, not in the repository, because it depends on local paths. Two gaps of xbuild
+  are bridged there and checked after the build: xbuild resolves the framework only through
+  `TargetFrameworkRootPath` and cannot read the two mixed-mode stubs `System.EnterpriseServices.Thunk.dll` and
+  `.Wrapper.dll` of the package (a copy without them is used; no project references them, Mono's own `4.8-api`
+  lacks them too), and its `Csc` task ignores `ApplicationManifest` (the compiler wrapper adds
+  `/win32manifest`, as MSBuild does). The **laptop package** (zip of the Release builds of launcher
   and mod creator with `de/`, `fr/`, `LICENSE`, `THIRD-PARTY-NOTICES.md`, `licenses/THIRD-PARTY-LICENSES.txt`,
   plus a `.sha256` file) is made in the scratch folder, never committed.
 - **CI** (`windows-latest`): NuGet restore, MSBuild Release against
