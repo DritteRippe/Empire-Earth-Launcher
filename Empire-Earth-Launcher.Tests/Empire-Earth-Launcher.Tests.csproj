@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="Architecture\ApplyTextsTests.cs" />
     <Compile Include="Architecture\CoreDependencyTests.cs" />
+    <Compile Include="Architecture\FixtureProvenanceTests.cs" />
     <Compile Include="Architecture\NoCertificateOverrideTests.cs" />
     <Compile Include="Architecture\PlaceholderControlsTests.cs" />
     <Compile Include="Architecture\ProcessRulesTests.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="Core\Backup\RegFileWriterTests.cs" />
     <Compile Include="Core\Backup\RegistryExportTests.cs" />
     <Compile Include="Core\Contract\CompatibilityLayersTests.cs" />
+    <Compile Include="Core\Contract\ContractSampleTests.cs" />
     <Compile Include="Core\Contract\ContractNamesTests.cs" />
     <Compile Include="Core\Contract\GameTests.cs" />
     <Compile Include="Core\GameSettings\CompatibilityOptionsTests.cs" />
@@ -206,6 +208,26 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Core\Backup\Golden\UnknownTypes.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\docs\contract-samples\files.sha256">
+      <Link>ContractSamples\files.sha256</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\docs\contract-samples\install-admin.ini">
+      <Link>ContractSamples\install-admin.ini</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\docs\contract-samples\install-portable.ini">
+      <Link>ContractSamples\install-portable.ini</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\docs\contract-samples\install-user.ini">
+      <Link>ContractSamples\install-user.ini</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\docs\contract-samples\record.reg">
+      <Link>ContractSamples\record.reg</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="App.config" />

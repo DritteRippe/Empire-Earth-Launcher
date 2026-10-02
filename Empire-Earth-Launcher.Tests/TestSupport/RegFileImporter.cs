@@ -12,8 +12,9 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
     /// <summary>
     /// Imports a <c>.reg</c> file into an <see cref="InMemoryRegistry"/> the way the Registry Editor does it on a
     /// double-click: every key is created, every value written, every <c>"name"=-</c> deleted; keys are never deleted.
-    /// Only for the tests of the backups ("importing the file restores the previous values exactly", ADR 0007); it reads
-    /// the HKCU keys and value forms <c>RegFileWriter</c> writes.
+    /// Only for the tests of the backups ("importing the file restores the previous values exactly", ADR 0007) and of the
+    /// record sample of the contract (<c>docs/contract-samples/record.reg</c>); it reads the HKCU and HKLM keys (64-bit view,
+    /// <c>WOW6432Node</c> as the 32-bit view) and the value forms <c>RegFileWriter</c> writes.
     /// </summary>
     internal static class RegFileImporter
     {
@@ -36,9 +37,7 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
             {
                 if (line.StartsWith("[", StringComparison.Ordinal))
                 {
-                    string name = line.Substring(1, line.Length - 2);
-                    Assert.That(name, Does.StartWith(@"HKEY_CURRENT_USER\"));
-                    key = RegistryLocation.CurrentUser(name.Substring(@"HKEY_CURRENT_USER\".Length));
+                    key = KeyOf(line.Substring(1, line.Length - 2));
                     registry.SeedKey(key);
                     continue;
                 }
@@ -51,6 +50,20 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
                 else
                     registry.Seed(key, valueName, ReadValue(data));
             }
+        }
+
+        private static RegistryLocation KeyOf(string name)
+        {
+            const string CurrentUser = @"HKEY_CURRENT_USER\";
+            const string LocalMachine = @"HKEY_LOCAL_MACHINE\";
+            const string Wow64 = @"Software\WOW6432Node\";
+            if (name.StartsWith(CurrentUser, StringComparison.Ordinal))
+                return RegistryLocation.CurrentUser(name.Substring(CurrentUser.Length));
+            Assert.That(name, Does.StartWith(LocalMachine), "HKCU or HKLM");
+            string path = name.Substring(LocalMachine.Length);
+            return path.StartsWith(Wow64, StringComparison.OrdinalIgnoreCase)
+                ? RegistryLocation.LocalMachine32(@"Software\" + path.Substring(Wow64.Length))
+                : RegistryLocation.LocalMachine64(path);
         }
 
         private static string ReadName(string line, out int equals)
