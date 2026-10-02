@@ -670,4 +670,116 @@ Your current settings are saved first as .reg files in {1}; double-click such a 
     <value>Empire Earth Launcher is already running. Please use the open window (it may be minimized or behind other windows).</value>
     <comment>Message when the launcher is started a second time in the same Windows session (ADR 0010); the second launcher ends after it.</comment>
   </data>
+  <data name="PlayVersionFormat" xml:space="preserve">
+    <value>{0}: version {1}</value>
+    <comment>Play page, one line per program (forum report section 8 row 1). {0}: Empire Earth.exe or EE-AOC.exe, {1}: the file version, e.g. 2.0.0.2949.</comment>
+  </data>
+  <data name="PlayVersionMissingFormat" xml:space="preserve">
+    <value>{0}: missing</value>
+    <comment>Play page: the program file does not exist. {0}: Empire Earth.exe or EE-AOC.exe.</comment>
+  </data>
+  <data name="PlayVersionUnknownFormat" xml:space="preserve">
+    <value>{0}: no version information</value>
+    <comment>Play page: the program has no version resource. {0}: Empire Earth.exe or EE-AOC.exe.</comment>
+  </data>
+  <data name="PlayStartedFormat" xml:space="preserve">
+    <value>{0} was started.</value>
+    <comment>Play page after a start. {0}: Empire Earth or The Art of Conquest.</comment>
+  </data>
+  <data name="SetupRunningFormat" xml:space="preserve">
+    <value>The {0} setup is running. Until it has ended, the launcher starts no game and changes no game settings.</value>
+    <comment>Play and Settings pages while EE_Setup or NeoEE_Setup exists (contract 4.2). {0}: Empire Earth or NeoEE.</comment>
+  </data>
+  <data name="InstallationsWaitingForSetup" xml:space="preserve">
+    <value>A setup is running. The installations are searched when it has ended.</value>
+    <comment>Instead of the installations while a setup runs (contract 4.2: install.ini is not read then).</comment>
+  </data>
+  <data name="StartAlreadyRunningFormat" xml:space="preserve">
+    <value>{0} is already running. The launcher does not start it a second time.</value>
+    <comment>Message after Play when the game's mutex exists. {0}: Empire Earth.exe or EE-AOC.exe.</comment>
+  </data>
+  <data name="StartHangingHintFormat" xml:space="preserve">
+    <value>If you cannot see its window, it may hang: open the Task Manager (Ctrl+Shift+Esc), select {0} on the Details tab, click "End task" and start the game again. The launcher never ends a program itself.</value>
+    <comment>Added below StartAlreadyRunningFormat when a process of that name exists (forum report section 8 row 14, t=2815, t=5859). {0}: Empire Earth.exe or EE-AOC.exe. Use the names of the Task Manager of Windows in this language.</comment>
+  </data>
+  <data name="StartOtherGameRunningFormat" xml:space="preserve">
+    <value>{0} is running. Start {1} anyway? Both games at the same time can become unstable.</value>
+    <comment>Question with Yes and No after Play. {0}: the program that runs (Empire Earth.exe or EE-AOC.exe), {1}: the game to start (Empire Earth or The Art of Conquest).</comment>
+  </data>
+  <data name="StartFolderMissingFormat" xml:space="preserve">
+    <value>The folder {0} does not exist. Choose the game folder on the Launcher page.</value>
+    <comment>Message after Play when the chosen folder is gone. {0}: the folder.</comment>
+  </data>
+  <data name="StartElevationCancelled" xml:space="preserve">
+    <value>The game was not started because the request for administrator rights was cancelled. Windows asks for them because "Run as administrator" is set for the game.</value>
+    <comment>Message after Play when the UAC prompt of a RUNASADMIN layer was cancelled (Windows error 1223).</comment>
+  </data>
+  <data name="StartAccessDeniedFormat" xml:space="preserve">
+    <value>Windows did not allow starting {0} (error {1}). Check the security settings of the file and your antivirus program.</value>
+    <comment>Message after Play (Windows error 5 or 1260). {0}: the full path of the program, {1}: the error number.</comment>
+  </data>
+  <data name="StartFailedFormat" xml:space="preserve">
+    <value>{0} could not be started (Windows error {1}): {2}</value>
+    <comment>Message after Play for any other error. {0}: the full path of the program, {1}: the error number, {2}: the message of Windows.</comment>
+  </data>
+  <data name="StartDamagedFormat" xml:space="preserve">
+    <value>{0} is missing. The installation is damaged; Windows or an antivirus program has probably deleted the file or moved it to quarantine.</value>
+    <comment>First line of the repair advice when a program is missing (contract 1.4, 4.4). {0}: the full path of the program.</comment>
+  </data>
+  <data name="StartBlockedByAntivirusFormat" xml:space="preserve">
+    <value>Windows did not start {0} because an antivirus program reports it as a threat (error {1}).</value>
+    <comment>First line of the repair advice (Windows error 225 or 226). {0}: the full path of the program, {1}: the error number.</comment>
+  </data>
+  <data name="RepairAdviceTitle" xml:space="preserve">
+    <value>Repair the installation</value>
+    <comment>Title of the window with the repair advice (contract 4.4).</comment>
+  </data>
+  <data name="RepairStepAntivirusFormat" xml:space="preserve">
+    <value>First add an exception for the folder {0} in your antivirus program; otherwise it removes the files again.</value>
+    <comment>Step of the repair advice when files were deleted (contract 4.4). {0}: the install root.</comment>
+  </data>
+  <data name="RepairStepRunSetup" xml:space="preserve">
+    <value>Close the game. Download the current community setup and run it: it finds the installation and offers to update or repair it.</value>
+    <comment>Step of the repair advice (contract 4.4).</comment>
+  </data>
+  <data name="RepairStepKeepFolderAllUsersFormat" xml:space="preserve">
+    <value>Keep the folder {0} and choose "Install for all users" again.</value>
+    <comment>Step of the repair advice for an installation in the mode admin (contract 4.4). {0}: the install root. The quoted text is the option of Inno Setup in this language (PrivilegesRequiredOverrideAllUsers without the &amp;).</comment>
+  </data>
+  <data name="RepairStepKeepFolderCurrentUserFormat" xml:space="preserve">
+    <value>Keep the folder {0} and choose "Install for me only" again.</value>
+    <comment>Step of the repair advice for an installation in the mode user (contract 4.4). {0}: the install root. The quoted text is the option of Inno Setup in this language (PrivilegesRequiredOverrideCurrentUser without the &amp;).</comment>
+  </data>
+  <data name="RepairStepKeepFolderPortableFormat" xml:space="preserve">
+    <value>Run the portable setup again from the same place, so that it uses the folder {0} again.</value>
+    <comment>Step of the repair advice for a portable installation (contract 4.4). {0}: the install root.</comment>
+  </data>
+  <data name="RepairStepKeepFolderFormat" xml:space="preserve">
+    <value>Keep the folder {0}.</value>
+    <comment>Step of the repair advice when the install mode is unknown (contract 4.4). {0}: the install root.</comment>
+  </data>
+  <data name="RepairStepCdKeys" xml:space="preserve">
+    <value>Keep the task "Register NeoEE CDKeys" selected: it also repairs the CD keys.</value>
+    <comment>Step of the repair advice for NeoEE (contract 4.4). The quoted text is the start of the setup's task TaskNeoEECDKeys in this language.</comment>
+  </data>
+  <data name="RepairStepForeignFormat" xml:space="preserve">
+    <value>The installation in {0} was not made by the community setup (for example a CD or GOG installation). The setup does not repair it; it installs its own copy of the game in a new folder.</value>
+    <comment>Step of the repair advice for a foreign installation (contract 4.4). {0}: the install root.</comment>
+  </data>
+  <data name="RepairDownloadPageLabel" xml:space="preserve">
+    <value>Download page of the community setup:</value>
+    <comment>Repair advice, above the address of the download page (contract 4.3).</comment>
+  </data>
+  <data name="RepairOpenPageButton" xml:space="preserve">
+    <value>Open download page</value>
+    <comment>Button of the repair advice; opens the download page in the browser; at most about 24 characters.</comment>
+  </data>
+  <data name="RepairCloseButton" xml:space="preserve">
+    <value>Close</value>
+    <comment>Button of the repair advice; at most about 24 characters.</comment>
+  </data>
+  <data name="RepairPageNotOpenedFormat" xml:space="preserve">
+    <value>The page could not be opened. Copy the address into your browser: {0}</value>
+    <comment>Repair advice when the browser could not be opened. {0}: the address of the download page.</comment>
+  </data>
 </root>

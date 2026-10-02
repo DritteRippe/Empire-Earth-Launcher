@@ -7,6 +7,7 @@ using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Lobby;
 using Empire_Earth_Launcher.Core.Platform;
 using Empire_Earth_Launcher.Core.Play;
+using Empire_Earth_Launcher.Core.Repair;
 using Empire_Earth_Launcher.Core.Settings;
 using Empire_Earth_Launcher.Tests.Fakes;
 using Empire_Earth_Launcher.Tests.TestSupport;
@@ -355,6 +356,132 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(() => Texts.InstallationStateHint(null), Throws.ArgumentNullException);
             Assert.That(Enum.GetValues(typeof(InstallationKind)).Cast<InstallationKind>().Select(Texts.InstallationKindName),
                 Is.Unique);
+        }
+
+        // --- Play (L-WP6) -------------------------------------------------------------------------------------------------
+
+        private const string PlayRoot = @"C:\Program Files (x86)\Neo Empire Earth";
+
+        private static Installation PlayInstallation(InstallMode mode = InstallMode.Admin, InstallationKind kind = InstallationKind.Community)
+        {
+            return new Installation(Product.NeoEE, PlayRoot, PlayRoot + @"\Empire Earth", PlayRoot + @"\Empire Earth - The Art of Conquest",
+                kind, mode, new[] { InstallationSource.RegistryRecord });
+        }
+
+        private static StartResult Result(StartOutcome outcome, Game game = null)
+        {
+            Installation installation = PlayInstallation();
+            game = game ?? Game.EmpireEarth;
+            return new StartResult(outcome, installation, game,
+                WinPath.Combine(installation.GetGameFolder(game), game.ProgramName));
+        }
+
+        [Test]
+        public void ProgramVersions_OneLinePerProgram()
+        {
+            var fileSystem = new InMemoryFileSystem();
+            fileSystem.AddFile(PlayRoot + @"\Empire Earth\Empire Earth.exe", "program");
+            fileSystem.AddFile(PlayRoot + @"\Empire Earth - The Art of Conquest\EE-AOC.exe", "program");
+            var reader = new FakeFileVersionReader().With(PlayRoot + @"\Empire Earth\Empire Earth.exe", "2.0.0.2949");
+
+            Assert.That(Texts.ProgramVersions(new ProgramVersions(fileSystem, reader).Read(PlayInstallation())), Is.EqualTo(
+                "Empire Earth.exe: version 2.0.0.2949" + Environment.NewLine + "EE-AOC.exe: no version information"));
+            Assert.That(Texts.ProgramVersions(new ProgramVersions(new InMemoryFileSystem(), reader).Read(PlayInstallation())),
+                Is.EqualTo("Empire Earth.exe: missing" + Environment.NewLine + "EE-AOC.exe: missing"));
+        }
+
+        [Test]
+        public void SetupRunning_NamesTheProduct()
+        {
+            Assert.That(Texts.SetupRunning(null), Is.Null);
+            Assert.That(Texts.SetupRunning(Product.NeoEE), Is.EqualTo(
+                "The NeoEE setup is running. Until it has ended, the launcher starts no game and changes no game settings."));
+        }
+
+        [Test]
+        public void StartMessage_HasATextForEveryOutcome()
+        {
+            foreach (StartOutcome outcome in Enum.GetValues(typeof(StartOutcome)))
+            {
+                StartResult result = Result(outcome);
+                result.RunningSetup = Product.EE;
+                result.OtherGame = Game.ArtOfConquest;
+                result.ErrorCode = 5;
+                result.ErrorMessage = "Access is denied";
+                Assert.That(Texts.StartMessage(result), Is.Not.Empty, outcome.ToString());
+            }
+        }
+
+        [Test]
+        public void StartMessage_Texts()
+        {
+            string program = PlayRoot + @"\Empire Earth\Empire Earth.exe";
+            Assert.That(Texts.StartMessage(Result(StartOutcome.Started, Game.ArtOfConquest)), Is.EqualTo("The Art of Conquest was started."));
+            StartResult other = Result(StartOutcome.OtherGameRunning, Game.ArtOfConquest);
+            other.OtherGame = Game.EmpireEarth;
+            Assert.That(Texts.StartMessage(other), Is.EqualTo(
+                "Empire Earth.exe is running. Start The Art of Conquest anyway? Both games at the same time can become unstable."));
+            Assert.That(Texts.StartMessage(Result(StartOutcome.FolderMissing)), Is.EqualTo(
+                "The folder " + PlayRoot + @"\Empire Earth does not exist. Choose the game folder on the Launcher page."));
+            Assert.That(Texts.StartMessage(Result(StartOutcome.Damaged)), Does.StartWith(program + " is missing. The installation is damaged"));
+            StartResult failed = Result(StartOutcome.Failed);
+            failed.ErrorCode = 740;
+            failed.ErrorMessage = "The requested operation requires elevation";
+            Assert.That(Texts.StartMessage(failed), Is.EqualTo(
+                program + " could not be started (Windows error 740): The requested operation requires elevation"));
+            Assert.That(Texts.StartMessage(Result(StartOutcome.ElevationCancelled)), Does.Contain("\"Run as administrator\""));
+        }
+
+        [Test]
+        public void StartMessage_Forum18_TheHangingHintOnlyWithAProcess()
+        {
+            StartResult running = Result(StartOutcome.AlreadyRunning);
+            Assert.That(Texts.StartMessage(running), Is.EqualTo(
+                "Empire Earth.exe is already running. The launcher does not start it a second time."));
+
+            running.ProcessFound = true;
+            Assert.That(Texts.StartMessage(running), Does.StartWith(
+                "Empire Earth.exe is already running. The launcher does not start it a second time." + Environment.NewLine +
+                Environment.NewLine + "If you cannot see its window, it may hang: open the Task Manager (Ctrl+Shift+Esc), select " +
+                "Empire Earth.exe on the Details tab").And.EndWith("The launcher never ends a program itself."));
+        }
+
+        [Test]
+        public void RepairSteps_Contract_4_4_NeoEEForAllUsers()
+        {
+            Installation installation = PlayInstallation();
+            RepairAdvice advice = RepairAdvice.For(installation, RepairReason.ProgramMissing, new[] { Game.EmpireEarth });
+
+            Assert.That(Texts.RepairSteps(advice).Split(new[] { Environment.NewLine }, StringSplitOptions.None), Is.EqualTo(new[]
+            {
+                "1. First add an exception for the folder " + PlayRoot + " in your antivirus program; otherwise it removes the files again.",
+                "2. Close the game. Download the current community setup and run it: it finds the installation and offers to update or repair it.",
+                "3. Keep the folder " + PlayRoot + " and choose \"Install for all users\" again.",
+                "4. Keep the task \"Register NeoEE CDKeys\" selected: it also repairs the CD keys."
+            }));
+        }
+
+        [TestCase(InstallMode.User, "choose \"Install for me only\" again.")]
+        [TestCase(InstallMode.Portable, "Run the portable setup again from the same place")]
+        [TestCase(InstallMode.Unknown, "Keep the folder " + PlayRoot + ".")]
+        public void RepairSteps_Contract_4_4_TheModeOfTheInstallation(InstallMode mode, string expected)
+        {
+            RepairAdvice advice = RepairAdvice.For(PlayInstallation(mode), RepairReason.Requested);
+
+            Assert.That(Texts.RepairSteps(advice), Does.Contain(expected));
+        }
+
+        [Test]
+        public void RepairSteps_Contract_4_4_AForeignInstallationIsNotRepaired()
+        {
+            var foreign = new Installation(Product.EE, @"D:\", @"D:\Empire Earth", null, InstallationKind.Foreign, InstallMode.Unknown,
+                new[] { InstallationSource.InstalledFrom });
+            RepairAdvice advice = RepairAdvice.For(foreign, RepairReason.ProgramMissing, new[] { Game.EmpireEarth });
+
+            Assert.That(Texts.RepairSteps(advice), Is.EqualTo(
+                @"1. The installation in D:\Empire Earth was not made by the community setup (for example a CD or GOG installation). " +
+                "The setup does not repair it; it installs its own copy of the game in a new folder." + Environment.NewLine +
+                @"2. First add an exception for the folder D:\Empire Earth in your antivirus program; otherwise it removes the files again."));
         }
     }
 }

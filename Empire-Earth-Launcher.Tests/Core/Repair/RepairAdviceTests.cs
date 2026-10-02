@@ -96,6 +96,15 @@ namespace Empire_Earth_Launcher.Tests.Core.Repair
             Assert.That(requested.Steps, Is.EqualTo(new[] { RepairStep.ForeignNotRepaired }));
             Assert.That(missing.Steps, Is.EqualTo(new[] { RepairStep.ForeignNotRepaired, RepairStep.AddAntivirusException }));
             Assert.That(missing.MissingPrograms, Is.EqualTo(new[] { Game.EmpireEarth }));
+            Assert.That(missing.Folder, Is.EqualTo(@"C:\Games\EE"), "never a whole drive as antivirus exception");
+        }
+
+        [Test]
+        public void Contract_4_4_TheFolderOfACommunityInstallation_IsItsRoot()
+        {
+            RepairAdvice advice = RepairAdvice.For(Community(Product.NeoEE, NeoRoot, InstallMode.Admin), RepairReason.Requested);
+
+            Assert.That(advice.Folder, Is.EqualTo(NeoRoot));
         }
 
         [Test]

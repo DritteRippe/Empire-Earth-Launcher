@@ -91,6 +91,15 @@ namespace Empire_Earth_Launcher.Core.Repair
         /// <summary>The games whose program is missing (<see cref="RepairReason.ProgramMissing"/>); empty otherwise.</summary>
         public IReadOnlyList<Game> MissingPrograms { get; }
 
+        /// <summary>
+        /// The folder the advice names (the antivirus exception, "keep the folder"): the install root of a community
+        /// installation, the EE folder of a foreign one, whose root can be a whole drive (<c>D:\</c>).
+        /// </summary>
+        public string Folder
+        {
+            get { return Installation.Kind == InstallationKind.Foreign ? Installation.EeFolder : Installation.Root; }
+        }
+
         /// <summary>The steps of contract 4.4 that apply, in order.</summary>
         public IReadOnlyList<RepairStep> Steps { get; }
 

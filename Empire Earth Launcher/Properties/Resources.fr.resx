@@ -505,4 +505,88 @@ Vos paramètres actuels sont d'abord enregistrés dans des fichiers .reg dans {1
   <data name="LauncherAlreadyRunning" xml:space="preserve">
     <value>Empire Earth Launcher est déjà ouvert. Utilisez la fenêtre ouverte (elle est peut-être réduite ou cachée par d'autres fenêtres).</value>
   </data>
+  <data name="PlayVersionFormat" xml:space="preserve">
+    <value>{0} : version {1}</value>
+  </data>
+  <data name="PlayVersionMissingFormat" xml:space="preserve">
+    <value>{0} : absent</value>
+  </data>
+  <data name="PlayVersionUnknownFormat" xml:space="preserve">
+    <value>{0} : aucune information de version</value>
+  </data>
+  <data name="PlayStartedFormat" xml:space="preserve">
+    <value>{0} a été lancé.</value>
+  </data>
+  <data name="SetupRunningFormat" xml:space="preserve">
+    <value>Le setup de {0} est en cours. Tant qu'il n'est pas terminé, le launcher ne lance aucun jeu et ne modifie aucun paramètre du jeu.</value>
+  </data>
+  <data name="InstallationsWaitingForSetup" xml:space="preserve">
+    <value>Un setup est en cours. Les installations seront recherchées dès qu'il sera terminé.</value>
+  </data>
+  <data name="StartAlreadyRunningFormat" xml:space="preserve">
+    <value>{0} est déjà en cours d'exécution. Le launcher ne le lance pas une deuxième fois.</value>
+  </data>
+  <data name="StartHangingHintFormat" xml:space="preserve">
+    <value>Si vous ne voyez pas sa fenêtre, il est peut-être bloqué : ouvrez le Gestionnaire des tâches (Ctrl+Maj+Échap), sélectionnez {0} dans l'onglet « Détails », cliquez sur « Fin de tâche » puis relancez le jeu. Le launcher ne ferme jamais un programme lui-même.</value>
+  </data>
+  <data name="StartOtherGameRunningFormat" xml:space="preserve">
+    <value>{0} est en cours d'exécution. Lancer quand même {1} ? Les deux jeux en même temps peuvent devenir instables.</value>
+  </data>
+  <data name="StartFolderMissingFormat" xml:space="preserve">
+    <value>Le dossier {0} n'existe pas. Choisissez le dossier du jeu sur la page « Launcher ».</value>
+  </data>
+  <data name="StartElevationCancelled" xml:space="preserve">
+    <value>Le jeu n'a pas été lancé car la demande de droits d'administrateur a été annulée. Windows les demande parce que « Exécuter en tant qu'administrateur » est activé pour le jeu.</value>
+  </data>
+  <data name="StartAccessDeniedFormat" xml:space="preserve">
+    <value>Windows n'a pas autorisé le lancement de {0} (erreur {1}). Vérifiez les paramètres de sécurité du fichier et votre antivirus.</value>
+  </data>
+  <data name="StartFailedFormat" xml:space="preserve">
+    <value>Impossible de lancer {0} (erreur Windows {1}) : {2}</value>
+  </data>
+  <data name="StartDamagedFormat" xml:space="preserve">
+    <value>{0} est absent. L'installation est endommagée ; Windows ou un antivirus a probablement supprimé le fichier ou l'a mis en quarantaine.</value>
+  </data>
+  <data name="StartBlockedByAntivirusFormat" xml:space="preserve">
+    <value>Windows n'a pas lancé {0} car un antivirus le signale comme une menace (erreur {1}).</value>
+  </data>
+  <data name="RepairAdviceTitle" xml:space="preserve">
+    <value>Réparer l'installation</value>
+  </data>
+  <data name="RepairStepAntivirusFormat" xml:space="preserve">
+    <value>Ajoutez d'abord une exception pour le dossier {0} dans votre antivirus ; sinon il supprimera de nouveau les fichiers.</value>
+  </data>
+  <data name="RepairStepRunSetup" xml:space="preserve">
+    <value>Fermez le jeu. Téléchargez le setup communautaire actuel et exécutez-le : il trouve l'installation et propose de la mettre à jour ou de la réparer.</value>
+  </data>
+  <data name="RepairStepKeepFolderAllUsersFormat" xml:space="preserve">
+    <value>Conservez le dossier {0} et choisissez de nouveau « Installer pour tous les utilisateurs ».</value>
+  </data>
+  <data name="RepairStepKeepFolderCurrentUserFormat" xml:space="preserve">
+    <value>Conservez le dossier {0} et choisissez de nouveau « Installer seulement pour moi ».</value>
+  </data>
+  <data name="RepairStepKeepFolderPortableFormat" xml:space="preserve">
+    <value>Exécutez de nouveau le setup portable depuis le même emplacement, afin qu'il utilise de nouveau le dossier {0}.</value>
+  </data>
+  <data name="RepairStepKeepFolderFormat" xml:space="preserve">
+    <value>Conservez le dossier {0}.</value>
+  </data>
+  <data name="RepairStepCdKeys" xml:space="preserve">
+    <value>Laissez la tâche « Enregistrer les clés CD NeoEE » cochée : elle répare aussi les clés CD.</value>
+  </data>
+  <data name="RepairStepForeignFormat" xml:space="preserve">
+    <value>L'installation dans {0} n'a pas été faite avec le setup communautaire (par exemple depuis le CD ou par GOG). Le setup ne la répare pas ; il installe sa propre copie du jeu dans un nouveau dossier.</value>
+  </data>
+  <data name="RepairDownloadPageLabel" xml:space="preserve">
+    <value>Page de téléchargement du setup communautaire :</value>
+  </data>
+  <data name="RepairOpenPageButton" xml:space="preserve">
+    <value>Ouvrir la page</value>
+  </data>
+  <data name="RepairCloseButton" xml:space="preserve">
+    <value>Fermer</value>
+  </data>
+  <data name="RepairPageNotOpenedFormat" xml:space="preserve">
+    <value>Impossible d'ouvrir la page. Copiez l'adresse dans votre navigateur : {0}</value>
+  </data>
 </root>

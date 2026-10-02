@@ -947,6 +947,15 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to A setup is running. The installations are searched when it has ended..
+        /// </summary>
+        internal static string InstallationsWaitingForSetup {
+            get {
+                return ResourceManager.GetString("InstallationsWaitingForSetup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Empire Earth Launcher is already running. Please use the open window (it may be minimized or behind [rest of string was truncated].
         /// </summary>
         internal static string LauncherAlreadyRunning {
@@ -1136,6 +1145,42 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} was started..
+        /// </summary>
+        internal static string PlayStartedFormat {
+            get {
+                return ResourceManager.GetString("PlayStartedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: version {1}.
+        /// </summary>
+        internal static string PlayVersionFormat {
+            get {
+                return ResourceManager.GetString("PlayVersionFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: missing.
+        /// </summary>
+        internal static string PlayVersionMissingFormat {
+            get {
+                return ResourceManager.GetString("PlayVersionMissingFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: no version information.
+        /// </summary>
+        internal static string PlayVersionUnknownFormat {
+            get {
+                return ResourceManager.GetString("PlayVersionUnknownFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap radio_checked {
@@ -1181,6 +1226,123 @@ namespace Empire_Earth_Launcher.Properties {
         internal static string RemoveRunAsAdminButton {
             get {
                 return ResourceManager.GetString("RemoveRunAsAdminButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Repair the installation.
+        /// </summary>
+        internal static string RepairAdviceTitle {
+            get {
+                return ResourceManager.GetString("RepairAdviceTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close.
+        /// </summary>
+        internal static string RepairCloseButton {
+            get {
+                return ResourceManager.GetString("RepairCloseButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Download page of the community setup:.
+        /// </summary>
+        internal static string RepairDownloadPageLabel {
+            get {
+                return ResourceManager.GetString("RepairDownloadPageLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open download page.
+        /// </summary>
+        internal static string RepairOpenPageButton {
+            get {
+                return ResourceManager.GetString("RepairOpenPageButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The page could not be opened. Copy the address into your browser: {0}.
+        /// </summary>
+        internal static string RepairPageNotOpenedFormat {
+            get {
+                return ResourceManager.GetString("RepairPageNotOpenedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to First add an exception for the folder {0} in your antivirus program; otherwise it removes the files [rest of string was truncated].
+        /// </summary>
+        internal static string RepairStepAntivirusFormat {
+            get {
+                return ResourceManager.GetString("RepairStepAntivirusFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Keep the task "Register NeoEE CDKeys" selected: it also repairs the CD keys..
+        /// </summary>
+        internal static string RepairStepCdKeys {
+            get {
+                return ResourceManager.GetString("RepairStepCdKeys", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The installation in {0} was not made by the community setup (for example a CD or GOG installation). [rest of string was truncated].
+        /// </summary>
+        internal static string RepairStepForeignFormat {
+            get {
+                return ResourceManager.GetString("RepairStepForeignFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Keep the folder {0} and choose "Install for all users" again..
+        /// </summary>
+        internal static string RepairStepKeepFolderAllUsersFormat {
+            get {
+                return ResourceManager.GetString("RepairStepKeepFolderAllUsersFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Keep the folder {0} and choose "Install for me only" again..
+        /// </summary>
+        internal static string RepairStepKeepFolderCurrentUserFormat {
+            get {
+                return ResourceManager.GetString("RepairStepKeepFolderCurrentUserFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Keep the folder {0}..
+        /// </summary>
+        internal static string RepairStepKeepFolderFormat {
+            get {
+                return ResourceManager.GetString("RepairStepKeepFolderFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Run the portable setup again from the same place, so that it uses the folder {0} again..
+        /// </summary>
+        internal static string RepairStepKeepFolderPortableFormat {
+            get {
+                return ResourceManager.GetString("RepairStepKeepFolderPortableFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close the game. Download the current community setup and run it: it finds the installation and offer[rest of string was truncated].
+        /// </summary>
+        internal static string RepairStepRunSetup {
+            get {
+                return ResourceManager.GetString("RepairStepRunSetup", resourceCulture);
             }
         }
         
@@ -1271,6 +1433,96 @@ namespace Empire_Earth_Launcher.Properties {
         internal static string SelectGameDirectoryFormat {
             get {
                 return ResourceManager.GetString("SelectGameDirectoryFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The {0} setup is running. Until it has ended, the launcher starts no game and changes no game settin[rest of string was truncated].
+        /// </summary>
+        internal static string SetupRunningFormat {
+            get {
+                return ResourceManager.GetString("SetupRunningFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows did not allow starting {0} (error {1}). Check the security settings of the file and your ant[rest of string was truncated].
+        /// </summary>
+        internal static string StartAccessDeniedFormat {
+            get {
+                return ResourceManager.GetString("StartAccessDeniedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} is already running. The launcher does not start it a second time..
+        /// </summary>
+        internal static string StartAlreadyRunningFormat {
+            get {
+                return ResourceManager.GetString("StartAlreadyRunningFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows did not start {0} because an antivirus program reports it as a threat (error {1})..
+        /// </summary>
+        internal static string StartBlockedByAntivirusFormat {
+            get {
+                return ResourceManager.GetString("StartBlockedByAntivirusFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} is missing. The installation is damaged; Windows or an antivirus program has probably deleted th[rest of string was truncated].
+        /// </summary>
+        internal static string StartDamagedFormat {
+            get {
+                return ResourceManager.GetString("StartDamagedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The game was not started because the request for administrator rights was cancelled. Windows asks fo[rest of string was truncated].
+        /// </summary>
+        internal static string StartElevationCancelled {
+            get {
+                return ResourceManager.GetString("StartElevationCancelled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} could not be started (Windows error {1}): {2}.
+        /// </summary>
+        internal static string StartFailedFormat {
+            get {
+                return ResourceManager.GetString("StartFailedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The folder {0} does not exist. Choose the game folder on the Launcher page..
+        /// </summary>
+        internal static string StartFolderMissingFormat {
+            get {
+                return ResourceManager.GetString("StartFolderMissingFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to If you cannot see its window, it may hang: open the Task Manager (Ctrl+Shift+Esc), select {0} on the[rest of string was truncated].
+        /// </summary>
+        internal static string StartHangingHintFormat {
+            get {
+                return ResourceManager.GetString("StartHangingHintFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} is running. Start {1} anyway? Both games at the same time can become unstable..
+        /// </summary>
+        internal static string StartOtherGameRunningFormat {
+            get {
+                return ResourceManager.GetString("StartOtherGameRunningFormat", resourceCulture);
             }
         }
         

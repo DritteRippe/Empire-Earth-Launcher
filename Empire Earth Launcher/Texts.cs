@@ -8,6 +8,7 @@ using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Lobby;
 using Empire_Earth_Launcher.Core.Platform;
 using Empire_Earth_Launcher.Core.Play;
+using Empire_Earth_Launcher.Core.Repair;
 using Empire_Earth_Launcher.Core.Settings;
 using Empire_Earth_Launcher.Properties;
 using Empire_Earth_WON;
@@ -399,6 +400,121 @@ namespace Empire_Earth_Launcher
             if (state.RunAsAdminRemovable)
                 lines.Add(Resources.CompatibilityRunAsAdminHint);
             return string.Join(Environment.NewLine, lines);
+        }
+
+        // --- Play (L-WP6, ADR 0010, contract 4.2 and 4.4) ----------------------------------------------------------------
+
+        /// <summary>The programs of the selected installation with their file versions, one per line (forum report 8 row 1).</summary>
+        internal static string ProgramVersions(IReadOnlyList<ProgramVersion> versions)
+        {
+            if (versions == null)
+                throw new ArgumentNullException(nameof(versions));
+            return string.Join(Environment.NewLine, versions.Select(version =>
+                !version.Exists
+                    ? string.Format(CultureInfo.CurrentCulture, Resources.PlayVersionMissingFormat, version.Game.ProgramName)
+                    : version.Version == null
+                        ? string.Format(CultureInfo.CurrentCulture, Resources.PlayVersionUnknownFormat, version.Game.ProgramName)
+                        : string.Format(CultureInfo.CurrentCulture, Resources.PlayVersionFormat, version.Game.ProgramName,
+                            version.Version)));
+        }
+
+        /// <summary>That a setup runs and what that blocks (contract 4.2); null if none runs.</summary>
+        internal static string SetupRunning(Product setup)
+        {
+            return setup == null ? null : string.Format(CultureInfo.CurrentCulture, Resources.SetupRunningFormat, setup.AppName);
+        }
+
+        /// <summary>
+        /// The message of a start: the short line of the Play page for <see cref="StartOutcome.Started"/>, the question for
+        /// <see cref="StartOutcome.OtherGameRunning"/>, the explanation of a refusal or a start error otherwise (the first
+        /// line of the repair advice for a damaged installation).
+        /// </summary>
+        internal static string StartMessage(StartResult result)
+        {
+            if (result == null)
+                throw new ArgumentNullException(nameof(result));
+            string program = result.Game.ProgramName;
+            switch (result.Outcome)
+            {
+                case StartOutcome.Started:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.PlayStartedFormat, GameName(result.Game));
+                case StartOutcome.SetupRunning:
+                    return SetupRunning(result.RunningSetup);
+                case StartOutcome.AlreadyRunning:
+                    string running = string.Format(CultureInfo.CurrentCulture, Resources.StartAlreadyRunningFormat, program);
+                    return result.ProcessFound
+                        ? running + Environment.NewLine + Environment.NewLine +
+                          string.Format(CultureInfo.CurrentCulture, Resources.StartHangingHintFormat, program)
+                        : running;
+                case StartOutcome.OtherGameRunning:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.StartOtherGameRunningFormat,
+                        result.OtherGame.ProgramName, GameName(result.Game));
+                case StartOutcome.FolderMissing:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.StartFolderMissingFormat,
+                        result.Installation.GetGameFolder(result.Game));
+                case StartOutcome.Damaged:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.StartDamagedFormat, result.ProgramPath);
+                case StartOutcome.BlockedByAntivirus:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.StartBlockedByAntivirusFormat, result.ProgramPath,
+                        result.ErrorCode);
+                case StartOutcome.ElevationCancelled:
+                    return Resources.StartElevationCancelled;
+                case StartOutcome.AccessDenied:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.StartAccessDeniedFormat, result.ProgramPath,
+                        result.ErrorCode);
+                case StartOutcome.Failed:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.StartFailedFormat, result.ProgramPath,
+                        result.ErrorCode, result.ErrorMessage);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(result), result.Outcome, "Unknown start outcome.");
+            }
+        }
+
+        /// <summary>One step of the repair advice (contract 4.4) with the folder and the install mode of the installation.</summary>
+        internal static string RepairStep(RepairAdvice advice, RepairStep step)
+        {
+            if (advice == null)
+                throw new ArgumentNullException(nameof(advice));
+            switch (step)
+            {
+                case Core.Repair.RepairStep.AddAntivirusException:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.RepairStepAntivirusFormat, advice.Folder);
+                case Core.Repair.RepairStep.CloseGameAndRunSetup:
+                    return Resources.RepairStepRunSetup;
+                case Core.Repair.RepairStep.KeepFolderAndMode:
+                    string format;
+                    switch (advice.Installation.Mode)
+                    {
+                        case InstallMode.Admin:
+                            format = Resources.RepairStepKeepFolderAllUsersFormat;
+                            break;
+                        case InstallMode.User:
+                            format = Resources.RepairStepKeepFolderCurrentUserFormat;
+                            break;
+                        case InstallMode.Portable:
+                            format = Resources.RepairStepKeepFolderPortableFormat;
+                            break;
+                        default:
+                            format = Resources.RepairStepKeepFolderFormat;
+                            break;
+                    }
+                    return string.Format(CultureInfo.CurrentCulture, format, advice.Folder);
+                case Core.Repair.RepairStep.KeepCdKeysTask:
+                    return Resources.RepairStepCdKeys;
+                case Core.Repair.RepairStep.ForeignNotRepaired:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.RepairStepForeignFormat, advice.Folder);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(step), step, "Unknown repair step.");
+            }
+        }
+
+        /// <summary>The steps of the repair advice, numbered, one per line.</summary>
+        internal static string RepairSteps(RepairAdvice advice)
+        {
+            if (advice == null)
+                throw new ArgumentNullException(nameof(advice));
+            return string.Join(Environment.NewLine, advice.Steps.Select((step, index) =>
+                (index + 1).ToString(CultureInfo.CurrentCulture) + ". " + RepairStep(advice, step)));
         }
     }
 }
