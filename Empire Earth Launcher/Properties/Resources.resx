@@ -520,10 +520,6 @@ However you should be able to solve many problems with these options, but findin
     <value>Reset game settings</value>
     <comment>Button on the Game settings page; at most about 30 characters.</comment>
   </data>
-  <data name="ResetConfirmTitle" xml:space="preserve">
-    <value>Reset game settings</value>
-    <comment>Title of the confirmation of the reset.</comment>
-  </data>
   <data name="ResetConfirmFormat" xml:space="preserve">
     <value>Set the settings of {0} back to the recommended values for your Windows account?
 
@@ -561,10 +557,6 @@ Your current settings are saved first as .reg files in {1}; double-click such a 
   <data name="HintsNone" xml:space="preserve">
     <value>No hints: the game settings fit together.</value>
     <comment>Shown instead of the list when there is no hint.</comment>
-  </data>
-  <data name="HintTextColumn" xml:space="preserve">
-    <value>Hint</value>
-    <comment>Column of the list of hints.</comment>
   </data>
   <data name="HintShowColumn" xml:space="preserve">
     <value>Play page</value>

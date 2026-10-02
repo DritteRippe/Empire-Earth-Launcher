@@ -392,9 +392,6 @@ Ces options permettent de résoudre de nombreux problèmes, mais trouver la bonn
   <data name="ResetGameSettingsButton" xml:space="preserve">
     <value>Réinitialiser les paramètres</value>
   </data>
-  <data name="ResetConfirmTitle" xml:space="preserve">
-    <value>Réinitialiser les paramètres du jeu</value>
-  </data>
   <data name="ResetConfirmFormat" xml:space="preserve">
     <value>Remettre les paramètres de {0} aux valeurs recommandées pour votre compte Windows ?
 
@@ -423,9 +420,6 @@ Vos paramètres actuels sont d'abord enregistrés dans des fichiers .reg dans {1
   </data>
   <data name="HintsNone" xml:space="preserve">
     <value>Aucune remarque : les paramètres du jeu sont cohérents.</value>
-  </data>
-  <data name="HintTextColumn" xml:space="preserve">
-    <value>Remarque</value>
   </data>
   <data name="HintShowColumn" xml:space="preserve">
     <value>Page Jouer</value>

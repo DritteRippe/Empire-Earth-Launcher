@@ -48,8 +48,8 @@ namespace Empire_Earth_Launcher.Core.Platform
 
         /// <summary>
         /// A compatibility value whose content would change other than by the entries the launcher may switch on this
-        /// Windows (contract 3.7, ADR 0007 plan review): e.g. <c>WINXPSP3</c> or <c>RUNASADMIN</c> added, another entry
-        /// removed, or the current value unknown.
+        /// Windows (contract 3.7, ADR 0007 plan review): e.g. a Windows version mode or <c>RUNASADMIN</c> added, another
+        /// entry removed, or the current value unknown.
         /// </summary>
         LayerContent
     }

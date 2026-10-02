@@ -749,15 +749,6 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hint.
-        /// </summary>
-        internal static string HintTextColumn {
-            get {
-                return ResourceManager.GetString("HintTextColumn", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to {0} is missing in {1}. Antivirus programs often delete or quarantine game files: restore it from the[rest of string was truncated].
         /// </summary>
         internal static string InstallationDamagedFormat {
@@ -1190,15 +1181,6 @@ namespace Empire_Earth_Launcher.Properties {
         internal static string ResetConfirmFormat {
             get {
                 return ResourceManager.GetString("ResetConfirmFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Reset game settings.
-        /// </summary>
-        internal static string ResetConfirmTitle {
-            get {
-                return ResourceManager.GetString("ResetConfirmTitle", resourceCulture);
             }
         }
         
