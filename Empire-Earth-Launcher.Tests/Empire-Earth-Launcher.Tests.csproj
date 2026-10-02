@@ -57,7 +57,9 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Architecture\CoreDependencyTests.cs" />
     <Compile Include="Architecture\ProjectConventionsTests.cs" />
+    <Compile Include="Core\Contract\ContractNamesTests.cs" />
     <Compile Include="Launcher\GameDirectoryLocatorTests.cs" />
     <Compile Include="Launcher\LobbyProfileRepositoryTests.cs" />
     <Compile Include="Launcher\LogTrimmingTests.cs" />
@@ -73,6 +75,7 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="TestSupport\ChunkedReadStream.cs" />
+    <Compile Include="TestSupport\ProjectFile.cs" />
     <Compile Include="TestSupport\RepositoryRoot.cs" />
     <Compile Include="TestSupport\TemporaryDirectory.cs" />
     <Compile Include="Won\DeadlineStreamTests.cs" />
@@ -88,6 +91,10 @@
     <ProjectReference Include="..\Empire Earth Launcher\Empire Earth Launcher.csproj">
       <Project>{71CA6797-5F6D-4DEF-8F1F-9E7D87A76268}</Project>
       <Name>Empire Earth Launcher</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Empire-Earth-Launcher-Core\Empire-Earth-Launcher-Core.csproj">
+      <Project>{9DBBDAAD-668E-423A-8185-46B7772CA18B}</Project>
+      <Name>Empire-Earth-Launcher-Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\Empire-Earth-Mod\Empire-Earth-Mod-Lib\Empire-Earth-Mod-Lib.csproj">
       <Project>{DF1CF00A-454B-4ECE-911A-CBB577D7360C}</Project>

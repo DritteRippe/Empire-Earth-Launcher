@@ -28,7 +28,6 @@ namespace Empire_Earth_Launcher.Tests.Architecture
         private const string TestProject = @"Empire-Earth-Launcher.Tests\Empire-Earth-Launcher.Tests.csproj";
         private const string WorkflowFile = ".github/workflows/build.yml";
 
-        private static readonly XNamespace MSBuild = "http://schemas.microsoft.com/developer/msbuild/2003";
         private static readonly XNamespace AsmV3 = "urn:schemas-microsoft-com:asm.v3";
         private static readonly XNamespace Compatibility = "urn:schemas-microsoft-com:compatibility.v1";
 
@@ -246,55 +245,7 @@ namespace Empire_Earth_Launcher.Tests.Architecture
 
         private static ProjectFile Load(string solutionRelativePath)
         {
-            return new ProjectFile(RepositoryRoot.GetFullPath(solutionRelativePath));
-        }
-
-        /// <summary>A classic MSBuild project file.</summary>
-        private sealed class ProjectFile
-        {
-            private readonly XDocument xml;
-
-            public ProjectFile(string fullPath)
-            {
-                xml = XDocument.Load(fullPath);
-                Directory = Path.GetDirectoryName(fullPath);
-            }
-
-            /// <summary>Folder of the project file.</summary>
-            public string Directory { get; }
-
-            /// <summary>true for console and Windows programs.</summary>
-            public bool IsExecutable
-            {
-                get
-                {
-                    string outputType = Values("OutputType").Single();
-                    return outputType == "Exe" || outputType == "WinExe";
-                }
-            }
-
-            /// <summary>Every value of a property or item metadata, in every property group or item.</summary>
-            public IEnumerable<string> Values(string name)
-            {
-                return xml.Descendants(MSBuild + name).Select(e => e.Value.Trim()).ToList();
-            }
-
-            /// <summary>The Include attribute of every item of a type.</summary>
-            public IEnumerable<string> Items(string itemType)
-            {
-                return xml.Descendants(MSBuild + itemType).Select(e => (string)e.Attribute("Include")).ToList();
-            }
-
-            /// <summary>Package id -> version from the packages.config next to the project (empty if none).</summary>
-            public IDictionary<string, string> Packages()
-            {
-                string packagesConfig = Path.Combine(Directory, "packages.config");
-                if (!File.Exists(packagesConfig))
-                    return new Dictionary<string, string>();
-                return XDocument.Load(packagesConfig).Root.Elements("package")
-                                .ToDictionary(p => (string)p.Attribute("id"), p => (string)p.Attribute("version"),
-                                              StringComparer.OrdinalIgnoreCase);
-            }
+            return ProjectFile.Load(solutionRelativePath);
         }
     }
 }

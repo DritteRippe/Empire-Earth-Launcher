@@ -201,6 +201,10 @@
     <None Include="Resources\DialogBorderLeft.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Empire-Earth-Launcher-Core\Empire-Earth-Launcher-Core.csproj">
+      <Project>{9dbbdaad-668e-423a-8185-46b7772ca18b}</Project>
+      <Name>Empire-Earth-Launcher-Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Empire-Earth-WON\Empire-Earth-WON.csproj">
       <Project>{8434796d-a702-4665-bd95-f5fb6106e825}</Project>
       <Name>Empire-Earth-WON</Name>
