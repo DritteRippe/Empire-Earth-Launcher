@@ -545,3 +545,12 @@ section 15); all of them are done, newest first below. It has not been released;
 - Support for Windows XP, Vista, Windows 8.0 and Windows 10 versions 1507 and 1511, which cannot run the
   .NET Framework 4.8 (Windows 8.0 users can update to 8.1 for free). Windows 7 SP1 stays supported but has not
   been tested yet.
+
+### Fixed
+
+- Buttons and check boxes that the page disabled while their action ran stay disabled afterwards (build/UI review):
+  `UiOperation.Run` takes the page's state logic as `restore` and applies it after enabling the trigger again, so the
+  delete button of the registry cleanup is no longer enabled next to "Nothing to clean up" after the last key was
+  deleted, "Check all files" stays disabled when a setup started meanwhile, and the compatibility options and the
+  buttons of the *Game settings* page follow their state. `UiOperationRestoreTests` requires the restore for every
+  trigger whose `Enabled` the page sets.

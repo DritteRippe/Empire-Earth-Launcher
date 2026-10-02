@@ -161,6 +161,54 @@ namespace Empire_Earth_Launcher.Tests.Launcher
         }
 
         [Test]
+        public async Task Restore_RunsAfterTheTriggerIsEnabled_AndDecidesItsState()
+        {
+            // The page disabled the delete button during the work (nothing left to delete): the helper must not enable it.
+            bool canDelete = true;
+            UiOperationOutcome outcome = await operation.RunAsync(trigger, "cleanupDeleteKryptonButton", trigger.SetEnabled,
+                async () =>
+                {
+                    await Task.Yield();
+                    canDelete = false;
+                },
+                reported.Add,
+                () => trigger.SetEnabled(canDelete));
+
+            Assert.That(outcome, Is.EqualTo(UiOperationOutcome.Completed));
+            Assert.That(trigger.Enabled, Is.False);
+            Assert.That(trigger.Changes, Is.EqualTo(new[] { false, true, false }), "restore comes last");
+        }
+
+        [Test]
+        public async Task Restore_RunsAlsoAfterAFailureAndACancellation()
+        {
+            int restored = 0;
+            await operation.RunAsync(trigger, "x", trigger.SetEnabled, () => throw new InvalidOperationException("bug"),
+                reported.Add, () => restored++);
+            await operation.RunAsync(trigger, "x", trigger.SetEnabled, () => throw new OperationCanceledException(),
+                reported.Add, () => restored++);
+
+            Assert.That(restored, Is.EqualTo(2));
+        }
+
+        [Test]
+        public async Task IgnoredStart_DoesNotRestore()
+        {
+            var release = new TaskCompletionSource<bool>();
+            int restored = 0;
+            Task<UiOperationOutcome> first = operation.RunAsync(trigger, "x", trigger.SetEnabled, () => release.Task,
+                reported.Add, () => restored++);
+
+            Assert.That(await operation.RunAsync(trigger, "x", trigger.SetEnabled, () => Task.CompletedTask, reported.Add,
+                () => restored++), Is.EqualTo(UiOperationOutcome.Ignored));
+            Assert.That(restored, Is.EqualTo(0));
+
+            release.SetResult(true);
+            await first;
+            Assert.That(restored, Is.EqualTo(1));
+        }
+
+        [Test]
         public void NullArguments_AreProgrammingErrors()
         {
             Assert.That(() => new UiOperation(null), Throws.TypeOf<ArgumentNullException>());

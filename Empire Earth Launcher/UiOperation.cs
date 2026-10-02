@@ -23,6 +23,8 @@ namespace Empire_Earth_Launcher
     /// Runs the asynchronous work of a UI event handler (ADR 0004): the triggering control is disabled while the
     /// work runs, every exception is logged and shown as a localized "unexpected error" (the UI boundary of
     /// ADR 0013), a cancellation is normal, and a second start from the same trigger while it runs is ignored.
+    /// Afterwards the trigger is enabled again and the page applies its own state once more (<c>restore</c>), so a
+    /// button that the page disabled meanwhile (nothing left to delete, a setup started) stays disabled.
     /// </summary>
     /// <remarks>
     /// <see cref="Run"/> is the only <c>async void</c> method of the launcher: event handlers call it instead of being
@@ -42,8 +44,14 @@ namespace Empire_Earth_Launcher
         }
 
         /// <summary>Starts <paramref name="work"/> for a click (or another event) of <paramref name="trigger"/>.</summary>
-        /// <example><code>startButton.Click += (s, e) => uiOperation.Run(startButton, () => StartAsync(token));</code></example>
-        public async void Run(Control trigger, Func<Task> work)
+        /// <param name="trigger">The control that started the work; disabled while it runs.</param>
+        /// <param name="work">The work.</param>
+        /// <param name="restore">
+        /// The state logic of the page (for example its ShowState), applied after the trigger was enabled again, so that the
+        /// page decides whether the trigger stays enabled; <see langword="null"/> when the trigger is always usable.
+        /// </param>
+        /// <example><code>startButton.Click += (s, e) => uiOperation.Run(startButton, () => StartAsync(token), ShowState);</code></example>
+        public async void Run(Control trigger, Func<Task> work, Action restore = null)
         {
             if (trigger == null)
                 throw new ArgumentNullException(nameof(trigger));
@@ -59,7 +67,12 @@ namespace Empire_Earth_Launcher
                         trigger.Enabled = enabled;
                 },
                 work,
-                exception => UnexpectedError.Show(trigger.IsDisposed ? null : trigger.FindForm(), exception, false));
+                exception => UnexpectedError.Show(trigger.IsDisposed ? null : trigger.FindForm(), exception, false),
+                restore == null ? (Action)null : () =>
+                {
+                    if (!trigger.IsDisposed)
+                        restore();
+                });
         }
 
         /// <summary>The logic of <see cref="Run"/> without WinForms types, for the tests.</summary>
@@ -68,8 +81,9 @@ namespace Empire_Earth_Launcher
         /// <param name="setEnabled">Enables or disables the trigger.</param>
         /// <param name="work">The work; it may also throw before it returns a task.</param>
         /// <param name="report">Shows an error to the user.</param>
+        /// <param name="restore">Applies the state of the page after the trigger was enabled again; may be <see langword="null"/>.</param>
         internal Task<UiOperationOutcome> RunAsync(object trigger, string name, Action<bool> setEnabled,
-            Func<Task> work, Action<Exception> report)
+            Func<Task> work, Action<Exception> report, Action restore = null)
         {
             // Checked here, outside the async method, so that a programming error throws at once.
             if (trigger == null)
@@ -80,11 +94,11 @@ namespace Empire_Earth_Launcher
                 throw new ArgumentNullException(nameof(work));
             if (report == null)
                 throw new ArgumentNullException(nameof(report));
-            return RunCheckedAsync(trigger, name, setEnabled, work, report);
+            return RunCheckedAsync(trigger, name, setEnabled, work, report, restore);
         }
 
         private async Task<UiOperationOutcome> RunCheckedAsync(object trigger, string name, Action<bool> setEnabled,
-            Func<Task> work, Action<Exception> report)
+            Func<Task> work, Action<Exception> report, Action restore)
         {
             if (!runningTriggers.Add(trigger))
                 return UiOperationOutcome.Ignored;
@@ -119,6 +133,8 @@ namespace Empire_Earth_Launcher
             {
                 runningTriggers.Remove(trigger);
                 setEnabled(true);
+                // Last: the page decides about its controls (the work may have changed what is possible), not this helper.
+                restore?.Invoke();
             }
         }
     }

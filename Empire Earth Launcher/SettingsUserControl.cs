@@ -149,7 +149,7 @@ namespace Empire_Earth_Launcher
                     appliedResult = installations.Result;
                     await model.ApplyAfterDiscoveryAsync(appliedResult);
                 }
-            });
+            }, ShowState);
         }
 
         // --- Showing the state ------------------------------------------------------------------------------------
@@ -398,17 +398,17 @@ namespace Empire_Earth_Launcher
 
         private void displayQuestionApplyKryptonButton_Click(object sender, EventArgs e)
         {
-            uiOperation.Run(displayQuestionApplyKryptonButton, () => model.AnswerQuestionAsync(true));
+            uiOperation.Run(displayQuestionApplyKryptonButton, () => model.AnswerQuestionAsync(true), ShowState);
         }
 
         private void displayQuestionKeepKryptonButton_Click(object sender, EventArgs e)
         {
-            uiOperation.Run(displayQuestionKeepKryptonButton, () => model.AnswerQuestionAsync(false));
+            uiOperation.Run(displayQuestionKeepKryptonButton, () => model.AnswerQuestionAsync(false), ShowState);
         }
 
         private void applyDisplayKryptonButton_Click(object sender, EventArgs e)
         {
-            uiOperation.Run(applyDisplayKryptonButton, () => model.ApplyRecommendedDisplayAsync());
+            uiOperation.Run(applyDisplayKryptonButton, () => model.ApplyRecommendedDisplayAsync(), ShowState);
         }
 
         /// <summary>The reset needs a confirmation (contract 3.6), shown on the page below the button.</summary>
@@ -420,7 +420,7 @@ namespace Empire_Earth_Launcher
             string games = string.Join(", ", GameDefaultsService.GamesOf(selected).Select(Texts.GameName));
             Confirm(string.Format(CultureInfo.CurrentCulture, Resources.ResetConfirmFormat, games, BackupFolderForDisplay()),
                 Resources.ResetConfirmButton, false,
-                () => uiOperation.Run(resetGameSettingsKryptonButton, () => model.ResetAsync()));
+                () => uiOperation.Run(resetGameSettingsKryptonButton, () => model.ResetAsync(), ShowState));
         }
 
         private void confirmYesKryptonButton_Click(object sender, EventArgs e)
@@ -472,15 +472,15 @@ namespace Empire_Earth_Launcher
                 updatingCheckBoxes = false;
                 Confirm(string.Format(CultureInfo.CurrentCulture, Resources.HighDpiOffConfirmFormat, ScalingPercent()),
                     Resources.HighDpiOffConfirmButton, true,
-                    () => uiOperation.Run(checkBox, () => model.SetCompatibilityEntryAsync(entry, false)));
+                    () => uiOperation.Run(checkBox, () => model.SetCompatibilityEntryAsync(entry, false), ShowState));
                 return;
             }
-            uiOperation.Run(checkBox, () => model.SetCompatibilityEntryAsync(entry, on));
+            uiOperation.Run(checkBox, () => model.SetCompatibilityEntryAsync(entry, on), ShowState);
         }
 
         private void removeRunAsAdminKryptonButton_Click(object sender, EventArgs e)
         {
-            uiOperation.Run(removeRunAsAdminKryptonButton, () => model.RemoveRunAsAdminAsync());
+            uiOperation.Run(removeRunAsAdminKryptonButton, () => model.RemoveRunAsAdminAsync(), ShowState);
         }
 
         private void compatibilityWarningConfirmationKryptonButton_Click(object sender, EventArgs e)

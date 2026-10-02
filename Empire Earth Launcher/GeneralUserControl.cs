@@ -180,7 +180,7 @@ namespace Empire_Earth_Launcher
         private void versionCheckKryptonButton_Click(object sender, EventArgs e)
         {
             uiOperation.Run(versionCheckKryptonButton,
-                () => ToolsUserControl.CheckVersionsAsync(this, false, updates, themeService, uiOperation));
+                () => ToolsUserControl.CheckVersionsAsync(this, false, updates, themeService, uiOperation), ShowChecks);
         }
 
         /// <summary>"Repair..." opens the repair advice with the files of the report; "Details" the Tools page.</summary>
@@ -264,7 +264,7 @@ namespace Empire_Earth_Launcher
         /// <summary>Play: the page is the trigger, so the game choice cannot change while a start runs.</summary>
         private void playKryptonButton_Click(object sender, EventArgs e)
         {
-            uiOperation.Run(this, PlayAsync);
+            uiOperation.Run(this, PlayAsync, ShowPlayState);
         }
 
         /// <summary>
@@ -352,7 +352,8 @@ namespace Empire_Earth_Launcher
             if (shownFinding != null)
                 gameSettings.SetHidden(shownFinding, true);
             else if (gameSettings.Question != null)
-                uiOperation.Run(gameSettingsHintFirstKryptonButton, () => gameSettings.AnswerQuestionAsync(true));
+                uiOperation.Run(gameSettingsHintFirstKryptonButton, () => gameSettings.AnswerQuestionAsync(true),
+                    ShowGameSettingsHint);
         }
 
         private void gameSettingsHintSecondKryptonButton_Click(object sender, EventArgs e)
@@ -360,7 +361,8 @@ namespace Empire_Earth_Launcher
             if (shownFinding != null)
                 GameSettingsRequested?.Invoke(this, EventArgs.Empty);
             else if (gameSettings.Question != null)
-                uiOperation.Run(gameSettingsHintSecondKryptonButton, () => gameSettings.AnswerQuestionAsync(false));
+                uiOperation.Run(gameSettingsHintSecondKryptonButton, () => gameSettings.AnswerQuestionAsync(false),
+                    ShowGameSettingsHint);
         }
 
         protected override void OnLoad(EventArgs e)

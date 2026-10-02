@@ -71,6 +71,7 @@
     <Compile Include="Architecture\TestIsolationTests.cs" />
     <Compile Include="Architecture\TestPlanTests.cs" />
     <Compile Include="Architecture\TlsSettingTests.cs" />
+    <Compile Include="Architecture\UiOperationRestoreTests.cs" />
     <Compile Include="Core\Backup\BackupLocationsTests.cs" />
     <Compile Include="Core\Backup\FileBackupTests.cs" />
     <Compile Include="Core\Backup\RegFileWriterTests.cs" />

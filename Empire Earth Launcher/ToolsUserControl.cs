@@ -429,7 +429,7 @@ namespace Empire_Earth_Launcher
         private void fullCheckKryptonButton_Click(object sender, EventArgs e)
         {
             if (integrity.CanStartFullCheck)
-                uiOperation.Run(fullCheckKryptonButton, () => integrity.StartFullCheckAsync());
+                uiOperation.Run(fullCheckKryptonButton, () => integrity.StartFullCheckAsync(), ShowState);
         }
 
         private void cancelCheckKryptonButton_Click(object sender, EventArgs e)
@@ -453,7 +453,8 @@ namespace Empire_Earth_Launcher
         /// <summary>The version check of the game and the setup (contract 4.5); an available update opens the hand-off.</summary>
         private void versionCheckKryptonButton_Click(object sender, EventArgs e)
         {
-            uiOperation.Run(versionCheckKryptonButton, () => CheckVersionsAsync(this, true, updates, themeService, uiOperation));
+            uiOperation.Run(versionCheckKryptonButton, () => CheckVersionsAsync(this, true, updates, themeService, uiOperation),
+                ShowState);
         }
 
         // --- Maintenance tools (L-WP8) ---------------------------------------------------------------------------------
@@ -478,8 +479,7 @@ namespace Empire_Earth_Launcher
             {
                 CleanupResult result = await maintenance.DeleteKeysAsync(selection);
                 cleanupResult = Texts.CleanupResult(result);
-                ShowState();
-            });
+            }, ShowState);
         }
 
         /// <summary>The WON login reset (R6, forum p=83519); the result names the backup folder, which contains login data.</summary>
@@ -491,8 +491,7 @@ namespace Empire_Earth_Launcher
             {
                 WonResetResult result = await maintenance.ResetWonLoginAsync();
                 wonResult = Texts.WonResult(result);
-                ShowState();
-            });
+            }, ShowState);
         }
 
         /// <summary>The export of saved games and scenarios (R10) into a new folder of the folder the player chooses.</summary>
@@ -516,8 +515,7 @@ namespace Empire_Earth_Launcher
             {
                 ExportResult result = await maintenance.ExportAsync(folder);
                 savesResult = Texts.ExportResult(result);
-                ShowState();
-            });
+            }, ShowState);
         }
 
         private void importEeSavesKryptonButton_Click(object sender, EventArgs e)
@@ -557,8 +555,7 @@ namespace Empire_Earth_Launcher
             {
                 ImportResult result = await maintenance.ImportAsync(plan, overwrite);
                 savesResult = Texts.ImportResult(result);
-                ShowState();
-            });
+            }, ShowState);
         }
 
         /// <summary>"Open backup folder" (ADR 0007): the Explorer, through the shell.</summary>
@@ -575,7 +572,7 @@ namespace Empire_Earth_Launcher
         /// <summary>The network check on request (R7): DNS, the update API, the status server and the files of the game folders.</summary>
         private void networkCheckKryptonButton_Click(object sender, EventArgs e)
         {
-            uiOperation.Run(networkCheckKryptonButton, () => diagnostics.CheckNetworkAsync());
+            uiOperation.Run(networkCheckKryptonButton, () => diagnostics.CheckNetworkAsync(), ShowState);
         }
 
         /// <summary>
@@ -586,7 +583,7 @@ namespace Empire_Earth_Launcher
         {
             toolsScrollPanel.ScrollControlIntoView(networkHeadingKryptonLabel);
             if (!diagnostics.IsChecking)
-                uiOperation.Run(networkCheckKryptonButton, () => diagnostics.CheckNetworkAsync());
+                uiOperation.Run(networkCheckKryptonButton, () => diagnostics.CheckNetworkAsync(), ShowState);
         }
 
         /// <summary>Copies the report to the clipboard and shows the text that was copied (it is never sent).</summary>
