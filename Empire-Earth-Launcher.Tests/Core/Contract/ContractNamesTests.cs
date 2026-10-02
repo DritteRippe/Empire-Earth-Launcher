@@ -95,6 +95,8 @@ namespace Empire_Earth_Launcher.Tests.Core.Contract
             AssertCode(@"HKCU\" + ContractNames.GpuPreferencesKey);
             AssertCode(ContractNames.CompatibilityLayersKey);
             AssertCode(ContractNames.CdKeysKey);
+            AssertCode(ContractNames.GpuPreferenceData);
+            AssertCode(ContractNames.CompatibilityWindowsTask);
         }
 
         [Test]

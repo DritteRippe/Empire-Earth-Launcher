@@ -42,6 +42,15 @@
         /// <summary>HKCU key of the GPU preference per program path (contract 3.4).</summary>
         public const string GpuPreferencesKey = @"Software\Microsoft\DirectX\UserGpuPreferences";
 
+        /// <summary>The GPU preference of the games: the high-performance graphics card (contract 3.4), REG_SZ.</summary>
+        public const string GpuPreferenceData = "GpuPreference=2;";
+
+        /// <summary>
+        /// Task of the setup with the Windows compatibility mode and the GPU preference (contract 3.4, 3.7); only with it
+        /// the launcher applies the GPU preference.
+        /// </summary>
+        public const string CompatibilityWindowsTask = "compatibility_windows";
+
         /// <summary>Key of the compatibility layers per program path (contract 3.7).</summary>
         public const string CompatibilityLayersKey = @"Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers";
 

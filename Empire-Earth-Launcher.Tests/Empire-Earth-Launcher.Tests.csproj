@@ -68,6 +68,7 @@
     <Compile Include="Core\Contract\CompatibilityLayersTests.cs" />
     <Compile Include="Core\Contract\ContractNamesTests.cs" />
     <Compile Include="Core\GameSettings\ComputedValuesTests.cs" />
+    <Compile Include="Core\GameSettings\GameDefaultsServiceTests.cs" />
     <Compile Include="Core\GameSettings\GameSettingsTableContractTests.cs" />
     <Compile Include="Core\GameSettings\LauncherWritePolicyTests.cs" />
     <Compile Include="Core\Installations\DiscoveryContractTests.cs" />
@@ -123,8 +124,10 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="TestSupport\ChunkedReadStream.cs" />
+    <Compile Include="TestSupport\GameSettingsWorld.cs" />
     <Compile Include="TestSupport\InstallationWorld.cs" />
     <Compile Include="TestSupport\ProjectFile.cs" />
+    <Compile Include="TestSupport\RegFileImporter.cs" />
     <Compile Include="TestSupport\RepositoryRoot.cs" />
     <Compile Include="TestSupport\TemporaryDirectory.cs" />
     <Compile Include="TestSupport\TestCategories.cs" />
