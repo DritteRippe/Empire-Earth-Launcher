@@ -57,8 +57,10 @@ namespace Empire_Earth_Launcher.Tests.Core.Platform
             {
                 foreach (RegistryOperation operation in new[] { RegistryOperation.SetValue, RegistryOperation.DeleteValue, RegistryOperation.CreateSubKey })
                     Assert.That(Check(operation, @"HKCU\" + key).IsAllowed, Is.True, operation + " " + key);
+                // Only the game settings keys themselves are on the cleanup list (L-WP8), deleted when they are stale.
+                bool settingsKey = Product.All.Any(product => Game.All.Any(game => product.GetGameSettingsKey(game) == key));
                 Assert.That(Check(RegistryOperation.DeleteSubKeyTree, @"HKCU\" + key).Denial,
-                    Is.EqualTo(RegistryWriteDenial.NotInAllowList), "no key of the contract is ever deleted: " + key);
+                    Is.EqualTo(settingsKey ? RegistryWriteDenial.None : RegistryWriteDenial.NotInAllowList), key);
             }
         }
 

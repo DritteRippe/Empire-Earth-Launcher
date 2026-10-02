@@ -326,22 +326,45 @@ date" (the setup's `CheckUpdate` reads it as "no update").
 ### 4.6 Tools
 
 - **Registry cleanup** (R5): scan of an explicit list of keys of old and foreign installations; each key
-  shown with why it looks stale; the user selects; mutation guard; `.reg` backup, then delete. HKLM and
-  InstallShield leftovers are only listed (read-only) with advice; protected keys can never be selected, also
-  not through an alias (`WOW6432Node`, registry VirtualStore; ADR 0007 amendment). Starting list (kept
-  current by the cleanup work package; every entry needs evidence, unproven entries are not added but noted
-  in the test plan):
+  shown with why it looks stale or why it is kept; the user selects; mutation guard; `.reg` backup, then delete. HKLM keys
+  are only listed (read-only) with advice; protected keys can never be selected, also not through an alias
+  (`WOW6432Node`, registry VirtualStore; ADR 0007 amendment). The list is the code table
+  `Maintenance.CleanupCandidates` (L-WP8); `CleanupCandidatesTests` compares it with this table row by row (id, key, scope,
+  evidence), and every entry needs evidence (`t=`, `p=` or `setup:`); unproven entries are not added but noted in the test
+  plan:
 
-  | Key | Hive | Evidence | Offered when | Otherwise |
-  |---|---|---|---|---|
-  | `Software\SSSI\Empire Earth` | HKCU | p=4756 (SSSI keys), p=49553 | no EE installation found, and its "Installed From" folder is missing on a present, fixed, local drive | not shown |
-  | `Software\Mad Doc Software\EE-AOC` | HKCU | p=4756 (Mad Doc keys) | as above, for AoC | not shown |
-  | `Software\Neo\Empire Earth`, `Software\Neo\Art of Conquest` | HKCU | setup: `config_neoee.iss` (game settings keys of NeoEE) | as above, no NeoEE installation found | not shown |
-  | `Software\Classes\VirtualStore\MACHINE\SOFTWARE\[WOW6432Node\]SSSI\Empire Earth`, `...\Mad Doc Software\EE-AOC` | HKCU | p=49553 (the HKLM keys; these are their per-user virtualized copies) | no installation of that game found | shown read-only |
-  | `...\VirtualStore\MACHINE\SOFTWARE\[WOW6432Node\]Sierra\...` | HKCU | p=4756, p=49553 | never (`Sierra\CDKeys` and its ancestors are protected) | shown read-only, CD keys only as "exists" |
-  | `Software\Sierra` | HKLM64, HKLM32 | p=49553, forum report table 8 row 7 | never | shown read-only as "do not delete: contains the NeoEE CD keys"; subkeys other than `CDKeys` listed one by one with full path, only with evidence; never advice to delete `Software\Sierra` or an ancestor of `CDKeys` (ADR 0007 plan review, tested) |
-  | `Software\SSSI\Empire Earth`, `Software\Mad Doc Software` | HKLM64, HKLM32 | p=49553, p=4756 | never (HKLM) | shown read-only with the advice to export the key and then remove it with the Registry Editor as administrator |
-  | Stainless Steel Studios keys | HKCU, HKLM | p=4756 names only the vendor, no path | not until a sample confirms the path (test plan) | not shown |
+  | Id | Key | Scope | Offered or advised when | Otherwise | Evidence |
+  |---|---|---|---|---|---|
+  | `hkcu-ee-ee` | `HKCU\Software\SSSI\Empire Earth` | launcher deletes | no installation of EE found, and the folder of its "Installed From" values is missing on a present, fixed, local drive | not shown | t=1036 p=4756 (SSSI keys), t=12082 p=49553, t=10577 p=46301 |
+  | `hkcu-ee-aoc` | `HKCU\Software\Mad Doc Software\EE-AOC` | launcher deletes | as above (its own AoC folder) | not shown | t=1036 p=4756 (Mad Doc keys, only those of EE and AoC) |
+  | `hkcu-neoee-ee` | `HKCU\Software\Neo\Empire Earth` | launcher deletes | as above, no installation of NeoEE found | not shown | setup: config_neoee.iss (game settings keys of NeoEE, contract 3.1); t=10577 p=46302 |
+  | `hkcu-neoee-aoc` | `HKCU\Software\Neo\Art of Conquest` | launcher deletes | as above, no installation of NeoEE found | not shown | setup: config_neoee.iss (game settings keys of NeoEE, contract 3.1); t=10577 p=46302 |
+  | `vs-sssi-ee` | `HKCU\Software\Classes\VirtualStore\MACHINE\SOFTWARE\SSSI\Empire Earth` | launcher deletes | as `hkcu-ee-ee` | shown read-only | t=12082 p=49553, t=1036 p=4756 (the HKLM keys of SSSI and Mad Doc; Windows keeps the HKLM writes of a non-elevated 32-bit game in HKCU) |
+  | `vs-maddoc-aoc` | `HKCU\Software\Classes\VirtualStore\MACHINE\SOFTWARE\Mad Doc Software\EE-AOC` | launcher deletes | as `hkcu-ee-aoc` | shown read-only | t=12082 p=49553, t=1036 p=4756 (the HKLM keys of SSSI and Mad Doc; Windows keeps the HKLM writes of a non-elevated 32-bit game in HKCU) |
+  | `vs-sssi-ee-wow64` | `HKCU\Software\Classes\VirtualStore\MACHINE\SOFTWARE\WOW6432Node\SSSI\Empire Earth` | launcher deletes | as `hkcu-ee-ee` | shown read-only | t=12082 p=49553, t=1036 p=4756 (the HKLM keys of SSSI and Mad Doc; Windows keeps the HKLM writes of a non-elevated 32-bit game in HKCU) |
+  | `vs-maddoc-aoc-wow64` | `HKCU\Software\Classes\VirtualStore\MACHINE\SOFTWARE\WOW6432Node\Mad Doc Software\EE-AOC` | launcher deletes | as `hkcu-ee-aoc` | shown read-only | t=12082 p=49553, t=1036 p=4756 (the HKLM keys of SSSI and Mad Doc; Windows keeps the HKLM writes of a non-elevated 32-bit game in HKCU) |
+  | `hklm32-sssi-ee` | `HKLM32\Software\SSSI\Empire Earth` | advice only | stale as `hkcu-ee-ee`: advice to export the key and then delete it with the Registry Editor as administrator | shown read-only ("keep" with the reason) | t=1036 p=4756 (SSSI keys), t=12082 p=49553, t=10577 p=46301 |
+  | `hklm32-maddoc-aoc` | `HKLM32\Software\Mad Doc Software\EE-AOC` | advice only | stale as `hkcu-ee-aoc`: the same advice | shown read-only | t=1036 p=4756 (Mad Doc keys, only those of EE and AoC) |
+  | `hklm64-sssi-ee` | `HKLM64\Software\SSSI\Empire Earth` | advice only | as `hklm32-sssi-ee` | shown read-only; on 32-bit Windows listed once, as HKLM32 | t=1036 p=4756 (SSSI keys), t=12082 p=49553, t=10577 p=46301 |
+  | `hklm64-maddoc-aoc` | `HKLM64\Software\Mad Doc Software\EE-AOC` | advice only | as `hklm32-maddoc-aoc` | shown read-only; on 32-bit Windows listed once | t=1036 p=4756 (Mad Doc keys, only those of EE and AoC) |
+  | `hklm32-sierra` | `HKLM32\Software\Sierra` | protected | never | shown read-only as "do not delete: contains the NeoEE CD keys", `CDKeys` only as "exists" or "missing" | t=12082 p=49553, t=10950 (CD key invalid), forum report table 8 row 7; setup: authtools.dll writes Software\Sierra\CDKeys |
+  | `hklm64-sierra` | `HKLM64\Software\Sierra` | protected | never | as `hklm32-sierra`; on 32-bit Windows listed once | t=12082 p=49553, t=10950 (CD key invalid), forum report table 8 row 7; setup: authtools.dll writes Software\Sierra\CDKeys |
+  | `hkcu-sierra` | `HKCU\Software\Sierra` | protected | never | as `hklm32-sierra` (the CD keys of a `user` or `portable` installation, contract 3.8) | t=12082 p=49553, t=10950 (CD key invalid), forum report table 8 row 7; setup: authtools.dll writes Software\Sierra\CDKeys |
+  | `vs-sierra` | `HKCU\Software\Classes\VirtualStore\MACHINE\SOFTWARE\Sierra` | protected | never | as `hklm32-sierra` | t=12082 p=49553, t=10950 (CD key invalid), forum report table 8 row 7; setup: authtools.dll writes Software\Sierra\CDKeys |
+  | `vs-sierra-wow64` | `HKCU\Software\Classes\VirtualStore\MACHINE\SOFTWARE\WOW6432Node\Sierra` | protected | never | as `hklm32-sierra` | t=12082 p=49553, t=10950 (CD key invalid), forum report table 8 row 7; setup: authtools.dll writes Software\Sierra\CDKeys |
+
+  Scopes: *launcher deletes* (HKCU; offered with a check box only when stale, i.e. no installation of its product was found
+  and the folder named by its own `Installed From Volume`/`Installed From Directory` is missing on a present, fixed, local
+  drive; a key that names no folder, a folder on a missing, removable or network drive, or an unreadable key is kept),
+  *advice only* (HKLM: the launcher never writes HKLM and never asks for elevation, contract 4.1; when stale under the same
+  conditions the advice is to export the key and delete it with the Registry Editor as administrator; only the SSSI and Mad
+  Doc keys get this advice), *protected* (`Software\Sierra`: never named for deletion in any state; ADR 0007 plan review,
+  tested through the canonical form of the policy). Not on the list, with the reason: the vendor roots
+  (`Software\Mad Doc Software`, `Software\SSSI`; p=4756 "make sure to only get ones for ee and aoc if you have other Mad
+  Doc games"), subkeys of `Software\Sierra` other than `CDKeys` (no sample names them yet), Stainless Steel Studios keys
+  (p=4756 names only the vendor, no path), InstallShield leftovers (no sample); the test plan of L-WP8 collects samples.
+  The four game settings keys of contract 3.1 (`hkcu-ee-*`, `hkcu-neoee-*`) are the player's settings while an installation uses them, so they
+  are not shown then.
 
   An empty HKCU part on a computer is a valid result: the page then says "nothing to clean up" and shows the
   read-only list, without an enabled delete button; README and CHANGELOG call R5 "cleanup of HKCU entries; HKLM

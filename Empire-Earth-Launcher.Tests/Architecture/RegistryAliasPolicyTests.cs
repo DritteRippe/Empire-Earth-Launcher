@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Empire_Earth_Launcher.Core.GameSettings;
+using Empire_Earth_Launcher.Core.Maintenance;
 using Empire_Earth_Launcher.Core.Platform;
 using Microsoft.Win32;
 using NUnit.Framework;
@@ -18,7 +19,10 @@ namespace Empire_Earth_Launcher.Tests.Architecture
     /// Each case runs twice: with the launcher's policy and with a policy whose allow-list names the alias itself
     /// with every operation. The second proves that the protection does not depend on the allow-list ("deny after
     /// canonicalization, then allow"). The expected reason is part of each case, so that removing one alias rule
-    /// (e.g. <c>WOW6432Node</c>) fails here even where another rule would still refuse the change.
+    /// (e.g. <c>WOW6432Node</c>) fails here even where another rule would still refuse the change. Since L-WP8 the
+    /// launcher's policy contains the delete rules of the cleanup list (<see cref="CleanupCandidates"/>), so every case also
+    /// proves that no cleanup rule opens a protected key; <see cref="AliasesOfTheCleanupKeys_AreNotDeleted"/> checks that an
+    /// alias of a listed key does not reach it either.
     /// </remarks>
     [TestFixture]
     public class RegistryAliasPolicyTests
@@ -198,6 +202,37 @@ namespace Empire_Earth_Launcher.Tests.Architecture
                 () => RegistryResult<RegistryValue>.Failure(RegistryStatus.Missing, "missing"));
 
             Assert.That(decision.IsAllowed, Is.True, decision.ToString());
+        }
+
+        /// <summary>
+        /// The cleanup may delete exactly the listed HKCU keys (L-WP8): their parents, their subkeys and every other spelling
+        /// that names a different physical key are refused, and HKLM is refused whatever the list says (contract 4.1).
+        /// </summary>
+        [Test]
+        public void AliasesOfTheCleanupKeys_AreNotDeleted()
+        {
+            List<CleanupEntry> deletable = CleanupCandidates.All.Where(entry => entry.Scope == CleanupScope.LauncherDeletes).ToList();
+            Assert.That(deletable, Is.Not.Empty);
+            foreach (CleanupEntry entry in deletable)
+            {
+                string path = entry.Key.Path;
+                Assert.That(LauncherWritePolicy.Default.Check(RegistryOperation.DeleteSubKeyTree, entry.Key).IsAllowed, Is.True, path);
+                var refused = new List<Tuple<RegistryLocation, RegistryWriteDenial>>
+                {
+                    Tuple.Create(entry.Key.Parent, RegistryWriteDenial.NotInAllowList),
+                    Tuple.Create(entry.Key.Child("Game Options"), RegistryWriteDenial.NotInAllowList),
+                    Tuple.Create(RegistryLocation.CurrentUser(path.Replace('\\', '/')), RegistryWriteDenial.NotInAllowList),
+                    Tuple.Create(RegistryLocation.CurrentUser(path.Replace(@"Software\", @"Software\WOW6432Node\")),
+                        RegistryWriteDenial.NotInAllowList),
+                    Tuple.Create(RegistryLocation.LocalMachine32(path), RegistryWriteDenial.NotCurrentUser),
+                    Tuple.Create(RegistryLocation.LocalMachine64(path), RegistryWriteDenial.NotCurrentUser),
+                };
+                foreach (var key in refused)
+                {
+                    RegistryWriteDecision decision = LauncherWritePolicy.Default.Check(RegistryOperation.DeleteSubKeyTree, key.Item1);
+                    Assert.That(decision.Denial, Is.EqualTo(key.Item2), decision.ToString());
+                }
+            }
         }
 
         private static IEnumerable<string> ValueNames(RegistryOperation operation)

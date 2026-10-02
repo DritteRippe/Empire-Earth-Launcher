@@ -2,6 +2,7 @@
 using System.Linq;
 using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.GameSettings;
+using Empire_Earth_Launcher.Core.Maintenance;
 using Empire_Earth_Launcher.Core.Platform;
 using Empire_Earth_Launcher.Tests.Fakes;
 using NUnit.Framework;
@@ -88,14 +89,32 @@ namespace Empire_Earth_Launcher.Tests.Core.GameSettings
                     RegistryLocation.CurrentUser(product.DefaultsMarkerKey), valueName).IsAllowed, Is.True);
         }
 
+        /// <summary>
+        /// Keys of the value rules may be created; the only keys that may be deleted are those of the cleanup list the launcher
+        /// deletes (L-WP8): the four game settings keys of contract 3.1 and the four registry VirtualStore copies of the SSSI
+        /// and Mad Doc keys, never <c>Game Options</c>, a marker, <c>UserGpuPreferences</c> or <c>Layers</c>.
+        /// </summary>
         [Test]
-        public void KeysMayBeCreatedButNeverDeleted()
+        public void KeysMayBeCreated_OnlyTheKeysOfTheCleanupListMayBeDeleted()
         {
+            var deletable = CleanupCandidates.All.Where(entry => entry.Scope == CleanupScope.LauncherDeletes)
+                                             .Select(entry => entry.Key).ToList();
+            Assert.That(deletable, Has.Count.EqualTo(8));
             foreach (RegistryWriteRule rule in LauncherWritePolicy.Default.AllowList)
             {
-                Assert.That(LauncherWritePolicy.Default.Check(RegistryOperation.CreateSubKey, rule.Key).IsAllowed, Is.True, rule.ToString());
+                if (rule.Operations.Contains(RegistryOperation.CreateSubKey))
+                    Assert.That(LauncherWritePolicy.Default.Check(RegistryOperation.CreateSubKey, rule.Key).IsAllowed, Is.True, rule.ToString());
+                RegistryWriteDenial expected = deletable.Contains(rule.Key) ? RegistryWriteDenial.None : RegistryWriteDenial.NotInAllowList;
                 Assert.That(LauncherWritePolicy.Default.Check(RegistryOperation.DeleteSubKeyTree, rule.Key).Denial,
-                    Is.EqualTo(RegistryWriteDenial.NotInAllowList), rule.ToString());
+                    Is.EqualTo(expected), rule.ToString());
+            }
+            foreach (RegistryLocation key in deletable)
+            {
+                Assert.That(LauncherWritePolicy.Default.Check(RegistryOperation.DeleteSubKeyTree, key).IsAllowed, Is.True, key.ToString());
+                Assert.That(LauncherWritePolicy.WithoutLayerEntries.Check(RegistryOperation.DeleteSubKeyTree, key).IsAllowed, Is.True,
+                    "Windows 7: " + key);
+                Assert.That(LauncherWritePolicy.Default.Check(RegistryOperation.DeleteSubKeyTree, key.Child("Game Options")).Denial,
+                    Is.EqualTo(RegistryWriteDenial.NotInAllowList), "only the listed key itself, " + key);
             }
         }
 

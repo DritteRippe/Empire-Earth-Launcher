@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Empire_Earth_Launcher.Core.Contract;
+using Empire_Earth_Launcher.Core.Maintenance;
 using Empire_Earth_Launcher.Core.Platform;
 
 namespace Empire_Earth_Launcher.Core.GameSettings
@@ -20,10 +21,15 @@ namespace Empire_Earth_Launcher.Core.GameSettings
     /// the entries of the rows <c>compatibility</c> and <c>compatibility_windows</c> (Windows 8 and later), every other entry
     /// stays; a value may be deleted when nothing else is in it or it is exactly <c>~ RUNASADMIN</c> (contract 3.7, ADR 0007
     /// plan review). On Windows 7 and under Wine no entry may be switched (<see cref="WithoutLayerEntries"/>).</item>
+    /// <item>the HKCU keys of the cleanup list the launcher deletes (<see cref="CleanupCandidates"/>, L-WP8): only
+    /// <c>DeleteSubKeyTree</c> of exactly these keys, which are the game settings keys of contract 3.1 and the registry
+    /// VirtualStore copies of the SSSI and Mad Doc keys.</item>
     /// </list>
-    /// Every rule allows setting and deleting these values and creating the key; no key is ever deleted. The policy cannot
-    /// know which installations the discovery found: the services write only the program paths of discovered
-    /// installations (tests), the policy checks that a name is a program path at all.
+    /// The game settings rules allow setting and deleting these values and creating the key; no other key is ever deleted. The
+    /// policy cannot know which installations the discovery found: the services write only the program paths of discovered
+    /// installations (tests), the policy checks that a name is a program path at all; likewise the cleanup deletes a key only
+    /// when no installation of its product was found and its folder is gone (<see cref="RegistryCleanup"/>), the policy allows
+    /// exactly the listed keys and still refuses every protected key first.
     /// </remarks>
     public static class LauncherWritePolicy
     {
@@ -73,6 +79,8 @@ namespace Empire_Earth_Launcher.Core.GameSettings
             yield return RegistryWriteRule.ForProgramPaths(ContractNames.GpuPreferencesKey, ValueAndKeyCreation);
             yield return RegistryWriteRule.ForCompatibilityLayers(ContractNames.CompatibilityLayersKey, layerEntries.ToList(),
                 ValueAndKeyCreation);
+            foreach (RegistryWriteRule rule in CleanupCandidates.WriteRules(CleanupCandidates.All))
+                yield return rule;
         }
     }
 }
