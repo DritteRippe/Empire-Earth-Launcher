@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Empire_Earth_Launcher.Core.Installations;
+using Empire_Earth_Launcher.Core.Lobby;
 using Empire_Earth_Launcher.Core.Logging;
 using Empire_Earth_Launcher.Core.Platform;
 using Empire_Earth_Launcher.Core.Settings;
@@ -44,7 +47,8 @@ namespace Empire_Earth_Launcher
 
             // User settings: settings.json below %LOCALAPPDATA% (ADR 0005). A missing, damaged or unreadable file
             // means the defaults; SettingsStore logs it and moves a damaged file aside.
-            var settingsStore = new SettingsStore(new LocalFileSystem(), LauncherPaths.SettingsFile, logger);
+            var fileSystem = new LocalFileSystem();
+            var settingsStore = new SettingsStore(fileSystem, LauncherPaths.SettingsFile, logger);
             settingsStore.Load();
             ApplyUiLanguage(logger, settingsStore.Current.UiCulture);
             var themeService = new KryptonThemeService(logger, LauncherPaths.ThemesDirectory);
@@ -52,14 +56,35 @@ namespace Empire_Earth_Launcher
 
             var gameDirectory = new GameDirectoryService(logger, settingsStore, new GameDirectoryLocator());
             gameDirectory.Refresh();
+            var lobbyProfiles = new LobbyProfileRepository(logger, fileSystem, CreateEffectivePathResolver(fileSystem));
 
             // Server settings stay application settings in "Empire Earth Launcher.exe.config" (ADR 0005).
             int playerListPollIntervalMilliseconds;
             NeoApiClient neoClient = CreateNeoClient(Settings.Default, out playerListPollIntervalMilliseconds);
 
             logger.Info("Starting Empire Earth Launcher Form");
-            Application.Run(new MainForm(logger, themeService, settingsStore, gameDirectory, neoClient,
+            Application.Run(new MainForm(logger, themeService, settingsStore, gameDirectory, lobbyProfiles, neoClient,
                 playerListPollIntervalMilliseconds));
+        }
+
+        /// <summary>
+        /// The effective game paths of this account (ADR 0016): the folders UAC virtualizes for legacy programs such as
+        /// the game (Program Files, Program Files (x86), ProgramData, Windows) and the VirtualStore below
+        /// %LOCALAPPDATA%. Without %LOCALAPPDATA% nothing is virtualized.
+        /// </summary>
+        private static EffectivePathResolver CreateEffectivePathResolver(IFileSystem fileSystem)
+        {
+            string localApplicationData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string virtualStore = string.IsNullOrEmpty(localApplicationData)
+                ? null
+                : Path.Combine(localApplicationData, "VirtualStore");
+            return new EffectivePathResolver(fileSystem, virtualStore, new[]
+            {
+                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+                Environment.GetFolderPath(Environment.SpecialFolder.Windows)
+            });
         }
 
         /// <summary>

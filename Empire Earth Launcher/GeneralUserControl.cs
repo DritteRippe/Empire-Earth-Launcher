@@ -76,11 +76,12 @@ namespace Empire_Earth_Launcher
         /// <param name="logger">Log of the launcher.</param>
         /// <param name="themeService">Theme of the launcher.</param>
         /// <param name="gameDirectory">Game folder with the WON lobby files; they are read again when it changes.</param>
+        /// <param name="lobbyProfiles">Reads the lobby profiles of the game folder (VirtualStore copy first).</param>
         /// <param name="neoClient">Client for the online player list; null disables the list (invalid server
         /// settings).</param>
         /// <param name="playerListPollIntervalMilliseconds">Delay between two requests of the player list.</param>
         internal void Initialize(ILogger logger, IThemeService themeService, GameDirectoryService gameDirectory,
-            NeoApiClient neoClient, int playerListPollIntervalMilliseconds)
+            LobbyProfileRepository lobbyProfiles, NeoApiClient neoClient, int playerListPollIntervalMilliseconds)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
@@ -92,7 +93,7 @@ namespace Empire_Earth_Launcher
                 throw new ArgumentOutOfRangeException(nameof(playerListPollIntervalMilliseconds));
 
             this.logger = logger;
-            lobbyProfiles = new LobbyProfileRepository(logger);
+            this.lobbyProfiles = lobbyProfiles ?? throw new ArgumentNullException(nameof(lobbyProfiles));
             this.gameDirectory = gameDirectory;
             this.neoClient = neoClient;
             this.playerListPollIntervalMilliseconds = playerListPollIntervalMilliseconds;

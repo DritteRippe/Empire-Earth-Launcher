@@ -1,6 +1,7 @@
 ﻿using Krypton.Toolkit;
 using System;
 using System.Windows.Forms;
+using Empire_Earth_Launcher.Core.Lobby;
 using Empire_Earth_Launcher.Core.Logging;
 using Empire_Earth_Launcher.Core.Settings;
 using Empire_Earth_Launcher.Properties;
@@ -17,10 +18,12 @@ namespace Empire_Earth_Launcher
         /// <param name="themeService">Theme of the launcher windows.</param>
         /// <param name="settings">User settings of the launcher (settings.json).</param>
         /// <param name="gameDirectory">The Empire Earth folder.</param>
+        /// <param name="lobbyProfiles">Reads the lobby profiles of the game folder.</param>
         /// <param name="neoClient">Client for the online player list; null if the server settings are invalid.</param>
         /// <param name="playerListPollIntervalMilliseconds">Delay between two requests of the player list.</param>
         internal MainForm(ILogger logger, IThemeService themeService, SettingsStore settings,
-            GameDirectoryService gameDirectory, NeoApiClient neoClient, int playerListPollIntervalMilliseconds)
+            GameDirectoryService gameDirectory, LobbyProfileRepository lobbyProfiles, NeoApiClient neoClient,
+            int playerListPollIntervalMilliseconds)
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.OptimizedDoubleBuffer, true);
@@ -30,7 +33,7 @@ namespace Empire_Earth_Launcher
 
             // The pages are created by InitializeComponent (designer), which needs parameterless constructors,
             // so they receive their services here.
-            generalUserControl.Initialize(logger, themeService, gameDirectory, neoClient,
+            generalUserControl.Initialize(logger, themeService, gameDirectory, lobbyProfiles, neoClient,
                 playerListPollIntervalMilliseconds);
             settingsUserControl.Initialize(themeService);
             launcherSettingsUserControl.Initialize(themeService, settings, gameDirectory);

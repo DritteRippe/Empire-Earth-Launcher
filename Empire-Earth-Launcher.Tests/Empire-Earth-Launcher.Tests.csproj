@@ -64,6 +64,7 @@
     <Compile Include="Architecture\ResourceParityTests.cs" />
     <Compile Include="Core\Contract\ContractNamesTests.cs" />
     <Compile Include="Core\Installations\DiscoveryContractTests.cs" />
+    <Compile Include="Core\Installations\EffectivePathResolverTests.cs" />
     <Compile Include="Core\Installations\GameDirectoryLocatorPortTests.cs" />
     <Compile Include="Core\Installations\GameFoldersTests.cs" />
     <Compile Include="Core\Installations\InstallationDiscoveryTests.cs" />
