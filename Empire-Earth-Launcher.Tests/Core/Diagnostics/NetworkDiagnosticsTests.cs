@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.Diagnostics;
 using Empire_Earth_Launcher.Core.Installations;
@@ -390,6 +391,26 @@ namespace Empire_Earth_Launcher.Tests.Core.Diagnostics
                 Assert.That(() => Diagnostics(statusServer).RunAsync(installation, InstallationWorld.NeoEEAppId, cancellation.Token)
                                                            .GetAwaiter().GetResult(),
                     Throws.InstanceOf<OperationCanceledException>());
+            }
+        }
+
+        [Test]
+        public void RunAsync_WithASlowAdapterList_ReturnsAnUnfinishedTaskAtOnce()
+        {
+            // ADR 0004: the adapters and the files are read on the thread pool, not on the caller's (UI) thread.
+            using (var gate = new ManualResetEventSlim())
+            {
+                network.AdapterGate = gate;
+
+                Task<NetworkReport> task = Diagnostics(statusServer).RunAsync(installation, InstallationWorld.NeoEEAppId,
+                    CancellationToken.None);
+
+                Assert.That(task.IsCompleted, Is.False, "the caller must not wait for the adapters");
+                Assert.That(network.AdaptersEntered.Wait(TimeSpan.FromSeconds(10)), Is.True, "the check runs elsewhere");
+                Assert.That(task.IsCompleted, Is.False);
+                gate.Set();
+                Assert.That(task.Wait(TimeSpan.FromSeconds(10)), Is.True);
+                Assert.That(task.Result.Verdict, Is.EqualTo(OutageVerdict.ServerAnswers));
             }
         }
 

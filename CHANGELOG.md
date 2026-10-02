@@ -554,3 +554,7 @@ section 15); all of them are done, newest first below. It has not been released;
   deleted, "Check all files" stays disabled when a setup started meanwhile, and the compatibility options and the
   buttons of the *Game settings* page follow their state. `UiOperationRestoreTests` requires the restore for every
   trigger whose `Enabled` the page sets.
+- The network check no longer reads the adapter list of Windows and the configuration files of the game folders on the
+  UI thread before its first request (build/UI review, ADR 0004): `NetworkDiagnostics.RunAsync` runs completely on the
+  thread pool, so slow VPN or virtual adapters and a game folder on a network drive do not freeze the window; the
+  *Tools* page cancels a running check when it is closed.

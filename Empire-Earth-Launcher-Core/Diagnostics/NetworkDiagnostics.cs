@@ -355,7 +355,18 @@ namespace Empire_Earth_Launcher.Core.Diagnostics
         /// <param name="installation">The installation whose game folders are read; null without one.</param>
         /// <param name="appId">The AppId for the request to the update API (contract 4.3); null if no installation has one.</param>
         /// <param name="cancellationToken">Ends the check with <see cref="OperationCanceledException"/>.</param>
-        public async Task<NetworkReport> RunAsync(Installation installation, string appId, CancellationToken cancellationToken)
+        /// <remarks>
+        /// The whole check runs on the thread pool (ADR 0004): the adapter list of Windows (slow with VPN and virtual
+        /// adapters) and the configuration files (a game folder on a network drive) are read before the first request, so
+        /// the caller, the UI thread, gets an unfinished task at once.
+        /// </remarks>
+        public Task<NetworkReport> RunAsync(Installation installation, string appId, CancellationToken cancellationToken)
+        {
+            return Task.Run(() => RunOnThreadPoolAsync(installation, appId, cancellationToken), cancellationToken);
+        }
+
+        private async Task<NetworkReport> RunOnThreadPoolAsync(Installation installation, string appId,
+            CancellationToken cancellationToken)
         {
             DateTime checkedAt = clock.Now;
             logger.Info("Network diagnostics: started on request.");

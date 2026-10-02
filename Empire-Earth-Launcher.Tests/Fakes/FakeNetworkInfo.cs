@@ -36,6 +36,12 @@ namespace Empire_Earth_Launcher.Tests.Fakes
         /// <summary>How often <see cref="GetAdapters"/> was called.</summary>
         public int AdapterReads { get; private set; }
 
+        /// <summary>If set, <see cref="GetAdapters"/> waits for it (a slow adapter list); <see cref="AdaptersEntered"/> is set first.</summary>
+        public ManualResetEventSlim AdapterGate { get; set; }
+
+        /// <summary>Set when <see cref="GetAdapters"/> is entered.</summary>
+        public ManualResetEventSlim AdaptersEntered { get; } = new ManualResetEventSlim();
+
         /// <summary>Adds an adapter; addresses as text (<c>192.168.1.20/24</c>, <c>fe80::1/64</c>), gateways as text.</summary>
         public FakeNetworkInfo AddAdapter(NetworkAdapterKind kind, string description, string[] addresses, string[] gateways = null,
             bool isUp = true, string id = "{00000000-0000-0000-0000-000000000001}", string name = "Ethernet",
@@ -69,6 +75,8 @@ namespace Empire_Earth_Launcher.Tests.Fakes
 
         public NetworkAdapters GetAdapters()
         {
+            AdaptersEntered.Set();
+            AdapterGate?.Wait();
             AdapterReads++;
             return AdapterProblem != null ? NetworkAdapters.Failed(AdapterProblem) : NetworkAdapters.Listed(adapters);
         }

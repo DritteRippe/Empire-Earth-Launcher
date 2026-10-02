@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Empire_Earth_Launcher.Core.Contract;
@@ -45,6 +46,9 @@ namespace Empire_Earth_Launcher
         private MaintenanceModel maintenance;
         private DiagnosticsModel diagnostics;
         private UiOperation uiOperation;
+
+        /// <summary>Cancelled when the page is disposed (the main window closes): ends a running network check (ADR 0004).</summary>
+        private readonly CancellationTokenSource closing = new CancellationTokenSource();
 
         /// <summary>The registry cleanup as shown, so that the check boxes map to its keys.</summary>
         private CleanupView cleanupView;
@@ -146,6 +150,8 @@ namespace Empire_Earth_Launcher
                 diagnostics.Changed -= showState;
                 setupWatcher.SetupStarted -= showSetup;
                 setupWatcher.SetupFinished -= showSetup;
+                closing.Cancel();
+                closing.Dispose();
             };
             ShowState();
         }
@@ -572,7 +578,7 @@ namespace Empire_Earth_Launcher
         /// <summary>The network check on request (R7): DNS, the update API, the status server and the files of the game folders.</summary>
         private void networkCheckKryptonButton_Click(object sender, EventArgs e)
         {
-            uiOperation.Run(networkCheckKryptonButton, () => diagnostics.CheckNetworkAsync(), ShowState);
+            uiOperation.Run(networkCheckKryptonButton, () => diagnostics.CheckNetworkAsync(closing.Token), ShowState);
         }
 
         /// <summary>
@@ -583,7 +589,7 @@ namespace Empire_Earth_Launcher
         {
             toolsScrollPanel.ScrollControlIntoView(networkHeadingKryptonLabel);
             if (!diagnostics.IsChecking)
-                uiOperation.Run(networkCheckKryptonButton, () => diagnostics.CheckNetworkAsync(), ShowState);
+                uiOperation.Run(networkCheckKryptonButton, () => diagnostics.CheckNetworkAsync(closing.Token), ShowState);
         }
 
         /// <summary>Copies the report to the clipboard and shows the text that was copied (it is never sent).</summary>
