@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using Empire_Earth_Launcher.Core.Logging;
 using Empire_Earth_WON;
 
-namespace Empire_Earth_Launcher
+namespace Empire_Earth_Launcher.Core.Lobby
 {
     /// <summary>Outcome of <see cref="LobbyProfileRepository.LoadProfiles"/>.</summary>
-    internal enum LobbyProfilesStatus
+    public enum LobbyProfilesStatus
     {
         /// <summary>At least one profile was read.</summary>
         Loaded,
@@ -23,7 +24,7 @@ namespace Empire_Earth_Launcher
     }
 
     /// <summary>Outcome of <see cref="LobbyProfileRepository.LoadFriends"/>.</summary>
-    internal enum LobbyFriendsStatus
+    public enum LobbyFriendsStatus
     {
         /// <summary>The friend list of the profile was read.</summary>
         Loaded,
@@ -38,7 +39,7 @@ namespace Empire_Earth_Launcher
     /// never throw: they are logged and reported as a status, so the launcher keeps working (korr-S1). Kept
     /// out of GeneralUserControl, so that it can be tested without UI.
     /// </summary>
-    internal sealed class LobbyProfileRepository
+    public sealed class LobbyProfileRepository
     {
         private static readonly ReadOnlyCollection<LobbyPersistentData.LobbyGlobalData.PlayerInfoGlobalData> NoProfiles =
             new ReadOnlyCollection<LobbyPersistentData.LobbyGlobalData.PlayerInfoGlobalData>(

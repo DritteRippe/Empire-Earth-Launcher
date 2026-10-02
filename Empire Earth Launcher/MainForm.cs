@@ -1,6 +1,7 @@
 ﻿using Krypton.Toolkit;
 using System;
 using System.Windows.Forms;
+using Empire_Earth_Launcher.Core.Logging;
 using Empire_Earth_Launcher.Properties;
 using Empire_Earth_WON;
 

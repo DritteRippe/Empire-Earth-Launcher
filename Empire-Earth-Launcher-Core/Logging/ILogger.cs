@@ -1,6 +1,6 @@
 using System;
 
-namespace Empire_Earth_Launcher
+namespace Empire_Earth_Launcher.Core.Logging
 {
     public enum LogLevel
     {
@@ -11,9 +11,10 @@ namespace Empire_Earth_Launcher
     /// Destination of the launcher's log messages.
     /// </summary>
     /// <remarks>
-    /// There is no global logger: <see cref="Program"/> (the composition root) creates one and passes it to
-    /// every class that logs, through its constructor or, for controls created by the WinForms designer,
-    /// through their Initialize method.
+    /// There is no global logger: the composition root of the launcher (its Program class) creates one and
+    /// passes it to every class that logs, through its constructor or, for controls created by the WinForms
+    /// designer, through their Initialize method. Messages are English (ARCHITECTURE 7); they never contain
+    /// CD-key values, WON key files or credentials (ADR 0013).
     /// </remarks>
     public interface ILogger
     {

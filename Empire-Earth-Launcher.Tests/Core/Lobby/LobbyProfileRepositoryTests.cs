@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Empire_Earth_Launcher.Core.Lobby;
+using Empire_Earth_Launcher.Core.Logging;
 using Empire_Earth_Launcher.Tests.TestSupport;
 using Empire_Earth_Launcher.Tests.Won;
 using Empire_Earth_WON;
 using NUnit.Framework;
 
-namespace Empire_Earth_Launcher.Tests.Launcher
+namespace Empire_Earth_Launcher.Tests.Core.Lobby
 {
     /// <summary>
     /// Lobby profiles and friends as the launcher's start page loads them (<see cref="LobbyProfileRepository"/>).

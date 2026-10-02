@@ -1,6 +1,7 @@
 using System;
 using System.Configuration;
 using System.IO;
+using Empire_Earth_Launcher.Core.Logging;
 
 namespace Empire_Earth_Launcher
 {

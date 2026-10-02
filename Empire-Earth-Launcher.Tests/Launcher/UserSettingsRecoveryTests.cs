@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
 using System.IO;
+using Empire_Earth_Launcher.Core.Logging;
 using Empire_Earth_Launcher.Tests.TestSupport;
 using NUnit.Framework;
 

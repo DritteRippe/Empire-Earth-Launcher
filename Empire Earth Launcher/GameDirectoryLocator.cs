@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Security;
+using Empire_Earth_Launcher.Core.Settings;
 using Microsoft.Win32;
 
 namespace Empire_Earth_Launcher

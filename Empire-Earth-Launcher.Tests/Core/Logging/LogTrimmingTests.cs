@@ -1,9 +1,10 @@
 ﻿using System.IO;
 using System.Linq;
+using Empire_Earth_Launcher.Core.Logging;
 using Empire_Earth_Launcher.Tests.TestSupport;
 using NUnit.Framework;
 
-namespace Empire_Earth_Launcher.Tests.Launcher
+namespace Empire_Earth_Launcher.Tests.Core.Logging
 {
     /// <summary>
     /// Trimming of the launcher log at start-up (<see cref="TraceFileLogger.TrimLogFile"/>). The logger itself

@@ -3,6 +3,8 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using Empire_Earth_Launcher.Core.Logging;
+using Empire_Earth_Launcher.Core.Settings;
 using Empire_Earth_Launcher.Properties;
 using Empire_Earth_WON;
 

@@ -4,13 +4,13 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 
-namespace Empire_Earth_Launcher
+namespace Empire_Earth_Launcher.Core.Logging
 {
     /// <summary>
     /// <see cref="ILogger"/> that writes timestamped lines to a log file (and the console) through
     /// <see cref="Trace"/>.
     /// </summary>
-    internal sealed class TraceFileLogger : ILogger
+    public sealed class TraceFileLogger : ILogger
     {
         /// <summary>
         /// Size above which the log file is trimmed when the launcher starts.

@@ -60,9 +60,10 @@
     <Compile Include="Architecture\CoreDependencyTests.cs" />
     <Compile Include="Architecture\ProjectConventionsTests.cs" />
     <Compile Include="Core\Contract\ContractNamesTests.cs" />
+    <Compile Include="Core\Lobby\LobbyProfileRepositoryTests.cs" />
+    <Compile Include="Core\Logging\LogTrimmingTests.cs" />
+    <Compile Include="Core\Settings\LauncherPathsTests.cs" />
     <Compile Include="Launcher\GameDirectoryLocatorTests.cs" />
-    <Compile Include="Launcher\LobbyProfileRepositoryTests.cs" />
-    <Compile Include="Launcher\LogTrimmingTests.cs" />
     <Compile Include="Launcher\UserSettingsRecoveryTests.cs" />
     <Compile Include="Mod\ModArchiveTests.cs" />
     <Compile Include="Mod\ModAssetsTests.cs" />

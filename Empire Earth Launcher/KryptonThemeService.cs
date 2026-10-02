@@ -1,4 +1,5 @@
 using Krypton.Toolkit;
+using Empire_Earth_Launcher.Core.Logging;
 using Empire_Earth_Launcher.Properties;
 using System;
 using System.Collections.Generic;

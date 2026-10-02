@@ -1,14 +1,17 @@
 using System;
 using System.IO;
 
-namespace Empire_Earth_Launcher
+namespace Empire_Earth_Launcher.Core.Settings
 {
     /// <summary>
     /// File system locations of the launcher, in one place. Nothing depends on the current directory, so
     /// starting the launcher from a shortcut with another "Start in" folder behaves the same.
     /// </summary>
-    internal static class LauncherPaths
+    public static class LauncherPaths
     {
+        /// <summary>Name of the launcher's per-user folder below %LOCALAPPDATA%.</summary>
+        public const string UserDataFolderName = "Empire Earth Launcher";
+
         /// <summary>File name of the launcher log inside <see cref="UserDataDirectory"/>.</summary>
         public const string LogFileName = "log.txt";
 
@@ -35,12 +38,19 @@ namespace Empire_Earth_Launcher
         {
             get
             {
-                string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                // Empty for accounts without a profile; the temporary folder is still per user.
-                if (string.IsNullOrEmpty(localAppData))
-                    localAppData = Path.GetTempPath();
-                return Path.Combine(localAppData, "Empire Earth Launcher");
+                return GetUserDataDirectory(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Path.GetTempPath());
             }
+        }
+
+        /// <summary>
+        /// The launcher's folder below <paramref name="localApplicationData"/>; below <paramref name="temporaryFolder"/>
+        /// if the first is empty, as for accounts without a profile (the temporary folder is still per user).
+        /// </summary>
+        internal static string GetUserDataDirectory(string localApplicationData, string temporaryFolder)
+        {
+            string baseFolder = string.IsNullOrEmpty(localApplicationData) ? temporaryFolder : localApplicationData;
+            return Path.Combine(baseFolder, UserDataFolderName);
         }
 
         /// <summary>Full path of the launcher log.</summary>
