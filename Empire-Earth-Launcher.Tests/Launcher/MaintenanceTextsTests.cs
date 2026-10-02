@@ -67,6 +67,29 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(Texts.WonResult(reset.Reset(Installation())), Is.EqualTo("Not possible while Empire Earth.exe is running."));
         }
 
+        /// <summary>
+        /// Access denied (a game folder below Program Files, a running game): the text says so and names every file that
+        /// stayed; the copies are in the backup folder.
+        /// </summary>
+        [Test]
+        public void WonReset_WhenAccessIsDenied_NamesTheFilesThatStayed()
+        {
+            w.FileSystem.AddFile(Root + @"\Empire Earth\_wonlogin.ks", "x");
+            w.FileSystem.AddFile(Root + @"\Empire Earth\_wonkver.pub", "k");
+            w.FileSystem.SetReadOnly(Root + @"\Empire Earth\_wonlogin.ks", true);
+            var reset = new WonLoginReset(w.FileSystem, paths, w.Guard, new FileBackup(w.FileSystem, w.Backups, w.Logger), w.Logger);
+
+            WonResetResult result = reset.Reset(Installation());
+
+            Assert.That(result.Outcome, Is.EqualTo(WonResetOutcome.Partial));
+            Assert.That(Texts.WonResult(result).Split('\n').Select(line => line.TrimEnd('\r')), Is.EqualTo(new[]
+            {
+                "Copied to " + result.BackupFolder + ", but these files could not be removed (access denied). Close the game " +
+                "and try again, or delete them in the Explorer:",
+                Root + @"\Empire Earth\_wonlogin.ks"
+            }));
+        }
+
         [Test]
         public void Import_NamesEveryFileItLeftOut_AndTheMultiplayerNote()
         {
