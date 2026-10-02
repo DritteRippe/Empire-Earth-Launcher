@@ -38,3 +38,6 @@
 # Empire Earth mod packages and WON lobby data files (e.g. test fixtures).
 *.eem       binary
 *.dat       binary
+# Registry files (.reg) are UTF-16 LE with BOM and CRLF, as the Registry Editor writes them; the golden files of
+# the backup tests (Empire-Earth-Launcher.Tests/Core/Backup/Golden) are compared byte by byte.
+*.reg       binary

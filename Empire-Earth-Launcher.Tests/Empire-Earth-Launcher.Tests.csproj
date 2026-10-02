@@ -62,6 +62,9 @@
     <Compile Include="Architecture\ProjectConventionsTests.cs" />
     <Compile Include="Architecture\RegistryAliasPolicyTests.cs" />
     <Compile Include="Architecture\ResourceParityTests.cs" />
+    <Compile Include="Core\Backup\BackupLocationsTests.cs" />
+    <Compile Include="Core\Backup\RegFileWriterTests.cs" />
+    <Compile Include="Core\Backup\RegistryExportTests.cs" />
     <Compile Include="Core\Contract\ContractNamesTests.cs" />
     <Compile Include="Core\Installations\DiscoveryContractTests.cs" />
     <Compile Include="Core\Installations\EffectivePathResolverTests.cs" />
@@ -126,6 +129,39 @@
     <Compile Include="Won\NeoApiClientTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Core\Backup\Golden\Binary.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\Backup\Golden\DefaultValueAndNames.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\Backup\Golden\DeleteLines.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\Backup\Golden\DWord.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\Backup\Golden\ExpandString.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\Backup\Golden\MultiString.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\Backup\Golden\None.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\Backup\Golden\QWord.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\Backup\Golden\RegSzEscaping.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\Backup\Golden\StringWithLineBreaks.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\Backup\Golden\UnknownTypes.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
