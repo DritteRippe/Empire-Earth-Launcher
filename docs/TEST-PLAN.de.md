@@ -7,7 +7,7 @@ von Krypton und die Texte der Oberfläche ([ADR 0012](adr/0012-test-strategy.md)
 
 | | |
 |---|---|
-| Stand | Fälle von L-WP1 bis L-WP6; jedes weitere Arbeitspaket ergänzt seinen Abschnitt in 5 und die Zuordnung in 7 im selben Commit |
+| Stand | Fälle von L-WP1 bis L-WP7; jedes weitere Arbeitspaket ergänzt seinen Abschnitt in 5 und die Zuordnung in 7 im selben Commit |
 | Sprache | Deutsch (die Programmtexte gibt es auf Englisch, Deutsch und Französisch) |
 | Gehört zu | [ARCHITECTURE.md](ARCHITECTURE.md), Abschnitt 11 und 15 |
 
@@ -44,8 +44,11 @@ Inhalt: [1. Voraussetzungen](#1-voraussetzungen) · [2. Paket holen und prüfen]
   `HKCU\Software\SSSI` und `HKCU\Software\Mad Doc Software`. Den Schlüssel `Software\Sierra\CDKeys` nie ändern
   oder löschen.
 - **Netzwerk**: Der Launcher fragt im Hintergrund die Online-Spielerliste beim NeoEE-Statusserver ab
-  (`titan.empireearth.eu`, Port 10005, eingestellt in `Empire Earth Launcher.exe.config`). Weitere Verbindungen
-  kommen erst mit späteren Arbeitspaketen dazu und stehen dann bei deren Testfällen.
+  (`titan.empireearth.eu`, Port 10005, eingestellt in `Empire Earth Launcher.exe.config`). Ab L-WP7 fragt er nur auf
+  Wunsch (Reparatur-Hinweise, „Version prüfen“, „Nach Updates suchen“) per HTTPS `api.empireearth.eu` nach dem
+  Download des aktuellen Setups und nach den Versionen; gesendet werden nur die AppId der Installation und die Version
+  (WP7-10 bis WP7-12). Weitere Verbindungen kommen erst mit späteren Arbeitspaketen dazu und stehen dann bei deren
+  Testfällen.
 
 ## 2. Paket holen und prüfen
 
@@ -330,8 +333,34 @@ Texte.
 
 ### L-WP7 – Integrität und Reparatur (Vertrag 2 und 4)
 
-Wird mit L-WP7 ergänzt. Vorgemerkt: vollständige Prüfung starten, dann das Setup starten – das Setup läuft ohne
-Fehlerdialog durch, die Prüfung meldet „abgebrochen“ und läuft nach dem Setup neu.
+Der Launcher prüft nach jeder Suche der Installationen (beim Start und nach einem Setup) im Hintergrund die Dateien der
+gewählten Installation gegen die Liste, die das Community-Setup seit v2 schreibt (`_setupdata_<Produkt>\files.sha256`):
+Alle Dateien müssen da sein, die Programmdateien werden gehasht (schnelle Prüfung). Auf der Seite *Spielen* steht das
+Ergebnis unter den Versionen („Dateien: OK“ usw.), daneben „Details“ (Seite *Werkzeuge*) oder „Reparieren ...“. Die neue
+Seite *Werkzeuge* zeigt die Erklärung und alle betroffenen Dateien, startet die vollständige Prüfung (auch die Spieldaten)
+mit Fortschritt und Abbruch, öffnet die Reparatur-Hinweise und fragt nach Updates. Das Fenster „Installation reparieren“
+fragt jetzt zuerst `api.empireearth.eu` nach dem Download des aktuellen Setups. Der Launcher liest die Spieldateien nur;
+er ändert, löscht, verschiebt oder lädt keine. Voraussetzung: eine Installation mit dem Community-Setup v2 (Setup-Testplan
+TP-40, TP-50); für WP7-07 eine mit Setup 1.7.2, für WP7-08 eine CD- oder GOG-Installation oder eine Kopie. Für Fälle, die
+Dateien umbenennen, Adminrechte im Explorer; danach immer zurückbenennen.
+
+| Fall | Schritte | Erwartet |
+|---|---|---|
+| WP7-01 | Installation mit dem Community-Setup v2, Launcher starten, Seite *Spielen*; dann Seite *Werkzeuge*. | Das Fenster ist sofort bedienbar; unter den Versionen kurz „Dateien: werden geprüft ...“, dann „Dateien: OK“ mit „Details“. *Werkzeuge*: „Alle … Dateien aus der Liste des Setups sind vorhanden, und die … Programmdateien sind unverändert (schnelle Prüfung).“ `log.txt`: `Integrity: quick check of <Installationsordner>: Ok, … files listed, … hashed, 0 findings.` Zeitabstand zur Zeile `Discovery: … installation(s) found` notieren. |
+| WP7-02 | Forenbericht Abschnitt 8 Zeile 11 und Testfall 14 (Antivirus löscht Dateien): als Administrator im Explorer eine Programmdatei der Liste umbenennen, z. B. `Empire Earth\neoee.dll` (NeoEE) oder eine andere `.dll` aus `_setupdata_<Produkt>\files.sha256`, in `<Name>.bak`; dann eine Datei aus `Empire Earth\Data\` (keine `.exe`/`.dll`) ebenso. Launcher starten, „Reparieren ...“, „Downloadseite öffnen“, Fenster schließen. Danach beide Dateien zurückbenennen und den Launcher neu starten. | „Dateien: beschädigt“ mit „Reparieren ...“. Fenster „Installation reparieren“: „Dateien der Installation fehlen oder sind beschädigt. Antivirenprogramme löschen Spieldateien oft oder verschieben sie in die Quarantäne.“, darunter beide Dateien mit „fehlt“ (die Programmdatei zuerst), dann nummeriert zuerst „Fügen Sie zuerst in Ihrem Antivirenprogramm eine Ausnahme für den Ordner … hinzu …“, dann die Setup-Schritte. *Werkzeuge* listet dieselben Dateien. Nur die Datendatei umbenannt: „Dateien: unvollständig“. `log.txt` je Datei genau eine Zeile `Integrity finding in …: Empire Earth/neoee.dll (code): missing; expected <Hash>, actual none (missing).` Nach dem Zurückbenennen wieder „Dateien: OK“. Das Spiel startet auch im beschädigten Zustand, wenn `Empire Earth.exe` da ist. |
+| WP7-03 | *Werkzeuge* → „Alle Dateien prüfen“; nach einigen Sekunden „Prüfung abbrechen“; dann noch einmal „Alle Dateien prüfen“ und bis zum Ende laufen lassen. Dauer notieren (SSD/HDD). | Fortschrittsbalken und „Prüfung: … von … Dateien“; während der Prüfung ist „Alle Dateien prüfen“ ausgegraut, das Fenster bleibt bedienbar und „Spielen“ funktioniert. Nach dem Abbrechen „Die Prüfung wurde abgebrochen.“ und „Dateien: Prüfung abgebrochen“ auf *Spielen*. Am Ende „Alle … Dateien aus der Liste des Setups sind vorhanden, und die … mit ihrer Prüfsumme verglichenen Dateien sind unverändert (vollständige Prüfung).“ `log.txt`: `Integrity: the full check of … was started by the user.`, beim Abbruch `… was cancelled after … of … files (cancelled); its findings are dropped.` |
+| WP7-04 | ADR 0016 (Planprüfung), Vertrag 4.2: *Werkzeuge* → „Alle Dateien prüfen“ und sofort danach das Community-Setup starten und als Reparatur durchlaufen lassen (gleicher Ordner, gleicher Modus). | Spätestens 2 Sekunden nach dem ersten Setup-Fenster: „Die Prüfung wurde abgebrochen, weil ein Setup gestartet wurde. Sie läuft erneut, sobald das Setup beendet ist.“ Das Setup läuft ohne Fehlerdialog durch (keine Meldung „DeleteFile failed; code 32“ oder „Der Prozess kann nicht auf die Datei zugreifen“). Nach dem Setup sucht der Launcher die Installationen neu und prüft schnell: „Dateien: OK“. `log.txt`: `Integrity: the NeoEE setup started; the running full check is cancelled (contract 4.2).` (bzw. EE), danach `The … setup has ended …` und eine neue Zeile `Integrity: quick check of …`. |
+| WP7-05 | Vertrag O6: Empire Earth und The Art of Conquest je einmal über den Launcher spielen (Hauptmenü, ein kurzes Gefecht gegen den Computer, speichern; bei NeoEE auch in die Lobby einloggen), beenden; dann *Werkzeuge* → „Alle Dateien prüfen“. | Ergebnis notieren: erwartet „Dateien: OK“ oder „Dateien: OK, Spieldaten geändert“. Jede Datei, die *Werkzeuge* dann listet, mit Pfad notieren (Antwort auf O6: welche installierten Dateien außer `cfg ini conf config log` ändert das Spiel?). Geänderte `.cfg`/`.ini` erscheinen nie. |
+| WP7-06 | Vertrag 2.6 und O2 (nur NeoEE, optional): nach dem Spielen prüfen, ob der NeoEE-Updater (`NeoEE Updater\NeoEEUp.exe`) etwas aktualisiert hat; falls ja, Launcher neu starten. | Falls nur NeoEE-Programmdateien abweichen: „Dateien: seit der Installation geändert“ und auf *Werkzeuge* „Programmdateien haben sich seit der Installation geändert. Der NeoEE-Updater kann NeoEE-Dateien ersetzen …“ mit „…: seit der Installation geändert“. Betroffene Dateien notieren (Antwort auf O2). |
+| WP7-07 | Installation mit dem Community-Setup 1.7.2 (ohne `_setupdata_<Produkt>\files.sha256`) wählen; Seite *Spielen*, „Details“, *Werkzeuge*. | Auf *Spielen* nur „Dateien: keine Prüfung (älteres Setup)“ mit „Details“; es öffnet sich kein Fenster von selbst. *Werkzeuge*: „Mit dem Community-Setup 1.7.2 oder älter installiert, das keine Liste der Dateien schreibt. Führen Sie das aktuelle Setup aus, um die Prüfung zu ermöglichen.“ „Reparatur-Hinweise“ zeigt die Setup-Schritte ohne Dateiliste. |
+| WP7-08 | Eine CD- oder GOG-Installation oder eine Kopie ohne `_setupdata_…` auf der Seite *Launcher* wählen; Seiten *Spielen* und *Werkzeuge*. Danach wieder „Automatisch“. | Auf *Spielen* keine Zeile „Dateien: …“ und kein Knopf daneben (Vertrag 2.5: keine Prüfung, keine Meldung). *Werkzeuge*: „Nicht geprüft: Diese Installation stammt nicht vom Community-Setup …“, „Alle Dateien prüfen“ ausgegraut. |
+| WP7-09 | Vertrag 2.5, älteres Setup danach (nur Installation „für alle Benutzer“): Uninstall-Schlüssel sichern: `reg export "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{<AppId>}_is1" "%USERPROFILE%\Desktop\uninstall.reg"` (AppId aus `install.ini`); dann als Administrator im Registrierungs-Editor den Wert `Empire Earth Community: ContractVersion` dieses Schlüssels löschen; Launcher starten. Danach `uninstall.reg` per Doppelklick wieder einspielen und den Launcher neu starten. | „Dateien: nicht prüfbar“ mit „Reparieren ...“; *Werkzeuge*: „Nach dem aktuellen Setup lief ein älteres Setup, oder das letzte Setup konnte seine Einträge nicht ersetzen. Führen Sie das aktuelle Setup aus.“ `log.txt`: `… is unknown (OlderSetupRanAfter): the uninstall key … lacks Empire Earth Community: ContractVersion …`. Nach dem Einspielen wieder „Dateien: OK“. |
+| WP7-10 | Forenbericht Abschnitt 8 Zeile 1 und Testfall 2 (Versionsanzeige): Seite *Spielen* → „Version prüfen“. Danach dasselbe ohne Netz (Flugmodus). | Kurz „Der Update-Server wird gefragt ...“, dann „Spielversion …: aktuell.“ oder „Spielversion …: Version … ist verfügbar.“ – bei einer neueren Version öffnet sich „Installation reparieren“ mit dieser Zeile und den Setup-Schritten. Ohne Netz: „Der Update-Server konnte nicht gefragt werden (keine Verbindung); Einzelheiten im Protokoll.“ `log.txt`: `Update API: GET https://api.empireearth.eu/setup/?product=<AppId>&type=game&version=<Version>: HTTP 200 in … ms.` und `Version check: Game version … of …: UpToDate` (bzw. `UpdateAvailable`, `Failed (NetworkError)`). Antwort notieren. |
+| WP7-11 | *Werkzeuge* → „Nach Updates suchen“ für eine Installation des Setups v2, eine des Setups 1.7.2 und eine fremde. | v2 und 1.7.2: je eine Zeile für die Spielversion und die Setup-Version (beim Setup 1.7.2 mit AppId und Versionen aus dem Uninstall-Schlüssel). Fremd: „Keine Versionsprüfung: Prüfen lassen sich nur Installationen des Community-Setups mit eingetragener Version.“ und keine Zeile `Update API:` im Protokoll. |
+| WP7-12 | Vertrag 4.3: *Werkzeuge* → „Reparatur-Hinweise“, „Downloadseite öffnen“; danach dasselbe ohne Netz. | Zuerst „Der Update-Server wird nach dem aktuellen Setup gefragt ...“ und „Downloadseite öffnen“ ausgegraut, nach höchstens 10 Sekunden „Downloadseite des Community-Setups:“ mit der Adresse aus der Antwort (`https://` auf `empireearth.eu`, `neoee.net` oder `github.com/EE-modders/…`) oder `https://empireearth.eu/download` mit dem Hinweis „Keine Adresse vom Update-Server (…); dies ist die allgemeine Downloadseite.“ Ohne Netz: „(keine Verbindung)“. „Downloadseite öffnen“ öffnet sie ohne UAC-Abfrage. `log.txt`: `Repair: the update API names the setup download …` bzw. `Repair: the fixed download page https://empireearth.eu/download is used (<Grund>: …).` |
+| WP7-13 | Vertrag O11 (wenn aus WP4-12 vorhanden: EE und NeoEE im selben Ordner): Seiten *Spielen* und *Werkzeuge*. | Der Zustand endet mit „(unzuverlässig)“; *Werkzeuge* zusätzlich „Empire Earth und NeoEE sind im selben Ordner installiert: Das Setup von … kann Dateien von … ersetzt haben, daher ist diese Prüfung unzuverlässig.“ |
+| WP7-14 | Seiten *Spielen* (Zustand, Versionsprüfung, Infoleiste mit der Anzeigefrage aus WP5-02) und *Werkzeuge* (mit Dateiliste und während der vollständigen Prüfung) sowie das Fenster aus WP7-02 auf Deutsch, Englisch und Französisch, je bei 100 % und 150 %; Screenshots. Die Navigation hat jetzt vier Knöpfe: *Spielen*, *Einstellungen*, *Werkzeuge*, *Launcher*. | Nichts abgeschnitten oder überlappend; die Infoleiste auf *Spielen* ist 20 Pixel niedriger als in L-WP6, ihr Text muss trotzdem vollständig lesbar sein; *Werkzeuge* scrollt bei langen Texten. Deutsche Texte gegenlesen wie in WP3-03. |
+| WP7-15 | Nach allen Fällen `log.txt` durchsehen. | Keine `Unhandled exception`, keine `A background task failed`, keine `The integrity check of … failed`; jede Prüfung hat genau eine Zeile `Integrity: quick check of …` bzw. `full check of …`; jede Anfrage eine Zeile `Update API: GET …` mit Status oder Fehler; unter Windows 10/11 beim Start `TLS: the versions Windows chooses (SystemDefault).` |
 
 ### L-WP8 – Wartungswerkzeuge
 
@@ -371,18 +400,18 @@ Pakete nach dem Stand dieses Plans und ab L-WP9 gar nicht mehr.
 | Bezug | Thema | Zuordnung |
 |---|---|---|
 | R1 | Standardwerte pro Benutzer, auch für andere Konten | WP5-01, WP5-02, WP5-03, WP5-04 |
-| R2 | Integritätsmanifest | offen (L-WP7) |
+| R2 | Integritätsmanifest | WP7-01, WP7-02, WP7-03, WP7-04, WP7-05, WP7-06, WP7-07, WP7-08, WP7-09, WP7-13; Setup: TP-50 (das Setup schreibt das Manifest) |
 | R3 | Spielen, laufende Instanzen, Kompatibilitätsoptionen | WP5-12, WP5-13, WP5-14, WP6-01, WP6-03, WP6-07, WP6-08, WP6-09, WP6-15 |
 | R4 | Spieleinstellungen zurücksetzen mit `.reg`-Sicherung | WP5-08, WP5-09, WP5-10, WP5-11 |
 | R5 | Registry-Bereinigung | offen (L-WP8) |
 | R6 | WON-Login zurücksetzen | offen (L-WP8) |
 | R7 | Netzwerkdiagnose | offen (L-WP9) |
 | R8 | VirtualStore | WP4-16; offen (L-WP8) |
-| R9 | Reparatur über das Setup | WP6-05, WP6-06, WP6-10, WP6-11; offen (L-WP7) |
+| R9 | Reparatur über das Setup | WP6-05, WP6-06, WP6-10, WP6-11, WP7-02, WP7-04, WP7-12 |
 | R10 | Spielstände und Szenarien | offen (L-WP8) |
-| R17 | Texte auf Englisch, Deutsch, Französisch | WP3-01, WP3-03, WP3-11, WP3-12, WP4-17, WP5-17, WP6-14 |
+| R17 | Texte auf Englisch, Deutsch, Französisch | WP3-01, WP3-03, WP3-11, WP3-12, WP4-17, WP5-17, WP6-14, WP7-14 |
 | Forum 1 | Frische Installation, Standardnutzer, zweites Konto | WP4-06, WP4-16, WP5-02; Setup: TP-41, TP-71 (Installation und Rechte) |
-| Forum 2 | Versionsanzeige, Mehrspieler ohne Versionskonflikt | WP6-02; offen (L-WP7); Setup: TP-70, TP-72 (Version im Hauptmenü) |
+| Forum 2 | Versionsanzeige, Mehrspieler ohne Versionskonflikt | WP6-02, WP7-10, WP7-11; Setup: TP-70, TP-72 (Version im Hauptmenü) |
 | Forum 3 | Grafikmatrix mit und ohne Wrapper | WP5-05; Setup: TP-23 (Wrapper und Renderer installiert das Setup) |
 | Forum 4 | Farbtiefe 16 Bit, Rücksetzen auf 32 Bit | WP5-06, WP5-08 |
 | Forum 5 | Kompatibilitätsflags, Windows 7 | WP5-12, WP5-13, WP5-14; Setup: TP-20, TP-21, TP-22 (Werte des Setups) |
@@ -394,7 +423,7 @@ Pakete nach dem Stand dieses Plans und ab L-WP9 gar nicht mehr.
 | Forum 11 | Hosting-Varianten, Portweiterleitung | offen (L-WP9) |
 | Forum 12 | Netzwerkadapter (VPN, Hamachi) | offen (L-WP9) |
 | Forum 13 | CD-Keys: Server gesperrt, VM, `CDKeyCheck` | offen (L-WP9); Setup: TP-77 (nur das Setup registriert CD-Keys) |
-| Forum 14 | Antivirus löscht Dateien | WP4-13, WP6-10; offen (L-WP7) |
+| Forum 14 | Antivirus löscht Dateien | WP4-13, WP6-10, WP7-02; Setup: TP-50 (Hinweis am Ende der Installation) |
 | Forum 15 | Offline, nur Spiegel, manipulierter Download | Setup: TP-00, TP-10, TP-11, TP-16 (Downloads macht nur das Setup) |
 | Forum 16 | Sprachen: Deutsch für EE und AoC | Setup: TP-78 (Sprachdateien des Spiels installiert das Setup) |
 | Forum 17 | Spielstände im Mehrspieler, Namen mit Sonderzeichen | offen (L-WP8) |
