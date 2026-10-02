@@ -135,7 +135,9 @@ namespace Empire_Earth_Launcher.Core.GameSettings
 
         /// <summary>
         /// On Windows 7 and under Wine: old values of earlier setups in HKCU or HKLM (<c>IsLegacyVistaCompatValue</c>),
-        /// shown read-only with the advice to run the current setup, which removes them (ADR 0007 plan review).
+        /// shown read-only with the advice to run the current setup, which removes them (ADR 0007 plan review). Always empty
+        /// when <c>Tasks</c> of the installation contains <c>compatibility_legacy</c>: such a value is then the value of the
+        /// setup's opt-in task, which the setup keeps (contract 3.7, revision 2).
         /// </summary>
         public IReadOnlyList<LegacyLayerValue> LegacyValues { get; }
     }
@@ -175,7 +177,7 @@ namespace Empire_Earth_Launcher.Core.GameSettings
     /// The compatibility options of the Game settings page (contract 3.7, ADR 0007 plan review, ADR 0015): the entries of the
     /// rows <c>compatibility</c> and <c>compatibility_windows</c> as switches in HKCU for the programs of an installation, from
     /// Windows 8 on and outside Wine; HKLM shown read-only; <c>~ RUNASADMIN</c> removable on every Windows; on Windows 7 the old
-    /// values only shown.
+    /// values only shown, and not at all when the installation has the setup's opt-in task <c>compatibility_legacy</c>.
     /// </summary>
     /// <remarks>
     /// A switch adds or removes one entry in the HKCU value of every program of the installation and keeps every other entry
@@ -261,7 +263,10 @@ namespace Empire_Earth_Launcher.Core.GameSettings
             bool runAsAdmin = programs.Any(program =>
                 string.Equals(program.CurrentUser, CompatibilityLayers.LegacyRunAsAdminValue, StringComparison.Ordinal));
             var legacy = new List<LegacyLayerValue>();
-            if (!offered)
+            // Contract 3.7 (revision 2): with the opt-in task compatibility_legacy an old value is the task's own value, which
+            // a run of the current setup keeps, so it must not be called a leftover.
+            bool legacyTask = installation.Tasks != null && installation.Tasks.Contains(ContractNames.CompatibilityLegacyTask);
+            if (!offered && !legacyTask)
             {
                 foreach (ProgramLayers program in programs)
                 {

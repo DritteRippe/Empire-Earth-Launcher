@@ -30,10 +30,10 @@ namespace Empire_Earth_Launcher.Tests.Core.GameSettings
         private GameSettingsWorld w;
         private Installation installation;
 
-        private CompatibilityOptions Create(FakeSystemInfo systemInfo = null)
+        private CompatibilityOptions Create(FakeSystemInfo systemInfo = null, string tasks = "compatibility,compatibility_windows")
         {
             w = new GameSettingsWorld(systemInfo);
-            w.AddAdminInstallationOfAnotherAccount(Root, Product.NeoEE);
+            w.AddAdminInstallationOfAnotherAccount(Root, Product.NeoEE, tasks: tasks);
             installation = w.Discover().Selected;
             return new CompatibilityOptions(w.Registry, w.SystemInfo, w.Guard, w.Backups, w.Logger);
         }
@@ -170,6 +170,39 @@ namespace Empire_Earth_Launcher.Tests.Core.GameSettings
             }));
             Assert.That(options.SetEntry(installation, "HIGHDPIAWARE", true).Outcome, Is.EqualTo(GameSettingsOutcome.Failed));
             Assert.That(w.Changes, Is.Empty);
+        }
+
+        /// <summary>
+        /// Contract 3.7 (revision 2): with the setup's opt-in task <c>compatibility_legacy</c> in <c>Tasks</c> the six old values
+        /// are the values of that task, which the setup keeps; the launcher must not call them leftovers.
+        /// </summary>
+        [TestCase("compatibility_legacy")]
+        [TestCase("everyoneadminstart,compatibility_legacy")]
+        public void Windows7_WithTheOptInTaskCompatibilityLegacy_OldValuesAreNotLeftovers(string tasks)
+        {
+            CompatibilityOptions options = Create(FakeSystemInfo.Windows7(), tasks);
+            w.RawRegistry.Seed(Hklm64, EeProgram, RegistryValue.FromString("~ RUNASADMIN DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation"));
+            w.RawRegistry.Seed(Hkcu, AocProgram, RegistryValue.FromString("~ DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation"));
+
+            CompatibilityState state = options.Read(installation);
+
+            Assert.That(state.SwitchesOffered, Is.False);
+            Assert.That(state.LegacyValues, Is.Empty);
+            Assert.That(state.Programs[1].CurrentUser, Is.EqualTo("~ DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation"));
+            Assert.That(w.Changes, Is.Empty);
+        }
+
+        /// <summary>The same values without the opt-in task are old values of an earlier setup (contract 3.7).</summary>
+        [Test]
+        public void Windows7_WithoutTheOptInTask_TheSameValuesAreOldValues()
+        {
+            CompatibilityOptions options = Create(FakeSystemInfo.Windows7(), "everyoneadminstart");
+            w.RawRegistry.Seed(Hkcu, AocProgram, RegistryValue.FromString("~ DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation"));
+
+            CompatibilityState state = options.Read(installation);
+
+            Assert.That(state.LegacyValues.Select(v => v.ProgramPath + " " + v.Value),
+                Is.EqualTo(new[] { AocProgram + " ~ DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation" }));
         }
 
         [Test]

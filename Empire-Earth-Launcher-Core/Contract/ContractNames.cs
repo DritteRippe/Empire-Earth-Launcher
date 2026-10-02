@@ -51,6 +51,12 @@
         /// </summary>
         public const string CompatibilityWindowsTask = "compatibility_windows";
 
+        /// <summary>
+        /// Opt-in task of the setup with the compatibility flags on Windows 7 (contract 3.7): with it in <c>Tasks</c> an old
+        /// value of 3.7 is the value of this task, not a leftover of an earlier setup.
+        /// </summary>
+        public const string CompatibilityLegacyTask = "compatibility_legacy";
+
         /// <summary>Key of the compatibility layers per program path (contract 3.7).</summary>
         public const string CompatibilityLayersKey = @"Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers";
 

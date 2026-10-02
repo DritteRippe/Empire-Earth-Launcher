@@ -97,6 +97,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Contract
             AssertCode(ContractNames.CdKeysKey);
             AssertCode(ContractNames.GpuPreferenceData);
             AssertCode(ContractNames.CompatibilityWindowsTask);
+            AssertCode(ContractNames.CompatibilityLegacyTask);
         }
 
         [Test]
