@@ -163,6 +163,10 @@ packages/                         NuGet packages, restored on build (not committ
 - **Contract with the setup**: [docs/CONTRACT.md](docs/CONTRACT.md) (shared with the Empire Earth Setup
   repository, draft) specifies the install record, the integrity manifest, the per-user default game settings
   and the repair hand-off that launcher v2 is built on.
+- **Architecture of v2**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) describes the target structure (UI-free
+  core library, thin WinForms UI on .NET Framework 4.8), data flows, threading, error handling, logging,
+  localization and tests; the decisions behind it are recorded in [docs/adr/](docs/adr/README.md). Until v2 is
+  complete, this README describes what exists today.
 - **User settings** (game folder, theme) are saved by .NET in the user's `user.config` below
   `%LOCALAPPDATA%`. If that file is damaged (e.g. after a crash while saving), the launcher renames it to
   `user.config.damaged`, logs it and starts with the default settings.
