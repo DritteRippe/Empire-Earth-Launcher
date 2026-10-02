@@ -51,8 +51,8 @@ controls of the old mock-up were removed and the features behind them are listed
     reads them, with checks (only `.ees` and `.scn`, plain names the game can read, at most 64 MiB) and a question
     before a file is replaced (the old one is kept in the backup folder). There is no zip export or import
   - Player names: a warning for lobby profile and player names with characters outside plain ASCII (forum: saved
-    games that cannot be loaded, crashes) and the hint that the host of a multiplayer game needs the ports 33334 to
-    33336
+    games that cannot be loaded, crashes) and the hint that the host of a multiplayer game needs its ports forwarded
+    (33334 and 33336 TCP+UDP, 33335 TCP by default)
   - "Open backup folder"; the backup folder contains login data after a WON reset, never pass it on
   - Network check, only when you click "Check network" (or "Why? Check the network" below a player list that is "not
     available" on the *Play* page): the network adapters of this computer (VPN, Hamachi and other virtual adapters

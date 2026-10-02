@@ -1176,7 +1176,7 @@ They are exported first to a .reg file in {1}; double-click it to restore them.<
     <comment>Heading of the saved games on the Tools page.</comment>
   </data>
   <data name="SavesInfo" xml:space="preserve">
-    <value>Export copies all saved games (.ees) and scenarios (.scn) of both games into a new folder, also those in the VirtualStore. For a multiplayer saved game every player needs the same file with exactly the same name, and the host needs the ports 33334 to 33336 (TCP and UDP) forwarded (forum).</value>
+    <value>Export copies all saved games (.ees) and scenarios (.scn) of both games into a new folder, also those in the VirtualStore. For a multiplayer saved game every player needs the same file with exactly the same name, and the host needs its ports forwarded (by default 33334 and 33336 TCP and UDP, 33335 TCP; the network check below names those of this installation).</value>
     <comment>Below the heading of the saved games (R10, forum t=9004 p=44629, p=44615).</comment>
   </data>
   <data name="SavesCountFormat" xml:space="preserve">

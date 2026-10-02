@@ -886,7 +886,7 @@ Elles sont d'abord exportées dans un fichier .reg dans {1} ; double-cliquez des
     <value>Parties sauvegardées et scénarios</value>
   </data>
   <data name="SavesInfo" xml:space="preserve">
-    <value>L'export copie toutes les parties sauvegardées (.ees) et tous les scénarios (.scn) des deux jeux dans un nouveau dossier, y compris ceux du VirtualStore. Pour une partie multijoueur sauvegardée, chaque joueur a besoin du même fichier avec exactement le même nom, et l'hôte doit rediriger les ports 33334 à 33336 (TCP et UDP) (forum).</value>
+    <value>L'export copie toutes les parties sauvegardées (.ees) et tous les scénarios (.scn) des deux jeux dans un nouveau dossier, y compris ceux du VirtualStore. Pour une partie multijoueur sauvegardée, chaque joueur a besoin du même fichier avec exactement le même nom, et l'hôte doit rediriger ses ports (par défaut 33334 et 33336 en TCP et UDP, 33335 en TCP ; la vérification du réseau plus bas indique ceux de cette installation).</value>
   </data>
   <data name="SavesCountFormat" xml:space="preserve">
     <value>{0} parties sauvegardées et {1} scénarios trouvés.</value>

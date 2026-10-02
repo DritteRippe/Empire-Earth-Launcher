@@ -430,7 +430,8 @@ date" (the setup's `CheckUpdate` reads it as "no update").
   the forum shares saves (t=9004 p=44629), and a zip reader would be new attack surface for files from other players.
   `NameChecks` warns for player names (`Users\<Name>` of both games and their VirtualStore copies) and lobby profile
   names with characters outside printable ASCII (t=3563 p=23879, t=2126 p=14281) and the page gives the hint that the
-  host needs ports 33334 to 33336 (forum 4.9); the names are shown, never logged (only their number).
+  host needs its ports forwarded (33334 and 33336 TCP+UDP, 33335 TCP by default, forum 4.9; the same table as the
+  network check); the names are shown, never logged (only their number).
 - **Network diagnostics** (R7, on request only): local adapters with IPv4 and gateway, virtual/VPN
   adapters flagged (forum 4.10), DNS resolution and status request of the NeoEE server, evaluation of
   `upnp_info.txt` when it exists (tolerant parser, "unknown format" otherwise), hints for private/CGNAT

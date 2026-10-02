@@ -63,7 +63,7 @@ namespace Empire_Earth_Launcher.Core.Maintenance
     /// (the folders <c>Users\&lt;Name&gt;</c> of both game folders and their VirtualStore copies) with characters outside
     /// printable ASCII get a warning: with "symbols" or "characters" in a name a multiplayer saved game cannot be loaded
     /// (forum t=3563 p=23879), and "unicode text in his name" made the game crash (t=2126 p=14281). Read-only; the page also
-    /// says that the host of a multiplayer saved game or scenario needs ports 33334 to 33336 (forum 4.9, t=9004 p=44615).
+    /// says that the host of a multiplayer saved game or scenario needs its ports forwarded (33334 and 33336 TCP+UDP, 33335 TCP by default; forum 4.9, t=9004 p=44615, t=11057 p=48100).
     /// </summary>
     /// <remarks>Names are shown to the player, never logged: the log counts them (ADR 0013 plan review).</remarks>
     public sealed class NameChecks

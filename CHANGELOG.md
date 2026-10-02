@@ -568,6 +568,9 @@ section 15); all of them are done, newest first below. It has not been released;
 - A quick click on "Play" while the defaults of the launcher start are still being applied no longer runs the first
   run twice (build/UI review): the writing methods of `GameDefaultsService` run one at a time, so the start waits for
   the defaults and finds their marker (one backup, one "first run" line in the log).
+- The hint below "Saved games and scenarios" names the same port table as the network check (coverage review): by
+  default 33334 and 33336 TCP and UDP, 33335 TCP only (before: "33334 to 33336, TCP and UDP"), in en/de/fr, README,
+  ARCHITECTURE and the test plan.
 
 ### Security
 

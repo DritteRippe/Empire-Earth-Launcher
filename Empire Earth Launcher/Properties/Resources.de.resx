@@ -886,7 +886,7 @@ Sie werden vorher in eine .reg-Datei in {1} exportiert; ein Doppelklick darauf s
     <value>Spielstände und Szenarien</value>
   </data>
   <data name="SavesInfo" xml:space="preserve">
-    <value>Der Export kopiert alle Spielstände (.ees) und Szenarien (.scn) beider Spiele in einen neuen Ordner, auch die im VirtualStore. Für einen Mehrspieler-Spielstand braucht jeder Spieler dieselbe Datei mit genau demselben Namen, und der Host braucht die Ports 33334 bis 33336 (TCP und UDP) weitergeleitet (Forum).</value>
+    <value>Der Export kopiert alle Spielstände (.ees) und Szenarien (.scn) beider Spiele in einen neuen Ordner, auch die im VirtualStore. Für einen Mehrspieler-Spielstand braucht jeder Spieler dieselbe Datei mit genau demselben Namen, und der Host braucht seine Ports weitergeleitet (standardmäßig 33334 und 33336 TCP und UDP, 33335 TCP; die Netzwerkprüfung weiter unten nennt die dieser Installation).</value>
   </data>
   <data name="SavesCountFormat" xml:space="preserve">
     <value>{0} Spielstände und {1} Szenarien gefunden.</value>

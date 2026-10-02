@@ -145,6 +145,24 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             }));
         }
 
+        /// <summary>
+        /// Coverage review: the port hint of the saved games names the same table as the network check (33334 and 33336 TCP
+        /// and UDP, 33335 TCP only), in every language.
+        /// </summary>
+        [TestCase("en", "33334 and 33336 TCP and UDP, 33335 TCP")]
+        [TestCase("de", "33334 und 33336 TCP und UDP, 33335 TCP")]
+        [TestCase("fr", "33334 et 33336 en TCP et UDP, 33335 en TCP")]
+        public void SavesInfo_NamesThePortsOfTheNetworkCheck(string language, string ports)
+        {
+            string text = Empire_Earth_Launcher.Properties.Resources.ResourceManager.GetString("SavesInfo",
+                System.Globalization.CultureInfo.GetCultureInfo(language));
+            string table = Empire_Earth_Launcher.Core.Diagnostics.PortForwarding.From(Game.EmpireEarth, null, null).ToString();
+
+            Assert.That(text, Does.Contain(ports));
+            Assert.That(text, Does.Not.Contain("33334 to 33336").And.Not.Contain("33334 bis 33336").And.Not.Contain("33334 à 33336"));
+            Assert.That(table, Does.StartWith("33334 ").And.Contain("33335 TCP,").And.Contain("33336 "));
+        }
+
         /// <summary>Security review: a folder the launcher may not look at keeps its key, and the page says why.</summary>
         [Test]
         public void CleanupAdvice_AFolderThatCannotBeChecked_SaysWhy()
