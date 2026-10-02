@@ -182,6 +182,18 @@ namespace Empire_Earth_Launcher
             await RefreshAsync();
         }
 
+        /// <summary>
+        /// Adds the display question of a first run before Play (contract 3.6 step 3, L-WP6) to the open question; the info
+        /// bar of the Play page shows it.
+        /// </summary>
+        public void AddQuestion(DisplayQuestion question)
+        {
+            if (question == null)
+                throw new ArgumentNullException(nameof(question));
+            Question = DisplayQuestion.Combine(Question, question);
+            Changed?.Invoke(this, EventArgs.Empty);
+        }
+
         /// <summary>"Apply recommended display" for the selected installation.</summary>
         public async Task ApplyRecommendedDisplayAsync()
         {

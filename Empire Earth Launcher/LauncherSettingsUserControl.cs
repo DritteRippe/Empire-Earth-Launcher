@@ -255,7 +255,9 @@ namespace Empire_Earth_Launcher
             if (result == null)
             {
                 gameDirectoryKryptonTextBox.Text = string.Empty;
-                gameDirectorySourceKryptonLabel.Values.Text = Resources.InstallationsSearching;
+                gameDirectorySourceKryptonLabel.Values.Text = installations.IsWaitingForSetup
+                    ? Resources.InstallationsWaitingForSetup
+                    : Resources.InstallationsSearching;
                 installationsHintKryptonWrapLabel.Text = string.Empty;
                 return;
             }

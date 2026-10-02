@@ -1,21 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.GameSettings;
+using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Lobby;
 using Empire_Earth_Launcher.Core.Logging;
+using Empire_Earth_Launcher.Core.Play;
 using Empire_Earth_Launcher.Properties;
 using Empire_Earth_WON;
 
 namespace Empire_Earth_Launcher
 {
+    /// <summary>
+    /// The Play page: the game choice (The Art of Conquest only if the installation has it), the file versions of the
+    /// programs, Play (L-WP6, ADR 0010) with its refusals, the repair advice and the "setup is running" state, the info bar
+    /// of the game settings (L-WP5), and the lobby profiles with the online player list.
+    /// </summary>
     public partial class GeneralUserControl : UserControl
     {
         private ILogger logger;
+        private IThemeService themeService;
         private InstallationService installations;
         private GameSettingsModel gameSettings;
+        private PlayModel play;
         private UiOperation uiOperation;
+
+        /// <summary>True while the game choice is set by code, so that nothing is saved then.</summary>
+        private bool updatingGameChoice;
+
+        /// <summary>The installation whose file versions were read last (or are being read).</summary>
+        private Installation versionsOf;
 
         /// <summary>The hint the info bar shows; null while it shows the display question or nothing.</summary>
         private ConsistencyFinding shownFinding;
@@ -66,9 +83,10 @@ namespace Empire_Earth_Launcher
         /// <param name="playerList">Polls the online player list, started when the page loads and ended with it; null
         /// disables the list (invalid server settings).</param>
         /// <param name="gameSettings">The game settings: the display question and the hints of the info bar (L-WP5).</param>
-        /// <param name="uiOperation">Runs the answer to the display question (ADR 0004).</param>
+        /// <param name="play">The game choice, the versions and the start (L-WP6).</param>
+        /// <param name="uiOperation">Runs the start, the versions and the answer to the display question (ADR 0004).</param>
         internal void Initialize(ILogger logger, IThemeService themeService, InstallationService installations,
-            LobbyProfileRepository lobbyProfiles, PlayerListPoller playerList, GameSettingsModel gameSettings,
+            LobbyProfileRepository lobbyProfiles, PlayerListPoller playerList, GameSettingsModel gameSettings, PlayModel play,
             UiOperation uiOperation)
         {
             if (logger == null)
@@ -79,6 +97,7 @@ namespace Empire_Earth_Launcher
                 throw new ArgumentNullException(nameof(installations));
 
             this.logger = logger;
+            this.themeService = themeService;
             this.lobbyProfiles = lobbyProfiles ?? throw new ArgumentNullException(nameof(lobbyProfiles));
             this.installations = installations;
             this.playerList = playerList;
@@ -93,7 +112,130 @@ namespace Empire_Earth_Launcher
             EventHandler showHint = (sender, e) => ShowGameSettingsHint();
             gameSettings.Changed += showHint;
             Disposed += (sender, e) => gameSettings.Changed -= showHint;
+
+            this.play = play ?? throw new ArgumentNullException(nameof(play));
+            EventHandler showPlay = (sender, e) =>
+            {
+                ShowPlayState();
+                ShowGameSettingsHint();
+            };
+            play.Changed += showPlay;
+            Disposed += (sender, e) => play.Changed -= showPlay;
             ShowGameSettingsHint();
+            ShowPlayState();
+        }
+
+        // --- Play (L-WP6) ----------------------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Shows the state of <see cref="PlayModel"/>: the game choice (The Art of Conquest only with an AoC folder), the
+        /// file versions, the state line (searching, setup running, started) and whether Play is possible.
+        /// </summary>
+        private void ShowPlayState()
+        {
+            if (play == null)
+                return;
+            updatingGameChoice = true;
+            try
+            {
+                artOfConquestKryptonRadioButton.Enabled = play.CanChooseArtOfConquest;
+                empireEarthKryptonRadioButton.Checked = play.SelectedGame == Game.EmpireEarth;
+                artOfConquestKryptonRadioButton.Checked = play.SelectedGame == Game.ArtOfConquest;
+            }
+            finally
+            {
+                updatingGameChoice = false;
+            }
+
+            programVersionsKryptonWrapLabel.Text = Texts.ProgramVersions(play.Versions);
+            playStatusKryptonWrapLabel.Text = PlayStatusText();
+            playKryptonButton.Enabled = play.CanPlay;
+        }
+
+        /// <summary>The state line below the versions: a running setup first (contract 4.2), else the search, else the last start.</summary>
+        private string PlayStatusText()
+        {
+            string setup = Texts.SetupRunning(play.RunningSetup);
+            if (setup != null)
+                return setup;
+            if (installations.IsWaitingForSetup)
+                return Resources.InstallationsWaitingForSetup;
+            if (play.IsSearching)
+                return Resources.InstallationsSearching;
+            if (play.Selected == null)
+                return Resources.GameDirectoryNotFound;
+            StartResult last = play.LastResult;
+            return last != null && last.IsStarted && last.Installation.HasFolder(play.Selected.EeFolder)
+                ? Texts.StartMessage(last)
+                : string.Empty;
+        }
+
+        /// <summary>Reads the file versions again when the discovery selected another installation.</summary>
+        private void RefreshVersionsIfSelectionChanged()
+        {
+            if (installations.IsSearching || play.IsSearching)
+                return;
+            Installation selected = play.Selected;
+            if (selected == versionsOf)
+                return;
+            versionsOf = selected;
+            uiOperation.Run(programVersionsKryptonWrapLabel, () => play.RefreshVersionsAsync());
+        }
+
+        private void gameKryptonRadioButton_CheckedChanged(object sender, EventArgs e)
+        {
+            if (updatingGameChoice || play == null || !((Krypton.Toolkit.KryptonRadioButton)sender).Checked)
+                return;
+            play.SelectGame(sender == artOfConquestKryptonRadioButton ? Game.ArtOfConquest : Game.EmpireEarth);
+        }
+
+        /// <summary>Play: the page is the trigger, so the game choice cannot change while a start runs.</summary>
+        private void playKryptonButton_Click(object sender, EventArgs e)
+        {
+            uiOperation.Run(this, PlayAsync);
+        }
+
+        /// <summary>
+        /// Starts the chosen game (ARCHITECTURE 4.2); asks before starting it while the other game runs, shows the repair
+        /// advice for a damaged installation and a message for every other refusal or error.
+        /// </summary>
+        private async Task PlayAsync()
+        {
+            StartResult result = await play.StartAsync(false);
+            if (result.Outcome == StartOutcome.OtherGameRunning)
+            {
+                if (MessageBox.Show(FindForm(), Texts.StartMessage(result), Resources.LauncherTitle, MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+                    return;
+                result = await play.StartAsync(true);
+            }
+            ShowStartResult(result);
+        }
+
+        private void ShowStartResult(StartResult result)
+        {
+            switch (result.Outcome)
+            {
+                case StartOutcome.Started:
+                    return; // the state line says it
+                case StartOutcome.Damaged:
+                case StartOutcome.BlockedByAntivirus:
+                    using (var dialog = new RepairAdviceDialog(themeService, result.RepairAdvice, Texts.StartMessage(result),
+                               play.OpenDownloadPage))
+                    {
+                        dialog.ShowDialog(FindForm());
+                    }
+                    return;
+                case StartOutcome.ElevationCancelled:
+                case StartOutcome.SetupRunning:
+                    MessageBox.Show(FindForm(), Texts.StartMessage(result), Resources.LauncherTitle, MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                    return;
+                default:
+                    MessageBox.Show(FindForm(), Texts.StartMessage(result), Resources.LauncherTitle, MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    return;
+            }
         }
 
         /// <summary>Raised when the player wants to see the Game settings page (button "Details" of the info bar).</summary>
@@ -111,6 +253,10 @@ namespace Empire_Earth_Launcher
                 gameSettingsHintKryptonWrapLabel.Text = Texts.DisplayQuestion(gameSettings.Question);
                 gameSettingsHintFirstKryptonButton.Values.Text = Resources.DisplayQuestionApply;
                 gameSettingsHintSecondKryptonButton.Values.Text = Resources.DisplayQuestionKeep;
+                // Both answers write the markers: changes behind the mutation guard, so not while a setup runs.
+                bool answerable = play?.RunningSetup == null;
+                gameSettingsHintFirstKryptonButton.Enabled = answerable;
+                gameSettingsHintSecondKryptonButton.Enabled = answerable;
                 gameSettingsHintKryptonPanel.Visible = true;
                 return;
             }
@@ -127,6 +273,8 @@ namespace Empire_Earth_Launcher
                 : string.Empty);
             gameSettingsHintFirstKryptonButton.Values.Text = Resources.HintBarHide;
             gameSettingsHintSecondKryptonButton.Values.Text = Resources.HintBarDetails;
+            gameSettingsHintFirstKryptonButton.Enabled = true;
+            gameSettingsHintSecondKryptonButton.Enabled = true;
             gameSettingsHintKryptonPanel.Visible = true;
         }
 
@@ -180,6 +328,7 @@ namespace Empire_Earth_Launcher
         /// </summary>
         private void OnInstallationsChanged()
         {
+            RefreshVersionsIfSelectionChanged();
             if (installations.IsSearching && installations.Result != null)
                 return;
             LoadLobbyProfiles();
@@ -198,7 +347,9 @@ namespace Empire_Earth_Launcher
             profiles = new LobbyPersistentData.LobbyGlobalData.PlayerInfoGlobalData[0];
             if (installations.Result == null)
             {
-                ShowLobbyProfilesUnavailable(Resources.InstallationsSearching);
+                ShowLobbyProfilesUnavailable(installations.IsWaitingForSetup
+                    ? Resources.InstallationsWaitingForSetup
+                    : Resources.InstallationsSearching);
                 return;
             }
 

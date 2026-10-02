@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Installations;
+using Empire_Earth_Launcher.Core.Play;
 using Empire_Earth_Launcher.Properties;
 using Krypton.Toolkit;
 
@@ -41,6 +42,7 @@ namespace Empire_Earth_Launcher
         private IThemeService themeService;
         private GameSettingsModel model;
         private InstallationService installations;
+        private SetupWatcher setupWatcher;
         private UiOperation uiOperation;
 
         /// <summary>The discovery result whose defaults were applied last (ADR 0015).</summary>
@@ -102,24 +104,32 @@ namespace Empire_Earth_Launcher
         /// <param name="themeService">Theme of the launcher.</param>
         /// <param name="model">The state and the actions of the game settings.</param>
         /// <param name="installations">The installations; after each discovery the defaults are applied (ADR 0015).</param>
+        /// <param name="setupWatcher">While a setup runs, every change of the page is disabled and the page says why
+        /// (contract 4.2, L-WP6).</param>
         /// <param name="uiOperation">Runs the work of the page (ADR 0004).</param>
         internal void Initialize(IThemeService themeService, GameSettingsModel model, InstallationService installations,
-            UiOperation uiOperation)
+            SetupWatcher setupWatcher, UiOperation uiOperation)
         {
             this.themeService = themeService ?? throw new ArgumentNullException(nameof(themeService));
             this.model = model ?? throw new ArgumentNullException(nameof(model));
             this.installations = installations ?? throw new ArgumentNullException(nameof(installations));
+            this.setupWatcher = setupWatcher ?? throw new ArgumentNullException(nameof(setupWatcher));
             this.uiOperation = uiOperation ?? throw new ArgumentNullException(nameof(uiOperation));
             themeService.Register(launcherKryptonPalette, this);
 
             EventHandler showState = (sender, e) => ShowState();
             EventHandler applyDefaults = (sender, e) => OnInstallationsChanged();
+            EventHandler<SetupStateEventArgs> showSetup = (sender, e) => ShowState();
             model.Changed += showState;
             installations.Changed += applyDefaults;
+            setupWatcher.SetupStarted += showSetup;
+            setupWatcher.SetupFinished += showSetup;
             Disposed += (sender, e) =>
             {
                 model.Changed -= showState;
                 installations.Changed -= applyDefaults;
+                setupWatcher.SetupStarted -= showSetup;
+                setupWatcher.SetupFinished -= showSetup;
             };
             ShowState();
         }
@@ -161,15 +171,22 @@ namespace Empire_Earth_Launcher
             if (model == null)
                 return;
             Installation selected = model.Selected;
-            bool usable = selected != null && selected.State != InstallationState.FolderMissing && !selected.HasNewerContract;
+            // While a setup runs, every change of this page would be refused by the mutation guard (contract 4.2, ADR 0016):
+            // the buttons are disabled and the status says why.
+            bool setupRunning = setupWatcher.IsSetupRunning;
+            bool usable = selected != null && selected.State != InstallationState.FolderMissing && !selected.HasNewerContract &&
+                          !setupRunning;
 
             installationKryptonLabel.Values.Text = model.Result == null
-                ? Resources.InstallationsSearching
+                ? installations.IsWaitingForSetup ? Resources.InstallationsWaitingForSetup : Resources.InstallationsSearching
                 : Texts.GameSettingsInstallation(selected);
             var status = model.Lines.Select(line => Texts.DefaultsStatus(line.Game, line.Status)).ToList();
             string block = Texts.Block(model.StartBlock);
             if (block != null)
                 status.Add(block);
+            string setup = Texts.SetupRunning(setupWatcher.RunningSetup);
+            if (setup != null)
+                status.Add(setup);
             defaultsStatusKryptonWrapLabel.Text = string.Join(Environment.NewLine, status);
             SetShown(defaultsStatusKryptonWrapLabel, status.Count > 0);
 
@@ -178,6 +195,8 @@ namespace Empire_Earth_Launcher
             SetShown(displayQuestionKryptonWrapLabel, question);
             SetShown(displayQuestionApplyKryptonButton, question);
             SetShown(displayQuestionKeepKryptonButton, question);
+            displayQuestionApplyKryptonButton.Enabled = !setupRunning;
+            displayQuestionKeepKryptonButton.Enabled = !setupRunning;
 
             applyDisplayKryptonButton.Enabled = usable;
             resetGameSettingsKryptonButton.Enabled = usable;
@@ -260,7 +279,7 @@ namespace Empire_Earth_Launcher
                     pair.Key.CheckState = entry.State == EntryState.On ? CheckState.Checked
                         : entry.State == EntryState.Mixed ? CheckState.Indeterminate
                         : CheckState.Unchecked;
-                    pair.Key.Enabled = entry.IsOffered || entry.State != EntryState.Off;
+                    pair.Key.Enabled = (entry.IsOffered || entry.State != EntryState.Off) && !setupWatcher.IsSetupRunning;
                 }
             }
             finally
@@ -271,6 +290,7 @@ namespace Empire_Earth_Launcher
             compatibilityInfoKryptonWrapLabel.Text = options ? Texts.CompatibilityInfo(state) : string.Empty;
             SetShown(compatibilityInfoKryptonWrapLabel, options);
             SetShown(removeRunAsAdminKryptonButton, options && state.RunAsAdminRemovable);
+            removeRunAsAdminKryptonButton.Enabled = !setupWatcher.IsSetupRunning;
             compatibilityResultKryptonWrapLabel.Text = model.LastCompatibilityResult == null
                 ? string.Empty
                 : Texts.CompatibilityResult(model.LastCompatibilityResult);
@@ -282,6 +302,7 @@ namespace Empire_Earth_Launcher
             bool confirmation = pendingConfirmation != null;
             SetShown(confirmKryptonWrapLabel, confirmation);
             SetShown(confirmYesKryptonButton, confirmation);
+            confirmYesKryptonButton.Enabled = !setupWatcher.IsSetupRunning;
             SetShown(confirmNoKryptonButton, confirmation);
         }
 

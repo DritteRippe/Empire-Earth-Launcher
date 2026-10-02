@@ -72,6 +72,7 @@
     <Compile Include="Core\GameSettings\CompatibilityOptionsTests.cs" />
     <Compile Include="Core\GameSettings\ComputedValuesTests.cs" />
     <Compile Include="Core\GameSettings\ConsistencyChecksTests.cs" />
+    <Compile Include="Core\GameSettings\DisplayQuestionTests.cs" />
     <Compile Include="Core\GameSettings\GameDefaultsServiceTests.cs" />
     <Compile Include="Core\GameSettings\GameSettingsTableContractTests.cs" />
     <Compile Include="Core\GameSettings\HintVisibilityTests.cs" />
@@ -129,6 +130,7 @@
     <Compile Include="Fakes\WriteForbiddingRegistry.cs" />
     <Compile Include="Launcher\GameSettingsModelTests.cs" />
     <Compile Include="Launcher\InstallationServiceTests.cs" />
+    <Compile Include="Launcher\PlayModelTests.cs" />
     <Compile Include="Launcher\SingleInstanceStartupTests.cs" />
     <Compile Include="Launcher\TextsTests.cs" />
     <Compile Include="Launcher\UiLanguageStartupTests.cs" />

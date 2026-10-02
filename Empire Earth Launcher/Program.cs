@@ -77,21 +77,35 @@ namespace Empire_Earth_Launcher
             var systemInfo = new WindowsSystemInfo(logger);
             logger.Info(systemInfo.Describe());
             var registry = new PolicyCheckedRegistry(new WindowsRegistry(), LauncherWritePolicy.For(systemInfo));
-            // The discovery starts when the main window is shown (MainForm.OnShown) and runs in the background.
+            // The setup mutexes (contract 4.2, ADR 0010): the main window ticks the watcher every half second, it probes every
+            // two seconds. While a setup runs nothing reads install.ini, no game starts and nothing changes.
+            var mutexProbe = new WindowsMutexProbe(logger);
+            var setupWatcher = new SetupWatcher(mutexProbe, SystemClock.Instance, logger);
+            // The discovery starts when the main window is shown (MainForm.OnShown) and runs in the background; it waits
+            // while a setup runs and runs again when it has ended.
             var installations = new InstallationService(logger, settingsStore,
-                new InstallationDiscovery(registry, fileSystem, logger), fileSystem, LauncherPaths.ApplicationDirectory);
+                new InstallationDiscovery(registry, fileSystem, logger), fileSystem, LauncherPaths.ApplicationDirectory,
+                setupWatcher);
             var lobbyProfiles = new LobbyProfileRepository(logger, fileSystem, CreateEffectivePathResolver(fileSystem));
             var uiOperation = new UiOperation(logger);
 
             // Game settings of contract 3 (L-WP5): every change asks the mutation guard (no setup, no game running, ADR 0016)
             // and backs up into %LOCALAPPDATA%\Empire Earth Launcher\Backups first (ADR 0007).
-            var guard = new MutationGuard(new WindowsMutexProbe(logger), logger);
+            var guard = new MutationGuard(mutexProbe, logger);
             var backups = new BackupLocations(LauncherPaths.BackupsDirectory, fileSystem, SystemClock.Instance, logger);
-            var gameSettings = new GameSettingsModel(
-                new GameDefaultsService(registry, fileSystem, systemInfo, guard, backups, logger),
+            var defaults = new GameDefaultsService(registry, fileSystem, systemInfo, guard, backups, logger);
+            var gameSettings = new GameSettingsModel(defaults,
                 new ConsistencyChecker(registry, fileSystem, systemInfo),
                 new CompatibilityOptions(registry, systemInfo, guard, backups, logger),
                 settingsStore, systemInfo, backups.Directory, logger);
+
+            // Play (L-WP6, ADR 0010): setup and game mutexes, the program, class S and the first run, then the start through
+            // the shell in the real game folder (contract 3.6, 3.7, 4.2); the repair advice opens the download page.
+            var shell = new ShellProcessStarter();
+            var gameStarter = new GameStarter(new RunningGameDetector(mutexProbe, new WindowsProcessList(logger)), fileSystem,
+                defaults, shell, logger);
+            var play = new PlayModel(gameStarter, new ProgramVersions(fileSystem, new WindowsFileVersionReader()), setupWatcher,
+                installations, settingsStore, gameSettings, shell, logger);
 
             // Server settings stay application settings in "Empire Earth Launcher.exe.config" (ADR 0005). The poller sends no
             // request before the Play page starts it (ADR 0004).
@@ -103,8 +117,8 @@ namespace Empire_Earth_Launcher
                     TimeSpan.FromMilliseconds(playerListPollIntervalMilliseconds), logger);
 
             logger.Info("Starting Empire Earth Launcher Form");
-            Application.Run(new MainForm(logger, themeService, settingsStore, installations, lobbyProfiles, gameSettings,
-                uiOperation, playerList));
+            Application.Run(new MainForm(logger, themeService, settingsStore, installations, lobbyProfiles, gameSettings, play,
+                setupWatcher, uiOperation, playerList));
         }
 
         /// <summary>

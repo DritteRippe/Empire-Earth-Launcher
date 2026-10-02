@@ -3,6 +3,7 @@ using System;
 using System.Windows.Forms;
 using Empire_Earth_Launcher.Core.Lobby;
 using Empire_Earth_Launcher.Core.Logging;
+using Empire_Earth_Launcher.Core.Play;
 using Empire_Earth_Launcher.Core.Settings;
 using Empire_Earth_Launcher.Properties;
 
@@ -10,8 +11,16 @@ namespace Empire_Earth_Launcher
 {
     public partial class MainForm : KryptonForm
     {
+        /// <summary>How often the timer asks the setup watcher; it probes every two seconds (ADR 0010).</summary>
+        private const int SetupWatcherTickMilliseconds = 500;
+
         /// <summary>Buttons of the navigation bar; the Tag of each one is its page (or null).</summary>
         private readonly KryptonCheckButton[] navigationButtons;
+
+        private readonly SetupWatcher setupWatcher;
+
+        /// <summary>Ticks <see cref="setupWatcher"/> on the UI thread while the window is open (contract 4.2).</summary>
+        private readonly Timer setupWatcherTimer = new Timer { Interval = SetupWatcherTickMilliseconds };
 
         /// <param name="logger">Log of the launcher.</param>
         /// <param name="themeService">Theme of the launcher windows.</param>
@@ -19,11 +28,13 @@ namespace Empire_Earth_Launcher
         /// <param name="installations">The installations of Empire Earth and the selected one.</param>
         /// <param name="lobbyProfiles">Reads the lobby profiles of the game folder.</param>
         /// <param name="gameSettings">The game settings of the selected installation (L-WP5).</param>
+        /// <param name="play">The Play page: game choice, versions, start (L-WP6).</param>
+        /// <param name="setupWatcher">Watches the setup mutexes; the window ticks it every half second (contract 4.2).</param>
         /// <param name="uiOperation">Runs the asynchronous work of the pages (ADR 0004).</param>
         /// <param name="playerList">Polls the online player list; null if the server settings are invalid.</param>
         internal MainForm(ILogger logger, IThemeService themeService, SettingsStore settings,
             InstallationService installations, LobbyProfileRepository lobbyProfiles, GameSettingsModel gameSettings,
-            UiOperation uiOperation, PlayerListPoller playerList)
+            PlayModel play, SetupWatcher setupWatcher, UiOperation uiOperation, PlayerListPoller playerList)
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.OptimizedDoubleBuffer, true);
@@ -33,9 +44,9 @@ namespace Empire_Earth_Launcher
 
             // The pages are created by InitializeComponent (designer), which needs parameterless constructors,
             // so they receive their services here.
-            generalUserControl.Initialize(logger, themeService, installations, lobbyProfiles, playerList, gameSettings,
+            generalUserControl.Initialize(logger, themeService, installations, lobbyProfiles, playerList, gameSettings, play,
                 uiOperation);
-            settingsUserControl.Initialize(themeService, gameSettings, installations, uiOperation);
+            settingsUserControl.Initialize(themeService, gameSettings, installations, setupWatcher, uiOperation);
             launcherSettingsUserControl.Initialize(themeService, settings, installations, uiOperation);
 
             // A page cannot be assigned to Tag in the designer, so the navigation is wired up here.
@@ -45,6 +56,10 @@ namespace Empire_Earth_Launcher
             navigationButtons = new[] { playKryptonCheckButton, settingsKryptonCheckButton, launcherKryptonCheckButton };
             generalUserControl.GameSettingsRequested += (sender, e) =>
                 navigationKryptonCheckButton_Click(settingsKryptonCheckButton, EventArgs.Empty);
+
+            this.setupWatcher = setupWatcher ?? throw new ArgumentNullException(nameof(setupWatcher));
+            setupWatcherTimer.Tick += (sender, e) => this.setupWatcher.Tick();
+            FormClosed += (sender, e) => setupWatcherTimer.Dispose();
         }
 
         /// <summary>
@@ -66,6 +81,8 @@ namespace Empire_Earth_Launcher
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
+            // The first probe of the setup mutexes runs with the first search (InstallationService), then every 2 s.
+            setupWatcherTimer.Start();
             launcherSettingsUserControl.StartDiscovery();
         }
 

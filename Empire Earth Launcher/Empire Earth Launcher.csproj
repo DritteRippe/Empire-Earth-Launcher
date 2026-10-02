@@ -87,12 +87,14 @@
     <Compile Include="GameSettingsModel.cs" />
     <Compile Include="InstallationService.cs" />
     <Compile Include="IThemeService.cs" />
+    <Compile Include="PlayModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="KryptonThemeService.cs" />
+    <Compile Include="RepairAdviceDialog.cs" />
     <Compile Include="Texts.cs" />
     <Compile Include="UiOperation.cs" />
     <Compile Include="UnexpectedError.cs" />

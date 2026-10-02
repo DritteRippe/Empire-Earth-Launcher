@@ -224,6 +224,24 @@ namespace Empire_Earth_Launcher.Core.GameSettings
         }
 
         public IReadOnlyList<DisplayQuestionItem> Items { get; }
+
+        /// <summary>
+        /// Both questions as one, e.g. the open question of the launcher start and the one of a first Play (L-WP6): the items
+        /// of <paramref name="first"/>, then those of <paramref name="second"/> about another game of another installation.
+        /// </summary>
+        /// <returns>The combined question; the other one if one of them is null; null if both are.</returns>
+        public static DisplayQuestion Combine(DisplayQuestion first, DisplayQuestion second)
+        {
+            if (first == null)
+                return second;
+            if (second == null)
+                return first;
+            var items = first.Items.ToList();
+            items.AddRange(second.Items.Where(item => !items.Any(known => known.Game == item.Game &&
+                known.Installation.Product == item.Installation.Product &&
+                WinPath.IsSamePath(known.Installation.Root, item.Installation.Root))));
+            return new DisplayQuestion(items);
+        }
     }
 
     /// <summary>What the launcher did with the class S values of a game at its start (ADR 0015 plan review).</summary>
