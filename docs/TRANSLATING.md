@@ -118,31 +118,44 @@ Changing the English text of an existing key means checking the German and Frenc
   is wrong with each (`IntegrityFile*Format`), the progress of the full check, three buttons in one row (at most about
   26 characters each) and the version check; it scrolls like the *Settings* page. The repair window now also shows
   the files of the check and, while it asks the update server, "Asking the update server ..."; to see the note of the
-  general download page (`RepairFallbackFormat`), open it without network. Some texts quote what another program
+  general download page (`RepairFallbackFormat`), open it without network. Since L-WP8 the *Tools* page continues with
+  the maintenance tools, one section each with a heading, an explanation that wraps, a state line and a result line:
+  old registry entries (a list with check boxes, a read-only text box with one line of advice per key, the button
+  "Delete selected..."), WON login, VirtualStore, saved games and scenarios (three buttons in one row, at most about
+  35 characters each: export, import into Empire Earth, import into The Art of Conquest), player names and backups
+  ("Open backup folder"). The confirmations of the cleanup (`CleanupConfirmFormat`) and of an import that replaces
+  files (`ImportConfirmFormat`) are message boxes; `ExportFolderDescription` is the text of the Windows folder dialog,
+  `ImportDialogTitle` and `ImportFileFilter` the title and the file type line of the open dialog (keep `*.ees;*.scn`
+  and the `|` of the filter exactly). Keep file names, registry keys and error codes untranslated (`_wonkver.pub`,
+  `_wonlogin.ks`, `Software\Sierra`, `WS_GetCert_InvalidPubKeyBlock`, `Program Files`, `.ees`, `.scn`); the advice for
+  keys of all users (`CleanupAdviceExportFormat`) quotes the context menu of the Registry Editor ("Export" in English,
+  „Exportieren“ in German, « Exporter » in French). Some texts quote what another program
   shows in the same language: the Task Manager of Windows (`StartHangingHintFormat`), the install mode options of
   Inno Setup (`RepairStepKeepFolderAllUsersFormat`, `RepairStepKeepFolderCurrentUserFormat`) and the CD-key task of
   the setup (`RepairStepCdKeys`); keep them equal to those programs. `IntegrityCheckInfo` quotes `FullCheckButton`;
   keep both equal. `log.txt` names the language in use (`UI language: de (launcher setting)`).
-  The German test plan has these cases (sections L-WP3 to L-WP7, WP4-17, WP5-17, WP6-14 and WP7-14).
+  The German test plan has these cases (sections L-WP3 to L-WP8, WP4-17, WP5-17, WP6-14, WP7-14 and WP8-15).
 
 ## Status
 
-213 texts (state of L-WP7: 59 texts of the integrity check, the *Tools* page, the version check and the download of the
-update API were added; L-WP6 added 29 for Play, the repair advice, a running setup and a second launcher, L-WP5 51
-for the game settings, L-WP4 21 for the list of installations).
+293 texts (state of L-WP8: 80 texts of the maintenance tools on the *Tools* page were added; L-WP7 added 59 for the
+integrity check, the *Tools* page, the version check and the download of the update API, L-WP6 29 for Play, the repair
+advice, a running setup and a second launcher, L-WP5 51 for the game settings, L-WP4 21 for the list of installations).
 
 | Language | Translated | Review |
 |---|---|---|
-| English | 213 | source |
-| German `de` | 213 | proof-reading by a native speaker in the laptop test ([TEST-PLAN.de.md](TEST-PLAN.de.md), cases WP3-*, WP4-17, WP5-17, WP6-14 and WP7-14); open until that test |
-| French `fr` | 213 | **open**: only `NavigationPlay` ("Jouer") and `NavigationSettings` ("Paramètres") come from the original French authors; all other French texts were written during the review fixes and v2 without a native speaker |
+| English | 293 | source |
+| German `de` | 293 | proof-reading by a native speaker in the laptop test ([TEST-PLAN.de.md](TEST-PLAN.de.md), cases WP3-*, WP4-17, WP5-17, WP6-14, WP7-14 and WP8-15); open until that test |
+| French `fr` | 293 | **open**: only `NavigationPlay` ("Jouer") and `NavigationSettings` ("Paramètres") come from the original French authors; all other French texts were written during the review fixes and v2 without a native speaker |
 
 ### Help wanted
 
-- **French**: a native speaker who reads the 211 French texts other than the two navigation texts in
-  `Resources.fr.resx`, ideally while looking at each page. The 59 texts of the integrity check and the update API (keys
-  from `NavigationTools` to `RepairFallbackFormat`, at the end of the file) are the newest; before them come the 29
-  texts of Play and the repair advice (from `LauncherAlreadyRunning` to `RepairPageNotOpenedFormat`), and the 51 texts
-  of the game settings (from `GameSettingsDefaultsHeading` to `FindingFolderNotAnsiFormat`) are the longest.
+- **French**: a native speaker who reads the 291 French texts other than the two navigation texts in
+  `Resources.fr.resx`, ideally while looking at each page. The 80 texts of the maintenance tools (keys from
+  `ToolsCleanupHeading` to `ToolsChecking`, at the end of the file) are the newest; before them come the 59 texts of
+  the integrity check and the update API (from `NavigationTools` to `RepairFallbackFormat`) and the 29 texts of Play
+  and the repair advice (from `LauncherAlreadyRunning` to `RepairPageNotOpenedFormat`); the 51 texts of the game
+  settings (from `GameSettingsDefaultsHeading` to `FindingFolderNotAnsiFormat`) and the explanations of the
+  maintenance tools are the longest.
 - **Other languages**: Portuguese (Brazil), Chinese, Spanish, Italian, Polish, Russian and Korean are game
   languages of the setup; the launcher shows English for them. See [Adding a language](#adding-a-language).
