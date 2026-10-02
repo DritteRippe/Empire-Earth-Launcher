@@ -284,4 +284,67 @@ Mit diesen Optionen lassen sich viele Probleme lösen, die richtige Kombination 
   <data name="UiLanguageRestartHint" xml:space="preserve">
     <value>Die neue Sprache gilt ab dem nächsten Start des Launchers.</value>
   </data>
+  <data name="InstallationsLabel" xml:space="preserve">
+    <value>Gefundene Installationen:</value>
+  </data>
+  <data name="InstallationsSearching" xml:space="preserve">
+    <value>Suche nach Empire-Earth-Installationen ...</value>
+  </data>
+  <data name="InstallationProductColumn" xml:space="preserve">
+    <value>Produkt</value>
+  </data>
+  <data name="InstallationRootColumn" xml:space="preserve">
+    <value>Installationsordner</value>
+  </data>
+  <data name="InstallationGameFolderColumn" xml:space="preserve">
+    <value>Empire-Earth-Ordner</value>
+  </data>
+  <data name="InstallationKindColumn" xml:space="preserve">
+    <value>Art</value>
+  </data>
+  <data name="InstallationStateColumn" xml:space="preserve">
+    <value>Zustand</value>
+  </data>
+  <data name="InstallationKindCommunity" xml:space="preserve">
+    <value>Community-Setup</value>
+  </data>
+  <data name="InstallationKindCommunityLegacy" xml:space="preserve">
+    <value>Älteres Setup</value>
+  </data>
+  <data name="InstallationKindForeign" xml:space="preserve">
+    <value>Andere</value>
+  </data>
+  <data name="InstallationKindCommunityHint" xml:space="preserve">
+    <value>Mit dem aktuellen Community-Setup installiert.</value>
+  </data>
+  <data name="InstallationKindCommunityLegacyHint" xml:space="preserve">
+    <value>Mit dem Community-Setup 1.7.2 oder älter installiert. Führen Sie das aktuelle Setup aus, um es zu aktualisieren.</value>
+  </data>
+  <data name="InstallationKindForeignHint" xml:space="preserve">
+    <value>Nicht mit dem Community-Setup installiert, zum Beispiel von CD, über GOG oder kopiert.</value>
+  </data>
+  <data name="InstallationStateOk" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="InstallationStateDamaged" xml:space="preserve">
+    <value>Beschädigt</value>
+  </data>
+  <data name="InstallationStateFolderMissing" xml:space="preserve">
+    <value>Nicht gefunden</value>
+  </data>
+  <data name="InstallationMissingProgramsFormat" xml:space="preserve">
+    <value>Fehlt: {0}</value>
+  </data>
+  <data name="InstallationDamagedFormat" xml:space="preserve">
+    <value>{0} fehlt in {1}. Antivirenprogramme löschen oder isolieren oft Spieldateien: Stellen Sie die Datei aus der Quarantäne wieder her oder reparieren Sie die Installation mit ihrem Setup.</value>
+  </data>
+  <data name="InstallationsSharedSettingsFormat" xml:space="preserve">
+    <value>{0} Installationen von {1} verwenden dieselben Spieleinstellungen ({2}): Die Einstellungen, auch der dort gespeicherte Spielordner, gelten für alle.</value>
+  </data>
+  <data name="InstallationSharedRootFormat" xml:space="preserve">
+    <value>Empire Earth und NeoEE sind im selben Ordner installiert ({0}). Der Launcher verwendet {1}, das zuletzt installiert wurde; wird eines davon deinstalliert, verschwinden auch Dateien des anderen.</value>
+  </data>
+  <data name="InstallationNewerSetupFormat" xml:space="preserve">
+    <value>{0} wurde mit einem neueren Setup installiert, als dieser Launcher kennt. Bitte aktualisieren Sie den Launcher.</value>
+  </data>
 </root>

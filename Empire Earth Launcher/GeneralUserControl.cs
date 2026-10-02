@@ -18,7 +18,7 @@ namespace Empire_Earth_Launcher
 
         private BackgroundWorker backgroundWorker;
         private ILogger logger;
-        private GameDirectoryService gameDirectory;
+        private InstallationService installations;
         private NeoApiClient neoClient;
 
         /// <summary>Delay between two requests of the online player list.</summary>
@@ -75,33 +75,34 @@ namespace Empire_Earth_Launcher
         /// </summary>
         /// <param name="logger">Log of the launcher.</param>
         /// <param name="themeService">Theme of the launcher.</param>
-        /// <param name="gameDirectory">Game folder with the WON lobby files; they are read again when it changes.</param>
+        /// <param name="installations">The installations; the lobby files are read from the EE folder of the selected one,
+        /// again when it changes.</param>
         /// <param name="lobbyProfiles">Reads the lobby profiles of the game folder (VirtualStore copy first).</param>
         /// <param name="neoClient">Client for the online player list; null disables the list (invalid server
         /// settings).</param>
         /// <param name="playerListPollIntervalMilliseconds">Delay between two requests of the player list.</param>
-        internal void Initialize(ILogger logger, IThemeService themeService, GameDirectoryService gameDirectory,
+        internal void Initialize(ILogger logger, IThemeService themeService, InstallationService installations,
             LobbyProfileRepository lobbyProfiles, NeoApiClient neoClient, int playerListPollIntervalMilliseconds)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
             if (themeService == null)
                 throw new ArgumentNullException(nameof(themeService));
-            if (gameDirectory == null)
-                throw new ArgumentNullException(nameof(gameDirectory));
+            if (installations == null)
+                throw new ArgumentNullException(nameof(installations));
             if (neoClient != null && playerListPollIntervalMilliseconds <= 0)
                 throw new ArgumentOutOfRangeException(nameof(playerListPollIntervalMilliseconds));
 
             this.logger = logger;
             this.lobbyProfiles = lobbyProfiles ?? throw new ArgumentNullException(nameof(lobbyProfiles));
-            this.gameDirectory = gameDirectory;
+            this.installations = installations;
             this.neoClient = neoClient;
             this.playerListPollIntervalMilliseconds = playerListPollIntervalMilliseconds;
             themeService.Register(launcherKryptonPalette, this);
 
-            EventHandler reloadLobbyProfiles = (sender, e) => LoadLobbyProfiles();
-            gameDirectory.Changed += reloadLobbyProfiles;
-            Disposed += (sender, e) => gameDirectory.Changed -= reloadLobbyProfiles;
+            EventHandler reloadLobbyProfiles = (sender, e) => OnInstallationsChanged();
+            installations.Changed += reloadLobbyProfiles;
+            Disposed += (sender, e) => installations.Changed -= reloadLobbyProfiles;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -127,6 +128,17 @@ namespace Empire_Earth_Launcher
         }
 
         /// <summary>
+        /// Reads the lobby profiles again when a discovery has finished; while one runs, the profiles of the previous
+        /// result stay (the first time: "searching").
+        /// </summary>
+        private void OnInstallationsChanged()
+        {
+            if (installations.IsSearching && installations.Result != null)
+                return;
+            LoadLobbyProfiles();
+        }
+
+        /// <summary>
         /// Fills the user combo box from the lobby profiles of the game. A missing or unreadable file is not
         /// fatal: <see cref="LobbyProfileRepository"/> logs it, it is shown in the UI, and the rest of the
         /// launcher keeps working.
@@ -136,10 +148,16 @@ namespace Empire_Earth_Launcher
             usersLobbyKryptonComboBox.Items.Clear();
             usersLobbyKryptonComboBox.Enabled = true;
             neoOnlineKryptonGroupBox.Values.Description = string.Empty;
+            profiles = new LobbyPersistentData.LobbyGlobalData.PlayerInfoGlobalData[0];
+            if (installations.Result == null)
+            {
+                ShowLobbyProfilesUnavailable(Resources.InstallationsSearching);
+                return;
+            }
 
-            // Both lobby files come from the same game folder (the profile list used to be read relative to the
-            // current directory and the user files from a hard-coded installation path).
-            LobbyProfilesStatus status = lobbyProfiles.LoadProfiles(gameDirectory.Location, out profiles);
+            // Both lobby files come from the EE folder of the selected installation (the profile list used to be read
+            // relative to the current directory and the user files from a hard-coded installation path).
+            LobbyProfilesStatus status = lobbyProfiles.LoadProfiles(installations.Selected?.EeFolder, out profiles);
             if (status != LobbyProfilesStatus.Loaded)
             {
                 ShowLobbyProfilesUnavailable(Texts.LobbyProfilesProblem(status));
@@ -257,11 +275,12 @@ namespace Empire_Earth_Launcher
         private void usersLobbyKryptonComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             int index = usersLobbyKryptonComboBox.SelectedIndex;
-            if (index < 0 || index >= profiles.Count || gameDirectory.Location == null)
+            string gameFolder = installations.Selected?.EeFolder;
+            if (index < 0 || index >= profiles.Count || gameFolder == null)
                 return;
 
             IDictionary<string, uint> friends;
-            LobbyFriendsStatus status = lobbyProfiles.LoadFriends(gameDirectory.Location, profiles[index], out friends);
+            LobbyFriendsStatus status = lobbyProfiles.LoadFriends(gameFolder, profiles[index], out friends);
             neoOnlineKryptonGroupBox.Values.Description = Texts.LobbyFriends(status, friends?.Count ?? 0);
         }
     }

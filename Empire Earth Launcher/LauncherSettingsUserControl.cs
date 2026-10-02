@@ -2,6 +2,8 @@
 using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
+using Empire_Earth_Launcher.Core.Contract;
+using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Settings;
 using Empire_Earth_Launcher.Properties;
 
@@ -17,7 +19,14 @@ namespace Empire_Earth_Launcher
 
         private IThemeService themeService;
         private SettingsStore settings;
-        private GameDirectoryService gameDirectory;
+        private InstallationService installations;
+        private UiOperation uiOperation;
+
+        /// <summary>The result shown in the list of installations, so that the list is rebuilt only when it changes.</summary>
+        private DiscoveryResult shownResult;
+
+        /// <summary>True while the list of installations is filled by code, so that no selection is saved then.</summary>
+        private bool updatingInstallationList;
 
         /// <summary>True while the theme list is changed by code, so that no theme is applied then.</summary>
         private bool updatingThemeSelection;
@@ -51,6 +60,12 @@ namespace Empire_Earth_Launcher
             detectGameDirectoryKryptonButton.Values.Text = Resources.DetectGameDirectoryButton;
             uiLanguageKryptonLabel.Values.Text = Resources.UiLanguageLabel;
             uiLanguageHintKryptonLabel.Values.Text = Resources.UiLanguageRestartHint;
+            installationsKryptonLabel.Values.Text = Resources.InstallationsLabel;
+            installationProductColumn.HeaderText = Resources.InstallationProductColumn;
+            installationRootColumn.HeaderText = Resources.InstallationRootColumn;
+            installationGameFolderColumn.HeaderText = Resources.InstallationGameFolderColumn;
+            installationKindColumn.HeaderText = Resources.InstallationKindColumn;
+            installationStateColumn.HeaderText = Resources.InstallationStateColumn;
         }
 
         /// <summary>
@@ -59,28 +74,42 @@ namespace Empire_Earth_Launcher
         /// </summary>
         /// <param name="themeService">Theme of the launcher.</param>
         /// <param name="settings">User settings; the selected theme is saved there.</param>
-        /// <param name="gameDirectory">The Empire Earth folder, which can be chosen on this page.</param>
-        internal void Initialize(IThemeService themeService, SettingsStore settings, GameDirectoryService gameDirectory)
+        /// <param name="installations">The installations found; the one to use can be chosen on this page.</param>
+        /// <param name="uiOperation">Runs the discovery started by this page (ADR 0004).</param>
+        internal void Initialize(IThemeService themeService, SettingsStore settings, InstallationService installations,
+            UiOperation uiOperation)
         {
             if (themeService == null)
                 throw new ArgumentNullException(nameof(themeService));
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
-            if (gameDirectory == null)
-                throw new ArgumentNullException(nameof(gameDirectory));
+            if (installations == null)
+                throw new ArgumentNullException(nameof(installations));
+            if (uiOperation == null)
+                throw new ArgumentNullException(nameof(uiOperation));
             this.themeService = themeService;
             this.settings = settings;
-            this.gameDirectory = gameDirectory;
+            this.installations = installations;
+            this.uiOperation = uiOperation;
             themeService.Register(launcherKryptonPalette, this);
 
             LoadAvailableThemes();
             SelectCurrentTheme();
             LoadUiLanguages();
 
-            EventHandler showGameDirectory = (sender, e) => ShowGameDirectory();
-            gameDirectory.Changed += showGameDirectory;
-            Disposed += (sender, e) => gameDirectory.Changed -= showGameDirectory;
-            ShowGameDirectory();
+            EventHandler showInstallations = (sender, e) => ShowInstallations();
+            installations.Changed += showInstallations;
+            Disposed += (sender, e) => installations.Changed -= showInstallations;
+            ShowInstallations();
+        }
+
+        /// <summary>
+        /// Starts the discovery of the installations in the background (contract 1.4); the Auto-detect button is disabled
+        /// until it has finished. Called by the main window once it is shown.
+        /// </summary>
+        internal void StartDiscovery()
+        {
+            uiOperation.Run(detectGameDirectoryKryptonButton, () => installations.RefreshAsync());
         }
 
         private void LoadAvailableThemes()
@@ -215,12 +244,66 @@ namespace Empire_Earth_Launcher
                 Resources.LauncherTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
-        private void ShowGameDirectory()
+        /// <summary>
+        /// Shows the selected installation (its EE folder and where it comes from), the list of every installation found
+        /// with product, install folder, EE folder, type and state, and the hints below the list (ADR 0015: several
+        /// installations on one game settings key; contract O11 and 5).
+        /// </summary>
+        private void ShowInstallations()
         {
-            string location = gameDirectory.Location;
-            gameDirectoryKryptonTextBox.Text = location ?? string.Empty;
-            gameDirectorySourceKryptonLabel.Values.Text = Texts.GameDirectoryOrigin(gameDirectory.Source,
-                location != null && Directory.Exists(location));
+            DiscoveryResult result = installations.Result;
+            if (result == null)
+            {
+                gameDirectoryKryptonTextBox.Text = string.Empty;
+                gameDirectorySourceKryptonLabel.Values.Text = Resources.InstallationsSearching;
+                installationsHintKryptonWrapLabel.Text = string.Empty;
+                return;
+            }
+
+            Installation selected = result.Selected;
+            gameDirectoryKryptonTextBox.Text = selected?.EeFolder ?? string.Empty;
+            gameDirectorySourceKryptonLabel.Values.Text = Texts.InstallationOrigin(selected, result.IsSelectedByUser);
+            installationsHintKryptonWrapLabel.Text = Texts.InstallationHints(result);
+            if (result == shownResult)
+                return;
+
+            shownResult = result;
+            updatingInstallationList = true;
+            try
+            {
+                installationsKryptonDataGridView.Rows.Clear();
+                foreach (Installation installation in result.Installations)
+                {
+                    int index = installationsKryptonDataGridView.Rows.Add(installation.Product.AppName, installation.Root,
+                        installation.EeFolder, Texts.InstallationKindName(installation.Kind),
+                        Texts.InstallationStateName(installation));
+                    DataGridViewRow row = installationsKryptonDataGridView.Rows[index];
+                    row.Tag = installation;
+                    row.Cells[installationKindColumn.Index].ToolTipText = Texts.InstallationKindHint(installation.Kind);
+                    row.Cells[installationStateColumn.Index].ToolTipText = Texts.InstallationStateHint(installation);
+                }
+
+                installationsKryptonDataGridView.ClearSelection();
+                foreach (DataGridViewRow row in installationsKryptonDataGridView.Rows)
+                    row.Selected = row.Tag == selected;
+            }
+            finally
+            {
+                updatingInstallationList = false;
+            }
+        }
+
+        /// <summary>The user picked another installation of the list: it becomes the choice (source 1).</summary>
+        private void installationsKryptonDataGridView_SelectionChanged(object sender, EventArgs e)
+        {
+            if (updatingInstallationList || installations == null || installationsKryptonDataGridView.SelectedRows.Count != 1)
+                return;
+            // The grid also selects its first row by itself when it is shown; the selected installation is the first row.
+            if (!(installationsKryptonDataGridView.SelectedRows[0].Tag is Installation installation) ||
+                installation == installations.Selected)
+                return;
+
+            uiOperation.Run(installationsKryptonDataGridView, () => installations.SelectAsync(installation));
         }
 
         private void browseGameDirectoryKryptonButton_Click(object sender, EventArgs e)
@@ -229,31 +312,33 @@ namespace Empire_Earth_Launcher
             using (var folderBrowserDialog = new FolderBrowserDialog())
             {
                 folderBrowserDialog.Description = string.Format(CultureInfo.CurrentCulture,
-                    Resources.SelectGameDirectoryFormat, GameDirectoryLocator.GameExecutableName);
+                    Resources.SelectGameDirectoryFormat, Game.EmpireEarth.ProgramName);
                 folderBrowserDialog.ShowNewFolderButton = false;
-                if (gameDirectory.Location != null && Directory.Exists(gameDirectory.Location))
-                    folderBrowserDialog.SelectedPath = gameDirectory.Location;
+                string current = installations.Selected?.EeFolder;
+                if (current != null && Directory.Exists(current))
+                    folderBrowserDialog.SelectedPath = current;
                 if (folderBrowserDialog.ShowDialog(this) != DialogResult.OK)
                     return;
                 folder = folderBrowserDialog.SelectedPath;
             }
 
-            if (!GameDirectoryLocator.IsGameDirectory(folder) &&
+            // An install root, an EE folder or an AoC folder is fine (contract 1.4); anything else only if the user wants it.
+            if (installations.ClassifyFolder(folder) == GameFolderKind.None &&
                 MessageBox.Show(this,
                     string.Format(CultureInfo.CurrentCulture, Resources.GameExecutableMissingFormat,
-                        GameDirectoryLocator.GameExecutableName, folder),
+                        Game.EmpireEarth.ProgramName, folder),
                     Resources.LauncherTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
                     MessageBoxDefaultButton.Button2) != DialogResult.Yes)
             {
                 return;
             }
 
-            gameDirectory.SetUserDirectory(folder);
+            uiOperation.Run(browseGameDirectoryKryptonButton, () => installations.ChooseFolderAsync(folder));
         }
 
         private void detectGameDirectoryKryptonButton_Click(object sender, EventArgs e)
         {
-            gameDirectory.SetUserDirectory(null);
+            uiOperation.Run(detectGameDirectoryKryptonButton, () => installations.UseAutomaticDetectionAsync());
         }
     }
 }

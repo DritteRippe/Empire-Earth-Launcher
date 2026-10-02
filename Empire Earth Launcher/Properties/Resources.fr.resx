@@ -284,4 +284,67 @@ Ces options permettent de résoudre de nombreux problèmes, mais trouver la bonn
   <data name="UiLanguageRestartHint" xml:space="preserve">
     <value>La nouvelle langue sera utilisée au prochain démarrage du launcher.</value>
   </data>
+  <data name="InstallationsLabel" xml:space="preserve">
+    <value>Installations trouvées :</value>
+  </data>
+  <data name="InstallationsSearching" xml:space="preserve">
+    <value>Recherche des installations d'Empire Earth...</value>
+  </data>
+  <data name="InstallationProductColumn" xml:space="preserve">
+    <value>Produit</value>
+  </data>
+  <data name="InstallationRootColumn" xml:space="preserve">
+    <value>Dossier d'installation</value>
+  </data>
+  <data name="InstallationGameFolderColumn" xml:space="preserve">
+    <value>Dossier d'Empire Earth</value>
+  </data>
+  <data name="InstallationKindColumn" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="InstallationStateColumn" xml:space="preserve">
+    <value>État</value>
+  </data>
+  <data name="InstallationKindCommunity" xml:space="preserve">
+    <value>Setup communautaire</value>
+  </data>
+  <data name="InstallationKindCommunityLegacy" xml:space="preserve">
+    <value>Ancien setup</value>
+  </data>
+  <data name="InstallationKindForeign" xml:space="preserve">
+    <value>Autre</value>
+  </data>
+  <data name="InstallationKindCommunityHint" xml:space="preserve">
+    <value>Installée avec le setup communautaire actuel.</value>
+  </data>
+  <data name="InstallationKindCommunityLegacyHint" xml:space="preserve">
+    <value>Installée avec le setup communautaire 1.7.2 ou plus ancien. Lancez le setup actuel pour la mettre à jour.</value>
+  </data>
+  <data name="InstallationKindForeignHint" xml:space="preserve">
+    <value>Pas installée avec le setup communautaire, par exemple depuis le CD, par GOG ou copiée.</value>
+  </data>
+  <data name="InstallationStateOk" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="InstallationStateDamaged" xml:space="preserve">
+    <value>Endommagée</value>
+  </data>
+  <data name="InstallationStateFolderMissing" xml:space="preserve">
+    <value>Introuvable</value>
+  </data>
+  <data name="InstallationMissingProgramsFormat" xml:space="preserve">
+    <value>Manquant : {0}</value>
+  </data>
+  <data name="InstallationDamagedFormat" xml:space="preserve">
+    <value>{0} manque dans {1}. Les antivirus suppriment ou mettent souvent en quarantaine des fichiers du jeu : restaurez le fichier depuis la quarantaine ou réparez l'installation avec son setup.</value>
+  </data>
+  <data name="InstallationsSharedSettingsFormat" xml:space="preserve">
+    <value>{0} installations de {1} utilisent les mêmes paramètres de jeu ({2}) : ces paramètres, y compris le dossier du jeu qui y est enregistré, sont les mêmes pour toutes.</value>
+  </data>
+  <data name="InstallationSharedRootFormat" xml:space="preserve">
+    <value>Empire Earth et NeoEE sont installés dans le même dossier ({0}). Le launcher utilise {1}, installé en dernier ; désinstaller l'un supprime aussi des fichiers de l'autre.</value>
+  </data>
+  <data name="InstallationNewerSetupFormat" xml:space="preserve">
+    <value>{0} a été installée par un setup plus récent que ce que ce launcher connaît. Veuillez mettre à jour le launcher.</value>
+  </data>
 </root>

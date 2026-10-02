@@ -376,4 +376,88 @@ However you should be able to solve many problems with these options, but findin
     <value>The new language is used when the launcher starts the next time.</value>
     <comment>Shown after another language was chosen.</comment>
   </data>
+  <data name="InstallationsLabel" xml:space="preserve">
+    <value>Installations found:</value>
+    <comment>Label above the list of installations on the Launcher page; at most about 25 characters.</comment>
+  </data>
+  <data name="InstallationsSearching" xml:space="preserve">
+    <value>Searching for Empire Earth installations...</value>
+    <comment>Shown while the launcher searches the installations (Launcher page, profile list of the Play page).</comment>
+  </data>
+  <data name="InstallationProductColumn" xml:space="preserve">
+    <value>Product</value>
+    <comment>Column of the list of installations: Empire Earth or NeoEE (names, not translated).</comment>
+  </data>
+  <data name="InstallationRootColumn" xml:space="preserve">
+    <value>Install folder</value>
+    <comment>Column of the list of installations: the folder the setup installed into.</comment>
+  </data>
+  <data name="InstallationGameFolderColumn" xml:space="preserve">
+    <value>Empire Earth folder</value>
+    <comment>Column of the list of installations: the folder of Empire Earth.exe.</comment>
+  </data>
+  <data name="InstallationKindColumn" xml:space="preserve">
+    <value>Type</value>
+    <comment>Column of the list of installations: who installed it.</comment>
+  </data>
+  <data name="InstallationStateColumn" xml:space="preserve">
+    <value>State</value>
+    <comment>Column of the list of installations: OK, damaged or not found.</comment>
+  </data>
+  <data name="InstallationKindCommunity" xml:space="preserve">
+    <value>Community setup</value>
+    <comment>Type of an installation: the current community setup; at most about 16 characters.</comment>
+  </data>
+  <data name="InstallationKindCommunityLegacy" xml:space="preserve">
+    <value>Older setup</value>
+    <comment>Type of an installation: the community setup 1.7.2 or older; at most about 16 characters.</comment>
+  </data>
+  <data name="InstallationKindForeign" xml:space="preserve">
+    <value>Other</value>
+    <comment>Type of an installation: retail CD, GOG, a copy; at most about 16 characters.</comment>
+  </data>
+  <data name="InstallationKindCommunityHint" xml:space="preserve">
+    <value>Installed by the current community setup.</value>
+    <comment>Tooltip of the type Community setup.</comment>
+  </data>
+  <data name="InstallationKindCommunityLegacyHint" xml:space="preserve">
+    <value>Installed by the community setup 1.7.2 or older. Run the current setup to update it.</value>
+    <comment>Tooltip of the type Older setup.</comment>
+  </data>
+  <data name="InstallationKindForeignHint" xml:space="preserve">
+    <value>Not installed by the community setup, for example from the CD, by GOG or copied.</value>
+    <comment>Tooltip of the type Other.</comment>
+  </data>
+  <data name="InstallationStateOk" xml:space="preserve">
+    <value>OK</value>
+    <comment>State of an installation: its programs are there.</comment>
+  </data>
+  <data name="InstallationStateDamaged" xml:space="preserve">
+    <value>Damaged</value>
+    <comment>State of an installation: a program is missing (often deleted by an antivirus); at most about 12 characters.</comment>
+  </data>
+  <data name="InstallationStateFolderMissing" xml:space="preserve">
+    <value>Not found</value>
+    <comment>State of an installation: the chosen folder does not exist; at most about 12 characters.</comment>
+  </data>
+  <data name="InstallationMissingProgramsFormat" xml:space="preserve">
+    <value>Missing: {0}</value>
+    <comment>Tooltip of a damaged installation. {0}: the missing programs, e.g. Empire Earth.exe.</comment>
+  </data>
+  <data name="InstallationDamagedFormat" xml:space="preserve">
+    <value>{0} is missing in {1}. Antivirus programs often delete or quarantine game files: restore it from the quarantine, or repair the installation with its setup.</value>
+    <comment>Hint below the list when the selected installation is damaged. {0}: the missing programs, {1}: their folder.</comment>
+  </data>
+  <data name="InstallationsSharedSettingsFormat" xml:space="preserve">
+    <value>{0} installations of {1} use the same game settings ({2}): the settings, including the game folder stored there, are the same for all of them.</value>
+    <comment>Hint below the list when several installations share one game settings key. {0}: number of installations, {1}: Empire Earth or NeoEE, {2}: registry key.</comment>
+  </data>
+  <data name="InstallationSharedRootFormat" xml:space="preserve">
+    <value>Empire Earth and NeoEE are installed in the same folder ({0}). The launcher uses {1}, which was installed last; uninstalling one of them also removes files of the other.</value>
+    <comment>Hint below the list (contract O11). {0}: the folder, {1}: Empire Earth or NeoEE.</comment>
+  </data>
+  <data name="InstallationNewerSetupFormat" xml:space="preserve">
+    <value>{0} was installed by a newer setup than this launcher knows. Please update the launcher.</value>
+    <comment>Hint below the list (contract 5). {0}: the install folder.</comment>
+  </data>
 </root>

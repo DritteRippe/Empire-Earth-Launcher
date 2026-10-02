@@ -78,14 +78,13 @@
     <Compile Include="LauncherSettingsUserControl.Designer.cs">
       <DependentUpon>LauncherSettingsUserControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="GameDirectoryLocator.cs" />
-    <Compile Include="GameDirectoryService.cs" />
     <Compile Include="GeneralUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="GeneralUserControl.Designer.cs">
       <DependentUpon>GeneralUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="InstallationService.cs" />
     <Compile Include="IThemeService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -25,7 +25,7 @@ namespace Empire_Earth_Launcher
 
         /// <summary>
         /// The main entry point of the application and its composition root: the services (logger, settings,
-        /// theme, game folder, Neo client) are created here, once, and passed to the windows that need them.
+        /// theme, registry, installations, Neo client) are created here, once, and passed to the windows that need them.
         /// </summary>
         [STAThread]
         static void Main()
@@ -54,17 +54,21 @@ namespace Empire_Earth_Launcher
             var themeService = new KryptonThemeService(logger, LauncherPaths.ThemesDirectory);
             ApplySavedTheme(themeService, settingsStore.Current);
 
-            var gameDirectory = new GameDirectoryService(logger, settingsStore, new GameDirectoryLocator());
-            gameDirectory.Refresh();
+            // Every change of the registry passes the write policy (ADR 0007); the discovery only reads.
+            var registry = new PolicyCheckedRegistry(new WindowsRegistry(), RegistryWritePolicy.Default);
+            // The discovery starts when the main window is shown (MainForm.OnShown) and runs in the background.
+            var installations = new InstallationService(logger, settingsStore,
+                new InstallationDiscovery(registry, fileSystem, logger), fileSystem, LauncherPaths.ApplicationDirectory);
             var lobbyProfiles = new LobbyProfileRepository(logger, fileSystem, CreateEffectivePathResolver(fileSystem));
+            var uiOperation = new UiOperation(logger);
 
             // Server settings stay application settings in "Empire Earth Launcher.exe.config" (ADR 0005).
             int playerListPollIntervalMilliseconds;
             NeoApiClient neoClient = CreateNeoClient(Settings.Default, out playerListPollIntervalMilliseconds);
 
             logger.Info("Starting Empire Earth Launcher Form");
-            Application.Run(new MainForm(logger, themeService, settingsStore, gameDirectory, lobbyProfiles, neoClient,
-                playerListPollIntervalMilliseconds));
+            Application.Run(new MainForm(logger, themeService, settingsStore, installations, lobbyProfiles, uiOperation,
+                neoClient, playerListPollIntervalMilliseconds));
         }
 
         /// <summary>

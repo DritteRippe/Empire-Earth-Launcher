@@ -389,6 +389,195 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} is missing in {1}. Antivirus programs often delete or quarantine game files: restore it from the[rest of string was truncated].
+        /// </summary>
+        internal static string InstallationDamagedFormat {
+            get {
+                return ResourceManager.GetString("InstallationDamagedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Empire Earth folder.
+        /// </summary>
+        internal static string InstallationGameFolderColumn {
+            get {
+                return ResourceManager.GetString("InstallationGameFolderColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type.
+        /// </summary>
+        internal static string InstallationKindColumn {
+            get {
+                return ResourceManager.GetString("InstallationKindColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Community setup.
+        /// </summary>
+        internal static string InstallationKindCommunity {
+            get {
+                return ResourceManager.GetString("InstallationKindCommunity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Installed by the current community setup..
+        /// </summary>
+        internal static string InstallationKindCommunityHint {
+            get {
+                return ResourceManager.GetString("InstallationKindCommunityHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Older setup.
+        /// </summary>
+        internal static string InstallationKindCommunityLegacy {
+            get {
+                return ResourceManager.GetString("InstallationKindCommunityLegacy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Installed by the community setup 1.7.2 or older. Run the current setup to update it..
+        /// </summary>
+        internal static string InstallationKindCommunityLegacyHint {
+            get {
+                return ResourceManager.GetString("InstallationKindCommunityLegacyHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Other.
+        /// </summary>
+        internal static string InstallationKindForeign {
+            get {
+                return ResourceManager.GetString("InstallationKindForeign", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not installed by the community setup, for example from the CD, by GOG or copied..
+        /// </summary>
+        internal static string InstallationKindForeignHint {
+            get {
+                return ResourceManager.GetString("InstallationKindForeignHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Missing: {0}.
+        /// </summary>
+        internal static string InstallationMissingProgramsFormat {
+            get {
+                return ResourceManager.GetString("InstallationMissingProgramsFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} was installed by a newer setup than this launcher knows. Please update the launcher..
+        /// </summary>
+        internal static string InstallationNewerSetupFormat {
+            get {
+                return ResourceManager.GetString("InstallationNewerSetupFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Product.
+        /// </summary>
+        internal static string InstallationProductColumn {
+            get {
+                return ResourceManager.GetString("InstallationProductColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Install folder.
+        /// </summary>
+        internal static string InstallationRootColumn {
+            get {
+                return ResourceManager.GetString("InstallationRootColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Empire Earth and NeoEE are installed in the same folder ({0}). The launcher uses {1}, which was inst[rest of string was truncated].
+        /// </summary>
+        internal static string InstallationSharedRootFormat {
+            get {
+                return ResourceManager.GetString("InstallationSharedRootFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Installations found:.
+        /// </summary>
+        internal static string InstallationsLabel {
+            get {
+                return ResourceManager.GetString("InstallationsLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Searching for Empire Earth installations....
+        /// </summary>
+        internal static string InstallationsSearching {
+            get {
+                return ResourceManager.GetString("InstallationsSearching", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} installations of {1} use the same game settings ({2}): the settings, including the game folder s[rest of string was truncated].
+        /// </summary>
+        internal static string InstallationsSharedSettingsFormat {
+            get {
+                return ResourceManager.GetString("InstallationsSharedSettingsFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to State.
+        /// </summary>
+        internal static string InstallationStateColumn {
+            get {
+                return ResourceManager.GetString("InstallationStateColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Damaged.
+        /// </summary>
+        internal static string InstallationStateDamaged {
+            get {
+                return ResourceManager.GetString("InstallationStateDamaged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not found.
+        /// </summary>
+        internal static string InstallationStateFolderMissing {
+            get {
+                return ResourceManager.GetString("InstallationStateFolderMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OK.
+        /// </summary>
+        internal static string InstallationStateOk {
+            get {
+                return ResourceManager.GetString("InstallationStateOk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Launcher Settings.
         /// </summary>
         internal static string LauncherSettingsHeading {

@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using Empire_Earth_Launcher.Core.Contract;
+using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Lobby;
 using Empire_Earth_Launcher.Core.Settings;
 using Empire_Earth_Launcher.Properties;
@@ -87,23 +91,120 @@ namespace Empire_Earth_Launcher
             }
         }
 
-        /// <summary>Where the game folder shown on the Launcher page comes from.</summary>
-        /// <param name="source">Source of the folder.</param>
-        /// <param name="folderExists">Whether the folder exists; only matters for a folder chosen by the user.</param>
-        internal static string GameDirectoryOrigin(GameDirectorySource source, bool folderExists)
+        /// <summary>Where the installation shown on the Launcher page comes from.</summary>
+        /// <param name="selected">The selected installation; null if none was found.</param>
+        /// <param name="chosenByUser">Whether the user chose it (source 1).</param>
+        internal static string InstallationOrigin(Installation selected, bool chosenByUser)
         {
-            switch (source)
+            if (selected == null)
+                return string.Format(CultureInfo.CurrentCulture, Resources.GameDirectoryNotFoundHintFormat,
+                    Game.EmpireEarth.ProgramName);
+            if (chosenByUser)
+                return selected.State == InstallationState.FolderMissing
+                    ? Resources.GameDirectorySourceUserMissing
+                    : Resources.GameDirectorySourceUser;
+            return selected.Origin == InstallationSource.LauncherFolder
+                ? Resources.GameDirectorySourceLauncherFolder
+                : Resources.GameDirectorySourceRegistry;
+        }
+
+        /// <summary>Short name of the kind of an installation, for the list of the Launcher page.</summary>
+        internal static string InstallationKindName(InstallationKind kind)
+        {
+            switch (kind)
             {
-                case GameDirectorySource.UserSetting:
-                    return folderExists ? Resources.GameDirectorySourceUser : Resources.GameDirectorySourceUserMissing;
-                case GameDirectorySource.Registry:
-                    return Resources.GameDirectorySourceRegistry;
-                case GameDirectorySource.LauncherFolder:
-                    return Resources.GameDirectorySourceLauncherFolder;
+                case InstallationKind.Community:
+                    return Resources.InstallationKindCommunity;
+                case InstallationKind.CommunityLegacy:
+                    return Resources.InstallationKindCommunityLegacy;
                 default:
-                    return string.Format(CultureInfo.CurrentCulture, Resources.GameDirectoryNotFoundHintFormat,
-                        GameDirectoryLocator.GameExecutableName);
+                    return Resources.InstallationKindForeign;
             }
+        }
+
+        /// <summary>What the kind of an installation means (tooltip of the list).</summary>
+        internal static string InstallationKindHint(InstallationKind kind)
+        {
+            switch (kind)
+            {
+                case InstallationKind.Community:
+                    return Resources.InstallationKindCommunityHint;
+                case InstallationKind.CommunityLegacy:
+                    return Resources.InstallationKindCommunityLegacyHint;
+                default:
+                    return Resources.InstallationKindForeignHint;
+            }
+        }
+
+        /// <summary>The state of an installation for the list: OK, damaged or not found.</summary>
+        internal static string InstallationStateName(Installation installation)
+        {
+            if (installation == null)
+                throw new ArgumentNullException(nameof(installation));
+            switch (installation.State)
+            {
+                case InstallationState.Ok:
+                    return Resources.InstallationStateOk;
+                case InstallationState.Damaged:
+                    return Resources.InstallationStateDamaged;
+                default:
+                    return Resources.InstallationStateFolderMissing;
+            }
+        }
+
+        /// <summary>Details of the state (tooltip of the list): the missing programs, or the missing folder; else empty.</summary>
+        internal static string InstallationStateHint(Installation installation)
+        {
+            if (installation == null)
+                throw new ArgumentNullException(nameof(installation));
+            switch (installation.State)
+            {
+                case InstallationState.Damaged:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.InstallationMissingProgramsFormat,
+                        ProgramNames(installation.MissingPrograms));
+                case InstallationState.FolderMissing:
+                    return Resources.GameDirectorySourceUserMissing;
+                default:
+                    return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// The hints below the list of installations, one per line (ADR 0015, contract 1.4 and 5): installations that share
+        /// their game settings, two products in one folder, a setup newer than the launcher, and a damaged selected
+        /// installation. Empty if there is nothing to say.
+        /// </summary>
+        internal static string InstallationHints(DiscoveryResult result)
+        {
+            if (result == null)
+                throw new ArgumentNullException(nameof(result));
+            var lines = new List<string>();
+            foreach (Product product in result.ProductsWithSharedSettings)
+            {
+                lines.Add(string.Format(CultureInfo.CurrentCulture, Resources.InstallationsSharedSettingsFormat,
+                    result.Installations.Count(installation => installation.Product == product), product.AppName,
+                    @"HKCU\" + product.GetGameSettingsKey(Game.EmpireEarth)));
+            }
+            foreach (Installation installation in result.Installations.Where(installation => installation.OtherProductInRoot != null))
+            {
+                lines.Add(string.Format(CultureInfo.CurrentCulture, Resources.InstallationSharedRootFormat, installation.Root,
+                    installation.Product.AppName));
+            }
+            foreach (Installation installation in result.Installations.Where(installation => installation.HasNewerContract))
+                lines.Add(string.Format(CultureInfo.CurrentCulture, Resources.InstallationNewerSetupFormat, installation.Root));
+            Installation selected = result.Selected;
+            if (selected != null && selected.State == InstallationState.Damaged)
+            {
+                Game first = selected.MissingPrograms[0];
+                lines.Add(string.Format(CultureInfo.CurrentCulture, Resources.InstallationDamagedFormat,
+                    ProgramNames(selected.MissingPrograms), selected.GetGameFolder(first)));
+            }
+            return string.Join(Environment.NewLine, lines);
+        }
+
+        private static string ProgramNames(IEnumerable<Game> games)
+        {
+            return string.Join(", ", games.Select(game => game.ProgramName));
         }
     }
 }

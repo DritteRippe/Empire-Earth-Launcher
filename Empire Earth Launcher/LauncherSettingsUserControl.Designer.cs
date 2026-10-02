@@ -43,12 +43,21 @@ namespace Empire_Earth_Launcher
             this.uiLanguageKryptonLabel = new Krypton.Toolkit.KryptonLabel();
             this.uiLanguageKryptonComboBox = new Krypton.Toolkit.KryptonComboBox();
             this.uiLanguageHintKryptonLabel = new Krypton.Toolkit.KryptonLabel();
+            this.installationsKryptonLabel = new Krypton.Toolkit.KryptonLabel();
+            this.installationsKryptonDataGridView = new Krypton.Toolkit.KryptonDataGridView();
+            this.installationProductColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.installationRootColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.installationGameFolderColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.installationKindColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.installationStateColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.installationsHintKryptonWrapLabel = new Krypton.Toolkit.KryptonWrapLabel();
             ((System.ComponentModel.ISupportInitialize)(this.launcherSettingsKryptonGroupBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.launcherSettingsKryptonGroupBox.Panel)).BeginInit();
             this.launcherSettingsKryptonGroupBox.Panel.SuspendLayout();
             this.launcherSettingsKryptonGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.themeKryptonComboBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.uiLanguageKryptonComboBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.installationsKryptonDataGridView)).BeginInit();
             this.SuspendLayout();
             // 
             // launcherKryptonPalette
@@ -131,13 +140,16 @@ namespace Empire_Earth_Launcher
             this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.uiLanguageKryptonLabel);
             this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.uiLanguageKryptonComboBox);
             this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.uiLanguageHintKryptonLabel);
-            this.launcherSettingsKryptonGroupBox.Size = new System.Drawing.Size(540, 350);
+            this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.installationsKryptonLabel);
+            this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.installationsKryptonDataGridView);
+            this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.installationsHintKryptonWrapLabel);
+            this.launcherSettingsKryptonGroupBox.Size = new System.Drawing.Size(540, 364);
             this.launcherSettingsKryptonGroupBox.TabIndex = 2;
             this.launcherSettingsKryptonGroupBox.Values.Heading = "Launcher Settings";
             // 
             // gameDirectorySourceKryptonLabel
             // 
-            this.gameDirectorySourceKryptonLabel.Location = new System.Drawing.Point(168, 196);
+            this.gameDirectorySourceKryptonLabel.Location = new System.Drawing.Point(168, 125);
             this.gameDirectorySourceKryptonLabel.Name = "gameDirectorySourceKryptonLabel";
             this.gameDirectorySourceKryptonLabel.Palette = this.launcherKryptonPalette;
             this.gameDirectorySourceKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
@@ -147,7 +159,7 @@ namespace Empire_Earth_Launcher
             // 
             // detectGameDirectoryKryptonButton
             // 
-            this.detectGameDirectoryKryptonButton.Location = new System.Drawing.Point(417, 167);
+            this.detectGameDirectoryKryptonButton.Location = new System.Drawing.Point(417, 97);
             this.detectGameDirectoryKryptonButton.Name = "detectGameDirectoryKryptonButton";
             this.detectGameDirectoryKryptonButton.Palette = this.launcherKryptonPalette;
             this.detectGameDirectoryKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
@@ -158,7 +170,7 @@ namespace Empire_Earth_Launcher
             // 
             // browseGameDirectoryKryptonButton
             // 
-            this.browseGameDirectoryKryptonButton.Location = new System.Drawing.Point(374, 167);
+            this.browseGameDirectoryKryptonButton.Location = new System.Drawing.Point(374, 97);
             this.browseGameDirectoryKryptonButton.Name = "browseGameDirectoryKryptonButton";
             this.browseGameDirectoryKryptonButton.Palette = this.launcherKryptonPalette;
             this.browseGameDirectoryKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
@@ -169,7 +181,7 @@ namespace Empire_Earth_Launcher
             // 
             // gameDirectoryKryptonTextBox
             // 
-            this.gameDirectoryKryptonTextBox.Location = new System.Drawing.Point(168, 168);
+            this.gameDirectoryKryptonTextBox.Location = new System.Drawing.Point(168, 98);
             this.gameDirectoryKryptonTextBox.Name = "gameDirectoryKryptonTextBox";
             this.gameDirectoryKryptonTextBox.Palette = this.launcherKryptonPalette;
             this.gameDirectoryKryptonTextBox.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
@@ -179,7 +191,7 @@ namespace Empire_Earth_Launcher
             // 
             // gameDirectoryKryptonLabel
             // 
-            this.gameDirectoryKryptonLabel.Location = new System.Drawing.Point(13, 170);
+            this.gameDirectoryKryptonLabel.Location = new System.Drawing.Point(13, 100);
             this.gameDirectoryKryptonLabel.Name = "gameDirectoryKryptonLabel";
             this.gameDirectoryKryptonLabel.Palette = this.launcherKryptonPalette;
             this.gameDirectoryKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
@@ -189,7 +201,7 @@ namespace Empire_Earth_Launcher
             // 
             // themeKryptonLabel
             // 
-            this.themeKryptonLabel.Location = new System.Drawing.Point(13, 41);
+            this.themeKryptonLabel.Location = new System.Drawing.Point(13, 14);
             this.themeKryptonLabel.Name = "themeKryptonLabel";
             this.themeKryptonLabel.Palette = this.launcherKryptonPalette;
             this.themeKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
@@ -201,21 +213,21 @@ namespace Empire_Earth_Launcher
             // 
             this.themeKryptonComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
             this.themeKryptonComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.themeKryptonComboBox.DropDownWidth = 141;
+            this.themeKryptonComboBox.DropDownWidth = 200;
             this.themeKryptonComboBox.IntegralHeight = false;
             this.themeKryptonComboBox.Items.AddRange(new object[] {
             "Custom file..."});
-            this.themeKryptonComboBox.Location = new System.Drawing.Point(67, 40);
+            this.themeKryptonComboBox.Location = new System.Drawing.Point(168, 13);
             this.themeKryptonComboBox.Name = "themeKryptonComboBox";
             this.themeKryptonComboBox.Palette = this.launcherKryptonPalette;
             this.themeKryptonComboBox.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.themeKryptonComboBox.Size = new System.Drawing.Size(153, 23);
+            this.themeKryptonComboBox.Size = new System.Drawing.Size(200, 23);
             this.themeKryptonComboBox.TabIndex = 3;
             this.themeKryptonComboBox.SelectedIndexChanged += new System.EventHandler(this.themeKryptonComboBox_SelectedIndexChanged);
             // 
             // uiLanguageKryptonLabel
             // 
-            this.uiLanguageKryptonLabel.Location = new System.Drawing.Point(13, 79);
+            this.uiLanguageKryptonLabel.Location = new System.Drawing.Point(13, 44);
             this.uiLanguageKryptonLabel.Name = "uiLanguageKryptonLabel";
             this.uiLanguageKryptonLabel.Palette = this.launcherKryptonPalette;
             this.uiLanguageKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
@@ -229,7 +241,7 @@ namespace Empire_Earth_Launcher
             this.uiLanguageKryptonComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.uiLanguageKryptonComboBox.DropDownWidth = 200;
             this.uiLanguageKryptonComboBox.IntegralHeight = false;
-            this.uiLanguageKryptonComboBox.Location = new System.Drawing.Point(168, 78);
+            this.uiLanguageKryptonComboBox.Location = new System.Drawing.Point(168, 43);
             this.uiLanguageKryptonComboBox.Name = "uiLanguageKryptonComboBox";
             this.uiLanguageKryptonComboBox.Palette = this.launcherKryptonPalette;
             this.uiLanguageKryptonComboBox.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
@@ -239,7 +251,7 @@ namespace Empire_Earth_Launcher
             // 
             // uiLanguageHintKryptonLabel
             // 
-            this.uiLanguageHintKryptonLabel.Location = new System.Drawing.Point(13, 107);
+            this.uiLanguageHintKryptonLabel.Location = new System.Drawing.Point(13, 70);
             this.uiLanguageHintKryptonLabel.Name = "uiLanguageHintKryptonLabel";
             this.uiLanguageHintKryptonLabel.Palette = this.launcherKryptonPalette;
             this.uiLanguageHintKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
@@ -247,6 +259,92 @@ namespace Empire_Earth_Launcher
             this.uiLanguageHintKryptonLabel.TabIndex = 7;
             this.uiLanguageHintKryptonLabel.Values.Text = "The new language is used when the launcher starts the next time.";
             this.uiLanguageHintKryptonLabel.Visible = false;
+            // 
+            // installationsKryptonLabel
+            // 
+            this.installationsKryptonLabel.Location = new System.Drawing.Point(13, 151);
+            this.installationsKryptonLabel.Name = "installationsKryptonLabel";
+            this.installationsKryptonLabel.Palette = this.launcherKryptonPalette;
+            this.installationsKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.installationsKryptonLabel.Size = new System.Drawing.Size(130, 20);
+            this.installationsKryptonLabel.TabIndex = 15;
+            this.installationsKryptonLabel.Values.Text = "Installations found:";
+            // 
+            // installationsKryptonDataGridView
+            // 
+            this.installationsKryptonDataGridView.AllowUserToAddRows = false;
+            this.installationsKryptonDataGridView.AllowUserToDeleteRows = false;
+            this.installationsKryptonDataGridView.AllowUserToOrderColumns = false;
+            this.installationsKryptonDataGridView.AllowUserToResizeColumns = true;
+            this.installationsKryptonDataGridView.AllowUserToResizeRows = false;
+            this.installationsKryptonDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.installationProductColumn,
+            this.installationRootColumn,
+            this.installationGameFolderColumn,
+            this.installationKindColumn,
+            this.installationStateColumn});
+            this.installationsKryptonDataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
+            this.installationsKryptonDataGridView.Location = new System.Drawing.Point(13, 173);
+            this.installationsKryptonDataGridView.MultiSelect = false;
+            this.installationsKryptonDataGridView.Name = "installationsKryptonDataGridView";
+            this.installationsKryptonDataGridView.Palette = this.launcherKryptonPalette;
+            this.installationsKryptonDataGridView.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.installationsKryptonDataGridView.ReadOnly = true;
+            this.installationsKryptonDataGridView.RowHeadersVisible = false;
+            this.installationsKryptonDataGridView.RowTemplate.Height = 22;
+            this.installationsKryptonDataGridView.RowTemplate.ReadOnly = true;
+            this.installationsKryptonDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.installationsKryptonDataGridView.Size = new System.Drawing.Size(510, 90);
+            this.installationsKryptonDataGridView.TabIndex = 16;
+            this.installationsKryptonDataGridView.SelectionChanged += new System.EventHandler(this.installationsKryptonDataGridView_SelectionChanged);
+            // 
+            // installationProductColumn
+            // 
+            this.installationProductColumn.HeaderText = "Product";
+            this.installationProductColumn.Name = "installationProductColumn";
+            this.installationProductColumn.ReadOnly = true;
+            this.installationProductColumn.Width = 64;
+            // 
+            // installationRootColumn
+            // 
+            this.installationRootColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.installationRootColumn.HeaderText = "Install folder";
+            this.installationRootColumn.Name = "installationRootColumn";
+            this.installationRootColumn.ReadOnly = true;
+            // 
+            // installationGameFolderColumn
+            // 
+            this.installationGameFolderColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.installationGameFolderColumn.HeaderText = "Empire Earth folder";
+            this.installationGameFolderColumn.Name = "installationGameFolderColumn";
+            this.installationGameFolderColumn.ReadOnly = true;
+            // 
+            // installationKindColumn
+            // 
+            this.installationKindColumn.HeaderText = "Type";
+            this.installationKindColumn.Name = "installationKindColumn";
+            this.installationKindColumn.ReadOnly = true;
+            this.installationKindColumn.Width = 96;
+            // 
+            // installationStateColumn
+            // 
+            this.installationStateColumn.HeaderText = "State";
+            this.installationStateColumn.Name = "installationStateColumn";
+            this.installationStateColumn.ReadOnly = true;
+            this.installationStateColumn.Width = 78;
+            // 
+            // installationsHintKryptonWrapLabel
+            // 
+            this.installationsHintKryptonWrapLabel.AutoSize = false;
+            this.installationsHintKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 8.25F);
+            this.installationsHintKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.installationsHintKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
+            this.installationsHintKryptonWrapLabel.Location = new System.Drawing.Point(13, 269);
+            this.installationsHintKryptonWrapLabel.Name = "installationsHintKryptonWrapLabel";
+            this.installationsHintKryptonWrapLabel.Palette = this.launcherKryptonPalette;
+            this.installationsHintKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.installationsHintKryptonWrapLabel.Size = new System.Drawing.Size(510, 66);
+            this.installationsHintKryptonWrapLabel.Text = "";
             // 
             // LauncherSettingsUserControl
             // 
@@ -262,6 +360,7 @@ namespace Empire_Earth_Launcher
             this.launcherSettingsKryptonGroupBox.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.themeKryptonComboBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.uiLanguageKryptonComboBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.installationsKryptonDataGridView)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -280,5 +379,13 @@ namespace Empire_Earth_Launcher
         private Krypton.Toolkit.KryptonLabel uiLanguageKryptonLabel;
         private Krypton.Toolkit.KryptonComboBox uiLanguageKryptonComboBox;
         private Krypton.Toolkit.KryptonLabel uiLanguageHintKryptonLabel;
+        private Krypton.Toolkit.KryptonLabel installationsKryptonLabel;
+        private Krypton.Toolkit.KryptonDataGridView installationsKryptonDataGridView;
+        private System.Windows.Forms.DataGridViewTextBoxColumn installationProductColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn installationRootColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn installationGameFolderColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn installationKindColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn installationStateColumn;
+        private Krypton.Toolkit.KryptonWrapLabel installationsHintKryptonWrapLabel;
     }
 }
