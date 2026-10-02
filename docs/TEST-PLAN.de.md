@@ -7,14 +7,15 @@ von Krypton und die Texte der Oberfläche ([ADR 0012](adr/0012-test-strategy.md)
 
 | | |
 |---|---|
-| Stand | Fälle von L-WP1 bis L-WP3; jedes weitere Arbeitspaket ergänzt seinen Abschnitt in 5 im selben Commit |
+| Stand | Fälle von L-WP1 bis L-WP5; jedes weitere Arbeitspaket ergänzt seinen Abschnitt in 5 und die Zuordnung in 7 im selben Commit |
 | Sprache | Deutsch (die Programmtexte gibt es auf Englisch, Deutsch und Französisch) |
 | Gehört zu | [ARCHITECTURE.md](ARCHITECTURE.md), Abschnitt 11 und 15 |
 
 Inhalt: [1. Voraussetzungen](#1-voraussetzungen) · [2. Paket holen und prüfen](#2-paket-holen-und-prüfen) ·
 [3. Wo der Launcher Dateien ablegt](#3-wo-der-launcher-dateien-ablegt) ·
 [4. Ergebnisse festhalten](#4-ergebnisse-festhalten) · [5. Testfälle je Arbeitspaket](#5-testfälle-je-arbeitspaket) ·
-[6. Optional: Windows 7 SP1 in einer VM](#6-optional-windows-7-sp1-in-einer-vm)
+[6. Optional: Windows 7 SP1 in einer VM](#6-optional-windows-7-sp1-in-einer-vm) ·
+[7. Zuordnung der Anforderungen und Forum-Testfälle](#7-zuordnung-der-anforderungen-und-forum-testfälle)
 
 ## 1. Voraussetzungen
 
@@ -114,7 +115,7 @@ Alle Dateien des Launchers liegen pro Benutzer unter `%LOCALAPPDATA%\Empire Eart
 |---|---|---|
 | Protokoll | `log.txt`, ältere Einträge in `log.txt.old` (ab 1 MiB gekürzt) | heute |
 | Einstellungen (Spielordner, Theme, ab L-WP3 Sprache) | `settings.json`; eine beschädigte Datei wird zu `settings.json.damaged`, beim Speichern entsteht kurz `settings.json.tmp` | L-WP2 |
-| Sicherungen (`.reg`-Dateien, verschobene WON-Dateien) | `Backups\<yyyy-MM-dd_HHmmss>_<was>\` | ab L-WP5 |
+| Sicherungen (`.reg`-Dateien, ab L-WP8 auch verschobene WON-Dateien) | `Backups\<yyyy-MM-dd_HHmmss>_<was>\`, z. B. `Backups\2026-10-02_153012_reset-game-settings\2026-10-02_153012_NeoEE_EE.reg` | ab L-WP5 |
 | Arbeitsordner des Mod-Creators | `Mod Creator\` | heute |
 
 Testpakete vor L-WP2 speicherten die Einstellungen in einer `user.config` in einem von .NET angelegten
@@ -260,11 +261,43 @@ WP4-15) den betroffenen Schlüssel mit dem Registrierungs-Editor exportieren (Re
 
 ### L-WP5 – Spieleinstellungen (Vertrag 3)
 
-Wird mit L-WP5 ergänzt. Vorgemerkt aus der Planprüfung: zweites Windows-Konto öffnet den Launcher nur, schließt ihn
-und startet AoC über die Desktop-Verknüpfung (Forenbericht Abschnitt 8, Testfall 7); Fenstergröße bei 150 % mit und
-ohne `HIGHDPIAWARE` (O4); unter Windows 7 (Abschnitt 6) keine Kompatibilitätsschalter, nur Anzeige alter Werte.
-Ab L-WP5 enthält dieser Plan eine Zuordnungstabelle (Anforderungen R1–R10 und R17, Forum-Testfälle 1–22), die ein
-automatischer Test prüft.
+Der Launcher richtet die empfohlenen Spieleinstellungen des Setups für das **eigene** Windows-Konto ein (Vertrag 3,
+[ADR 0015](adr/0015-game-settings-target-folders-and-write-timing.md)): beim Start nur für eine Installation, die ihren
+Einstellungsschlüssel allein nutzt (oder von Hand gewählt ist), „Installed From“ nur, wenn beide Werte fehlen, und nie,
+solange ein Setup oder das Spiel läuft. Die Seite *Einstellungen* zeigt den Stand je Spiel, die Hinweise, „Empfohlene
+Anzeige übernehmen“, „Spieleinstellungen zurücksetzen“ (mit `.reg`-Sicherung) und hinter dem Kompatibilitätshinweis die
+Kompatibilitätsoptionen; die Seite *Spielen* zeigt unter der Spielauswahl eine Infoleiste (Rückfrage oder Hinweis).
+WP3-04 und WP3-05 gelten ab jetzt nur noch für den Hinweis im Abschnitt „Kompatibilitätsoptionen“ der Seite.
+
+Vorbereitung: vor jedem Fall die Schlüssel sichern (Abschnitt 1, `reg export` von `HKCU\Software\Neo`,
+`HKCU\Software\SSSI`, `HKCU\Software\Mad Doc Software`, dazu `HKCU\Software\Empire Earth Community` und
+`HKCU\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers`). Werte im Registrierungs-Editor ansehen
+(`Win+R` → `regedit`). „Marker löschen“ heißt: unter `HKCU\Software\Empire Earth Community\GameDefaults\<Produkt>` den
+Wert `EE` (bzw. `AoC`) löschen; dann gilt das Konto als neu. `Software\Sierra\CDKeys` nie ändern. Die Fälle nennen die
+deutschen Texte.
+
+| Fall | Schritte | Erwartet |
+|---|---|---|
+| WP5-01 | Eigenes Konto mit Installation aus WP4-03 oder WP4-05; Marker löschen; Launcher starten, Seite *Einstellungen*. | „Standardwerte des Spiels“: je Spiel „Die empfohlenen Einstellungen sind für Ihr Windows-Konto eingerichtet.“ Im Registrierungs-Editor `GameDefaults\NeoEE`: `EE` = 1 (und `AoC` = 1). Vorhandene Werte (Spielernamen, Lautstärke) unverändert. `log.txt`: `Game defaults: first run of NeoEE EE …` und je neu angelegtem Wert `Game defaults: created …`. |
+| WP5-02 | Zweites Windows-Konto (Standardbenutzer), das das Spiel noch nie gestartet hat (Forenbericht Abschnitt 8, Testfälle 1 und 7): Launcher starten, Seite *Einstellungen* ansehen, Launcher schließen. Dann **The Art of Conquest über die Desktop-Verknüpfung** starten (nicht über den Launcher). | Im HKCU dieses Kontos stehen `Installed From Volume`/`Installed From Directory` für EE und AoC (Ordner der Installation, Pfad ohne Laufwerk in Großbuchstaben, Ordnername wie er ist), `Rasterizer Name`, `Game Window Width/Height`, Bit-Tiefen 32 und unter Windows 10/11 `UserGpuPreferences` für beide Programme (`GpuPreference=2;`, nur wenn das Setup mit „Kompatibilitätsmodus für ältere Windows-Versionen“ lief). AoC startet, ohne dass vorher Empire Earth gestartet wurde. |
+| WP5-03 | Zwei Installationen desselben Produkts (WP4-12), keine von Hand gewählt; Marker löschen; Launcher starten. | Seite *Einstellungen*: „Noch nicht eingerichtet, weil sich mehrere Installationen diese Einstellungen teilen. …“; im Registrierungs-Editor hat sich nichts geändert (vorher/nachher exportieren und vergleichen). `log.txt`: `Game defaults: nothing written at the start for … share its game settings …`. Danach eine Installation in der Liste der Seite *Launcher* anklicken: nun wird sie eingerichtet. |
+| WP5-04 | Marker löschen, `Game Bit Depth` (Zeichenfolge oder DWORD) auf 16 setzen; Launcher starten, Seite *Spielen*. Zuerst „Meine behalten“, dann Marker löschen, Launcher neu starten, „Übernehmen“. | Infoleiste unter der Spielauswahl: „Ihre Anzeigeeinstellungen weichen von den empfohlenen ab: Empire Earth Game Bit Depth 16 statt 32. …“. „Meine behalten“: Wert bleibt 16, Marker = 1, die Rückfrage kommt beim nächsten Start nicht wieder. „Übernehmen“: Ordner `Backups\…_display-settings\` mit einer `.reg`-Datei, `Game Bit Depth` = 32, Marker = 1. Das Spiel wurde dabei nie blockiert. |
+| WP5-05 | `Rasterizer Name` auf `Direct3D` setzen (Installation ohne DirectX-Wrapper). Launcher starten; Seite *Spielen*, dann *Einstellungen*. Auf *Spielen* „Ausblenden“; Launcher neu starten; dann den Wert auf `Software` setzen und den Launcher neu starten. | Infoleiste und Liste „Hinweise“: „… Als Renderer ist „Direct3D“ eingestellt; empfohlen für diese Installation ist „Direct3D Hardware TnL“ …“. Nach „Ausblenden“ ist die Infoleiste leer, auch nach dem Neustart; auf *Einstellungen* steht der Hinweis weiter, Häkchen „Seite Spielen“ aus; `settings.json` enthält `HiddenHints` mit `RasterizerMismatch`. Mit dem geänderten Wert `Software` ist der Hinweis wieder in der Infoleiste. Danach den Wert auf `Direct3D Hardware TnL` zurücksetzen. |
+| WP5-06 | Windows 10/11 (Forenbericht Abschnitt 8, Testfall 4): `Game Bit Depth` und `Texture Bit Depth` auf 16. Launcher starten, Seite *Einstellungen*; Spiel starten und notieren, ob es einfriert; dann „Empfohlene Anzeige übernehmen“. | Hinweis „16-Bit-Farben lassen das Spiel unter Windows 8 und neuer oft einfrieren …“. Ergebnis des Spielstarts notieren (Bezug t=10931, t=5848). Nach dem Knopf: „Erledigt. Ihre vorherigen Einstellungen sind gesichert in: …“, beide Werte 32, Hinweis weg. |
+| WP5-07 | O4: Skalierung 150 % (Einstellungen → System → Bildschirm), anmelden neu. Auf *Einstellungen* den Hinweis bestätigen, „Keine Skalierung durch Windows (HIGHDPIAWARE)“ **aus**, „Empfohlene Anzeige übernehmen“. Spiel über die Verknüpfung starten, Fenster ansehen. Dann HIGHDPIAWARE **ein**, Spiel erneut starten. Danach HIGHDPIAWARE wieder ausschalten. | Ohne HIGHDPIAWARE: Hinweis „Das Spielfenster (…) passt nur mit der Kompatibilitätsoption HIGHDPIAWARE auf den Bildschirm …“ (kein Zurücksetzen-Rat); im Spiel ist das Fenster zu groß bzw. abgeschnitten (notieren). Mit HIGHDPIAWARE: Hinweis weg, Fenster passt. Beim Ausschalten erscheint vorher die Rückfrage „Der Bildschirm ist auf 150 % skaliert …“ mit „Ausschalten“/„Abbrechen“. Fensterwerte notieren und mit den Werten vergleichen, die das Setup bei 150 % schreibt (Setup-Testplan, O4). Skalierung danach zurückstellen. |
+| WP5-08 | Einige Werte ändern (`Music Volume`, `Game Bit Depth`, `Game Options\Map Size`) und einen eigenen Wert anlegen (`Test` = 1). Seite *Einstellungen* → „Spieleinstellungen zurücksetzen“, Text lesen, „Jetzt zurücksetzen“. | Bestätigung auf der Seite nennt die Spiele und den Ordner `…\Empire Earth Launcher\Backups`. Danach „Erledigt. Ihre vorherigen Einstellungen sind gesichert in: …\Backups\<Datum>_reset-game-settings“; dort je Spiel eine `.reg`-Datei (`…_NeoEE_EE.reg`, `…_NeoEE_AoC.reg`). Die Tabellenwerte stehen auf den Empfehlungen, `Test` und Spielernamen unverändert, Marker = 1. |
+| WP5-09 | Wiederherstellung: eine `.reg`-Datei aus WP5-08 doppelklicken, die Rückfrage des Registrierungs-Editors bestätigen. | Die Werte vor WP5-08 stehen wieder da (mit dem Export vor WP5-08 vergleichen); Werte, die der Reset neu angelegt hatte, sind wieder weg; der Marker ist wie vorher. Leere Schlüssel, die der Reset angelegt hatte, dürfen bleiben. |
+| WP5-10 | Empire Earth starten (über die Verknüpfung), im Hauptmenü lassen; im Launcher „Spieleinstellungen zurücksetzen“ → „Jetzt zurücksetzen“ und einen Kompatibilitätsschalter umlegen. Danach das Spiel beenden. | „Nicht möglich, solange Empire Earth.exe läuft.“; kein neuer Sicherungsordner, keine Änderung in der Registry. `log.txt`: `Not allowed to reset the game settings now: Empire Earth.exe is running …`. |
+| WP5-11 | Ein Community-Setup starten und auf der ersten Seite stehen lassen (nicht installieren); im Launcher „Empfohlene Anzeige übernehmen“. Setup abbrechen. | „Nicht möglich, solange das Setup von NeoEE läuft.“ (bzw. Empire Earth); nichts geändert. |
+| WP5-12 | Windows 10/11, Seite *Einstellungen*, Kompatibilitätshinweis „Bestätigen“. Nacheinander jede der vier Optionen ein- und wieder ausschalten; nach dem Einschalten von HIGHDPIAWARE Rechtsklick auf `Empire Earth.exe` → Eigenschaften → Kompatibilität. | Vier Schalter (DWM8And16BitMitigation, HIGHDPIAWARE, HeapClearAllocation, WIN7RTM), Text „Die Optionen gelten für Empire Earth.exe, EE-AOC.exe und Ihr Windows-Konto.“ In `HKCU\…\AppCompatFlags\Layers` steht je Programm z. B. `~ HIGHDPIAWARE`; andere Einträge (z. B. ein selbst gesetzter Haken im Eigenschaften-Dialog) bleiben erhalten; nach dem Ausschalten ohne weitere Einträge ist der Wert gelöscht. Nie `WINXPSP3` oder `RUNASADMIN`. Der Eigenschaften-Dialog zeigt die Einstellung. |
+| WP5-13 | Installation „für alle Benutzer“ mit Setup v2 und Standardaufgaben (HKLM-Wert `~ DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation WIN7RTM`), Seite *Einstellungen* nach „Bestätigen“. | Unter den Schaltern „Vom Setup für alle Benutzer gesetzt (nur das Setup ändert das): …“ mit dem HKLM-Wert; WIN7RTM ist ausgegraut, dazu „Ein Windows-Kompatibilitätsmodus ist schon gesetzt …“. In HKLM ändert der Launcher nie etwas. |
+| WP5-14 | Nur in der Windows-7-VM (Abschnitt 6) mit einer Installation von Setup 1.7.2: Seite *Einstellungen* nach „Bestätigen“. Falls `HKCU\…\Layers` für ein Programm genau `~ RUNASADMIN` enthält: „„Als Administrator ausführen“ entfernen“. | Keine Schalter, stattdessen „Unter Windows 7 und unter Wine bietet der Launcher keine Kompatibilitätsoptionen an …“; alte Werte (z. B. `~ RUNASADMIN WINXPSP3`) stehen schreibgeschützt da mit dem Rat, das aktuelle Community-Setup auszuführen. Nach dem Knopf ist nur der Wert `~ RUNASADMIN` gelöscht, Sicherung unter `Backups\…_remove-runasadmin\`. |
+| WP5-15 | Bildschirm unter 768 Pixel Höhe (Forenbericht Abschnitt 8, Testfall 6), z. B. Auflösung 1280×720 oder 1024×600 einstellen; Launcher starten. | Hinweis „Der Bildschirm ist nur 720 Pixel hoch; die Menüs des Spiels brauchen mindestens 768 …“ auf *Einstellungen* und in der Infoleiste. Nach „Zurücksetzen“: Fenster 1280×768 (Breite des Bildschirms, Höhe mindestens 768). Auflösung zurückstellen. |
+| WP5-16 | Netzwerkpfad: den Ordner `Empire Earth` auf eine Freigabe kopieren, auf der Seite *Launcher* mit „...“ als `\\Rechner\Freigabe\Empire Earth` wählen (nicht als Laufwerk). | Hinweis „… liegt nicht auf einem Laufwerksbuchstaben, daher können die Werte „Installed From“ nicht auf ihn zeigen …“; „Installed From“ wird nicht geschrieben (`log.txt`: Warnung `is not on a drive letter`). Danach wieder „Automatisch“. |
+| WP5-17 | Seiten *Einstellungen* (vor und nach „Bestätigen“) und *Spielen* (mit Infoleiste) auf Deutsch, Englisch und Französisch, je einmal bei 100 % und 150 %; Screenshots. Bis zum Ende der Seite scrollen. | Keine abgeschnittenen oder überlappenden Texte; lange Texte brechen um und schieben die folgenden Elemente nach unten; die Seite scrollt. Deutsche Texte gegenlesen wie in WP3-03. |
+| WP5-18 | Windows 10/11 mit Setup-Aufgabe „Kompatibilitätsmodus für ältere Windows-Versionen“: Einstellungen → System → Bildschirm → Grafik. | `Empire Earth.exe` und `EE-AOC.exe` stehen mit „Hohe Leistung“ in der Liste (Vertrag 3.4). |
+| WP5-19 | Spielordner mit Umlauten (Forenbericht Abschnitt 8, Testfall 20): die Installation nach `C:\Spiele\Ägypten\Empire Earth` kopieren, auf der Seite *Launcher* wählen; Marker löschen; Launcher neu starten; danach AoC über eine Verknüpfung in diesem Ordner starten. | `Installed From Directory` = `\SPIELE\ÄGYPTEN\Empire Earth\`; ein vom Setup geschriebenes `\SPIELE\äGYPTEN\…` wird nicht umgeschrieben (gleicher Ordner). Ob das Spiel startet, notieren (ANSI-Pfad). |
+| WP5-20 | Nach allen Fällen `log.txt` durchsehen. | Keine `Unhandled exception`, keine `A background task failed`; jede Änderung hat eine Zeile `Game defaults: created/changed …` bzw. `Compatibility: changed …` mit altem und neuem Wert; jede Sicherung `Backup written: …`. |
 
 ### L-WP6 – Spielstart (Vertrag 3.7 und 4.2)
 
@@ -300,3 +333,48 @@ verlangt Microsoft, dass das Stammzertifikat „Microsoft Root Certificate Autho
 | W7-03 | `log.txt` öffnen. | Startzeilen wie in WP1-04, keine weiteren `Error`-Zeilen als dort genannt. |
 | W7-04 | Mod-Creator starten. | „You are using: Windows 7“. |
 | W7-05 | Ab L-WP7: Reparatur-Hinweis öffnen bzw. Update-Prüfung starten. | Entweder Antwort von `api.empireearth.eu` (TLS 1.2) oder die feste Seite `https://empireearth.eu/download`; `log.txt` nennt bei der Ersatzseite den Grund (z. B. TLS-Handshake). |
+
+## 7. Zuordnung der Anforderungen und Forum-Testfälle
+
+Jede Anforderung R1 bis R10 und R17 der v2-Planung und jeder Testfall für echtes Windows aus dem Forenbericht
+(Abschnitt 8, Nummern 1 bis 22) ist hier Fällen dieses Plans zugeordnet. „offen (L-WPn)“ heißt: Die Fälle kommen mit
+diesem Arbeitspaket. „Setup:“ heißt: Der Fall gehört (auch) in den Testplan des Setup-Repositorys, mit dessen
+Fall-IDs; „entfällt:“ nennt den Grund. Mehrere Angaben sind durch `;` getrennt. Ein automatischer Test
+(`TestPlanTests`) prüft die Tabelle: jede Zeile genau einmal, jede genannte Fall-ID existiert, „offen“ nur für
+Pakete nach dem Stand dieses Plans und ab L-WP9 gar nicht mehr.
+
+| Bezug | Thema | Zuordnung |
+|---|---|---|
+| R1 | Standardwerte pro Benutzer, auch für andere Konten | WP5-01, WP5-02, WP5-03, WP5-04 |
+| R2 | Integritätsmanifest | offen (L-WP7) |
+| R3 | Spielen, laufende Instanzen, Kompatibilitätsoptionen | WP5-12, WP5-13, WP5-14; offen (L-WP6) |
+| R4 | Spieleinstellungen zurücksetzen mit `.reg`-Sicherung | WP5-08, WP5-09, WP5-10, WP5-11 |
+| R5 | Registry-Bereinigung | offen (L-WP8) |
+| R6 | WON-Login zurücksetzen | offen (L-WP8) |
+| R7 | Netzwerkdiagnose | offen (L-WP9) |
+| R8 | VirtualStore | WP4-16; offen (L-WP8) |
+| R9 | Reparatur über das Setup | offen (L-WP6) |
+| R10 | Spielstände und Szenarien | offen (L-WP8) |
+| R17 | Texte auf Englisch, Deutsch, Französisch | WP3-01, WP3-03, WP3-11, WP3-12, WP4-17, WP5-17 |
+| Forum 1 | Frische Installation, Standardnutzer, zweites Konto | WP4-06, WP4-16, WP5-02; Setup: TP-41, TP-71 (Installation und Rechte) |
+| Forum 2 | Versionsanzeige, Mehrspieler ohne Versionskonflikt | offen (L-WP7); Setup: TP-70, TP-72 (Version im Hauptmenü) |
+| Forum 3 | Grafikmatrix mit und ohne Wrapper | WP5-05; Setup: TP-23 (Wrapper und Renderer installiert das Setup) |
+| Forum 4 | Farbtiefe 16 Bit, Rücksetzen auf 32 Bit | WP5-06, WP5-08 |
+| Forum 5 | Kompatibilitätsflags, Windows 7 | WP5-12, WP5-13, WP5-14; Setup: TP-20, TP-21, TP-22 (Werte des Setups) |
+| Forum 6 | Auflösungsgrenzen, Bildschirm unter 768 Pixel | WP5-07, WP5-15 |
+| Forum 7 | AoC ohne vorherigen EE-Start | WP5-02, WP5-19 |
+| Forum 8 | Alt-Installation (CD, GOG) vorhanden | WP4-08, WP4-15 |
+| Forum 9 | EE und NeoEE parallel, eines deinstallieren | WP4-12; Setup: TP-62, TP-75 (Deinstallation) |
+| Forum 10 | Firewall beim Hosten | Setup: TP-76 (Firewall-Regeln legt nur das Setup an, der Launcher ändert die Firewall nicht) |
+| Forum 11 | Hosting-Varianten, Portweiterleitung | offen (L-WP9) |
+| Forum 12 | Netzwerkadapter (VPN, Hamachi) | offen (L-WP9) |
+| Forum 13 | CD-Keys: Server gesperrt, VM, `CDKeyCheck` | offen (L-WP9); Setup: TP-77 (nur das Setup registriert CD-Keys) |
+| Forum 14 | Antivirus löscht Dateien | WP4-13; offen (L-WP7) |
+| Forum 15 | Offline, nur Spiegel, manipulierter Download | Setup: TP-00, TP-10, TP-11, TP-16 (Downloads macht nur das Setup) |
+| Forum 16 | Sprachen: Deutsch für EE und AoC | Setup: TP-78 (Sprachdateien des Spiels installiert das Setup) |
+| Forum 17 | Spielstände im Mehrspieler, Namen mit Sonderzeichen | offen (L-WP8) |
+| Forum 18 | Laufende Instanz | WP5-10; offen (L-WP6); Setup: TP-79 |
+| Forum 19 | Kampagnen-Tribut | entfällt: Spiellogik der Spieldateien, die weder Launcher noch Setup ändern |
+| Forum 20 | Launcher: Spielerliste ohne Netz, beschädigte Einstellungen, Pfad mit Umlauten | WP1-04, WP2-05, WP5-19 |
+| Forum 21 | GOG als Basis | WP4-08; Setup: TP-63 |
+| Forum 22 | NeoEE-Wartungsmodus über kaputter Installation | Setup: TP-73 (die Reparatur macht das Setup); offen (L-WP6) |

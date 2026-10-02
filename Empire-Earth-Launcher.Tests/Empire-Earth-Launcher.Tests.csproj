@@ -62,6 +62,7 @@
     <Compile Include="Architecture\ProjectConventionsTests.cs" />
     <Compile Include="Architecture\RegistryAliasPolicyTests.cs" />
     <Compile Include="Architecture\ResourceParityTests.cs" />
+    <Compile Include="Architecture\TestPlanTests.cs" />
     <Compile Include="Core\Backup\BackupLocationsTests.cs" />
     <Compile Include="Core\Backup\RegFileWriterTests.cs" />
     <Compile Include="Core\Backup\RegistryExportTests.cs" />
