@@ -7,7 +7,7 @@ von Krypton und die Texte der Oberfläche ([ADR 0012](adr/0012-test-strategy.md)
 
 | | |
 |---|---|
-| Stand | Fälle von L-WP1 bis L-WP5; jedes weitere Arbeitspaket ergänzt seinen Abschnitt in 5 und die Zuordnung in 7 im selben Commit |
+| Stand | Fälle von L-WP1 bis L-WP6; jedes weitere Arbeitspaket ergänzt seinen Abschnitt in 5 und die Zuordnung in 7 im selben Commit |
 | Sprache | Deutsch (die Programmtexte gibt es auf Englisch, Deutsch und Französisch) |
 | Gehört zu | [ARCHITECTURE.md](ARCHITECTURE.md), Abschnitt 11 und 15 |
 
@@ -114,7 +114,7 @@ Alle Dateien des Launchers liegen pro Benutzer unter `%LOCALAPPDATA%\Empire Eart
 | Was | Ort | seit |
 |---|---|---|
 | Protokoll | `log.txt`, ältere Einträge in `log.txt.old` (ab 1 MiB gekürzt) | heute |
-| Einstellungen (Spielordner, Theme, ab L-WP3 Sprache) | `settings.json`; eine beschädigte Datei wird zu `settings.json.damaged`, beim Speichern entsteht kurz `settings.json.tmp` | L-WP2 |
+| Einstellungen (Spielordner, Theme, ab L-WP3 Sprache, ab L-WP5 ausgeblendete Hinweise, ab L-WP6 zuletzt gewähltes Spiel `LastGame`) | `settings.json`; eine beschädigte Datei wird zu `settings.json.damaged`, beim Speichern entsteht kurz `settings.json.tmp` | L-WP2 |
 | Sicherungen (`.reg`-Dateien, ab L-WP8 auch verschobene WON-Dateien) | `Backups\<yyyy-MM-dd_HHmmss>_<was>\`, z. B. `Backups\2026-10-02_153012_reset-game-settings\2026-10-02_153012_NeoEE_EE.reg` | ab L-WP5 |
 | Arbeitsordner des Mod-Creators | `Mod Creator\` | heute |
 
@@ -301,7 +301,32 @@ deutschen Texte.
 
 ### L-WP6 – Spielstart (Vertrag 3.7 und 4.2)
 
-Wird mit L-WP6 ergänzt.
+Die Seite *Spielen* startet jetzt Empire Earth oder The Art of Conquest ([ADR 0010](adr/0010-game-start-and-mutex-probing.md)):
+Unter der Spielauswahl stehen die Dateiversionen beider Programme und eine Statuszeile. Vor jedem Start prüft der
+Launcher in dieser Reihenfolge: läuft ein Setup, läuft dasselbe Spiel, läuft das andere Spiel (Rückfrage), gibt es das
+Programm, dann gleicht er „Installed From“ ab, richtet beim ersten Start die Standardwerte ein und startet das Programm
+über die Windows-Shell im echten Spielordner. Fehlt das Programm, erscheint das Fenster „Installation reparieren“ mit
+den Schritten aus Vertrag 4.4 und der Downloadseite. Ab diesem Paket enthält das Laptop-Paket den Ordner `Tests\`;
+WP1-11 ist damit prüfbar. Vorbereitung wie bei L-WP5 (Registry-Schlüssel sichern). Die Fälle nennen die deutschen
+Texte.
+
+| Fall | Schritte | Erwartet |
+|---|---|---|
+| WP6-01 | Installation mit AoC (z. B. aus WP4-03 oder WP4-05). Seite *Spielen*: „Empire Earth“ wählen, „Spielen“; Spiel beenden. Dann „The Art of Conquest“ wählen, „Spielen“; Spiel beenden. | Beide Spiele starten. `log.txt` je Start eine Zeile `Game started: NeoEE <Installationsordner>, game EE, program …\Empire Earth\Empire Earth.exe, pid <Zahl>` (bzw. `game AoC`, `…\EE-AOC.exe`); steht dort `pid unknown`, notieren (kein Fehler). Statuszeile „Empire Earth wurde gestartet.“ bzw. „The Art of Conquest wurde gestartet.“ Im Task-Manager (Details, Spalte „Befehlszeile“ einblenden) steht das Programm ohne Argumente. |
+| WP6-02 | Forenbericht Abschnitt 8 Zeile 1: Seite *Spielen* ansehen; dann im Explorer Rechtsklick auf `Empire Earth.exe` → Eigenschaften → Details, ebenso für `EE-AOC.exe`. | Unter der Spielauswahl „Empire Earth.exe: Version …“ und „EE-AOC.exe: Version …“ mit denselben Zahlen wie „Dateiversion“ im Explorer. Werte notieren (Bezug Forum: EEC 2.00.2949, AoC 1.00.2473, t=11034 p=47982). Ein Programm ohne Versionsangabe zeigt „keine Versionsangabe“. |
+| WP6-03 | „The Art of Conquest“ wählen, Launcher schließen und neu starten. Dann auf der Seite *Launcher* einen Ordner mit einer Installation ohne AoC wählen (z. B. eine Kopie nur des Ordners `Empire Earth`). | Nach dem Neustart ist „The Art of Conquest“ wieder gewählt; `settings.json` enthält `"LastGame": "AoC"`. Bei der Installation ohne AoC ist „The Art of Conquest“ ausgegraut und „Empire Earth“ gewählt. Danach wieder „Automatisch“. |
+| WP6-04 | Forenbericht Abschnitt 8 Testfall 7, AoC ohne vorherigen EE-Start: zweites Windows-Konto oder eigenes Konto nach dem Löschen von `Installed From Volume`/`Installed From Directory` unter dem AoC-Schlüssel (`HKCU\Software\Neo\Art of Conquest` bzw. `HKCU\Software\Mad Doc Software\EE-AOC`) und des Markers. Launcher starten, „The Art of Conquest“ wählen, „Spielen“. | AoC startet und kommt ins Hauptmenü, ohne dass vorher Empire Earth gestartet wurde. Die beiden Werte stehen vor dem Start wieder da (Pfad des AoC-Ordners ohne Laufwerk, Elternordner in Großbuchstaben). `log.txt`: `Game defaults: created …` bzw. `changed …` für „Installed From“ vor `Game started:`. |
+| WP6-05 | Setup läuft (Vertrag 4.2): Launcher geöffnet, Seite *Spielen*. Ein Community-Setup starten und auf der ersten Seite stehen lassen (nicht installieren). Seiten *Spielen* und *Einstellungen* ansehen. Dann das Setup abbrechen. | Spätestens nach 2 Sekunden: „Spielen“ ist ausgegraut, die Statuszeile sagt „Das Setup von NeoEE läuft. Bis es beendet ist, startet der Launcher kein Spiel und ändert keine Spieleinstellungen.“ (bzw. Empire Earth); auf *Einstellungen* steht derselbe Satz und alle Schaltflächen und Kompatibilitätsschalter sind ausgegraut. Nach dem Abbrechen sind sie nach spätestens 2 Sekunden wieder bedienbar. `log.txt`: `The NeoEE setup is running (mutex NeoEE_Setup) …` und `The NeoEE setup has ended (seen for … s); the installations are searched again.`, danach die Suche. |
+| WP6-06 | Launcher schließen, Community-Setup starten und auf der ersten Seite lassen, dann den Launcher starten. Nach dem Ansehen das Setup abbrechen. | Solange das Setup läuft: Seite *Launcher* und *Spielen* zeigen „Ein Setup läuft. Die Installationen werden gesucht, sobald es beendet ist.“; `log.txt`: `The installations are searched when the … setup has ended (install.ini is not read while a setup runs, contract 4.2).` Nach dem Abbrechen erscheinen die Installationen ohne weiteres Zutun. |
+| WP6-07 | Forenbericht Abschnitt 8 Testfall 18: Empire Earth über den Launcher starten und im Hauptmenü lassen (Alt+Tab zurück zum Launcher), noch einmal „Empire Earth“ → „Spielen“. | Meldung „Empire Earth.exe läuft bereits. Der Launcher startet es kein zweites Mal.“ mit dem Hinweis auf den Task-Manager (Registerkarte „Details“, „Task beenden“), weil ein Prozess `Empire Earth.exe` existiert. Kein zweites Spiel; der Launcher beendet nichts. `log.txt`: `Game start refused: Empire Earth.exe is already running (mutex StainlessSteelStudiosPresentsEmpireEarth); a process Empire Earth.exe exists, it may hang.` |
+| WP6-08 | Forenbericht Abschnitt 8 Testfall 18 (hängendes `Empire Earth.exe`, t=5859): Empire Earth läuft wie in WP6-07; „The Art of Conquest“ wählen, „Spielen“, zuerst „Nein“, dann noch einmal „Spielen“ und „Ja“. | Rückfrage „Empire Earth.exe läuft. The Art of Conquest trotzdem starten? Beide Spiele gleichzeitig können instabil laufen.“; „Nein“ startet nichts, „Ja“ startet AoC. `log.txt`: `Game started: … game AoC, program …\EE-AOC.exe, pid … (Empire Earth.exe is running, the player started anyway).` und davor die Warnung `Game start of EE-AOC.exe without synchronized "Installed From" values: Blocked …` (solange ein Spiel läuft, ändert der Launcher keine Spieleinstellungen, ADR 0016). Ergebnis im Spiel notieren. |
+| WP6-09 | Kompatibilitätsebene `RUNASADMIN` (Vertrag 3.7): Rechtsklick auf `Empire Earth.exe` → Eigenschaften → Kompatibilität → „Programm als Administrator ausführen“ ankreuzen (nur für das eigene Konto), OK. Im Launcher „Spielen“, die UAC-Abfrage mit „Nein“ beantworten; dann noch einmal „Spielen“ und „Ja“. Danach das Häkchen wieder entfernen. | Windows zeigt die UAC-Abfrage (kein Fehler 740, kein „Der angeforderte Vorgang erfordert erhöhte Rechte“). Bei „Nein“: Meldung „Das Spiel wurde nicht gestartet, weil die Abfrage nach Administratorrechten abgebrochen wurde …“; `log.txt`: `… cancelled: the elevation prompt was not confirmed (error 1223).` Bei „Ja“ startet das Spiel (Task-Manager, Spalte „Mit erhöhten Rechten“: Ja). Der Launcher selbst bleibt ohne erhöhte Rechte. |
+| WP6-10 | Programm fehlt: die Installation in einen eigenen Ordner kopieren (z. B. `C:\Spiele\EE-Test`), dort `Empire Earth.exe` in `Empire Earth.exe.bak` umbenennen, den Ordner auf der Seite *Launcher* wählen; Seite *Spielen* → „Spielen“. Im Fenster „Downloadseite öffnen“, dann „Schließen“. Danach umbenennen rückgängig machen und „Automatisch“. | Fenster „Installation reparieren“: „…\Empire Earth.exe fehlt. Die Installation ist beschädigt …“, darunter nummeriert zuerst „Fügen Sie zuerst in Ihrem Antivirenprogramm eine Ausnahme für den Ordner … hinzu …“, dann die Schritte zum Setup (bei einer Kopie ohne `install.ini` stattdessen „… stammt nicht vom Community-Setup …“), die Adresse `https://empireearth.eu/download`. „Downloadseite öffnen“ öffnet sie im Standardbrowser, ohne UAC-Abfrage (Task-Manager: Browser nicht „Mit erhöhten Rechten“); das Fenster bleibt offen. Auf *Spielen*: „Empire Earth.exe: fehlt“. `log.txt`: `Game start refused: the program … is missing …; repair advice: …` und `Repair advice for …: opening the download page https://empireearth.eu/download (the fixed page of contract 4.3 …)`. |
+| WP6-11 | Forenbericht Abschnitt 8 Testfall 22: NeoEE-Installation „für alle Benutzer“ (Setup v2), als Administrator `EE-AOC.exe` umbenennen; im Launcher „The Art of Conquest“ → „Spielen“. Danach zurück umbenennen. Zusatz (Setup-Testplan TP-73): das Setup nach den Schritten erneut ausführen. | Die Schritte nennen den Installationsordner, „wählen Sie wieder „Installation für alle Benutzer““ und „Lassen Sie die Aufgabe „NeoEE-CD-Keys registrieren“ ausgewählt …“. Das Setup bietet die Reparatur an und läuft durch; danach startet AoC wieder über den Launcher. |
+| WP6-12 | Forenbericht Abschnitt 8 Testfall 20, Spielerliste ohne Netz: Launcher starten, Spielerliste abwarten; Netzwerk trennen (Flugmodus oder Kabel ziehen), 2 Minuten warten; Netzwerk wieder verbinden, 1 Minute warten; Launcher schließen. | Ohne Netz: Überschrift „Online-Spieler (nicht verfügbar)“, das Fenster bleibt bedienbar. Mit Netz wieder die Liste. `log.txt` enthält für die Unterbrechung genau eine Zeile `Error : The online player list of … is unavailable, retrying every … ms.` und danach genau eine `The online player list is available again.` Nach dem Schließen ist der Launcher-Prozess sofort weg. |
+| WP6-13 | Launcher starten und offen lassen; noch einmal `Empire Earth Launcher.exe` starten (auch aus einer Kopie des Ordners). | Meldung „Der Empire Earth Launcher läuft bereits. Bitte verwenden Sie das geöffnete Fenster …“, danach endet der zweite Start; es bleibt ein Launcher-Fenster. `log.txt`: `Another Empire Earth Launcher is already running (mutex EmpireEarthCommunityLauncher); this one ends.` |
+| WP6-14 | Seite *Spielen* (mit Versionen, Statuszeile, Rückfrage aus WP6-08) und das Fenster aus WP6-10 auf Deutsch, Englisch und Französisch, je bei 100 % und 150 %; Screenshots. | Texte vollständig lesbar, nichts abgeschnitten; das Reparaturfenster wächst mit dem Text. Deutsche Texte gegenlesen wie in WP3-03. |
+| WP6-15 | Nach allen Fällen `log.txt` durchsehen. | Keine `Unhandled exception`, keine `A background task failed`, keine `A handler of the online player list failed`; jeder Start hat eine Zeile `Game started:` oder `Game start refused:`. |
 
 ### L-WP7 – Integrität und Reparatur (Vertrag 2 und 4)
 
@@ -347,34 +372,34 @@ Pakete nach dem Stand dieses Plans und ab L-WP9 gar nicht mehr.
 |---|---|---|
 | R1 | Standardwerte pro Benutzer, auch für andere Konten | WP5-01, WP5-02, WP5-03, WP5-04 |
 | R2 | Integritätsmanifest | offen (L-WP7) |
-| R3 | Spielen, laufende Instanzen, Kompatibilitätsoptionen | WP5-12, WP5-13, WP5-14; offen (L-WP6) |
+| R3 | Spielen, laufende Instanzen, Kompatibilitätsoptionen | WP5-12, WP5-13, WP5-14, WP6-01, WP6-03, WP6-07, WP6-08, WP6-09, WP6-15 |
 | R4 | Spieleinstellungen zurücksetzen mit `.reg`-Sicherung | WP5-08, WP5-09, WP5-10, WP5-11 |
 | R5 | Registry-Bereinigung | offen (L-WP8) |
 | R6 | WON-Login zurücksetzen | offen (L-WP8) |
 | R7 | Netzwerkdiagnose | offen (L-WP9) |
 | R8 | VirtualStore | WP4-16; offen (L-WP8) |
-| R9 | Reparatur über das Setup | offen (L-WP6) |
+| R9 | Reparatur über das Setup | WP6-05, WP6-06, WP6-10, WP6-11; offen (L-WP7) |
 | R10 | Spielstände und Szenarien | offen (L-WP8) |
-| R17 | Texte auf Englisch, Deutsch, Französisch | WP3-01, WP3-03, WP3-11, WP3-12, WP4-17, WP5-17 |
+| R17 | Texte auf Englisch, Deutsch, Französisch | WP3-01, WP3-03, WP3-11, WP3-12, WP4-17, WP5-17, WP6-14 |
 | Forum 1 | Frische Installation, Standardnutzer, zweites Konto | WP4-06, WP4-16, WP5-02; Setup: TP-41, TP-71 (Installation und Rechte) |
-| Forum 2 | Versionsanzeige, Mehrspieler ohne Versionskonflikt | offen (L-WP7); Setup: TP-70, TP-72 (Version im Hauptmenü) |
+| Forum 2 | Versionsanzeige, Mehrspieler ohne Versionskonflikt | WP6-02; offen (L-WP7); Setup: TP-70, TP-72 (Version im Hauptmenü) |
 | Forum 3 | Grafikmatrix mit und ohne Wrapper | WP5-05; Setup: TP-23 (Wrapper und Renderer installiert das Setup) |
 | Forum 4 | Farbtiefe 16 Bit, Rücksetzen auf 32 Bit | WP5-06, WP5-08 |
 | Forum 5 | Kompatibilitätsflags, Windows 7 | WP5-12, WP5-13, WP5-14; Setup: TP-20, TP-21, TP-22 (Werte des Setups) |
 | Forum 6 | Auflösungsgrenzen, Bildschirm unter 768 Pixel | WP5-07, WP5-15 |
-| Forum 7 | AoC ohne vorherigen EE-Start | WP5-02, WP5-19 |
+| Forum 7 | AoC ohne vorherigen EE-Start | WP5-02, WP5-19, WP6-04 |
 | Forum 8 | Alt-Installation (CD, GOG) vorhanden | WP4-08, WP4-15 |
 | Forum 9 | EE und NeoEE parallel, eines deinstallieren | WP4-12; Setup: TP-62, TP-75 (Deinstallation) |
 | Forum 10 | Firewall beim Hosten | Setup: TP-76 (Firewall-Regeln legt nur das Setup an, der Launcher ändert die Firewall nicht) |
 | Forum 11 | Hosting-Varianten, Portweiterleitung | offen (L-WP9) |
 | Forum 12 | Netzwerkadapter (VPN, Hamachi) | offen (L-WP9) |
 | Forum 13 | CD-Keys: Server gesperrt, VM, `CDKeyCheck` | offen (L-WP9); Setup: TP-77 (nur das Setup registriert CD-Keys) |
-| Forum 14 | Antivirus löscht Dateien | WP4-13; offen (L-WP7) |
+| Forum 14 | Antivirus löscht Dateien | WP4-13, WP6-10; offen (L-WP7) |
 | Forum 15 | Offline, nur Spiegel, manipulierter Download | Setup: TP-00, TP-10, TP-11, TP-16 (Downloads macht nur das Setup) |
 | Forum 16 | Sprachen: Deutsch für EE und AoC | Setup: TP-78 (Sprachdateien des Spiels installiert das Setup) |
 | Forum 17 | Spielstände im Mehrspieler, Namen mit Sonderzeichen | offen (L-WP8) |
-| Forum 18 | Laufende Instanz | WP5-10; offen (L-WP6); Setup: TP-79 |
+| Forum 18 | Laufende Instanz | WP5-10, WP6-07, WP6-08; Setup: TP-79 |
 | Forum 19 | Kampagnen-Tribut | entfällt: Spiellogik der Spieldateien, die weder Launcher noch Setup ändern |
-| Forum 20 | Launcher: Spielerliste ohne Netz, beschädigte Einstellungen, Pfad mit Umlauten | WP1-04, WP2-05, WP5-19 |
+| Forum 20 | Launcher: Spielerliste ohne Netz, beschädigte Einstellungen, Pfad mit Umlauten | WP1-04, WP2-05, WP5-19, WP6-12 |
 | Forum 21 | GOG als Basis | WP4-08; Setup: TP-63 |
-| Forum 22 | NeoEE-Wartungsmodus über kaputter Installation | Setup: TP-73 (die Reparatur macht das Setup); offen (L-WP6) |
+| Forum 22 | NeoEE-Wartungsmodus über kaputter Installation | WP6-11; Setup: TP-73 (die Reparatur macht das Setup) |
