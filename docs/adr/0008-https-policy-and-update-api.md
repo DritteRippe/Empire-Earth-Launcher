@@ -1,7 +1,7 @@
 # 0008 HTTPS policy and use of the update API
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review; implementation in L-WP7), see the
-Amendment sections
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review; implementation in L-WP7 and L-WP9),
+see the Amendment sections
 
 ## Context
 
@@ -126,3 +126,30 @@ The decision is implemented as planned. Details decided while implementing, keep
 Evidence: `Core/Platform/HttpsClientTests`, `Architecture/TlsSettingTests`, `Architecture/NoCertificateOverrideTests`,
 `Core/Repair/UpdateUrlPolicyTests`, `Core/Repair/SetupDownloadLocatorTests`, `Core/Repair/UpdateCheckerTests`,
 `Launcher/UpdateModelTests`; test plan WP7-10 to WP7-12 and W7-05.
+
+## Amendment 2026-10-02 (implementation, L-WP9)
+
+The network diagnostics of L-WP9 add no destination to the three of ARCHITECTURE 10:
+
+- **Only on request**: "Check network" on the *Tools* page or the link "Why? Check the network" below an unavailable
+  player list (`DiagnosticsModel`); nothing is asked at start or in the background.
+- **The update API as the reference for "the internet works"**: the check sends the query of contract 4.3
+  (`SetupDownloadLocator.QueryUrl`, only the AppId: of the selected installation, else of the first one that has one;
+  without one the API is not asked) through the same `HttpsClient` with the rules of this ADR. Any HTTP answer, also a
+  status other than 200, counts as an answer, because it proves the connection and TLS; a timeout, TLS or network error
+  does not. With the name lookup of the status host and the answer of the status server this gives the verdict, and
+  "probably a server outage, not your computer" only when the name resolves and the update API answers while the
+  status server does not (forum report section 8 row 9; `OutageHintTests` covers every combination).
+- **DNS** for the status host and the `Server` of every `NeoEE.cfg` (only host names, never an address or a URL), at
+  most 5 seconds each; the status server gets the request of the player list (`NeoApiClient`, the configured timeout).
+- **Not done**: no "what is my IP" service (the external address comes only from `upnp_info.txt` and is shown as its
+  class), no connection to the auth and firewall ports 10002 and 10003 of NeoEE, no port check from outside (needs
+  server support, ARCHITECTURE 16).
+- **Kept by a test**: `NetworkDestinationTests` (category `SourceTree`) reads every source outside the test project and
+  fails on a name lookup outside `WindowsNetworkInfo`, a socket outside the WON library's `NeoApiClient`, an HTTP client
+  outside `HttpsClient`, the number 10002 or 10003, and a URL literal other than the update API, the fixed download
+  page and the `https://` prefix of the URL policy; self-tests show that each rule finds a forbidden sample.
+
+Evidence: `Architecture/NetworkDestinationTests`, `Core/Diagnostics/NetworkDiagnosticsTests`
+(`ItAsks_OnlyDnsTheUpdateApiAndTheStatusServer`, `WithoutAnAppId_TheUpdateApiIsNotAsked`), `Core/Diagnostics/OutageHintTests`,
+`Launcher/DiagnosticsModelTests`; test plan WP9-01, WP9-05 to WP9-07 and W7-06.

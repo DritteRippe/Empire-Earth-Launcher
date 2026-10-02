@@ -7,8 +7,8 @@ contract shared with the Empire Earth Setup.
 
 | | |
 |---|---|
-| Status | **Target**: describes v2 as it is being built on branch `v2`; the README describes what exists today |
-| Based on | branch `v2` at `2dc6c43` (refactor/quality-fixes plus the contract), contract version 1 (draft); revised after the design review (ADR amendments of 2026-10-02, ADR 0015, 0016) and after the plan review before L-WP5 (amendments "plan review" of ADR 0007, 0008, 0011, 0012, 0013, 0015, 0016); implementation notes of L-WP2 to L-WP7 in the sections and the ADR amendments |
+| Status | **Built**: describes v2 as built on branch `v2` in the work packages L-WP1 to L-WP9 (section 15, all done; the launcher items of the contract checklist are ticked there); what is still open is in section 14 and in the test plan for real Windows. The README describes the launcher as it is |
+| Based on | branch `v2` at `2dc6c43` (refactor/quality-fixes plus the contract), contract version 1 (draft); revised after the design review (ADR amendments of 2026-10-02, ADR 0015, 0016) and after the plan review before L-WP5 (amendments "plan review" of ADR 0007, 0008, 0011, 0012, 0013, 0015, 0016); implementation notes of L-WP2 to L-WP9 in the sections and the ADR amendments |
 | Scope | the launcher, its UI-free core library, the WON library, the mod library and mod creator, the tests, the build |
 
 Contents: [1. Goals and constraints](#1-goals-and-constraints) · [2. Module map](#2-module-map) ·
@@ -61,8 +61,9 @@ Empire-Earth.sln
 │  │                   logic), IProcessStarter / ShellProcessStarter (L-WP6; opens a folder in the Explorer
 │  │                   since L-WP8), IProcessList, IFileVersionReader, IMutexProbe, IMutexOwner
 │  │                   (single instance), ISystemInfo (Windows version, Wine, primary screen in physical and in
-│  │                   DPI-unaware pixels, ANSI code page),
-│  │                   IClock, IHttpsClient (ADR 0008), INetworkInfo; RegistryPath (canonical form:
+│  │                   DPI-unaware pixels, ANSI code page, display adapter since L-WP9),
+│  │                   IClock, IHttpsClient (ADR 0008), INetworkInfo / WindowsNetworkInfo (adapters and DNS
+│  │                   lookups, L-WP9); RegistryPath (canonical form:
 │  │                   WOW6432Node, registry VirtualStore), RegistryWritePolicy and PolicyCheckedRegistry
 │  │                   (the IRegistry wrapper every change passes, ADR 0007)
 │  ├─ Logging/         ILogger, LogLevel, TraceFileLogger, log trimming (moved from the launcher)
@@ -87,8 +88,9 @@ Empire-Earth.sln
 │  ├─ Maintenance/     CleanupCandidates (the list of 4.6), CleanupAdvice, RegistryCleanup, ManifestFiles,
 │  │                   WonLoginReset, VirtualStoreScanner, SavedGames (folder export, import), NameChecks
 │  │                   (L-WP8)
-│  ├─ Diagnostics/     NetworkDiagnostics (adapters, DNS, NeoEE status, upnp_info.txt, NeoEE.cfg),
-│  │                   WONLobby.cfg reader (CDKeyCheck, read-only), DiagnosticsReport
+│  ├─ Diagnostics/     NetworkDiagnostics (adapters, DNS, update API, NeoEE status, hints), OutageHint,
+│  │                   AddressClassifier, NeoEeConfigReader, WonLobbyConfigReader (CDKeyCheck, read-only),
+│  │                   UpnpInfoParser, ReportAnonymizer (privacy rules), DiagnosticsReport (L-WP9)
 │  └─ Lobby/           LobbyProfileRepository (moved), PlayerListPoller (async replacement of the
 │                      worker loop of the Play page, L-WP6)
 ├─ Empire-Earth-WON/                      Empire_Earth_WON.dll - unchanged role: NeoEE status protocol
@@ -104,13 +106,14 @@ Empire-Earth.sln
 │                                         page), IntegrityModel (the integrity check of the selected
 │                                         installation), UpdateModel (the update API), MaintenanceModel (the
 │                                         maintenance tools, L-WP8), CleanupView (what the registry cleanup
-│                                         shows), ToolsUserControl (the Tools page), RepairAdviceDialog,
+│                                         shows), DiagnosticsModel (network check and report, L-WP9),
+│                                         ToolsUserControl (the Tools page), RepairAdviceDialog,
 │                                         KryptonThemeService, app.manifest
 └─ Empire-Earth-Launcher.Tests/           one NUnitLite program: Core/, Launcher/, Won/, Mod/,
                                           Architecture/ (dependency, project and resource rules),
-                                          Fakes/ (in-memory registry and file system, fake HTTP, process,
-                                          mutex, clock), TestSupport/ (worlds of installations,
-                                          MappedFileSystem for real files in a temporary folder)
+                                          Fakes/ (in-memory registry and file system, fake HTTP, network
+                                          information, process, mutex, clock), TestSupport/ (worlds of
+                                          installations, MappedFileSystem for real files in a temporary folder)
 ```
 
 The core is one assembly with namespaces per area (`Empire_Earth_Launcher.Core.Installations`, ...),
@@ -154,7 +157,10 @@ them the kept and read-only keys with the reason or the advice), WON login, Virt
 (export, import into EE or AoC), player names, and backups with "Open backup folder". Their read-only scans run in the
 background after every search and every action (`MaintenanceModel`); while a setup runs the writing buttons are
 disabled and the sections say why, while a game runs the mutation guard refuses the action with a message (ADR 0014
-and 0016 amendments of L-WP8).
+and 0016 amendments of L-WP8). Since L-WP9 the *Tools* page ends with "Network" ("Check network", the verdict, the
+hints and the details in a read-only text box) and "Diagnostics report" ("Copy report", "Save report...", the text
+in a read-only text box), and below an unavailable player list the *Play* page shows the link "Why? Check the network",
+which opens the *Tools* page at "Network" and starts the check (ADR 0014 amendment of L-WP9).
 
 ## 3. Dependency rules
 
@@ -437,7 +443,30 @@ date" (the setup's `CheckUpdate` reads it as "no update").
   table 8 row 9): DNS works and the update API answers, but the status server does not -> "probably a server
   outage, not your computer". **`CDKeyCheck`** in `WONLobby.cfg` is shown read-only (NeoEE expects `true`,
   t=10950); the launcher never offers to change it. No external "what is my IP" service. Where the game
-  stores its chosen network adapter (t=32479) is unknown; finding it is a test-plan task.
+  stores its chosen network adapter (t=32479) is unknown; finding it is a test-plan task (WP9-02).
+
+  Implementation (L-WP9): `NetworkDiagnostics.RunAsync` runs only when the player clicks "Check network" or the link of
+  the *Play* page (`DiagnosticsModel`, one check at a time). It lists the adapters through `INetworkInfo` (loopback
+  skipped; type, description, state, IPv4 with prefix and gateway, IPv6 only as none, link-local only or global;
+  virtual or VPN by the tunnel and PPP types or by words of the description such as `Hamachi`, `TAP-Windows`,
+  `WireGuard`, `VirtualBox`, `Hyper-V`), reads `NeoEE.cfg`, `WONLobby.cfg` and `upnp_info.txt` of both game folders
+  through the effective paths (the VirtualStore copy first, ADR 0016; at most 64 KiB, Latin-1, only read) and then, at
+  the same time, resolves the host of the status server and the `Server` of every `NeoEE.cfg` (5 seconds each), asks
+  the update API with the query of contract 4.3 (the AppId of the selected installation, else of the first one with
+  an AppId; without one it is not asked) and asks the status server for the player list, as the *Play* page does. The
+  verdict (`OutageHint.Evaluate`) takes three inputs: whether the status host resolves, whether the update API answered
+  (or was not asked) and whether the status server answered (or is not configured); "probably a server outage, not
+  your computer" needs a resolving name and an answering update API while the status server stays silent, every
+  combination has its verdict and test. The port table comes from `DefaultPort` of `NeoEE.cfg` (TCP+UDP) and
+  `EEFileTransferPort` (TCP) and `LobbyPort` (TCP+UDP) of `WONLobby.cfg`, else the forum's 33334, 33335 and 33336; its
+  target is the private IPv4 of the only real adapter with a gateway, else "the IPv4 address of this computer". The
+  hints: no IPv4 gateway (offline, or IPv6 only), connected virtual or VPN adapters, several real adapters with a
+  gateway, from `upnp_info.txt` an external address that is CGNAT (100.64.0.0/10), 0.0.0.0 or private (double NAT) -
+  CGNAT or 0.0.0.0 together with a global IPv6 address is reported as DS-Lite -, RIP hosting off (`Active: false`) and,
+  for NeoEE only, `CDKeyCheck` not `true`. `UpnpInfoParser` is tolerant: it recognizes labelled lines (external, WAN or
+  public address; local, LAN or internal address; at most ten port lines) and gives "unknown format" for anything else;
+  it keeps the external address only as its class. Nothing in the game folders is written, nothing contacts the ports
+  10002 and 10003 of NeoEE (`NetworkDestinationTests`).
 - **Diagnostics report**: one text with launcher version, Windows version, installations, file versions of
   the game programs, integrity state and findings, defaults and consistency state, VirtualStore, network
   results; copied to the clipboard or saved, never sent anywhere. It never contains CD-key values or the
@@ -446,6 +475,22 @@ date" (the setup's `CheckUpdate` reads it as "no update").
   IPv4 only as its class (private, CGNAT, public), no MAC addresses, adapter GUIDs, user-chosen adapter names or
   computer name, lobby and player names only as "profile n: characters outside ASCII", the user name replaced in
   every path; golden-file and negative tests.
+
+  Implementation (L-WP9): `DiagnosticsReport.Build` writes English text with CRLF from a `DiagnosticsInput` that
+  `DiagnosticsModel.Collect` fills with the latest results of every page (no new scan): launcher and Windows version,
+  screen, display adapter (`ISystemInfo.PrimaryDisplayAdapter`), UI language, every installation with its folders,
+  kind, mode, contract, setup and game version, AppId and sources; for the selected one the program versions, whether a
+  DirectX wrapper is installed per game (`ComputedValues.DirectXWrapper`, the wrapper rule of contract 3.3 without the
+  Wine rule, with its source), the integrity state with at most 20 findings, the defaults state
+  per game, the consistency findings, the VirtualStore files, the name check, whether each of the five `CDKeys` keys
+  exists (never a value) and the number of cleanup keys; then the latest network check or "not checked".
+  `ReportAnonymizer` applies the rules to every path and address: `%LOCALAPPDATA%` and `%USERPROFILE%` for the
+  profile, `<user>` for every path segment equal to the user name or the profile folder name (also `D:\Users\<name>`
+  and VirtualStore paths), `<computer>` for the own computer (also as FQDN) in UNC paths and segments, `<server>` for
+  other UNC hosts, `<domain>` for the domain; public, CGNAT and special IPv4 addresses and every IPv6 address only as
+  their class. The report is shown in the text box after "Copy report" (clipboard) or "Save report..." (UTF-8 with
+  BOM, the file the player chooses, `Documents` suggested; refused inside an installation); the log records only that it
+  was copied (with the number of lines) or the anonymized path it was saved to.
 
 ## 5. Threading
 
@@ -500,6 +545,11 @@ Decided in [ADR 0013](adr/0013-error-handling-and-logging.md):
 - **Never logged**: values below `Software\Sierra\CDKeys` (only "exists" / "missing"), contents of
   `_wonlogin.ks` or other WON key files, passwords, anything typed into the lobby, the player and profile names
   of the name check (only how many have characters outside printable ASCII).
+- **Network diagnostics** (L-WP9): one line per adapter, lookup, file, the update API request and the status server,
+  and one with the verdict, the port table and the hints, all under the privacy rules of the report (ADR 0013 plan
+  review): no MAC address, adapter GUID or adapter name, no public, CGNAT or external address and no IPv6 address
+  (only their class), paths anonymized. The text of the diagnostics report is never logged, only that it was copied or
+  where it was saved.
 - Log messages are English (support language of the forum and of the developers); UI texts are
   localized.
 
@@ -514,6 +564,7 @@ Decided in [ADR 0005](adr/0005-own-settings-file-instead-of-user-config.md):
 | log | `%LOCALAPPDATA%\Empire Earth Launcher\log.txt` | text |
 | backups (`.reg`, moved WON files, replaced saved games) | `%LOCALAPPDATA%\Empire Earth Launcher\Backups\<yyyy-MM-dd_HHmmss>_<what>\` (L-WP5: `display-settings`, `reset-game-settings`, `remove-runasadmin`; L-WP8: `registry-cleanup`, `won-login-reset`, `import-saved-games`) | `.reg` (Windows Registry Editor 5.00, UTF-16 LE with BOM, CRLF) per game `<time>_<Product>_<EE|AoC>.reg`, `<time>_Layers.reg` or `<time>_registry-cleanup.reg`, and original files in `EE\`, `AoC\`, `EE-VirtualStore\`, `AoC-VirtualStore\` with `moved-files.txt` (UTF-8 with BOM, CRLF, one line `<copy> <- <original path>` per file) |
 | exports of saved games | a new folder `Empire Earth saves <yyyy-MM-dd_HHmmss>` in the folder the user chooses (not in a game folder, its VirtualStore copy or the install root) | folder with `EE\Saved Games`, `EE\Scenarios`, `AoC\Saved Games`, `AoC\Scenarios`; no zip (dropped in L-WP8) |
+| diagnostics report (L-WP9) | only when the user saves it: the file the user chooses (`Documents` and `Empire Earth Launcher report <yyyy-MM-dd_HHmm>.txt` suggested; never inside an installation) | English text, UTF-8 with BOM, CRLF |
 | mod creator working data | `%LOCALAPPDATA%\Empire Earth Launcher\...` (existing) | unchanged |
 
 `%LOCALAPPDATA%` falls back to the temporary folder when it is empty (existing fix). The launcher never
@@ -535,11 +586,13 @@ Decided in [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md):
   (comments removed, entries with `type` or `mimetype` skipped): the same keys in `en`, `de`, `fr`; no empty
   value; the same `{n}` placeholders. A second test checks that image and file entries exist only in the
   neutral resx; further tests check the generated `Resources` class, the project items and the built satellite
-  assemblies. Since L-WP8 the three languages have the same 293 string keys (L-WP7: 213; L-WP6: 154; L-WP5: 125;
+  assemblies. Since L-WP9 the three languages have the same 369 string keys (L-WP8: 293; L-WP7: 213; L-WP6: 154; L-WP5: 125;
   L-WP4: 74; L-WP3: 53; before: `en` and `fr` 30 each and about 50 designer-only texts,
   [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md), corrected evidence).
 - German is proof-read by the user in the laptop test; French texts are marked "review open" in
   `docs/TRANSLATING.md` until a French speaker has read them.
+- The diagnostics report and the log are English in every UI language (the support language of the forum); the
+  network section of the *Tools* page shows its verdict, hints and details in the UI language (L-WP9).
 - The UI language follows Windows unless the setting `UiCulture` (Launcher page) chooses one; it is applied at
   start, before the first window, for the UI culture only (formats stay those of Windows), so a change needs a
   restart.
@@ -565,7 +618,11 @@ Decided in [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md):
   never writes HKLM or other users' hives.
 - **Network**: three destinations only - the NeoEE status server (configured, plain TCP, public data,
   every reply validated - existing), `api.empireearth.eu` for the setup URL and the version check (both only on
-  request, since L-WP7), and DNS lookups in the network diagnostics. HTTPS with certificate validation, TLS 1.2 or newer, never
+  request, since L-WP7), and DNS lookups in the network diagnostics. The network check of L-WP9 adds no destination: it
+  resolves names and repeats the request of the player list and the query of contract 4.3; it asks no "what is my IP"
+  service and never connects to the ports 10002 and 10003 of NeoEE. `NetworkDestinationTests` keeps it so: name lookups
+  only in `WindowsNetworkInfo`, sockets only in the WON library's `NeoApiClient`, HTTP only in `HttpsClient`, no source
+  names 10002 or 10003, and every URL literal of the sources is one of the allowed ones. HTTPS with certificate validation, TLS 1.2 or newer, never
   `http://`, no redirects, timeouts, `SecurityProtocol` set once (`Tls12` on Windows 7 only, no explicit `Tls13`)
   ([ADR 0008](adr/0008-https-policy-and-update-api.md)); an architecture test
   forbids every certificate-validation override (`ServerCertificateValidationCallback`,
@@ -573,6 +630,9 @@ Decided in [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md):
   old "collect diagnostic data" checkbox is removed.
 - **Backups contain login data** (moved WON files); the UI (the result of the reset and the "Backups" section next
   to "Open backup folder") and the README say so, the diagnostics report never includes them.
+- **The diagnostics report** is made only on request, copied or saved by the player and never sent; it follows the
+  privacy rules of ADR 0013 (plan review) through `ReportAnonymizer`, and so do the log lines of the network check
+  (4.6, 7).
 - **URLs opened in the browser**: only the fixed download page or a URL that passed `UpdateUrlPolicy` (same
   rules and test cases as the setup's `IsAllowedUpdateUrl`).
 - **Files from outside**: imported saves are untrusted (plain file names only, `.ees`/`.scn` only, characters of the
@@ -605,7 +665,8 @@ Decided in [ADR 0012](adr/0012-test-strategy.md):
   that the async method returns an unfinished task with a blocking fake; performance is counted (file opens,
   hashes), not timed; translation quality and layout are test-plan cases.
 - **Golden files** for `.reg` output (since L-WP5: `Core/Backup/Golden/`, one file per value type, delete lines,
-  escaping; `.gitattributes` marks `*.reg` binary so that the UTF-16 bytes stay exact) and the diagnostics report.
+  escaping; `.gitattributes` marks `*.reg` binary so that the UTF-16 bytes stay exact) and the diagnostics report (since
+  L-WP9: `Core/Diagnostics/Golden/DiagnosticsReport.txt`, kept with CRLF by `.gitattributes`).
 - **Windows adapters** (registry, mutex, shell execute, display, HTTP) are thin and checked on real Windows
   by the German test plan `docs/TEST-PLAN.de.md`; the UI is tested manually with it. The test plan is created
   in the first work package and every package adds its cases in the same commit.
@@ -629,7 +690,14 @@ Decided in [ADR 0012](adr/0012-test-strategy.md):
   `CleanupCandidatesTests` compares the code table with the table of 4.6 and checks the evidence of every entry; the
   policy and advice tests run every list entry and every alias of the protected keys through the canonical form; the UI
   mapping of the cleanup (`CleanupView`), `MaintenanceModel` and the texts are tested with fakes (ADR 0012 amendment of
-  L-WP8).
+  L-WP8). Implemented in L-WP9: `FakeNetworkInfo` (adapters and name lookups from a table) and a fake status server;
+  every combination of the outage verdict (`OutageHintTests`); the diagnostics report as a golden file of a synthetic
+  computer and a negative test with a fake full of IP, IPv6 and MAC addresses, adapter GUIDs and names, computer,
+  domain, user and player names and a filled `Software\Sierra\CDKeys` (`NOT-A-KEY-0000`), none of which may appear
+  (`DiagnosticsReportTests`); the privacy of the log lines (`NetworkDiagnosticsTests`); `NetworkDestinationTests`; and
+  `TestPlanTests` in their final form (cases for every package, nothing "offen", the table "Vertrag 7" with one row per
+  launcher item of CONTRACT.md 7) with `ContractChecklistTests` for the ticked checklist of section 15. The laptop
+  package of L-WP9 ran its tests outside the repository (ADR 0012 amendment of L-WP9).
 
 ## 12. Build and CI
 
@@ -703,8 +771,12 @@ Launcher stance on the open questions of the contract (6):
 
 Further points to settle in the work packages, on real Windows (test plan):
 
-- the game's own network adapter setting (where EE stores it, t=32479) and the format of `upnp_info.txt` -
-  the diagnostics show "unknown" until a sample confirms the format;
+- the game's own network adapter setting (where EE stores it, t=32479; WP9-02 collects it) and the real format of
+  `upnp_info.txt`: the parser of L-WP9 recognizes labelled lines as UPnP tools write them and says "unknown format"
+  for anything else, until a real file (WP9-10, external address replaced) confirms or corrects it;
+- DS-Lite is recognized only indirectly (a CGNAT or 0.0.0.0 external address in `upnp_info.txt` together with a
+  global IPv6 address), because the launcher asks no external service; the real network check on Windows (adapter
+  types and descriptions of VPN clients, Windows 7 and TLS 1.2 against the update API) is WP9-01 to WP9-07 and W7-06;
 - the stale keys of retail, GOG and old patch installations for the cleanup: the table in 4.6 holds only entries
   with evidence (forum t=1036 p=4756, t=12082 p=49553 name Sierra, SSSI, Mad Doc, Stainless Steel Studios); further
   entries (subkeys of `Software\Sierra` other than `CDKeys`, Stainless Steel Studios, InstallShield) need a sample from
@@ -791,25 +863,44 @@ of L-WP9 need the results of every tool, and L-WP8 holds the WON login reset, a 
 | L-WP8 | Maintenance tools | registry cleanup by the table of 4.6 (HKCU only, advice never names `Software\Sierra`), WON login reset, VirtualStore, saves and scenarios, name checks, all behind the mutation guard |
 | L-WP9 | Network diagnostics, report, laptop package | adapters, DNS, `NeoEE.cfg`, `upnp_info.txt`, `CDKeyCheck`, outage hint, report with the privacy rules of ADR 0013, final docs, test plan without "offen", Release zip with `Tests\` and SHA-256 |
 
-Done so far: L-WP1 to L-WP8 (see the CHANGELOG). Implementation details of L-WP2 that refine ADR 0004, 0005, 0007
-and 0016, of L-WP3 that refine ADR 0009 and 0014, of L-WP4 that refine ADR 0004, 0006, 0015 and 0016, of L-WP5
-that refine ADR 0007, 0011, 0012, 0015 and 0016, of L-WP6 that refine ADR 0004, 0005, 0010, 0012, 0014 and 0016, of
-L-WP7 that refine ADR 0004, 0008, 0012, 0014 and 0016, and of L-WP8 that refine ADR 0007, 0012, 0013, 0014 and 0016 are
-recorded in their amendments. From L-WP6 on the laptop package can be built with `Tests\`. The MVP for the laptop test
-(L-WP1 to L-WP7) is complete; nothing of L-WP7 was dropped (the setup version check is implemented). L-WP8 dropped the
-zip export and the zip import (the folder export and the import of single files stay, CHANGELOG); the registry
-VirtualStore display is implemented (the `vs-*` rows of 4.6).
+Done: L-WP1 to L-WP9, every package of the plan (see the CHANGELOG). Implementation details of L-WP2 that refine ADR
+0004, 0005, 0007 and 0016, of L-WP3 that refine ADR 0009 and 0014, of L-WP4 that refine ADR 0004, 0006, 0015 and 0016,
+of L-WP5 that refine ADR 0007, 0011, 0012, 0015 and 0016, of L-WP6 that refine ADR 0004, 0005, 0010, 0012, 0014 and
+0016, of L-WP7 that refine ADR 0004, 0008, 0012, 0014 and 0016, of L-WP8 that refine ADR 0007, 0012, 0013, 0014 and
+0016, and of L-WP9 that refine ADR 0006, 0008, 0012, 0013 and 0014 are recorded in their amendments. From L-WP6 on the
+laptop package can be built with `Tests\`. The MVP for the laptop test (L-WP1 to L-WP7) is complete; nothing of L-WP7
+was dropped (the setup version check is implemented). L-WP8 dropped the zip export and the zip import (the folder
+export and the import of single files stay, CHANGELOG); the registry VirtualStore display is implemented (the `vs-*`
+rows of 4.6). Nothing of L-WP9 was dropped: the `upnp_info.txt` parser is implemented (tolerant, "unknown format"
+otherwise), and the outage hint, which could not be dropped, links from the *Play* page. The test plan has no "offen"
+left; what only real Windows can show is in its cases and in section 14.
+
+### Launcher checklist of CONTRACT 7
+
+The launcher items of the implementation checklist of [CONTRACT.md](CONTRACT.md) (section 7, "Launcher v2"), each in the
+UI-free core library with unit tests on fakes and without network. `ContractChecklistTests` checks this table: one
+ticked row per item of the contract, and every test class it names exists; the test plan assigns the same items to
+real-Windows cases (table "Vertrag 7", checked by `TestPlanTests`).
+
+| Done | Contract 7, launcher v2 | Unit tests | Test plan |
+|---|---|---|---|
+| [x] | discovery (1.4) with all five sources, setups up to 1.7.2, foreign and damaged installations, merging (L-WP4) | `DiscoveryContractTests`, `InstallationDiscoveryTests`, `InstallRecordReaderTests`, `InstallInfoFileTests`, `UninstallKeyScannerTests`, `InstalledFromReaderTests`, `GameFoldersTests` | Launcher 1 |
+| [x] | manifest reader and checks (2): BOM, CRLF, invalid lines, paths outside the root, classes, states, the uninstall key rule of 2.5 (L-WP7) | `ManifestReaderTests`, `FileClassifierTests`, `IntegrityCheckerTests`, `ContractSampleTests` | Launcher 2 |
+| [x] | defaults, marker, consistency checks and reset with backup (3) (L-WP5) | `GameSettingsTableContractTests`, `ComputedValuesTests`, `GameDefaultsServiceTests`, `DisplayQuestionTests`, `ConsistencyChecksTests`, `RegFileWriterTests`, `RegistryExportTests` | Launcher 3 |
+| [x] | repair hand-off and update check (4) with the URL cases of the setup's unit tests (L-WP6, L-WP7) | `RepairAdviceTests`, `UpdateUrlPolicyTests`, `SetupDownloadLocatorTests`, `UpdateCheckerTests`, `UpdateModelTests` | Launcher 4 |
+| [x] | setup and game mutexes (4.2): no game start, no reading of `install.ini` and `files.sha256` and no integrity check while a setup mutex exists, a running check cancelled, the share modes; starting the games with shell execute (L-WP6, L-WP7) | `GameStarterTests`, `SetupWatcherTests`, `InstallationServiceTests`, `IntegrityCheckerTests`, `IntegrityModelTests`, `LocalFileSystemTests`, `ShellProcessStarterTests`, `ProcessRulesTests` | Launcher 5 |
 
 ## 16. Not in v2
 
 Kept as planned features in the README, with the reason (forum report section 8):
 
 - **DirectX wrapper switch** (row 4): means adding or removing DLLs in the game folders; the launcher must
-  not change game files (contract 2.5). The setup's custom installation switches the wrapper.
+  not change game files (contract 2.5). The setup's custom installation switches the wrapper; the report says
+  whether one is installed (the wrapper rule of contract 3.3, since L-WP9).
 - **Resolution chooser with 4:3 hint** (row 6): the game has its own option; v2 offers the recommended display
   values and the warning below 768 pixels.
 - **GPU driver version** (row 4): little support value for WMI or HKLM class-key reading; the report names the
-  display adapter. Listed as planned in the README.
+  display adapter of the primary screen (`EnumDisplayDevices`, since L-WP9). Listed as planned in the README.
 - **Ending a hanging game process** (row 14): the launcher explains and points to the Task Manager, it never
   kills a process (ADR 0010).
 - **Checking ports from outside** (row 8): needs server support; v2 shows the forwarding table only.

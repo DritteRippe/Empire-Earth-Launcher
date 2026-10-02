@@ -1,6 +1,6 @@
 # 0006 Platform abstractions and Windows path logic
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (L-WP4, see the Amendment section)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (L-WP4; implementation in L-WP9), see the Amendment sections
 
 ## Context
 
@@ -67,3 +67,19 @@ registry through `IRegistry` and the files through `IFileSystem`. Its tests, amo
 only, are ported with their names to `Core/Installations/GameDirectoryLocatorPortTests` and run on the in-memory
 registry and file system; the test run no longer skips a test. The discovery tests use the 32-bit mode of
 `InMemoryRegistry` (one HKLM for both views) to show that no installation appears twice.
+
+## Amendment 2026-10-02 (implementation, L-WP9)
+
+The network diagnostics get one more abstraction, grown with the need of the core: `Platform.INetworkInfo` with the
+adapters (`GetAdapters`: type, description, state, addresses with prefix, gateways) and the name lookups
+(`ResolveAsync`: resolved with the number of IPv4 and IPv6 addresses, not found, timeout or failed, with the duration).
+`WindowsNetworkInfo` implements it with `NetworkInterface.GetAllNetworkInterfaces` (loopback skipped, every
+`NetworkInformationException` a result) and `Dns.GetHostAddressesAsync` limited to 5 seconds (`Task.WhenAny`; a lookup
+that outlives the limit is observed so that its late exception is not an unobserved task exception). An adapter also
+carries its id, user-chosen name, MAC address and DNS suffix as Windows reports them, only so that the tests can feed
+them and prove that no report and no log line shows them (ADR 0013). `FakeNetworkInfo` answers from a table and records
+every lookup; the tests never resolve a real name (`TestIsolationTests`, `NetworkDestinationTests`). `ISystemInfo` also
+names the display adapter of the primary screen (`PrimaryDisplayAdapter`: the device string of `EnumDisplayDevices`,
+null if unknown) for the diagnostics report.
+
+Evidence: `Core/Platform/NetworkInfoTests`, `Core/Diagnostics/NetworkDiagnosticsTests`, `Core/Diagnostics/DiagnosticsReportTests`.

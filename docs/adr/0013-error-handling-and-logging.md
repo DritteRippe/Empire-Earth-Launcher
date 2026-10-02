@@ -1,7 +1,7 @@
 # 0013 Error handling and logging
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (plan review; implementation in L-WP8), see the Amendment
-sections
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (plan review; implementation in L-WP8 and L-WP9), see the
+Amendment sections
 
 ## Context
 
@@ -79,3 +79,31 @@ diagnostics:
 Evidence: `Core/Maintenance/NameChecksTests` ("names are never logged"), `Core/Backup/FileBackupTests`
 (`TheContents_AreNeverLogged`), `Launcher/CleanupViewTests` (no CD-key value in the read-only list),
 `Launcher/MaintenanceModelTests` (`OpenBackupFolder_ReportsAnError`).
+
+## Amendment 2026-10-02 (implementation, L-WP9)
+
+The privacy rules of the plan review are implemented in one place, `Diagnostics.ReportAnonymizer`, which the
+diagnostics report and the log lines of the network diagnostics use:
+
+- **Paths**: the profile folder becomes `%LOCALAPPDATA%` or `%USERPROFILE%`; every other path segment that equals the
+  user name or the name of the profile folder (it differs after a renamed account), or starts with it followed by a dot
+  (`<name>.DOMAIN`), becomes `<user>`, so also `D:\Users\<name>\...` and VirtualStore paths; the own computer name
+  (also as FQDN) becomes `<computer>` as UNC host and as segment, other UNC hosts `<server>`, the domain `<domain>`. The
+  names come from Windows at start (`Environment`, `IPGlobalProperties`) and are kept only in memory.
+- **Addresses**: private and link-local IPv4 addresses (and gateways) are shown; public, CGNAT and special IPv4
+  addresses and every IPv6 address only as their class (`<public address>`, `<CGNAT address>`, ...); the external
+  address of `upnp_info.txt` is kept only as its class, never stored.
+- **Adapters** by type and description (the driver name); never the adapter id (GUID), the user-chosen name, the MAC
+  address or the DNS suffix.
+- **Names** of lobby profiles and players only as "EE lobby profile 1: characters outside printable ASCII"; CD keys only
+  as "exists" or "missing" for the five places of `Software\Sierra\CDKeys`.
+- **Results, not exceptions**: adapters that cannot be listed, a lookup that fails or times out, an update API or
+  status server that does not answer, and a configuration file that is missing, unreadable, too large or has invalid
+  values are findings with their reason; `RunAsync` throws only for a cancellation or a programming error.
+- **The report is never logged and never sent**: the log records that it was copied (with the number of lines) or the
+  anonymized path it was saved to, or why saving failed.
+
+Evidence: `Core/Diagnostics/ReportAnonymizerTests`, `Core/Diagnostics/DiagnosticsReportTests`
+(`TheReport_ContainsNoneOfThePersonalData`), `Core/Diagnostics/NetworkDiagnosticsTests`
+(`TheLogLines_KeepThePrivacyRules`, `AdaptersThatCannotBeListed_GiveNoAdapterHint`), `Launcher/DiagnosticsModelTests`
+(`ACopy_IsLoggedWithoutItsText`); test plan WP9-11 and WP9-13.

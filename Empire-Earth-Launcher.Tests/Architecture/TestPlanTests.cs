@@ -114,7 +114,7 @@ namespace Empire_Earth_Launcher.Tests.Architecture
         }
 
         /// <summary>The number of launcher items of the implementation checklist (CONTRACT.md section 7, list "Launcher v2").</summary>
-        private static int ContractLauncherItems()
+        internal static int ContractLauncherItems()
         {
             string[] contract = File.ReadAllLines(RepositoryRoot.GetFullPath(Contract));
             int section = Array.FindIndex(contract, line => line.StartsWith("## 7. Implementation checklist", StringComparison.Ordinal));

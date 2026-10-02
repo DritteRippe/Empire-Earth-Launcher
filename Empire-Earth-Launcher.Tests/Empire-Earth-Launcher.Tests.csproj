@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Architecture\ApplyTextsTests.cs" />
+    <Compile Include="Architecture\ContractChecklistTests.cs" />
     <Compile Include="Architecture\CoreDependencyTests.cs" />
     <Compile Include="Architecture\FixtureProvenanceTests.cs" />
     <Compile Include="Architecture\NetworkDestinationTests.cs" />

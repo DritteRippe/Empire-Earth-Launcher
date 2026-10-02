@@ -1,7 +1,7 @@
 # 0012 Test strategy
 
 Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review; implementation in L-WP5, L-WP6,
-L-WP7 and L-WP8), see the Amendment sections
+L-WP7, L-WP8 and L-WP9), see the Amendment sections
 
 ## Context
 
@@ -209,3 +209,31 @@ UI (briefing D6, contract 7).
   standard user, drive kinds and the Explorer are test plan cases WP8-01 to WP8-16.
 - Local negative tests (not committed): letting the cleanup go on after a failed backup file, moving a manifest file in
   the WON reset and enabling the delete button without an offered key made one test fail each.
+
+## Amendment 2026-10-02 (implementation, L-WP9)
+
+- **Fakes for the network**: `FakeNetworkInfo` (adapters and name lookups from a table, every lookup recorded) and a
+  fake NeoEE status server (`FakeNeoStatusServer` in `NetworkDiagnosticsTests`) together with `FakeHttpsClient`; the
+  network diagnostics, the outage verdict, the hints, the port table and the reading of `NeoEE.cfg`, `WONLobby.cfg` and
+  `upnp_info.txt` (also the VirtualStore copy, damaged and oversized files, unknown formats) run on them. The verdict
+  has a table test of every combination of name lookup, update API and status server (`OutageHintTests`).
+- **Golden file and negative test of the diagnostics report** (ADR 0013 plan review): `DiagnosticsReportTests` builds
+  the report of a synthetic computer with the real core components over fakes and compares it with
+  `Core/Diagnostics/Golden/DiagnosticsReport.txt` (CRLF, kept by `.gitattributes`); the negative test fills the fakes
+  with public, CGNAT and IPv6 addresses, MAC addresses, adapter GUIDs and names, computer, domain, user and player names
+  (also in `D:\Users\<name>`, VirtualStore and UNC paths) and a filled `Software\Sierra\CDKeys` (`NOT-A-KEY-0000`),
+  and checks that none of them appears in the report. `NetworkDiagnosticsTests.TheLogLines_KeepThePrivacyRules` does the
+  same for the log lines. Both were seen failing in local negative tests (not committed): an adapter description with
+  the user-chosen name, and an anonymizer that returned paths unchanged.
+- **The test plan in its final form**: `TestPlanTests` requires cases for every package up to the one of the line
+  "Stand", no "offen (L-WPn)" and no "wird mit L-WPn" anywhere once the plan reached L-WP9, and the table "Vertrag 7"
+  with exactly one row per launcher item of CONTRACT.md section 7, each with existing case ids only.
+  `ContractChecklistTests` checks the ticked checklist of ARCHITECTURE 15: one ticked row per launcher item, and every
+  test class it names exists in the test program. Local negative tests (not committed): an "offen (L-WP9)" in the
+  prose, a missing row "Launcher 5", an unknown case id in that table, the WP2 cases renamed, an unticked checklist row,
+  an unknown test class and a missing checklist row made the expected test fail each.
+- **Network destinations**: `NetworkDestinationTests` (ADR 0008 amendment of L-WP9); `TestIsolationTests` leaves out
+  its rule samples as it leaves out its own.
+- **The laptop package of L-WP9** (`Empire-Earth-Launcher-v2-L-WP9.zip` with `.sha256`, built in the scratch folder from
+  the local Release build like CI, never committed) was checked with `sha256sum -c`, unpacked outside the repository,
+  and its `Tests\` ran with `--where "cat != SourceTree"`: 2891 passed, none failed.

@@ -1,7 +1,7 @@
 # 0014 Only working features in the UI
 
 Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review and implementation in L-WP3; implementation in
-L-WP6, L-WP7 and L-WP8), see the Amendment sections
+L-WP6, L-WP7, L-WP8 and L-WP9), see the Amendment sections
 
 ## Context
 
@@ -134,3 +134,30 @@ group shows the file versions and a state line. No control without function is l
   the report come with their functions in L-WP9.
 - **Confirmation before every change**: the cleanup asks with the keys and the backup folder, an import that would
   replace a file asks with the files; the default button of both questions is "No".
+
+## Amendment 2026-10-02 (implementation, L-WP9)
+
+- The *Tools* page ends with "Network" and "Diagnostics report", the last two functions of the page table of
+  ARCHITECTURE 2. New controls have new names (`networkCheckKryptonButton`, `networkVerdictKryptonWrapLabel`,
+  `networkHintsKryptonWrapLabel`, `networkDetailsKryptonTextBox`, `copyReportKryptonButton`, `saveReportKryptonButton`,
+  `reportKryptonTextBox`, ...); none is a name of the list above (`PlaceholderControlsTests`), and every text is set in
+  `ApplyTexts()` (`ApplyTextsTests`).
+- **Every control works**: "Check network" runs the check (disabled while it runs, "Checking the network ..."); the
+  verdict, the hints and the details appear only after a check; "Copy report" puts the report on the clipboard and shows
+  it in the text box, "Save report..." asks for a file and saves it there, never into an installation. Both always work,
+  also before a network check ("Network: not checked") and without an installation. There is no "send" button: the
+  launcher sends no report (no telemetry).
+- **The link of the Play page** ("Why? Check the network") is visible only while the player list says "not available"
+  (`OutageHint.LinksToNetworkCheck`: the server did not answer; not for a list that arrived or a polling that ended by
+  an error of the launcher); it opens the *Tools* page at "Network" and starts the check that the click asked for. It
+  lies at the top of the group of the online players, over the empty list.
+- Not added, with the reason in ARCHITECTURE 16 and the README: the GPU driver version, a resolution chooser and a
+  port check from outside. As the design review promised in their place, the report names the display adapter of the
+  primary screen (`EnumDisplayDevices`) and says per game whether a DirectX wrapper is installed (the wrapper rule of
+  contract 3.3, with its source); the review of L-WP9 against this record found both missing in the first version of
+  the report, and they were added (`DiagnosticsReportTests`, `ComputedValuesTests.DirectXWrapper_3_3_TheWrapperRuleWithoutWine`).
+
+Review against this ADR (L-WP9): the designer files contain no name of the removed placeholder list, no new control is
+hidden without a function, and the "collect diagnostic data" checkbox stays removed; the report is the opposite of
+telemetry (made and passed on only by the player). Test plan WP9-05, WP9-11, WP9-12 and WP9-14 check the controls on
+real Windows.
