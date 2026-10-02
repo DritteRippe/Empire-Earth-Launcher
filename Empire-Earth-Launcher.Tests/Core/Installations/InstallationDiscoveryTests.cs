@@ -74,6 +74,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Installations
             Assert.That(installation.AocFolder, Is.EqualTo(NeoRoot + @"\Empire Earth - The Art of Conquest"));
             Assert.That(installation.HasArtOfConquest, Is.True);
             Assert.That(installation.GetGameSettingsKey(Game.ArtOfConquest), Is.EqualTo(@"Software\Neo\Art of Conquest"));
+            Assert.That(installation.HasUnreliableIntegrity, Is.False);
         }
 
         // --- User choice: root, EE folder, AoC folder, missing ------------------------------------------------------

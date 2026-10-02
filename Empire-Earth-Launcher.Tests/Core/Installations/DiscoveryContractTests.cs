@@ -371,6 +371,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Installations
                     Installation installation = Only(r);
                     Assert.That(installation.Product, Is.SameAs(Product.EE), "installed last");
                     Assert.That(installation.OtherProductInRoot, Is.SameAs(Product.NeoEE));
+                    Assert.That(installation.HasUnreliableIntegrity, Is.True, "the flag \"unreliable\" of O11");
                     Assert.That(w.LogLinesAbout("are both installed in"), Has.Length.EqualTo(1));
                 });
 

@@ -145,6 +145,15 @@ namespace Empire_Earth_Launcher.Core.Installations
         /// </summary>
         public Product OtherProductInRoot { get; internal set; }
 
+        /// <summary>
+        /// True if the integrity check of this root is unreliable (contract 1.4, "Two products in one root", O11): the
+        /// manifest of one product cannot vouch for files the other product's setup replaced.
+        /// </summary>
+        public bool HasUnreliableIntegrity
+        {
+            get { return OtherProductInRoot != null; }
+        }
+
         /// <summary>Whether the programs are there (contract 1.4, "Validity").</summary>
         public InstallationState State { get; internal set; }
 
