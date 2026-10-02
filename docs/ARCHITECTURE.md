@@ -362,9 +362,8 @@ date" (the setup's `CheckUpdate` reads it as "no update").
   tested through the canonical form of the policy). Not on the list, with the reason: the vendor roots
   (`Software\Mad Doc Software`, `Software\SSSI`; p=4756 "make sure to only get ones for ee and aoc if you have other Mad
   Doc games"), subkeys of `Software\Sierra` other than `CDKeys` (no sample names them yet), Stainless Steel Studios keys
-  (p=4756 names only the vendor, no path), InstallShield leftovers (no sample); the test plan of L-WP8 collects samples.
-  The four game settings keys of contract 3.1 (`hkcu-ee-*`, `hkcu-neoee-*`) are the player's settings while an installation uses them, so they
-  are not shown then.
+  (p=4756 names only the vendor, no path), InstallShield leftovers (no sample); test case WP8-02 collects samples. The four game settings keys of contract 3.1
+  (`hkcu-ee-*`, `hkcu-neoee-*`) are the player's settings while an installation uses them, so they are not shown then.
 
   An empty HKCU part on a computer is a valid result: the page then says "nothing to clean up" and shows the
   read-only list, without an enabled delete button; README and CHANGELOG call R5 "cleanup of HKCU entries; HKLM

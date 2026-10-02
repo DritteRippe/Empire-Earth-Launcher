@@ -7,7 +7,7 @@ von Krypton und die Texte der Oberfläche ([ADR 0012](adr/0012-test-strategy.md)
 
 | | |
 |---|---|
-| Stand | Fälle von L-WP1 bis L-WP7; jedes weitere Arbeitspaket ergänzt seinen Abschnitt in 5 und die Zuordnung in 7 im selben Commit |
+| Stand | Fälle von L-WP1 bis L-WP8; jedes weitere Arbeitspaket ergänzt seinen Abschnitt in 5 und die Zuordnung in 7 im selben Commit |
 | Sprache | Deutsch (die Programmtexte gibt es auf Englisch, Deutsch und Französisch) |
 | Gehört zu | [ARCHITECTURE.md](ARCHITECTURE.md), Abschnitt 11 und 15 |
 
@@ -41,8 +41,8 @@ Inhalt: [1. Voraussetzungen](#1-voraussetzungen) · [2. Paket holen und prüfen]
   Spielstart). Für L-WP1 reicht der Launcher allein.
 - **Sicherung vor schreibenden Tests** (ab L-WP5): die Spieleinstellungen in der Registry vorher exportieren,
   z. B. `reg export "HKCU\Software\Neo" "%USERPROFILE%\Desktop\neo-vorher.reg"` und dasselbe für
-  `HKCU\Software\SSSI` und `HKCU\Software\Mad Doc Software`. Den Schlüssel `Software\Sierra\CDKeys` nie ändern
-  oder löschen.
+  `HKCU\Software\SSSI` und `HKCU\Software\Mad Doc Software`; ab L-WP8 auch die Ordner `Data\Saved Games` und
+  `Data\Scenarios` beider Spiele kopieren. Den Schlüssel `Software\Sierra\CDKeys` nie ändern oder löschen.
 - **Netzwerk**: Der Launcher fragt im Hintergrund die Online-Spielerliste beim NeoEE-Statusserver ab
   (`titan.empireearth.eu`, Port 10005, eingestellt in `Empire Earth Launcher.exe.config`). Ab L-WP7 fragt er nur auf
   Wunsch (Reparatur-Hinweise, „Version prüfen“, „Nach Updates suchen“) per HTTPS `api.empireearth.eu` nach dem
@@ -118,7 +118,7 @@ Alle Dateien des Launchers liegen pro Benutzer unter `%LOCALAPPDATA%\Empire Eart
 |---|---|---|
 | Protokoll | `log.txt`, ältere Einträge in `log.txt.old` (ab 1 MiB gekürzt) | heute |
 | Einstellungen (Spielordner, Theme, ab L-WP3 Sprache, ab L-WP5 ausgeblendete Hinweise, ab L-WP6 zuletzt gewähltes Spiel `LastGame`) | `settings.json`; eine beschädigte Datei wird zu `settings.json.damaged`, beim Speichern entsteht kurz `settings.json.tmp` | L-WP2 |
-| Sicherungen (`.reg`-Dateien, ab L-WP8 auch verschobene WON-Dateien) | `Backups\<yyyy-MM-dd_HHmmss>_<was>\`, z. B. `Backups\2026-10-02_153012_reset-game-settings\2026-10-02_153012_NeoEE_EE.reg` | ab L-WP5 |
+| Sicherungen (`.reg`-Dateien; ab L-WP8 auch die verschobenen WON-Login-Dateien mit `moved-files.txt` und ersetzte Spielstände) | `Backups\<yyyy-MM-dd_HHmmss>_<was>\` mit `<was>` = `reset-game-settings` (L-WP5), `registry-cleanup`, `won-login-reset` oder `import-saved-games` (L-WP8), z. B. `Backups\2026-10-02_153012_reset-game-settings\2026-10-02_153012_NeoEE_EE.reg` | ab L-WP5 |
 | Arbeitsordner des Mod-Creators | `Mod Creator\` | heute |
 
 Testpakete vor L-WP2 speicherten die Einstellungen in einer `user.config` in einem von .NET angelegten
@@ -129,6 +129,9 @@ löschen:
 Get-ChildItem $env:LOCALAPPDATA -Recurse -Filter user.config -ErrorAction SilentlyContinue |
   Where-Object FullName -like '*Empire*' | Select-Object FullName
 ```
+
+Der Export der Spielstände (ab L-WP8) schreibt nur in den Ordner, den man wählt (neuer Unterordner
+`Empire Earth saves <yyyy-MM-dd_HHmmss>`), nie unter `%LOCALAPPDATA%\Empire Earth Launcher\`.
 
 Datenschutz: `log.txt` enthält Pfade mit dem Benutzernamen; vor dem Weitergeben ansehen. Der Ordner `Backups`
 enthält ab L-WP8 Login-Daten des Spiels (WON-Dateien) und wird nie weitergegeben.
@@ -364,8 +367,36 @@ Dateien umbenennen, Adminrechte im Explorer; danach immer zurückbenennen.
 
 ### L-WP8 – Wartungswerkzeuge
 
-Wird mit L-WP8 ergänzt. Vorgemerkt: nach der Registry-Bereinigung existiert `Software\Sierra\CDKeys` unverändert;
-echte HKCU-Reste von CD- und GOG-Installationen werden notiert (Beleg für spätere Einträge der Liste).
+Die Seite *Werkzeuge* hat unter „Dateien der Installation“ und „Updates“ sechs neue Abschnitte: „Alte Registry-Einträge“
+(R5), „WON-Login“ (R6), „VirtualStore“ (R8), „Spielstände und Szenarien“ (R10), „Spielernamen“ und „Sicherungen“ mit
+„Sicherungsordner öffnen“. Was sie anzeigen, prüft der Launcher nach jeder Suche der Installationen und nach jeder
+Aktion (nur lesend); zum erneuten Prüfen nach einer Änderung von außen den Launcher neu starten. Schreibend sind nur
+„Auswahl löschen ...“ (nur Einträge unter `HKEY_CURRENT_USER`, vorher als `.reg` gesichert), „WON-Login zurücksetzen“
+(verschiebt die Dateien in den Sicherungsordner) und der Import (ersetzte Dateien werden vorher kopiert); der Export
+schreibt nur in den gewählten Ordner. Einträge unter `HKEY_LOCAL_MACHINE` zeigt der Launcher nur an, mit einem Rat;
+`Software\Sierra` und alles darunter löscht er nie ([ARCHITECTURE.md](ARCHITECTURE.md), Abschnitt 4.6).
+Vorbereitung wie bei L-WP5 (Registry-Schlüssel sichern, Abschnitt 1), zusätzlich die Ordner `Data\Saved Games` und
+`Data\Scenarios` beider Spiele kopieren. Die Fälle nennen die deutschen Texte. Wer eine CD- oder GOG-Installation hat
+oder hatte, macht WP8-02 zuerst, vor allen Fällen, die Schlüssel anlegen.
+
+| Fall | Schritte | Erwartet |
+|---|---|---|
+| WP8-01 | Pflichtfall, CD-Keys unverändert: vor WP8-03 bis WP8-05 in einer Eingabeaufforderung `reg export "HKLM\SOFTWARE\WOW6432Node\Sierra\CDKeys" "%TEMP%\cdkeys-vorher.reg"` (32-Bit-Windows: `HKLM\SOFTWARE\Sierra\CDKeys`; gibt es `HKCU\Software\Sierra\CDKeys` oder `HKCU\Software\Classes\VirtualStore\MACHINE\SOFTWARE\WOW6432Node\Sierra\CDKeys`, diese ebenso in eigene Dateien). Nach WP8-05 dieselben Schlüssel nach `…-nachher.reg` exportieren und je `fc /b "%TEMP%\cdkeys-vorher.reg" "%TEMP%\cdkeys-nachher.reg"` vergleichen. Danach alle diese Dateien löschen (sie enthalten die CD-Keys, nie weitergeben). Zum Schluss NeoEE starten und in die Lobby einloggen. | `fc` meldet „Keine Unterschiede gefunden“. `log.txt` nach jedem Löschen je vorhandenem Schlüssel `Registry cleanup: … \Sierra\CDKeys exists, unchanged by the cleanup.` und nie `… existed before the cleanup and is missing now.` Weder die Seite noch `log.txt` zeigt einen CD-Key. Der Login klappt (der CD-Key wird angenommen). |
+| WP8-02 | Echte Reste notieren (Beleg für die Liste, Forenbericht Abschnitt 8 Testfall 8): auf einem Rechner mit einer CD- oder GOG-Installation von Empire Earth oder AoC, und noch einmal nach deren Deinstallation, die Schlüsselnamen auflisten, ohne `/s`: `reg query "HKCU\Software\SSSI"`, `reg query "HKCU\Software\Mad Doc Software"`, `reg query "HKCU\Software\Sierra"`, `reg query "HKCU\Software\Stainless Steel Studios"`, dieselben unter `HKLM\SOFTWARE\WOW6432Node\` und unter `HKCU\Software\Classes\VirtualStore\MACHINE\SOFTWARE\WOW6432Node\`, dazu `reg query "HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall" /f "Empire Earth"` (InstallShield). Dann Seite *Werkzeuge*, „Alte Registry-Einträge“. | Notieren: welche Schlüssel es gibt (nur Namen, nie die Werte unter `CDKeys`), mit Installationsart und ob vor oder nach der Deinstallation; was die Seite dazu sagt. Die Seite nennt nur Schlüssel der Liste aus ARCHITECTURE 4.6. Schlüssel außerhalb der Liste – weitere Unterschlüssel von `Sierra` außer `CDKeys`, `Stainless Steel Studios`, die InstallShield-Einträge der CD-Setups – erscheinen nicht: Sie fehlen in der Liste, weil es für sie noch keinen Beleg gibt; diese Notizen sind der Beleg für spätere Einträge. |
+| WP8-03 | R5, veralteter Eintrag des eigenen Kontos: nur wenn `reg query "HKCU\Software\SSSI\Empire Earth"` nichts findet und keine Installation von Empire Earth (Community-Setup EE, CD, GOG) erkannt wird. Anlegen: `reg add "HKCU\Software\SSSI\Empire Earth" /v "Installed From Volume" /d "C:" /f` und `reg add "HKCU\Software\SSSI\Empire Earth" /v "Installed From Directory" /d "\GIBTESNICHT\Empire Earth\\" /f`. Launcher starten, *Werkzeuge*. Den Eintrag ankreuzen, „Auswahl löschen ...“, zuerst „Nein“, dann noch einmal mit „Ja“. Danach die `.reg`-Datei aus der Meldung doppelklicken, `reg query "HKCU\Software\SSSI\Empire Earth"`, Launcher neu starten; zum Schluss `reg delete "HKCU\Software\SSSI\Empire Earth" /f`. | „1 Einträge Ihres Kontos sind Reste einer entfernten Installation. …“, in der Liste `HKEY_CURRENT_USER\Software\SSSI\Empire Earth (Ordner C:\GIBTESNICHT\Empire Earth existiert nicht mehr)`. „Auswahl löschen ...“ ist erst nach dem Ankreuzen bedienbar. Die Rückfrage nennt den Schlüssel und den Sicherungsordner; „Nein“ ändert nichts. Nach „Ja“: „1 Einträge gelöscht. Die Sicherung liegt in: …\Backups\<Datum>_registry-cleanup\<Datum>_registry-cleanup.reg“, dann „Nichts zu bereinigen: Kein Eintrag Ihres Kontos ist ein Rest.“ und kein bedienbarer Knopf „Auswahl löschen ...“. `log.txt`: `Registry cleanup: deleted HKEY_CURRENT_USER\Software\SSSI\Empire Earth (hkcu-ee-ee, stale: …` und `Registry cleanup: 1 key(s) deleted, backup ….` Nach dem Doppelklick stehen beide Werte wieder da, und der Launcher bietet den Eintrag wieder an. |
+| WP8-04 | R5, Einträge, die bleiben (ADR 0007, Ergänzung nach der Planprüfung): mit dem Schlüssel aus WP8-03 nacheinander (Launcher jeweils neu starten): (a) Ordner `C:\GIBTESNICHT\Empire Earth` anlegen; (b) Ordner wieder löschen, `Installed From Volume` auf einen USB-Stick (z. B. `E:`) setzen, dann auf einen nicht vorhandenen Buchstaben (z. B. `Q:`) und auf ein Netzlaufwerk; (c) `Installed From Volume` löschen; (d) wieder `C:`, Eintrag ankreuzen, vor „Ja“ in der Rückfrage den Ordner `C:\GIBTESNICHT\Empire Earth` anlegen. Ist eine Installation von Empire Earth vorhanden, nur diese notieren. Danach `reg delete "HKCU\Software\SSSI\Empire Earth" /f` und den Ordner löschen. | Nichts davon wird angeboten; in der Liste darunter: (a) „…\SSSI\Empire Earth: bleibt erhalten, der Ordner … existiert.“ (b) „… liegt auf einem Laufwerk, das nicht angeschlossen oder keine lokale Festplatte ist.“ (c) „… der Eintrag nennt keinen Spielordner.“ (d) „Nichts wurde gelöscht: Ein Eintrag wird wieder genutzt …“, der Schlüssel ist unverändert, im Sicherungsordner kein neuer Ordner. Mit Installation: „… bleibt erhalten, eine Installation von Empire Earth wurde gefunden.“ |
+| WP8-05 | R5, Einträge für alle Benutzer: nur wenn `reg query "HKLM\SOFTWARE\WOW6432Node\SSSI\Empire Earth"` nichts findet. In einer Eingabeaufforderung als Administrator dieselben zwei `reg add`-Befehle wie in WP8-03 mit `HKLM\SOFTWARE\WOW6432Node\SSSI\Empire Earth` (32-Bit-Windows: `HKLM\SOFTWARE\SSSI\Empire Earth`). Launcher als normaler Benutzer starten, *Werkzeuge*. Danach den Rat befolgen: Registrierungs-Editor als Administrator, Schlüssel exportieren, löschen. | Kein Kästchen dafür; im Textfeld „HKEY_LOCAL_MACHINE\Software\WOW6432Node\SSSI\Empire Earth: Rest einer entfernten Installation (Ordner … existiert nicht mehr). Der Eintrag gilt für alle Benutzer, daher ändert der Launcher ihn nicht. So entfernen Sie ihn: …“. Gibt es `Software\Sierra`, steht dort „…\Sierra: nicht löschen, dort liegen die CD-Keys von NeoEE (CD-Keys vorhanden).“; keine Zeile rät, `Software`, `Sierra` oder `CDKeys` zu löschen. Ohne angebotenen Eintrag „Nichts zu bereinigen …“. Der Launcher fragt nie nach Administratorrechten. |
+| WP8-06 | R6, WON-Login zurücksetzen (Forum: Login-Fehler `WS_GetCert_InvalidPubKeyBlock`): NeoEE spielen und in die Lobby einloggen, beenden. Im Explorer `_wonkver.pub` und `_wonlogin.ks` im Ordner `Empire Earth` und im AoC-Ordner suchen, auch im VirtualStore (`%LOCALAPPDATA%\VirtualStore\…`). *Werkzeuge* → „WON-Login zurücksetzen“; „Sicherungsordner öffnen“; danach wieder in die Lobby einloggen. | Vorher listet „WON-Login-Dateien: …“ genau die gefundenen Dateien. Danach „… Dateien nach …\Backups\<Datum>_won-login-reset verschoben. Dieser Ordner enthält Login-Daten: Geben Sie ihn nie weiter. …“; im Spielordner sind sie weg, im Sicherungsordner liegen sie unter `EE\`, `AoC\` (bzw. `EE-VirtualStore\`, `AoC-VirtualStore\`) mit `moved-files.txt` (woher jede Datei kam). Dateien aus der Liste des Setups (`_setupdata_<Produkt>\files.sha256`) bleiben liegen, `log.txt`: `… is listed in the manifest of the setup and is kept.` (notieren, falls das vorkommt). `log.txt`: `WON login reset of …: Done, … file(s) moved into … (it contains login data).` Der nächste Login klappt; das Spiel legt neue Dateien an. |
+| WP8-07 | R6, Zugriff verweigert und laufendes Spiel: (a) Installation „für alle Benutzer“ unter `C:\Program Files (x86)`, normales Benutzerkonto; als Administrator im Explorer eine leere Datei `_wonlogin.ks` in den Ordner `Empire Earth` legen; Launcher neu starten, „WON-Login zurücksetzen“. (b) Empire Earth über den Launcher starten, Alt+Tab, „WON-Login zurücksetzen“. Danach die Datei aus (a) als Administrator löschen. | (a) „Nach … kopiert, aber diese Dateien konnten nicht entfernt werden (Zugriff verweigert). Beenden Sie das Spiel und versuchen Sie es erneut, oder löschen Sie sie im Explorer:“ mit dem Pfad; kein Absturz, keine UAC-Abfrage. (b) „Nicht möglich, solange Empire Earth.exe läuft.“, nichts wird verschoben; `log.txt`: `Not allowed to reset the WON login now: Empire Earth.exe is running …`. |
+| WP8-08 | R8, VirtualStore mit normalem Benutzerkonto (Forenbericht Abschnitt 8 Testfall 1): Installation „für alle Benutzer“ unter `C:\Program Files (x86)`, normales Konto; Empire Earth über den Launcher spielen (Lobby oder ein Spiel speichern), beenden, Launcher neu starten, *Werkzeuge* → „VirtualStore“. Dann als dieses Konto eine Programmdatei aus der Liste des Setups, z. B. `Empire Earth\neoee.dll`, an dieselbe Stelle unter `%LOCALAPPDATA%\VirtualStore\Program Files (x86)\<Ordner>\` kopieren, Launcher neu starten; danach die Kopie löschen. Zum Vergleich eine Installation außerhalb von `Program Files` wählen. | Nach dem Spielen: „Keine Kopien im VirtualStore.“ oder „… weitere Dateien (Lobby-Profile, Protokolle, Spielstände) liegen im VirtualStore; das ist normal …“ (Ergebnis und Dateien notieren). Mit der Kopie: „1 Dateien der Installation oder Programmdateien werden aus dem VirtualStore statt aus dem Spielordner verwendet; …“ und darunter `<VirtualStore-Pfad> (verwendet statt <Spielordner-Pfad>)`; `log.txt`: `VirtualStore: the game uses …`. Außerhalb: „Nicht betroffen: Die Spielordner liegen nicht unter Program Files, ProgramData oder dem Windows-Ordner.“ |
+| WP8-09 | R10, Export (Forum t=9004 p=44629): in Empire Earth und AoC je ein Spiel speichern und ein Szenario im Editor speichern (falls aus WP7-05 vorhanden, diese). *Werkzeuge* → „Exportieren ...“, den Ordner `Dokumente` wählen. Dann noch einmal „Exportieren ...“ mit dem Spielordner als Ziel. Mit WP8-08: liegt ein gleichnamiger Spielstand im Spielordner und im VirtualStore, den Export ansehen. | „… Spielstände und … Szenarien gefunden.“ Danach „… Dateien exportiert nach: …\Dokumente\Empire Earth saves <Datum>“, darin `EE\Saved Games`, `EE\Scenarios`, `AoC\…` mit allen `.ees`/`.scn`, auch denen aus dem VirtualStore; die Spielordner sind unverändert. Spielordner als Ziel: „Wählen Sie einen Ordner außerhalb der Spielordner.“ Bei gleichem Namen exportiert der Launcher die VirtualStore-Kopie (die das Spiel verwendet) und nennt die andere: „Von einer gleichnamigen VirtualStore-Kopie verdeckt …“. Ein ZIP-Export ist nicht vorgesehen. |
+| WP8-10 | R10, Import mit Prüfungen, Mehrspieler-Spielstand mit Umlauten (Forenbericht Abschnitt 8 Testfall 17): einen Spielstand aus WP8-09 in `Kampf um Köln.ees` umbenennen und in `Downloads` legen, dazu eine Kopie eines vorhandenen Spielstands unter gleichem Namen und eine Textdatei `test.exe`. *Werkzeuge* → „In Empire Earth importieren ...“, im Dialog `*.*` eintippen und alle drei wählen; die Rückfrage zum Ersetzen zuerst mit „Nein“, dann den Import des gleichnamigen mit „Ja“ wiederholen. Danach „Kampf um Köln“ im Spiel laden; wenn ein zweiter Rechner da ist, als Mehrspieler-Spielstand (beide Spieler mit derselben Datei, Host mit weitergeleiteten Ports 33334 bis 33336). Optional ein Name mit Zeichen außerhalb der Windows-Codepage (z. B. `テスト.ees` auf deutschem Windows). | Rückfrage nennt die Datei, die ersetzt würde. Nach „Nein“: „1 von 3 Dateien importiert.“ mit „test.exe: nur .ees- und .scn-Dateien lassen sich importieren“, „<Name>.ees: nicht ersetzt“ und „Kampf um Köln.ees: Der Name enthält Zeichen außerhalb von einfachem ASCII; im Mehrspieler braucht jeder Spieler genau diesen Namen.“ Nach „Ja“: ersetzt, „Die ersetzten Dateien liegen in: …\Backups\<Datum>_import-saved-games“ mit der alten Datei. Das Spiel listet und lädt „Kampf um Köln“; Mehrspieler-Ergebnis notieren. Optional: „… der Name enthält Zeichen, die das Spiel nicht lesen kann“. |
+| WP8-11 | R10 und ADR 0016, Import mit normalem Konto in eine Installation unter `C:\Program Files (x86)` („für alle Benutzer“): einen neuen Spielstand importieren; im Spiel laden. | „1 von 1 Dateien importiert.“ ohne UAC-Abfrage. Die Datei liegt im VirtualStore (`%LOCALAPPDATA%\VirtualStore\Program Files (x86)\…\Data\Saved Games\`), nicht im Spielordner; `log.txt`: `Saved games: writing into … was denied; the file goes to its VirtualStore folder, where the game reads it (ADR 0016).` Das Spiel zeigt den Spielstand. |
+| WP8-12 | Namensprüfung (Forenbericht Abschnitt 8 Testfall 17): in Empire Earth einen Spieler `Jürgen` anlegen (Einzelspieler), bei NeoEE ein Lobby-Profil mit Umlaut, falls möglich; Spiel beenden, Launcher neu starten, *Werkzeuge* → „Spielernamen“ und „Spielstände und Szenarien“ lesen. Danach den Spieler wieder löschen oder umbenennen. | „1 Namen enthalten Zeichen außerhalb von einfachem ASCII:“ und „Empire Earth, Spieler: Jürgen“ (bzw. „…, Lobby-Profil: …“); der Text darüber nennt den Grund aus dem Forum; „Spielstände und Szenarien“ nennt die Ports 33334 bis 33336 für den Host. Ohne solche Namen: „Alle … Lobby-Profile und Spielernamen verwenden einfache Zeichen.“ `log.txt` nennt keinen Namen, nur `Name check: player folder 1 of EE has characters outside printable ASCII.` |
+| WP8-13 | Vertrag 4.2 und ADR 0016: (a) Community-Setup starten und auf der ersten Seite lassen, Seite *Werkzeuge*; Setup abbrechen. (b) Empire Earth über den Launcher starten, Alt+Tab, mit dem Eintrag aus WP8-03 „Auswahl löschen ...“ → „Ja“ und „In Empire Earth importieren ...“. | (a) Spätestens nach 2 Sekunden sind „Auswahl löschen ...“, „WON-Login zurücksetzen“ und beide Import-Knöpfe ausgegraut, unter den Abschnitten „Das Setup von … läuft. …“; „Exportieren ...“ und „Sicherungsordner öffnen“ bleiben bedienbar. Nach dem Abbrechen wieder bedienbar. (b) „Nicht möglich, solange Empire Earth.exe läuft.“; nichts gelöscht oder importiert, kein neuer Ordner im Sicherungsordner; `log.txt`: `Not allowed to delete stale registry keys now: …` bzw. `Not allowed to import saved games now: …`. |
+| WP8-14 | „Sicherungsordner öffnen“, einmal vor allen anderen Fällen dieses Pakets (Ordner fehlt noch, z. B. nach Umbenennen von `Backups`) und einmal danach. | Der Explorer öffnet `%LOCALAPPDATA%\Empire Earth Launcher\Backups` ohne UAC-Abfrage; fehlt er, legt der Launcher ihn vorher an. Danach liegen dort die Ordner `…_registry-cleanup`, `…_won-login-reset`, `…_import-saved-games` (und `…_reset-game-settings` aus L-WP5). Der Text unter „Sicherungen“ nennt den Ordner und dass er Login-Daten enthält. |
+| WP8-15 | Seite *Werkzeuge* mit allen Abschnitten (mit angebotenem Eintrag, Ratschlägen, VirtualStore-Liste, Ergebniszeilen) und die Rückfragen aus WP8-03 und WP8-10 auf Deutsch, Englisch und Französisch, je bei 100 % und 150 %; Screenshots. | Nichts abgeschnitten oder überlappend; die Seite scrollt; lange Pfade umbrechen oder lassen sich im Textfeld lesen. Deutsche Texte gegenlesen wie in WP3-03; französische Texte notieren, die unklar wirken. |
+| WP8-16 | Nach allen Fällen `log.txt` durchsehen. | Keine `Unhandled exception`, keine `A background task failed`, keine `The scan of the maintenance tools failed.`; nach jeder Suche eine Zeile `Registry cleanup: … key(s) offered, … shown read-only …`; kein CD-Key, kein Spieler- oder Profilname; nie `… existed before the cleanup and is missing now.` |
 
 ### L-WP9 – Netzwerkdiagnose, Bericht, Laptop-Paket
 
@@ -403,31 +434,31 @@ Pakete nach dem Stand dieses Plans und ab L-WP9 gar nicht mehr.
 | R2 | Integritätsmanifest | WP7-01, WP7-02, WP7-03, WP7-04, WP7-05, WP7-06, WP7-07, WP7-08, WP7-09, WP7-13; Setup: TP-50 (das Setup schreibt das Manifest) |
 | R3 | Spielen, laufende Instanzen, Kompatibilitätsoptionen | WP5-12, WP5-13, WP5-14, WP6-01, WP6-03, WP6-07, WP6-08, WP6-09, WP6-15 |
 | R4 | Spieleinstellungen zurücksetzen mit `.reg`-Sicherung | WP5-08, WP5-09, WP5-10, WP5-11 |
-| R5 | Registry-Bereinigung | offen (L-WP8) |
-| R6 | WON-Login zurücksetzen | offen (L-WP8) |
+| R5 | Registry-Bereinigung | WP8-01, WP8-02, WP8-03, WP8-04, WP8-05, WP8-13 |
+| R6 | WON-Login zurücksetzen | WP8-06, WP8-07, WP8-14 |
 | R7 | Netzwerkdiagnose | offen (L-WP9) |
-| R8 | VirtualStore | WP4-16; offen (L-WP8) |
+| R8 | VirtualStore | WP4-16, WP8-08, WP8-09, WP8-11 |
 | R9 | Reparatur über das Setup | WP6-05, WP6-06, WP6-10, WP6-11, WP7-02, WP7-04, WP7-12 |
-| R10 | Spielstände und Szenarien | offen (L-WP8) |
-| R17 | Texte auf Englisch, Deutsch, Französisch | WP3-01, WP3-03, WP3-11, WP3-12, WP4-17, WP5-17, WP6-14, WP7-14 |
-| Forum 1 | Frische Installation, Standardnutzer, zweites Konto | WP4-06, WP4-16, WP5-02; Setup: TP-41, TP-71 (Installation und Rechte) |
+| R10 | Spielstände und Szenarien | WP8-09, WP8-10, WP8-11, WP8-12 |
+| R17 | Texte auf Englisch, Deutsch, Französisch | WP3-01, WP3-03, WP3-11, WP3-12, WP4-17, WP5-17, WP6-14, WP7-14, WP8-15 |
+| Forum 1 | Frische Installation, Standardnutzer, zweites Konto | WP4-06, WP4-16, WP5-02, WP8-08, WP8-11; Setup: TP-41, TP-71 (Installation und Rechte) |
 | Forum 2 | Versionsanzeige, Mehrspieler ohne Versionskonflikt | WP6-02, WP7-10, WP7-11; Setup: TP-70, TP-72 (Version im Hauptmenü) |
 | Forum 3 | Grafikmatrix mit und ohne Wrapper | WP5-05; Setup: TP-23 (Wrapper und Renderer installiert das Setup) |
 | Forum 4 | Farbtiefe 16 Bit, Rücksetzen auf 32 Bit | WP5-06, WP5-08 |
 | Forum 5 | Kompatibilitätsflags, Windows 7 | WP5-12, WP5-13, WP5-14; Setup: TP-20, TP-21, TP-22 (Werte des Setups) |
 | Forum 6 | Auflösungsgrenzen, Bildschirm unter 768 Pixel | WP5-07, WP5-15 |
 | Forum 7 | AoC ohne vorherigen EE-Start | WP5-02, WP5-19, WP6-04 |
-| Forum 8 | Alt-Installation (CD, GOG) vorhanden | WP4-08, WP4-15 |
+| Forum 8 | Alt-Installation (CD, GOG) vorhanden | WP4-08, WP4-15, WP8-02, WP8-04 |
 | Forum 9 | EE und NeoEE parallel, eines deinstallieren | WP4-12; Setup: TP-62, TP-75 (Deinstallation) |
 | Forum 10 | Firewall beim Hosten | Setup: TP-76 (Firewall-Regeln legt nur das Setup an, der Launcher ändert die Firewall nicht) |
 | Forum 11 | Hosting-Varianten, Portweiterleitung | offen (L-WP9) |
 | Forum 12 | Netzwerkadapter (VPN, Hamachi) | offen (L-WP9) |
-| Forum 13 | CD-Keys: Server gesperrt, VM, `CDKeyCheck` | offen (L-WP9); Setup: TP-77 (nur das Setup registriert CD-Keys) |
+| Forum 13 | CD-Keys: Server gesperrt, VM, `CDKeyCheck` | WP8-01; offen (L-WP9); Setup: TP-77 (nur das Setup registriert CD-Keys) |
 | Forum 14 | Antivirus löscht Dateien | WP4-13, WP6-10, WP7-02; Setup: TP-50 (Hinweis am Ende der Installation) |
 | Forum 15 | Offline, nur Spiegel, manipulierter Download | Setup: TP-00, TP-10, TP-11, TP-16 (Downloads macht nur das Setup) |
 | Forum 16 | Sprachen: Deutsch für EE und AoC | Setup: TP-78 (Sprachdateien des Spiels installiert das Setup) |
-| Forum 17 | Spielstände im Mehrspieler, Namen mit Sonderzeichen | offen (L-WP8) |
-| Forum 18 | Laufende Instanz | WP5-10, WP6-07, WP6-08; Setup: TP-79 |
+| Forum 17 | Spielstände im Mehrspieler, Namen mit Sonderzeichen | WP8-09, WP8-10, WP8-12 |
+| Forum 18 | Laufende Instanz | WP5-10, WP6-07, WP6-08, WP8-07, WP8-13; Setup: TP-79 |
 | Forum 19 | Kampagnen-Tribut | entfällt: Spiellogik der Spieldateien, die weder Launcher noch Setup ändern |
 | Forum 20 | Launcher: Spielerliste ohne Netz, beschädigte Einstellungen, Pfad mit Umlauten | WP1-04, WP2-05, WP5-19, WP6-12 |
 | Forum 21 | GOG als Basis | WP4-08; Setup: TP-63 |
