@@ -572,3 +572,7 @@ section 15); all of them are done, newest first below. It has not been released;
   is invalid (security review): before, every file counted as "not a file of the installation", so a file the setup
   installed (for example a scenario in `Data\Scenarios`) could be replaced. Each file is refused with the new reason
   `ImportCheckManifestUnusable` (en/de/fr), as the WON login reset already did.
+- `.reg` backups can no longer be used to smuggle lines into the file (security review, D6): a value or key name with a
+  line break ended its line, so a key to back up could carry a line such as `[-HKEY_LOCAL_MACHINE\SOFTWARE\Sierra\CDKeys]`
+  that a restore by double-click would have run. `RegFileWriter` refuses names with control characters and key names with
+  `]`; `RegistryExport` reports such a tree as `InvalidName`, so the backup fails and the cleanup or reset changes nothing.

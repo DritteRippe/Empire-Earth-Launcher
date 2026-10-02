@@ -36,6 +36,29 @@ namespace Empire_Earth_Launcher.Tests.Core.Backup
             Assert.That(result.Value[1].Values, Is.Empty);
         }
 
+        /// <summary>
+        /// Security review: a value or subkey name with a line break would end its line in the .reg file and smuggle in a line
+        /// of its own (here one that deletes the CD keys, D6). Such a tree cannot be backed up, so the export fails.
+        /// </summary>
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ReadTree_FailsForANameTheRegFileCannotHold(bool inValueName)
+        {
+            const string injected = "x\"=\"1\"\r\n\r\n[-HKEY_LOCAL_MACHINE\\SOFTWARE\\Sierra\\CDKeys]\r\n\"y";
+            var registry = new InMemoryRegistry();
+            registry.Seed(Settings, "Rasterizer Name", RegistryValue.FromString("Direct3D"));
+            if (inValueName)
+                registry.Seed(Settings.Child("Game Options"), injected, RegistryValue.FromString("v"));
+            else
+                registry.SeedKey(Settings.Child(injected));
+
+            RegistryResult<IReadOnlyList<RegFileKey>> result = RegistryExport.ReadTree(registry, Settings);
+
+            Assert.That(result.Status, Is.EqualTo(RegistryStatus.InvalidName));
+            Assert.That(result.Detail, Does.Contain("cannot be written to a .reg file"));
+            Assert.That(result.Detail, Does.Contain("\\u000d\\u000a"), "the log shows the control characters, not a line break");
+        }
+
         [Test]
         public void ReadTree_OfAMissingKeyIsEmpty()
         {

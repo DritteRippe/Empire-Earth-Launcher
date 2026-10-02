@@ -18,11 +18,14 @@ namespace Empire_Earth_Launcher.Core.Backup
         private readonly List<KeyValuePair<string, RegistryValue>> values = new List<KeyValuePair<string, RegistryValue>>();
         private readonly List<string> deletedValueNames = new List<string>();
 
+        /// <exception cref="ArgumentException">The key is a hive, or a name in it cannot be written (<see cref="RegFileWriter.CanWrite(RegistryLocation)"/>).</exception>
         public RegFileKey(RegistryLocation key)
         {
             Key = key ?? throw new ArgumentNullException(nameof(key));
             if (key.IsRoot)
                 throw new ArgumentException("A .reg file cannot name a hive as a key.", nameof(key));
+            if (!RegFileWriter.CanWrite(key))
+                throw new ArgumentException("The key " + RegFileWriter.Describe(key.Path) + " cannot be written to a .reg file.", nameof(key));
         }
 
         public RegistryLocation Key { get; }
@@ -46,6 +49,7 @@ namespace Empire_Earth_Launcher.Core.Backup
                 throw new ArgumentNullException(nameof(valueName));
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
+            CheckName(valueName);
             if (Contains(valueName))
                 throw new ArgumentException("The value \"" + valueName + "\" is already part of " + Key + ".", nameof(valueName));
             values.Add(new KeyValuePair<string, RegistryValue>(valueName, value));
@@ -57,10 +61,18 @@ namespace Empire_Earth_Launcher.Core.Backup
         {
             if (valueName == null)
                 throw new ArgumentNullException(nameof(valueName));
+            CheckName(valueName);
             if (Contains(valueName))
                 throw new ArgumentException("The value \"" + valueName + "\" is already part of " + Key + ".", nameof(valueName));
             deletedValueNames.Add(valueName);
             return this;
+        }
+
+        private static void CheckName(string valueName)
+        {
+            if (!RegFileWriter.CanWriteValueName(valueName))
+                throw new ArgumentException("The value name " + RegFileWriter.Describe(valueName) + " cannot be written to a .reg file.",
+                    nameof(valueName));
         }
 
         /// <summary>True if the file writes or deletes <paramref name="valueName"/> (names ignore case, as in the registry).</summary>
@@ -90,6 +102,13 @@ namespace Empire_Earth_Launcher.Core.Backup
     /// <c>HKLM32\Software\X</c> becomes <c>HKEY_LOCAL_MACHINE\Software\WOW6432Node\X</c>, the key the 32-bit view
     /// names on 64-bit Windows. Golden files in the tests fix every case.
     /// </para>
+    /// <para>
+    /// Names with a control character (CR, LF, NUL, ...) and key names with <c>]</c> cannot be written: the format has no
+    /// escape for them, and a line break in a name would end its line and let the rest of the name become a line of its own,
+    /// e.g. <c>[-HKEY_LOCAL_MACHINE\SOFTWARE\Sierra\CDKeys]</c> (security review, D6). <see cref="RegFileKey"/> refuses
+    /// them; <see cref="RegistryExport"/> reports such a tree as <see cref="RegistryStatus.InvalidName"/>, so the backup
+    /// fails and nothing is changed.
+    /// </para>
     /// </remarks>
     public static class RegFileWriter
     {
@@ -98,6 +117,36 @@ namespace Empire_Earth_Launcher.Core.Backup
 
         private const string NewLine = "\r\n";
         private const int MaxHexLineLength = 77;
+
+        /// <summary>True if <paramref name="valueName"/> can be written to a .reg file: no control character.</summary>
+        public static bool CanWriteValueName(string valueName)
+        {
+            if (valueName == null)
+                throw new ArgumentNullException(nameof(valueName));
+            return valueName.All(c => c >= ' ');
+        }
+
+        /// <summary>True if every name of <paramref name="key"/> can be written to a .reg file: no control character, no <c>]</c>.</summary>
+        public static bool CanWrite(RegistryLocation key)
+        {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+            return key.Segments.All(segment => CanWriteValueName(segment) && segment.IndexOf(']') < 0);
+        }
+
+        /// <summary>A name for an error message or the log, with control characters as <c>\uXXXX</c>.</summary>
+        internal static string Describe(string name)
+        {
+            var text = new StringBuilder("\"");
+            foreach (char c in name)
+            {
+                if (c < ' ')
+                    text.Append("\\u").Append(((int)c).ToString("x4", CultureInfo.InvariantCulture));
+                else
+                    text.Append(c);
+            }
+            return text.Append('"').ToString();
+        }
 
         /// <summary>The bytes of the file: UTF-16 LE with BOM.</summary>
         public static byte[] ToBytes(IEnumerable<RegFileKey> keys)

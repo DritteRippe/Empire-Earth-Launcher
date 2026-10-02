@@ -378,6 +378,27 @@ namespace Empire_Earth_Launcher.Tests.Core.Maintenance
             Assert.That(w.RawRegistry.ProbeKey(Entry("hkcu-ee-ee").Key).IsOk, Is.True);
         }
 
+        /// <summary>
+        /// Security review: a value name with a line break in a key to delete cannot be backed up without injecting lines into
+        /// the .reg file, so the backup fails and nothing is deleted.
+        /// </summary>
+        [Test]
+        public void Delete_WhenANameCannotBeWrittenToTheBackup_NothingIsDeleted()
+        {
+            RegistryLocation key = Seed("hkcu-ee-ee");
+            w.RawRegistry.Seed(key, "x\"=\"1\"\r\n[-HKEY_LOCAL_MACHINE\\SOFTWARE\\Sierra\\CDKeys]", RegistryValue.FromDWord(1));
+            RegistryCleanup cleanup = CreateCleanup();
+            CleanupScan scan = cleanup.Scan(w.Discover());
+            int changes = w.Changes.Count;
+
+            CleanupResult result = cleanup.Delete(scan, scan.Offered);
+
+            Assert.That(result.Outcome, Is.EqualTo(CleanupOutcome.BackupFailed));
+            Assert.That(result.Deleted, Is.Empty);
+            Assert.That(w.Changes, Has.Count.EqualTo(changes));
+            Assert.That(w.RawRegistry.ProbeKey(key).IsOk, Is.True);
+        }
+
         /// <summary>ADR 0016: the deletion is blocked by a setup and by a game and changes nothing, no backup either.</summary>
         [Test]
         public void Delete_IsBlockedBySetupAndGame(

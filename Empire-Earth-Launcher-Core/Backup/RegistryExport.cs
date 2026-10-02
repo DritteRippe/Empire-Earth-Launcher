@@ -43,6 +43,9 @@ namespace Empire_Earth_Launcher.Core.Backup
         {
             if (depth > MaxDepth)
                 return RegistryResult.Failure(RegistryStatus.IoError, key + ": deeper than " + MaxDepth + " levels");
+            if (!RegFileWriter.CanWrite(key))
+                return RegistryResult.Failure(RegistryStatus.InvalidName,
+                    "the key " + RegFileWriter.Describe(key.Path) + " cannot be written to a .reg file");
 
             var exported = new RegFileKey(key);
             keys.Add(exported);
@@ -52,6 +55,9 @@ namespace Empire_Earth_Launcher.Core.Backup
                 return RegistryResult.Failure(names.Status, key + ": " + names.Detail);
             foreach (string name in names.Value)
             {
+                if (!RegFileWriter.CanWriteValueName(name))
+                    return RegistryResult.Failure(RegistryStatus.InvalidName,
+                        key + ": the value name " + RegFileWriter.Describe(name) + " cannot be written to a .reg file");
                 RegistryResult<RegistryValue> value = registry.GetValue(key, name);
                 if (!value.IsOk)
                     return RegistryResult.Failure(value.Status, key + " @\"" + name + "\": " + value.Detail);

@@ -18,6 +18,30 @@ namespace Empire_Earth_Launcher.Tests.Core.Backup
     [TestFixture]
     public class RegFileWriterTests
     {
+        private static readonly RegistryLocation Key = RegistryLocation.CurrentUser(@"Software\Neo\Empire Earth");
+
+        /// <summary>Security review: no name with a control character reaches a .reg file, no key name with ']'.</summary>
+        [TestCase("a\rb")]
+        [TestCase("a\nb")]
+        [TestCase("a\0b")]
+        [TestCase("tab\there")]
+        public void NamesWithControlCharacters_AreRefused(string name)
+        {
+            Assert.That(RegFileWriter.CanWriteValueName(name), Is.False);
+            Assert.That(() => new RegFileKey(Key).Add(name, RegistryValue.FromDWord(1)), Throws.ArgumentException);
+            Assert.That(() => new RegFileKey(Key).Delete(name), Throws.ArgumentException);
+            Assert.That(() => new RegFileKey(Key.Child(name)), Throws.ArgumentException);
+        }
+
+        [Test]
+        public void KeyNamesWithAClosingBracket_AreRefused_ValueNamesMayHaveOne()
+        {
+            Assert.That(RegFileWriter.CanWrite(Key.Child("a]b")), Is.False);
+            Assert.That(() => new RegFileKey(Key.Child("a]b")), Throws.ArgumentException);
+            Assert.That(RegFileWriter.CanWriteValueName("a]b \"quoted\" \\ [x]"), Is.True);
+            Assert.That(RegFileWriter.CanWrite(Key.Child(@"Game Options")), Is.True);
+        }
+
         private static readonly RegistryLocation TestKey = RegistryLocation.CurrentUser(@"Software\Empire Earth Launcher Tests");
 
         private static byte[] Golden(string name)
