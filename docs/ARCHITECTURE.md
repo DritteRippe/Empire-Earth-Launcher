@@ -372,7 +372,10 @@ date" (the setup's `CheckUpdate` reads it as "no update").
 
   Scopes: *launcher deletes* (HKCU; offered with a check box only when stale, i.e. no installation of its product was found
   and the folder named by its own `Installed From Volume`/`Installed From Directory` is missing on a present, fixed, local
-  drive; a key that names no folder, a folder on a missing, removable or network drive, or an unreadable key is kept),
+  drive; "missing" means that its parent folder can be listed without it, or the parent is missing in the same sense,
+  because Windows also reports a folder the player may not look at as missing (security review); a key that names no
+  folder, a folder on a missing, removable or network drive, a folder whose existence cannot be told, or an unreadable
+  key is kept),
   *advice only* (HKLM: the launcher never writes HKLM and never asks for elevation, contract 4.1; when stale under the same
   conditions the advice is to export the key and delete it with the Registry Editor as administrator; only the SSSI and Mad
   Doc keys get this advice), *protected* (`Software\Sierra`: never named for deletion in any state; ADR 0007 plan review,
@@ -388,13 +391,16 @@ date" (the setup's `CheckUpdate` reads it as "no update").
   entries are only shown, with advice" (ADR 0007 plan review).
 
   Implementation (L-WP8): `RegistryCleanup.Scan` gives each entry a state (missing, protected, installation found,
-  folder exists, drive not fixed, no folder named, unreadable, stale) and `CleanupAdvice` turns it into a code with
+  folder exists, drive not fixed, no folder named, folder unknown, unreadable, stale) and `CleanupAdvice` turns it into a code with
   parameters; only the two delete codes name a deletion target, and `CleanupAdvice` refuses one that the write policy
   protects. On 32-bit Windows the HKLM64 twin of an HKLM32 entry is the same key and is listed once. `Delete` takes only
   offered items of the scan, then: mutation guard ("delete stale registry keys") -> the state of every selected key again
   (one that is no longer stale stops everything) -> one `.reg` file with all of them
   (`Backups\<time>_registry-cleanup\<time>_registry-cleanup.reg`) -> `DeleteSubKeyTree` in the order of the list. If
-  the backup fails, nothing is deleted. The write policy allows `DeleteSubKeyTree` exactly for the eight HKCU keys of
+  the backup fails, nothing is deleted. The export refuses a tree with a symbolic registry link (`IRegistry.IsLink`, opened
+  with `REG_OPTION_OPEN_LINK`; `RegistryKey` would follow it, also to `Software\Sierra\CDKeys`) or with a name a `.reg` file
+  cannot hold (a control character, `]` in a key name), so such a backup fails; right before each deletion the tree is read
+  once more, and a link that appeared meanwhile stops the deletion (security review, ADR 0007). The write policy allows `DeleteSubKeyTree` exactly for the eight HKCU keys of
   the list (`LauncherWritePolicy` takes them from `CleanupCandidates.WriteRules`), after the protected keys were refused
   on the canonical form. Whether each `CDKeys` key exists is logged before and after the cleanup, never a value.
 - **WON login reset** (R6): `_wonkver.pub` and `_wonlogin.ks` of the EE and AoC folders and of their
@@ -587,7 +593,7 @@ Decided in [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md):
   (comments removed, entries with `type` or `mimetype` skipped): the same keys in `en`, `de`, `fr`; no empty
   value; the same `{n}` placeholders. A second test checks that image and file entries exist only in the
   neutral resx; further tests check the generated `Resources` class, the project items and the built satellite
-  assemblies. Since L-WP9 the three languages have the same 369 string keys (L-WP8: 293; L-WP7: 213; L-WP6: 154; L-WP5: 125;
+  assemblies. Since the review fixes after L-WP9 the three languages have the same 371 string keys (L-WP9: 369; L-WP8: 293; L-WP7: 213; L-WP6: 154; L-WP5: 125;
   L-WP4: 74; L-WP3: 53; before: `en` and `fr` 30 each and about 50 designer-only texts,
   [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md), corrected evidence).
 - German is proof-read by the user in the laptop test; French texts are marked "review open" in
@@ -612,7 +618,9 @@ Decided in [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md):
   entry can never open a protected key, also not one that names it exactly. The registry cleanup (L-WP8) can delete
   only the eight HKCU keys of its list; no entry and no advice names `Software`, `Software\Sierra` or `CDKeys` as a
   target (tested on the canonical form, for every hive, view and alias), and `Software\Sierra` is shown as "do not
-  delete: contains the CD keys".
+  delete: contains the CD keys". The cleanup and the backups never follow a symbolic registry link, and a `.reg` backup
+  never holds a name with a line break, which could smuggle a line such as `[-HKEY_LOCAL_MACHINE\SOFTWARE\Sierra\CDKeys]`
+  into the file (security review, ADR 0007).
 - **No changes while a setup or game runs**: every write goes through the mutation guard
   ([ADR 0016](adr/0016-mutation-guard-and-effective-game-paths.md)).
 - **No elevation**: the manifest requests `asInvoker`; the launcher never restarts itself elevated and
@@ -637,8 +645,8 @@ Decided in [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md):
 - **URLs opened in the browser**: only the fixed download page or a URL that passed `UpdateUrlPolicy` (same
   rules and test cases as the setup's `IsAllowedUpdateUrl`).
 - **Files from outside**: imported saves are untrusted (plain file names only, `.ees`/`.scn` only, characters of the
-  ANSI code page, 64 MiB at most, never onto a file of the manifest, no overwrite without confirmation and a copy of
-  the old file); there is no zip import (dropped in L-WP8); the manifest never makes the launcher open a file outside
+  ANSI code page, 64 MiB at most, never onto a file of the manifest and nothing at all while the manifest exists but
+  cannot be used, no overwrite without confirmation and a copy of the old file); there is no zip import (dropped in L-WP8); the manifest never makes the launcher open a file outside
   the install root; mod archives keep their existing limits.
 
 ## 11. Testing
@@ -743,7 +751,7 @@ Decided in [ADR 0001](adr/0001-target-dotnet-framework-4-8.md) and
 | R4 | reset with `.reg` backup | GameSettings, Backup | 3.6 | L-WP5 |
 | R5 | safe registry cleanup | Maintenance, Backup | 3.8 | L-WP8 |
 | R6 | WON login reset | Maintenance, Backup | | L-WP8 |
-| R7 | network diagnostics | Diagnostics | | L-WP9 |
+| R7 | network diagnostics; partly: the comparison with the adapter the game uses waits for where EE stores it (14, WP9-02) | Diagnostics | | L-WP9 |
 | R8 | VirtualStore detection | Installations, Maintenance | | L-WP4 (effective paths), L-WP8 |
 | R9 | repair hand-off, pending setup | Repair, Play | 4 | L-WP6 (`RepairAdvice`, fixed page), L-WP7 (API) |
 | R10 | saves/scenarios export and import, name checks | Maintenance | | L-WP8 |
@@ -831,6 +839,12 @@ change (contract 5); the launcher already implements the stated reading:
   entry the player chose on the same page and is undone by the same switch (logged with old and new value). Both
   therefore write no backup; removing `~ RUNASADMIN`, which the launcher cannot add back, and every change of D and P
   values write one (ADR 0007 amendment of L-WP5).
+- **2.5 Modified** (L-WP7, review fixes, not a text change): the contract says "only listed in the diagnostics". The
+  launcher reads the *Tools* page and the diagnostics report as the diagnostics: the files are listed there only. The
+  *Play* page shows the state as one informative line, "Files: OK, game data changed", without "Repair...", without a
+  message and without a window, because a player who installed a mod or an HD pack should see that the check knows it.
+  Proposed wording: "Modified: no message and no repair offer; the state may be shown, the files are listed only in the
+  diagnostics."
 - **3.6 Display question**: the contract says the launcher asks once; the launcher asks once per start of the
   launcher until it is answered (the markers wait for the answer), so a launcher closed without an answer asks again.
   Proposed wording for the next contract change: "asks until the user answers".
@@ -889,7 +903,7 @@ real-Windows cases (table "Vertrag 7", checked by `TestPlanTests`).
 | [x] | manifest reader and checks (2): BOM, CRLF, invalid lines, paths outside the root, classes, states, the uninstall key rule of 2.5 (L-WP7) | `ManifestReaderTests`, `FileClassifierTests`, `IntegrityCheckerTests`, `ContractSampleTests` | Launcher 2 |
 | [x] | defaults, marker, consistency checks and reset with backup (3) (L-WP5) | `GameSettingsTableContractTests`, `ComputedValuesTests`, `GameDefaultsServiceTests`, `DisplayQuestionTests`, `ConsistencyChecksTests`, `RegFileWriterTests`, `RegistryExportTests` | Launcher 3 |
 | [x] | repair hand-off and update check (4) with the URL cases of the setup's unit tests (L-WP6, L-WP7) | `RepairAdviceTests`, `UpdateUrlPolicyTests`, `SetupDownloadLocatorTests`, `UpdateCheckerTests`, `UpdateModelTests` | Launcher 4 |
-| [x] | setup and game mutexes (4.2): no game start, no reading of `install.ini` and `files.sha256` and no integrity check while a setup mutex exists, a running check cancelled, the share modes; starting the games with shell execute (L-WP6, L-WP7) | `GameStarterTests`, `SetupWatcherTests`, `InstallationServiceTests`, `IntegrityCheckerTests`, `IntegrityModelTests`, `LocalFileSystemTests`, `ShellProcessStarterTests`, `ProcessRulesTests` | Launcher 5 |
+| [x] | setup and game mutexes (4.2): no game start, no reading of `install.ini` and `files.sha256` and no integrity check while a setup mutex exists (also not by the maintenance tools, review fixes), a running check cancelled, the share modes; starting the games with shell execute (L-WP6, L-WP7) | `GameStarterTests`, `SetupWatcherTests`, `InstallationServiceTests`, `IntegrityCheckerTests`, `IntegrityModelTests`, `MaintenanceModelTests`, `VirtualStoreScannerTests`, `LocalFileSystemTests`, `ShellProcessStarterTests`, `ProcessRulesTests` | Launcher 5 |
 
 ## 16. Not in v2
 

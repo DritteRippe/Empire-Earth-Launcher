@@ -1,7 +1,7 @@
 # 0016 Mutation guard and effective game paths
 
 Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2 and L-WP4; plan review;
-implementation in L-WP5, L-WP6, L-WP7 and L-WP8), see the Amendment sections
+implementation in L-WP5, L-WP6, L-WP7 and L-WP8; review fixes), see the Amendment sections
 
 ## Context
 
@@ -183,3 +183,22 @@ with the two setup and the two game mutexes, `Export_IsNotBlocked`), `WonLoginRe
 `SavedGamesTests.List_MergesTheGameFolderAndTheVirtualStore_TheCopyWins`, `Import_ReplacesTheVirtualStoreCopyTheGameUses`,
 `Import_IntoAGameFolderThatRefuses_GoesToTheVirtualStore`, `VirtualStoreScannerTests.AFolderOutsideTheVirtualizedFolders_IsNotLookedUp`,
 `Launcher/MaintenanceModelTests.WhileASetupRuns_NothingCanBeChanged`; test plan WP8-07, WP8-08, WP8-11 and WP8-13.
+
+## Amendment 2026-10-02 (review fixes after L-WP9)
+
+The coverage and the security review found two gaps of the maintenance tools around the manifest. Closed, keeping the
+decision:
+
+- **No manifest read while a setup runs** (contract 4.2): the scans after a search or after a refused action, the import
+  plan and the WON login lookup read `files.sha256` although a setup mutex existed. `MaintenanceModel` does not scan while
+  the setup watcher sees a setup (the search after the setup scans again); `ManifestFiles.Read` asks the mutation guard
+  (`FindRunningSetup`, not logged) and does not open the file while a setup mutex exists, so a race with the watcher's
+  two-second tick is closed too (the result is `Unusable`: writing tools change nothing); the import checks again after
+  its file dialog.
+- **An unusable manifest stops the import** like the WON login reset: with a `files.sha256` that exists but cannot be read
+  or parsed, every file counted as "not a file of the installation", so a scenario the setup installed could be replaced.
+  `PlanImport` refuses every file with `ImportCheck.ManifestUnusable` and logs why.
+
+Evidence: `Launcher/MaintenanceModelTests.WhileASetupRuns_TheManifestIsNeverRead` (the open count of `files.sha256`
+stays the same during a setup), `Core/Maintenance/VirtualStoreScannerTests.WhileASetupRuns_TheManifestIsNotOpened`,
+`Core/Maintenance/SavedGamesTests.Import_WithAManifestThatCannotBeUsed_ImportsNothing` (invalid and unreadable).

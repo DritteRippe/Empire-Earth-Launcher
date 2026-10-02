@@ -1,7 +1,7 @@
 # 0007 Registry write scope, protected keys and .reg backups
 
 Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; implementation in L-WP2; plan review;
-implementation in L-WP5 and L-WP8), see the Amendment sections
+implementation in L-WP5 and L-WP8; security review), see the Amendment sections
 
 ## Context
 
@@ -266,3 +266,30 @@ cleanup, blocked by setup and game), `LauncherWritePolicyTests` (71), `RegistryW
 (11, also with real files), `WonLoginResetTests` (15), `Launcher/CleanupViewTests` (the UI mapping without
 candidates). Letting the cleanup go on after a failed backup file, moving a manifest file in the WON reset, or
 enabling the delete button without an offered key made one test fail each (locally, not committed).
+
+## Amendment 2026-10-02 (security review after L-WP9)
+
+The security review found three ways around "backup first, never the CD keys" that the decision did not name. Closed,
+keeping the decision:
+
+- **No line injection into a `.reg` backup**: the writer escaped only `\` and `"`, so a value or subkey name with a line
+  break (possible in any HKCU key) ended its line and could add lines such as `[-HKEY_LOCAL_MACHINE\SOFTWARE\Sierra\CDKeys]`
+  to a backup, which a restore by double-click would run with administrator rights. `RegFileWriter` refuses names with a
+  control character and key names with `]` (the format has no escape for them); `RegistryExport` reports such a tree as
+  `InvalidName`, so the backup fails and nothing is changed.
+- **Symbolic registry links are never followed**: `RegistryKey` follows `REG_LINK` keys, so a link below a stale key
+  (for example to `HKCU\Software\Sierra`) would have been exported into the backup, CD keys included, and deleted with the
+  tree. `IRegistry.IsLink` opens each key with `REG_OPTION_OPEN_LINK`; `RegistryExport` refuses a tree with a link (the
+  backup fails, nothing is deleted), and the cleanup reads each tree again right before deleting it. Links in the parents
+  of a fixed cleanup key are not looked at (the keys of the list are named by the setup and the games).
+- **"The folder is missing" means missing**: `Directory.Exists` is also false when access is denied, so a folder the
+  player may not look at counted as missing and its key was offered. A folder now counts as missing only if its parent
+  can be listed without it, or the parent is missing in the same sense; otherwise the key is kept with the new state
+  `FolderUnknown` and its own text.
+
+Evidence: `Core/Backup/RegFileWriterTests` (`NamesWithControlCharacters_AreRefused`,
+`KeyNamesWithAClosingBracket_AreRefused_ValueNamesMayHaveOne`), `RegistryExportTests` (`ReadTree_FailsForANameTheRegFileCannotHold`,
+`ReadTree_FailsForASymbolicLink`), `Core/Maintenance/RegistryCleanupTests` (`Delete_WhenANameCannotBeWrittenToTheBackup_NothingIsDeleted`,
+`Delete_WhenTheTreeHoldsASymbolicLink_NothingIsDeleted`, `Delete_WhenASymbolicLinkAppearsAfterTheBackup_TheKeyIsNotDeleted`,
+`Scan_AFolderThatMayNotBeLookedAt_IsKept`, `Scan_AFolderMissingFromAParentThatCanBeListed_IsStale`); test plan WP8-17 (a
+link on real Windows) and WP8-18 (a folder with a deny ACL).

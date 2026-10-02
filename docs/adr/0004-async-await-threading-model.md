@@ -1,7 +1,7 @@
 # 0004 async/await threading model
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2, L-WP4, L-WP6 and L-WP7, see the
-Amendment sections)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2, L-WP4, L-WP6 and L-WP7; review fixes),
+see the Amendment sections
 
 ## Context
 
@@ -140,3 +140,25 @@ Evidence: `Launcher/IntegrityModelTests` (`TheQuickCheck_NeverDelaysTheSearch`,
 `AnotherInstallation_CancelsTheRunningCheck_AndOnlyTheLatestReportCounts`, `CancelCheck_EndsTheFullCheck_WithoutFindings_AndTheFileIsClosed`),
 `Launcher/UpdateModelTests` (`Contract_4_3_ClosingTheAdvice_CancelsTheRequest`), `Core/Integrity/IntegrityCheckerTests`
 (`CheckAsync_WithACancelledToken_ReturnsACancelledReport`).
+
+## Amendment 2026-10-02 (review fixes after L-WP9)
+
+The build/UI review found three places where the implementation did not keep the decision. Fixed, keeping the decision:
+
+- **`UiOperation` restores the page's state**: it enabled its trigger unconditionally when the work ended, overwriting the
+  state the page had just applied (the delete button of the registry cleanup was enabled after the last key was deleted,
+  "Check all files" while a setup ran). `Run(trigger, work, restore)` now takes the page's state logic (its `ShowState`)
+  and applies it after enabling the trigger, also after a failure or a cancellation; an ignored start does not restore.
+  `Architecture/UiOperationRestoreTests` requires the restore for every trigger whose `Enabled` the page sets.
+- **`NetworkDiagnostics.RunAsync` runs on the thread pool**, as this ADR names it: the adapter list of Windows and the
+  configuration files were read before the first `await`, on the UI thread. The whole check is now `Task.Run`; the *Tools*
+  page passes a token that is cancelled when the page is disposed ("pages own a `CancellationTokenSource` that is cancelled
+  on dispose").
+- **Two thread-pool writers of the game defaults**: the defaults at the launcher start and the first Play could run at the
+  same time and both apply the first run. `GameDefaultsService` serializes its writing methods with one lock (they take
+  milliseconds; the second waits on the pool, never on the UI thread).
+
+Evidence: `Launcher/UiOperationTests` (`Restore_RunsAfterTheTriggerIsEnabled_AndDecidesItsState`,
+`Restore_RunsAlsoAfterAFailureAndACancellation`, `IgnoredStart_DoesNotRestore`), `Architecture/UiOperationRestoreTests`,
+`Core/Diagnostics/NetworkDiagnosticsTests.RunAsync_WithASlowAdapterList_ReturnsAnUnfinishedTaskAtOnce`,
+`Core/GameSettings/GameDefaultsServiceTests.Start_AndAFirstPlayAtTheSameTime_RunOneAfterTheOther`.

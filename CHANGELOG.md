@@ -520,6 +520,12 @@ section 15); all of them are done, newest first below. It has not been released;
   languages.
 - README: requirements per Windows version, Windows build commands for 4.8, the limits of the Mono build; the
   rule "no `async`/`await`" of the 4.0 build is gone.
+- Docs after the review panel: ADR 0004, 0007 and 0016 record the review fixes in amendments; the ADR index counts the
+  amendments of 0004, 0007, 0009, 0014 and 0016 correctly; ARCHITECTURE describes the cleanup rules (a folder that is
+  surely missing, no registry links, no names a `.reg` file cannot hold), proposes the reading of contract 2.5 for
+  Modified (the *Tools* page and the report are the diagnostics, the *Play* page shows the state as one informative line),
+  names the maintenance tools in the contract checklist of 4.2, and marks R7 as partly done (the comparison with the
+  adapter the game uses waits for test case WP9-02); `docs/TRANSLATING.md` lists 371 texts.
 
 ### Removed
 

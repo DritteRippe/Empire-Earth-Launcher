@@ -154,22 +154,24 @@ Changing the English text of an existing key means checking the German and Frenc
 
 ## Status
 
-369 texts (state of L-WP9, the last work package of v2: 76 texts of the network check and the diagnostics report on the
+371 texts (state of the review fixes after L-WP9: `ImportCheckManifestUnusable` and `CleanupKeepFolderUnknownFormat` of the
+maintenance tools, and `SavesInfo` changed to the port table of the network check; L-WP9, the last work package of v2: 76 texts of the network check and the diagnostics report on the
 *Tools* page and the link of the *Play* page were added; L-WP8 added 80 for the maintenance tools, L-WP7 59 for the
 integrity check, the *Tools* page, the version check and the download of the update API, L-WP6 29 for Play, the repair
 advice, a running setup and a second launcher, L-WP5 51 for the game settings, L-WP4 21 for the list of installations).
 
 | Language | Translated | Review |
 |---|---|---|
-| English | 369 | source |
-| German `de` | 369 | proof-reading by a native speaker in the laptop test ([TEST-PLAN.de.md](TEST-PLAN.de.md), cases WP3-*, WP4-17, WP5-17, WP6-14, WP7-14, WP8-15 and WP9-14); open until that test |
-| French `fr` | 369 | **open**: only `NavigationPlay` ("Jouer") and `NavigationSettings` ("Paramètres") come from the original French authors; all other French texts were written during the review fixes and v2 without a native speaker |
+| English | 371 | source |
+| German `de` | 371 | proof-reading by a native speaker in the laptop test ([TEST-PLAN.de.md](TEST-PLAN.de.md), cases WP3-*, WP4-17, WP5-17, WP6-14, WP7-14, WP8-15 and WP9-14); open until that test |
+| French `fr` | 371 | **open**: only `NavigationPlay` ("Jouer") and `NavigationSettings` ("Paramètres") come from the original French authors; all other French texts were written during the review fixes and v2 without a native speaker |
 
 ### Help wanted
 
-- **French**: a native speaker who reads the 367 French texts other than the two navigation texts in
+- **French**: a native speaker who reads the 369 French texts other than the two navigation texts in
   `Resources.fr.resx`, ideally while looking at each page. The 76 texts of the network check and the diagnostics
-  report (keys from `ToolsNetworkHeading` to `PlayerListCheckNetworkLink`, at the end of the file) are the newest;
+  report (keys from `ToolsNetworkHeading` to `PlayerListCheckNetworkLink`) and the two texts of the review fixes after them
+(`ImportCheckManifestUnusable`, `CleanupKeepFolderUnknownFormat`, at the end of the file) are the newest;
   before them come the 80 texts of the maintenance tools (from `ToolsCleanupHeading` to `ToolsChecking`), the 59 texts of
   the integrity check and the update API (from `NavigationTools` to `RepairFallbackFormat`) and the 29 texts of Play
   and the repair advice (from `LauncherAlreadyRunning` to `RepairPageNotOpenedFormat`); the 51 texts of the game
