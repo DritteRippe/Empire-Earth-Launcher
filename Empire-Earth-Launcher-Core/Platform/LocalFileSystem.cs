@@ -12,6 +12,13 @@ namespace Empire_Earth_Launcher.Core.Platform
     /// </summary>
     public sealed class LocalFileSystem : IFileSystem
     {
+        /// <summary>
+        /// The sharing of <see cref="OpenRead"/>: others may read, write, delete and rename the file while the launcher reads
+        /// it (ADR 0016 plan review, contract 4.2). The game may hold its files open, and a setup that starts while the
+        /// integrity check hashes a file must be able to delete or replace it (otherwise "DeleteFile failed; code 32").
+        /// </summary>
+        internal const FileShare ReadShare = FileShare.ReadWrite | FileShare.Delete;
+
         public bool FileExists(string path)
         {
             if (path == null)
@@ -50,7 +57,7 @@ namespace Empire_Earth_Launcher.Core.Platform
                 throw new ArgumentNullException(nameof(path));
             try
             {
-                Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read, ReadShare);
                 return FileSystemResult<Stream>.Success(stream);
             }
             catch (Exception ex) when (IsFileSystemError(ex))

@@ -150,8 +150,9 @@ namespace Empire_Earth_Launcher.Core.Platform
         FileSystemResult<FileEntry> GetFileInfo(string path);
 
         /// <summary>
-        /// Opens a file for reading; others may keep reading and writing it (the game may hold its files open).
-        /// The caller disposes the stream.
+        /// Opens a file for reading; others may keep reading, writing, deleting and renaming it (the game may hold its
+        /// files open, and a setup that starts meanwhile must be able to replace them, contract 4.2). The caller disposes
+        /// the stream.
         /// </summary>
         FileSystemResult<Stream> OpenRead(string path);
 

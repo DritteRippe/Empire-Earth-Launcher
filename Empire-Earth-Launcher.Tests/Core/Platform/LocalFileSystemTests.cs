@@ -66,6 +66,43 @@ namespace Empire_Earth_Launcher.Tests.Core.Platform
         }
 
         [Test]
+        public void OpenRead_LetsOthersRenameAndDeleteTheOpenFile()
+        {
+            // ADR 0016 plan review, contract 4.2: a setup that starts while the integrity check reads a file must be able to
+            // delete and replace it. Under Mono every file can be deleted; on Windows (the Tests\ folder of the laptop
+            // package, test plan WP1-11) this fails without FileShare.Delete.
+            Assert.That(LocalFileSystem.ReadShare, Is.EqualTo(FileShare.ReadWrite | FileShare.Delete));
+            string file = directory.CreateFile("files.sha256", "abc");
+            string renamed = directory.Combine("files.sha256.old");
+
+            FileSystemResult<Stream> opened = fileSystem.OpenRead(file);
+            Assert.That(opened.IsOk, Is.True);
+            using (Stream stream = opened.Value)
+            {
+                Assert.DoesNotThrow(() => File.Move(file, renamed), "rename while the launcher reads");
+                Assert.DoesNotThrow(() => File.Delete(renamed), "delete while the launcher reads");
+                Assert.That(stream.ReadByte(), Is.EqualTo('a'), "the open stream still reads");
+            }
+
+            Assert.That(File.Exists(file), Is.False);
+            Assert.That(File.Exists(renamed), Is.False, "deleted once the launcher closed it");
+        }
+
+        [Test]
+        public void OpenRead_LetsOthersWriteTheOpenFile()
+        {
+            string file = directory.CreateFile("Empire Earth.cfg", "abc");
+
+            FileSystemResult<Stream> opened = fileSystem.OpenRead(file);
+            Assert.That(opened.IsOk, Is.True);
+            using (opened.Value)
+            using (var writer = new FileStream(file, FileMode.Open, FileAccess.Write, FileShare.ReadWrite | FileShare.Delete))
+                writer.WriteByte((byte)'x');
+
+            Assert.That(File.ReadAllText(file), Is.EqualTo("xbc"));
+        }
+
+        [Test]
         public void GetFilesAndDirectories_AreSortedIgnoringCase()
         {
             directory.CreateFile("b.txt");
