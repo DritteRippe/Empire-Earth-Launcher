@@ -9,9 +9,68 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), section 15).
+Launcher v2 was built on branch `v2` in the work packages L-WP1 to L-WP9 ([docs/ARCHITECTURE.md](docs/ARCHITECTURE.md),
+section 15); all of them are done, newest first below. It has not been released; the test on real Windows follows
+([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md)).
 
 ### Added
+
+- Network check (R7, `Empire-Earth-Launcher-Core/Diagnostics/NetworkDiagnostics`, `DiagnosticsModel`), only when the
+  player clicks "Check network" on the *Tools* page or the link below an unavailable player list: the network adapters
+  (type, driver name, state, IPv4 with prefix and gateway, IPv6 only as none, link-local only or available; VPN, Hamachi
+  and other virtual adapters marked, forum 4.10), the name lookup of the NeoEE status server and of the `Server` of each
+  `NeoEE.cfg` (5 seconds each), the update API with the query of contract 4.3 (only the AppId is sent; not asked without
+  an installation that has one) and the NeoEE status server with the request of the player list, all at the same time.
+  Hints for a computer without an IPv4 gateway (offline, or IPv6 only), virtual or VPN adapters, several adapters with a
+  gateway, and from `upnp_info.txt` a CGNAT (100.64.0.0/10) or missing external IPv4 address (DS-Lite when a global IPv6
+  address exists) or a private one (a second router). No "what is my IP" service, no connection to the ports 10002 and
+  10003 of NeoEE; `NetworkDestinationTests` keeps the launcher to its three destinations.
+- Outage hint (forum report section 8 row 9, not droppable, `OutageHint`): when the status host resolves and the update
+  API answers but the status server does not, the verdict is "Probably a server outage, not your computer"; every other
+  combination of name lookup, update API and status server has its own verdict (no connection, a firewall, a name that
+  does not resolve, not determinable without the update API, status server not configured), tested in all 18
+  combinations. Below a player list that says "not available" the *Play* page shows "Why? Check the network", which opens
+  the *Tools* page at "Network" and starts the check.
+- `NeoEE.cfg` and `WONLobby.cfg` of both game folders, read only (the VirtualStore copy first, at most 64 KiB):
+  `Active`, `Server`, `DefaultPort`, `MemberPorts`, `PortCheck`, `TryUPnP`, `CDKeyCheck`, `EEFileTransferPort` and
+  `LobbyPort`, invalid values named; the port forwarding table for hosting (default 33334 and 33336 TCP+UDP, 33335 TCP,
+  forum t=11057 p=48100) with the IPv4 address of this computer when exactly one real adapter has a gateway; hints when
+  RIP hosting is off and, for NeoEE, when `CDKeyCheck` is not `true` (t=10950; the launcher never offers to change it).
+- `upnp_info.txt` with a tolerant parser (`UpnpInfoParser`): labelled lines of the external and the local address and up
+  to ten port lines are recognized, anything else is "unknown format"; the external address is kept only as its class.
+  This part could have been dropped (ARCHITECTURE 15); it is implemented. Its real format is still to be confirmed with a
+  file from a real computer (test case WP9-10).
+- Diagnostics report (ARCHITECTURE 4.6, `DiagnosticsReport`, `ReportAnonymizer`): "Copy report" and "Save report..." on
+  the *Tools* page give one English text with the launcher and Windows version, the screen and its display adapter, the
+  installations with their folders, kinds, versions and AppIds, the program versions, whether a DirectX wrapper is
+  installed per game (contract 3.3, with its source), the integrity state and its findings, the game defaults and the
+  consistency findings, the VirtualStore, the name check, whether each `CDKeys` key exists, the cleanup counts and the
+  latest network check. Privacy rules of ADR 0013 (plan review): paths with `%USERPROFILE%`, `%LOCALAPPDATA%`, `<user>`
+  (also `D:\Users\<name>` and VirtualStore paths), `<computer>`, `<server>` and `<domain>`; public, CGNAT and IPv6
+  addresses only as their class; no MAC address, adapter GUID, user-chosen adapter name or DNS suffix; player and profile
+  names only as "EE lobby profile 1: characters outside printable ASCII"; never a CD key. The report is saved as UTF-8
+  into the file the player chooses (never into an installation), never sent, and never logged.
+- Platform: `INetworkInfo` with `WindowsNetworkInfo` (adapters, name lookups with a 5-second limit) and `FakeNetworkInfo`;
+  `ISystemInfo.PrimaryDisplayAdapter` (the device string of `EnumDisplayDevices`); `ComputedValues.DirectXWrapper`, the
+  wrapper rule of contract 3.3 on its own.
+- 76 new texts in English, German and French for the network check, the report and the link of the *Play* page (now
+  369); the report and the log stay English.
+- Tests: the readers, the address classes, the outage verdict, the hints, the port table and the privacy of the log lines
+  with fakes; the report as a golden file (`Core/Diagnostics/Golden/DiagnosticsReport.txt`, CRLF) and a negative test
+  with a computer full of IP, IPv6 and MAC addresses, adapter GUIDs and names, computer, domain, user and player names
+  and a filled `Software\Sierra\CDKeys` (`NOT-A-KEY-0000`); `DiagnosticsModel` (only on request, one check at a time,
+  saving refused inside an installation); `NetworkDestinationTests`; `ContractChecklistTests` (the ticked contract
+  checklist of ARCHITECTURE 15 names only existing test classes); `TestPlanTests` in their final form.
+- Test plan: cases WP9-01 to WP9-16 (adapters and VPN with the collection task where the game stores its adapter
+  choice, cable and WLAN, offline, the outage with a wrong status port, a wrong host and a firewall rule, no AppId,
+  `NeoEE.cfg`, `WONLobby.cfg` and the port table while hosting, RIP hosting and `CDKeyCheck` off, the collection task
+  for `upnp_info.txt`, reading the copied report for personal data, saving it, the privacy of the log, the three
+  languages, the laptop package, the log) and W7-06; R7 and forum test cases 11 and 12 are assigned, nothing in the plan
+  is "offen" any more, and the table "Vertrag 7" assigns the five launcher items of the contract checklist to cases.
+- Nothing of L-WP9 was dropped. Dropped in v2 as ARCHITECTURE 15 allows, all in L-WP8: the zip export and the zip import
+  of saved games. Kept as planned and not in v2 (README): the DirectX wrapper switch, a resolution chooser, the GPU
+  driver version in the log, a port check from outside, ending a hanging process, the mods page and the other old
+  placeholders.
 
 - Registry cleanup (R5, [ADR 0007](docs/adr/0007-registry-write-scope-and-reg-backups.md);
   `Empire-Earth-Launcher-Core/Maintenance`: `CleanupCandidates`, `CleanupAdvice`, `RegistryCleanup`): cleanup of HKCU
@@ -339,6 +398,18 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
 - This changelog.
 
 ### Changed
+
+- The *Tools* page ends with "Network" and "Diagnostics report"; the *Play* page has the link "Why? Check the
+  network" in the group of the online players, visible only while the list is "not available". `Program` composes
+  `WindowsNetworkInfo`, the status server, `NetworkDiagnostics` and `DiagnosticsModel` with the user, computer and
+  domain names of Windows for the privacy rules (kept only in memory).
+- `ComputedValues.Rasterizer` takes the wrapper rule from `ComputedValues.DirectXWrapper`; the recommendation is
+  unchanged.
+- `TestIsolationTests` leaves out the rule samples of `NetworkDestinationTests`, as it leaves out its own.
+- ARCHITECTURE.md describes v2 as built (status, module map, 4.6, logging, files, localization, security, testing, open
+  points) and ticks the launcher items of the contract checklist; ADR 0006, 0008, 0012, 0013 and 0014 record the
+  implementation of L-WP9 in amendments; `docs/TRANSLATING.md` lists 369 texts and the new screens to check; the
+  README describes the finished v2 with its privacy rules.
 
 - The launcher's write policy (`LauncherWritePolicy`) allows deleting exactly the eight HKCU keys of the cleanup list
   as trees (before: no tree deletion at all); the protected keys are still refused first, also through every alias.

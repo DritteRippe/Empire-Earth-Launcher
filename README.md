@@ -7,10 +7,11 @@ Coded in C# with the .NET Framework 4.8 and Krypton UI
 
 ## 🧾 Features
 
-Launcher v2 is being built in work packages on branch `v2` ([docs/ARCHITECTURE.md](docs/ARCHITECTURE.md),
-section 15; what is done is in the [CHANGELOG](CHANGELOG.md)). The UI shows only controls that work
-([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md)): the placeholder controls of the old mock-up were
-removed and the features behind them are listed below.
+Launcher v2 was built in nine work packages on branch `v2` ([docs/ARCHITECTURE.md](docs/ARCHITECTURE.md),
+section 15; what each one did is in the [CHANGELOG](CHANGELOG.md)). All of them are done; nothing has been released
+yet, and the next step is the test on real Windows computers ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md)). The UI
+shows only controls that work ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md)): the placeholder
+controls of the old mock-up were removed and the features behind them are listed below as planned.
 
 **Available now**
 
@@ -53,6 +54,19 @@ removed and the features behind them are listed below.
     games that cannot be loaded, crashes) and the hint that the host of a multiplayer game needs the ports 33334 to
     33336
   - "Open backup folder"; the backup folder contains login data after a WON reset, never pass it on
+  - Network check, only when you click "Check network" (or "Why? Check the network" below a player list that is "not
+    available" on the *Play* page): the network adapters of this computer (VPN, Hamachi and other virtual adapters
+    marked), the name lookup of the NeoEE servers, the update server, the NeoEE status server, `NeoEE.cfg` and
+    `WONLobby.cfg` of both game folders (only read: RIP hosting, ports, `CDKeyCheck`) with the port forwarding table
+    for hosting (33334 and 33336 TCP+UDP, 33335 TCP by default), and `upnp_info.txt`. The result says what is wrong,
+    for example "Probably a server outage, not your computer" when the names resolve and the update server answers
+    but the NeoEE server does not, and gives hints for offline computers, several or virtual adapters, Carrier-grade
+    NAT, DS-Lite, a second router, RIP hosting switched off and `CDKeyCheck` (forum: lobby and hosting problems)
+  - Diagnostics report: "Copy report" or "Save report..." gives one English text with what the launcher found
+    (launcher and Windows version, screen and display adapter, installations, file versions, DirectX wrapper,
+    integrity, game defaults and hints, VirtualStore, whether the CD keys exist, the network check) for a forum post.
+    It contains no CD keys, login data, player names, MAC or public IP address and no user or computer name, and the
+    launcher never sends it
 - One launcher at a time (a second start says so and ends)
 - NeoEE online player list, with the lobby profiles and friends of the game folder (also when the game keeps them
   in the VirtualStore)
@@ -71,25 +85,28 @@ removed and the features behind them are listed below.
 - Mod creator for `.eem` mod packages
 - Windows 7 SP1, 8.1, 10 and 11 with the .NET Framework 4.8 (see [Requirements](#requirements))
 
-**Coming with v2** (each with its work package, ARCHITECTURE section 15)
-
-- Network diagnostics and a configuration report
-
 **Planned, not in v2** (their placeholders were removed from the UI)
 
 - Full mod system in the launcher: *Mods* page, browsable mods list, "mods in use", `.eem` file association
 - dreXmod switch, Discord presence, HD textures, skip intro, game font customizer, lobby customizer
 - Game languages (voices, lobby, campaigns) and the online ranking
-- DirectX wrapper switch (DX 9/11/12) and resolution chooser: the setup's custom installation switches the wrapper,
-  the launcher must not change game files ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md))
+- DirectX wrapper switch (DX 9/11/12): the setup's custom installation switches the wrapper, the launcher must not
+  change game files ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md)); the diagnostics report says whether
+  one is installed
+- Resolution choice with a 4:3 hint: the game has its own option; the launcher offers the recommended display settings
+  and warns below 768 pixels
 - Auto-compatibility detector ("My game is working", "Auto-detect") and auto-update
 - Writing the GPU driver version into the log (the diagnostics report names the display adapter)
+- Checking the forwarded ports from outside (needs a service on the server; the launcher shows the forwarding table)
 
-**No telemetry**: the old checkbox "Allow us to collect diagnostic data" is gone. The launcher collects no usage or
-diagnostic data. Its connections are the request for the NeoEE player list and, only when you ask for it (repair
-advice, version check), an HTTPS request to `api.empireearth.eu` that sends nothing but the AppId of the installation
-and the version; the download page opens in your browser only when you click its button. CD keys are repaired by
-re-running the community setup; the launcher never touches them.
+**Privacy, no telemetry**: the old checkbox "Allow us to collect diagnostic data" is gone. The launcher collects no
+usage or diagnostic data. Its connections are the request for the NeoEE player list and, only when you ask for it
+(repair advice, version check, network check), an HTTPS request to `api.empireearth.eu` that sends nothing but the
+AppId of the installation and the version, and the name lookups of the network check; it asks no service for your
+public address. The download page opens in your browser only when you click its button. The diagnostics report is
+made only when you click, stays on your computer until you paste or send it yourself, and replaces your user and
+computer name, public addresses, MAC addresses and player names; read it before you post it. CD keys are repaired by
+re-running the community setup; the launcher never touches them (the report only says whether they exist).
 
 ## 🌐 Download
 Sorry, at the moment the launcher is **ABSOLUTELY NOT** available for download in its current state.\
@@ -224,15 +241,19 @@ cover:
   write policy, the cleanup with backup first and nothing deleted when the backup fails, the CD keys unchanged, the
   WON login reset, the VirtualStore check, the export and import of saved games and the name check; every writing
   action blocked by a running setup and game; moving, exporting and importing also with real files in a temporary
-  folder) and the file backup (`Backup/`), the byte samples of `docs/contract-samples/` read by the launcher's
-  readers (`Contract/`), the HTTPS client's settings, the online player list poller (`Lobby/`) and the start
-  information of the shell starter;
+  folder) and the file backup (`Backup/`), the network check and the report (`Diagnostics/`: the readers of
+  `NeoEE.cfg`, `WONLobby.cfg` and `upnp_info.txt`, the address classes, every combination of the outage verdict, the
+  hints and the port table with a fake network, the privacy of the log lines, and the report as a golden file of a
+  synthetic computer plus a negative test with a computer full of personal data and CD keys), the byte samples of
+  `docs/contract-samples/` read by the launcher's readers (`Contract/`), the HTTPS client's settings and the network
+  information (`Platform/`), the online player list poller (`Lobby/`) and the start information of the shell starter;
 - the UI helpers of the launcher (`Launcher/`): `UiOperation`, the "unexpected error" message, the logging of
   unobserved task exceptions, the texts chosen for results (`Texts`), the UI language applied at start, the
   installation service (also while a setup runs), the models of the game settings pages (`GameSettingsModel`), of
   the Play page (`PlayModel`), of the integrity check (`IntegrityModel`: the quick check after every search and after a
-  setup, never while one runs, cancel), of the update API (`UpdateModel`) and of the maintenance tools
-  (`MaintenanceModel`, and what the registry cleanup shows: `CleanupView`), and the message of a second launcher;
+  setup, never while one runs, cancel), of the update API (`UpdateModel`), of the maintenance tools
+  (`MaintenanceModel`, and what the registry cleanup shows: `CleanupView`) and of the network check and the report
+  (`DiagnosticsModel`: only on request, saving never into an installation), and the message of a second launcher;
 - the WON lobby file parser, the NeoEE protocol framing, reply parsing and request deadline (`Won/`), and the mod
   library (`Mod/`: product folders, file types, versions, the working directory of the mod creator, `.eem`
   export/import including damaged archives);
@@ -242,9 +263,11 @@ cover:
   (`WOW6432Node`, registry VirtualStore, `/`, case) and every ancestor, for every operation, and the UI texts:
   the removed placeholder controls stay removed (`PlaceholderControlsTests`), every designer text is set again
   in `ApplyTexts()` (`ApplyTextsTests`), and English, German and French have the same texts, placeholders and
-  built satellite assemblies (`ResourceParityTests`); and the test plan (`TestPlanTests`): unique case IDs, the
-  cases of the current work package, every case named in the documents exists, and the mapping of the requirements
-  and forum test cases is complete; the tests themselves touch no registry, network or launcher file
+  built satellite assemblies (`ResourceParityTests`); and the test plan (`TestPlanTests`): unique case IDs, cases for
+  every work package, every case named in the documents exists, the mapping of the requirements and forum test cases
+  is complete with nothing left open, and every launcher item of the contract checklist has its cases; the ticked
+  checklist of ARCHITECTURE 15 names only existing test classes (`ContractChecklistTests`); the launcher contacts only
+  its three destinations (`NetworkDestinationTests`); the tests themselves touch no registry, network or launcher file
   (`TestIsolationTests`), and only the shell starter starts programs, never without the shell or elevated, and
   nothing ends a process (`ProcessRulesTests`); no source overrides the certificate check
   (`NoCertificateOverrideTests`), names an old or explicit TLS version or sets it outside `Program`
@@ -259,8 +282,9 @@ documents, the CI workflow and the built satellite assemblies (the tests that re
 `Tests\` folder of the laptop package) runs the others with `--where "cat != SourceTree"`. The tests use fakes
 (`Fakes/`: in-memory registry with both HKLM views and a 32-bit Windows mode, in-memory file system with Windows
 path rules, mutex probe and owner, clock, logger, system information with Windows version, Wine, screen and code
-page, process starter, process list, file versions, an HTTPS client that answers from a table; `TestSupport/` also
-has `MappedFileSystem`, the real file system behind a drive letter that stands for a temporary folder) and
+page, process starter, process list, file versions, an HTTPS client that answers from a table, network adapters and
+name lookups from a table; `TestSupport/` also has `MappedFileSystem`, the real file system behind a drive letter that
+stands for a temporary folder) and
 only write below the temporary folder; they never contact a server, never touch the real registry or
 `%LOCALAPPDATA%` and never show UI. Path logic is `WinPath` string logic, so every
 test also runs under Mono; no test is skipped. The core, the launcher and the WON library make their internal helpers
@@ -332,7 +356,11 @@ Empire-Earth-Launcher-Core/       UI-free core library of the launcher (Empire_E
 │                                 IClock, ISystemInfo/WindowsSystemInfo (Windows version, Wine, screen size, code
 │                                 page), IProcessStarter/ShellProcessStarter (shell execute, open a folder),
 │                                 IProcessList, IFileVersionReader, IHttpsClient/HttpsClient (no redirects, 10 s,
-│                                 4 KiB, certificate check of Windows, ADR 0008)
+│                                 4 KiB, certificate check of Windows, ADR 0008), INetworkInfo/WindowsNetworkInfo
+│                                 (network adapters, name lookups with a 5 s limit)
+├─ Diagnostics/                   The network check and the report: NetworkDiagnostics, OutageHint, AddressClassifier,
+│                                 NeoEeConfigReader, WonLobbyConfigReader, UpnpInfoParser (all only read),
+│                                 ReportAnonymizer (privacy rules), DiagnosticsReport
 ├─ Logging/                       ILogger, TraceFileLogger (log file with trimming)
 ├─ Maintenance/                   The maintenance tools: CleanupCandidates (the cleanup list of ARCHITECTURE 4.6),
 │                                 CleanupAdvice, RegistryCleanup, WonLoginReset, VirtualStoreScanner, SavedGames
@@ -359,8 +387,10 @@ Empire Earth Launcher/            The launcher (WinForms + Krypton UI)
 ├─ IntegrityModel.cs              The integrity check of the selected installation (quick check, full check)
 ├─ UpdateModel.cs                 The update API: version check, download of the repair advice
 ├─ MaintenanceModel.cs            The maintenance tools of the Tools page (scans, actions, backup folder)
+├─ DiagnosticsModel.cs            The network check and the diagnostics report of the Tools page
 ├─ CleanupView.cs                 What the registry cleanup shows (summary, keys to select, advice, delete button)
-├─ ToolsUserControl.cs            The Tools page (integrity, repair advice, version check, maintenance tools)
+├─ ToolsUserControl.cs            The Tools page (integrity, repair advice, version check, maintenance tools, network,
+│                                 report)
 ├─ RepairAdviceDialog.cs          The repair advice window (built in code, wraps every language)
 └─ Resources/                     Images and icon used by the UI
 Empire-Earth-WON/                 WON/NeoEE library, no UI (used by the launcher)
@@ -375,14 +405,15 @@ Empire-Earth-Mod/
 └─ Empire-Earth-Mod/              Mod creator (WinForms), uses Empire-Earth-Mod-Lib
 Empire-Earth-Launcher.Tests/      Unit tests (NUnitLite console program), one folder per tested project:
 ├─ Architecture/                  Rules for the whole solution (project settings, core dependencies, registry aliases,
-│                                 placeholder controls, ApplyTexts, resource parity, test plan, test isolation,
-│                                 process starts, TLS and certificate rules, synthetic fixture hashes)
+│                                 placeholder controls, ApplyTexts, resource parity, test plan, contract checklist,
+│                                 test isolation, network destinations, process starts, TLS and certificate rules,
+│                                 synthetic fixture hashes)
 ├─ Core/                          The core library, one folder per area
 ├─ Launcher/                      UI helpers, installation service, page models, start of a second launcher
 ├─ Won/                           WON lobby files, NeoEE protocol
 ├─ Mod/                           Mod library and .eem archives
 ├─ Fakes/                         In-memory registry and file system, mutex probe, clock, logger, process starter,
-│                                 process list, file versions, HTTPS client (with tests)
+│                                 process list, file versions, HTTPS client, network information (with tests)
 └─ TestSupport/                   Temporary folders, chunked streams, repository root, project files, worlds of
                                   installations, MappedFileSystem (real files behind a drive letter)
 packages/                         NuGet packages, restored on build (not committed)
@@ -438,10 +469,10 @@ packages/                         NuGet packages, restored on build (not committ
   over HTTPS with the certificate check of Windows, no redirects, 10 seconds and at most 4 KiB; on Windows 7 TLS 1.2 is
   requested explicitly, elsewhere Windows chooses. A download address is used only if it passes the setup's own URL
   check; every failure gives `https://empireearth.eu/download`, and the window and the log say why.
-- **Architecture of v2**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) describes the target structure (UI-free
+- **Architecture of v2**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) describes the structure as built (UI-free
   core library, thin WinForms UI on .NET Framework 4.8), data flows, threading, error handling, logging,
-  localization and tests; the decisions behind it are recorded in [docs/adr/](docs/adr/README.md). Until v2 is
-  complete, this README describes what exists today.
+  localization and tests, and ticks the launcher items of the contract checklist; the decisions behind it are recorded
+  in [docs/adr/](docs/adr/README.md).
 - **Play** ([ADR 0010](docs/adr/0010-game-start-and-mutex-probing.md)): *Play* starts the chosen game of the selected
   installation (`LastGame` in `settings.json`) in this order: no setup may run (`EE_Setup`, `NeoEE_Setup`), the same
   game may not run (its mutex), the other game running asks first, the program must exist (else the repair advice),
@@ -473,7 +504,9 @@ packages/                         NuGet packages, restored on build (not committ
   theme `Light` is only logged as information).
 - **Log**: `%LOCALAPPDATA%\Empire Earth Launcher\log.txt` (the installation folder may be read-only). English
   messages with ISO time stamps; it never contains CD-key values, WON login data or the names the name check finds
-  (ADR 0013). Errors of background tasks that nobody handled are logged there as well.
+  (ADR 0013), and the lines of the network check follow the privacy rules of the report (no MAC address, adapter
+  name, public or IPv6 address, user or computer name). Errors of background tasks that nobody handled are logged
+  there as well.
 - **Registry**: the core opens every HKLM key with an explicit view (64- or 32-bit) and never depends on the
   launcher's own bitness (contract 0). Every change of the registry passes the write policy of
   [ADR 0007](docs/adr/0007-registry-write-scope-and-reg-backups.md): only HKCU keys of an allow-list with their
@@ -497,6 +530,20 @@ packages/                         NuGet packages, restored on build (not committ
   `EE\`, `AoC\`, `EE-VirtualStore\` or `AoC-VirtualStore\` with `moved-files.txt`, which names where each file was;
   copy a file back there to restore it. **The backup folder contains login data after a WON reset: never pass it on.**
   "Open backup folder" on the *Tools* page opens it. The launcher never deletes backups.
+- **Network check** ([ADR 0008](docs/adr/0008-https-policy-and-update-api.md)): only on request. It reads the
+  adapters from Windows, resolves the host of the NeoEE status server and the `Server` of each `NeoEE.cfg` (5 seconds
+  each), asks the update API as the repair advice does (AppId of the selected installation, else of the first one
+  with an AppId) and asks the status server for the player list, all at the same time; it reads `NeoEE.cfg`,
+  `WONLobby.cfg` and `upnp_info.txt` of both game folders (the VirtualStore copy first) without changing them. It
+  never connects to the ports 10002 and 10003 of NeoEE and asks no "what is my IP" service; the external address of
+  `upnp_info.txt` is shown only as its class (public, CGNAT, private). The format of `upnp_info.txt` is not known for
+  sure: an unknown layout is shown as "unknown format".
+- **Diagnostics report**: built when you click "Copy report" or "Save report..." from the latest results of every
+  page; saved as UTF-8 text into the file you choose (`Documents` is suggested, a game folder is refused). Paths below
+  your profile start with `%USERPROFILE%` or `%LOCALAPPDATA%`, other occurrences of your user name and your computer
+  name are replaced by `<user>` and `<computer>`, public and IPv6 addresses by their class, player and profile names by
+  "EE lobby profile 1: characters outside printable ASCII"; CD keys appear only as "exists" or "missing". The log
+  records only that the report was copied or where it was saved.
 - **Exports of saved games**: a new folder `Empire Earth saves <yyyy-MM-dd_HHmmss>` in the folder you choose (not a
   game folder), with `EE\Saved Games`, `EE\Scenarios`, `AoC\Saved Games` and `AoC\Scenarios`. When the same file
   name is in the game folder and in its VirtualStore copy, the export takes the copy (the one the game uses) and the
