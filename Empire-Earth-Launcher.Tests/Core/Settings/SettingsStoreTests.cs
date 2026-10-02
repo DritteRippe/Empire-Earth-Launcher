@@ -43,6 +43,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Settings
             Assert.That(settings.GameDirectory, Is.Empty);
             Assert.That(settings.ThemeName, Is.EqualTo("Light"));
             Assert.That(settings.CustomThemeFile, Is.Empty);
+            Assert.That(settings.UiCulture, Is.Empty, "the Windows language");
             Assert.That(settings.SchemaVersion, Is.EqualTo(1));
         }
 
@@ -217,7 +218,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Settings
         [Test]
         public void MissingAndNullMembers_GetTheirDefaults()
         {
-            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"ThemeName\":null,\"CustomThemeFile\":null}");
+            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"ThemeName\":null,\"CustomThemeFile\":null,\"UiCulture\":null}");
 
             Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Loaded));
             AssertDefaults(store.Current);
@@ -227,16 +228,42 @@ namespace Empire_Earth_Launcher.Tests.Core.Settings
         public void UnknownMembers_SurviveASave()
         {
             // A newer launcher with the same schema version added members; this launcher keeps them.
-            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"UiCulture\":\"de\",\"HiddenWarnings\":[{\"Name\":\"Game Bit Depth\",\"Value\":\"16\"}],\"ThemeName\":\"Dark\"}");
+            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"LastGame\":\"AoC\",\"HiddenWarnings\":[{\"Name\":\"Game Bit Depth\",\"Value\":\"16\"}],\"ThemeName\":\"Dark\"}");
             store.Load();
 
             store.Current.ThemeName = "Blue";
             Assert.That(store.Save(), Is.EqualTo(SettingsSaveStatus.Saved));
 
             string saved = fileSystem.GetText(File);
-            Assert.That(saved, Does.Contain("\"UiCulture\": \"de\""));
+            Assert.That(saved, Does.Contain("\"LastGame\": \"AoC\""));
             Assert.That(saved, Does.Contain("\"Game Bit Depth\""));
             Assert.That(saved, Does.Contain("\"ThemeName\": \"Blue\""));
+        }
+
+        [Test]
+        public void UiLanguage_IsLoadedAndSaved()
+        {
+            // UiCulture was an unknown member before L-WP3; files of earlier test builds simply lack it.
+            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"ThemeName\":\"Dark\",\"UiCulture\":\"fr\"}");
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Loaded));
+            Assert.That(store.Current.UiCulture, Is.EqualTo("fr"));
+
+            store.Current.UiCulture = "de";
+            Assert.That(store.Save(), Is.EqualTo(SettingsSaveStatus.Saved));
+
+            Assert.That(fileSystem.GetText(File), Does.Contain("\"UiCulture\": \"de\""));
+            Assert.That(new SettingsStore(fileSystem, File, logger).LoadAndGet().UiCulture, Is.EqualTo("de"));
+        }
+
+        [Test]
+        public void UnknownUiLanguage_IsKeptAsWritten()
+        {
+            // The launcher shows the Windows language for it (UiLanguage), but does not rewrite the file.
+            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"UiCulture\":\"es\"}");
+
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Loaded));
+            Assert.That(store.Current.UiCulture, Is.EqualTo("es"));
+            Assert.That(logger.MessagesOf(LogLevel.Error), Is.Empty);
         }
 
         [Test]

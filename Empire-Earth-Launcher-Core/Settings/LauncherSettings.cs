@@ -13,7 +13,7 @@ namespace Empire_Earth_Launcher.Core.Settings
     /// <see cref="CurrentSchemaVersion"/>; renaming, removing or changing the meaning of a member raises it.
     /// </para>
     /// <para>
-    /// Members still to come with their work packages (ARCHITECTURE 8): UI language, last game, hidden warnings.
+    /// Members still to come with their work packages (ARCHITECTURE 8): last game, hidden warnings.
     /// </para>
     /// </remarks>
     [DataContract(Name = "LauncherSettings", Namespace = "")]
@@ -50,6 +50,14 @@ namespace Empire_Earth_Launcher.Core.Settings
         [DataMember(Order = 3)]
         public string CustomThemeFile { get; set; }
 
+        /// <summary>
+        /// Language of the launcher's UI: <c>en</c>, <c>de</c> or <c>fr</c>, or empty for the Windows display language
+        /// (<see cref="UiLanguage"/>, ADR 0009). Applied when the launcher starts; an unknown value means the Windows
+        /// language and is kept in the file.
+        /// </summary>
+        [DataMember(Order = 4)]
+        public string UiCulture { get; set; }
+
         /// <summary>Members of the file this launcher does not know (written by a newer launcher).</summary>
         public ExtensionDataObject ExtensionData { get; set; }
 
@@ -58,6 +66,7 @@ namespace Empire_Earth_Launcher.Core.Settings
             GameDirectory = string.Empty;
             ThemeName = DefaultThemeName;
             CustomThemeFile = string.Empty;
+            UiCulture = UiLanguage.Windows;
         }
 
         /// <summary>The serializer creates the object without a constructor: start from the defaults.</summary>
@@ -75,6 +84,7 @@ namespace Empire_Earth_Launcher.Core.Settings
             GameDirectory = GameDirectory ?? string.Empty;
             ThemeName = ThemeName ?? DefaultThemeName;
             CustomThemeFile = CustomThemeFile ?? string.Empty;
+            UiCulture = UiCulture ?? UiLanguage.Windows;
         }
     }
 }

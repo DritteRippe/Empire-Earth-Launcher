@@ -275,4 +275,13 @@ Mit diesen Optionen lassen sich viele Probleme lösen, die richtige Kombination 
   <data name="DialogNo" xml:space="preserve">
     <value>Nein</value>
   </data>
+  <data name="UiLanguageLabel" xml:space="preserve">
+    <value>Sprache</value>
+  </data>
+  <data name="UiLanguageWindows" xml:space="preserve">
+    <value>Windows-Sprache</value>
+  </data>
+  <data name="UiLanguageRestartHint" xml:space="preserve">
+    <value>Die neue Sprache gilt ab dem nächsten Start des Launchers.</value>
+  </data>
 </root>

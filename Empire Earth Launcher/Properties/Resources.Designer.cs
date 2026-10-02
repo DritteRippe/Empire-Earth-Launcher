@@ -654,6 +654,33 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Language.
+        /// </summary>
+        internal static string UiLanguageLabel {
+            get {
+                return ResourceManager.GetString("UiLanguageLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The new language is used when the launcher starts the next time..
+        /// </summary>
+        internal static string UiLanguageRestartHint {
+            get {
+                return ResourceManager.GetString("UiLanguageRestartHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows language.
+        /// </summary>
+        internal static string UiLanguageWindows {
+            get {
+                return ResourceManager.GetString("UiLanguageWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap unchecked_disabled {

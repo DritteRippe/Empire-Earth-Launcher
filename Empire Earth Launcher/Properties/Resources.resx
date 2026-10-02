@@ -364,4 +364,16 @@ However you should be able to solve many problems with these options, but findin
     <value>No</value>
     <comment>Button of the launcher's message dialog.</comment>
   </data>
+  <data name="UiLanguageLabel" xml:space="preserve">
+    <value>Language</value>
+    <comment>Label of the language list of the launcher; at most about 12 characters.</comment>
+  </data>
+  <data name="UiLanguageWindows" xml:space="preserve">
+    <value>Windows language</value>
+    <comment>First item of the language list: the language of Windows. The other items are the names of the languages in their own language and are not translated.</comment>
+  </data>
+  <data name="UiLanguageRestartHint" xml:space="preserve">
+    <value>The new language is used when the launcher starts the next time.</value>
+    <comment>Shown after another language was chosen.</comment>
+  </data>
 </root>

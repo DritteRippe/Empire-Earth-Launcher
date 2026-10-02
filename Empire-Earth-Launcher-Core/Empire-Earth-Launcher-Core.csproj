@@ -67,6 +67,7 @@
     <Compile Include="Settings\LauncherPaths.cs" />
     <Compile Include="Settings\LauncherSettings.cs" />
     <Compile Include="Settings\SettingsStore.cs" />
+    <Compile Include="Settings\UiLanguage.cs" />
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>

@@ -1,5 +1,7 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using Empire_Earth_Launcher.Core.Lobby;
+using Empire_Earth_Launcher.Core.Settings;
 using Empire_Earth_Launcher.Properties;
 using Empire_Earth_WON;
 
@@ -59,6 +61,29 @@ namespace Empire_Earth_Launcher
                     return Resources.FriendsUnreadable;
                 default:
                     return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Name of a choice of the language list: "Windows language" in the UI language, the languages in their own
+        /// language, as language lists usually show them, so that a player finds their language in any UI language.
+        /// These names are not translated and are therefore not resources.
+        /// </summary>
+        /// <param name="language">One of <see cref="UiLanguage.Choices"/>.</param>
+        internal static string UiLanguageName(string language)
+        {
+            switch (language)
+            {
+                case UiLanguage.Windows:
+                    return Resources.UiLanguageWindows;
+                case "en":
+                    return "English";
+                case "de":
+                    return "Deutsch";
+                case "fr":
+                    return "Français";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(language), language, "Not a UI language of the launcher.");
             }
         }
 

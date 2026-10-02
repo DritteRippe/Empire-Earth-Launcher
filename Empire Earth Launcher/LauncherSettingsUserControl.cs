@@ -22,6 +22,15 @@ namespace Empire_Earth_Launcher
         /// <summary>True while the theme list is changed by code, so that no theme is applied then.</summary>
         private bool updatingThemeSelection;
 
+        /// <summary>True while the language list is filled by code, so that nothing is saved then.</summary>
+        private bool updatingLanguageSelection;
+
+        /// <summary>
+        /// The language setting the launcher started with (<see cref="UiLanguage.Choices"/>); a different choice is
+        /// used from the next start on.
+        /// </summary>
+        private string languageAtStart = UiLanguage.Windows;
+
         public LauncherSettingsUserControl()
         {
             InitializeComponent();
@@ -40,6 +49,8 @@ namespace Empire_Earth_Launcher
             themeKryptonComboBox.Items[CustomThemeIndex] = Resources.ThemeCustom;
             gameDirectoryKryptonLabel.Values.Text = Resources.GameDirectoryLabel;
             detectGameDirectoryKryptonButton.Values.Text = Resources.DetectGameDirectoryButton;
+            uiLanguageKryptonLabel.Values.Text = Resources.UiLanguageLabel;
+            uiLanguageHintKryptonLabel.Values.Text = Resources.UiLanguageRestartHint;
         }
 
         /// <summary>
@@ -64,6 +75,7 @@ namespace Empire_Earth_Launcher
 
             LoadAvailableThemes();
             SelectCurrentTheme();
+            LoadUiLanguages();
 
             EventHandler showGameDirectory = (sender, e) => ShowGameDirectory();
             gameDirectory.Changed += showGameDirectory;
@@ -98,6 +110,44 @@ namespace Empire_Earth_Launcher
             {
                 updatingThemeSelection = false;
             }
+        }
+
+        /// <summary>
+        /// Fills the language list (Windows language, English, Deutsch, Français) and selects the setting the launcher
+        /// started with (Program applied it before the first window); an unknown value shows as the Windows language.
+        /// </summary>
+        private void LoadUiLanguages()
+        {
+            UiLanguage.TryNormalize(settings.Current.UiCulture, out languageAtStart);
+            updatingLanguageSelection = true;
+            try
+            {
+                uiLanguageKryptonComboBox.Items.Clear();
+                foreach (string language in UiLanguage.Choices)
+                    uiLanguageKryptonComboBox.Items.Add(Texts.UiLanguageName(language));
+                uiLanguageKryptonComboBox.SelectedIndex = UiLanguage.IndexOf(languageAtStart);
+            }
+            finally
+            {
+                updatingLanguageSelection = false;
+            }
+        }
+
+        /// <summary>
+        /// Saves the chosen language in settings.json; it is used from the next start on (the texts of the open windows
+        /// stay as they are), which the hint below the list says.
+        /// </summary>
+        private void uiLanguageKryptonComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int index = uiLanguageKryptonComboBox.SelectedIndex;
+            if (updatingLanguageSelection || settings == null || index < 0)
+                return;
+
+            string language = UiLanguage.Choices[index];
+            settings.Current.UiCulture = language;
+            // A failure to save is logged by the store; the launcher then starts in the previous language.
+            settings.Save();
+            uiLanguageHintKryptonLabel.Visible = language != languageAtStart;
         }
 
         private static bool IsInThemesDirectory(string themeFile)

@@ -40,11 +40,15 @@ namespace Empire_Earth_Launcher
             this.gameDirectoryKryptonLabel = new Krypton.Toolkit.KryptonLabel();
             this.themeKryptonLabel = new Krypton.Toolkit.KryptonLabel();
             this.themeKryptonComboBox = new Krypton.Toolkit.KryptonComboBox();
+            this.uiLanguageKryptonLabel = new Krypton.Toolkit.KryptonLabel();
+            this.uiLanguageKryptonComboBox = new Krypton.Toolkit.KryptonComboBox();
+            this.uiLanguageHintKryptonLabel = new Krypton.Toolkit.KryptonLabel();
             ((System.ComponentModel.ISupportInitialize)(this.launcherSettingsKryptonGroupBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.launcherSettingsKryptonGroupBox.Panel)).BeginInit();
             this.launcherSettingsKryptonGroupBox.Panel.SuspendLayout();
             this.launcherSettingsKryptonGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.themeKryptonComboBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.uiLanguageKryptonComboBox)).BeginInit();
             this.SuspendLayout();
             // 
             // launcherKryptonPalette
@@ -124,6 +128,9 @@ namespace Empire_Earth_Launcher
             this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.gameDirectoryKryptonLabel);
             this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.themeKryptonLabel);
             this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.themeKryptonComboBox);
+            this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.uiLanguageKryptonLabel);
+            this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.uiLanguageKryptonComboBox);
+            this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.uiLanguageHintKryptonLabel);
             this.launcherSettingsKryptonGroupBox.Size = new System.Drawing.Size(540, 350);
             this.launcherSettingsKryptonGroupBox.TabIndex = 2;
             this.launcherSettingsKryptonGroupBox.Values.Heading = "Launcher Settings";
@@ -206,6 +213,41 @@ namespace Empire_Earth_Launcher
             this.themeKryptonComboBox.TabIndex = 3;
             this.themeKryptonComboBox.SelectedIndexChanged += new System.EventHandler(this.themeKryptonComboBox_SelectedIndexChanged);
             // 
+            // uiLanguageKryptonLabel
+            // 
+            this.uiLanguageKryptonLabel.Location = new System.Drawing.Point(13, 79);
+            this.uiLanguageKryptonLabel.Name = "uiLanguageKryptonLabel";
+            this.uiLanguageKryptonLabel.Palette = this.launcherKryptonPalette;
+            this.uiLanguageKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.uiLanguageKryptonLabel.Size = new System.Drawing.Size(63, 20);
+            this.uiLanguageKryptonLabel.TabIndex = 5;
+            this.uiLanguageKryptonLabel.Values.Text = "Language";
+            // 
+            // uiLanguageKryptonComboBox
+            // 
+            this.uiLanguageKryptonComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
+            this.uiLanguageKryptonComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.uiLanguageKryptonComboBox.DropDownWidth = 200;
+            this.uiLanguageKryptonComboBox.IntegralHeight = false;
+            this.uiLanguageKryptonComboBox.Location = new System.Drawing.Point(168, 78);
+            this.uiLanguageKryptonComboBox.Name = "uiLanguageKryptonComboBox";
+            this.uiLanguageKryptonComboBox.Palette = this.launcherKryptonPalette;
+            this.uiLanguageKryptonComboBox.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.uiLanguageKryptonComboBox.Size = new System.Drawing.Size(200, 23);
+            this.uiLanguageKryptonComboBox.TabIndex = 6;
+            this.uiLanguageKryptonComboBox.SelectedIndexChanged += new System.EventHandler(this.uiLanguageKryptonComboBox_SelectedIndexChanged);
+            // 
+            // uiLanguageHintKryptonLabel
+            // 
+            this.uiLanguageHintKryptonLabel.Location = new System.Drawing.Point(13, 107);
+            this.uiLanguageHintKryptonLabel.Name = "uiLanguageHintKryptonLabel";
+            this.uiLanguageHintKryptonLabel.Palette = this.launcherKryptonPalette;
+            this.uiLanguageHintKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.uiLanguageHintKryptonLabel.Size = new System.Drawing.Size(373, 20);
+            this.uiLanguageHintKryptonLabel.TabIndex = 7;
+            this.uiLanguageHintKryptonLabel.Values.Text = "The new language is used when the launcher starts the next time.";
+            this.uiLanguageHintKryptonLabel.Visible = false;
+            // 
             // LauncherSettingsUserControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -219,6 +261,7 @@ namespace Empire_Earth_Launcher
             ((System.ComponentModel.ISupportInitialize)(this.launcherSettingsKryptonGroupBox)).EndInit();
             this.launcherSettingsKryptonGroupBox.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.themeKryptonComboBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.uiLanguageKryptonComboBox)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -234,5 +277,8 @@ namespace Empire_Earth_Launcher
         private Krypton.Toolkit.KryptonButton browseGameDirectoryKryptonButton;
         private Krypton.Toolkit.KryptonButton detectGameDirectoryKryptonButton;
         private Krypton.Toolkit.KryptonLabel gameDirectorySourceKryptonLabel;
+        private Krypton.Toolkit.KryptonLabel uiLanguageKryptonLabel;
+        private Krypton.Toolkit.KryptonComboBox uiLanguageKryptonComboBox;
+        private Krypton.Toolkit.KryptonLabel uiLanguageHintKryptonLabel;
     }
 }

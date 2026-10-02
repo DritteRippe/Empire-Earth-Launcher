@@ -78,6 +78,7 @@
     <Compile Include="Core\Play\MutationGuardTests.cs" />
     <Compile Include="Core\Settings\LauncherPathsTests.cs" />
     <Compile Include="Core\Settings\SettingsStoreTests.cs" />
+    <Compile Include="Core\Settings\UiLanguageTests.cs" />
     <Compile Include="Fakes\FakeClock.cs" />
     <Compile Include="Fakes\FakeMutexProbe.cs" />
     <Compile Include="Fakes\InMemoryFileSystem.cs" />
@@ -87,6 +88,7 @@
     <Compile Include="Fakes\RecordingLogger.cs" />
     <Compile Include="Launcher\GameDirectoryLocatorTests.cs" />
     <Compile Include="Launcher\TextsTests.cs" />
+    <Compile Include="Launcher\UiLanguageStartupTests.cs" />
     <Compile Include="Launcher\UiOperationTests.cs" />
     <Compile Include="Launcher\UnexpectedErrorTests.cs" />
     <Compile Include="Mod\ModArchiveTests.cs" />

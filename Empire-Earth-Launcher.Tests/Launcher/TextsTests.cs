@@ -1,5 +1,6 @@
 ﻿using System;
 using Empire_Earth_Launcher.Core.Lobby;
+using Empire_Earth_Launcher.Core.Settings;
 using NUnit.Framework;
 using PlayerGameState = Empire_Earth_WON.NeoApiClient.ConnectedPlayersMessage.PlayerInfo.PlayerGameState;
 
@@ -44,6 +45,23 @@ namespace Empire_Earth_Launcher.Tests.Launcher
         public void LobbyFriends_ShowsTheNumberOrTheProblem(LobbyFriendsStatus status, int count, string expected)
         {
             Assert.That(Texts.LobbyFriends(status, count), Is.EqualTo(expected));
+        }
+
+        [TestCase("", "Windows language")]
+        [TestCase("en", "English")]
+        [TestCase("de", "Deutsch")]
+        [TestCase("fr", "Français")]
+        public void UiLanguageName_NamesEachLanguageInItsOwnLanguage(string language, string expected)
+        {
+            Assert.That(Texts.UiLanguageName(language), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void UiLanguageName_HasANameForEveryChoice()
+        {
+            foreach (string language in UiLanguage.Choices)
+                Assert.That(Texts.UiLanguageName(language), Is.Not.Empty, language);
+            Assert.That(() => Texts.UiLanguageName("es"), Throws.TypeOf<ArgumentOutOfRangeException>());
         }
 
         // GameDirectorySource is internal, so the cases pass its name (a public test method cannot take it).

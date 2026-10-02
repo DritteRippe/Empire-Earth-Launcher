@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,6 +46,7 @@ namespace Empire_Earth_Launcher
             // means the defaults; SettingsStore logs it and moves a damaged file aside.
             var settingsStore = new SettingsStore(new LocalFileSystem(), LauncherPaths.SettingsFile, logger);
             settingsStore.Load();
+            ApplyUiLanguage(logger, settingsStore.Current.UiCulture);
             var themeService = new KryptonThemeService(logger, LauncherPaths.ThemesDirectory);
             ApplySavedTheme(themeService, settingsStore.Current);
 
@@ -58,6 +60,31 @@ namespace Empire_Earth_Launcher
             logger.Info("Starting Empire Earth Launcher Form");
             Application.Run(new MainForm(logger, themeService, settingsStore, gameDirectory, neoClient,
                 playerListPollIntervalMilliseconds));
+        }
+
+        /// <summary>
+        /// Uses the UI language chosen in the launcher settings (ADR 0009) on this thread and on every thread started
+        /// later, before the first window exists; without a choice the texts follow the Windows display language. The
+        /// formats of numbers and dates stay those of Windows.
+        /// </summary>
+        /// <param name="log">Log of the launcher.</param>
+        /// <param name="setting"><see cref="LauncherSettings.UiCulture"/>; an unknown value is logged and ignored.</param>
+        /// <returns>The culture that was set, or null when the Windows language is used.</returns>
+        internal static CultureInfo ApplyUiLanguage(ILogger log, string setting)
+        {
+            if (!UiLanguage.TryNormalize(setting, out string language))
+                log.Warning("The UI language \"" + setting + "\" of the launcher settings is unknown, the Windows language is used.");
+
+            CultureInfo culture = UiLanguage.ToCulture(language);
+            if (culture != null)
+            {
+                Thread.CurrentThread.CurrentUICulture = culture;
+                CultureInfo.DefaultThreadCurrentUICulture = culture;
+            }
+
+            log.Info("UI language: " + CultureInfo.CurrentUICulture.Name +
+                     (culture != null ? " (launcher setting)" : " (Windows)"));
+            return culture;
         }
 
         /// <summary>

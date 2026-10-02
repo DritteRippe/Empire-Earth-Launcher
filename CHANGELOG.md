@@ -18,6 +18,11 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
   `de\Empire Earth Launcher.resources.dll`, like the French `fr\`. The launcher uses it when the Windows display
   language is German (or the language setting chooses it). The German texts address the player formally ("Sie"),
   as the setup does.
+- Language setting on the *Launcher* page: Windows language (default), English, Deutsch or Français. It is saved
+  as `UiCulture` in `settings.json` (an optional member of schema 1) and applied when the launcher starts, before
+  the first window; a hint says so after a change. Only the texts change, number and date formats stay those of
+  Windows. An unknown value in the file is logged and means the Windows language. The log names the language
+  in use (`UI language: de (launcher setting)`).
 - `ResourceParityTests`: English, German and French have the same string keys (comments and entries with a
   `type` or `mimetype` are not compared), no empty text and the same `{n}` placeholders; images and file
   references exist only in the neutral `Resources.resx`; `Resources.Designer.cs` has a property for every text;
