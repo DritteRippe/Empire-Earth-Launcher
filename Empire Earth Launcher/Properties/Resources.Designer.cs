@@ -253,6 +253,15 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0}: kept, the launcher may not look into the folder {1} or its parent folder, so it cannot tell whe[rest of string was truncated].
+        /// </summary>
+        internal static string CleanupKeepFolderUnknownFormat {
+            get {
+                return ResourceManager.GetString("CleanupKeepFolderUnknownFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0}: kept, an installation of {1} was found..
         /// </summary>
         internal static string CleanupKeepInstallationFormat {

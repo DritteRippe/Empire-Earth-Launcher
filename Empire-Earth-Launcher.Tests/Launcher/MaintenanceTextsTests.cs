@@ -145,6 +145,19 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             }));
         }
 
+        /// <summary>Security review: a folder the launcher may not look at keeps its key, and the page says why.</summary>
+        [Test]
+        public void CleanupAdvice_AFolderThatCannotBeChecked_SaysWhy()
+        {
+            CleanupEntry entry = CleanupCandidates.All.Single(candidate => candidate.Id == "vs-sssi-ee");
+            var item = new CleanupItem(entry, CleanupState.FolderUnknown, @"D:\Old Games\Empire Earth", DriveKind.Fixed, null);
+
+            string text = Texts.CleanupAdvice(item);
+
+            Assert.That(text, Does.Contain(@"D:\Old Games\Empire Earth"));
+            Assert.That(text, Does.Contain("kept, the launcher may not look into the folder"));
+        }
+
         [Test]
         public void VirtualStore_SaysWhatIsSerious()
         {

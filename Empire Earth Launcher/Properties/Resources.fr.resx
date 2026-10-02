@@ -1246,4 +1246,7 @@ Les anciens fichiers sont d'abord copiés dans le dossier de sauvegarde. Les rem
   <data name="ImportCheckManifestUnusable" xml:space="preserve">
     <value>la liste des fichiers du setup ne peut pas être lue, le launcher ne peut donc pas reconnaître les fichiers de l'installation ; réparez l'installation avec le setup</value>
   </data>
+  <data name="CleanupKeepFolderUnknownFormat" xml:space="preserve">
+    <value>{0} : conservée, le launcher n'a pas le droit de regarder dans le dossier {1} ou dans son dossier parent, il ne peut donc pas savoir si le dossier existe encore.</value>
+  </data>
 </root>

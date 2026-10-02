@@ -30,6 +30,12 @@ namespace Empire_Earth_Launcher.Core.Maintenance
         /// <summary>Kept: the key names no folder (no or invalid "Installed From" values), so nothing shows that it is stale.</summary>
         NoFolderNamed,
 
+        /// <summary>
+        /// Kept: whether the folder exists cannot be told (access denied to it or to its parent); Windows reports such a folder
+        /// as missing, which is no proof that it is (security review).
+        /// </summary>
+        FolderUnknown,
+
         /// <summary>Kept: the key or its values cannot be read.</summary>
         Unreadable,
 
@@ -63,6 +69,9 @@ namespace Empire_Earth_Launcher.Core.Maintenance
 
         /// <summary>Keep: the key names no folder.</summary>
         KeepNoFolderNamed,
+
+        /// <summary>Keep: whether the folder the key names exists cannot be told (access denied).</summary>
+        KeepFolderUnknown,
 
         /// <summary>Keep: the key cannot be read.</summary>
         KeepUnreadable
@@ -138,6 +147,9 @@ namespace Empire_Earth_Launcher.Core.Maintenance
                         break;
                     case CleanupState.NoFolderNamed:
                         code = CleanupAdviceCode.KeepNoFolderNamed;
+                        break;
+                    case CleanupState.FolderUnknown:
+                        code = CleanupAdviceCode.KeepFolderUnknown;
                         break;
                     default:
                         // Missing, Unreadable and Protected (the latter only for protected entries): nothing to delete.

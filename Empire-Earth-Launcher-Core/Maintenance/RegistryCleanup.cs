@@ -331,7 +331,31 @@ namespace Empire_Earth_Launcher.Core.Maintenance
                 return new CleanupItem(entry, CleanupState.DriveNotFixed, folder, drive, null);
             if (fileSystem.DirectoryExists(folder))
                 return new CleanupItem(entry, CleanupState.FolderExists, folder, drive, null);
+            if (!IsSurelyMissing(folder))
+            {
+                logger.Info("Registry cleanup: " + entry.Key + " is kept, whether " + folder + " exists cannot be told.");
+                return new CleanupItem(entry, CleanupState.FolderUnknown, folder, drive, null);
+            }
             return new CleanupItem(entry, CleanupState.Stale, folder, drive, null);
+        }
+
+        /// <summary>
+        /// True only if <paramref name="folder"/> is known to be missing (ADR 0007 amendment: "the folder is missing"). Windows
+        /// reports a folder it may not look at as missing too (<c>Directory.Exists</c>), so the parent decides: it is missing,
+        /// or it can be listed and has no such folder. Access denied or any other error: not known (security review).
+        /// A drive root that cannot be listed ends the walk as not known.
+        /// </summary>
+        private bool IsSurelyMissing(string folder)
+        {
+            string parent = WinPath.GetParent(folder);
+            if (parent == null)
+                return false;
+            FileSystemResult<IReadOnlyList<string>> folders = fileSystem.GetDirectories(parent);
+            if (folders.IsOk)
+                return !folders.Value.Any(path => WinPath.IsSamePath(path, folder));
+            if (folders.Status == FileSystemStatus.NotFound)
+                return IsSurelyMissing(parent); // the same question one level up, ending at a folder that can be listed
+            return false;
         }
 
         private static bool IsReadError(RegistryResult<RegistryValue> value)

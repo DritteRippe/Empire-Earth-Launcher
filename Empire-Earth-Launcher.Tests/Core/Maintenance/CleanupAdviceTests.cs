@@ -103,6 +103,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Maintenance
         [TestCase(CleanupState.FolderExists, CleanupAdviceCode.KeepFolderExists)]
         [TestCase(CleanupState.DriveNotFixed, CleanupAdviceCode.KeepDriveNotFixed)]
         [TestCase(CleanupState.NoFolderNamed, CleanupAdviceCode.KeepNoFolderNamed)]
+        [TestCase(CleanupState.FolderUnknown, CleanupAdviceCode.KeepFolderUnknown)]
         [TestCase(CleanupState.Unreadable, CleanupAdviceCode.KeepUnreadable)]
         [TestCase(CleanupState.Stale, CleanupAdviceCode.ExportThenDeleteAsAdministrator)]
         public void EveryReasonToKeep_HasItsCode(CleanupState state, CleanupAdviceCode expected)

@@ -120,6 +120,43 @@ namespace Empire_Earth_Launcher.Tests.Core.Maintenance
         }
 
         /// <summary>
+        /// Security review: Windows reports a folder the player may not look at as missing. Only a parent that can be listed (or
+        /// is missing itself) proves that the folder is gone; access denied keeps the key.
+        /// </summary>
+        [TestCase(true, TestName = "Scan_AFolderWhoseParentCannotBeListed_IsKept")]
+        [TestCase(false, TestName = "Scan_AFolderWhoseMissingParentIsInAFolderThatCannotBeListed_IsKept")]
+        public void Scan_AFolderThatMayNotBeLookedAt_IsKept(bool parentExists)
+        {
+            Seed("vs-sssi-ee");
+            if (parentExists)
+            {
+                w.FileSystem.AddDirectory(@"D:\Old Games\Other");
+                w.FileSystem.FailOn(@"D:\Old Games", FileSystemOperation.Enumerate, FileSystemStatus.AccessDenied);
+            }
+            else
+                w.FileSystem.FailOn(@"D:\", FileSystemOperation.Enumerate, FileSystemStatus.AccessDenied);
+
+            CleanupItem item = Item(CreateCleanup().Scan(w.Discover()), "vs-sssi-ee");
+
+            Assert.That(item.State, Is.EqualTo(CleanupState.FolderUnknown));
+            Assert.That(item.IsOffered, Is.False);
+            Assert.That(item.Advice.Code, Is.EqualTo(CleanupAdviceCode.KeepFolderUnknown));
+            Assert.That(item.Advice.DeletionTarget, Is.Null);
+        }
+
+        [Test]
+        public void Scan_AFolderMissingFromAParentThatCanBeListed_IsStale()
+        {
+            Seed("vs-sssi-ee");
+            w.FileSystem.AddDirectory(@"D:\Old Games\Other");
+
+            CleanupItem item = Item(CreateCleanup().Scan(w.Discover()), "vs-sssi-ee");
+
+            Assert.That(item.State, Is.EqualTo(CleanupState.Stale));
+            Assert.That(item.IsOffered, Is.True);
+        }
+
+        /// <summary>
         /// ADR 0007 amendment: a key of a product that has an installation is never offered; the game settings keys are then
         /// the player's settings and not shown, their VirtualStore copies are shown read-only.
         /// </summary>

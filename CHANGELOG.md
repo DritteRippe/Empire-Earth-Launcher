@@ -576,3 +576,7 @@ section 15); all of them are done, newest first below. It has not been released;
   line break ended its line, so a key to back up could carry a line such as `[-HKEY_LOCAL_MACHINE\SOFTWARE\Sierra\CDKeys]`
   that a restore by double-click would have run. `RegFileWriter` refuses names with control characters and key names with
   `]`; `RegistryExport` reports such a tree as `InvalidName`, so the backup fails and the cleanup or reset changes nothing.
+- The registry cleanup no longer offers a key as stale because Windows hides its folder (security review): `Directory.Exists`
+  is also false when access is denied, so a folder now counts as missing only if its parent can be listed without it (or
+  the parent is missing in the same sense). Otherwise the key is kept as "whether the folder exists cannot be told"
+  (`CleanupKeepFolderUnknownFormat`, en/de/fr).

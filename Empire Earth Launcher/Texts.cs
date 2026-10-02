@@ -839,6 +839,8 @@ namespace Empire_Earth_Launcher
                     return string.Format(CultureInfo.CurrentCulture, Resources.CleanupKeepDriveFormat, key, advice.Folder);
                 case CleanupAdviceCode.KeepNoFolderNamed:
                     return string.Format(CultureInfo.CurrentCulture, Resources.CleanupKeepNoFolderFormat, key);
+                case CleanupAdviceCode.KeepFolderUnknown:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.CleanupKeepFolderUnknownFormat, key, advice.Folder);
                 default:
                     return string.Format(CultureInfo.CurrentCulture, Resources.CleanupKeepUnreadableFormat, key);
             }

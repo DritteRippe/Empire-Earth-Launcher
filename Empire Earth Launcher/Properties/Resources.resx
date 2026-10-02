@@ -1655,4 +1655,8 @@ The old files are copied to the backup folder first. Replace them?</value>
     <value>the list of files of the setup cannot be read, so the launcher cannot tell the files of the installation apart; repair the installation with the setup</value>
     <comment>Reason of ImportFileProblemFormat when the manifest exists but cannot be used (security review; like WonManifestUnusable).</comment>
   </data>
+  <data name="CleanupKeepFolderUnknownFormat" xml:space="preserve">
+    <value>{0}: kept, the launcher may not look into the folder {1} or its parent folder, so it cannot tell whether the folder still exists.</value>
+    <comment>Read-only entry of the registry cleanup when Windows denies access to the folder or its parent (security review: such a folder is no proof of a removed installation). {0}: the key; {1}: the folder.</comment>
+  </data>
 </root>
