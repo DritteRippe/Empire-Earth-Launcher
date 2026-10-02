@@ -61,6 +61,7 @@
     <Compile Include="Architecture\PlaceholderControlsTests.cs" />
     <Compile Include="Architecture\ProjectConventionsTests.cs" />
     <Compile Include="Architecture\RegistryAliasPolicyTests.cs" />
+    <Compile Include="Architecture\ResourceParityTests.cs" />
     <Compile Include="Core\Contract\ContractNamesTests.cs" />
     <Compile Include="Core\Lobby\LobbyProfileRepositoryTests.cs" />
     <Compile Include="Core\Logging\LogTrimmingTests.cs" />

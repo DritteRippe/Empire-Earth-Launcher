@@ -18,6 +18,11 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
   `de\Empire Earth Launcher.resources.dll`, like the French `fr\`. The launcher uses it when the Windows display
   language is German (or the language setting chooses it). The German texts address the player formally ("Sie"),
   as the setup does.
+- `ResourceParityTests`: English, German and French have the same string keys (comments and entries with a
+  `type` or `mimetype` are not compared), no empty text and the same `{n}` placeholders; images and file
+  references exist only in the neutral `Resources.resx`; `Resources.Designer.cs` has a property for every text;
+  the launcher project embeds every translation; and the built `de\` and `fr\` satellite assemblies hold exactly
+  the texts of their resx files.
 - The UI-free core library `Empire-Earth-Launcher-Core` (`Empire_Earth_Launcher_Core.dll`, next to the launcher;
   [ADR 0003](docs/adr/0003-ui-free-core-library.md)). It references only the BCL and the WON library, which an
   architecture test checks, and holds:
