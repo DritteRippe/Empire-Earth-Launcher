@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using Empire_Earth_Launcher.Core.Platform;
 
 namespace Empire_Earth_Launcher.Core.Logging
 {
@@ -22,6 +23,8 @@ namespace Empire_Earth_Launcher.Core.Logging
         /// </summary>
         internal const int LinesKeptAfterTrim = 500;
 
+        private readonly IClock clock;
+
         /// <summary>
         /// Sends all trace output of the process to <paramref name="logFile"/> and the console. Create only
         /// one instance: a second one replaces the listeners of the first.
@@ -33,8 +36,10 @@ namespace Empire_Earth_Launcher.Core.Logging
         /// from starting.
         /// </remarks>
         /// <param name="logFile">Full path of the log file; its folder is created if needed.</param>
-        public TraceFileLogger(string logFile)
+        /// <param name="clock">Source of the time stamps; null for the computer's clock.</param>
+        public TraceFileLogger(string logFile, IClock clock = null)
         {
+            this.clock = clock ?? SystemClock.Instance;
             Trace.Listeners.Clear();
 
             CreateLogDirectory(logFile);
@@ -112,11 +117,17 @@ namespace Empire_Earth_Launcher.Core.Logging
 
         public void Log(LogLevel level, string message, Exception exception = null)
         {
-            // ISO 8601 timestamp: independent of the user's culture and sortable.
-            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+            Trace.WriteLine(FormatLine(clock.Now, level, message, exception));
+        }
+
+        /// <summary>One entry of the log: "[yyyy-MM-dd HH:mm:ss] Level : message", then the exception.</summary>
+        internal static string FormatLine(DateTime timestamp, LogLevel level, string message, Exception exception)
+        {
+            // ISO 8601 timestamp: independent of the user's culture (and its calendar) and sortable.
+            string time = timestamp.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
             // Exception.ToString() includes the type, the message, inner exceptions and the stack trace.
             string details = exception != null ? Environment.NewLine + exception : string.Empty;
-            Trace.WriteLine("[" + timestamp + "] " + level + " : " + message + details);
+            return "[" + time + "] " + level + " : " + message + details;
         }
     }
 }

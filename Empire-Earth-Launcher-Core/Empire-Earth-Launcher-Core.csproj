@@ -46,6 +46,11 @@
     <Compile Include="Lobby\LobbyProfileRepository.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Logging\TraceFileLogger.cs" />
+    <Compile Include="Platform\FileSystemExtensions.cs" />
+    <Compile Include="Platform\IClock.cs" />
+    <Compile Include="Platform\IFileSystem.cs" />
+    <Compile Include="Platform\LocalFileSystem.cs" />
+    <Compile Include="Platform\WinPath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\LauncherPaths.cs" />
     <Compile Include="..\SharedAssemblyInfo.cs">

@@ -62,7 +62,15 @@
     <Compile Include="Core\Contract\ContractNamesTests.cs" />
     <Compile Include="Core\Lobby\LobbyProfileRepositoryTests.cs" />
     <Compile Include="Core\Logging\LogTrimmingTests.cs" />
+    <Compile Include="Core\Logging\TraceFileLoggerTests.cs" />
+    <Compile Include="Core\Platform\FileSystemExtensionsTests.cs" />
+    <Compile Include="Core\Platform\LocalFileSystemTests.cs" />
+    <Compile Include="Core\Platform\WinPathTests.cs" />
     <Compile Include="Core\Settings\LauncherPathsTests.cs" />
+    <Compile Include="Fakes\FakeClock.cs" />
+    <Compile Include="Fakes\InMemoryFileSystem.cs" />
+    <Compile Include="Fakes\InMemoryFileSystemTests.cs" />
+    <Compile Include="Fakes\RecordingLogger.cs" />
     <Compile Include="Launcher\GameDirectoryLocatorTests.cs" />
     <Compile Include="Launcher\UserSettingsRecoveryTests.cs" />
     <Compile Include="Mod\ModArchiveTests.cs" />
