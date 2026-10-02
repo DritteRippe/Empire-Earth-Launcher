@@ -128,8 +128,8 @@ NUnitLite options can be passed, e.g. `--where "class =~ LobbyPersistentData"` t
 cover the WON lobby file parser, the NeoEE protocol framing, reply parsing and request deadline, the mod
 library (product folders, file types, versions, the working directory of the mod creator, `.eem`
 export/import including damaged archives) and the log trimming, game folder detection, lobby profile loading
-and recovery from a damaged `user.config` of the launcher. Architecture tests (`Architecture/`) read the
-project files, `packages.config`, `App.config` and `app.manifest` files of the source tree and the CI
+and the user settings file `settings.json` of the launcher (including damaged files). Architecture tests
+(`Architecture/`) read the project files, `packages.config`, `App.config` and `app.manifest` files of the source tree and the CI
 workflow and check the shared build settings; they find the source tree by walking up from the test program
 to `Empire-Earth.sln`, so run the test program from its build folder inside the repository. The tests only
 write below the temporary folder, never contact a server, never read the registry and never show UI. Tests
@@ -180,7 +180,6 @@ Empire Earth Launcher/            The launcher (WinForms + Krypton UI)
 ├─ IThemeService.cs               Theme interface (implemented by KryptonThemeService.cs)
 ├─ GameDirectory*.cs              Detection of the Empire Earth folder
 ├─ LobbyProfileRepository.cs      Lobby profiles and friends of the game folder, without UI
-├─ UserSettingsRecovery.cs        Start-up recovery from a damaged user.config
 ├─ LauncherPaths.cs               File locations of the launcher
 └─ Resources/                     Images and icon used by the UI
 Empire-Earth-WON/                 WON/NeoEE library, no UI (used by the launcher)
@@ -216,9 +215,15 @@ packages/                         NuGet packages, restored on build (not committ
   core library, thin WinForms UI on .NET Framework 4.8), data flows, threading, error handling, logging,
   localization and tests; the decisions behind it are recorded in [docs/adr/](docs/adr/README.md). Until v2 is
   complete, this README describes what exists today.
-- **User settings** (game folder, theme) are saved by .NET in the user's `user.config` below
-  `%LOCALAPPDATA%`. If that file is damaged (e.g. after a crash while saving), the launcher renames it to
-  `user.config.damaged`, logs it and starts with the default settings.
+- **User settings** (game folder, theme, custom theme file) are kept in
+  `%LOCALAPPDATA%\Empire Earth Launcher\settings.json` (UTF-8 JSON with a `SchemaVersion`,
+  [ADR 0005](docs/adr/0005-own-settings-file-instead-of-user-config.md)), so they survive moving or updating
+  the launcher. The file is written as `settings.json.tmp` first and then swapped in, so a crash never leaves
+  half a file. A missing file means the defaults. A damaged file (cut off, hand-edited, not JSON) is renamed
+  to `settings.json.damaged` (replacing an older copy), logged, and the defaults are used. A file that
+  cannot be read, or that a newer launcher wrote, is never overwritten: the launcher uses the defaults and
+  changes apply to the running launcher only (logged). Members the launcher does not know are kept when it
+  saves. Test builds before v2 kept these settings in .NET's `user.config`; they are not taken over.
 - **Server settings**: `NeoServerHost`, `NeoServerPort`, `NeoTimeoutMilliseconds` and
   `PlayerListPollIntervalMilliseconds` are application settings in `Empire Earth Launcher.exe.config`
   (generated from `App.config`) and can be changed there without rebuilding. `NeoTimeoutMilliseconds` limits

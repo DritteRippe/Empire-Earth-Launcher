@@ -2,7 +2,7 @@
 using System;
 using System.Windows.Forms;
 using Empire_Earth_Launcher.Core.Logging;
-using Empire_Earth_Launcher.Properties;
+using Empire_Earth_Launcher.Core.Settings;
 using Empire_Earth_WON;
 
 namespace Empire_Earth_Launcher
@@ -14,11 +14,11 @@ namespace Empire_Earth_Launcher
 
         /// <param name="logger">Log of the launcher.</param>
         /// <param name="themeService">Theme of the launcher windows.</param>
-        /// <param name="settings">Settings of the launcher.</param>
+        /// <param name="settings">User settings of the launcher (settings.json).</param>
         /// <param name="gameDirectory">The Empire Earth folder.</param>
         /// <param name="neoClient">Client for the online player list; null if the server settings are invalid.</param>
         /// <param name="playerListPollIntervalMilliseconds">Delay between two requests of the player list.</param>
-        internal MainForm(ILogger logger, IThemeService themeService, Settings settings,
+        internal MainForm(ILogger logger, IThemeService themeService, SettingsStore settings,
             GameDirectoryService gameDirectory, NeoApiClient neoClient, int playerListPollIntervalMilliseconds)
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint |
@@ -31,7 +31,7 @@ namespace Empire_Earth_Launcher
             generalUserControl.Initialize(logger, themeService, gameDirectory, neoClient,
                 playerListPollIntervalMilliseconds);
             settingsUserControl.Initialize(themeService);
-            launcherSettingsUserControl.Initialize(logger, themeService, settings, gameDirectory);
+            launcherSettingsUserControl.Initialize(themeService, settings, gameDirectory);
 
             // A page cannot be assigned to Tag in the designer, so the navigation is wired up here.
             playKryptonCheckButton.Tag = generalUserControl;

@@ -331,7 +331,7 @@ Decided in [ADR 0005](adr/0005-own-settings-file-instead-of-user-config.md):
 
 | What | Where | Format |
 |---|---|---|
-| user settings: chosen folder, theme, custom theme file, UI language, last game, hidden warnings (value name + value) | `%LOCALAPPDATA%\Empire Earth Launcher\settings.json` | JSON (`DataContractJsonSerializer`), `SchemaVersion`, unknown members kept, written as `.tmp` then replaced; damaged file renamed to `settings.json.damaged` and defaults used |
+| user settings: chosen folder, theme, custom theme file, UI language, last game, hidden warnings (value name + value) | `%LOCALAPPDATA%\Empire Earth Launcher\settings.json` | JSON (`DataContractJsonSerializer`), `SchemaVersion`, unknown members kept, written as `.tmp` then replaced; damaged file renamed to `settings.json.damaged` and defaults used; a file that cannot be read or has a higher `SchemaVersion` is never overwritten (ADR 0005 amendment) |
 | server settings: NeoEE host, port, timeout, poll interval | `Empire Earth Launcher.exe.config` next to the program | `applicationSettings` (read-only, admin-editable, as today) |
 | log | `%LOCALAPPDATA%\Empire Earth Launcher\log.txt` | text |
 | backups (`.reg`, moved WON files) | `%LOCALAPPDATA%\Empire Earth Launcher\Backups\<yyyy-MM-dd_HHmmss>_<what>\` | `.reg` (Windows Registry Editor 5.00, UTF-16 LE) and original files |

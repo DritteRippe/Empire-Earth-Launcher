@@ -29,6 +29,13 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
 
 ### Changed
 
+- The launcher keeps its user settings (game folder, theme, custom theme file) in
+  `%LOCALAPPDATA%\Empire Earth Launcher\settings.json` instead of .NET's `user.config`
+  ([ADR 0005](docs/adr/0005-own-settings-file-instead-of-user-config.md)): they survive moving or updating the
+  launcher; the file is written through `settings.json.tmp`; a damaged file is renamed to
+  `settings.json.damaged` and the defaults are used; a file that cannot be read or that a newer launcher wrote
+  is never overwritten; members a newer launcher added are kept. Settings of earlier test builds are not taken
+  over. The server settings stay in `Empire Earth Launcher.exe.config`.
 - All projects (launcher, WON library, mod library, mod creator, tests) target the **.NET Framework 4.8**
   instead of 4.0 ([ADR 0001](docs/adr/0001-target-dotnet-framework-4-8.md)). The launcher and the mod creator
   need the .NET Framework 4.8 at run time; where it is missing, Windows offers to install it. `async`/`await`,
@@ -43,6 +50,8 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
 
 ### Removed
 
+- `UserSettingsRecovery` (recovery from a damaged `user.config`): the launcher has no user-scoped .NET settings
+  left; the behaviour lives on in `SettingsStore` with its tests.
 - Support for Windows XP, Vista, Windows 8.0 and Windows 10 versions 1507 and 1511, which cannot run the
   .NET Framework 4.8 (Windows 8.0 users can update to 8.1 for free). Windows 7 SP1 stays supported but has not
   been tested yet.

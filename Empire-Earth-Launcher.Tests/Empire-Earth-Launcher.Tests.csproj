@@ -48,7 +48,6 @@
       <HintPath>..\packages\NUnitLite.3.14.0\lib\net45\nunitlite.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -73,6 +72,7 @@
     <Compile Include="Core\Platform\RegistryWritePolicyTests.cs" />
     <Compile Include="Core\Platform\WinPathTests.cs" />
     <Compile Include="Core\Settings\LauncherPathsTests.cs" />
+    <Compile Include="Core\Settings\SettingsStoreTests.cs" />
     <Compile Include="Fakes\FakeClock.cs" />
     <Compile Include="Fakes\InMemoryFileSystem.cs" />
     <Compile Include="Fakes\InMemoryFileSystemTests.cs" />
@@ -80,7 +80,6 @@
     <Compile Include="Fakes\InMemoryRegistryTests.cs" />
     <Compile Include="Fakes\RecordingLogger.cs" />
     <Compile Include="Launcher\GameDirectoryLocatorTests.cs" />
-    <Compile Include="Launcher\UserSettingsRecoveryTests.cs" />
     <Compile Include="Mod\ModArchiveTests.cs" />
     <Compile Include="Mod\ModAssetsTests.cs" />
     <Compile Include="Mod\ModDataTests.cs" />

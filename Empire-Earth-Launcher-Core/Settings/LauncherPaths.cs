@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 
 namespace Empire_Earth_Launcher.Core.Settings
@@ -11,6 +11,9 @@ namespace Empire_Earth_Launcher.Core.Settings
     {
         /// <summary>Name of the launcher's per-user folder below %LOCALAPPDATA%.</summary>
         public const string UserDataFolderName = "Empire Earth Launcher";
+
+        /// <summary>File name of the user settings inside <see cref="UserDataDirectory"/> (ADR 0005).</summary>
+        public const string SettingsFileName = "settings.json";
 
         /// <summary>File name of the launcher log inside <see cref="UserDataDirectory"/>.</summary>
         public const string LogFileName = "log.txt";
@@ -57,6 +60,12 @@ namespace Empire_Earth_Launcher.Core.Settings
         public static string LogFile
         {
             get { return Path.Combine(UserDataDirectory, LogFileName); }
+        }
+
+        /// <summary>Full path of the user settings (<see cref="SettingsStore"/>).</summary>
+        public static string SettingsFile
+        {
+            get { return Path.Combine(UserDataDirectory, SettingsFileName); }
         }
     }
 }

@@ -1,22 +1,21 @@
 using System;
-using System.IO;
 using Empire_Earth_Launcher.Core.Logging;
-using Empire_Earth_Launcher.Properties;
+using Empire_Earth_Launcher.Core.Settings;
 
 namespace Empire_Earth_Launcher
 {
     /// <summary>
     /// The Empire Earth folder the launcher works with: the folder chosen by the user in the launcher
-    /// settings (setting GameDirectory), otherwise the detected installation.
+    /// settings (GameDirectory in settings.json), otherwise the detected installation.
     /// </summary>
     /// <remarks>Created once by <see cref="Program"/>; use it on the UI thread.</remarks>
     internal sealed class GameDirectoryService
     {
         private readonly ILogger logger;
-        private readonly Settings settings;
+        private readonly SettingsStore settings;
         private readonly GameDirectoryLocator locator;
 
-        public GameDirectoryService(ILogger logger, Settings settings, GameDirectoryLocator locator)
+        public GameDirectoryService(ILogger logger, SettingsStore settings, GameDirectoryLocator locator)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
@@ -40,16 +39,7 @@ namespace Empire_Earth_Launcher
         /// <summary>Determines the game folder again (setting first, then detection).</summary>
         public void Refresh()
         {
-            string userDirectory = null;
-            try
-            {
-                userDirectory = settings.GameDirectory;
-            }
-            catch (System.Configuration.ConfigurationException ex)
-            {
-                logger.Error("Unable to read the launcher settings, the game folder is detected automatically.", ex);
-            }
-
+            string userDirectory = settings.Current.GameDirectory;
             GameDirectorySource source;
             string location = locator.Locate(userDirectory, out source);
             if (location == Location && source == Source)
@@ -69,19 +59,9 @@ namespace Empire_Earth_Launcher
         /// </summary>
         public void SetUserDirectory(string directory)
         {
-            try
-            {
-                // Inside the try: with a damaged user.config the setter throws as well (it loads the values).
-                settings.GameDirectory = string.IsNullOrWhiteSpace(directory) ? string.Empty : directory.Trim();
-                settings.Save();
-            }
-            catch (Exception ex) when (ex is System.Configuration.ConfigurationException || ex is IOException ||
-                                       ex is UnauthorizedAccessException)
-            {
-                // If only Save failed, the folder is still used for this session; if the settings cannot be
-                // read at all, Refresh falls back to automatic detection.
-                logger.Error("Unable to save the launcher settings.", ex);
-            }
+            settings.Current.GameDirectory = string.IsNullOrWhiteSpace(directory) ? string.Empty : directory.Trim();
+            // If saving fails (logged by the store), the folder is still used for this session.
+            settings.Save();
             Refresh();
         }
     }

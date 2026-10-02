@@ -1,6 +1,6 @@
 # 0005 Own settings file instead of user.config
 
-Status: **Accepted** (2026-10-02)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2, see the Amendment section)
 
 ## Context
 
@@ -59,3 +59,24 @@ the contract makes source 1 of the discovery.
   `Software\Empire Earth Community` for the setup and the defaults marker; mixing the launcher's own state
   into it blurs the read-only rules. Rejected.
 - **INI file**: no typed values, own parser. Rejected.
+
+## Amendment 2026-10-02 (implementation, L-WP2)
+
+`Settings.SettingsStore` and `Settings.LauncherSettings` exist in the core; `UserSettingsRecovery`, the user-scoped
+settings and the `userSettings` section of `App.config` are gone. Refinements made while implementing, all keeping
+the decision:
+
+- **Not every unusable file is damaged.** A file that cannot be read (access denied, I/O error) and a file with a
+  `SchemaVersion` higher than the launcher knows are left as they are: the defaults are used, the store does not
+  save in that session (`CanSave` false, logged once at start and at every attempt). Renaming such a file would
+  lose settings that are fine (a locked file) or belong to a newer launcher (like contract 5 for the install
+  record).
+- **What counts as damaged**: invalid JSON or values, `null`, an array or any JSON without a `SchemaVersion` of
+  at least 1 (the serializer would otherwise return an object full of defaults), and a file above 1 MiB.
+  Members written as `null` get their defaults. Each case has a test, and a fuzz test (truncated and changed
+  bytes) checks that loading never throws: Mono reports some reader errors wrapped in a
+  `TargetInvocationException`, which the store unwraps.
+- **Encoding**: written as indented UTF-8 without BOM; a UTF-8 BOM (Notepad on older Windows) is accepted when
+  reading, because the JSON reader of .NET and Mono rejects it.
+- **Members**: `UiCulture`, `LastGame` and the hidden warnings are added by the packages that use them (L-WP3,
+  L-WP6, L-WP5) as optional members of schema 1; adding an optional member is a compatible change.

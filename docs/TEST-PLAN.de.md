@@ -109,12 +109,13 @@ Alle Dateien des Launchers liegen pro Benutzer unter `%LOCALAPPDATA%\Empire Eart
 | Was | Ort | seit |
 |---|---|---|
 | Protokoll | `log.txt`, ältere Einträge in `log.txt.old` (ab 1 MiB gekürzt) | heute |
-| Einstellungen bis L-WP2 | `user.config` in einem von .NET angelegten Unterordner von `%LOCALAPPDATA%` (Ordnername mit Hash, siehe unten) | heute |
-| Einstellungen ab L-WP2 | `settings.json`; eine beschädigte Datei wird zu `settings.json.damaged` | L-WP2 |
+| Einstellungen (Spielordner, Theme) | `settings.json`; eine beschädigte Datei wird zu `settings.json.damaged`, beim Speichern entsteht kurz `settings.json.tmp` | L-WP2 |
 | Sicherungen (`.reg`-Dateien, verschobene WON-Dateien) | `Backups\<yyyy-MM-dd_HHmmss>_<was>\` | ab L-WP5 |
 | Arbeitsordner des Mod-Creators | `Mod Creator\` | heute |
 
-`user.config` finden:
+Testpakete vor L-WP2 speicherten die Einstellungen in einer `user.config` in einem von .NET angelegten
+Unterordner von `%LOCALAPPDATA%` (Ordnername mit Hash). Der Launcher liest sie nicht mehr; finden und danach
+löschen:
 
 ```powershell
 Get-ChildItem $env:LOCALAPPDATA -Recurse -Filter user.config -ErrorAction SilentlyContinue |
@@ -161,7 +162,22 @@ WP1-01 | OK |
 
 ### L-WP2 – Core-Grundlage (settings.json, Protokoll, Mutation Guard)
 
-Wird mit L-WP2 ergänzt.
+Die Einstellungen liegen jetzt in `settings.json` (Abschnitt 3). Die Fälle brauchen kein installiertes Spiel.
+Vor WP2-01 eine vorhandene `settings.json` (und `settings.json.damaged`) löschen. Zum Bearbeiten der Datei den
+Launcher immer erst schließen; Editor: Notepad. Die Oberfläche ist bis L-WP3 englisch, die Schaltflächen heißen
+hier so, wie sie heute angezeigt werden.
+
+| Fall | Schritte | Erwartet |
+|---|---|---|
+| WP2-01 | Launcher starten. Seite *Launcher*: mit „…“ neben „Empire Earth folder“ einen Spielordner wählen (ein beliebiger Ordner, die Rückfrage „enthält nicht Empire Earth.exe“ mit Ja beantworten). Launcher schließen. | `settings.json` existiert, enthält `"SchemaVersion": 1` und den gewählten Ordner (`\\` statt `\` ist in JSON richtig); keine `settings.json.tmp`. |
+| WP2-02 | Launcher neu starten, Seite *Launcher* öffnen. | Der gewählte Ordner steht wieder da („Chosen manually“). `log.txt`: `Launcher settings loaded from …\settings.json.` |
+| WP2-03 | Den entpackten Launcher-Ordner verschieben oder umbenennen und den Launcher von dort starten. | Der gewählte Ordner ist weiterhin eingestellt (mit `user.config` gingen die Einstellungen dabei verloren). |
+| WP2-04 | Mit „Auto-detect“ zurückstellen, Launcher schließen und neu starten. | Automatische Erkennung aktiv; in `settings.json` ist `"GameDirectory": ""`. |
+| WP2-05 | `settings.json` öffnen, den Inhalt durch `{"SchemaVersion":1,"ThemeName":"Da` ersetzen (abgeschnitten), speichern. Launcher starten. | Startet normal mit den Standard-Einstellungen, kein Fehlerdialog. Neben `log.txt` liegt `settings.json.damaged` mit genau diesem Inhalt, `settings.json` fehlt. `log.txt`: `Error : The launcher settings were damaged (…) and have been reset to their defaults. The damaged file was kept as …\settings.json.damaged.` |
+| WP2-06 | Danach wieder einen Spielordner wählen, Launcher schließen und neu starten. | Neue `settings.json` mit dem Ordner; `settings.json.damaged` unverändert. |
+| WP2-07 | In `settings.json` `"SchemaVersion": 1` in `"SchemaVersion": 2` ändern, speichern. Launcher starten, auf der Seite *Launcher* „Auto-detect“ klicken, Launcher schließen. | Standard-Einstellungen. `log.txt`: Warnung `… were written by a newer launcher (schema 2 …)` und beim Klick `The launcher settings are not saved …`. Die Datei ist unverändert (`"SchemaVersion": 2`). Danach die Datei löschen. |
+| WP2-08 | Eine gültige `settings.json` in Notepad mit „Speichern unter“ → Codierung **UTF-8 mit BOM** speichern, Launcher starten. | Einstellungen werden gelesen, keine `settings.json.damaged`. |
+| WP2-09 | Nur wenn eine `user.config` eines älteren Testpakets existiert (Abschnitt 3): Launcher starten. | Kein Fehler; der Launcher ignoriert die Datei (die Einstellungen von dort werden nicht übernommen). |
 
 ### L-WP3 – Oberfläche aufräumen, Übersetzung Deutsch und Französisch
 

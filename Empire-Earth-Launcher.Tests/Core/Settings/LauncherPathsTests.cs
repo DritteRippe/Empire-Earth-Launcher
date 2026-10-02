@@ -31,9 +31,10 @@ namespace Empire_Earth_Launcher.Tests.Core.Settings
         }
 
         [Test]
-        public void LogFile_IsInTheUserDataDirectory()
+        public void LogAndSettings_AreInTheUserDataDirectory()
         {
             Assert.That(LauncherPaths.LogFile, Is.EqualTo(Path.Combine(LauncherPaths.UserDataDirectory, "log.txt")));
+            Assert.That(LauncherPaths.SettingsFile, Is.EqualTo(Path.Combine(LauncherPaths.UserDataDirectory, "settings.json")));
         }
     }
 }

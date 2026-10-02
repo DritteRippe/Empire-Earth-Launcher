@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
-using Empire_Earth_Launcher.Core.Logging;
 using Empire_Earth_Launcher.Core.Settings;
 using Empire_Earth_Launcher.Properties;
 
@@ -16,9 +15,8 @@ namespace Empire_Earth_Launcher
         /// </summary>
         private const int CustomThemeIndex = 0;
 
-        private ILogger logger;
         private IThemeService themeService;
-        private Settings settings;
+        private SettingsStore settings;
         private GameDirectoryService gameDirectory;
 
         /// <summary>True while the theme list is changed by code, so that no theme is applied then.</summary>
@@ -33,22 +31,17 @@ namespace Empire_Earth_Launcher
         /// Passes the services in. The control is created by the designer, which needs a parameterless
         /// constructor, so its owner calls this right after InitializeComponent.
         /// </summary>
-        /// <param name="logger">Log of the launcher.</param>
         /// <param name="themeService">Theme of the launcher.</param>
         /// <param name="settings">User settings; the selected theme is saved there.</param>
         /// <param name="gameDirectory">The Empire Earth folder, which can be chosen on this page.</param>
-        internal void Initialize(ILogger logger, IThemeService themeService, Settings settings,
-            GameDirectoryService gameDirectory)
+        internal void Initialize(IThemeService themeService, SettingsStore settings, GameDirectoryService gameDirectory)
         {
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
             if (themeService == null)
                 throw new ArgumentNullException(nameof(themeService));
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
             if (gameDirectory == null)
                 throw new ArgumentNullException(nameof(gameDirectory));
-            this.logger = logger;
             this.themeService = themeService;
             this.settings = settings;
             this.gameDirectory = gameDirectory;
@@ -123,11 +116,10 @@ namespace Empire_Earth_Launcher
                 return;
             }
 
-            SaveSettings(() =>
-            {
-                settings.ThemeName = themeName;
-                settings.CustomThemeFile = string.Empty;
-            });
+            // A failure to save is logged by the store; the theme stays applied for this session.
+            settings.Current.ThemeName = themeName;
+            settings.Current.CustomThemeFile = string.Empty;
+            settings.Save();
         }
 
         private void SelectCustomThemeFile()
@@ -147,8 +139,8 @@ namespace Empire_Earth_Launcher
                 return;
             }
 
-            string currentThemeFile = themeService.CurrentThemeFile;
-            SaveSettings(() => settings.CustomThemeFile = currentThemeFile);
+            settings.Current.CustomThemeFile = themeService.CurrentThemeFile;
+            settings.Save();
         }
 
         private void ShowThemeNotLoaded()
@@ -213,25 +205,6 @@ namespace Empire_Earth_Launcher
         private void detectGameDirectoryKryptonButton_Click(object sender, EventArgs e)
         {
             gameDirectory.SetUserDirectory(null);
-        }
-
-        /// <summary>
-        /// Changes and saves the settings. Both are in the try block: with a damaged user.config the setters
-        /// throw as well, because they load all values first.
-        /// </summary>
-        private void SaveSettings(Action change)
-        {
-            try
-            {
-                change();
-                settings.Save();
-            }
-            catch (Exception ex) when (ex is System.Configuration.ConfigurationException || ex is IOException ||
-                                       ex is UnauthorizedAccessException)
-            {
-                // The theme stays applied for this session.
-                logger.Error("Unable to save the launcher settings.", ex);
-            }
         }
     }
 }
