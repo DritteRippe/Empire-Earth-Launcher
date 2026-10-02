@@ -117,8 +117,11 @@ namespace Empire_Earth_Launcher.Core.Backup
         /// <summary>The list of the original paths in every backup folder of this kind (UTF-8 with BOM, CRLF).</summary>
         public const string IndexFileName = "moved-files.txt";
 
-        /// <summary>The largest file that is moved (16 MiB); the WON files are a few hundred bytes.</summary>
-        public const long MaxFileBytes = 16 * 1024 * 1024;
+        /// <summary>
+        /// The largest file that is backed up (64 MiB): the WON files are a few hundred bytes, but the old file an import
+        /// replaces may be as large as an imported saved game (<c>SavedGames.MaxFileBytes</c>).
+        /// </summary>
+        public const long MaxFileBytes = 64L * 1024 * 1024;
 
         private readonly IFileSystem fileSystem;
         private readonly BackupLocations backups;

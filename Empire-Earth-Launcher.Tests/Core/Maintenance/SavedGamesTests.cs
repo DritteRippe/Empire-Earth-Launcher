@@ -163,6 +163,8 @@ namespace Empire_Earth_Launcher.Tests.Core.Maintenance
         public void TheLimitsOfTheChecks()
         {
             Assert.That(SavedGames.MaxFileBytes, Is.EqualTo(64L * 1024 * 1024));
+            Assert.That(FileBackup.MaxFileBytes, Is.GreaterThanOrEqualTo(SavedGames.MaxFileBytes),
+                "the old file an import replaces always fits into its backup");
             Assert.That(SavedGames.MaxNameLength, Is.EqualTo(200));
             Assert.That(SavedGames.KindOf("a.EES"), Is.EqualTo(SavedGameKind.SavedGame));
             Assert.That(SavedGames.KindOf("a.scn"), Is.EqualTo(SavedGameKind.Scenario));
