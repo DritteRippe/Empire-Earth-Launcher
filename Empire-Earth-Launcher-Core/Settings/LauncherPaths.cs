@@ -67,5 +67,14 @@ namespace Empire_Earth_Launcher.Core.Settings
         {
             get { return Path.Combine(UserDataDirectory, SettingsFileName); }
         }
+
+        /// <summary>
+        /// The backup folder (<c>Backups</c> below <see cref="UserDataDirectory"/>, ARCHITECTURE 8): the <c>.reg</c> backups
+        /// of the game settings and, later, the moved WON login files. The launcher never deletes a backup.
+        /// </summary>
+        public static string BackupsDirectory
+        {
+            get { return Path.Combine(UserDataDirectory, Backup.BackupLocations.FolderName); }
+        }
     }
 }

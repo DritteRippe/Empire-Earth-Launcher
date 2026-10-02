@@ -81,6 +81,33 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Apply recommended display.
+        /// </summary>
+        internal static string ApplyDisplayButton {
+            get {
+                return ResourceManager.GetString("ApplyDisplayButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not possible while {0} is running..
+        /// </summary>
+        internal static string BlockedByGameFormat {
+            get {
+                return ResourceManager.GetString("BlockedByGameFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not possible while the {0} setup is running..
+        /// </summary>
+        internal static string BlockedBySetupFormat {
+            get {
+                return ResourceManager.GetString("BlockedBySetupFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap checked_disabled {
@@ -111,6 +138,51 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Set by the setup for all users (only the setup changes it): {0}.
+        /// </summary>
+        internal static string CompatibilityAllUsersFormat {
+            get {
+                return ResourceManager.GetString("CompatibilityAllUsersFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The options apply to {0} for your Windows account..
+        /// </summary>
+        internal static string CompatibilityAppliesToFormat {
+            get {
+                return ResourceManager.GetString("CompatibilityAppliesToFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fix 8/16-bit colors (DWM8And16BitMitigation).
+        /// </summary>
+        internal static string CompatibilityDwmOption {
+            get {
+                return ResourceManager.GetString("CompatibilityDwmOption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clear memory allocations (HeapClearAllocation).
+        /// </summary>
+        internal static string CompatibilityHeapOption {
+            get {
+                return ResourceManager.GetString("CompatibilityHeapOption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No scaling by Windows (HIGHDPIAWARE).
+        /// </summary>
+        internal static string CompatibilityHighDpiOption {
+            get {
+                return ResourceManager.GetString("CompatibilityHighDpiOption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Change one option at a time and start the game to check it. If the game gets worse, undo the last ch[rest of string was truncated].
         /// </summary>
         internal static string CompatibilityHintMessage {
@@ -129,6 +201,42 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Compatibility values of an older setup ({0}), which can cause black screens on Windows 7. Run the cu[rest of string was truncated].
+        /// </summary>
+        internal static string CompatibilityLegacyFormat {
+            get {
+                return ResourceManager.GetString("CompatibilityLegacyFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to On Windows 7 and under Wine the launcher offers no compatibility options; the current setup sets non[rest of string was truncated].
+        /// </summary>
+        internal static string CompatibilityNotOffered {
+            get {
+                return ResourceManager.GetString("CompatibilityNotOffered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An older setup set "Run as administrator" for your account (~ RUNASADMIN). The online lobby should n[rest of string was truncated].
+        /// </summary>
+        internal static string CompatibilityRunAsAdminHint {
+            get {
+                return ResourceManager.GetString("CompatibilityRunAsAdminHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A Windows compatibility mode is already set, so no second one is offered. If the setup set it for al[rest of string was truncated].
+        /// </summary>
+        internal static string CompatibilityVersionModeSet {
+            get {
+                return ResourceManager.GetString("CompatibilityVersionModeSet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Confirm.
         /// </summary>
         internal static string CompatibilityWarningConfirm {
@@ -143,6 +251,69 @@ namespace Empire_Earth_Launcher.Properties {
         internal static string CompatibilityWarningText {
             get {
                 return ResourceManager.GetString("CompatibilityWarningText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows 7 compatibility mode (WIN7RTM).
+        /// </summary>
+        internal static string CompatibilityWindows7Option {
+            get {
+                return ResourceManager.GetString("CompatibilityWindows7Option", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        internal static string ConfirmCancel {
+            get {
+                return ResourceManager.GetString("ConfirmCancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: set up by a newer launcher or setup; the launcher leaves them as they are..
+        /// </summary>
+        internal static string DefaultsStatusAppliedByNewerFormat {
+            get {
+                return ResourceManager.GetString("DefaultsStatusAppliedByNewerFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: the recommended settings are set up for your Windows account..
+        /// </summary>
+        internal static string DefaultsStatusAppliedFormat {
+            get {
+                return ResourceManager.GetString("DefaultsStatusAppliedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: installed by a newer setup than this launcher knows. The launcher changes no settings; please u[rest of string was truncated].
+        /// </summary>
+        internal static string DefaultsStatusNewerContractFormat {
+            get {
+                return ResourceManager.GetString("DefaultsStatusNewerContractFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: the recommended settings are not set up for your Windows account yet..
+        /// </summary>
+        internal static string DefaultsStatusPendingFormat {
+            get {
+                return ResourceManager.GetString("DefaultsStatusPendingFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: not set up yet, because several installations share these settings. "Reset game settings" sets [rest of string was truncated].
+        /// </summary>
+        internal static string DefaultsStatusWaitingForPlayFormat {
+            get {
+                return ResourceManager.GetString("DefaultsStatusWaitingForPlayFormat", resourceCulture);
             }
         }
         
@@ -232,6 +403,42 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} {1} {2} instead of {3}.
+        /// </summary>
+        internal static string DisplayDifferenceFormat {
+            get {
+                return ResourceManager.GetString("DisplayDifferenceFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Apply.
+        /// </summary>
+        internal static string DisplayQuestionApply {
+            get {
+                return ResourceManager.GetString("DisplayQuestionApply", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your display settings differ from the recommended ones: {0}. Apply the recommended display settings?[rest of string was truncated].
+        /// </summary>
+        internal static string DisplayQuestionFormat {
+            get {
+                return ResourceManager.GetString("DisplayQuestionFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Keep mine.
+        /// </summary>
+        internal static string DisplayQuestionKeep {
+            get {
+                return ResourceManager.GetString("DisplayQuestionKeep", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap ee_book {
@@ -268,6 +475,69 @@ namespace Empire_Earth_Launcher.Properties {
             get {
                 object obj = ResourceManager.GetObject("EmpireEarthLauncher", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: Game Bit Depth ({1}) differs from Texture Bit Depth ({2}); the main menu can turn white and unr[rest of string was truncated].
+        /// </summary>
+        internal static string FindingBitDepthMismatchFormat {
+            get {
+                return ResourceManager.GetString("FindingBitDepthMismatchFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: the folder {1} is not on a drive letter, so the "Installed From" values cannot point to it. Con[rest of string was truncated].
+        /// </summary>
+        internal static string FindingNotOnADriveFormat {
+            get {
+                return ResourceManager.GetString("FindingNotOnADriveFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: the renderer is "{1}"; recommended for this installation is "{2}". Hide the hint if you chose i[rest of string was truncated].
+        /// </summary>
+        internal static string FindingRasterizerFormat {
+            get {
+                return ResourceManager.GetString("FindingRasterizerFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The screen is only {0} pixels high; the menus of the game need at least 768. Some menus may not fit..
+        /// </summary>
+        internal static string FindingScreenTooLowFormat {
+            get {
+                return ResourceManager.GetString("FindingScreenTooLowFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: 16-bit colors often freeze the game on Windows 8 and later. "Apply recommended display" sets 32[rest of string was truncated].
+        /// </summary>
+        internal static string FindingSixteenBitFormat {
+            get {
+                return ResourceManager.GetString("FindingSixteenBitFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: the game window ({1}) fits the screen only with the compatibility option HIGHDPIAWARE; without [rest of string was truncated].
+        /// </summary>
+        internal static string FindingWindowHighDpiFormat {
+            get {
+                return ResourceManager.GetString("FindingWindowHighDpiFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: the game window ({1}) is larger than the screen as the game sees it ({2}). "Apply recommended d[rest of string was truncated].
+        /// </summary>
+        internal static string FindingWindowLargerFormat {
+            get {
+                return ResourceManager.GetString("FindingWindowLargerFormat", resourceCulture);
             }
         }
         
@@ -385,6 +655,105 @@ namespace Empire_Earth_Launcher.Properties {
         internal static string GameExecutableMissingFormat {
             get {
                 return ResourceManager.GetString("GameExecutableMissingFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game defaults.
+        /// </summary>
+        internal static string GameSettingsDefaultsHeading {
+            get {
+                return ResourceManager.GetString("GameSettingsDefaultsHeading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} in {1}.
+        /// </summary>
+        internal static string GameSettingsInstallationFormat {
+            get {
+                return ResourceManager.GetString("GameSettingsInstallationFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switch off.
+        /// </summary>
+        internal static string HighDpiOffConfirmButton {
+            get {
+                return ResourceManager.GetString("HighDpiOffConfirmButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The screen is scaled to {0} %. Without HIGHDPIAWARE the game sees a smaller screen, and its window m[rest of string was truncated].
+        /// </summary>
+        internal static string HighDpiOffConfirmFormat {
+            get {
+                return ResourceManager.GetString("HighDpiOffConfirmFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Details.
+        /// </summary>
+        internal static string HintBarDetails {
+            get {
+                return ResourceManager.GetString("HintBarDetails", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hide.
+        /// </summary>
+        internal static string HintBarHide {
+            get {
+                return ResourceManager.GetString("HintBarHide", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to More hints on the Settings page: {0}.
+        /// </summary>
+        internal static string HintBarMoreFormat {
+            get {
+                return ResourceManager.GetString("HintBarMoreFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hints.
+        /// </summary>
+        internal static string HintsHeading {
+            get {
+                return ResourceManager.GetString("HintsHeading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Play page.
+        /// </summary>
+        internal static string HintShowColumn {
+            get {
+                return ResourceManager.GetString("HintShowColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No hints: the game settings fit together..
+        /// </summary>
+        internal static string HintsNone {
+            get {
+                return ResourceManager.GetString("HintsNone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hint.
+        /// </summary>
+        internal static string HintTextColumn {
+            get {
+                return ResourceManager.GetString("HintTextColumn", resourceCulture);
             }
         }
         
@@ -794,6 +1163,105 @@ namespace Empire_Earth_Launcher.Properties {
             get {
                 object obj = ResourceManager.GetObject("radio_unchecked_disabled", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove "Run as administrator".
+        /// </summary>
+        internal static string RemoveRunAsAdminButton {
+            get {
+                return ResourceManager.GetString("RemoveRunAsAdminButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reset now.
+        /// </summary>
+        internal static string ResetConfirmButton {
+            get {
+                return ResourceManager.GetString("ResetConfirmButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Set the settings of {0} back to the recommended values for your Windows account?  Your current setti[rest of string was truncated].
+        /// </summary>
+        internal static string ResetConfirmFormat {
+            get {
+                return ResourceManager.GetString("ResetConfirmFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reset game settings.
+        /// </summary>
+        internal static string ResetConfirmTitle {
+            get {
+                return ResourceManager.GetString("ResetConfirmTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reset game settings.
+        /// </summary>
+        internal static string ResetGameSettingsButton {
+            get {
+                return ResourceManager.GetString("ResetGameSettingsButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nothing was changed: the backup could not be written (details in the log)..
+        /// </summary>
+        internal static string ResultBackupFailed {
+            get {
+                return ResourceManager.GetString("ResultBackupFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Done..
+        /// </summary>
+        internal static string ResultDone {
+            get {
+                return ResourceManager.GetString("ResultDone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Done. Your previous settings are saved in: {0}.
+        /// </summary>
+        internal static string ResultDoneFormat {
+            get {
+                return ResourceManager.GetString("ResultDoneFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The settings could not be changed (details in the log)..
+        /// </summary>
+        internal static string ResultFailed {
+            get {
+                return ResourceManager.GetString("ResultFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The settings could not be changed completely (details in the log). Double-click the backup to restor[rest of string was truncated].
+        /// </summary>
+        internal static string ResultFailedFormat {
+            get {
+                return ResourceManager.GetString("ResultFailedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not possible: this installation comes from a newer setup than this launcher knows. Please update the[rest of string was truncated].
+        /// </summary>
+        internal static string ResultNewerContract {
+            get {
+                return ResourceManager.GetString("ResultNewerContract", resourceCulture);
             }
         }
         

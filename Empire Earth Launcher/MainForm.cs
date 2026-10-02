@@ -19,12 +19,13 @@ namespace Empire_Earth_Launcher
         /// <param name="settings">User settings of the launcher (settings.json).</param>
         /// <param name="installations">The installations of Empire Earth and the selected one.</param>
         /// <param name="lobbyProfiles">Reads the lobby profiles of the game folder.</param>
+        /// <param name="gameSettings">The game settings of the selected installation (L-WP5).</param>
         /// <param name="uiOperation">Runs the asynchronous work of the pages (ADR 0004).</param>
         /// <param name="neoClient">Client for the online player list; null if the server settings are invalid.</param>
         /// <param name="playerListPollIntervalMilliseconds">Delay between two requests of the player list.</param>
         internal MainForm(ILogger logger, IThemeService themeService, SettingsStore settings,
-            InstallationService installations, LobbyProfileRepository lobbyProfiles, UiOperation uiOperation,
-            NeoApiClient neoClient, int playerListPollIntervalMilliseconds)
+            InstallationService installations, LobbyProfileRepository lobbyProfiles, GameSettingsModel gameSettings,
+            UiOperation uiOperation, NeoApiClient neoClient, int playerListPollIntervalMilliseconds)
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.OptimizedDoubleBuffer, true);
@@ -35,8 +36,8 @@ namespace Empire_Earth_Launcher
             // The pages are created by InitializeComponent (designer), which needs parameterless constructors,
             // so they receive their services here.
             generalUserControl.Initialize(logger, themeService, installations, lobbyProfiles, neoClient,
-                playerListPollIntervalMilliseconds);
-            settingsUserControl.Initialize(themeService);
+                playerListPollIntervalMilliseconds, gameSettings, uiOperation);
+            settingsUserControl.Initialize(themeService, gameSettings, installations, uiOperation);
             launcherSettingsUserControl.Initialize(themeService, settings, installations, uiOperation);
 
             // A page cannot be assigned to Tag in the designer, so the navigation is wired up here.
@@ -44,6 +45,8 @@ namespace Empire_Earth_Launcher
             settingsKryptonCheckButton.Tag = settingsUserControl;
             launcherKryptonCheckButton.Tag = launcherSettingsUserControl;
             navigationButtons = new[] { playKryptonCheckButton, settingsKryptonCheckButton, launcherKryptonCheckButton };
+            generalUserControl.GameSettingsRequested += (sender, e) =>
+                navigationKryptonCheckButton_Click(settingsKryptonCheckButton, EventArgs.Empty);
         }
 
         /// <summary>

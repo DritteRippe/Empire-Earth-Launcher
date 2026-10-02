@@ -5,11 +5,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Empire_Earth_Launcher.Core.Backup;
 using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Lobby;
 using Empire_Earth_Launcher.Core.Logging;
 using Empire_Earth_Launcher.Core.Platform;
+using Empire_Earth_Launcher.Core.Play;
 using Empire_Earth_Launcher.Core.Settings;
 using Empire_Earth_Launcher.Properties;
 using Empire_Earth_WON;
@@ -67,13 +69,23 @@ namespace Empire_Earth_Launcher
             var lobbyProfiles = new LobbyProfileRepository(logger, fileSystem, CreateEffectivePathResolver(fileSystem));
             var uiOperation = new UiOperation(logger);
 
+            // Game settings of contract 3 (L-WP5): every change asks the mutation guard (no setup, no game running, ADR 0016)
+            // and backs up into %LOCALAPPDATA%\Empire Earth Launcher\Backups first (ADR 0007).
+            var guard = new MutationGuard(new WindowsMutexProbe(logger), logger);
+            var backups = new BackupLocations(LauncherPaths.BackupsDirectory, fileSystem, SystemClock.Instance, logger);
+            var gameSettings = new GameSettingsModel(
+                new GameDefaultsService(registry, fileSystem, systemInfo, guard, backups, logger),
+                new ConsistencyChecker(registry, fileSystem, systemInfo),
+                new CompatibilityOptions(registry, systemInfo, guard, backups, logger),
+                settingsStore, systemInfo, backups.Directory, logger);
+
             // Server settings stay application settings in "Empire Earth Launcher.exe.config" (ADR 0005).
             int playerListPollIntervalMilliseconds;
             NeoApiClient neoClient = CreateNeoClient(Settings.Default, out playerListPollIntervalMilliseconds);
 
             logger.Info("Starting Empire Earth Launcher Form");
-            Application.Run(new MainForm(logger, themeService, settingsStore, installations, lobbyProfiles, uiOperation,
-                neoClient, playerListPollIntervalMilliseconds));
+            Application.Run(new MainForm(logger, themeService, settingsStore, installations, lobbyProfiles, gameSettings,
+                uiOperation, neoClient, playerListPollIntervalMilliseconds));
         }
 
         /// <summary>

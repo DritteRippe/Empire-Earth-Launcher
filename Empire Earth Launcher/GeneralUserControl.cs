@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Threading;
 using System.Windows.Forms;
+using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Lobby;
 using Empire_Earth_Launcher.Core.Logging;
 using Empire_Earth_Launcher.Properties;
@@ -19,6 +20,11 @@ namespace Empire_Earth_Launcher
         private BackgroundWorker backgroundWorker;
         private ILogger logger;
         private InstallationService installations;
+        private GameSettingsModel gameSettings;
+        private UiOperation uiOperation;
+
+        /// <summary>The hint the info bar shows; null while it shows the display question or nothing.</summary>
+        private ConsistencyFinding shownFinding;
         private NeoApiClient neoClient;
 
         /// <summary>Delay between two requests of the online player list.</summary>
@@ -81,8 +87,11 @@ namespace Empire_Earth_Launcher
         /// <param name="neoClient">Client for the online player list; null disables the list (invalid server
         /// settings).</param>
         /// <param name="playerListPollIntervalMilliseconds">Delay between two requests of the player list.</param>
+        /// <param name="gameSettings">The game settings: the display question and the hints of the info bar (L-WP5).</param>
+        /// <param name="uiOperation">Runs the answer to the display question (ADR 0004).</param>
         internal void Initialize(ILogger logger, IThemeService themeService, InstallationService installations,
-            LobbyProfileRepository lobbyProfiles, NeoApiClient neoClient, int playerListPollIntervalMilliseconds)
+            LobbyProfileRepository lobbyProfiles, NeoApiClient neoClient, int playerListPollIntervalMilliseconds,
+            GameSettingsModel gameSettings, UiOperation uiOperation)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
@@ -103,6 +112,63 @@ namespace Empire_Earth_Launcher
             EventHandler reloadLobbyProfiles = (sender, e) => OnInstallationsChanged();
             installations.Changed += reloadLobbyProfiles;
             Disposed += (sender, e) => installations.Changed -= reloadLobbyProfiles;
+
+            this.gameSettings = gameSettings ?? throw new ArgumentNullException(nameof(gameSettings));
+            this.uiOperation = uiOperation ?? throw new ArgumentNullException(nameof(uiOperation));
+            EventHandler showHint = (sender, e) => ShowGameSettingsHint();
+            gameSettings.Changed += showHint;
+            Disposed += (sender, e) => gameSettings.Changed -= showHint;
+            ShowGameSettingsHint();
+        }
+
+        /// <summary>Raised when the player wants to see the Game settings page (button "Details" of the info bar).</summary>
+        internal event EventHandler GameSettingsRequested;
+
+        /// <summary>
+        /// The non-modal info bar of the game settings (contract 3.6, ADR 0015): the display question of the first run, else
+        /// the first hint the player did not hide, with "Hide" and "Details"; nothing if there is neither.
+        /// </summary>
+        private void ShowGameSettingsHint()
+        {
+            shownFinding = null;
+            if (gameSettings.Question != null)
+            {
+                gameSettingsHintKryptonWrapLabel.Text = Texts.DisplayQuestion(gameSettings.Question);
+                gameSettingsHintFirstKryptonButton.Values.Text = Resources.DisplayQuestionApply;
+                gameSettingsHintSecondKryptonButton.Values.Text = Resources.DisplayQuestionKeep;
+                gameSettingsHintKryptonPanel.Visible = true;
+                return;
+            }
+
+            IReadOnlyList<ConsistencyFinding> visible = gameSettings.VisibleFindings;
+            if (visible.Count == 0)
+            {
+                gameSettingsHintKryptonPanel.Visible = false;
+                return;
+            }
+            shownFinding = visible[0];
+            gameSettingsHintKryptonWrapLabel.Text = Texts.Finding(shownFinding) + (visible.Count > 1
+                ? Environment.NewLine + string.Format(CultureInfo.CurrentCulture, Resources.HintBarMoreFormat, visible.Count - 1)
+                : string.Empty);
+            gameSettingsHintFirstKryptonButton.Values.Text = Resources.HintBarHide;
+            gameSettingsHintSecondKryptonButton.Values.Text = Resources.HintBarDetails;
+            gameSettingsHintKryptonPanel.Visible = true;
+        }
+
+        private void gameSettingsHintFirstKryptonButton_Click(object sender, EventArgs e)
+        {
+            if (shownFinding != null)
+                gameSettings.SetHidden(shownFinding, true);
+            else if (gameSettings.Question != null)
+                uiOperation.Run(gameSettingsHintFirstKryptonButton, () => gameSettings.AnswerQuestionAsync(true));
+        }
+
+        private void gameSettingsHintSecondKryptonButton_Click(object sender, EventArgs e)
+        {
+            if (shownFinding != null)
+                GameSettingsRequested?.Invoke(this, EventArgs.Empty);
+            else if (gameSettings.Question != null)
+                uiOperation.Run(gameSettingsHintSecondKryptonButton, () => gameSettings.AnswerQuestionAsync(false));
         }
 
         protected override void OnLoad(EventArgs e)

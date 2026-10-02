@@ -347,4 +347,162 @@ Mit diesen Optionen lassen sich viele Probleme lösen, die richtige Kombination 
   <data name="InstallationNewerSetupFormat" xml:space="preserve">
     <value>{0} wurde mit einem neueren Setup installiert, als dieser Launcher kennt. Bitte aktualisieren Sie den Launcher.</value>
   </data>
+  <data name="GameSettingsDefaultsHeading" xml:space="preserve">
+    <value>Standardwerte des Spiels</value>
+  </data>
+  <data name="GameSettingsInstallationFormat" xml:space="preserve">
+    <value>{0} in {1}</value>
+  </data>
+  <data name="DefaultsStatusAppliedFormat" xml:space="preserve">
+    <value>{0}: Die empfohlenen Einstellungen sind für Ihr Windows-Konto eingerichtet.</value>
+  </data>
+  <data name="DefaultsStatusAppliedByNewerFormat" xml:space="preserve">
+    <value>{0}: Von einem neueren Launcher oder Setup eingerichtet; der Launcher lässt sie unverändert.</value>
+  </data>
+  <data name="DefaultsStatusPendingFormat" xml:space="preserve">
+    <value>{0}: Die empfohlenen Einstellungen sind für Ihr Windows-Konto noch nicht eingerichtet.</value>
+  </data>
+  <data name="DefaultsStatusWaitingForPlayFormat" xml:space="preserve">
+    <value>{0}: Noch nicht eingerichtet, weil sich mehrere Installationen diese Einstellungen teilen. „Spieleinstellungen zurücksetzen“ richtet sie für diese Installation ein.</value>
+  </data>
+  <data name="DefaultsStatusNewerContractFormat" xml:space="preserve">
+    <value>{0}: Mit einem neueren Setup installiert, als dieser Launcher kennt. Der Launcher ändert keine Einstellungen; bitte aktualisieren Sie ihn.</value>
+  </data>
+  <data name="BlockedBySetupFormat" xml:space="preserve">
+    <value>Nicht möglich, solange das Setup von {0} läuft.</value>
+  </data>
+  <data name="BlockedByGameFormat" xml:space="preserve">
+    <value>Nicht möglich, solange {0} läuft.</value>
+  </data>
+  <data name="DisplayQuestionFormat" xml:space="preserve">
+    <value>Ihre Anzeigeeinstellungen weichen von den empfohlenen ab: {0}. Die empfohlenen Anzeigeeinstellungen übernehmen? Ihre jetzigen Werte werden vorher als .reg-Datei gesichert.</value>
+  </data>
+  <data name="DisplayDifferenceFormat" xml:space="preserve">
+    <value>{0} {1} {2} statt {3}</value>
+  </data>
+  <data name="DisplayQuestionApply" xml:space="preserve">
+    <value>Übernehmen</value>
+  </data>
+  <data name="DisplayQuestionKeep" xml:space="preserve">
+    <value>Meine behalten</value>
+  </data>
+  <data name="ApplyDisplayButton" xml:space="preserve">
+    <value>Empfohlene Anzeige übernehmen</value>
+  </data>
+  <data name="ResetGameSettingsButton" xml:space="preserve">
+    <value>Spieleinstellungen zurücksetzen</value>
+  </data>
+  <data name="ResetConfirmTitle" xml:space="preserve">
+    <value>Spieleinstellungen zurücksetzen</value>
+  </data>
+  <data name="ResetConfirmFormat" xml:space="preserve">
+    <value>Die Einstellungen von {0} für Ihr Windows-Konto auf die empfohlenen Werte zurücksetzen?
+
+Ihre jetzigen Einstellungen werden vorher als .reg-Dateien in {1} gesichert; ein Doppelklick auf eine solche Datei stellt sie wieder her. Spielernamen und andere Werte des Spiels bleiben erhalten.</value>
+  </data>
+  <data name="ResultDoneFormat" xml:space="preserve">
+    <value>Erledigt. Ihre vorherigen Einstellungen sind gesichert in: {0}</value>
+  </data>
+  <data name="ResultDone" xml:space="preserve">
+    <value>Erledigt.</value>
+  </data>
+  <data name="ResultBackupFailed" xml:space="preserve">
+    <value>Nichts wurde geändert: Die Sicherung konnte nicht geschrieben werden (Einzelheiten im Protokoll).</value>
+  </data>
+  <data name="ResultFailedFormat" xml:space="preserve">
+    <value>Die Einstellungen konnten nicht vollständig geändert werden (Einzelheiten im Protokoll). Ein Doppelklick auf die Sicherung stellt die vorherigen Werte wieder her: {0}</value>
+  </data>
+  <data name="ResultFailed" xml:space="preserve">
+    <value>Die Einstellungen konnten nicht geändert werden (Einzelheiten im Protokoll).</value>
+  </data>
+  <data name="ResultNewerContract" xml:space="preserve">
+    <value>Nicht möglich: Diese Installation stammt von einem neueren Setup, als dieser Launcher kennt. Bitte aktualisieren Sie den Launcher.</value>
+  </data>
+  <data name="HintsHeading" xml:space="preserve">
+    <value>Hinweise</value>
+  </data>
+  <data name="HintsNone" xml:space="preserve">
+    <value>Keine Hinweise: Die Spieleinstellungen passen zusammen.</value>
+  </data>
+  <data name="HintTextColumn" xml:space="preserve">
+    <value>Hinweis</value>
+  </data>
+  <data name="HintShowColumn" xml:space="preserve">
+    <value>Seite Spielen</value>
+  </data>
+  <data name="FindingBitDepthMismatchFormat" xml:space="preserve">
+    <value>{0}: Game Bit Depth ({1}) weicht von Texture Bit Depth ({2}) ab; das Hauptmenü kann weiß und unlesbar werden. „Empfohlene Anzeige übernehmen“ setzt beide auf 32.</value>
+  </data>
+  <data name="FindingSixteenBitFormat" xml:space="preserve">
+    <value>{0}: 16-Bit-Farben lassen das Spiel unter Windows 8 und neuer oft einfrieren. „Empfohlene Anzeige übernehmen“ stellt 32 Bit ein; blenden Sie den Hinweis aus, wenn 16 Bit bei Ihnen funktioniert.</value>
+  </data>
+  <data name="FindingRasterizerFormat" xml:space="preserve">
+    <value>{0}: Als Renderer ist „{1}“ eingestellt; empfohlen für diese Installation ist „{2}“. Blenden Sie den Hinweis aus, wenn Sie ihn bewusst gewählt haben.</value>
+  </data>
+  <data name="FindingWindowLargerFormat" xml:space="preserve">
+    <value>{0}: Das Spielfenster ({1}) ist größer als der Bildschirm aus Sicht des Spiels ({2}). „Empfohlene Anzeige übernehmen“ stellt {3} ein.</value>
+  </data>
+  <data name="FindingWindowHighDpiFormat" xml:space="preserve">
+    <value>{0}: Das Spielfenster ({1}) passt nur mit der Kompatibilitätsoption HIGHDPIAWARE auf den Bildschirm; ohne sie sieht das Spiel bei dieser Skalierung {2}. Schalten Sie die Option unten ein oder stellen Sie die Skalierung von Windows auf 100 %.</value>
+  </data>
+  <data name="FindingScreenTooLowFormat" xml:space="preserve">
+    <value>Der Bildschirm ist nur {0} Pixel hoch; die Menüs des Spiels brauchen mindestens 768. Manche Menüs passen dann nicht.</value>
+  </data>
+  <data name="FindingNotOnADriveFormat" xml:space="preserve">
+    <value>{0}: Der Ordner {1} liegt nicht auf einem Laufwerksbuchstaben, daher können die Werte „Installed From“ nicht auf ihn zeigen. Verbinden Sie den Netzwerkordner als Laufwerk, z. B. Z:.</value>
+  </data>
+  <data name="CompatibilityDwmOption" xml:space="preserve">
+    <value>8/16-Bit-Farben korrigieren (DWM8And16BitMitigation)</value>
+  </data>
+  <data name="CompatibilityHighDpiOption" xml:space="preserve">
+    <value>Keine Skalierung durch Windows (HIGHDPIAWARE)</value>
+  </data>
+  <data name="CompatibilityHeapOption" xml:space="preserve">
+    <value>Speicherbelegungen löschen (HeapClearAllocation)</value>
+  </data>
+  <data name="CompatibilityWindows7Option" xml:space="preserve">
+    <value>Kompatibilitätsmodus Windows 7 (WIN7RTM)</value>
+  </data>
+  <data name="CompatibilityAppliesToFormat" xml:space="preserve">
+    <value>Die Optionen gelten für {0} und Ihr Windows-Konto.</value>
+  </data>
+  <data name="CompatibilityAllUsersFormat" xml:space="preserve">
+    <value>Vom Setup für alle Benutzer gesetzt (nur das Setup ändert das): {0}</value>
+  </data>
+  <data name="CompatibilityVersionModeSet" xml:space="preserve">
+    <value>Ein Windows-Kompatibilitätsmodus ist schon gesetzt, daher wird kein zweiter angeboten. Hat das Setup ihn für alle Benutzer gesetzt, entfernt ihn ein benutzerdefinierter Lauf des Setups ohne „Kompatibilitätsmodus für ältere Windows-Versionen aktivieren“.</value>
+  </data>
+  <data name="CompatibilityNotOffered" xml:space="preserve">
+    <value>Unter Windows 7 und unter Wine bietet der Launcher keine Kompatibilitätsoptionen an; das aktuelle Setup setzt dort auch keine.</value>
+  </data>
+  <data name="CompatibilityLegacyFormat" xml:space="preserve">
+    <value>Kompatibilitätswerte eines älteren Setups ({0}), die unter Windows 7 schwarze Bildschirme verursachen können. Führen Sie das aktuelle Community-Setup aus: Es entfernt sie.</value>
+  </data>
+  <data name="RemoveRunAsAdminButton" xml:space="preserve">
+    <value>„Als Administrator ausführen“ entfernen</value>
+  </data>
+  <data name="CompatibilityRunAsAdminHint" xml:space="preserve">
+    <value>Ein älteres Setup hat für Ihr Konto „Als Administrator ausführen“ gesetzt (~ RUNASADMIN). Die Online-Lobby sollte nicht als Administrator laufen.</value>
+  </data>
+  <data name="HighDpiOffConfirmFormat" xml:space="preserve">
+    <value>Der Bildschirm ist auf {0} % skaliert. Ohne HIGHDPIAWARE sieht das Spiel einen kleineren Bildschirm, und sein Fenster passt dann eventuell nicht mehr. Die Option trotzdem ausschalten?</value>
+  </data>
+  <data name="HintBarHide" xml:space="preserve">
+    <value>Ausblenden</value>
+  </data>
+  <data name="HintBarDetails" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="HintBarMoreFormat" xml:space="preserve">
+    <value>Weitere Hinweise auf der Seite Einstellungen: {0}</value>
+  </data>
+  <data name="ResetConfirmButton" xml:space="preserve">
+    <value>Jetzt zurücksetzen</value>
+  </data>
+  <data name="ConfirmCancel" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+  <data name="HighDpiOffConfirmButton" xml:space="preserve">
+    <value>Ausschalten</value>
+  </data>
 </root>

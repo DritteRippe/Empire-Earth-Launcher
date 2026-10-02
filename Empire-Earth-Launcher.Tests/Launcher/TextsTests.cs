@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Empire_Earth_Launcher.Core.Contract;
+using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Lobby;
+using Empire_Earth_Launcher.Core.Platform;
+using Empire_Earth_Launcher.Core.Play;
 using Empire_Earth_Launcher.Core.Settings;
+using Empire_Earth_Launcher.Tests.Fakes;
 using Empire_Earth_Launcher.Tests.TestSupport;
 using Microsoft.Win32;
 using NUnit.Framework;
@@ -67,6 +72,165 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             foreach (string language in UiLanguage.Choices)
                 Assert.That(Texts.UiLanguageName(language), Is.Not.Empty, language);
             Assert.That(() => Texts.UiLanguageName("es"), Throws.TypeOf<ArgumentOutOfRangeException>());
+        }
+
+        // --- Game settings (L-WP5) --------------------------------------------------------------------------------
+
+        private static GameSettingsWorld GameSettings(FakeSystemInfo systemInfo = null)
+        {
+            var world = new GameSettingsWorld(systemInfo);
+            world.AddAdminInstallationOfAnotherAccount(NeoRoot, Product.NeoEE);
+            return world;
+        }
+
+        private static IReadOnlyList<ConsistencyFinding> Findings(GameSettingsWorld world)
+        {
+            return new ConsistencyChecker(world.Registry, world.FileSystem, world.SystemInfo).Check(world.Discover().Selected);
+        }
+
+        [TestCase(DefaultsStatus.Applied, "Empire Earth: the recommended settings are set up for your Windows account.")]
+        [TestCase(DefaultsStatus.AppliedByNewerVersion, "Empire Earth: set up by a newer launcher or setup; the launcher leaves them as they are.")]
+        [TestCase(DefaultsStatus.Pending, "Empire Earth: the recommended settings are not set up for your Windows account yet.")]
+        [TestCase(DefaultsStatus.WaitingForPlay, "Empire Earth: not set up yet, because several installations share these settings. \"Reset game settings\" sets them up for this installation.")]
+        [TestCase(DefaultsStatus.NewerContract, "Empire Earth: installed by a newer setup than this launcher knows. The launcher changes no settings; please update it.")]
+        public void DefaultsStatus_HasATextForEveryState(DefaultsStatus status, string expected)
+        {
+            Assert.That(Texts.DefaultsStatus(Game.EmpireEarth, status), Is.EqualTo(expected));
+            Assert.That(Texts.DefaultsStatus(Game.ArtOfConquest, status), Does.StartWith("The Art of Conquest: "));
+        }
+
+        [Test]
+        public void Block_NamesTheSetupOrTheProgram()
+        {
+            var probe = new FakeMutexProbe();
+            var guard = new MutationGuard(probe, new RecordingLogger());
+
+            Assert.That(Texts.Block(guard.Check("test")), Is.Null);
+            probe.With("MadDocSoftwarePresentsEmpireEarthExpansion");
+            Assert.That(Texts.Block(guard.Check("test")), Is.EqualTo("Not possible while EE-AOC.exe is running."));
+            probe.With("NeoEE_Setup");
+            Assert.That(Texts.Block(guard.Check("test")), Is.EqualTo("Not possible while the NeoEE setup is running."));
+        }
+
+        [Test]
+        public void DisplayQuestion_ListsEveryDifferingValue()
+        {
+            GameSettingsWorld world = GameSettings();
+            world.RawRegistry.Seed(GameSettingsWorld.Settings(Product.NeoEE, Game.EmpireEarth), "Game Bit Depth", RegistryValue.FromDWord(16));
+            world.RawRegistry.Seed(GameSettingsWorld.Settings(Product.NeoEE, Game.ArtOfConquest), "Rasterizer Name", RegistryValue.FromString("Direct3D"));
+            DisplayQuestion question = world.CreateDefaultsService().ApplyAtLauncherStart(world.Discover()).Question;
+
+            Assert.That(Texts.DisplayQuestion(question), Is.EqualTo(
+                "Your display settings differ from the recommended ones: Empire Earth Game Bit Depth 16 instead of 32; " +
+                "The Art of Conquest Rasterizer Name Direct3D instead of Direct3D Hardware TnL. Apply the recommended display " +
+                "settings? Your current values are saved as a .reg file first."));
+        }
+
+        [Test]
+        public void Finding_HasATextForEveryCode()
+        {
+            GameSettingsWorld world = GameSettings(new FakeSystemInfo().WithScreen(1366, 700, 150));
+            RegistryLocation ee = GameSettingsWorld.Settings(Product.NeoEE, Game.EmpireEarth);
+            world.RawRegistry.Seed(ee, "Game Bit Depth", RegistryValue.FromDWord(16));
+            world.RawRegistry.Seed(ee, "Texture Bit Depth", RegistryValue.FromDWord(32));
+            world.RawRegistry.Seed(ee, "Rasterizer Name", RegistryValue.FromString("Direct3D"));
+            world.RawRegistry.Seed(ee, "Game Window Width", RegistryValue.FromDWord(1024));
+            world.RawRegistry.Seed(ee, "Game Window Height", RegistryValue.FromDWord(768));
+
+            string[] texts = Findings(world).Select(Texts.Finding).ToArray();
+
+            Assert.That(texts, Is.EqualTo(new[]
+            {
+                "Empire Earth: Game Bit Depth (16) differs from Texture Bit Depth (32); the main menu can turn white and unreadable. \"Apply recommended display\" sets both to 32.",
+                "Empire Earth: 16-bit colors often freeze the game on Windows 8 and later. \"Apply recommended display\" sets 32 bit; hide the hint if 16 bit works for you.",
+                "Empire Earth: the renderer is \"Direct3D\"; recommended for this installation is \"Direct3D Hardware TnL\". Hide the hint if you chose it on purpose.",
+                "Empire Earth: the game window (1024x768) is larger than the screen as the game sees it (910x466). \"Apply recommended display\" sets 1366x768.",
+                "The screen is only 700 pixels high; the menus of the game need at least 768. Some menus may not fit.",
+            }));
+        }
+
+        [Test]
+        public void Finding_WindowFitsOnlyWithHighDpiAware_AdvisesTheOptionOr100Percent()
+        {
+            GameSettingsWorld world = GameSettings(new FakeSystemInfo().WithScreen(1920, 1080, 150));
+            world.RawRegistry.Seed(GameSettingsWorld.Settings(Product.NeoEE, Game.ArtOfConquest), "Game Window Width", RegistryValue.FromDWord(1920));
+            world.RawRegistry.Seed(GameSettingsWorld.Settings(Product.NeoEE, Game.ArtOfConquest), "Game Window Height", RegistryValue.FromDWord(1080));
+
+            Assert.That(Texts.Finding(Findings(world).Single()), Is.EqualTo(
+                "The Art of Conquest: the game window (1920x1080) fits the screen only with the compatibility option HIGHDPIAWARE; " +
+                "without it, the game sees 1280x720 at this scaling. Switch the option on below or set the Windows scaling to 100 %."));
+        }
+
+        [Test]
+        public void Finding_NetworkFolder()
+        {
+            var world = new GameSettingsWorld();
+            world.World.AddEmpireEarth(@"\\server\games\EE");
+            Installation installation = world.Discover(@"\\server\games\EE").Selected;
+
+            ConsistencyFinding finding = new ConsistencyChecker(world.Registry, world.FileSystem, world.SystemInfo).Check(installation).Single();
+
+            Assert.That(Texts.Finding(finding), Is.EqualTo(
+                "Empire Earth: the folder \\\\server\\games\\EE is not on a drive letter, so the \"Installed From\" values cannot point to it. " +
+                "Connect the network folder as a drive, e.g. Z:."));
+        }
+
+        [Test]
+        public void GameSettingsResult_NamesTheBackupFolderOrTheProblem()
+        {
+            GameSettingsWorld world = GameSettings();
+            GameSettingsResult done = world.CreateDefaultsService().Reset(world.Discover().Selected);
+            world.FileSystem.FailOn(GameSettingsWorld.BackupsFolder, FileSystemOperation.Write, FileSystemStatus.IoError);
+            GameSettingsResult failed = world.CreateDefaultsService().Reset(world.Discover().Selected);
+            world.Mutexes.With("EE_Setup");
+            GameSettingsResult blocked = world.CreateDefaultsService().Reset(world.Discover().Selected);
+
+            Assert.That(Texts.GameSettingsResult(done), Is.EqualTo("Done. Your previous settings are saved in: " + done.BackupFolder));
+            Assert.That(Texts.GameSettingsResult(failed), Is.EqualTo("Nothing was changed: the backup could not be written (details in the log)."));
+            Assert.That(Texts.GameSettingsResult(blocked), Is.EqualTo("Not possible while the Empire Earth setup is running."));
+        }
+
+        [Test]
+        public void CompatibilityOption_NamesEveryEntryAndNoOther()
+        {
+            foreach (string entry in CompatibilityLayers.LauncherEntries)
+                Assert.That(Texts.CompatibilityOption(entry), Does.EndWith("(" + entry + ")"));
+            Assert.That(() => Texts.CompatibilityOption(CompatibilityLayers.RunAsAdmin), Throws.TypeOf<ArgumentOutOfRangeException>());
+        }
+
+        [Test]
+        public void CompatibilityInfo_Windows10_ProgramsHklmAndVersionMode()
+        {
+            GameSettingsWorld world = GameSettings();
+            world.RawRegistry.Seed(RegistryLocation.LocalMachine64(ContractNames.CompatibilityLayersKey),
+                NeoRoot + @"\Empire Earth - The Art of Conquest\EE-AOC.exe", RegistryValue.FromString("~ WIN7RTM"));
+            CompatibilityState state = new CompatibilityOptions(world.Registry, world.SystemInfo, world.Guard, world.Backups, world.Logger)
+                .Read(world.Discover().Selected);
+
+            Assert.That(Texts.CompatibilityInfo(state).Split(new[] { Environment.NewLine }, StringSplitOptions.None), Is.EqualTo(new[]
+            {
+                "The options apply to Empire Earth.exe, EE-AOC.exe for your Windows account.",
+                "Set by the setup for all users (only the setup changes it): EE-AOC.exe: ~ WIN7RTM",
+                "A Windows compatibility mode is already set, so no second one is offered. If the setup set it for all users, a custom run of the setup without \"Enable earlier Windows compatibility mode\" removes it.",
+            }));
+        }
+
+        [Test]
+        public void CompatibilityInfo_Windows7_OldValuesAndRunAsAdmin()
+        {
+            GameSettingsWorld world = GameSettings(FakeSystemInfo.Windows7());
+            world.RawRegistry.Seed(GameSettingsWorld.Layers, NeoRoot + @"\Empire Earth\Empire Earth.exe", RegistryValue.FromString("~ RUNASADMIN"));
+            world.RawRegistry.Seed(GameSettingsWorld.Layers, NeoRoot + @"\Empire Earth - The Art of Conquest\EE-AOC.exe",
+                RegistryValue.FromString("~ RUNASADMIN WINXPSP3"));
+            CompatibilityState state = new CompatibilityOptions(world.Registry, world.SystemInfo, world.Guard, world.Backups, world.Logger)
+                .Read(world.Discover().Selected);
+
+            Assert.That(Texts.CompatibilityInfo(state).Split(new[] { Environment.NewLine }, StringSplitOptions.None), Is.EqualTo(new[]
+            {
+                "On Windows 7 and under Wine the launcher offers no compatibility options; the current setup sets none there either.",
+                "Compatibility values of an older setup (HKCU, EE-AOC.exe: ~ RUNASADMIN WINXPSP3), which can cause black screens on Windows 7. Run the current community setup: it removes them.",
+                "An older setup set \"Run as administrator\" for your account (~ RUNASADMIN). The online lobby should not run as administrator.",
+            }));
         }
 
         // --- Installations (L-WP4) --------------------------------------------------------------------------------

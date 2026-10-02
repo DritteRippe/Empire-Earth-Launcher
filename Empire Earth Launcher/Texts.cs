@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Empire_Earth_Launcher.Core.Contract;
+using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Lobby;
+using Empire_Earth_Launcher.Core.Platform;
+using Empire_Earth_Launcher.Core.Play;
 using Empire_Earth_Launcher.Core.Settings;
 using Empire_Earth_Launcher.Properties;
 using Empire_Earth_WON;
@@ -205,6 +208,192 @@ namespace Empire_Earth_Launcher
         private static string ProgramNames(IEnumerable<Game> games)
         {
             return string.Join(", ", games.Select(game => game.ProgramName));
+        }
+
+        // --- Game settings (L-WP5, contract 3) -----------------------------------------------------------------------
+
+        /// <summary>The name of a game in the UI language: "Empire Earth" or "The Art of Conquest".</summary>
+        internal static string GameName(Game game)
+        {
+            if (game == null)
+                throw new ArgumentNullException(nameof(game));
+            return game == Game.EmpireEarth ? Resources.GameEmpireEarth : Resources.GameArtOfConquest;
+        }
+
+        /// <summary>The installation the Game settings page shows; "not found" without one.</summary>
+        internal static string GameSettingsInstallation(Installation installation)
+        {
+            return installation == null
+                ? Resources.GameDirectoryNotFound
+                : string.Format(CultureInfo.CurrentCulture, Resources.GameSettingsInstallationFormat, installation.Product.AppName,
+                    installation.EeFolder);
+        }
+
+        /// <summary>The state of the defaults of one game (contract 3.5, ADR 0015).</summary>
+        internal static string DefaultsStatus(Game game, DefaultsStatus status)
+        {
+            string format;
+            switch (status)
+            {
+                case Core.GameSettings.DefaultsStatus.Applied:
+                    format = Resources.DefaultsStatusAppliedFormat;
+                    break;
+                case Core.GameSettings.DefaultsStatus.AppliedByNewerVersion:
+                    format = Resources.DefaultsStatusAppliedByNewerFormat;
+                    break;
+                case Core.GameSettings.DefaultsStatus.WaitingForPlay:
+                    format = Resources.DefaultsStatusWaitingForPlayFormat;
+                    break;
+                case Core.GameSettings.DefaultsStatus.NewerContract:
+                    format = Resources.DefaultsStatusNewerContractFormat;
+                    break;
+                default:
+                    format = Resources.DefaultsStatusPendingFormat;
+                    break;
+            }
+            return string.Format(CultureInfo.CurrentCulture, format, GameName(game));
+        }
+
+        /// <summary>Why a change was refused by the mutation guard (ADR 0016); null if it was not.</summary>
+        internal static string Block(MutationCheck check)
+        {
+            if (check == null || check.IsAllowed)
+                return null;
+            return check.Block == MutationBlock.SetupRunning
+                ? string.Format(CultureInfo.CurrentCulture, Resources.BlockedBySetupFormat, check.Setup.AppName)
+                : string.Format(CultureInfo.CurrentCulture, Resources.BlockedByGameFormat, check.Game.ProgramName);
+        }
+
+        /// <summary>The display question of the first run (contract 3.6 step 3) with every differing value.</summary>
+        internal static string DisplayQuestion(DisplayQuestion question)
+        {
+            if (question == null)
+                throw new ArgumentNullException(nameof(question));
+            IEnumerable<string> differences = question.Items.SelectMany(item => item.Differences.Select(difference =>
+                string.Format(CultureInfo.CurrentCulture, Resources.DisplayDifferenceFormat, GameName(item.Game),
+                    difference.Setting.ValueName, ConsistencyFinding.Data(difference.Current),
+                    ConsistencyFinding.Data(difference.Recommended))));
+            return string.Format(CultureInfo.CurrentCulture, Resources.DisplayQuestionFormat, string.Join("; ", differences));
+        }
+
+        /// <summary>The text of a hint of the consistency checks (contract 3.6, ADR 0011 plan review).</summary>
+        internal static string Finding(ConsistencyFinding finding)
+        {
+            if (finding == null)
+                throw new ArgumentNullException(nameof(finding));
+            string game = finding.Game == null ? string.Empty : GameName(finding.Game);
+            string Value(int index) => index < finding.Values.Count ? ConsistencyFinding.Data(finding.Values[index].Value) : string.Empty;
+            string WindowSize() => Value(0) + "x" + Value(1);
+            switch (finding.Code)
+            {
+                case FindingCode.BitDepthMismatch:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.FindingBitDepthMismatchFormat, game, Value(0), Value(1));
+                case FindingCode.SixteenBitOnWindows8:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.FindingSixteenBitFormat, game);
+                case FindingCode.RasterizerMismatch:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.FindingRasterizerFormat, game, Value(0), finding.Recommended);
+                case FindingCode.WindowLargerThanScreen:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.FindingWindowLargerFormat, game, WindowSize(),
+                        finding.GameScreen, finding.Recommended);
+                case FindingCode.WindowFitsOnlyWithHighDpiAware:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.FindingWindowHighDpiFormat, game, WindowSize(),
+                        finding.GameScreen);
+                case FindingCode.ScreenTooLow:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.FindingScreenTooLowFormat, finding.GameScreen.Height);
+                default:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.FindingNotOnADriveFormat, game,
+                        finding.Installation.GetGameFolder(finding.Game));
+            }
+        }
+
+        /// <summary>The result of the reset, of the display settings or of the answer to the question.</summary>
+        internal static string GameSettingsResult(GameSettingsResult result)
+        {
+            if (result == null)
+                throw new ArgumentNullException(nameof(result));
+            switch (result.Outcome)
+            {
+                case GameSettingsOutcome.Done:
+                    return result.BackupFolder == null
+                        ? Resources.ResultDone
+                        : string.Format(CultureInfo.CurrentCulture, Resources.ResultDoneFormat, result.BackupFolder);
+                case GameSettingsOutcome.Blocked:
+                    return Block(result.Block);
+                case GameSettingsOutcome.NewerContract:
+                    return Resources.ResultNewerContract;
+                case GameSettingsOutcome.BackupFailed:
+                    return Resources.ResultBackupFailed;
+                default:
+                    return result.BackupFolder == null
+                        ? Resources.ResultFailed
+                        : string.Format(CultureInfo.CurrentCulture, Resources.ResultFailedFormat, result.BackupFolder);
+            }
+        }
+
+        /// <summary>The result of a change of a compatibility option.</summary>
+        internal static string CompatibilityResult(CompatibilityResult result)
+        {
+            if (result == null)
+                throw new ArgumentNullException(nameof(result));
+            switch (result.Outcome)
+            {
+                case GameSettingsOutcome.Done:
+                    return result.BackupFile == null
+                        ? Resources.ResultDone
+                        : string.Format(CultureInfo.CurrentCulture, Resources.ResultDoneFormat, result.BackupFile);
+                case GameSettingsOutcome.Blocked:
+                    return Block(result.Block);
+                case GameSettingsOutcome.BackupFailed:
+                    return Resources.ResultBackupFailed;
+                default:
+                    return Resources.ResultFailed;
+            }
+        }
+
+        /// <summary>The text of the check box of a compatibility entry (contract 3.7); the entry name stays in brackets.</summary>
+        internal static string CompatibilityOption(string entry)
+        {
+            switch (entry)
+            {
+                case CompatibilityLayers.Dwm8And16BitMitigation:
+                    return Resources.CompatibilityDwmOption;
+                case CompatibilityLayers.HighDpiAware:
+                    return Resources.CompatibilityHighDpiOption;
+                case CompatibilityLayers.HeapClearAllocation:
+                    return Resources.CompatibilityHeapOption;
+                case CompatibilityLayers.Windows7Mode:
+                    return Resources.CompatibilityWindows7Option;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(entry), entry, "Not an entry of the launcher.");
+            }
+        }
+
+        /// <summary>
+        /// The explanations below the compatibility options, one per line: where they apply, the read-only HKLM values, a
+        /// Windows version mode that is set, Windows 7 and Wine, the old values of an older setup, and RUNASADMIN.
+        /// </summary>
+        internal static string CompatibilityInfo(CompatibilityState state)
+        {
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+            var lines = new List<string>();
+            if (state.SwitchesOffered)
+                lines.Add(string.Format(CultureInfo.CurrentCulture, Resources.CompatibilityAppliesToFormat,
+                    string.Join(", ", state.Programs.Select(program => program.Game.ProgramName))));
+            else
+                lines.Add(Resources.CompatibilityNotOffered);
+            foreach (ProgramLayers program in state.Programs.Where(program => program.LocalMachine != null))
+                lines.Add(string.Format(CultureInfo.CurrentCulture, Resources.CompatibilityAllUsersFormat,
+                    program.Game.ProgramName + ": " + program.LocalMachine));
+            if (state.Entries.Any(entry => entry.Unavailable == EntryUnavailable.VersionModeSet))
+                lines.Add(Resources.CompatibilityVersionModeSet);
+            foreach (LegacyLayerValue legacy in state.LegacyValues)
+                lines.Add(string.Format(CultureInfo.CurrentCulture, Resources.CompatibilityLegacyFormat,
+                    (legacy.Key.Hive == Microsoft.Win32.RegistryHive.CurrentUser ? "HKCU" : "HKLM") + ", " +
+                    WinPath.GetFileName(legacy.ProgramPath) + ": " + legacy.Value));
+            if (state.RunAsAdminRemovable)
+                lines.Add(Resources.CompatibilityRunAsAdminHint);
+            return string.Join(Environment.NewLine, lines);
         }
     }
 }

@@ -42,6 +42,10 @@ namespace Empire_Earth_Launcher
             this.onlinePlayersKryptonDataGridView = new Krypton.Toolkit.KryptonDataGridView();
             this.usernameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.stateColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.gameSettingsHintKryptonPanel = new Krypton.Toolkit.KryptonPanel();
+            this.gameSettingsHintKryptonWrapLabel = new Krypton.Toolkit.KryptonWrapLabel();
+            this.gameSettingsHintFirstKryptonButton = new Krypton.Toolkit.KryptonButton();
+            this.gameSettingsHintSecondKryptonButton = new Krypton.Toolkit.KryptonButton();
             ((System.ComponentModel.ISupportInitialize)(this.neoOnlineKryptonGroupBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.neoOnlineKryptonGroupBox.Panel)).BeginInit();
             this.neoOnlineKryptonGroupBox.Panel.SuspendLayout();
@@ -52,6 +56,8 @@ namespace Empire_Earth_Launcher
             this.gameSettingsKryptonGroupBox.Panel.SuspendLayout();
             this.gameSettingsKryptonGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.onlinePlayersKryptonDataGridView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gameSettingsHintKryptonPanel)).BeginInit();
+            this.gameSettingsHintKryptonPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // launcherKryptonPalette
@@ -280,6 +286,56 @@ namespace Empire_Earth_Launcher
             this.stateColumn.ReadOnly = true;
             this.stateColumn.Width = 75;
             // 
+            // gameSettingsHintKryptonPanel
+            // 
+            this.gameSettingsHintKryptonPanel.Controls.Add(this.gameSettingsHintKryptonWrapLabel);
+            this.gameSettingsHintKryptonPanel.Controls.Add(this.gameSettingsHintFirstKryptonButton);
+            this.gameSettingsHintKryptonPanel.Controls.Add(this.gameSettingsHintSecondKryptonButton);
+            this.gameSettingsHintKryptonPanel.Location = new System.Drawing.Point(8, 216);
+            this.gameSettingsHintKryptonPanel.Name = "gameSettingsHintKryptonPanel";
+            this.gameSettingsHintKryptonPanel.Palette = this.launcherKryptonPalette;
+            this.gameSettingsHintKryptonPanel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.gameSettingsHintKryptonPanel.Size = new System.Drawing.Size(322, 156);
+            this.gameSettingsHintKryptonPanel.StateCommon.Color1 = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(248)))), ((int)(((byte)(220)))));
+            this.gameSettingsHintKryptonPanel.StateCommon.ColorStyle = Krypton.Toolkit.PaletteColorStyle.Solid;
+            this.gameSettingsHintKryptonPanel.TabIndex = 16;
+            this.gameSettingsHintKryptonPanel.Visible = false;
+            // 
+            // gameSettingsHintKryptonWrapLabel
+            // 
+            this.gameSettingsHintKryptonWrapLabel.AutoSize = false;
+            this.gameSettingsHintKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 8.25F);
+            this.gameSettingsHintKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.gameSettingsHintKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
+            this.gameSettingsHintKryptonWrapLabel.Location = new System.Drawing.Point(6, 6);
+            this.gameSettingsHintKryptonWrapLabel.Name = "gameSettingsHintKryptonWrapLabel";
+            this.gameSettingsHintKryptonWrapLabel.Palette = this.launcherKryptonPalette;
+            this.gameSettingsHintKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.gameSettingsHintKryptonWrapLabel.Size = new System.Drawing.Size(310, 110);
+            this.gameSettingsHintKryptonWrapLabel.Text = "";
+            // 
+            // gameSettingsHintFirstKryptonButton
+            // 
+            this.gameSettingsHintFirstKryptonButton.Location = new System.Drawing.Point(6, 120);
+            this.gameSettingsHintFirstKryptonButton.Name = "gameSettingsHintFirstKryptonButton";
+            this.gameSettingsHintFirstKryptonButton.Palette = this.launcherKryptonPalette;
+            this.gameSettingsHintFirstKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.gameSettingsHintFirstKryptonButton.Size = new System.Drawing.Size(150, 30);
+            this.gameSettingsHintFirstKryptonButton.TabIndex = 0;
+            this.gameSettingsHintFirstKryptonButton.Values.Text = "";
+            this.gameSettingsHintFirstKryptonButton.Click += new System.EventHandler(this.gameSettingsHintFirstKryptonButton_Click);
+            // 
+            // gameSettingsHintSecondKryptonButton
+            // 
+            this.gameSettingsHintSecondKryptonButton.Location = new System.Drawing.Point(166, 120);
+            this.gameSettingsHintSecondKryptonButton.Name = "gameSettingsHintSecondKryptonButton";
+            this.gameSettingsHintSecondKryptonButton.Palette = this.launcherKryptonPalette;
+            this.gameSettingsHintSecondKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.gameSettingsHintSecondKryptonButton.Size = new System.Drawing.Size(150, 30);
+            this.gameSettingsHintSecondKryptonButton.TabIndex = 1;
+            this.gameSettingsHintSecondKryptonButton.Values.Text = "";
+            this.gameSettingsHintSecondKryptonButton.Click += new System.EventHandler(this.gameSettingsHintSecondKryptonButton_Click);
+            // 
             // GeneralUserControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -288,6 +344,7 @@ namespace Empire_Earth_Launcher
             this.Controls.Add(this.neoOnlineKryptonGroupBox);
             this.Controls.Add(this.playKryptonButton);
             this.Controls.Add(this.gameSettingsKryptonGroupBox);
+            this.Controls.Add(this.gameSettingsHintKryptonPanel);
             this.Name = "GeneralUserControl";
             this.Size = new System.Drawing.Size(554, 380);
             ((System.ComponentModel.ISupportInitialize)(this.neoOnlineKryptonGroupBox.Panel)).EndInit();
@@ -301,6 +358,8 @@ namespace Empire_Earth_Launcher
             ((System.ComponentModel.ISupportInitialize)(this.gameSettingsKryptonGroupBox)).EndInit();
             this.gameSettingsKryptonGroupBox.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.onlinePlayersKryptonDataGridView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gameSettingsHintKryptonPanel)).EndInit();
+            this.gameSettingsHintKryptonPanel.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -318,5 +377,9 @@ namespace Empire_Earth_Launcher
         private Krypton.Toolkit.KryptonDataGridView onlinePlayersKryptonDataGridView;
         private System.Windows.Forms.DataGridViewTextBoxColumn usernameColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn stateColumn;
+        private Krypton.Toolkit.KryptonPanel gameSettingsHintKryptonPanel;
+        private Krypton.Toolkit.KryptonWrapLabel gameSettingsHintKryptonWrapLabel;
+        private Krypton.Toolkit.KryptonButton gameSettingsHintFirstKryptonButton;
+        private Krypton.Toolkit.KryptonButton gameSettingsHintSecondKryptonButton;
     }
 }

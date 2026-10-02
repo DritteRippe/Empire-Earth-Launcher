@@ -460,4 +460,214 @@ However you should be able to solve many problems with these options, but findin
     <value>{0} was installed by a newer setup than this launcher knows. Please update the launcher.</value>
     <comment>Hint below the list (contract 5). {0}: the install folder.</comment>
   </data>
+  <data name="GameSettingsDefaultsHeading" xml:space="preserve">
+    <value>Game defaults</value>
+    <comment>Heading on the Game settings page above the state of the recommended settings; at most about 30 characters.</comment>
+  </data>
+  <data name="GameSettingsInstallationFormat" xml:space="preserve">
+    <value>{0} in {1}</value>
+    <comment>The installation the Game settings page shows. {0}: Empire Earth or NeoEE, {1}: the folder of Empire Earth.exe.</comment>
+  </data>
+  <data name="DefaultsStatusAppliedFormat" xml:space="preserve">
+    <value>{0}: the recommended settings are set up for your Windows account.</value>
+    <comment>State of the defaults of a game. {0}: Empire Earth or The Art of Conquest.</comment>
+  </data>
+  <data name="DefaultsStatusAppliedByNewerFormat" xml:space="preserve">
+    <value>{0}: set up by a newer launcher or setup; the launcher leaves them as they are.</value>
+    <comment>State of the defaults of a game. {0}: Empire Earth or The Art of Conquest.</comment>
+  </data>
+  <data name="DefaultsStatusPendingFormat" xml:space="preserve">
+    <value>{0}: the recommended settings are not set up for your Windows account yet.</value>
+    <comment>State of the defaults of a game. {0}: Empire Earth or The Art of Conquest.</comment>
+  </data>
+  <data name="DefaultsStatusWaitingForPlayFormat" xml:space="preserve">
+    <value>{0}: not set up yet, because several installations share these settings. "Reset game settings" sets them up for this installation.</value>
+    <comment>State of the defaults of a game. {0}: Empire Earth or The Art of Conquest. Name the button ResetGameSettingsButton exactly.</comment>
+  </data>
+  <data name="DefaultsStatusNewerContractFormat" xml:space="preserve">
+    <value>{0}: installed by a newer setup than this launcher knows. The launcher changes no settings; please update it.</value>
+    <comment>State of the defaults of a game (contract 5). {0}: Empire Earth or The Art of Conquest.</comment>
+  </data>
+  <data name="BlockedBySetupFormat" xml:space="preserve">
+    <value>Not possible while the {0} setup is running.</value>
+    <comment>A change was refused because a setup runs. {0}: Empire Earth or NeoEE.</comment>
+  </data>
+  <data name="BlockedByGameFormat" xml:space="preserve">
+    <value>Not possible while {0} is running.</value>
+    <comment>A change was refused because a game runs. {0}: the program, Empire Earth.exe or EE-AOC.exe.</comment>
+  </data>
+  <data name="DisplayQuestionFormat" xml:space="preserve">
+    <value>Your display settings differ from the recommended ones: {0}. Apply the recommended display settings? Your current values are saved as a .reg file first.</value>
+    <comment>The question of the first run (Play page and Game settings page). {0}: the differing values, see DisplayDifferenceFormat.</comment>
+  </data>
+  <data name="DisplayDifferenceFormat" xml:space="preserve">
+    <value>{0} {1} {2} instead of {3}</value>
+    <comment>One differing value in DisplayQuestionFormat. {0}: Empire Earth or The Art of Conquest, {1}: the value name (not translated, e.g. Game Bit Depth), {2}: the current value, {3}: the recommended value.</comment>
+  </data>
+  <data name="DisplayQuestionApply" xml:space="preserve">
+    <value>Apply</value>
+    <comment>Button of the display question; at most about 14 characters.</comment>
+  </data>
+  <data name="DisplayQuestionKeep" xml:space="preserve">
+    <value>Keep mine</value>
+    <comment>Button of the display question: keep the current display settings; at most about 14 characters.</comment>
+  </data>
+  <data name="ApplyDisplayButton" xml:space="preserve">
+    <value>Apply recommended display</value>
+    <comment>Button on the Game settings page: writes the recommended display values (with a backup); at most about 30 characters.</comment>
+  </data>
+  <data name="ResetGameSettingsButton" xml:space="preserve">
+    <value>Reset game settings</value>
+    <comment>Button on the Game settings page; at most about 30 characters.</comment>
+  </data>
+  <data name="ResetConfirmTitle" xml:space="preserve">
+    <value>Reset game settings</value>
+    <comment>Title of the confirmation of the reset.</comment>
+  </data>
+  <data name="ResetConfirmFormat" xml:space="preserve">
+    <value>Set the settings of {0} back to the recommended values for your Windows account?
+
+Your current settings are saved first as .reg files in {1}; double-click such a file to restore them. Player names and other values of the game stay as they are.</value>
+    <comment>Confirmation of the reset. {0}: Empire Earth and/or The Art of Conquest, {1}: the backup folder.</comment>
+  </data>
+  <data name="ResultDoneFormat" xml:space="preserve">
+    <value>Done. Your previous settings are saved in: {0}</value>
+    <comment>Result of the reset or of the display settings. {0}: the backup folder.</comment>
+  </data>
+  <data name="ResultDone" xml:space="preserve">
+    <value>Done.</value>
+    <comment>Result of a change without a backup.</comment>
+  </data>
+  <data name="ResultBackupFailed" xml:space="preserve">
+    <value>Nothing was changed: the backup could not be written (details in the log).</value>
+    <comment>Result when the .reg backup failed.</comment>
+  </data>
+  <data name="ResultFailedFormat" xml:space="preserve">
+    <value>The settings could not be changed completely (details in the log). Double-click the backup to restore the previous values: {0}</value>
+    <comment>Result when a registry value could not be written after the backup. {0}: the backup folder.</comment>
+  </data>
+  <data name="ResultFailed" xml:space="preserve">
+    <value>The settings could not be changed (details in the log).</value>
+    <comment>Result when a change failed without a backup.</comment>
+  </data>
+  <data name="ResultNewerContract" xml:space="preserve">
+    <value>Not possible: this installation comes from a newer setup than this launcher knows. Please update the launcher.</value>
+    <comment>Result of the reset or the display settings for an installation of a newer contract (contract 5).</comment>
+  </data>
+  <data name="HintsHeading" xml:space="preserve">
+    <value>Hints</value>
+    <comment>Heading of the consistency hints on the Game settings page.</comment>
+  </data>
+  <data name="HintsNone" xml:space="preserve">
+    <value>No hints: the game settings fit together.</value>
+    <comment>Shown instead of the list when there is no hint.</comment>
+  </data>
+  <data name="HintTextColumn" xml:space="preserve">
+    <value>Hint</value>
+    <comment>Column of the list of hints.</comment>
+  </data>
+  <data name="HintShowColumn" xml:space="preserve">
+    <value>Play page</value>
+    <comment>Column of the list of hints: checked = the hint is shown on the Play page; at most about 14 characters.</comment>
+  </data>
+  <data name="FindingBitDepthMismatchFormat" xml:space="preserve">
+    <value>{0}: Game Bit Depth ({1}) differs from Texture Bit Depth ({2}); the main menu can turn white and unreadable. "Apply recommended display" sets both to 32.</value>
+    <comment>Hint. {0}: Empire Earth or The Art of Conquest, {1} and {2}: numbers of bits. Value names are not translated; name the button ApplyDisplayButton exactly.</comment>
+  </data>
+  <data name="FindingSixteenBitFormat" xml:space="preserve">
+    <value>{0}: 16-bit colors often freeze the game on Windows 8 and later. "Apply recommended display" sets 32 bit; hide the hint if 16 bit works for you.</value>
+    <comment>Hint. {0}: Empire Earth or The Art of Conquest.</comment>
+  </data>
+  <data name="FindingRasterizerFormat" xml:space="preserve">
+    <value>{0}: the renderer is "{1}"; recommended for this installation is "{2}". Hide the hint if you chose it on purpose.</value>
+    <comment>Hint. {0}: Empire Earth or The Art of Conquest, {1} and {2}: names of renderers (not translated).</comment>
+  </data>
+  <data name="FindingWindowLargerFormat" xml:space="preserve">
+    <value>{0}: the game window ({1}) is larger than the screen as the game sees it ({2}). "Apply recommended display" sets {3}.</value>
+    <comment>Hint. {0}: Empire Earth or The Art of Conquest, {1}, {2}, {3}: sizes like 1920x1080.</comment>
+  </data>
+  <data name="FindingWindowHighDpiFormat" xml:space="preserve">
+    <value>{0}: the game window ({1}) fits the screen only with the compatibility option HIGHDPIAWARE; without it, the game sees {2} at this scaling. Switch the option on below or set the Windows scaling to 100 %.</value>
+    <comment>Hint (contract O4). {0}: Empire Earth or The Art of Conquest, {1} and {2}: sizes like 1920x1080.</comment>
+  </data>
+  <data name="FindingScreenTooLowFormat" xml:space="preserve">
+    <value>The screen is only {0} pixels high; the menus of the game need at least 768. Some menus may not fit.</value>
+    <comment>Hint (R13). {0}: the height of the screen in pixels.</comment>
+  </data>
+  <data name="FindingNotOnADriveFormat" xml:space="preserve">
+    <value>{0}: the folder {1} is not on a drive letter, so the "Installed From" values cannot point to it. Connect the network folder as a drive, e.g. Z:.</value>
+    <comment>Hint (contract 3.3). {0}: Empire Earth or The Art of Conquest, {1}: the folder.</comment>
+  </data>
+  <data name="CompatibilityDwmOption" xml:space="preserve">
+    <value>Fix 8/16-bit colors (DWM8And16BitMitigation)</value>
+    <comment>Check box of a compatibility option; the name in brackets is not translated.</comment>
+  </data>
+  <data name="CompatibilityHighDpiOption" xml:space="preserve">
+    <value>No scaling by Windows (HIGHDPIAWARE)</value>
+    <comment>Check box of a compatibility option; the name in brackets is not translated.</comment>
+  </data>
+  <data name="CompatibilityHeapOption" xml:space="preserve">
+    <value>Clear memory allocations (HeapClearAllocation)</value>
+    <comment>Check box of a compatibility option; the name in brackets is not translated.</comment>
+  </data>
+  <data name="CompatibilityWindows7Option" xml:space="preserve">
+    <value>Windows 7 compatibility mode (WIN7RTM)</value>
+    <comment>Check box of a compatibility option; the name in brackets is not translated.</comment>
+  </data>
+  <data name="CompatibilityAppliesToFormat" xml:space="preserve">
+    <value>The options apply to {0} for your Windows account.</value>
+    <comment>Below the compatibility options. {0}: the programs, e.g. Empire Earth.exe, EE-AOC.exe.</comment>
+  </data>
+  <data name="CompatibilityAllUsersFormat" xml:space="preserve">
+    <value>Set by the setup for all users (only the setup changes it): {0}</value>
+    <comment>The read-only HKLM value of a program. {0}: program and value, e.g. EE-AOC.exe: ~ HIGHDPIAWARE.</comment>
+  </data>
+  <data name="CompatibilityVersionModeSet" xml:space="preserve">
+    <value>A Windows compatibility mode is already set, so no second one is offered. If the setup set it for all users, a custom run of the setup without "Enable earlier Windows compatibility mode" removes it.</value>
+    <comment>Below the compatibility options (ADR 0015). The quoted text is the task of the setup (messages.iss, TaskCompatibilityWindows) and must match it.</comment>
+  </data>
+  <data name="CompatibilityNotOffered" xml:space="preserve">
+    <value>On Windows 7 and under Wine the launcher offers no compatibility options; the current setup sets none there either.</value>
+    <comment>Instead of the compatibility options on Windows 7 and Wine (contract 3.7).</comment>
+  </data>
+  <data name="CompatibilityLegacyFormat" xml:space="preserve">
+    <value>Compatibility values of an older setup ({0}), which can cause black screens on Windows 7. Run the current community setup: it removes them.</value>
+    <comment>Windows 7: old values shown read-only (contract 3.7). {0}: program and value.</comment>
+  </data>
+  <data name="RemoveRunAsAdminButton" xml:space="preserve">
+    <value>Remove "Run as administrator"</value>
+    <comment>Button; at most about 40 characters.</comment>
+  </data>
+  <data name="CompatibilityRunAsAdminHint" xml:space="preserve">
+    <value>An older setup set "Run as administrator" for your account (~ RUNASADMIN). The online lobby should not run as administrator.</value>
+    <comment>Above the button RemoveRunAsAdminButton.</comment>
+  </data>
+  <data name="HighDpiOffConfirmFormat" xml:space="preserve">
+    <value>The screen is scaled to {0} %. Without HIGHDPIAWARE the game sees a smaller screen, and its window may no longer fit. Switch the option off anyway?</value>
+    <comment>Question before switching HIGHDPIAWARE off (ADR 0011). {0}: the scaling in percent.</comment>
+  </data>
+  <data name="HintBarHide" xml:space="preserve">
+    <value>Hide</value>
+    <comment>Button of the hint on the Play page; at most about 14 characters.</comment>
+  </data>
+  <data name="HintBarDetails" xml:space="preserve">
+    <value>Details</value>
+    <comment>Button of the hint on the Play page: opens the Game settings page; at most about 14 characters.</comment>
+  </data>
+  <data name="HintBarMoreFormat" xml:space="preserve">
+    <value>More hints on the Settings page: {0}</value>
+    <comment>Below the hint on the Play page. {0}: the number of further hints.</comment>
+  </data>
+  <data name="ResetConfirmButton" xml:space="preserve">
+    <value>Reset now</value>
+    <comment>Button of the confirmation of the reset on the Game settings page; at most about 28 characters.</comment>
+  </data>
+  <data name="ConfirmCancel" xml:space="preserve">
+    <value>Cancel</value>
+    <comment>Button that closes a confirmation on the Game settings page; at most about 20 characters.</comment>
+  </data>
+  <data name="HighDpiOffConfirmButton" xml:space="preserve">
+    <value>Switch off</value>
+    <comment>Button of the confirmation before switching HIGHDPIAWARE off; at most about 28 characters.</comment>
+  </data>
 </root>

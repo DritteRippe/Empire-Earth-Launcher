@@ -111,6 +111,7 @@
     <Compile Include="Fakes\RecordingLogger.cs" />
     <Compile Include="Fakes\WriteForbiddingFileSystem.cs" />
     <Compile Include="Fakes\WriteForbiddingRegistry.cs" />
+    <Compile Include="Launcher\GameSettingsModelTests.cs" />
     <Compile Include="Launcher\InstallationServiceTests.cs" />
     <Compile Include="Launcher\TextsTests.cs" />
     <Compile Include="Launcher\UiLanguageStartupTests.cs" />
