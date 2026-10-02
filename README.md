@@ -160,6 +160,9 @@ packages/                         NuGet packages, restored on build (not committ
   chosen on the *Launcher* page, otherwise the installation registered by the Empire Earth setups
   (`Installed From Volume` + `Installed From Directory` below `Software\Neo\Empire Earth` or
   `Software\SSSI\Empire Earth`, HKCU before HKLM), otherwise its own folder if it contains `Empire Earth.exe`.
+- **Contract with the setup**: [docs/CONTRACT.md](docs/CONTRACT.md) (shared with the Empire Earth Setup
+  repository, draft) specifies the install record, the integrity manifest, the per-user default game settings
+  and the repair hand-off that launcher v2 is built on.
 - **User settings** (game folder, theme) are saved by .NET in the user's `user.config` below
   `%LOCALAPPDATA%`. If that file is damaged (e.g. after a crash while saving), the launcher renames it to
   `user.config.damaged`, logs it and starts with the default settings.
