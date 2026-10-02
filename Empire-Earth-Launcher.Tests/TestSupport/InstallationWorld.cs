@@ -38,6 +38,18 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
 
         public RecordingLogger Logger { get; }
 
+        /// <summary>A discovery on this world that fails the test if it writes anything.</summary>
+        public InstallationDiscovery CreateDiscovery()
+        {
+            return new InstallationDiscovery(new WriteForbiddingRegistry(Registry), new WriteForbiddingFileSystem(FileSystem),
+                Logger);
+        }
+
+        public DiscoveryResult Discover(string userChoice = null, string launcherFolder = null)
+        {
+            return CreateDiscovery().Discover(userChoice, launcherFolder);
+        }
+
         // --- Hives -------------------------------------------------------------------------------------------------
 
         public static RegistryLocation Hkcu(string path)
@@ -243,6 +255,12 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
                 AddArtOfConquest(aocFolder);
                 SetInstalledFrom(ArtOfConquestKey(keyProduct, hive, view), aocFolder);
             }
+        }
+
+        /// <summary>The installation with the root <paramref name="root"/>, or null.</summary>
+        public static Installation ByRoot(DiscoveryResult result, string root)
+        {
+            return result.Installations.SingleOrDefault(installation => WinPath.IsSamePath(installation.Root, root));
         }
 
         /// <summary>The log lines that mention <paramref name="text"/>.</summary>

@@ -63,7 +63,10 @@
     <Compile Include="Architecture\RegistryAliasPolicyTests.cs" />
     <Compile Include="Architecture\ResourceParityTests.cs" />
     <Compile Include="Core\Contract\ContractNamesTests.cs" />
+    <Compile Include="Core\Installations\DiscoveryContractTests.cs" />
+    <Compile Include="Core\Installations\GameDirectoryLocatorPortTests.cs" />
     <Compile Include="Core\Installations\GameFoldersTests.cs" />
+    <Compile Include="Core\Installations\InstallationDiscoveryTests.cs" />
     <Compile Include="Core\Installations\InstalledFromReaderTests.cs" />
     <Compile Include="Core\Installations\InstallInfoFileTests.cs" />
     <Compile Include="Core\Installations\InstallRecordReaderTests.cs" />
@@ -84,6 +87,7 @@
     <Compile Include="Core\Settings\LauncherPathsTests.cs" />
     <Compile Include="Core\Settings\SettingsStoreTests.cs" />
     <Compile Include="Core\Settings\UiLanguageTests.cs" />
+    <Compile Include="Fakes\BlockingRegistry.cs" />
     <Compile Include="Fakes\FakeClock.cs" />
     <Compile Include="Fakes\FakeMutexProbe.cs" />
     <Compile Include="Fakes\InMemoryFileSystem.cs" />

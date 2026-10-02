@@ -45,7 +45,10 @@
     <Compile Include="Contract\ContractNames.cs" />
     <Compile Include="Contract\Game.cs" />
     <Compile Include="Contract\Product.cs" />
+    <Compile Include="Installations\DiscoveryResult.cs" />
     <Compile Include="Installations\GameFolders.cs" />
+    <Compile Include="Installations\Installation.cs" />
+    <Compile Include="Installations\InstallationDiscovery.cs" />
     <Compile Include="Installations\InstallationEnums.cs" />
     <Compile Include="Installations\InstalledFromReader.cs" />
     <Compile Include="Installations\InstallInfoFile.cs" />
