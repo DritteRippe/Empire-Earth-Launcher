@@ -81,7 +81,7 @@ namespace Empire_Earth_Launcher.Core.Maintenance
         NothingToExport,
         /// <summary>The chosen folder is not a full path of an existing folder.</summary>
         InvalidTarget,
-        /// <summary>The chosen folder is a game folder or inside one (the launcher writes no exports there).</summary>
+        /// <summary>The chosen folder is the install root, a game folder or inside one (the launcher writes no exports there).</summary>
         TargetInsideGameFolder,
         /// <summary>The export folder could not be created.</summary>
         Failed
@@ -615,8 +615,14 @@ namespace Empire_Earth_Launcher.Core.Maintenance
             return created.IsOk ? fileSystem.WriteAllBytesAtomically(path, content) : created;
         }
 
+        /// <summary>
+        /// True for the install root (unless it is a drive root, e.g. <c>D:\</c> of <c>D:\Empire Earth</c>), a game folder, their
+        /// VirtualStore copies and everything below them: the export never writes into the installation.
+        /// </summary>
         private bool IsInsideAGameFolder(Installation installation, string folder)
         {
+            if (WinPath.GetParent(installation.Root) != null && WinPath.IsSameOrBelow(folder, installation.Root))
+                return true;
             foreach (Game game in Game.All)
             {
                 string gameFolder = installation.GetGameFolder(game);

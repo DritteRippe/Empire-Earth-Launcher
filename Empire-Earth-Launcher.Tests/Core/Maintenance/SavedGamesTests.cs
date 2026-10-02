@@ -117,6 +117,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Maintenance
             Assert.That(second, Is.EqualTo(first + "_2"));
         }
 
+        [TestCase(Root, ExportOutcome.TargetInsideGameFolder)]
         [TestCase(Root + @"\Empire Earth", ExportOutcome.TargetInsideGameFolder)]
         [TestCase(EeSaves, ExportOutcome.TargetInsideGameFolder)]
         [TestCase(EeSavesCopy, ExportOutcome.TargetInsideGameFolder)]
