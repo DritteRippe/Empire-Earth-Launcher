@@ -10,7 +10,7 @@ repositories at once (same text, same commit subject), see [5. Versioning](#5-ve
 |---|---|
 | Contract version | **1** |
 | Status | **Draft**: specified for setup v2 and launcher v2, not implemented by a release yet |
-| Based on | setup `setup_is6.iss`, `config_ee.iss`, `config_neoee.iss`, `utils.iss` (branch `v2` at fb375aa), launcher `GameDirectoryLocator.cs` (branch `v2` at 79464d4), the official setups 1.7.2 |
+| Based on | setup `setup_is6.iss`, `config_ee.iss`, `config_neoee.iss`, `utils.iss` (branch `v2` at fb375aa) and the setup's decision records 0004, 0005, 0007 and 0008 (`docs/adr`, branch `v2` at 1f86fb3), launcher `GameDirectoryLocator.cs` (branch `v2` at 79464d4), the official setups 1.7.2 |
 
 The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. "Setup" means the EE and the
 NeoEE setup of every build variant, including their uninstallers; "launcher" means the Empire Earth
@@ -98,6 +98,7 @@ Key: `Software\Empire Earth Community\Installations\<Product>`
 | `AppId` | REG_SZ | `00000000-0000-0000-0000-000000000AEE` | AppId without braces: uninstall key `{<AppId>}_is1`, `product` of the update API ([4.3](#43-where-the-user-gets-the-setup)) |
 | `GameVersion` | REG_SZ | `2.0.0.5` | `MyAppVersion` of the setup |
 | `SetupVersion` | REG_SZ | `2.0.0` | `MySetupVersion` of the setup |
+| `SetupBuild` | REG_SZ | `a1b2c3d` | optional: build identifier of the setup (build switch `SetupBuild`, e.g. the short Git commit, test builds `test<TestID>-<commit>`); absent if the build sets none; informative only, e.g. to tell test builds of the same `SetupVersion` apart |
 
 - Every run of the setup (first installation, update, repair, change of components) writes the record
   after the files are installed. The uninstaller removes it (`uninsdeletekey`; the parent keys
@@ -111,9 +112,9 @@ Key: `Software\Empire Earth Community\Installations\<Product>`
 ### 1.2 Install info file
 
 Written by setups since v2 in **every** install mode, including portable:
-`<root>\_setupdata_<Product>\install.ini`. Windows INI format as Inno Setup's `SetIniString` writes it,
-ASCII only. Readers MUST accept a UTF-8 BOM and LF or CRLF line ends, and MUST ignore unknown sections
-and keys.
+`<root>\_setupdata_<Product>\install.ini`. Windows INI format. The setup writes pure ASCII with CRLF line
+ends (`SaveStringToFile`), which is valid UTF-8 without BOM (**O3**). Readers MUST accept a UTF-8 BOM
+and LF or CRLF line ends, and MUST ignore unknown sections and keys.
 
 ```ini
 [Install]
@@ -123,6 +124,7 @@ AppId=00000000-0000-0000-0000-000000000AEE
 InstallMode=admin
 GameVersion=2.0.0.5
 SetupVersion=2.0.0
+SetupBuild=a1b2c3d
 Components=game,gameaoc,additional,additional\directx_wrapper,additional\directx_wrapper\dx11_lvl11,language,language\de
 Tasks=compatibility,compatibility_windows,firewallexception,neoee_cdkeys
 Written=2026-10-02 18:04:31
@@ -133,12 +135,12 @@ Written=2026-10-02 18:04:31
 
 | Key | Meaning |
 |---|---|
-| `ContractVersion`, `Product`, `AppId`, `GameVersion`, `SetupVersion` | as in [1.1](#11-registry-record) (`AppId` also for portable setups) |
+| `ContractVersion`, `Product`, `AppId`, `GameVersion`, `SetupVersion`, `SetupBuild` | as in [1.1](#11-registry-record) (`AppId` also for portable setups; `SetupBuild` optional) |
 | `InstallMode` | `admin`, `user` or `portable` |
 | `Components` | the `[Components]` names selected in this run, comma separated, as `WizardSelectedComponents(False)` returns them |
 | `Tasks` | the `[Tasks]` names selected in this run, comma separated, as `WizardSelectedTasks(False)` returns them |
 | `Written` | local time of the run, `yyyy-mm-dd hh:nn:ss`, informative only |
-| `[MissingAfterInstall]` | files the run installed that were gone when the manifest was written ([2.3](#23-which-files)), as manifest paths under the keys `1`, `2`, ...; the section is absent if there are none |
+| `[MissingAfterInstall]` | files the run processed that were gone when the manifest was written ([2.3](#23-which-files)), as manifest paths under the keys `1`, `2`, ...; the section is absent if there are none |
 
 - Component and task names are compared case-insensitively. AoC is installed if `Components` contains
   `gameaoc`. A DirectX wrapper is installed if it contains `additional\directx_wrapper` or a name that
@@ -146,6 +148,8 @@ Written=2026-10-02 18:04:31
   `language\pt_BR`.
 - The install root is not stored: it is the parent folder of the setup data folder. This keeps the file
   ASCII (the root may contain any character).
+- A path that is not ASCII is never written, also not with replaced characters: it switches the
+  manifest off ([2.2](#22-format)) and is left out of `[MissingAfterInstall]`; the setup logs it.
 - Lifetime: deleted at the start of the installation step (`ssInstall`), written at the end of
   `ssPostInstall` together with the manifest ([2.1](#21-location-and-lifetime)), removed by the
   uninstaller with the setup data folder. Only the setup writes it.
@@ -164,6 +168,13 @@ Written by Inno Setup itself in the Regular variants, by every community setup v
 | `DisplayName` | `<AppName> v<game version> - Setup v<setup version>` |
 | `DisplayVersion` | game version |
 | `Inno Setup: Selected Components`, `Inno Setup: Selected Tasks` | as `Components` and `Tasks` in `install.ini` |
+| `Empire Earth Community: ContractVersion` | REG_DWORD, the contract version; written by setups since v2 (Regular variants), not by Inno Setup |
+
+Inno Setup deletes this key and writes it again on every run of a setup. Setups since v2 therefore
+write `Empire Earth Community: ContractVersion` at the end of `ssPostInstall`, after the manifest
+([2.1](#21-location-and-lifetime)); the value is missing if a setup up to 1.7.2 ran over the
+installation afterwards ([2.5](#25-verification-by-the-launcher)). Portable setups have no uninstall
+key, so there such a later run cannot be detected.
 
 Other readers of this key: the setup itself (previous installation, certificate) and Empire Earth
 Diagnostic (its shortcut passes `{<AppId>}_is1`). The launcher MUST NOT write it.
@@ -236,6 +247,11 @@ v2 data. The default settings ([3](#3-per-user-default-game-settings)) work with
 components of the uninstall key. 1.7.2 also wrote the AoC values of `Wait for VSync` and of the window
 size when only Empire Earth was installed; the launcher ignores AoC values without an AoC folder.
 
+A setup up to 1.7.2 that runs over a v2 installation (same AppId, same folder) replaces the files but
+leaves the registry record, `install.ini` and the manifest of the v2 run as they are, and recreates the
+uninstall key without `Empire Earth Community: ContractVersion` ([1.3](#13-uninstall-key-informative)).
+The launcher detects that by the rule in [2.5](#25-verification-by-the-launcher).
+
 ## 2. Integrity manifest
 
 ### 2.1 Location and lifetime
@@ -245,10 +261,12 @@ size when only Empire Earth was installed; the launcher ignores AoC values witho
 - **Deleted** at the start of the installation step (`ssInstall`), so that an aborted run leaves no
   manifest that looks valid.
 - **Written** at the end of `ssPostInstall`, after every other step (random maps, NeoEE CD keys),
-  together with `install.ini`: first as `files.sha256.tmp`, then renamed.
+  together with `install.ini`: first as `files.sha256.tmp`, then renamed. After it the Regular variants
+  write `Empire Earth Community: ContractVersion` into the uninstall key
+  ([1.3](#13-uninstall-key-informative)).
 - **Complete on every run**: first installation, update, repair, change of components and download of
-  localized files all write a new manifest of everything that run installed. Running the setup again is
-  the only way to refresh it.
+  localized files all write a new manifest of everything that run processed ([2.3](#23-which-files)).
+  Running the setup again is the only way to refresh it.
 - **Removed** by the uninstaller with the setup data folder.
 - Only the setup writes it.
 
@@ -270,24 +288,31 @@ be3f1b44776624b9c37b661e9711ac1d8f51628b80c33e3b60b6a56fea088c9b  Tools/Diagnost
 
 - **Path**: relative to the install root, `/` as separator, no leading `/` or `./`. Each file once.
 - **Order**: the setup SHOULD sort by path (ordinal, ignoring case); readers MUST NOT depend on the order.
-- **Encoding**: UTF-8 without BOM, line ends LF or CRLF. Readers MUST accept a BOM, LF and CRLF,
-  uppercase hex digits and the binary marker (`<hash> *<path>`), and MUST ignore empty lines (**O3**).
+- **Encoding**: the setup writes pure ASCII with LF line ends (`SaveStringToFile`), which is valid UTF-8
+  without BOM (**O3**). If a path is not ASCII, the setup writes **no manifest** and logs the path; it
+  never replaces characters. The state is then Unknown ([2.5](#25-verification-by-the-launcher)).
+  Readers MUST accept a BOM, LF and CRLF, uppercase hex digits and the binary marker
+  (`<hash> *<path>`), and MUST ignore empty lines.
 - **Invalid manifest**: a line of another form, or a path that is absolute, contains a drive, a `:`, a
   `\` or a `..` segment, makes the whole manifest invalid (state Unknown). The launcher never opens a
   file outside the install root because of the manifest.
 
 ### 2.3 Which files
 
-- **Included**: every file the setup run installed below the install root from `[Files]`, including the
-  verified online files from `{tmp}\verified`. The setup records the destination of every such file as
-  it is installed (`AfterInstall` of the `[Files]` entries, `CurrentFileName`), once per destination: a
-  later entry that overwrites the same file (e.g. the `NeoEE - Admin` or `NeoEE - User` version of
-  `Empire Earth.exe` over the base one) replaces the earlier one. The hash is computed from the final
-  file when the manifest is written.
+- **Included**: every file below the install root that the setup run **processed** from `[Files]`,
+  including the verified online files from `{tmp}\verified`. Processed means installed, or kept because
+  Inno Setup skipped copying it: Inno Setup calls `AfterInstall` in both cases. The setup records the
+  destination of every such file (`AfterInstall` of the `[Files]` entries, `CurrentFileName`), once per
+  destination: a later entry that overwrites the same file (e.g. the `NeoEE - Admin` or `NeoEE - User`
+  version of `Empire Earth.exe` over the base one) replaces the earlier one. The hash is computed from
+  the final file when the manifest is written.
+- **Kept files are the exception**: every `[Files]` entry below the install root has `ignoreversion`,
+  and none has `onlyifdoesntexist`, `promptifolder` or `confirmoverwrite` (checked by the setup's
+  contract check).
 - **Excluded**: files with `deleteafterinstall` (`_wonkver.pub`), everything outside the install root
   (`{tmp}`, `{sys}`), the setup data folder itself, the uninstaller (`unins*.exe`, `unins*.dat`, not
   installed by `[Files]`), the `[Files]` entries that only copy existing configuration files onto
-  themselves to set permissions (`external` with `Permissions`), and every file the run did not install
+  themselves to set permissions (`external` with `Permissions`), and every file the run did not process
   (player files, files the game creates, leftovers of earlier runs).
 - **Gone before the manifest is written** (typically deleted or quarantined by an antivirus during the
   installation): not in the manifest but in `[MissingAfterInstall]` of `install.ini`; at the end of the
@@ -316,17 +341,30 @@ By the extension of the last name of the path, compared case-insensitively:
 | hash differs | `data` | **Modified** (informative: mods, HD packs, edited civilizations) |
 | hash differs | `mutable` | not reported |
 | no manifest, invalid manifest, `ContractVersion` higher than the launcher knows | | **Unknown** |
+| manifest present, but the uninstall key lacks `Empire Earth Community: ContractVersion` (see below) | | **Unknown** |
 | none of the above | | **OK** |
 
 - The worst finding gives the state of the installation: Damaged, then Incomplete, then Modified, then
-  OK. Unknown applies when there is no usable manifest.
+  OK. Unknown applies when there is no usable manifest, which includes the following rule.
+- **Later run of an older setup** (install modes `admin` and `user`): the launcher opens the uninstall
+  key `{<AppId>}_is1` of the installation (`AppId` and `InstallMode` of `install.ini`; `admin`: HKLM64,
+  on 32-bit Windows HKLM; `user`: HKCU). If the key exists, its `Inno Setup: App Path` is the install
+  root (compared as in [1.4](#14-discovery-by-the-launcher), Merge) and it has no value
+  `Empire Earth Community: ContractVersion`, a setup up to 1.7.2 ran after the setup that wrote the
+  manifest ([1.5](#15-installations-of-setups-up-to-172)): the manifest no longer describes the files
+  and the state is Unknown. If the key is missing, cannot be read or names another root (the `user`
+  installation of another account, a later installation of the same product in another folder), this
+  rule does not apply. Portable installations have no uninstall key: there such a later run is not
+  detectable.
 - **Damaged** or **Incomplete**: a localized message (English, German, French) that names the files, says
   that antivirus programs often delete or quarantine game files (t=11045 p=48037, t=41147 p=80317),
   suggests an exception for the install root, and offers the repair ([4](#4-repair-hand-off)).
 - **Modified**: only listed in the diagnostics.
-- **Unknown**: kind `community` (the last setup run did not finish): the repair advice; kind
-  `community-legacy`: "installed by an older setup, run the current setup to enable the check"; kind
-  `foreign`: no check and no message.
+- **Unknown**: kind `community` whose uninstall key lacks the value (see above): "an older setup ran
+  after the current one, run the current setup"; other kind `community` (the last setup run did not
+  finish, or the setup could not write the manifest): the repair advice; kind `community-legacy`:
+  "installed by an older setup, run the current setup to enable the check"; kind `foreign`: no check
+  and no message.
 - Files in the game folders that are not in the manifest are not reported. The diagnostics MAY list
   such `code` files (ASI mods, DLLs of other packs) as information.
 - The launcher MUST NOT refuse to start a game because of a finding (only a missing program makes that
@@ -461,9 +499,13 @@ The uninstaller removes it for the account that uninstalls (`uninsdeletevalue`).
 `HKCU\Software\Empire Earth Community\GameDefaults\<Product>`, REG_DWORD values `EE` and `AoC`: the
 contract version whose defaults were applied to this game for this account; missing = never.
 
-- **Setup**: writes `EE` (component `game`) and `AoC` (component `gameaoc`) on every run, for the account
-  that runs it. The uninstaller removes `GameDefaults\<Product>` for the account that uninstalls (and the
-  parent keys if they are empty). Markers of other accounts stay; that is harmless.
+- **Setup** (Regular variants, install modes `admin` and `user`): writes `EE` (component `game`) and
+  `AoC` (component `gameaoc`) on every run, for the account that runs it. The uninstaller removes
+  `GameDefaults\<Product>` for the account that uninstalls (and the parent keys if they are empty).
+  Markers of other accounts stay; that is harmless.
+- **Portable setups write no marker**: they have no uninstaller that could remove it. The launcher's
+  first run ([3.6](#36-launcher-procedures)) then finds the D values the setup has just written and
+  does not ask.
 - **Launcher**: writes the marker after the first run of [3.6](#36-launcher-procedures) (whatever the
   user answered) and after a reset.
 - **Marker present**: only class S is kept in sync; D and P values are not touched (a value the player
@@ -492,21 +534,48 @@ contract version whose defaults were applied to this game for this account; miss
 
 ### 3.7 Compatibility flags
 
-Reference for the compatibility options of the launcher, see `BuildCompatibilityFlags` in the setup's
-`utils.iss`:
+Reference for the compatibility options of the launcher. Key
 `Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers`, value name = full path of the
-program, REG_SZ. The setup writes it into HKLM in `admin` mode (all users) and into HKCU in `user` and
-`portable` mode: `~`, then in this order `RUNASADMIN` (task `everyoneadminstart`, `admin` only),
-`DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation` (task `compatibility`), and `WIN7RTM` on
-Windows 8 and later or `WINXPSP3` on Windows Vista and 7 (task `compatibility_windows`; outside `admin`
-mode only together with `compatibility`), separated by spaces. These defaults are under review
-(`WINXPSP3` on Windows 7: black screen and runtime errors in t=4280 p=30477), **O7**.
+program (`Empire Earth.exe` with the component `game`, `EE-AOC.exe` with `gameaoc`), REG_SZ, removed by
+the uninstaller. The setup writes it into HKLM in `admin` mode (all users) and into HKCU in `user` and
+`portable` mode. The value is `~`, then the values of every row of the table below that applies (task
+selected, Windows version and install mode match), in the order of the table, separated by spaces
+(setup: `BuildCompatibilityFlags` in `utils.iss` and the compatibility entries of `setup_is6.iss`). If
+no row applies, the setup writes no value.
+
+| Task | Values | Windows versions | Root (admin/user/portable) |
+|---|---|---|---|
+| `everyoneadminstart` | `RUNASADMIN` | all | HKLM / - / - |
+| `compatibility` | `DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation` | 8 and later | HKLM / HKCU / HKCU |
+| `compatibility_windows` | `WIN7RTM` | 8 and later | HKLM / HKCU / HKCU |
+
+- **Windows versions**: `all` = every Windows the setup runs on (Windows 7 SP1 and later); `8 and later`
+  = Windows 8 (NT 6.2) and later, below it the setup neither shows nor selects the task (`MinVersion`).
+  **Root**: the root in the install modes `admin` / `user` / `portable`; `-` = the task does not exist
+  in that mode.
+- `everyoneadminstart` is opt-in (unchecked); `compatibility` and `compatibility_windows` are selected by
+  default (their page is only shown with the custom settings). Under Wine the setup offers none of the
+  three tasks.
+- Outside `admin` mode `compatibility_windows` applies only together with `compatibility`.
+- Examples: Windows 10, `admin`, default tasks:
+  `~ DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation WIN7RTM`; Windows 7, `admin`, with
+  `everyoneadminstart`: `~ RUNASADMIN`; Windows 7, `user`: no value.
+- **Windows Vista and 7: no compatibility values** except the opt-in `~ RUNASADMIN` (**O7**). Earlier
+  setups wrote values there (official 1.7.2: `EE-AOC.exe`
+  `~ DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation WINXPSP3`, `Empire Earth.exe` none). On
+  Windows Vista and 7 every run of the setup removes, in the root of its install mode and for both
+  programs, a value that is exactly one of `~ WINXPSP3`, `~ RUNASADMIN WINXPSP3`,
+  `~ DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation`,
+  `~ DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation WINXPSP3`,
+  `~ RUNASADMIN DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation` and
+  `~ RUNASADMIN DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation WINXPSP3` (setup:
+  `IsLegacyVistaCompatValue`). Every other value stays, e.g. one the player set.
 
 The launcher:
 
-- MAY offer `DWM8And16BitMitigation`, `HIGHDPIAWARE`, `HeapClearAllocation` and the Windows version
-  layer as options; it writes them into HKCU only, keeps every other entry of the value, and shows the
-  HKLM value read-only;
+- MAY offer the values of the rows `compatibility` and `compatibility_windows` as options, and SHOULD
+  offer them only on the Windows versions of the table; it writes them into HKCU only, keeps every other
+  entry of the value, and shows the HKLM value read-only;
 - MUST NOT offer `RUNASADMIN`: running the game elevated is opt-in through the setup only, the online
   lobby should not run elevated;
 - MAY remove the HKCU value if it is exactly `~ RUNASADMIN` (the default of setups up to 1.7.2), like
@@ -540,8 +609,8 @@ launcher MUST NOT call `authtools.dll` or reimplement the CD-key registration, M
 start the setup itself, and MUST NOT ask for elevation. It sends the user to the setup download and
 explains what to do. A repair is a run of the current setup over the installation: the same AppId
 preselects the same folder (`UsePreviousAppDir`) and the previous components and tasks, and the run
-rewrites the values of [3](#3-per-user-default-game-settings) for that account, the record, `install.ini`
-and the manifest.
+rewrites the values of [3](#3-per-user-default-game-settings) for that account, the record, `install.ini`,
+the manifest and `Empire Earth Community: ContractVersion` in the uninstall key.
 
 ### 4.2 Running setup
 
@@ -608,11 +677,13 @@ An available update uses the hand-off of [4.3](#43-where-the-user-gets-the-setup
 - **Draft**: until the first release implements version 1, version 1 may still change. After that, only
   by the rules above.
 - **Two copies**: the text is identical in both repositories. A change is committed to both with the same
-  subject and adds a line to the history below (**O12**).
+  subject and adds a line to the history below; `ci/compare_contract.py` of the setup repository checks
+  that the two copies are identical (**O12**).
 
 | Contract version | Date | Change | Setup | Launcher |
 |---|---|---|---|---|
 | 1 (draft) | 2026-10-02 | first version | v2 (planned) | v2 (planned) |
+| 1 (draft) | 2026-10-02 | revision 2026-10-02 (review of the setup v2 plan): optional `SetupBuild` (1.1, 1.2); the setup writes ASCII, the manifest with LF, `install.ini` with CRLF, and no manifest if a path is not ASCII (1.2, 2.2, O3); `Empire Earth Community: ContractVersion` in the uninstall key, Unknown if it is missing after a later run of an older setup (1.3, 1.5, 2.1, 2.5); the manifest lists every processed file (2.3); no defaults marker from portable setups (3.5); table of the compatibility values, none on Windows Vista/7 (3.7, O7); O4, O11 and O12 answered | v2 (planned) | v2 (planned) |
 
 ## 6. Open questions
 
@@ -622,21 +693,32 @@ An available update uses the hand-off of [4.3](#43-where-the-user-gets-the-setup
 - **O2 NeoEE updater**: does `NeoEEUp.exe` still update files, and which ones? Needed to classify
   differences in NeoEE installations ([2.6](#26-expected-changes-after-the-installation)); question for
   the NeoEE team.
-- **O3 File encoding of Inno Setup 6.2**: `SaveStringsToUTF8File` may write a BOM and always ends lines
-  with CRLF. Readers accept both; whether the setup writes without BOM (e.g. ASCII through
-  `SaveStringToFile`, all installed paths are ASCII) is decided and unit-tested in the implementation.
+- **O3 File encoding of Inno Setup 6.2** (answered): `SaveStringsToUTF8File` writes a BOM and CRLF, and
+  the Pascal Script of Inno Setup 6.2.2 has no `UTF8Encode`. The setup therefore writes pure ASCII with
+  `SaveStringToFile`, which is valid UTF-8 without BOM: the manifest with LF, `install.ini` with CRLF. A
+  path that is not ASCII switches the manifest off ([2.2](#22-format)); all installed paths are ASCII
+  today. Readers still accept a BOM, LF and CRLF. The setup unit-tests the bytes.
 - **O4 Physical pixels**: does `GetSystemMetrics` in the Inno Setup 6.2.2 setup return physical pixels on
   scaled displays (DPI awareness of the setup)? Setup and launcher must compute the same window size.
-  Test on Windows (test plan).
+  The setup declares itself system-DPI-aware, so it should get physical pixels at the scaling of the
+  sign-in. The game sees physical pixels only with `HIGHDPIAWARE` (task `compatibility`,
+  [3.7](#37-compatibility-flags)); without it, it is DPI-virtualized at 150 % and sees logical pixels.
+  The setup's test plan therefore runs the case at 150 % twice, with and without the task
+  `compatibility`. If the window only fits with `HIGHDPIAWARE`, [3.3](#33-computed-values) says so (on
+  Windows Vista and 7 the setup no longer writes it).
 - **O5 Portable**: portable setups write no registry record; the launcher finds them through the user
   choice, its own folder or the HKCU "Installed From" values. Should they write an HKCU record anyway?
   Proposal: no.
 - **O6 Mutable files**: does the game rewrite installed files other than `cfg ini conf config log` (e.g.
   in `Data\WONLobby Resources`)? Test on Windows: play, then run the full check and list the
   differences.
-- **O7 Defaults under review**: the review of the compatibility flags and of the DirectX wrapper
-  preselection may change the setup's defaults; [3](#3-per-user-default-game-settings) changes with
-  them in the same commit.
+- **O7 Defaults under review** (decided, setup ADR 0005): no compatibility values on Windows Vista and 7
+  except the opt-in `~ RUNASADMIN`, unchanged values on Windows 8 and later, see the table in
+  [3.7](#37-compatibility-flags). Official 1.7.2 wrote no value for `Empire Earth.exe` on Windows 7,
+  and the forum evidence is weak (t=4280 p=30477, p=30479, p=30480, p=30485; t=1827 p=12147). The
+  DirectX wrapper preselection stays, so the `Rasterizer Name` rule of [3.3](#33-computed-values) does
+  not change. A later change of these defaults changes [3](#3-per-user-default-game-settings) in the
+  same commit, in both copies.
 - **O8 CD keys**: which values `authtools.dll` writes below `Sierra\CDKeys` is unknown (closed source).
   Until it is known the launcher only checks that the key exists.
 - **O9 Launcher mods**: the mod manager needs its own record of the files it changed, so that
@@ -644,30 +726,45 @@ An available update uses the hand-off of [4.3](#43-where-the-user-gets-the-setup
 - **O10 Launcher in the setup**: if the setup installs the launcher one day: its files in the manifest,
   closing the launcher before a repair (`AppMutex`), and its folder as a primary source. Not part of
   version 1.
-- **O11 One folder for EE and NeoEE**: the setup allows it (separate setup data folders), but the
-  integrity check of the product installed first becomes useless. Should the setup warn?
-- **O12 Copy check**: should CI verify that both copies of this file are identical (it needs network
-  access to the other repository)?
+- **O11 One folder for EE and NeoEE** (decided): the setup allows it (separate setup data folders), but
+  the integrity check of the product installed first becomes useless. The setup asks a Yes/No question
+  when the user leaves the folder page and the folder already holds the other product
+  (`_setupdata_<other product>` exists, or the other product's uninstall key has this folder as
+  `Inno Setup: App Path`): it names the consequences (the integrity check of the other product;
+  uninstalling one removes files and firewall rules of the other) and recommends another folder. "Yes"
+  (default) stays on the folder page, "No" continues. Silent installations only log it. The launcher
+  rule of [1.4](#14-discovery-by-the-launcher) stays.
+- **O12 Copy check** (answered locally): CI has no access to the other repository. The setup repository
+  has `ci/compare_contract.py <path of the other clone>`, which compares the SHA-256 of both copies
+  (exit code 0: identical, 1: different, both hashes printed, 2: a file is missing). Every change of
+  this file is one step in both repositories and runs it.
 
 ## 7. Implementation checklist
 
 Setup v2:
 
 - registry record ([1.1](#11-registry-record)) with `Root: HKA`, Regular variants only, removed by the
-  uninstaller;
-- defaults marker ([3.5](#35-defaults-marker)) in HKCU with the components `game` and `gameaoc`;
-- recording of the installed files (`AfterInstall`), deleting `install.ini` and `files.sha256` at
-  `ssInstall`, writing both at the end of `ssPostInstall` (temporary file, then rename), with
+  uninstaller, with the optional `SetupBuild`;
+- defaults marker ([3.5](#35-defaults-marker)) in HKCU with the components `game` and `gameaoc`, Regular
+  variants only;
+- `Empire Earth Community: ContractVersion` in the uninstall key after the manifest
+  ([1.3](#13-uninstall-key-informative)), Regular variants only;
+- recording of the processed files (`AfterInstall`), deleting `install.ini` and `files.sha256` at
+  `ssInstall`, writing both as ASCII at the end of `ssPostInstall` (temporary file, then rename), with
   `[MissingAfterInstall]` and the localized antivirus hint;
-- unit tests (`ci/tests/unit_tests.iss`) for the manifest line, the path conversion and the INI values;
-- `GameSettings`, `BuildCompatibilityFlags`, `CodeFileExtensions` and this document changed together.
+- compatibility values as in the table of [3.7](#37-compatibility-flags), including the removal of the
+  old values on Windows Vista and 7;
+- unit tests (`ci/tests/unit_tests.iss`) for the manifest line, the path conversion, the INI values, the
+  ASCII check and the old compatibility values;
+- `GameSettings`, `BuildCompatibilityFlags`, the compatibility entries, `CodeFileExtensions` and this
+  document changed together.
 
 Launcher v2, in the UI-free core library with unit tests (fake registry and file system, no network):
 
 - discovery ([1.4](#14-discovery-by-the-launcher)) with all five sources, setups up to 1.7.2, foreign and
   damaged installations, merging;
 - manifest reader and checks ([2](#2-integrity-manifest)): BOM, CRLF, invalid lines, paths outside the
-  root, classes, states;
+  root, classes, states, the uninstall key rule of [2.5](#25-verification-by-the-launcher);
 - defaults, marker, consistency checks and reset with backup ([3](#3-per-user-default-game-settings));
 - repair hand-off and update check ([4](#4-repair-hand-off)) with the URL cases of the setup's unit tests;
 - setup and game mutexes, starting the games with shell execute.
