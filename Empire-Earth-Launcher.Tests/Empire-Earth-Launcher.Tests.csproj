@@ -70,6 +70,7 @@
     <Compile Include="Architecture\TestPlanTests.cs" />
     <Compile Include="Architecture\TlsSettingTests.cs" />
     <Compile Include="Core\Backup\BackupLocationsTests.cs" />
+    <Compile Include="Core\Backup\FileBackupTests.cs" />
     <Compile Include="Core\Backup\RegFileWriterTests.cs" />
     <Compile Include="Core\Backup\RegistryExportTests.cs" />
     <Compile Include="Core\Contract\CompatibilityLayersTests.cs" />
@@ -102,6 +103,7 @@
     <Compile Include="Core\Maintenance\CleanupAdviceTests.cs" />
     <Compile Include="Core\Maintenance\CleanupCandidatesTests.cs" />
     <Compile Include="Core\Maintenance\RegistryCleanupTests.cs" />
+    <Compile Include="Core\Maintenance\WonLoginResetTests.cs" />
     <Compile Include="Core\Logging\TraceFileLoggerTests.cs" />
     <Compile Include="Core\Platform\FileSystemExtensionsTests.cs" />
     <Compile Include="Core\Platform\HttpsClientTests.cs" />
@@ -170,6 +172,7 @@
     <Compile Include="TestSupport\GameSettingsWorld.cs" />
     <Compile Include="TestSupport\ProductionSources.cs" />
     <Compile Include="TestSupport\InstallationWorld.cs" />
+    <Compile Include="TestSupport\MappedFileSystem.cs" />
     <Compile Include="TestSupport\ProjectFile.cs" />
     <Compile Include="TestSupport\RegFileImporter.cs" />
     <Compile Include="TestSupport\RepositoryRoot.cs" />
