@@ -49,7 +49,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Settings
         [SetUICulture("tr-TR")]
         public void Normalizing_DoesNotDependOnTheCulture()
         {
-            // Turkish lower-cases "I" to a dotless i; the setting only has ASCII letters and uses the invariant culture.
+            // Turkish lower-cases "I" to a dotless i; the setting is compared ordinally, ignoring case.
             Assert.That(UiLanguage.TryNormalize("EN", out string language), Is.True);
             Assert.That(language, Is.EqualTo("en"));
         }

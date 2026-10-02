@@ -21,17 +21,20 @@ namespace Empire_Earth_Launcher.Core.Settings
             new ReadOnlyCollection<string>(new[] { Windows, "en", "de", "fr" });
 
         /// <summary>
-        /// The setting in its stored form: <see cref="Windows"/> or one of the <see cref="Choices"/> in lower case
-        /// (white space and case are ignored).
+        /// The setting in its stored form: <see cref="Windows"/> or one of the <see cref="Choices"/> as written there
+        /// (white space and case are ignored, so a later choice like <c>pt-BR</c> works the same way).
         /// </summary>
         /// <param name="setting">The value of the settings file; null and empty mean <see cref="Windows"/>.</param>
         /// <param name="language">The choice, or <see cref="Windows"/> if the value is unknown.</param>
         /// <returns>false if the value is not a language of the launcher (it is then used as <see cref="Windows"/>).</returns>
         public static bool TryNormalize(string setting, out string language)
         {
-            string value = (setting ?? string.Empty).Trim().ToLowerInvariant();
-            language = Choices.Contains(value, StringComparer.Ordinal) ? value : Windows;
-            return language == value;
+            string value = (setting ?? string.Empty).Trim();
+            language = Choices.FirstOrDefault(choice => string.Equals(choice, value, StringComparison.OrdinalIgnoreCase));
+            if (language != null)
+                return true;
+            language = Windows;
+            return false;
         }
 
         /// <summary>Position of a choice in <see cref="Choices"/>, or -1.</summary>
