@@ -31,4 +31,4 @@ Rules:
 | [0013](0013-error-handling-and-logging.md) | Error handling and logging | Accepted |
 | [0014](0014-only-working-features-in-the-ui.md) | Only working features in the UI | Accepted, amended 2026-10-02 |
 | [0015](0015-game-settings-target-folders-and-write-timing.md) | Game settings: target folders and when the launcher writes | Accepted |
-| [0016](0016-mutation-guard-and-effective-game-paths.md) | Mutation guard and effective game paths | Accepted |
+| [0016](0016-mutation-guard-and-effective-game-paths.md) | Mutation guard and effective game paths | Accepted, amended 2026-10-02 |

@@ -1,6 +1,6 @@
 # 0016 Mutation guard and effective game paths
 
-Status: **Accepted** (2026-10-02)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2, see the Amendment section)
 
 ## Context
 
@@ -53,3 +53,24 @@ report section 8 row 2).
 - **Block only Play** (first design): see context. Rejected.
 - **Write imports always into the real folder**: invisible to the game when a VirtualStore copy exists, and
   access denied for foreign installations. Rejected.
+
+## Amendment 2026-10-02 (implementation, L-WP2)
+
+`Play.MutationGuard` and the probes exist in the core (`Platform.IMutexProbe`, `Platform.WindowsMutexProbe`, the
+test fake `FakeMutexProbe`); the `EffectivePathResolver` follows with the discovery (L-WP4). Refinements made while
+implementing, keeping the decision:
+
+- **All four mutexes, whatever the installation**: the names are fixed per product and game, not per installation
+  (contract 0), so "a game of that installation" cannot be told apart from the same game of another installation.
+  The guard checks `NeoEE_Setup`, `EE_Setup`, `StainlessSteelStudiosPresentsEmpireEarth` and
+  `MadDocSoftwarePresentsEmpireEarthExpansion` in this order and blocks on the first it finds: a running game of
+  any installation may write the shared game settings keys on exit, and both setups write the GPU preference and
+  the compatibility values. A setup is reported before a game.
+- **The answer carries the reason**: `MutationCheck` with `Block` (`None`, `SetupRunning`, `GameRunning`), the
+  product or game and the mutex name, so that the UI can name the program (ADR 0010 amendment); every block is
+  logged with the action the caller named.
+- **Probe errors count as "exists"**: `WindowsMutexProbe` treats `UnauthorizedAccessException` as an existing mutex
+  (ADR 0010) and also an unexpected Win32 error (`IOException`, logged), the safe side for every caller.
+
+Evidence: `Core/Play/MutationGuardTests` (both blocked cases for every mutex, order, setup before game, names that
+must not block), `Core/Platform/WindowsMutexProbeTests` (real named mutexes with random names, also under Mono).
