@@ -5,7 +5,7 @@ namespace Empire_Earth_Launcher.Core.Platform
 {
     /// <summary>
     /// <see cref="IProcessStarter"/> with <see cref="Process.Start(ProcessStartInfo)"/> and <c>UseShellExecute = true</c>
-    /// (ADR 0010). A plain <c>CreateProcess</c> (<c>UseShellExecute = false</c>) would ignore the compatibility layers of
+    /// (ADR 0010). A plain <c>CreateProcess</c> (without the shell) would ignore the compatibility layers of
     /// the game and fail with error 740 when one of them asks for elevation (contract 3.7).
     /// </summary>
     /// <remarks>
