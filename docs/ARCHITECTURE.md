@@ -60,7 +60,8 @@ Empire-Earth.sln
 │  │                   LocalFileSystem, WinPath (Windows path rules as pure string logic), IProcessStarter,
 │  │                   IMutexProbe, ISystemInfo (Windows version, Wine, primary screen in physical pixels),
 │  │                   IClock, IHttpsClient (ADR 0008), INetworkInfo; RegistryPath (canonical form:
-│  │                   WOW6432Node, registry VirtualStore) and RegistryWritePolicy (ADR 0007)
+│  │                   WOW6432Node, registry VirtualStore), RegistryWritePolicy and PolicyCheckedRegistry
+│  │                   (the IRegistry wrapper every change passes, ADR 0007)
 │  ├─ Logging/         ILogger, LogLevel, TraceFileLogger, log trimming (moved from the launcher)
 │  ├─ Settings/        LauncherSettings, SettingsStore (settings.json, ADR 0005), LauncherPaths
 │  ├─ Installations/   install record, install.ini, uninstall keys, "Installed From", launcher folder,
@@ -127,7 +128,8 @@ telemetry"). The README keeps them as planned features.
 Empire Earth Launcher.exe ──> Empire_Earth_Launcher_Core.dll ──> Empire_Earth_WON.dll
           │                                │
           └──> Krypton.Toolkit             └──> BCL only (System, System.Core, System.Net.Http,
-                                                System.Runtime.Serialization, System.IO.Compression)
+                                                System.Runtime.Serialization, System.Xml,
+                                                System.IO.Compression)
 Empire_Earth_Mod.exe ──> Empire_Earth_Mod_Lib.dll ──> BCL only
 ```
 
@@ -143,7 +145,10 @@ Empire_Earth_Mod.exe ──> Empire_Earth_Mod_Lib.dll ──> BCL only
 - Writes are limited to the allow-list of [ADR 0007](adr/0007-registry-write-scope-and-reg-backups.md):
   HKCU game settings values, the defaults marker, the GPU preference and the HKCU compatibility layer
   values, plus the launcher's own folder below `%LOCALAPPDATA%`, files the player imports into the game
-  folders and the WON login files it moves into a backup.
+  folders and the WON login files it moves into a backup. `Program` wraps the Windows registry in
+  `PolicyCheckedRegistry` (from the first package that uses the registry, L-WP4), so no code path can write
+  around the policy; the protected keys are refused on the canonical form first, then the allow-list is matched
+  on the key as it is written (ADR 0007, implementation amendment).
 
 ## 4. Data flows
 
@@ -369,7 +374,8 @@ Decided in [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md):
   which every write and delete passes after the path was put into its canonical form (`WOW6432Node` and
   `HKCU\Software\Classes\VirtualStore\MACHINE\...` mapped to the HKLM key they stand for), unit-tested with a
   table of every alias and every operation; the diagnostics only say whether the key exists. Repairing CD
-  keys = running the setup.
+  keys = running the setup. The same rule protects the install records and the uninstall keys; an allow-list
+  entry can never open a protected key, also not one that names it exactly.
 - **No changes while a setup or game runs**: every write goes through the mutation guard
   ([ADR 0016](adr/0016-mutation-guard-and-effective-game-paths.md)).
 - **No elevation**: the manifest requests `asInvoker`; the launcher never restarts itself elevated and
@@ -531,6 +537,9 @@ be built after every package from L-WP6 on.
 | L-WP7 | Integrity and repair hand-off (contract 2, 4) | manifest, classes, quick/full check, badge, HTTPS client, URL policy, download locator, repair advice, quick-check hook of the setup watcher |
 | L-WP8 | Maintenance tools | registry cleanup by the table of 4.6, WON login reset, VirtualStore, saves and scenarios, name checks, all behind the mutation guard |
 | L-WP9 | Network diagnostics, report, laptop package | adapters, DNS, `NeoEE.cfg`, `upnp_info.txt`, `CDKeyCheck`, outage hint, anonymized report, final docs, test plan completeness, Release zip with SHA-256 |
+
+Done so far: L-WP1 and L-WP2 (see the CHANGELOG). Implementation details of L-WP2 that refine ADR 0004, 0005, 0007
+and 0016 are recorded in their amendments.
 
 ## 16. Not in v2
 

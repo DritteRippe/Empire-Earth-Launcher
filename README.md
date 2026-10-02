@@ -77,7 +77,9 @@ nuget restore Empire-Earth.sln
 msbuild Empire-Earth.sln /p:Configuration=Release
 ```
 
-The output is in `Empire Earth Launcher\bin\Release\` and `Empire-Earth-Mod\Empire-Earth-Mod\bin\Release\`. If
+The output is in `Empire Earth Launcher\bin\Release\` and `Empire-Earth-Mod\Empire-Earth-Mod\bin\Release\`; the
+launcher needs the libraries next to it (`Empire_Earth_Launcher_Core.dll`, `Empire_Earth_WON.dll`,
+`Krypton.Toolkit.dll`), so copy the whole folder. If
 MSBuild reports `MSB3644` (reference assemblies for `.NETFramework,Version=v4.8` not found, e.g. with the Build
 Tools without the 4.8 targeting pack), build against Microsoft's reference assemblies from NuGet, exactly like
 the CI does:
@@ -125,17 +127,32 @@ mono Empire-Earth-Launcher.Tests/bin/Debug/Empire-Earth-Launcher.Tests.exe      
 
 NUnitLite options can be passed, e.g. `--where "class =~ LobbyPersistentData"` to run some tests only or
 `--result=TestResult.xml` to write an NUnit 3 result file (by default no result file is written). The tests
-cover the WON lobby file parser, the NeoEE protocol framing, reply parsing and request deadline, the mod
-library (product folders, file types, versions, the working directory of the mod creator, `.eem`
-export/import including damaged archives) and the log trimming, game folder detection, lobby profile loading
-and the user settings file `settings.json` of the launcher (including damaged files). Architecture tests
-(`Architecture/`) read the project files, `packages.config`, `App.config` and `app.manifest` files of the source tree and the CI
-workflow and check the shared build settings; they find the source tree by walking up from the test program
-to `Empire-Earth.sln`, so run the test program from its build folder inside the repository. The tests only
-write below the temporary folder, never contact a server, never read the registry and never show UI. Tests
-that depend on Windows path semantics are marked `[Platform(Include = "Win")]` and reported as skipped under
-Mono. The launcher makes its internal helpers visible to the test assembly (`InternalsVisibleTo`), and so does
-the WON library.
+cover:
+
+- the core library (`Core/`): the contract names against `docs/CONTRACT.md`, the Windows path rules
+  (`WinPath`, including the manifest paths of contract 2.2), the file system and registry abstractions with their
+  in-memory fakes, the canonical form of registry keys and the registry write policy, the mutex probe and the
+  mutation guard, `settings.json` (including damaged, unreadable and newer files), the log format and trimming,
+  the launcher's file locations and the lobby profiles;
+- the UI helpers of the launcher (`Launcher/`): `UiOperation`, the "unexpected error" message, the logging of
+  unobserved task exceptions and the game folder detection;
+- the WON lobby file parser, the NeoEE protocol framing, reply parsing and request deadline (`Won/`), and the mod
+  library (`Mod/`: product folders, file types, versions, the working directory of the mod creator, `.eem`
+  export/import including damaged archives);
+- architecture rules (`Architecture/`): the shared build settings of every project, the core's dependencies (no
+  WinForms, `System.Drawing` or Krypton; only the BCL and the WON library) and a table test that the registry
+  write policy refuses `Software\Sierra\CDKeys`, the install records and the uninstall keys under every alias
+  (`WOW6432Node`, registry VirtualStore, `/`, case) and every ancestor, for every operation.
+
+Architecture tests read the project files, `packages.config`, `App.config`, `app.manifest`, the core's sources,
+`docs/CONTRACT.md` and the CI workflow; they find the source tree by walking up from the test program to
+`Empire-Earth.sln`, so run the test program from its build folder inside the repository. The tests use fakes
+(`Fakes/`: in-memory registry with both HKLM views and a 32-bit Windows mode, in-memory file system with Windows
+path rules, mutex probe, clock, logger) and only write below the temporary folder; they never contact a server,
+never touch the real registry or `%LOCALAPPDATA%` and never show UI. Tests that depend on Windows path semantics
+of the old game folder detection are marked `[Platform(Include = "Win")]` and reported as skipped under Mono
+(they go away with the new discovery). The core, the launcher and the WON library make their internal helpers
+visible to the test assembly (`InternalsVisibleTo`).
 
 **Continuous integration**: `.github/workflows/build.yml` restores and builds the solution in Release on
 `windows-latest` for every push to `main` and every pull request, then runs every `*Tests.exe` it finds in
@@ -173,14 +190,23 @@ CHANGELOG.md                      Changes of each version (Keep a Changelog)
 THIRD-PARTY-NOTICES.md            Vendored code and NuGet dependencies with their licenses
 docs/                             ARCHITECTURE.md (v2 target), CONTRACT.md (shared with the setup), adr/
                                   (decision records), TEST-PLAN.de.md (manual test on Windows, German)
+Empire-Earth-Launcher-Core/       UI-free core library of the launcher (Empire_Earth_Launcher_Core.dll, ADR 0003):
+│                                 only the BCL and the WON library, no WinForms, System.Drawing or Krypton
+├─ Contract/                      Fixed names of docs/CONTRACT.md: products, games, keys, files, contract version
+├─ Platform/                      Windows behind interfaces (ADR 0006): IRegistry/WindowsRegistry (explicit views),
+│                                 RegistryLocation, RegistryValue, RegistryPath (canonical form), RegistryWritePolicy
+│                                 and PolicyCheckedRegistry (protected keys, allow-list, ADR 0007), IFileSystem/
+│                                 LocalFileSystem, WinPath (Windows path rules), IMutexProbe/WindowsMutexProbe, IClock
+├─ Logging/                       ILogger, TraceFileLogger (log file with trimming)
+├─ Settings/                      LauncherSettings, SettingsStore (settings.json, ADR 0005), LauncherPaths
+├─ Lobby/                         LobbyProfileRepository: lobby profiles and friends of the game folder
+└─ Play/                          MutationGuard: no change while a setup or a game runs (ADR 0016)
 Empire Earth Launcher/            The launcher (WinForms + Krypton UI)
 ├─ Program.cs                     Entry point and composition root: creates and passes on the services
 ├─ app.manifest                   Application manifest: asInvoker, Windows 7 to 11, not DPI-aware
-├─ ILogger.cs                     Logging interface (implemented by TraceFileLogger.cs)
+├─ UiOperation.cs                 Runs the async work of event handlers (ADR 0004); UnexpectedError.cs: error message
 ├─ IThemeService.cs               Theme interface (implemented by KryptonThemeService.cs)
-├─ GameDirectory*.cs              Detection of the Empire Earth folder
-├─ LobbyProfileRepository.cs      Lobby profiles and friends of the game folder, without UI
-├─ LauncherPaths.cs               File locations of the launcher
+├─ GameDirectory*.cs              Detection of the Empire Earth folder (replaced by the core's discovery in L-WP4)
 └─ Resources/                     Images and icon used by the UI
 Empire-Earth-WON/                 WON/NeoEE library, no UI (used by the launcher)
 ├─ NeoApiClient.cs                Client for the NeoEE lobby server
@@ -193,11 +219,13 @@ Empire-Earth-Mod/
 │                                 (ZipStorer.cs is a vendored third-party ZIP library)
 └─ Empire-Earth-Mod/              Mod creator (WinForms), uses Empire-Earth-Mod-Lib
 Empire-Earth-Launcher.Tests/      Unit tests (NUnitLite console program), one folder per tested project:
-├─ Architecture/                  Rules for the whole solution (shared project settings)
-├─ Launcher/                      Log trimming, game folder detection, lobby profiles, settings recovery
+├─ Architecture/                  Rules for the whole solution (project settings, core dependencies, registry aliases)
+├─ Core/                          The core library, one folder per area
+├─ Launcher/                      UI helpers, game folder detection
 ├─ Won/                           WON lobby files, NeoEE protocol
 ├─ Mod/                           Mod library and .eem archives
-└─ TestSupport/                   Temporary folders, chunked streams, repository root
+├─ Fakes/                         In-memory registry and file system, mutex probe, clock, logger (with tests)
+└─ TestSupport/                   Temporary folders, chunked streams, repository root, project files
 packages/                         NuGet packages, restored on build (not committed)
 .github/workflows/build.yml       CI build and test run
 ```
@@ -233,7 +261,15 @@ packages/                         NuGet packages, restored on build (not committ
 - **Themes**: Krypton palette files (`*.xml`) in the `themes` folder next to the executable, or any file chosen
   with *Custom*. No theme files are shipped yet; without them the designer colors are used (a missing default
   theme `Light` is only logged as information).
-- **Log**: `%LOCALAPPDATA%\Empire Earth Launcher\log.txt` (the installation folder may be read-only).
+- **Log**: `%LOCALAPPDATA%\Empire Earth Launcher\log.txt` (the installation folder may be read-only). English
+  messages with ISO time stamps; it never contains CD-key values or WON login data (ADR 0013). Errors of
+  background tasks that nobody handled are logged there as well.
+- **Registry**: the core opens every HKLM key with an explicit view (64- or 32-bit) and never depends on the
+  launcher's own bitness (contract 0); the old game folder detection above is replaced by the core's discovery in
+  a later work package. Every change of the registry passes the write policy of
+  [ADR 0007](docs/adr/0007-registry-write-scope-and-reg-backups.md): only HKCU keys of an allow-list, and never
+  `Software\Sierra\CDKeys` (the NeoEE CD keys), the install records or the uninstall keys, in no hive, view or
+  alias. The launcher does not change the registry yet; the game settings follow in a later work package.
 
 ## 🔨 Contributing
 Pull requests are welcome.\

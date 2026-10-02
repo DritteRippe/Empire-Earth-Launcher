@@ -7,7 +7,7 @@ von Krypton und die Texte der Oberfläche ([ADR 0012](adr/0012-test-strategy.md)
 
 | | |
 |---|---|
-| Stand | Gerüst aus L-WP1; jedes Arbeitspaket ergänzt seinen Abschnitt in 5 im selben Commit |
+| Stand | Fälle von L-WP1 und L-WP2; jedes weitere Arbeitspaket ergänzt seinen Abschnitt in 5 im selben Commit |
 | Sprache | Deutsch (die Programmtexte gibt es auf Englisch, Deutsch und Französisch) |
 | Gehört zu | [ARCHITECTURE.md](ARCHITECTURE.md), Abschnitt 11 und 15 |
 
@@ -55,7 +55,7 @@ Referenz-Assemblys `Microsoft.NETFramework.ReferenceAssemblies.net48` 1.0.3, Rel
 kommt nicht ins Repository. Es besteht aus zwei Dateien:
 
 - `Empire-Earth-Launcher-v2-<Stand>.zip` mit den Ordnern `Empire-Earth-Launcher\` (Programm, `.exe.config`,
-  Bibliotheken, Sprachordner `de\` und `fr\`) und `Empire-Earth-Mod-Creator\`, dazu `LICENSE`,
+  Bibliotheken – ab L-WP2 auch `Empire_Earth_Launcher_Core.dll` –, Sprachordner `de\` und `fr\`) und `Empire-Earth-Mod-Creator\`, dazu `LICENSE`,
   `THIRD-PARTY-NOTICES.md` und `THIRD-PARTY-LICENSES.txt`;
 - `Empire-Earth-Launcher-v2-<Stand>.zip.sha256` mit der SHA-256-Prüfsumme.
 
@@ -178,6 +178,13 @@ hier so, wie sie heute angezeigt werden.
 | WP2-07 | In `settings.json` `"SchemaVersion": 1` in `"SchemaVersion": 2` ändern, speichern. Launcher starten, auf der Seite *Launcher* „Auto-detect“ klicken, Launcher schließen. | Standard-Einstellungen. `log.txt`: Warnung `… were written by a newer launcher (schema 2 …)` und beim Klick `The launcher settings are not saved …`. Die Datei ist unverändert (`"SchemaVersion": 2`). Danach die Datei löschen. |
 | WP2-08 | Eine gültige `settings.json` in Notepad mit „Speichern unter“ → Codierung **UTF-8 mit BOM** speichern, Launcher starten. | Einstellungen werden gelesen, keine `settings.json.damaged`. |
 | WP2-09 | Nur wenn eine `user.config` eines älteren Testpakets existiert (Abschnitt 3): Launcher starten. | Kein Fehler; der Launcher ignoriert die Datei (die Einstellungen von dort werden nicht übernommen). |
+| WP2-10 | Im entpackten Ordner `Empire-Earth-Launcher\` nachsehen; Rechtsklick auf `Empire_Earth_Launcher_Core.dll` → Eigenschaften → Details. | Die Datei liegt neben `Empire Earth Launcher.exe` (ohne sie startet der Launcher nicht); Dateiversion 0.1.0.0, Produktversion 0.1.0-alpha. |
+| WP2-11 | Nach allen Fällen `log.txt` durchsehen. | Keine Zeile `Unhandled exception` und keine `A background task failed`; `Error`-Zeilen nur die erwarteten aus WP2-05 und die des Statusservers (WP1-04). |
+
+Was L-WP2 sonst noch enthält, hat noch keine Oberfläche und wird mit den Paketen getestet, die es benutzen: das
+Registry-Schreibverbot für `Software\Sierra\CDKeys` samt aller Schreibweisen (`WOW6432Node`, VirtualStore) und der
+Schutz vor Änderungen, während ein Setup oder das Spiel läuft (ab L-WP5 und L-WP6), sowie der Zugriff auf die echte
+Registry mit 32- und 64-Bit-Ansicht (ab L-WP4).
 
 ### L-WP3 – Oberfläche aufräumen, Übersetzung Deutsch und Französisch
 

@@ -13,6 +13,25 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
 
 ### Added
 
+- The UI-free core library `Empire-Earth-Launcher-Core` (`Empire_Earth_Launcher_Core.dll`, next to the launcher;
+  [ADR 0003](docs/adr/0003-ui-free-core-library.md)). It references only the BCL and the WON library, which an
+  architecture test checks, and holds:
+  - the fixed names of the shared contract (products, games, keys, files, mutexes, contract version), tested
+    against `docs/CONTRACT.md`;
+  - platform abstractions with fakes for the tests ([ADR 0006](docs/adr/0006-platform-abstractions-and-windows-path-logic.md)):
+    registry access with an explicit HKLM view, a file system, a clock, a mutex probe, and `WinPath`, the Windows
+    path rules as string logic (also the check of manifest paths, so that the manifest can never point outside the
+    install root);
+  - the registry write policy ([ADR 0007](docs/adr/0007-registry-write-scope-and-reg-backups.md)): every key is put
+    into a canonical form first (case, `/`, `WOW6432Node`, registry VirtualStore), then `Software\Sierra\CDKeys`,
+    the install records and the uninstall keys are refused with their subtrees and ancestors in every hive and
+    view, then only listed HKCU keys are allowed; a table test covers every alias and operation;
+  - the mutation guard ([ADR 0016](docs/adr/0016-mutation-guard-and-effective-game-paths.md)): no change while a
+    setup or a game runs (setup and game mutexes);
+  - `settings.json` (see Changed).
+- `UiOperation` in the launcher: the one place for asynchronous work of event handlers
+  ([ADR 0004](docs/adr/0004-async-await-threading-model.md)); unobserved exceptions of background tasks are logged.
+- Test plan: cases WP2-01 to WP2-11 (`settings.json`, the core library in the package, the log).
 - The launcher has its own application manifest (`app.manifest`). As before, it runs without elevation
   (`asInvoker`, which also keeps UAC virtualization off) and is not DPI-aware; new is the list of supported
   Windows versions (7 to 11), so Windows 8.1 and later report their real version to the launcher instead of
@@ -29,6 +48,8 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
 
 ### Changed
 
+- The logger, the launcher's file locations and the lobby profile reader moved unchanged into the core library
+  (namespaces `Empire_Earth_Launcher.Core.Logging`, `.Settings`, `.Lobby`); their tests moved with them.
 - The launcher keeps its user settings (game folder, theme, custom theme file) in
   `%LOCALAPPDATA%\Empire Earth Launcher\settings.json` instead of .NET's `user.config`
   ([ADR 0005](docs/adr/0005-own-settings-file-instead-of-user-config.md)): they survive moving or updating the
