@@ -76,7 +76,10 @@
     <Compile Include="Platform\FileSystemExtensions.cs" />
     <Compile Include="Platform\IClock.cs" />
     <Compile Include="Platform\IFileSystem.cs" />
+    <Compile Include="Platform\IFileVersionReader.cs" />
     <Compile Include="Platform\IMutexProbe.cs" />
+    <Compile Include="Platform\IProcessList.cs" />
+    <Compile Include="Platform\IProcessStarter.cs" />
     <Compile Include="Platform\IRegistry.cs" />
     <Compile Include="Platform\ISystemInfo.cs" />
     <Compile Include="Platform\LocalFileSystem.cs" />
@@ -85,7 +88,10 @@
     <Compile Include="Platform\RegistryPath.cs" />
     <Compile Include="Platform\RegistryValue.cs" />
     <Compile Include="Platform\RegistryWritePolicy.cs" />
+    <Compile Include="Platform\ShellProcessStarter.cs" />
+    <Compile Include="Platform\WindowsFileVersionReader.cs" />
     <Compile Include="Platform\WindowsMutexProbe.cs" />
+    <Compile Include="Platform\WindowsProcessList.cs" />
     <Compile Include="Platform\WindowsRegistry.cs" />
     <Compile Include="Platform\WindowsSystemInfo.cs" />
     <Compile Include="Platform\WinPath.cs" />
