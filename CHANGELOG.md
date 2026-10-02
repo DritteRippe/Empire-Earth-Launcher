@@ -13,6 +13,67 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
 
 ### Added
 
+- Registry cleanup (R5, [ADR 0007](docs/adr/0007-registry-write-scope-and-reg-backups.md);
+  `Empire-Earth-Launcher-Core/Maintenance`: `CleanupCandidates`, `CleanupAdvice`, `RegistryCleanup`): cleanup of HKCU
+  entries; HKLM entries are only shown, with advice. The list is a code table of 17 explicit keys without wildcards,
+  equal to the table of ARCHITECTURE 4.6 (a test compares them), each with evidence from the forum or the setup
+  (`t=`, `p=` or `setup:`): the four game settings keys of contract 3.1 and the registry VirtualStore copies of the SSSI
+  and Mad Doc keys, which the launcher may delete; the SSSI and Mad Doc keys of HKLM (32 and 64 bit), shown with the
+  advice to export them and delete them with the Registry Editor as administrator; and `Software\Sierra` in HKLM, HKCU
+  and the VirtualStore, shown as "do not delete: it contains the NeoEE CD keys" with only whether `CDKeys` exists. A key
+  is offered only when no installation of its product is found and the folder of its own "Installed From" values is
+  missing on a present, fixed, local drive; otherwise the page says why it is kept. Deleting asks first, then the
+  mutation guard, checks every selected key again, writes one `.reg` file of all of them into
+  `Backups\<time>_registry-cleanup\` and only then deletes them; if the backup fails nothing is deleted, and whether
+  the CD keys exist is logged before and after. Without a key to delete, the page says "nothing to clean up", shows the
+  read-only list and no enabled delete button. Keys without evidence (other subkeys of `Software\Sierra`, Stainless
+  Steel Studios, InstallShield) are not on the list; test case WP8-02 collects samples.
+- WON login reset (R6, `WonLoginReset`, forum p=83519): `_wonkver.pub` and `_wonlogin.ks` of the Empire Earth and The
+  Art of Conquest folders and of their VirtualStore copies are moved into `Backups\<time>_won-login-reset\` (`EE\`,
+  `AoC\`, `EE-VirtualStore\`, `AoC-VirtualStore\`, with `moved-files.txt`); files of the setup's list are never moved,
+  and nothing is moved when that list exists but cannot be read. A file Windows does not let the launcher remove is
+  named ("access denied"). The page says that the backup folder now contains login data.
+- File backups (`Backup/FileBackup`): files are copied into the backup folder and read back, the list of their original
+  places is written, and only then are the originals removed (or, for an import, left in place); a failed copy removes
+  nothing.
+- VirtualStore check (R8, `VirtualStoreScanner`): for game folders below `Program Files`, `Program Files (x86)`,
+  `ProgramData` or the Windows folder the page lists the copies in `%LOCALAPPDATA%\VirtualStore`; copies of files of the
+  setup's list and of program files are serious (the game uses them instead of the installation), the others
+  (lobby profiles, logs, saved games) information. The registry VirtualStore is shown through the cleanup list.
+- Saved games and scenarios (R10, `SavedGames`, forum t=9004 p=44629): "Export..." copies every `.ees`
+  (`Data\Saved Games`) and `.scn` (`Data\Scenarios`) file of both games, from the game folder and its VirtualStore copy,
+  into a new folder `Empire Earth saves <time>` of the folder the player chooses (not a game folder); on a name conflict
+  the VirtualStore copy, which the game uses, wins and the other is named. "Import into Empire Earth..." and "Import
+  into The Art of Conquest..." check every chosen file (only `.ees`/`.scn`, a plain name of at most 200 characters with
+  characters of the ANSI code page, at most 64 MiB, not a file of the setup's list, no two of the same name), ask
+  before a file is replaced, copy the old one into `Backups\<time>_import-saved-games\` and write where the game reads:
+  into the VirtualStore folder when Windows denies the game folder. Names outside plain ASCII get the note that every
+  multiplayer player needs exactly this name.
+- Name check (forum report test case 17, `NameChecks`): lobby profile names and the player folders `Users\<Name>` of
+  both games (also in the VirtualStore) with characters outside printable ASCII are listed with the forum's reason
+  (t=3563 p=23879, t=2126 p=14281); the page also says that the host needs the ports 33334 to 33336. The names are never
+  logged.
+- "Backups" on the *Tools* page with "Open backup folder" (Explorer, through the shell; the folder is created when it
+  is missing) and the note that the folder contains login data.
+- Every writing tool asks the mutation guard ([ADR 0016](docs/adr/0016-mutation-guard-and-effective-game-paths.md)):
+  while a setup runs its buttons are disabled, while a game runs the action says "Not possible while ... is running";
+  tests for both blocked cases of the cleanup, the WON reset and the import.
+- Platform: the drive kind of a path (`IFileSystem.GetDriveKind`: fixed, removable, network, ...), opening a folder in
+  the Explorer (`IProcessStarter.OpenFolder`), the protection check of the write policy on its own
+  (`RegistryWritePolicy.ProtectionOf`).
+- Tests with real files in a temporary folder (`TestSupport/MappedFileSystem`) for the file backup, the WON reset and
+  the export and import of a saved game with an umlaut in its name; the UI mapping of the cleanup (`CleanupView`),
+  `MaintenanceModel` and the texts with fakes.
+- 80 new texts in English, German and French for the maintenance tools (now 293).
+- Test plan: cases WP8-01 to WP8-16 (the CD keys unchanged after a cleanup, real HKCU and HKLM leftovers of CD and GOG
+  installations, a stale key with backup and restore, keys that are kept, HKLM advice, the WON reset also with access
+  denied, the VirtualStore with a standard user, export and import with umlaut names and a standard user, the name
+  check, blocked while a setup or a game runs, the backup folder, the three languages, the log); R5, R6, R8, R10 and
+  forum test case 17 are no longer open.
+- Dropped as ARCHITECTURE 15 allows: the zip export and the zip import of saved games. The folder export is how the
+  forum shares saved games, and a zip reader would be new attack surface for files from other players; the core no
+  longer may reference `System.IO.Compression`.
+
 - Integrity check (R2, contract 2, `Empire-Earth-Launcher-Core/Integrity`, `IntegrityModel`): the launcher reads the
   manifest `_setupdata_<Product>\files.sha256` and `install.ini` that the community setup writes since v2. The reader
   accepts what the contract says readers must (BOM, LF, CRLF, uppercase hex digits, the binary marker ` *`, empty
@@ -278,6 +339,19 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
 - This changelog.
 
 ### Changed
+
+- The launcher's write policy (`LauncherWritePolicy`) allows deleting exactly the eight HKCU keys of the cleanup list
+  as trees (before: no tree deletion at all); the protected keys are still refused first, also through every alias.
+- The cleanup table of ARCHITECTURE 4.6 is now the code table with ids: its HKLM rows name `Mad Doc Software\EE-AOC`
+  instead of the vendor root `Mad Doc Software` (p=4756: only the keys of EE and AoC when other Mad Doc games are
+  installed), and the registry VirtualStore copies are offered under the same two conditions as the HKCU keys.
+- The *Tools* page continues below "Updates" with the maintenance tools; `Program` composes them (`RegistryCleanup`,
+  `WonLoginReset`, `VirtualStoreScanner`, `SavedGames`, `NameChecks` and `MaintenanceModel`, which scans after every
+  search and every action).
+- README: the integrity paragraph named the manifest `_setupdata_<Product>\files.sha256` with a control character in
+  place of `\f`.
+- ADR 0007, 0012, 0013, 0014 and 0016 record the implementation of L-WP8 in amendments; `docs/TRANSLATING.md` lists
+  293 texts and the new screens to check.
 
 - The repair advice window asks the update API for the download when it opens; "Open download page" waits for the
   answer (at most 10 seconds) and a closed window cancels the request. The download page opens through `UpdateModel`

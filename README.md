@@ -32,6 +32,27 @@ removed and the features behind them are listed below.
   itself
 - Version check on request (*Play* page: the game; *Tools* page: game and setup) against the update API of the
   community setup, for community installations also of setups up to 1.7.2 (forum: version conflicts in multiplayer)
+- Maintenance tools on the *Tools* page, none of which runs while a setup or a game runs:
+  - Registry cleanup: cleanup of HKCU entries; HKLM entries are only shown, with advice. The launcher offers a key of
+    your Windows account from its fixed list only when no installation of its product is found and the game folder it
+    names is gone from a present, fixed, local drive, and it exports the selected keys to a `.reg` file in the backup
+    folder before it deletes them. Keys for all users get the advice to export and delete them with the Registry
+    Editor as administrator; `Software\Sierra` holds the NeoEE CD keys and is shown as "do not delete". When nothing
+    can be deleted, the page says "nothing to clean up"
+  - WON login reset: moves `_wonkver.pub` and `_wonlogin.ks` of both games (also their VirtualStore copies) into the
+    backup folder, so that the game creates new ones at the next login (forum: login errors such as
+    `WS_GetCert_InvalidPubKeyBlock`); files of the setup's list are never moved
+  - VirtualStore check: for a game below `Program Files` it lists the copies Windows keeps in
+    `%LOCALAPPDATA%\VirtualStore`, and warns when installed or program files are used from there instead of the
+    game folder (forum: another version with and without administrator rights)
+  - Saved games and scenarios: export of every `.ees` and `.scn` file of both games (also those in the VirtualStore)
+    into a new folder you choose; import of single files into Empire Earth or The Art of Conquest where the game
+    reads them, with checks (only `.ees` and `.scn`, plain names the game can read, at most 64 MiB) and a question
+    before a file is replaced (the old one is kept in the backup folder). There is no zip export or import
+  - Player names: a warning for lobby profile and player names with characters outside plain ASCII (forum: saved
+    games that cannot be loaded, crashes) and the hint that the host of a multiplayer game needs the ports 33334 to
+    33336
+  - "Open backup folder"; the backup folder contains login data after a WON reset, never pass it on
 - One launcher at a time (a second start says so and ends)
 - NeoEE online player list, with the lobby profiles and friends of the game folder (also when the game keeps them
   in the VirtualStore)
@@ -52,8 +73,6 @@ removed and the features behind them are listed below.
 
 **Coming with v2** (each with its work package, ARCHITECTURE section 15)
 
-- Maintenance tools: registry cleanup of old installations, WON login reset, VirtualStore check, saved games and
-  scenarios export/import
 - Network diagnostics and a configuration report
 
 **Planned, not in v2** (their placeholders were removed from the UI)
@@ -200,14 +219,20 @@ cover:
   uninstall key rule, NeoEE wording, two products in one folder, the counted cost of the quick and full check, a
   setup that starts during a check, and that the check never writes), the repair hand-off (`Repair/`: the advice, the
   URL policy with the 13 cases of the setup's `TestIsAllowedUpdateUrl` and the launcher's own, the download locator
-  with every fallback, the version check), the byte samples of `docs/contract-samples/` read by the launcher's
+  with every fallback, the version check), the maintenance tools (`Maintenance/`: the cleanup list against the table
+  of ARCHITECTURE 4.6 with the evidence of every entry, the advice of every entry through the canonical form of the
+  write policy, the cleanup with backup first and nothing deleted when the backup fails, the CD keys unchanged, the
+  WON login reset, the VirtualStore check, the export and import of saved games and the name check; every writing
+  action blocked by a running setup and game; moving, exporting and importing also with real files in a temporary
+  folder) and the file backup (`Backup/`), the byte samples of `docs/contract-samples/` read by the launcher's
   readers (`Contract/`), the HTTPS client's settings, the online player list poller (`Lobby/`) and the start
   information of the shell starter;
 - the UI helpers of the launcher (`Launcher/`): `UiOperation`, the "unexpected error" message, the logging of
   unobserved task exceptions, the texts chosen for results (`Texts`), the UI language applied at start, the
   installation service (also while a setup runs), the models of the game settings pages (`GameSettingsModel`), of
   the Play page (`PlayModel`), of the integrity check (`IntegrityModel`: the quick check after every search and after a
-  setup, never while one runs, cancel) and of the update API (`UpdateModel`), and the message of a second launcher;
+  setup, never while one runs, cancel), of the update API (`UpdateModel`) and of the maintenance tools
+  (`MaintenanceModel`, and what the registry cleanup shows: `CleanupView`), and the message of a second launcher;
 - the WON lobby file parser, the NeoEE protocol framing, reply parsing and request deadline (`Won/`), and the mod
   library (`Mod/`: product folders, file types, versions, the working directory of the mod creator, `.eem`
   export/import including damaged archives);
@@ -234,7 +259,8 @@ documents, the CI workflow and the built satellite assemblies (the tests that re
 `Tests\` folder of the laptop package) runs the others with `--where "cat != SourceTree"`. The tests use fakes
 (`Fakes/`: in-memory registry with both HKLM views and a 32-bit Windows mode, in-memory file system with Windows
 path rules, mutex probe and owner, clock, logger, system information with Windows version, Wine, screen and code
-page, process starter, process list, file versions, an HTTPS client that answers from a table) and
+page, process starter, process list, file versions, an HTTPS client that answers from a table; `TestSupport/` also
+has `MappedFileSystem`, the real file system behind a drive letter that stands for a temporary folder) and
 only write below the temporary folder; they never contact a server, never touch the real registry or
 `%LOCALAPPDATA%` and never show UI. Path logic is `WinPath` string logic, so every
 test also runs under Mono; no test is skipped. The core, the launcher and the WON library make their internal helpers
@@ -287,7 +313,8 @@ Empire-Earth-Launcher-Core/       UI-free core library of the launcher (Empire_E
 ├─ Contract/                      Fixed names of docs/CONTRACT.md: products, games, keys, files, contract version;
 │                                 CompatibilityLayers (the entries of contract 3.7 and the old values)
 ├─ Backup/                        RegFileWriter (.reg files like regedit's), RegistryExport, BackupLocations
-│                                 (%LOCALAPPDATA%\Empire Earth Launcher\Backups, ADR 0007)
+│                                 (%LOCALAPPDATA%\Empire Earth Launcher\Backups, ADR 0007), FileBackup (files
+│                                 copied into the backup and read back before they are removed)
 ├─ GameSettings/                  Contract 3: GameSettingsTable, ComputedValues, GameDefaultsService (marker, first
 │                                 run, display question, Installed From, reset), ConsistencyChecker, HintVisibility,
 │                                 CompatibilityOptions, LauncherWritePolicy (the launcher's allow-list)
@@ -300,12 +327,16 @@ Empire-Earth-Launcher-Core/       UI-free core library of the launcher (Empire_E
 ├─ Platform/                      Windows behind interfaces (ADR 0006): IRegistry/WindowsRegistry (explicit views),
 │                                 RegistryLocation, RegistryValue, RegistryPath (canonical form), RegistryWritePolicy
 │                                 and PolicyCheckedRegistry (protected keys, allow-list, ADR 0007), IFileSystem/
-│                                 LocalFileSystem, WinPath (Windows path rules), IMutexProbe/WindowsMutexProbe,
-│                                 IMutexOwner/WindowsMutexOwner (single instance), IClock, ISystemInfo/WindowsSystemInfo
-│                                 (Windows version, Wine, screen size, code page), IProcessStarter/ShellProcessStarter
-│                                 (shell execute), IProcessList, IFileVersionReader, IHttpsClient/HttpsClient
-│                                 (no redirects, 10 s, 4 KiB, certificate check of Windows, ADR 0008)
+│                                 LocalFileSystem (files, folders, drive kinds), WinPath (Windows path rules),
+│                                 IMutexProbe/WindowsMutexProbe, IMutexOwner/WindowsMutexOwner (single instance),
+│                                 IClock, ISystemInfo/WindowsSystemInfo (Windows version, Wine, screen size, code
+│                                 page), IProcessStarter/ShellProcessStarter (shell execute, open a folder),
+│                                 IProcessList, IFileVersionReader, IHttpsClient/HttpsClient (no redirects, 10 s,
+│                                 4 KiB, certificate check of Windows, ADR 0008)
 ├─ Logging/                       ILogger, TraceFileLogger (log file with trimming)
+├─ Maintenance/                   The maintenance tools: CleanupCandidates (the cleanup list of ARCHITECTURE 4.6),
+│                                 CleanupAdvice, RegistryCleanup, WonLoginReset, VirtualStoreScanner, SavedGames
+│                                 (export, import), NameChecks, ManifestFiles
 ├─ Settings/                      LauncherSettings, SettingsStore (settings.json, ADR 0005), LauncherPaths,
 │                                 UiLanguage (the language setting, ADR 0009)
 ├─ Lobby/                         LobbyProfileRepository: lobby profiles and friends of the game folder (effective paths);
@@ -327,7 +358,9 @@ Empire Earth Launcher/            The launcher (WinForms + Krypton UI)
 ├─ PlayModel.cs                   State and actions of the Play page (game choice, versions, start)
 ├─ IntegrityModel.cs              The integrity check of the selected installation (quick check, full check)
 ├─ UpdateModel.cs                 The update API: version check, download of the repair advice
-├─ ToolsUserControl.cs            The Tools page (integrity, repair advice, version check)
+├─ MaintenanceModel.cs            The maintenance tools of the Tools page (scans, actions, backup folder)
+├─ CleanupView.cs                 What the registry cleanup shows (summary, keys to select, advice, delete button)
+├─ ToolsUserControl.cs            The Tools page (integrity, repair advice, version check, maintenance tools)
 ├─ RepairAdviceDialog.cs          The repair advice window (built in code, wraps every language)
 └─ Resources/                     Images and icon used by the UI
 Empire-Earth-WON/                 WON/NeoEE library, no UI (used by the launcher)
@@ -350,7 +383,8 @@ Empire-Earth-Launcher.Tests/      Unit tests (NUnitLite console program), one fo
 ├─ Mod/                           Mod library and .eem archives
 ├─ Fakes/                         In-memory registry and file system, mutex probe, clock, logger, process starter,
 │                                 process list, file versions, HTTPS client (with tests)
-└─ TestSupport/                   Temporary folders, chunked streams, repository root, project files
+└─ TestSupport/                   Temporary folders, chunked streams, repository root, project files, worlds of
+                                  installations, MappedFileSystem (real files behind a drive letter)
 packages/                         NuGet packages, restored on build (not committed)
 .github/workflows/build.yml       CI build and test run
 ```
@@ -388,7 +422,7 @@ packages/                         NuGet packages, restored on build (not committ
   `install.ini` (admin, user with `[MissingAfterInstall]`, portable), `files.sha256` and the install record as a `.reg`
   file, which the launcher's readers are tested against; the setup repository is to take the same folder over.
 - **Integrity check** ([contract 2](docs/CONTRACT.md#2-integrity-manifest)): after every search of the installations
-  the launcher reads `_setupdata_<Product>iles.sha256` and `install.ini` of the selected community installation (setup
+  the launcher reads `_setupdata_<Product>\files.sha256` and `install.ini` of the selected community installation (setup
   v2 or later) and checks in the background that every listed file exists and that the program files (`exe dll asi
   ...`, the class `code` of contract 2.4) have their SHA-256; "Check all files" on the *Tools* page also hashes the game
   data. Changed `cfg ini conf config log` files are never reported. The states: OK; Modified (only information: mods,
@@ -438,15 +472,16 @@ packages/                         NuGet packages, restored on build (not committ
   with *Custom*. No theme files are shipped yet; without them the designer colors are used (a missing default
   theme `Light` is only logged as information).
 - **Log**: `%LOCALAPPDATA%\Empire Earth Launcher\log.txt` (the installation folder may be read-only). English
-  messages with ISO time stamps; it never contains CD-key values or WON login data (ADR 0013). Errors of
-  background tasks that nobody handled are logged there as well.
+  messages with ISO time stamps; it never contains CD-key values, WON login data or the names the name check finds
+  (ADR 0013). Errors of background tasks that nobody handled are logged there as well.
 - **Registry**: the core opens every HKLM key with an explicit view (64- or 32-bit) and never depends on the
   launcher's own bitness (contract 0). Every change of the registry passes the write policy of
   [ADR 0007](docs/adr/0007-registry-write-scope-and-reg-backups.md): only HKCU keys of an allow-list with their
   value names (`LauncherWritePolicy`: the game settings keys of contract 3.1 with the values of 3.2, the defaults
-  marker, the GPU preference and the compatibility values of the game programs), and never
-  `Software\Sierra\CDKeys` (the NeoEE CD keys), the install records or the uninstall keys, in no hive, view or
-  alias. Nothing is changed while a setup or a game runs (ADR 0016). HKLM is only read.
+  marker, the GPU preference and the compatibility values of the game programs), deleting only the eight HKCU keys of
+  the cleanup list (ARCHITECTURE 4.6), and never `Software\Sierra\CDKeys` (the NeoEE CD keys), the install records or
+  the uninstall keys, in no hive, view or alias. Nothing is changed while a setup or a game runs (ADR 0016). HKLM is
+  only read; the cleanup shows HKLM leftovers with advice and never asks for administrator rights.
 - **Game settings** ([contract 3](docs/CONTRACT.md#3-per-user-default-game-settings)): after each search the launcher
   sets up the recommended game settings for the Windows account that runs it, once per game and account (the
   marker `HKCU\Software\Empire Earth Community\GameDefaults\<NeoEE|EE>`, values `EE` and `AoC`), but only for an
@@ -455,9 +490,18 @@ packages/                         NuGet packages, restored on build (not committ
   never touched. The *Settings* page shows the state, the hints and the compatibility options; its reset and
   "Apply recommended display" write a backup first.
 - **Backups**: `%LOCALAPPDATA%\Empire Earth Launcher\Backups\<yyyy-MM-dd_HHmmss>_<action>\` with one `.reg` file per
-  game (`<time>_<NeoEE|EE>_<EE|AoC>.reg`, or `<time>_Layers.reg` for the compatibility values). Double-click a file
-  (or `reg import <file>`) to restore the settings exactly as they were before, including the removal of values the
-  action created. The launcher never deletes backups.
+  game (`<time>_<NeoEE|EE>_<EE|AoC>.reg`, or `<time>_Layers.reg` for the compatibility values), or one
+  `<time>_registry-cleanup.reg` with every key the cleanup deleted. Double-click a file (or `reg import <file>`) to
+  restore the settings exactly as they were before, including the removal of values the action created. The WON login
+  reset (`_won-login-reset`) and an import that replaces saved games (`_import-saved-games`) keep the files in
+  `EE\`, `AoC\`, `EE-VirtualStore\` or `AoC-VirtualStore\` with `moved-files.txt`, which names where each file was;
+  copy a file back there to restore it. **The backup folder contains login data after a WON reset: never pass it on.**
+  "Open backup folder" on the *Tools* page opens it. The launcher never deletes backups.
+- **Exports of saved games**: a new folder `Empire Earth saves <yyyy-MM-dd_HHmmss>` in the folder you choose (not a
+  game folder), with `EE\Saved Games`, `EE\Scenarios`, `AoC\Saved Games` and `AoC\Scenarios`. When the same file
+  name is in the game folder and in its VirtualStore copy, the export takes the copy (the one the game uses) and the
+  page names the other. Imported files go to `Data\Saved Games` or `Data\Scenarios` of the game, or into its
+  VirtualStore folder when Windows does not let a standard user write into a game folder below `Program Files`.
 
 ## 🔨 Contributing
 Pull requests are welcome.\
