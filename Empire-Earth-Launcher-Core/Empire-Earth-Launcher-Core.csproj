@@ -54,6 +54,9 @@
     <Compile Include="Diagnostics\AddressClassifier.cs" />
     <Compile Include="Diagnostics\KeyValueFile.cs" />
     <Compile Include="Diagnostics\NeoEeConfigReader.cs" />
+    <Compile Include="Diagnostics\NetworkDiagnostics.cs" />
+    <Compile Include="Diagnostics\OutageHint.cs" />
+    <Compile Include="Diagnostics\ReportAnonymizer.cs" />
     <Compile Include="Diagnostics\UpnpInfoParser.cs" />
     <Compile Include="Diagnostics\WonLobbyConfigReader.cs" />
     <Compile Include="GameSettings\CompatibilityOptions.cs" />

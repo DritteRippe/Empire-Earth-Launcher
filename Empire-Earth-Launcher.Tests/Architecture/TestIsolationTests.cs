@@ -57,12 +57,15 @@ namespace Empire_Earth_Launcher.Tests.Architecture
             new Rule("a file of the launcher's real folder", @"\bnew\s+\w+\s*\([^;]*\bLauncherPaths\s*\.\s*(LogFile|SettingsFile|BackupsDirectory|ThemesDirectory|UserDataDirectory)\b"),
         };
 
+        /// <summary>The files whose samples are forbidden uses on purpose: this test and the test of the network destinations.</summary>
+        private static readonly string[] RuleSamples = { "TestIsolationTests.cs", "NetworkDestinationTests.cs" };
+
         private static IEnumerable<string> TestSources()
         {
             string folder = RepositoryRoot.GetFullPath(TestProjectFolder);
             return Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
                             .Where(file => !RepositoryRoot.ToRelativePath(file).Split('/').Any(part => part == "bin" || part == "obj"))
-                            .Where(file => Path.GetFileName(file) != "TestIsolationTests.cs")
+                            .Where(file => !RuleSamples.Contains(Path.GetFileName(file)))
                             .OrderBy(file => file, StringComparer.Ordinal);
         }
 

@@ -60,6 +60,7 @@
     <Compile Include="Architecture\ApplyTextsTests.cs" />
     <Compile Include="Architecture\CoreDependencyTests.cs" />
     <Compile Include="Architecture\FixtureProvenanceTests.cs" />
+    <Compile Include="Architecture\NetworkDestinationTests.cs" />
     <Compile Include="Architecture\NoCertificateOverrideTests.cs" />
     <Compile Include="Architecture\PlaceholderControlsTests.cs" />
     <Compile Include="Architecture\ProcessRulesTests.cs" />
@@ -79,6 +80,9 @@
     <Compile Include="Core\Contract\GameTests.cs" />
     <Compile Include="Core\Diagnostics\AddressClassifierTests.cs" />
     <Compile Include="Core\Diagnostics\GameConfigReadersTests.cs" />
+    <Compile Include="Core\Diagnostics\NetworkDiagnosticsTests.cs" />
+    <Compile Include="Core\Diagnostics\OutageHintTests.cs" />
+    <Compile Include="Core\Diagnostics\ReportAnonymizerTests.cs" />
     <Compile Include="Core\Diagnostics\UpnpInfoParserTests.cs" />
     <Compile Include="Core\GameSettings\CompatibilityOptionsTests.cs" />
     <Compile Include="Core\GameSettings\ComputedValuesTests.cs" />
