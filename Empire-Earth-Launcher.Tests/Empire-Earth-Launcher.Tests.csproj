@@ -111,6 +111,7 @@
     <Compile Include="Core\Platform\FileSystemExtensionsTests.cs" />
     <Compile Include="Core\Platform\HttpsClientTests.cs" />
     <Compile Include="Core\Platform\LocalFileSystemTests.cs" />
+    <Compile Include="Core\Platform\NetworkInfoTests.cs" />
     <Compile Include="Core\Platform\PolicyCheckedRegistryTests.cs" />
     <Compile Include="Core\Platform\RegistryLocationTests.cs" />
     <Compile Include="Core\Platform\RegistryPathTests.cs" />
@@ -141,6 +142,7 @@
     <Compile Include="Fakes\FakeFileVersionReader.cs" />
     <Compile Include="Fakes\FakeHttpsClient.cs" />
     <Compile Include="Fakes\FakeMutexProbe.cs" />
+    <Compile Include="Fakes\FakeNetworkInfo.cs" />
     <Compile Include="Fakes\FakeProcessList.cs" />
     <Compile Include="Fakes\FakeProcessStarter.cs" />
     <Compile Include="Fakes\FakeSystemInfo.cs" />

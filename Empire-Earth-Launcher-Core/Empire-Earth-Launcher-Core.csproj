@@ -96,6 +96,7 @@
     <Compile Include="Platform\IHttpsClient.cs" />
     <Compile Include="Platform\IMutexOwner.cs" />
     <Compile Include="Platform\IMutexProbe.cs" />
+    <Compile Include="Platform\INetworkInfo.cs" />
     <Compile Include="Platform\IProcessList.cs" />
     <Compile Include="Platform\IProcessStarter.cs" />
     <Compile Include="Platform\IRegistry.cs" />
@@ -110,6 +111,7 @@
     <Compile Include="Platform\WindowsFileVersionReader.cs" />
     <Compile Include="Platform\WindowsMutexOwner.cs" />
     <Compile Include="Platform\WindowsMutexProbe.cs" />
+    <Compile Include="Platform\WindowsNetworkInfo.cs" />
     <Compile Include="Platform\WindowsProcessList.cs" />
     <Compile Include="Platform\WindowsRegistry.cs" />
     <Compile Include="Platform\WindowsSystemInfo.cs" />
