@@ -104,6 +104,7 @@
     <Compile Include="Core\Play\MutationGuardTests.cs" />
     <Compile Include="Core\Play\ProgramVersionsTests.cs" />
     <Compile Include="Core\Play\RunningGameDetectorTests.cs" />
+    <Compile Include="Core\Play\SetupWatcherTests.cs" />
     <Compile Include="Core\Repair\RepairAdviceTests.cs" />
     <Compile Include="Core\Settings\LauncherPathsTests.cs" />
     <Compile Include="Core\Settings\SettingsStoreTests.cs" />

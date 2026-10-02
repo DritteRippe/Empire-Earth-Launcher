@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Logging;
+using Empire_Earth_Launcher.Core.Play;
 using Empire_Earth_Launcher.Core.Settings;
 using Empire_Earth_Launcher.Tests.Core.Settings;
 using Empire_Earth_Launcher.Tests.Fakes;
@@ -151,6 +152,87 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(() => new InstallationService(world.Logger, settings, null, world.FileSystem, null), Throws.ArgumentNullException);
             Assert.That(() => new InstallationService(world.Logger, settings, discovery, null, null), Throws.ArgumentNullException);
             Assert.That(() => service.SelectAsync(null), Throws.ArgumentNullException);
+        }
+
+        // --- A running setup (contract 4.2, L-WP6) ---------------------------------------------------------------------
+
+        private FakeMutexProbe mutexes;
+        private SetupWatcher watcher;
+
+        private void UseSetupWatcher(params string[] runningMutexes)
+        {
+            mutexes = new FakeMutexProbe().With(runningMutexes);
+            watcher = new SetupWatcher(mutexes, world.Clock, world.Logger);
+            service = new InstallationService(world.Logger, settings, world.CreateDiscovery(), world.FileSystem, null, watcher);
+            events.Clear();
+            service.Changed += (sender, e) =>
+                events.Add(service.IsWaitingForSetup ? "waiting" : service.IsSearching ? "searching" : "done");
+        }
+
+        private void EndSetup(string mutex)
+        {
+            mutexes.Remove(mutex);
+            world.Clock.Advance(SetupWatcher.Interval);
+            watcher.Tick();
+        }
+
+        [Test]
+        public async Task Contract_4_2_WhileASetupRuns_TheSearchWaits_AndRunsWhenTheSetupHasEnded()
+        {
+            UseSetupWatcher("NeoEE_Setup");
+
+            await service.RefreshAsync();
+
+            Assert.That(service.Result, Is.Null);
+            Assert.That(service.IsWaitingForSetup, Is.True);
+            Assert.That(world.FileSystem.OpenCount(InstallationWorld.InstallInfoPath(NeoRoot, Product.NeoEE)), Is.Zero,
+                "install.ini is not read while a setup runs");
+            Assert.That(world.LogLinesAbout("searched when the NeoEE setup has ended"), Has.Length.EqualTo(1));
+
+            EndSetup("NeoEE_Setup");
+            Assert.That(service.RefreshAfterSetup, Is.Not.Null, "the end of the setup starts the search");
+            await service.RefreshAfterSetup;
+
+            Assert.That(service.IsWaitingForSetup, Is.False);
+            Assert.That(service.Selected.Root, Is.EqualTo(NeoRoot));
+            Assert.That(world.FileSystem.OpenCount(InstallationWorld.InstallInfoPath(NeoRoot, Product.NeoEE)), Is.GreaterThan(0));
+            Assert.That(events, Is.EqualTo(new[] { "waiting", "searching", "done" }));
+        }
+
+        [Test]
+        public async Task ASetupThatStartsLater_KeepsThePreviousResult_UntilItHasEnded()
+        {
+            UseSetupWatcher();
+            await service.RefreshAsync();
+            DiscoveryResult before = service.Result;
+            mutexes.With("EE_Setup");
+            world.Clock.Advance(SetupWatcher.Interval);
+            watcher.Tick();
+
+            await service.ChooseFolderAsync(RetailFolder);
+
+            Assert.That(service.Result, Is.SameAs(before), "the choice is saved, the search waits");
+            Assert.That(service.IsWaitingForSetup, Is.True);
+            Assert.That(SavedChoice(), Is.EqualTo(RetailFolder));
+
+            EndSetup("EE_Setup");
+            await service.RefreshAfterSetup;
+
+            Assert.That(service.Selected.EeFolder, Is.EqualTo(RetailFolder).IgnoreCase);
+        }
+
+        [Test]
+        public async Task ASetupThatEndedBetweenTwoTicks_IsSearchedOnce()
+        {
+            UseSetupWatcher("EE_Setup");
+            watcher.Tick();
+            mutexes.Remove("EE_Setup");
+
+            await service.RefreshAsync();
+
+            Assert.That(service.RefreshAfterSetup, Is.Null, "the refresh that saw the end goes on by itself");
+            Assert.That(service.Result, Is.Not.Null);
+            Assert.That(events, Is.EqualTo(new[] { "searching", "done" }));
         }
     }
 }
