@@ -1,6 +1,6 @@
 # 0011 Screen size in physical pixels
 
-Status: **Accepted** (2026-10-02)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (plan review, see the Amendment section)
 
 ## Context
 
@@ -40,3 +40,21 @@ today (no `dpiAware` in its manifest).
 - **Make the launcher per-monitor DPI-aware** and use `GetSystemMetrics`: correct numbers but a layout
   rework of every form with fixed bitmaps. Rejected for v2.
 - **`Screen.PrimaryScreen.Bounds`**: logical pixels in a DPI-unaware process. Rejected.
+
+## Amendment 2026-10-02 (plan review)
+
+Contract O4: the game sees physical pixels only with `HIGHDPIAWARE`; without it, it is DPI-virtualized on a scaled
+screen and sees logical pixels. The recommended window size (contract 3.3) stays in physical pixels, identical to
+the setup; only the consistency check and the hints take the game's view into account:
+
+- `ISystemInfo` also returns the primary screen as a DPI-unaware program sees it (`GetSystemMetrics`
+  `SM_CXSCREEN`/`SM_CYSCREEN` in the launcher, which is DPI-unaware like the game) and the scaling derived from
+  both sizes.
+- **"Window larger than the screen"** compares with the physical size if `HIGHDPIAWARE` is effective for that
+  program (an entry of the `Layers` value in HKCU or HKLM), else with the size a DPI-unaware program sees. If the
+  window fits physically but not without the layer, the finding is its own code: the advice is to switch on the
+  compatibility option (Windows 8 and later) or to set the scaling to 100 %, not a reset, which would write the
+  same values again.
+- Switching `HIGHDPIAWARE` off on a screen scaled above 100 % shows that hint before the change.
+- Tests with `FakeSystemInfo` at 100 % and 150 %, with and without the layer in HKCU and in HKLM. The test plan's
+  O4 case also runs with the layer switched off.

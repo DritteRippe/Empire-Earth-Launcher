@@ -1,6 +1,7 @@
 # 0016 Mutation guard and effective game paths
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2 and L-WP4, see the Amendment sections)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2 and L-WP4; plan review), see the
+Amendment sections
 
 ## Context
 
@@ -95,3 +96,19 @@ must not block), `Core/Platform/WindowsMutexProbeTests` (real named mutexes with
   (`docs/TEST-PLAN.de.md`, WP4-16).
 
 Evidence: `Core/Installations/EffectivePathResolverTests`, `Core/Lobby/LobbyProfileRepositoryTests` (VirtualStore cases).
+
+## Amendment 2026-10-02 (plan review)
+
+Reading game files can disturb a setup too. `LocalFileSystem.OpenRead` shares the file for reading and writing but
+not for deleting; a setup started from the repair advice while a quick or full check still hashes a file (slow
+disk, antivirus scan) fails to delete or replace it with a sharing violation (`DeleteFile failed; code 32`).
+
+- `LocalFileSystem.OpenRead` opens with `FileShare.ReadWrite | FileShare.Delete` (an adapter test checks the share
+  mode), so deleting or renaming a file that is being read is not refused.
+- A file whose deletion is pending cannot be replaced under the same name until the launcher closes it, so the
+  integrity check also gives way: it does not start while `EE_Setup` or `NeoEE_Setup` exists, and the setup-mutex
+  watcher (ADR 0010) cancels a running quick or full check through its `CancellationToken` as soon as one of them
+  appears. The result is "check cancelled" without findings; when the setup has ended, the quick check runs again
+  (ARCHITECTURE 4.3). A setup holds its mutex from its first window on, long before it copies files.
+- Tests: a fake mutex that appears while a file is hashed -> cancelled, no findings, file closed; no start while
+  the mutex exists. Test plan: start a full check, then the setup; the setup runs without an error dialog.

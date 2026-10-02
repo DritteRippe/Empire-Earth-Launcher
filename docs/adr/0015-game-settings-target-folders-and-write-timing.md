@@ -1,7 +1,7 @@
 # 0015 Game settings: target folders and when the launcher writes
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation of the discovery in L-WP4, see the Amendment
-section)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation of the discovery in L-WP4; plan review), see the
+Amendment sections
 
 ## Context
 
@@ -115,3 +115,23 @@ Evidence: `Core/Installations/InstalledFromReaderTests` (order table), `Discover
 1.4 and 1.5), `InstallationDiscoveryTests` (`C:\Games\EE`, `D:\Empire Earth` with root `D:\`, the user choice of root,
 EE folder and AoC folder, also when they do not exist, shared keys and `IsUnambiguous`), `Launcher/InstallationServiceTests`
 (the EE folder is saved).
+
+## Amendment 2026-10-02 (plan review)
+
+"Class S is never written at start" left R1 open for an account that opens the launcher once and then starts AoC
+through its desktop shortcut: AoC needs the base game's "Installed From" values (t=2825 p=19423, forum report
+section 8 test case 7), and that account never pressed Play. It also deviates from contract 3.6 (first run, step 1
+is class S) without being listed as a clarification.
+
+- **At launcher start, class S is created, never changed**: for an installation that is unambiguous for its game
+  settings key (`DiscoveryResult.IsUnambiguous`) and that the mutation guard allows, the launcher writes the two
+  class S values of each installed game if **both** are missing. Values that are missing point to no
+  installation, so this cannot redirect another one, also not a copy the discovery did not find. Existing values,
+  also differing ones, are left to the sync before Play. The values come from the real game folder as decided
+  above; the write is logged.
+- Tests: second account, unambiguous, both values missing -> created; values present and different -> untouched
+  at start; ambiguous -> nothing written; only one of the two values missing -> nothing written at start (logged,
+  Play syncs it); blocked by the mutation guard -> nothing written.
+- The difference to contract 3.6 (at start only creation, and only for unambiguous installations) is listed in
+  ARCHITECTURE 14 as a clarification for the next contract change in both repositories. The test plan gets the
+  case "second account opens the launcher, closes it, starts AoC through the shortcut".

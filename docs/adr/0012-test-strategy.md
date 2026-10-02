@@ -1,6 +1,6 @@
 # 0012 Test strategy
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review, see the Amendment section)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review), see the Amendment sections
 
 ## Context
 
@@ -77,3 +77,34 @@ UI (briefing D6, contract 7).
 - **More architecture and contract tests**: the broader certificate test (ADR 0008 amendment); comparisons and
   upper-casing under `CurrentCulture` `tr-TR`; `InMemoryRegistry` has a "32-bit Windows" mode (HKLM64 is
   HKLM32) and discovery yields no duplicates there; the registry alias table (ADR 0007 amendment).
+
+## Amendment 2026-10-02 (plan review)
+
+- **Synthetic fixtures only** (briefing D6). Golden files, contract samples and other test data contain only
+  synthetic file names (`file0001.dll`, the program and folder names of the contract), hashes that are the SHA-256
+  of the ASCII text `sample-<n>` (`n` from 0 to 9999) or of a file the test itself creates, and values that are
+  obviously no keys (`NOT-A-KEY-0000`). Nothing comes from the reconstructed game data, the official installers or
+  their dumps. `FixtureProvenanceTests` checks that every token of 64 hex digits in the fixture folders of the test
+  project and in `docs/contract-samples/` is such a synthetic hash; every package that adds fixtures names this in
+  its review.
+- **Shared contract samples.** `docs/contract-samples/` holds `install.ini` of the three install modes (one with
+  `[MissingAfterInstall]`), `files.sha256` and the registry record as a `.reg` file, with exactly the bytes that
+  contract 1.1, 1.2, 2.2 and O3 describe (ASCII; the manifest with LF, `install.ini` with CRLF; `.gitattributes`
+  keeps the bytes of the folder unchanged). The launcher's readers are tested against exactly these files, and
+  the record sample is compared with the `RegFileWriter` export of the record seeded by the discovery tests. The
+  folder is meant to exist identically in the setup repository, whose unit tests produce the same bytes with the
+  real writer functions and whose `ci/compare_contract.py` compares the folder as it compares the contract;
+  changing a sample is a step in both repositories, like a contract change. The launcher adds the folder first
+  (L-WP7) and hands it to the setup work (ARCHITECTURE 14).
+- **The tests also run on real Windows.** The laptop package contains `Tests\` (the test program and its
+  libraries, no sources). The tests that read the source tree (`RepositoryRoot`) are in the category
+  `SourceTree`; the test-plan case runs the rest with `--where "cat != SourceTree"` and a `--result` file, and
+  expects `Failed: 0` and exit code 0. This runs the serializer, `File.Replace`, the mutex probe and the satellite
+  assemblies on .NET Framework 4.8 instead of Mono. It is safe: the tests use only temporary folders and mutexes
+  with random names (checked: the test project constructs no `WindowsRegistry`, no HTTP client and no socket, and
+  never uses the real `%LOCALAPPDATA%`); an architecture test keeps it so. Smoke tests of the registry adapter
+  against a private hive (`RegLoadAppKey`) are not planned for v2; the test plan covers the adapters.
+- **Test plan coverage test.** `TestPlanTests` (category `SourceTree`, from L-WP5) reads `docs/TEST-PLAN.de.md`:
+  case ids are unique; its mapping table assigns every requirement R1 to R10 and R17 and every forum test case 1
+  to 22 (forum report section 8) to case ids, to "offen (L-WPn)" until that package, or to "Setup"/"entfällt" with
+  a reason; every case id it names exists. From L-WP9 on, no "offen" is allowed.

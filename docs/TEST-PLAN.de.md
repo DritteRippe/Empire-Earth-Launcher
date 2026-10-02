@@ -59,6 +59,10 @@ kommt nicht ins Repository. Es besteht aus zwei Dateien:
   `THIRD-PARTY-NOTICES.md` und `THIRD-PARTY-LICENSES.txt`;
 - `Empire-Earth-Launcher-v2-<Stand>.zip.sha256` mit der SHA-256-Prüfsumme.
 
+Pakete ab L-WP6 enthalten zusätzlich den Ordner `Tests\` mit dem Testprogramm `Empire-Earth-Launcher.Tests.exe` und
+seinen Bibliotheken (ohne Quelltexte), damit die automatischen Tests einmal unter dem echten .NET Framework 4.8
+laufen (WP1-11; [ADR 0012](adr/0012-test-strategy.md), Ergänzung nach der Planprüfung).
+
 Beide Dateien kommen als Dateianhang aus der Claude-Sitzung (oder per USB-Stick) auf den Laptop. Vor dem
 Entpacken die Prüfsumme vergleichen:
 
@@ -159,6 +163,7 @@ WP1-01 | OK |
 | WP1-08 | Skalierung auf 125 % oder 150 % stellen (Einstellungen → System → Bildschirm), Launcher neu starten, Screenshot. | Fenster von Windows vergrößert (darf etwas unscharf sein), Anordnung wie bei 100 %, keine überlappenden oder abgeschnittenen Elemente. Danach Skalierung zurückstellen. |
 | WP1-09 | Mod-Creator `Empire_Earth_Mod.exe` starten. | Startet ohne UAC-Rückfrage; oben steht „You are using: “ mit der **richtigen** Windows-Version (Windows 10 bzw. Windows 11, nicht „Windows 8“). |
 | WP1-10 | Launcher und Mod-Creator schließen. | Beide Prozesse sind im Task-Manager verschwunden. |
+| WP1-11 | Nur mit einem Paket, das den Ordner `Tests\` enthält (sonst „nicht geprüft“): PowerShell im entpackten Ordner `Tests\` öffnen und `.\Empire-Earth-Launcher.Tests.exe --where "cat != SourceTree" --result=tests-windows.xml` ausführen, danach `$LASTEXITCODE` anzeigen. Die Datei `tests-windows.xml` dem Protokoll beifügen. | `Failed: 0`, Exit-Code 0. Die Tests legen nur Dateien im Temp-Ordner und Mutexe mit Zufallsnamen an; Registry, Netz und die Launcher-Dateien unter `%LOCALAPPDATA%` bleiben unberührt. Die Tests der Kategorie `SourceTree` brauchen die Quelltexte und laufen hier nicht. |
 
 ### L-WP2 – Core-Grundlage (settings.json, Protokoll, Mutation Guard)
 
@@ -255,7 +260,11 @@ WP4-15) den betroffenen Schlüssel mit dem Registrierungs-Editor exportieren (Re
 
 ### L-WP5 – Spieleinstellungen (Vertrag 3)
 
-Wird mit L-WP5 ergänzt.
+Wird mit L-WP5 ergänzt. Vorgemerkt aus der Planprüfung: zweites Windows-Konto öffnet den Launcher nur, schließt ihn
+und startet AoC über die Desktop-Verknüpfung (Forenbericht Abschnitt 8, Testfall 7); Fenstergröße bei 150 % mit und
+ohne `HIGHDPIAWARE` (O4); unter Windows 7 (Abschnitt 6) keine Kompatibilitätsschalter, nur Anzeige alter Werte.
+Ab L-WP5 enthält dieser Plan eine Zuordnungstabelle (Anforderungen R1–R10 und R17, Forum-Testfälle 1–22), die ein
+automatischer Test prüft.
 
 ### L-WP6 – Spielstart (Vertrag 3.7 und 4.2)
 
@@ -263,11 +272,13 @@ Wird mit L-WP6 ergänzt.
 
 ### L-WP7 – Integrität und Reparatur (Vertrag 2 und 4)
 
-Wird mit L-WP7 ergänzt.
+Wird mit L-WP7 ergänzt. Vorgemerkt: vollständige Prüfung starten, dann das Setup starten – das Setup läuft ohne
+Fehlerdialog durch, die Prüfung meldet „abgebrochen“ und läuft nach dem Setup neu.
 
 ### L-WP8 – Wartungswerkzeuge
 
-Wird mit L-WP8 ergänzt.
+Wird mit L-WP8 ergänzt. Vorgemerkt: nach der Registry-Bereinigung existiert `Software\Sierra\CDKeys` unverändert;
+echte HKCU-Reste von CD- und GOG-Installationen werden notiert (Beleg für spätere Einträge der Liste).
 
 ### L-WP9 – Netzwerkdiagnose, Bericht, Laptop-Paket
 

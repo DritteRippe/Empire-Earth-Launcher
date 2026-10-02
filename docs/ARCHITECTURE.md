@@ -8,7 +8,7 @@ contract shared with the Empire Earth Setup.
 | | |
 |---|---|
 | Status | **Target**: describes v2 as it is being built on branch `v2`; the README describes what exists today |
-| Based on | branch `v2` at `2dc6c43` (refactor/quality-fixes plus the contract), contract version 1 (draft); revised after the design review (ADR amendments of 2026-10-02, ADR 0015, 0016) |
+| Based on | branch `v2` at `2dc6c43` (refactor/quality-fixes plus the contract), contract version 1 (draft); revised after the design review (ADR amendments of 2026-10-02, ADR 0015, 0016) and after the plan review before L-WP5 (amendments "plan review" of ADR 0007, 0008, 0011, 0012, 0013, 0015, 0016) |
 | Scope | the launcher, its UI-free core library, the WON library, the mod library and mod creator, the tests, the build |
 
 Contents: [1. Goals and constraints](#1-goals-and-constraints) · [2. Module map](#2-module-map) ·
@@ -113,7 +113,7 @@ The navigation keeps the existing look (MainForm, Krypton palette, gold buttons)
 | Page | Content | Requirements |
 |---|---|---|
 | **Play** | selected installation (product, folder, kind, integrity badge), file versions of `Empire Earth.exe` / `EE-AOC.exe`, choice EE / AoC (AoC only if installed), Play, "setup is running" and "game is running" states (with the hanging-process hint), non-modal warnings that can be hidden per value, lobby profiles and online player list (existing) | R2, R3 |
-| **Game settings** | defaults state, consistency warnings, apply recommended display settings, reset (with backup), compatibility options (HKCU only, HKLM read-only), screen warning below 768 pixels | R1, R4 |
+| **Game settings** | defaults state, consistency warnings, apply recommended display settings, reset (with backup), compatibility options (HKCU only, HKLM read-only; Windows 8 and later only, on Windows 7 only removing `~ RUNASADMIN` and the old values shown, ADR 0007 plan review), screen warning below 768 pixels | R1, R4 |
 | **Tools** | integrity details and full check, repair advice, registry cleanup, WON login reset, VirtualStore check, saved games and scenarios, network diagnostics, "copy diagnostics report", open backup folder | R2, R5 to R10 |
 | **Launcher** | installations found and the user's choice, hint when several installations share one game settings key, theme, language (system, English, German, French) | R1, R17 |
 
@@ -186,14 +186,17 @@ Empire_Earth_Mod.exe ──> Empire_Earth_Mod_Lib.dll ──> BCL only
      (ADR 0016 amendment).
 4. The selected installation (user choice, else first found) goes to the pages.
 5. **Quick check** (background, contract 2.5): manifest and `install.ini` read; existence of every listed
-   file and the hashes of the `code` files. Result: OK, Modified, Incomplete, Damaged or Unknown.
+   file and the hashes of the `code` files. Result: OK, Modified, Incomplete, Damaged or Unknown. Not started while
+   a setup mutex exists, cancelled when one appears ("check cancelled", no findings), files opened with
+   `FileShare.ReadWrite | FileShare.Delete` (ADR 0016 plan review).
 6. **Defaults first run** per game (contract 3.6), if the marker is missing, **only if the installation is
    unambiguous** for that game settings key (user choice, or the only installation found that uses the key;
    [ADR 0015](adr/0015-game-settings-target-folders-and-write-timing.md)) and the mutation guard allows it
    ([ADR 0016](adr/0016-mutation-guard-and-effective-game-paths.md)): P and GPU preference created if missing,
    D created if missing; differing D values -> one non-blocking question (info bar) "apply the recommended
-   display settings?" (Yes: `.reg` backup, then overwrite); marker written. **Class S is never written at
-   start**; otherwise the first run waits for the first Play of that game. No defaults and no reset for an
+   display settings?" (Yes: `.reg` backup, then overwrite); marker written. **Class S is only created at
+   start**: both values of a game missing -> written for an unambiguous installation, existing values are never
+   changed at start (ADR 0015 plan review); otherwise the first run waits for the first Play of that game. No defaults and no reset for an
    installation whose `ContractVersion` is higher than the launcher knows (contract 5).
 7. **Consistency checks** (contract 3.6) -> listed on the Game settings page with the offer to reset; on the
    Play page a non-modal info bar that can be hidden per value and content (ADR 0015).
@@ -208,7 +211,8 @@ Click Play -> button disabled -> `GameStarter.StartAsync(installation, game)`:
 2. Game mutex of that game exists -> refused, "already running" (forum table 8 #14), with the program name and,
    if a process of that name exists, the hint that it may hang and how to end it in the Task Manager (the
    launcher never kills a process). The other game running -> warning with "start anyway".
-3. Program file missing -> refused, "damaged" with the repair advice.
+3. Program file missing -> refused, "damaged" with the repair advice (`RepairAdvice`, from L-WP6 on with the fixed
+   download page; the update API comes with L-WP7).
 4. Class S values synchronized for the game started, computed from the **real game folder** (ADR 0015);
    written only if different after normalization; changed values are logged with old and new value. Then the
    first run of the defaults if the marker is missing.
@@ -219,8 +223,9 @@ Click Play -> button disabled -> `GameStarter.StartAsync(installation, game)`:
 
 ### 4.3 Setup finished
 
-The watcher sees the setup mutex disappear -> discovery and quick check run again -> pages update. A game
-start is refused while the mutex exists.
+The watcher sees the setup mutex appear -> a running integrity check is cancelled, Play and every guarded change
+are blocked. It sees the mutex disappear -> discovery and quick check run again -> pages update. A game start is
+refused while the mutex exists.
 
 ### 4.4 Reset game settings
 
@@ -240,7 +245,10 @@ redirects) -> trimmed body accepted only if `UpdateUrlPolicy` allows it -> other
 `https://empireearth.eu/download`. The advice dialog shows the steps of contract 4.4 (close the game, same
 folder, same mode, keep "Register NeoEE CDKeys", antivirus exception first, foreign installations are not
 repaired) and opens the URL in the default browser, not elevated. The launcher never downloads or starts
-the setup.
+the setup. `RepairAdvice` (the texts of contract 4.4 and the fixed page) exists from L-WP6 on; L-WP7 adds the
+API request. The game version check (`&type=game&version=`, contract 4.5) for installations with an AppId runs on
+request and is not optional; the setup version check is (ADR 0008 plan review). TLS: `Program` sets
+`SecurityProtocol` once, `Tls12` on Windows 7 only.
 
 ### 4.6 Tools
 
@@ -258,10 +266,13 @@ the setup.
   | `Software\Neo\Empire Earth`, `Software\Neo\Art of Conquest` | HKCU | setup: `config_neoee.iss` (game settings keys of NeoEE) | as above, no NeoEE installation found | not shown |
   | `Software\Classes\VirtualStore\MACHINE\SOFTWARE\[WOW6432Node\]SSSI\Empire Earth`, `...\Mad Doc Software\EE-AOC` | HKCU | p=49553 (the HKLM keys; these are their per-user virtualized copies) | no installation of that game found | shown read-only |
   | `...\VirtualStore\MACHINE\SOFTWARE\[WOW6432Node\]Sierra\...` | HKCU | p=4756, p=49553 | never (`Sierra\CDKeys` and its ancestors are protected) | shown read-only, CD keys only as "exists" |
-  | `Software\Sierra`, `Software\SSSI\Empire Earth`, `Software\Mad Doc Software` | HKLM64, HKLM32 | p=49553 | never (HKLM) | shown read-only with the advice to remove them with the Registry Editor as administrator, never `Sierra\CDKeys` |
+  | `Software\Sierra` | HKLM64, HKLM32 | p=49553, forum report table 8 row 7 | never | shown read-only as "do not delete: contains the NeoEE CD keys"; subkeys other than `CDKeys` listed one by one with full path, only with evidence; never advice to delete `Software\Sierra` or an ancestor of `CDKeys` (ADR 0007 plan review, tested) |
+  | `Software\SSSI\Empire Earth`, `Software\Mad Doc Software` | HKLM64, HKLM32 | p=49553, p=4756 | never (HKLM) | shown read-only with the advice to export the key and then remove it with the Registry Editor as administrator |
   | Stainless Steel Studios keys | HKCU, HKLM | p=4756 names only the vendor, no path | not until a sample confirms the path (test plan) | not shown |
 
-  An empty HKCU part on a computer is a valid result ("nothing to clean").
+  An empty HKCU part on a computer is a valid result: the page then says "nothing to clean up" and shows the
+  read-only list, without an enabled delete button; README and CHANGELOG call R5 "cleanup of HKCU entries; HKLM
+  entries are only shown, with advice" (ADR 0007 plan review).
 - **WON login reset** (R6): `_wonkver.pub` and `_wonlogin.ks` of the EE and AoC folders and of their
   VirtualStore copies (effective paths, ADR 0016) are moved into a dated backup folder (forum p=83519); files
   listed in the manifest are never touched; mutation guard. The UI says that the backup folder contains login
@@ -295,7 +306,10 @@ the setup.
   the game programs, integrity state and findings, defaults and consistency state, VirtualStore, network
   results; copied to the clipboard or saved, never sent anywhere. It never contains CD-key values or the
   contents of the backup folder, and replaces the user's profile paths with `%USERPROFILE%` and
-  `%LOCALAPPDATA%` (it is usually posted in forums).
+  `%LOCALAPPDATA%` (it is usually posted in forums). Further privacy rules (ADR 0013 plan review): the external
+  IPv4 only as its class (private, CGNAT, public), no MAC addresses, adapter GUIDs, user-chosen adapter names or
+  computer name, lobby and player names only as "profile n: characters outside ASCII", the user name replaced in
+  every path; golden-file and negative tests.
 
 ## 5. Threading
 
@@ -408,7 +422,8 @@ Decided in [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md):
 - **Network**: three destinations only - the NeoEE status server (configured, plain TCP, public data,
   every reply validated - existing), `api.empireearth.eu` for the setup URL and the optional update check,
   and DNS lookups in the network diagnostics. HTTPS with certificate validation, TLS 1.2 or newer, never
-  `http://`, no redirects, timeouts ([ADR 0008](adr/0008-https-policy-and-update-api.md)); an architecture test
+  `http://`, no redirects, timeouts, `SecurityProtocol` set once (`Tls12` on Windows 7 only, no explicit `Tls13`)
+  ([ADR 0008](adr/0008-https-policy-and-update-api.md)); an architecture test
   forbids every certificate-validation override (`ServerCertificateValidationCallback`,
   `ServerCertificateCustomValidationCallback`, `RemoteCertificateValidationCallback`, ...). No telemetry; the
   old "collect diagnostic data" checkbox is removed.
@@ -449,6 +464,11 @@ Decided in [ADR 0012](adr/0012-test-strategy.md):
   by the German test plan `docs/TEST-PLAN.de.md`; the UI is tested manually with it. The test plan is created
   in the first work package and every package adds its cases in the same commit.
 - Tests never use the network, the real registry, the real `%LOCALAPPDATA%` or UI.
+- **Plan review additions** ([ADR 0012](adr/0012-test-strategy.md) amendment): fixtures are synthetic only
+  (`FixtureProvenanceTests`); `docs/contract-samples/` holds byte samples of `install.ini`, `files.sha256` and the
+  record, shared with the setup repository; the tests run on the laptop too (`Tests\` in the laptop package,
+  category `SourceTree` excluded); `TestPlanTests` checks that the test plan assigns every requirement and every
+  forum test case.
 
 ## 12. Build and CI
 
@@ -472,7 +492,7 @@ Decided in [ADR 0001](adr/0001-target-dotnet-framework-4-8.md) and
   lacks them too), and its `Csc` task ignores `ApplicationManifest` (the compiler wrapper adds
   `/win32manifest`, as MSBuild does). The **laptop package** (zip of the Release builds of launcher
   and mod creator with `de/`, `fr/`, `LICENSE`, `THIRD-PARTY-NOTICES.md`, `licenses/THIRD-PARTY-LICENSES.txt`,
-  plus a `.sha256` file) is made in the scratch folder, never committed.
+  and of the test program in `Tests\`, plus a `.sha256` file) is made in the scratch folder, never committed.
 - **CI** (`windows-latest`): NuGet restore, MSBuild Release against
   `Microsoft.NETFramework.ReferenceAssemblies.net48` 1.0.3 (independent of the image's targeting packs),
   all `*Tests.exe`, then the test builds of launcher and mod creator as artifacts with `LICENSE`,
@@ -487,7 +507,7 @@ Decided in [ADR 0001](adr/0001-target-dotnet-framework-4-8.md) and
 |---|---|---|---|---|
 | D4 | .NET 4.8, core + thin UI, tests | all | | L-WP1, L-WP2 |
 | D5 | shared contract, launcher side | Installations, Integrity, GameSettings, Repair, Play | 1 to 5 | L-WP4 to L-WP7 |
-| R1 | per-user defaults on first run | GameSettings | 3 | L-WP5 |
+| R1 | per-user defaults on first run, class S created at start for unambiguous installations | GameSettings | 3 | L-WP5 |
 | R2 | integrity manifest check | Integrity | 2 | L-WP7 |
 | R3 | play EE/AoC, running instances, log, compatibility options | Play, GameSettings | 3.7, 4.2 | L-WP5, L-WP6 |
 | R4 | reset with `.reg` backup | GameSettings, Backup | 3.6 | L-WP5 |
@@ -495,7 +515,7 @@ Decided in [ADR 0001](adr/0001-target-dotnet-framework-4-8.md) and
 | R6 | WON login reset | Maintenance, Backup | | L-WP8 |
 | R7 | network diagnostics | Diagnostics | | L-WP9 |
 | R8 | VirtualStore detection | Installations, Maintenance | | L-WP4 (effective paths), L-WP8 |
-| R9 | repair hand-off, pending setup | Repair, Play | 4 | L-WP6, L-WP7 |
+| R9 | repair hand-off, pending setup | Repair, Play | 4 | L-WP6 (`RepairAdvice`, fixed page), L-WP7 (API) |
 | R10 | saves/scenarios export and import, name checks | Maintenance | | L-WP8 |
 | R17 | en/de/fr | UI resources | | L-WP3 and every later package |
 | R18 | docs, ADRs, README/CHANGELOG, test plan | | | every package; test plan from L-WP1, final check L-WP9 |
@@ -540,6 +560,14 @@ change (contract 5); the launcher already implements the stated reading:
   installations are the real folders named by "Installed From" (ADR 0015), the AoC folder from the same hive.
 - **1.4 Kind**: "without `install.ini`, a registry record with `ContractVersion` 1 or higher also means `community`"
   (L-WP4, see 4.1).
+- **3.6 First run at start**: "at launcher start class S is only created when both values are missing, and only for an
+  installation that is unambiguous for its game settings key; it is synchronized before every start" (ADR 0015 plan
+  review).
+- **Shared byte samples** (not a contract text change): `docs/contract-samples/` of the launcher (L-WP7) is to be
+  taken over identically by the setup repository, its unit tests compare the writer's bytes with it and
+  `ci/compare_contract.py` compares the folder (ADR 0012 plan review). Until then the launcher's copy is a proposal.
+- **Old Windows 7 compatibility values in HKCU**: the launcher only shows them and advises running the setup;
+  letting the launcher remove them would be a contract change (ADR 0007 plan review).
 
 Platform: Windows 8.0 is not supported (.NET 4.8); Windows 7 SP1 is supported but not tested on the laptop
 (optional VM case in the test plan; TLS cipher suites of Windows 7 against `api.empireearth.eu` unknown, the
@@ -549,10 +577,14 @@ fallback page always works).
 
 Ordered; every package ends with `verify_launcher.sh` green, its CHANGELOG/README/docs and its test-plan
 cases in the same package, and no visible control without function. **MVP for the laptop test: L-WP1 to
-L-WP6** (start the game safely with per-user defaults). L-WP7 to L-WP9 each name a part that can be dropped
-if time runs out (documented in the CHANGELOG): the update check in L-WP7, the zip import and the registry
-VirtualStore display in L-WP8, the `upnp_info.txt` parser and the outage hint in L-WP9. The laptop package can
-be built after every package from L-WP6 on.
+L-WP7** (start the game safely with per-user defaults, and the integrity check with the repair hand-off, the core
+of the shared contract). Parts that can be dropped if time runs out (documented in the CHANGELOG): the setup
+version check in L-WP7, the zip import, the zip export (the folder export stays) and the registry VirtualStore
+display in L-WP8, the `upnp_info.txt` parser in L-WP9. **Not droppable**: the game version check (L-WP7) and the
+outage hint (L-WP9): lobby (113 threads), network (57) and versions (49) are the most frequent forum topics (forum
+report 4). The laptop package can be built after every package from L-WP6 on and contains the test program
+(ADR 0012 plan review). The plan review kept L-WP8 before L-WP9: the diagnostics report and the laptop package
+of L-WP9 need the results of every tool, and L-WP8 holds the WON login reset, a lobby fix (p=83519).
 
 | No. | Package | Main content |
 |---|---|---|
@@ -560,11 +592,11 @@ be built after every package from L-WP6 on.
 | L-WP2 | Core foundation | core project, contract names, platform interfaces and fakes (32-bit mode), `WinPath`, registry path canonical form and protected-key policy, settings.json, logging, `UiOperation`, mutation guard |
 | L-WP3 | UI clean-up and localization | remove the placeholder controls first (ADR 0014 list, architecture test), `ApplyTexts()`, German and French complete, string parity test, language setting, `TRANSLATING.md` |
 | L-WP4 | Installation discovery (contract 1) | five sources, key before hive, real EE/AoC folders, merge, kinds, damaged installations, selection, shared-key hint, effective paths for lobby profiles |
-| L-WP5 | Game settings (contract 3) | value table, S from the real folder, first run only when unambiguous, reset with exact `.reg` backup, consistency warnings that can be hidden, compatibility options (HKLM version layer respected), write policy allow-list |
-| L-WP6 | Play (contract 3.7, 4.2) | shell execute, mutex order, setup watcher, hanging-process hint, file versions, async player list, single instance |
-| L-WP7 | Integrity and repair hand-off (contract 2, 4) | manifest, classes, quick/full check, badge, HTTPS client, URL policy, download locator, repair advice, quick-check hook of the setup watcher |
-| L-WP8 | Maintenance tools | registry cleanup by the table of 4.6, WON login reset, VirtualStore, saves and scenarios, name checks, all behind the mutation guard |
-| L-WP9 | Network diagnostics, report, laptop package | adapters, DNS, `NeoEE.cfg`, `upnp_info.txt`, `CDKeyCheck`, outage hint, anonymized report, final docs, test plan completeness, Release zip with SHA-256 |
+| L-WP5 | Game settings (contract 3) | value table, S from the real folder, first run only when unambiguous, S created at start only when missing, reset with exact `.reg` backup, consistency warnings that can be hidden (window check with the game's DPI view), compatibility options from Windows 8 on (no `WINXPSP3`, HKLM version layer respected), write policy allow-list with layer content check, `TestPlanTests` |
+| L-WP6 | Play (contract 3.7, 4.2) | shell execute, mutex order, setup watcher, hanging-process hint, file versions, async player list, single instance, `RepairAdvice` with the fixed download page |
+| L-WP7 | Integrity and repair hand-off (contract 2, 4) | manifest, classes, quick/full check (cancelled by a setup, `FileShare.Delete`), badge, HTTPS client (TLS set once), URL policy, download locator, game version check, quick-check hook of the setup watcher, `docs/contract-samples/`, synthetic fixtures |
+| L-WP8 | Maintenance tools | registry cleanup by the table of 4.6 (HKCU only, advice never names `Software\Sierra`), WON login reset, VirtualStore, saves and scenarios, name checks, all behind the mutation guard |
+| L-WP9 | Network diagnostics, report, laptop package | adapters, DNS, `NeoEE.cfg`, `upnp_info.txt`, `CDKeyCheck`, outage hint, report with the privacy rules of ADR 0013, final docs, test plan without "offen", Release zip with `Tests\` and SHA-256 |
 
 Done so far: L-WP1 to L-WP4 (see the CHANGELOG). Implementation details of L-WP2 that refine ADR 0004, 0005, 0007
 and 0016, of L-WP3 that refine ADR 0009 and 0014, and of L-WP4 that refine ADR 0004, 0006, 0015 and 0016 are recorded
@@ -579,7 +611,7 @@ Kept as planned features in the README, with the reason (forum report section 8)
 - **Resolution chooser with 4:3 hint** (row 6): the game has its own option; v2 offers the recommended display
   values and the warning below 768 pixels.
 - **GPU driver version** (row 4): little support value for WMI or HKLM class-key reading; the report names the
-  display adapter.
+  display adapter. Listed as planned in the README.
 - **Ending a hanging game process** (row 14): the launcher explains and points to the Task Manager, it never
   kills a process (ADR 0010).
 - **Checking ports from outside** (row 8): needs server support; v2 shows the forwarding table only.

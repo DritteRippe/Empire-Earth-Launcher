@@ -1,6 +1,6 @@
 # 0008 HTTPS policy and use of the update API
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review, see the Amendment section)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review), see the Amendment sections
 
 ## Context
 
@@ -67,3 +67,21 @@ certificate problems are real and must not be "fixed" by turning validation off.
 - **TLS handshake failures** (`HttpRequestException` with an inner `AuthenticationException`, e.g. no common
   cipher suite on Windows 7 or a wrong certificate as in R16) are one of the tested fallback reasons; the
   log names the inner exception type.
+
+## Amendment 2026-10-02 (plan review)
+
+- **One place for the TLS setting.** `ServicePointManager.SecurityProtocol` is process-wide. `Program` sets it
+  exactly once, before the first request: on NT 6.1 to exactly `Tls12`; on every other Windows it stays
+  `SystemDefault`. Naming `Tls13` explicitly (as the ADR 0001 spike did, not committed) makes handshakes fail
+  where SChannel has no TLS 1.3 (Windows 7 to older Windows 10); `Tls`/`Tls11`/`Ssl3` would lower the security.
+  An architecture test fails if a source file outside the test project names `SecurityProtocolType.Tls13`,
+  `Tls11`, `Tls` or `Ssl3`, or assigns `SecurityProtocol` anywhere but in `Program`.
+- **The query is the setup's.** `product=<AppId>` carries the AppId as read (contract 1.1: without braces, case
+  kept; the setup appends `{#AppID}` as is, `utils.iss` line 17, `setup_is6.iss` line 74), escaped with
+  `Uri.EscapeDataString` (a no-op for a GUID); `type` and `version` the same way. A test compares the built URLs
+  with the setup's form for the hand-off and both update checks.
+- **Game version check is not optional.** The check `&type=game&version=<GameVersion>` (contract 4.5) answers the
+  version conflicts of the forum (forum report section 8 row 1, forum 4.12) for every installation with an AppId,
+  including `community-legacy` ones (AppId from the uninstall key name, version from the key). It runs on request
+  (Tools page and the version line of the Play page), like the rest of the update check. Only the setup version
+  check (`&type=setup`) may be dropped if time runs out.

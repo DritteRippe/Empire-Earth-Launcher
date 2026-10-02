@@ -1,6 +1,6 @@
 # 0013 Error handling and logging
 
-Status: **Accepted** (2026-10-02)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (plan review, see the Amendment section)
 
 ## Context
 
@@ -41,3 +41,20 @@ computer (registry records, uninstall keys, INI and manifest files, VirtualStore
 
 - **Exceptions for environment problems**: every caller needs try/catch, easy to forget (the crashes of the
   review). Rejected.
+
+## Amendment 2026-10-02 (plan review)
+
+**Privacy of the diagnostics report.** The report is meant to be posted in the forum, and the network part and the
+name checks bring personal data close to it. Rules, for the report and for the log lines of the network
+diagnostics:
+
+- The external or public IPv4 address (from `upnp_info.txt` or elsewhere) only as its class: private, CGNAT
+  (100.64.0.0/10) or public, never the value. Local private and link-local IPv4 addresses and the gateway may be
+  shown. IPv6 only as "none", "link-local only" or "global".
+- No MAC addresses, adapter GUIDs, adapter names chosen by the user, computer name or domain; an adapter is shown
+  by its type and description (driver name).
+- Lobby profile and player names only as "profile n: contains characters outside printable ASCII".
+- The Windows user name is replaced wherever it is a path segment (not only below `%USERPROFILE%`: also
+  `D:\Users\<name>` or VirtualStore paths), a computer name in a UNC path by `<computer>`.
+- A golden-file test runs with fakes full of such values, and a negative test checks that none of them appears in
+  the text.

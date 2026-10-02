@@ -1,7 +1,7 @@
 # 0007 Registry write scope, protected keys and .reg backups
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; implementation in L-WP2), see the
-Amendment sections
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; implementation in L-WP2; plan review), see
+the Amendment sections
 
 ## Context
 
@@ -133,3 +133,40 @@ Evidence: `Architecture/RegistryAliasPolicyTests` runs 928 cases (21 CD-key alia
 ancestors, 12 record and 11 uninstall spellings, 6 keys of other hives; each with all four operations, with the
 launcher's policy and with an allow-list that names the alias). Disabling the `WOW6432Node` rule locally made 371
 cases of the table and of `RegistryPathTests` fail, disabling the VirtualStore rule 200 (not committed).
+
+## Amendment 2026-10-02 (plan review)
+
+The review of the work package plan before L-WP5 found that the decision still allowed `WINXPSP3`, which the
+contract no longer allows, and that the advice text of the cleanup table named `Software\Sierra` as a whole.
+
+- **Compatibility layers** (replaces "`WIN7RTM`/`WINXPSP3`" of the decision). The layer entries the launcher may
+  add to an HKCU `Layers` value are exactly those of the rows `compatibility` (`DWM8And16BitMitigation`,
+  `HIGHDPIAWARE`, `HeapClearAllocation`) and `compatibility_windows` (`WIN7RTM`) of contract 3.7, and only on
+  Windows 8 (NT 6.2) and later, the Windows versions of that table. Contract 3.7 and O7: no compatibility values
+  on Windows Vista and 7; `WINXPSP3` on Windows 7 caused black screens and runtime errors (t=4280 p=30477); the
+  setup stopped writing it and removes the old values (setup commit 56e012b, `RemoveLegacyVistaCompatValue`,
+  `setup_is6.iss` line 1776).
+  - The policy checks the **content** of a written `Layers` value, not only its name: compared with the current
+    value, only the listed entries may be added or removed; every other entry stays as it is. Adding
+    `WINXPSP3`, `RUNASADMIN` or any other entry is refused. Deleting the value is allowed when no entry would be
+    left, or when it is exactly `~ RUNASADMIN` (contract 3.7 MAY, like the setup's `RemoveLegacyRunAsAdmin`).
+  - **Windows 7** (and Wine, where the setup offers no task either): the Game settings page shows no layer
+    switches. It offers only removing an HKCU value that is exactly `~ RUNASADMIN`, and it shows old values of
+    HKLM and HKCU that the setup's `IsLegacyVistaCompatValue` list names, read-only, with the advice to run the
+    current setup, which removes them. Removing these old values from HKCU by the launcher itself would extend
+    contract 3.7; that needs a contract change in both repositories and is not part of v2.
+  - Tests: the policy refuses `WINXPSP3` and `RUNASADMIN` as added entries, also next to allowed ones and with
+    other entries kept; with `FakeSystemInfo` 6.1 and under Wine no layer is offered.
+- **Advice for HKLM leftovers.** No advice ever names `Software`, `Software\Sierra` or another ancestor of
+  `Software\Sierra\CDKeys` as something to delete. `Software\Sierra` (HKLM64, HKLM32 and their registry
+  VirtualStore copies) is shown as "do not delete: contains the NeoEE CD keys"; subkeys of `Software\Sierra`
+  other than `CDKeys` are listed one by one with their full path, and only with evidence. Advice to remove a key
+  with the Registry Editor as administrator (after exporting it there) exists only for the SSSI and Mad Doc keys
+  of the table, each with its evidence. A unit test runs the advice of every table entry (codes and parameters)
+  through the canonical form of the policy and fails if a key named for removal is protected or an ancestor of a
+  protected key. The test plan's cleanup case checks that `Software\Sierra\CDKeys` still exists afterwards.
+- **Cleanup without candidates.** The HKCU part of the list may stay small or empty (amendment of the design
+  review). Then the Tools page shows "nothing to clean up" and the read-only list, and no enabled delete button
+  (test of the UI mapping, ADR 0014); README and CHANGELOG describe R5 as "cleanup of HKCU entries; HKLM entries
+  are only shown, with advice". Test-plan cases collect real HKCU leftovers of retail and GOG installations as
+  evidence for later entries.

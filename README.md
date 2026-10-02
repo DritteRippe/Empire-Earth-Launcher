@@ -43,6 +43,7 @@ removed and the features behind them are listed below.
 - DirectX wrapper switch (DX 9/11/12) and resolution chooser: the setup's custom installation switches the wrapper,
   the launcher must not change game files ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md))
 - Auto-compatibility detector ("My game is working", "Auto-detect") and auto-update
+- Writing the GPU driver version into the log (the diagnostics report names the display adapter)
 
 **No telemetry**: the old checkbox "Allow us to collect diagnostic data" is gone. The launcher collects no usage or
 diagnostic data; today its only connection is the request for the NeoEE player list.
