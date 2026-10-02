@@ -59,14 +59,18 @@
   <ItemGroup>
     <Compile Include="Architecture\CoreDependencyTests.cs" />
     <Compile Include="Architecture\ProjectConventionsTests.cs" />
+    <Compile Include="Architecture\RegistryAliasPolicyTests.cs" />
     <Compile Include="Core\Contract\ContractNamesTests.cs" />
     <Compile Include="Core\Lobby\LobbyProfileRepositoryTests.cs" />
     <Compile Include="Core\Logging\LogTrimmingTests.cs" />
     <Compile Include="Core\Logging\TraceFileLoggerTests.cs" />
     <Compile Include="Core\Platform\FileSystemExtensionsTests.cs" />
     <Compile Include="Core\Platform\LocalFileSystemTests.cs" />
+    <Compile Include="Core\Platform\PolicyCheckedRegistryTests.cs" />
     <Compile Include="Core\Platform\RegistryLocationTests.cs" />
+    <Compile Include="Core\Platform\RegistryPathTests.cs" />
     <Compile Include="Core\Platform\RegistryValueTests.cs" />
+    <Compile Include="Core\Platform\RegistryWritePolicyTests.cs" />
     <Compile Include="Core\Platform\WinPathTests.cs" />
     <Compile Include="Core\Settings\LauncherPathsTests.cs" />
     <Compile Include="Fakes\FakeClock.cs" />

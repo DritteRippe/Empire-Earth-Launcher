@@ -51,8 +51,11 @@
     <Compile Include="Platform\IFileSystem.cs" />
     <Compile Include="Platform\IRegistry.cs" />
     <Compile Include="Platform\LocalFileSystem.cs" />
+    <Compile Include="Platform\PolicyCheckedRegistry.cs" />
     <Compile Include="Platform\RegistryLocation.cs" />
+    <Compile Include="Platform\RegistryPath.cs" />
     <Compile Include="Platform\RegistryValue.cs" />
+    <Compile Include="Platform\RegistryWritePolicy.cs" />
     <Compile Include="Platform\WindowsRegistry.cs" />
     <Compile Include="Platform\WinPath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

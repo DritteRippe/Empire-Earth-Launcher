@@ -1,6 +1,7 @@
 # 0007 Registry write scope, protected keys and .reg backups
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review, see the Amendment section)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; implementation in L-WP2), see the
+Amendment sections
 
 ## Context
 
@@ -100,3 +101,35 @@ player's active settings, and a restore promise that `.reg` files cannot keep.
   file; a test checks that delete lines come after the key header and before the next key.
 - **Backups contain login material** (moved `_wonlogin.ks`, `_wonkver.pub`): the README and the Tools page
   say so; the backup folder is under the user's own profile and is never part of the diagnostics report.
+
+## Amendment 2026-10-02 (implementation, L-WP2)
+
+The canonical form and the policy exist in the core (`Platform.RegistryPath`, `Platform.RegistryWritePolicy`), and
+`Platform.PolicyCheckedRegistry` wraps any `IRegistry` so that every change passes the policy; a refused change
+throws `RegistryWriteDeniedException` (a programming error, ADR 0013). Refinements made while implementing, all
+keeping the decision:
+
+- **VirtualStore mapping generalized**: `HKCU\Software\Classes\VirtualStore\MACHINE\<rest>` becomes
+  `HKLM64\<rest>` (then `WOW6432Node` makes it HKLM32), so `...\VirtualStore\MACHINE` itself is the HKLM root.
+  `HKCU\Software\Classes\VirtualStore` and `HKCU\Software\Classes` hold the virtualized CD keys and are refused
+  as their ancestors.
+- **Consecutive `WOW6432Node` segments** after `Software` are all removed (the redirector does not nest them).
+- **One ancestor rule for every protected key**: the registry records (`Software\Empire Earth Community\Installations`)
+  and the uninstall keys are refused with their subtree and their ancestors, like the CD keys, so neither
+  `Software\Empire Earth Community` nor `Software\Microsoft` can be deleted as a tree. None of the allowed keys
+  (markers, `UserGpuPreferences`, `Layers`) is such an ancestor.
+- **The allow-list is matched against the key as it is written** (ignoring case and empty segments), not against
+  its canonical form. The canonical form is deliberately wider than Windows (it treats `/` as a separator), so an
+  allow rule matched on it could let the launcher write a physically different key than the rule names. An alias
+  therefore reaches a listed key only if the list names that alias itself, and a protected key is refused even
+  then. This also lets the cleanup (L-WP8) list VirtualStore copies of SSSI or Mad Doc keys explicitly while the
+  CD-key subtree below the VirtualStore stays refused.
+- **Allow-list of L-WP2 at key level**: the game settings keys of contract 3.1 and their `Game Options`, the two
+  defaults markers, `UserGpuPreferences` and `Layers`, each for setting and deleting values and creating the key;
+  no tree deletion. The restriction to the value names of the contract tables (3.2, program paths, layer content)
+  comes with the game settings package (L-WP5), the cleanup entries with L-WP8.
+
+Evidence: `Architecture/RegistryAliasPolicyTests` runs 928 cases (21 CD-key aliases with two subkeys each, 24
+ancestors, 12 record and 11 uninstall spellings, 6 keys of other hives; each with all four operations, with the
+launcher's policy and with an allow-list that names the alias). Disabling the `WOW6432Node` rule locally made 371
+cases of the table and of `RegistryPathTests` fail, disabling the VirtualStore rule 200 (not committed).
