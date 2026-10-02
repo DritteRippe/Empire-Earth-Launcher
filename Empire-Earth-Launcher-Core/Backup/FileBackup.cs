@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using Empire_Earth_Launcher.Core.Logging;
@@ -37,7 +38,7 @@ namespace Empire_Earth_Launcher.Core.Backup
         RemoveDenied,
         /// <summary>Copied into the backup, but removing it failed for another reason: it is still in place.</summary>
         RemoveFailed,
-        /// <summary>Not touched: the backup failed, so no file was removed.</summary>
+        /// <summary>Not removed: the backup failed, or the file was only copied (<see cref="FileBackup.CopyIntoBackup"/>).</summary>
         NotMoved
     }
 
@@ -135,6 +136,22 @@ namespace Empire_Earth_Launcher.Core.Backup
         /// <param name="files">At least one file; the targets must differ.</param>
         public FileBackupResult MoveIntoBackup(string what, IReadOnlyList<FileToBackUp> files)
         {
+            return BackUp(what, files, true);
+        }
+
+        /// <summary>
+        /// Copies <paramref name="files"/> into a new backup folder for <paramref name="what"/> and leaves them in place: the
+        /// backup of files an action is about to overwrite (an imported saved game of the same name). Every file of the result
+        /// is <see cref="FileMoveOutcome.NotMoved"/>; the outcome is <see cref="FileBackupOutcome.Done"/> when every copy is on
+        /// the disk.
+        /// </summary>
+        public FileBackupResult CopyIntoBackup(string what, IReadOnlyList<FileToBackUp> files)
+        {
+            return BackUp(what, files, false);
+        }
+
+        private FileBackupResult BackUp(string what, IReadOnlyList<FileToBackUp> files, bool remove)
+        {
             if (files == null || files.Count == 0 || files.Any(file => file == null))
                 throw new ArgumentException("At least one file is required.", nameof(files));
             if (files.Select(file => file.RelativeTarget).Distinct(StringComparer.OrdinalIgnoreCase).Count() != files.Count)
@@ -157,6 +174,12 @@ namespace Empire_Earth_Launcher.Core.Backup
             string indexProblem = WriteChecked(index, IndexText(files));
             if (indexProblem != null)
                 return Failed(files, folder.Value.Path, indexProblem);
+            if (!remove)
+            {
+                logger.Info("Backup: copied " + files.Count.ToString(CultureInfo.InvariantCulture) + " file(s) to " + folder.Value.Path + ".");
+                return new FileBackupResult(FileBackupOutcome.Done, folder.Value.Path,
+                    files.Select((file, i) => new MovedFile(file.Source, copies[i], FileMoveOutcome.NotMoved, null)), null);
+            }
 
             var moved = new List<MovedFile>();
             for (int i = 0; i < files.Count; i++)

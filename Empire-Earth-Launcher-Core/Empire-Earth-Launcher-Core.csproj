@@ -80,7 +80,10 @@
     <Compile Include="Maintenance\CleanupAdvice.cs" />
     <Compile Include="Maintenance\CleanupCandidates.cs" />
     <Compile Include="Maintenance\ManifestFiles.cs" />
+    <Compile Include="Maintenance\NameChecks.cs" />
     <Compile Include="Maintenance\RegistryCleanup.cs" />
+    <Compile Include="Maintenance\SavedGames.cs" />
+    <Compile Include="Maintenance\VirtualStoreScanner.cs" />
     <Compile Include="Maintenance\WonLoginReset.cs" />
     <Compile Include="Lobby\PlayerListPoller.cs" />
     <Compile Include="Logging\ILogger.cs" />

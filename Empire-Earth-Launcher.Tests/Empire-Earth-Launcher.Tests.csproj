@@ -102,7 +102,10 @@
     <Compile Include="Core\Logging\LogTrimmingTests.cs" />
     <Compile Include="Core\Maintenance\CleanupAdviceTests.cs" />
     <Compile Include="Core\Maintenance\CleanupCandidatesTests.cs" />
+    <Compile Include="Core\Maintenance\NameChecksTests.cs" />
     <Compile Include="Core\Maintenance\RegistryCleanupTests.cs" />
+    <Compile Include="Core\Maintenance\SavedGamesTests.cs" />
+    <Compile Include="Core\Maintenance\VirtualStoreScannerTests.cs" />
     <Compile Include="Core\Maintenance\WonLoginResetTests.cs" />
     <Compile Include="Core\Logging\TraceFileLoggerTests.cs" />
     <Compile Include="Core\Platform\FileSystemExtensionsTests.cs" />

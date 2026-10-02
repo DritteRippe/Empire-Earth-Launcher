@@ -108,6 +108,20 @@ namespace Empire_Earth_Launcher.Tests.Core.Backup
             Assert.That(fileSystem.FileExists(result.Files[1].BackupPath), Is.True, "the copy is in the backup");
         }
 
+        /// <summary>The backup of files an action is about to replace (an imported saved game): copied, left in place.</summary>
+        [Test]
+        public void CopyIntoBackup_LeavesTheFilesInPlace()
+        {
+            FileBackupResult result = backup.CopyIntoBackup("import-saved-games", Files());
+
+            Assert.That(result.Outcome, Is.EqualTo(FileBackupOutcome.Done));
+            Assert.That(fileSystem.FileExists(Login), Is.True);
+            Assert.That(fileSystem.FileExists(Key), Is.True);
+            Assert.That(fileSystem.GetText(result.Folder + @"\EE\_wonkver.pub"), Is.EqualTo(SampleHashes.Content(2)));
+            Assert.That(result.Files.Select(file => file.Outcome), Is.All.EqualTo(FileMoveOutcome.NotMoved));
+            Assert.That(WinPath.GetFileName(result.Folder), Does.EndWith("_import-saved-games"));
+        }
+
         [Test]
         public void TheContents_AreNeverLogged()
         {
