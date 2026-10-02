@@ -204,6 +204,56 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(world.Logger.Messages, Has.Some.Contains("the full check of " + Root + " was started by the user"));
         }
 
+        /// <summary>Runs every <see cref="SynchronizationContext.Post"/> at once, as if the UI thread were always free.</summary>
+        private sealed class InlineContext : SynchronizationContext
+        {
+            public override void Post(SendOrPostCallback d, object state)
+            {
+                d(state);
+            }
+        }
+
+        [Test]
+        public async Task TheFullCheck_ReportsItsProgress_OncePerPercent()
+        {
+            InstallNeoEE();
+            var lines = new List<string>(world.FileSystem.GetText(Root + @"\_setupdata_NeoEE\files.sha256").TrimEnd('\n').Split('\n'));
+            for (int i = 0; i < 400; i++)
+            {
+                string path = "Empire Earth/Data/Sounds/file" + (1000 + i).ToString(System.Globalization.CultureInfo.InvariantCulture) + ".wav";
+                world.FileSystem.AddFile(WinPath.Combine(Root, path), SampleHashes.Content(1000 + i));
+                lines.Add(SampleHashes.Of(1000 + i) + "  " + path);
+            }
+            world.FileSystem.AddFile(Root + @"\_setupdata_NeoEE\files.sha256", string.Join("\n", lines) + "\n");
+            await SearchAndCheck();
+            var percents = new List<int>();
+            model.Changed += (sender, e) =>
+            {
+                if (model.Progress != null)
+                    percents.Add(model.Progress.Percent);
+            };
+
+            SynchronizationContext previous = SynchronizationContext.Current;
+            SynchronizationContext.SetSynchronizationContext(new InlineContext());
+            Task<IntegrityReport> check;
+            try
+            {
+                // The progress object captures the context of the thread that starts the check, as on the UI thread.
+                check = model.StartFullCheckAsync();
+            }
+            finally
+            {
+                SynchronizationContext.SetSynchronizationContext(previous);
+            }
+            IntegrityReport report = await check;
+
+            Assert.That(report.State, Is.EqualTo(IntegrityState.Ok));
+            Assert.That(report.ListedFiles, Is.EqualTo(404));
+            Assert.That(percents, Is.Ordered.And.Unique, "one event per percent, not one per file");
+            Assert.That(percents.Count, Is.InRange(90, 101));
+            Assert.That(percents.Last(), Is.EqualTo(100));
+        }
+
         [Test]
         public async Task CancelCheck_EndsTheFullCheck_WithoutFindings_AndTheFileIsClosed()
         {

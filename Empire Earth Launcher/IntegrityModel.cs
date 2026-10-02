@@ -65,7 +65,10 @@ namespace Empire_Earth_Launcher
             setupWatcher.SetupFinished += (sender, e) => RaiseChanged();
         }
 
-        /// <summary>Raised when a check starts, progresses or ends, and when the installation or the setup state changed.</summary>
+        /// <summary>
+        /// Raised when a check starts, progresses (once per percent) or ends, and when the installation or the setup state
+        /// changed.
+        /// </summary>
         public event EventHandler Changed;
 
         /// <summary>The selected installation; null while none is known or none was found.</summary>
@@ -251,8 +254,12 @@ namespace Empire_Earth_Launcher
         {
             if (current != generation || RunningCheck == null)
                 return;
+            // The checker reports every file (thousands); the pages are told once per percent, so that they do not lay out
+            // their texts for every file.
+            bool visible = Progress == null || Progress.Percent != value.Percent;
             Progress = value;
-            RaiseChanged();
+            if (visible)
+                RaiseChanged();
         }
 
         private void RaiseChanged()
