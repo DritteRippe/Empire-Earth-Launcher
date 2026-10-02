@@ -558,3 +558,10 @@ section 15); all of them are done, newest first below. It has not been released;
   UI thread before its first request (build/UI review, ADR 0004): `NetworkDiagnostics.RunAsync` runs completely on the
   thread pool, so slow VPN or virtual adapters and a game folder on a network drive do not freeze the window; the
   *Tools* page cancels a running check when it is closed.
+
+### Security
+
+- The import of saved games and scenarios imports nothing when the manifest of the setup exists but cannot be read or
+  is invalid (security review): before, every file counted as "not a file of the installation", so a file the setup
+  installed (for example a scenario in `Data\Scenarios`) could be replaced. Each file is refused with the new reason
+  `ImportCheckManifestUnusable` (en/de/fr), as the WON login reset already did.

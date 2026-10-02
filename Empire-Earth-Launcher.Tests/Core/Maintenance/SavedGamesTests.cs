@@ -242,6 +242,35 @@ namespace Empire_Earth_Launcher.Tests.Core.Maintenance
             Assert.That(w.FileSystem.GetText(EeScenarios + @"\Tutorial.scn"), Is.EqualTo(SampleHashes.Content(1)));
         }
 
+        /// <summary>
+        /// A manifest that exists but cannot be used (security review): which files the setup installed is unknown, so nothing
+        /// is imported, not even a confirmed replacement (contract 2.5, like the WON login reset).
+        /// </summary>
+        [TestCase("not a manifest line\n")]
+        [TestCase(null)]
+        public void Import_WithAManifestThatCannotBeUsed_ImportsNothing(string manifest)
+        {
+            string path = Root + @"\_setupdata_NeoEE\files.sha256";
+            w.FileSystem.AddFile(path, (manifest ?? string.Empty) + SampleHashes.Of(1) + "  Empire Earth/Data/Scenarios/Tutorial.scn\n");
+            if (manifest == null)
+                w.FileSystem.FailOn(path, FileSystemOperation.Read, FileSystemStatus.AccessDenied);
+            w.FileSystem.AddFile(EeScenarios + @"\Tutorial.scn", SampleHashes.Content(1));
+            w.FileSystem.AddFile(Downloads + @"\Tutorial.scn", "mine");
+            w.FileSystem.AddFile(Downloads + @"\Island.scn", "new");
+
+            ImportPlan plan = Create().PlanImport(Installation(), Game.EmpireEarth,
+                new[] { Downloads + @"\Tutorial.scn", Downloads + @"\Island.scn" });
+            ImportResult result = Create().Import(plan, true);
+
+            Assert.That(plan.Files.Select(file => file.Check), Is.EqualTo(new[] { ImportCheck.ManifestUnusable, ImportCheck.ManifestUnusable }));
+            Assert.That(result.ImportedCount, Is.EqualTo(0));
+            Assert.That(result.Files.Select(file => file.Item2), Is.All.EqualTo(ImportFileOutcome.Refused));
+            Assert.That(w.FileSystem.GetText(EeScenarios + @"\Tutorial.scn"), Is.EqualTo(SampleHashes.Content(1)));
+            Assert.That(w.FileSystem.FileExists(EeScenarios + @"\Island.scn"), Is.False);
+            Assert.That(w.Logger.MessagesOf(Empire_Earth_Launcher.Core.Logging.LogLevel.Warning),
+                Has.Some.StartsWith("Import of saved games: nothing can be imported"));
+        }
+
         [Test]
         public void Import_ReplacesAFileOnlyAfterConfirmation_WithABackup()
         {

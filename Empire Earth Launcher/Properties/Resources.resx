@@ -1651,4 +1651,8 @@ The old files are copied to the backup folder first. Replace them?</value>
     <value>Why? Check the network</value>
     <comment>Link below an unavailable player list on the Play page; at most about 30 characters.</comment>
   </data>
+  <data name="ImportCheckManifestUnusable" xml:space="preserve">
+    <value>the list of files of the setup cannot be read, so the launcher cannot tell the files of the installation apart; repair the installation with the setup</value>
+    <comment>Reason of ImportFileProblemFormat when the manifest exists but cannot be used (security review; like WonManifestUnusable).</comment>
+  </data>
 </root>

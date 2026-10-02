@@ -1127,6 +1127,15 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to the list of files of the setup cannot be read, so the launcher cannot tell the files of the installa[rest of string was truncated].
+        /// </summary>
+        internal static string ImportCheckManifestUnusable {
+            get {
+                return ResourceManager.GetString("ImportCheckManifestUnusable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to the name has characters the game cannot read.
         /// </summary>
         internal static string ImportCheckNameOutsideAnsi {

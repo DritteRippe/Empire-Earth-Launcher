@@ -1243,4 +1243,7 @@ Die alten Dateien werden vorher in den Sicherungsordner kopiert. Ersetzen?</valu
   <data name="PlayerListCheckNetworkLink" xml:space="preserve">
     <value>Warum? Netzwerk prüfen</value>
   </data>
+  <data name="ImportCheckManifestUnusable" xml:space="preserve">
+    <value>die Dateiliste des Setups kann nicht gelesen werden, daher kann der Launcher die Dateien der Installation nicht erkennen; reparieren Sie die Installation mit dem Setup</value>
+  </data>
 </root>

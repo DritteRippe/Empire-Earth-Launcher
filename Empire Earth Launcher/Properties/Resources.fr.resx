@@ -1243,4 +1243,7 @@ Les anciens fichiers sont d'abord copiés dans le dossier de sauvegarde. Les rem
   <data name="PlayerListCheckNetworkLink" xml:space="preserve">
     <value>Pourquoi ? Vérifier le réseau</value>
   </data>
+  <data name="ImportCheckManifestUnusable" xml:space="preserve">
+    <value>la liste des fichiers du setup ne peut pas être lue, le launcher ne peut donc pas reconnaître les fichiers de l'installation ; réparez l'installation avec le setup</value>
+  </data>
 </root>

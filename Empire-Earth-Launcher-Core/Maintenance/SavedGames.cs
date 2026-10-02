@@ -139,7 +139,12 @@ namespace Empire_Earth_Launcher.Core.Maintenance
         /// <summary>The target is a file the setup installed (never overwritten, contract 2.5).</summary>
         ManifestFile,
         /// <summary>Two files of the selection have the same name.</summary>
-        DuplicateName
+        DuplicateName,
+        /// <summary>
+        /// The manifest exists but cannot be used: which files the setup installed is unknown, so nothing is imported
+        /// (contract 2.5; like the WON login reset).
+        /// </summary>
+        ManifestUnusable
     }
 
     /// <summary>One file of an <see cref="ImportPlan"/>.</summary>
@@ -477,6 +482,9 @@ namespace Empire_Earth_Launcher.Core.Maintenance
                 throw new ArgumentException("The installation has no folder of " + game.Id + ".", nameof(game));
 
             ManifestFiles manifest = ManifestFiles.Read(fileSystem, installation);
+            if (manifest.Status == ManifestFilesStatus.Unusable)
+                logger.Warning("Import of saved games: nothing can be imported, the manifest is needed to keep the files of the setup: " +
+                               manifest.Problem + ".");
             var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var candidates = new List<ImportCandidate>();
             foreach (string source in sourceFiles)
@@ -510,6 +518,8 @@ namespace Empire_Earth_Launcher.Core.Maintenance
                 return Refused(source, kind, ImportCheck.DuplicateName);
 
             string gamePath = WinPath.Combine(gameFolder, FolderOf(kind.Value) + WinPath.Separator + name);
+            if (manifest.Status == ManifestFilesStatus.Unusable)
+                return Refused(source, kind, ImportCheck.ManifestUnusable);
             if (manifest.Contains(gamePath))
                 return Refused(source, kind, ImportCheck.ManifestFile);
             EffectivePath effective = effectivePaths.Resolve(gamePath);

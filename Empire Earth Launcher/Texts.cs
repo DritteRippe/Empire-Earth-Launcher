@@ -1026,6 +1026,8 @@ namespace Empire_Earth_Launcher
                     return Resources.ImportCheckManifestFile;
                 case ImportCheck.DuplicateName:
                     return Resources.ImportCheckDuplicateName;
+                case ImportCheck.ManifestUnusable:
+                    return Resources.ImportCheckManifestUnusable;
                 default:
                     return Resources.ImportCheckNotFound;
             }
