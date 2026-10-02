@@ -127,7 +127,7 @@ namespace Empire_Earth_Launcher
             var fileBackup = new FileBackup(fileSystem, backups, logger);
             var maintenance = new MaintenanceModel(new RegistryCleanup(registry, fileSystem, guard, backups, logger),
                 new WonLoginReset(fileSystem, effectivePaths, guard, fileBackup, logger),
-                new VirtualStoreScanner(fileSystem, effectivePaths, logger),
+                new VirtualStoreScanner(fileSystem, effectivePaths, guard, logger),
                 new SavedGames(fileSystem, effectivePaths, systemInfo, guard, fileBackup, SystemClock.Instance, logger),
                 new NameChecks(fileSystem, effectivePaths, lobbyProfiles, logger), installations, setupWatcher, shell, fileSystem,
                 backups.Directory, logger);

@@ -50,7 +50,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             var paths = new EffectivePathResolver(w.FileSystem, VirtualStore, Virtualized);
             var fileBackup = new FileBackup(w.FileSystem, w.Backups, w.Logger);
             model = new MaintenanceModel(new RegistryCleanup(w.Registry, w.FileSystem, w.Guard, w.Backups, w.Logger),
-                new WonLoginReset(w.FileSystem, paths, w.Guard, fileBackup, w.Logger), new VirtualStoreScanner(w.FileSystem, paths, w.Logger),
+                new WonLoginReset(w.FileSystem, paths, w.Guard, fileBackup, w.Logger), new VirtualStoreScanner(w.FileSystem, paths, w.Guard, w.Logger),
                 new SavedGames(w.FileSystem, paths, w.SystemInfo, w.Guard, fileBackup, w.World.Clock, w.Logger),
                 new NameChecks(w.FileSystem, paths, new LobbyProfileRepository(w.Logger, w.FileSystem, paths), w.Logger),
                 installations, watcher, shell, w.FileSystem, GameSettingsWorld.BackupsFolder, w.Logger);
@@ -144,6 +144,64 @@ namespace Empire_Earth_Launcher.Tests.Launcher
 
             Assert.That(model.CanChange, Is.False);
             Assert.That(model.RunningSetup, Is.SameAs(Product.NeoEE));
+        }
+
+        /// <summary>
+        /// Contract 4.2 (coverage review): while a setup mutex exists, neither the scans nor the import plan read the manifest
+        /// (files.sha256) of the installation, also not the scan after an action the guard refused.
+        /// </summary>
+        [Test]
+        public async Task WhileASetupRuns_TheManifestIsNeverRead()
+        {
+            const string manifest = Root + @"\_setupdata_NeoEE\files.sha256";
+            const string download = @"C:\Users\Player\Downloads\Duel.ees";
+            w.World.AddCommunityInstallation(Root, Product.NeoEE);
+            w.FileSystem.AddFile(manifest, SampleHashes.Of(1) + "  Empire Earth/Data/Language.dll\n");
+            w.FileSystem.AddFile(download, "save");
+            await Search();
+            int before = w.FileSystem.OpenCount(manifest);
+            Assert.That(before, Is.GreaterThan(0), "the scans read the manifest when no setup runs");
+
+            w.Mutexes.With("NeoEE_Setup");
+            w.World.Clock.Advance(SetupWatcher.Interval);
+            watcher.Tick();
+            ImportPlan plan = model.PlanImport(Game.EmpireEarth, new[] { download });
+            ImportResult refused = await model.ImportAsync(plan, false);
+            await model.RefreshAsync();
+
+            Assert.That(refused.Block.Block, Is.EqualTo(MutationBlock.SetupRunning));
+            Assert.That(plan.Files.Single().Check, Is.EqualTo(ImportCheck.ManifestUnusable), "nothing is known while the setup runs");
+            Assert.That(w.FileSystem.OpenCount(manifest), Is.EqualTo(before));
+        }
+
+        /// <summary>
+        /// A scan that fails after a successful action (a bug, logged by the scan) does not hide the result of the action
+        /// (build/UI review): the keys are deleted and backed up, so the page must say so.
+        /// </summary>
+        [Test]
+        public async Task AFailingScanAfterAnAction_DoesNotHideItsResult()
+        {
+            w.World.AddCommunityInstallation(Root, Product.NeoEE);
+            w.FileSystem.AddFile(Root + @"\Empire Earth\_wonlogin.ks", "x");
+            await Search();
+            bool failScans = false;
+            model.Changed += (sender, e) =>
+            {
+                if (!model.IsBusy && model.IsScanning)
+                    failScans = true; // the scan after the action has started
+            };
+            w.FileSystem.OnFileExists = path =>
+            {
+                if (failScans)
+                    throw new InvalidOperationException("injected bug of a scanner");
+            };
+
+            WonResetResult result = await model.ResetWonLoginAsync();
+
+            Assert.That(failScans, Is.True, "the scan after the action ran");
+            Assert.That(result.Outcome, Is.EqualTo(WonResetOutcome.Done));
+            Assert.That(model.IsBusy, Is.False);
+            Assert.That(model.IsScanning, Is.False);
         }
 
         [Test]

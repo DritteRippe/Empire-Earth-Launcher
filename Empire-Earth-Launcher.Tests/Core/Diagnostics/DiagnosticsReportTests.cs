@@ -158,7 +158,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Diagnostics
                     new KeyValuePair<Game, DefaultsStatus>(Game.ArtOfConquest, DefaultsStatus.Pending)
                 },
                 ConsistencyFindings = new ConsistencyChecker(registry, fileSystem, system).Check(selected),
-                VirtualStore = new VirtualStoreScanner(fileSystem, paths, logger).Scan(selected),
+                VirtualStore = new VirtualStoreScanner(fileSystem, paths, new MutationGuard(mutexes, logger), logger).Scan(selected),
                 Names = new NameChecks(fileSystem, paths, new LobbyProfileRepository(logger, fileSystem, paths), logger).Check(selected),
                 Cleanup = new RegistryCleanup(registry, fileSystem, new MutationGuard(mutexes, logger),
                     new BackupLocations(@"C:\Backups", fileSystem, world.Clock, logger), logger).Scan(discovery),

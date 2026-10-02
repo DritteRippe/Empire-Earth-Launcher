@@ -8,6 +8,7 @@ using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Integrity;
 using Empire_Earth_Launcher.Core.Logging;
 using Empire_Earth_Launcher.Core.Platform;
+using Empire_Earth_Launcher.Core.Play;
 
 namespace Empire_Earth_Launcher.Core.Maintenance
 {
@@ -130,12 +131,18 @@ namespace Empire_Earth_Launcher.Core.Maintenance
 
         private readonly IFileSystem fileSystem;
         private readonly EffectivePathResolver effectivePaths;
+        private readonly MutationGuard guard;
         private readonly ILogger logger;
 
-        public VirtualStoreScanner(IFileSystem fileSystem, EffectivePathResolver effectivePaths, ILogger logger)
+        /// <param name="fileSystem">Reads the game folders and their VirtualStore copies.</param>
+        /// <param name="effectivePaths">The VirtualStore folders of the game folders (ADR 0016).</param>
+        /// <param name="guard">Only asked whether a setup runs: the manifest is not read then (contract 4.2).</param>
+        /// <param name="logger">Log of the launcher.</param>
+        public VirtualStoreScanner(IFileSystem fileSystem, EffectivePathResolver effectivePaths, MutationGuard guard, ILogger logger)
         {
             this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
             this.effectivePaths = effectivePaths ?? throw new ArgumentNullException(nameof(effectivePaths));
+            this.guard = guard ?? throw new ArgumentNullException(nameof(guard));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -143,7 +150,7 @@ namespace Empire_Earth_Launcher.Core.Maintenance
         {
             if (installation == null)
                 throw new ArgumentNullException(nameof(installation));
-            ManifestFiles manifest = ManifestFiles.Read(fileSystem, installation);
+            ManifestFiles manifest = ManifestFiles.Read(fileSystem, installation, guard);
             var folders = new List<string>();
             var findings = new List<VirtualStoreFinding>();
             bool truncated = false;

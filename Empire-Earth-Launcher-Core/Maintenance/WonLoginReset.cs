@@ -169,7 +169,7 @@ namespace Empire_Earth_Launcher.Core.Maintenance
         {
             if (installation == null)
                 throw new ArgumentNullException(nameof(installation));
-            ManifestFiles manifest = ManifestFiles.Read(fileSystem, installation);
+            ManifestFiles manifest = ManifestFiles.Read(fileSystem, installation, guard);
             var files = new List<WonLoginFile>();
             foreach (Game game in Game.All)
             {

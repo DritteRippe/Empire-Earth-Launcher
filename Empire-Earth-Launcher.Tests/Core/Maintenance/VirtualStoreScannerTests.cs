@@ -3,6 +3,7 @@ using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Maintenance;
 using Empire_Earth_Launcher.Core.Platform;
+using Empire_Earth_Launcher.Core.Play;
 using Empire_Earth_Launcher.Tests.Fakes;
 using Empire_Earth_Launcher.Tests.TestSupport;
 using NUnit.Framework;
@@ -26,18 +27,44 @@ namespace Empire_Earth_Launcher.Tests.Core.Maintenance
             { @"C:\Program Files", @"C:\Program Files (x86)", @"C:\ProgramData", @"C:\Windows" };
 
         private InstallationWorld world;
+        private FakeMutexProbe mutexes;
 
         [SetUp]
         public void SetUp()
         {
             world = new InstallationWorld();
+            mutexes = new FakeMutexProbe();
         }
 
         private VirtualStoreReport Scan(string root)
         {
             var scanner = new VirtualStoreScanner(new WriteForbiddingFileSystem(world.FileSystem),
-                new EffectivePathResolver(world.FileSystem, VirtualStore, Virtualized), world.Logger);
+                new EffectivePathResolver(world.FileSystem, VirtualStore, Virtualized), new MutationGuard(mutexes, world.Logger),
+                world.Logger);
             return scanner.Scan(InstallationWorld.ByRoot(world.Discover(), root));
+        }
+
+        /// <summary>Contract 4.2: while a setup runs, the manifest of no installation is read (coverage review).</summary>
+        [Test]
+        public void WhileASetupRuns_TheManifestIsNotOpened()
+        {
+            world.AddCommunityInstallation(Root, Product.NeoEE);
+            string manifest = Root + @"\_setupdata_NeoEE\files.sha256";
+            world.FileSystem.AddFile(manifest, SampleHashes.Of(1) + "  Empire Earth/Data/Language.dll\n");
+            world.FileSystem.AddFile(EeCopy + @"\neoee.log", "log");
+            Installation installation = InstallationWorld.ByRoot(world.Discover(), Root);
+            mutexes.With(Product.NeoEE.SetupMutexName);
+
+            var scanner = new VirtualStoreScanner(world.FileSystem,
+                new EffectivePathResolver(world.FileSystem, VirtualStore, Virtualized), new MutationGuard(mutexes, world.Logger),
+                world.Logger);
+            VirtualStoreReport report = scanner.Scan(installation);
+
+            Assert.That(world.FileSystem.OpenCount(manifest), Is.EqualTo(0));
+            Assert.That(report.ManifestUnusable, Is.True, "nothing is known about the files of the setup");
+            Assert.That(ManifestFiles.Read(world.FileSystem, installation, new MutationGuard(mutexes, world.Logger)).Problem,
+                Does.Contain("is not read while the NeoEE setup is running"));
+            Assert.That(world.FileSystem.OpenCount(manifest), Is.EqualTo(0));
         }
 
         [Test]

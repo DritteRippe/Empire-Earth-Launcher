@@ -134,12 +134,20 @@ namespace Empire_Earth_Launcher
             get { return !setupWatcher.IsSetupRunning && !installations.IsSearching && !installations.IsWaitingForSetup && !IsBusy; }
         }
 
-        /// <summary>Scans again for the current search result (after an action, or on request).</summary>
+        /// <summary>
+        /// Scans again for the current search result (after an action, or on request). Not while a setup runs (contract 4.2:
+        /// the scans read the manifest of the installation); the search that follows the end of the setup scans again.
+        /// </summary>
         public Task RefreshAsync()
         {
             DiscoveryResult result = installations.Result;
             if (result == null || installations.IsSearching)
                 return Task.CompletedTask;
+            if (setupWatcher.IsSetupRunning || installations.IsWaitingForSetup)
+            {
+                logger.Info("Maintenance tools: no scan while a setup is running; the search after the setup scans again.");
+                return Task.CompletedTask;
+            }
             scannedResult = result;
             int current = ++generation;
             IsScanning = true;
@@ -260,8 +268,10 @@ namespace Empire_Earth_Launcher
             finally
             {
                 IsBusy = false;
-                // The scan shows what the action changed; it raises Changed itself.
-                await RefreshAsync();
+                // The scan shows what the action changed; it raises Changed itself. A failing scan is logged by RefreshAsync
+                // and must neither hide the result of the action nor replace its exception (build/UI review), so it is
+                // awaited through WhenAny, which never throws.
+                await Task.WhenAny(RefreshAsync());
                 RaiseChanged();
             }
         }

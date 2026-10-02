@@ -85,6 +85,15 @@ namespace Empire_Earth_Launcher.Core.Play
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        /// <summary>
+        /// The setup that runs now (its <c>SetupMutex</c> exists), or null; not logged. For readers that must not read the
+        /// files of an installation while a setup writes them (contract 4.2), e.g. <see cref="Maintenance.ManifestFiles"/>.
+        /// </summary>
+        public Product FindRunningSetup()
+        {
+            return RunningGameDetector.FindRunningSetup(probe);
+        }
+
         /// <summary>Whether a change may go ahead now; a block is logged.</summary>
         /// <param name="action">What the caller wants to do, for the log (English), e.g. "reset the game settings".</param>
         public MutationCheck Check(string action)

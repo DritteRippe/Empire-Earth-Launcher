@@ -558,6 +558,13 @@ section 15); all of them are done, newest first below. It has not been released;
   UI thread before its first request (build/UI review, ADR 0004): `NetworkDiagnostics.RunAsync` runs completely on the
   thread pool, so slow VPN or virtual adapters and a game folder on a network drive do not freeze the window; the
   *Tools* page cancels a running check when it is closed.
+- The maintenance tools no longer read `files.sha256` while a setup runs (coverage review, contract 4.2): the scans
+  wait for the search that follows the setup, `ManifestFiles.Read` does not open the manifest while a setup mutex
+  exists (the mutation guard is asked; the WON login reset and the import then change nothing), and the import checks
+  again after its file dialog whether a setup started meanwhile.
+- A scan that fails after a successful action of the *Tools* page no longer hides the result of the action
+  (build/UI review): the page shows that the keys were deleted, the WON login was reset or the files were imported,
+  and the failed scan is logged.
 
 ### Security
 

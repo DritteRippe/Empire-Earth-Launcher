@@ -481,7 +481,7 @@ namespace Empire_Earth_Launcher.Core.Maintenance
             if (gameFolder == null)
                 throw new ArgumentException("The installation has no folder of " + game.Id + ".", nameof(game));
 
-            ManifestFiles manifest = ManifestFiles.Read(fileSystem, installation);
+            ManifestFiles manifest = ManifestFiles.Read(fileSystem, installation, guard);
             if (manifest.Status == ManifestFilesStatus.Unusable)
                 logger.Warning("Import of saved games: nothing can be imported, the manifest is needed to keep the files of the setup: " +
                                manifest.Problem + ".");

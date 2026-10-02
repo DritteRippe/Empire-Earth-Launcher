@@ -553,6 +553,12 @@ namespace Empire_Earth_Launcher
                     return;
                 files = dialog.FileNames;
             }
+            // A setup may have started while the dialog was open: then nothing is read or written (contract 4.2).
+            if (maintenance.Selected == null || !maintenance.CanChange)
+            {
+                ShowState();
+                return;
+            }
             ImportPlan plan = maintenance.PlanImport(game, files);
             bool overwrite = plan.NeedsOverwriteConfirmation &&
                              MessageBox.Show(FindForm(), Texts.ImportConfirm(plan), Resources.LauncherTitle, MessageBoxButtons.YesNo,

@@ -151,7 +151,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             w.FileSystem.AddFile(VirtualStore + @"\Program Files (x86)\Neo Empire Earth\Empire Earth\neoee.dll", "patched");
             w.FileSystem.AddFile(VirtualStore + @"\Program Files (x86)\Neo Empire Earth\Empire Earth\neoee.log", "log");
 
-            VirtualStoreReport report = new VirtualStoreScanner(w.FileSystem, paths, w.Logger).Scan(Installation());
+            VirtualStoreReport report = new VirtualStoreScanner(w.FileSystem, paths, w.Guard, w.Logger).Scan(Installation());
 
             Assert.That(Texts.VirtualStoreState(report), Does.StartWith("1 files of the installation or program files are used from the VirtualStore"));
             Assert.That(Texts.VirtualStoreState(report), Does.Contain("1 other files (lobby profiles, logs, saved games)"));
