@@ -66,6 +66,8 @@
     <Compile Include="Core\Backup\RegFileWriterTests.cs" />
     <Compile Include="Core\Backup\RegistryExportTests.cs" />
     <Compile Include="Core\Contract\ContractNamesTests.cs" />
+    <Compile Include="Core\GameSettings\ComputedValuesTests.cs" />
+    <Compile Include="Core\GameSettings\GameSettingsTableContractTests.cs" />
     <Compile Include="Core\Installations\DiscoveryContractTests.cs" />
     <Compile Include="Core\Installations\EffectivePathResolverTests.cs" />
     <Compile Include="Core\Installations\GameDirectoryLocatorPortTests.cs" />
@@ -123,6 +125,7 @@
     <Compile Include="TestSupport\ProjectFile.cs" />
     <Compile Include="TestSupport\RepositoryRoot.cs" />
     <Compile Include="TestSupport\TemporaryDirectory.cs" />
+    <Compile Include="TestSupport\TestCategories.cs" />
     <Compile Include="Won\DeadlineStreamTests.cs" />
     <Compile Include="Won\LobbyFileBuilder.cs" />
     <Compile Include="Won\LobbyPersistentDataTests.cs" />
