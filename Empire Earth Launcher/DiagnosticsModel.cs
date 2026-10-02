@@ -165,10 +165,11 @@ namespace Empire_Earth_Launcher
 
         /// <summary>The latest results of the pages for the report: the selected installation and what the pages checked last.</summary>
         internal static DiagnosticsInput Collect(string launcherVersion, ISystemInfo systemInfo, IClock clock, bool is64BitWindows,
-            InstallationService installations, PlayModel play, IntegrityModel integrity, GameSettingsModel gameSettings,
-            MaintenanceModel maintenance)
+            IFileSystem fileSystem, InstallationService installations, PlayModel play, IntegrityModel integrity,
+            GameSettingsModel gameSettings, MaintenanceModel maintenance)
         {
             MaintenanceScan scan = maintenance.Scan;
+            Installation selected = installations.Selected;
             return new DiagnosticsInput
             {
                 LauncherVersion = launcherVersion,
@@ -178,6 +179,7 @@ namespace Empire_Earth_Launcher
                 UiCulture = CultureInfo.CurrentUICulture.Name,
                 Discovery = installations.Result,
                 ProgramVersions = play.Versions,
+                DirectXWrappers = selected == null ? null : DirectXWrappers(selected, fileSystem),
                 Integrity = integrity.Report,
                 Defaults = gameSettings.Lines?.Select(line => new KeyValuePair<Game, DefaultsStatus>(line.Game, line.Status)).ToList(),
                 ConsistencyFindings = gameSettings.Findings,
@@ -185,6 +187,15 @@ namespace Empire_Earth_Launcher
                 Names = scan?.Names,
                 Cleanup = scan?.Cleanup
             };
+        }
+
+        /// <summary>Whether a DirectX wrapper is installed for each game of <paramref name="installation"/> (contract 3.3).</summary>
+        internal static IReadOnlyList<KeyValuePair<Game, RasterizerRecommendation>> DirectXWrappers(Installation installation,
+            IFileSystem fileSystem)
+        {
+            var games = installation.HasArtOfConquest ? new[] { Game.EmpireEarth, Game.ArtOfConquest } : new[] { Game.EmpireEarth };
+            return games.Select(game => new KeyValuePair<Game, RasterizerRecommendation>(game,
+                ComputedValues.DirectXWrapper(installation, game, fileSystem))).ToList();
         }
 
         private void RaiseChanged()

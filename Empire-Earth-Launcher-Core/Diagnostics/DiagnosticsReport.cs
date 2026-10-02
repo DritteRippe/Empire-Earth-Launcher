@@ -37,6 +37,9 @@ namespace Empire_Earth_Launcher.Core.Diagnostics
         /// <summary>The file versions of the programs of the selected installation.</summary>
         public IReadOnlyList<ProgramVersion> ProgramVersions { get; set; }
 
+        /// <summary>Whether a DirectX wrapper is installed for each game of the selected installation (contract 3.3).</summary>
+        public IReadOnlyList<KeyValuePair<Game, RasterizerRecommendation>> DirectXWrappers { get; set; }
+
         /// <summary>The latest integrity check of the selected installation.</summary>
         public IntegrityReport Integrity { get; set; }
 
@@ -61,9 +64,10 @@ namespace Empire_Earth_Launcher.Core.Diagnostics
 
     /// <summary>
     /// The diagnostics report (ARCHITECTURE 4.6): one English text, the support language of the forum like <c>log.txt</c>,
-    /// with the launcher and Windows version, the installations, the file versions, the integrity state and its findings, the
-    /// game defaults and the consistency findings, the VirtualStore, the CD keys as "exists"/"missing" and the network. The
-    /// player copies or saves it; the launcher never sends it anywhere.
+    /// with the launcher and Windows version, the screen and the display adapter, the installations, the file versions,
+    /// whether a DirectX wrapper is installed, the integrity state and its findings, the game defaults and the consistency
+    /// findings, the VirtualStore, the CD keys as "exists"/"missing" and the network. The player copies or saves it; the
+    /// launcher never sends it anywhere.
     /// </summary>
     /// <remarks>
     /// The privacy rules of ADR 0013 (plan review) are built in: every path passes <see cref="ReportAnonymizer"/>; no CD-key
@@ -119,6 +123,7 @@ namespace Empire_Earth_Launcher.Core.Diagnostics
                       (system.IsWine ? ", Wine" : string.Empty));
             lines.Add("Screen:       " + system.PrimaryScreen + " physical, " + system.PrimaryScreenUnaware +
                       " for DPI-unaware programs (" + system.ScalingPercent().ToString(CultureInfo.InvariantCulture) + " %)");
+            lines.Add("Display:      " + (string.IsNullOrWhiteSpace(system.PrimaryDisplayAdapter) ? "?" : system.PrimaryDisplayAdapter.Trim()));
             lines.Add("UI language:  " + (string.IsNullOrEmpty(input.UiCulture) ? "?" : input.UiCulture));
         }
 
@@ -163,6 +168,9 @@ namespace Empire_Earth_Launcher.Core.Diagnostics
             lines.Add(Indent + "Programs:     " + (input.ProgramVersions == null || input.ProgramVersions.Count == 0
                 ? "?"
                 : string.Join("; ", input.ProgramVersions.Select(version => version.ToString()))));
+            lines.Add(Indent + "DirectX wrapper: " + (input.DirectXWrappers == null || input.DirectXWrappers.Count == 0
+                ? "?"
+                : string.Join("; ", input.DirectXWrappers.Select(wrapper => wrapper.Key.Id + " " + WrapperName(wrapper.Value)))));
             AddIntegrity(lines, input.Integrity);
             lines.Add(Indent + "Game defaults: " + (input.Defaults == null || input.Defaults.Count == 0
                 ? "?"
@@ -171,6 +179,27 @@ namespace Empire_Earth_Launcher.Core.Diagnostics
             AddVirtualStore(lines, input.VirtualStore, anonymizer);
             AddNames(lines, input.Names);
             AddCdKeys(lines, input.Cleanup);
+        }
+
+        private static string WrapperName(RasterizerRecommendation wrapper)
+        {
+            switch (wrapper.Reason)
+            {
+                case RasterizerReason.WrapperInInstallInfo:
+                    return "installed (install.ini)";
+                case RasterizerReason.WrapperInUninstallKey:
+                    return "installed (uninstall key)";
+                case RasterizerReason.WrapperFile:
+                    return "installed (" + wrapper.WrapperFile + " in the game folder)";
+                case RasterizerReason.NoWrapperInInstallInfo:
+                    return "none (install.ini)";
+                case RasterizerReason.NoWrapperInUninstallKey:
+                    return "none (uninstall key)";
+                case RasterizerReason.NoWrapperFile:
+                    return "none (no wrapper file in the game folder)";
+                default:
+                    return "?";
+            }
         }
 
         private static void AddIntegrity(List<string> lines, IntegrityReport report)

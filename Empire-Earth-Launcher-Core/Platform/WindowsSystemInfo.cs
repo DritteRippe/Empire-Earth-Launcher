@@ -117,14 +117,37 @@ namespace Empire_Earth_Launcher.Core.Platform
             }
         }
 
+        public string PrimaryDisplayAdapter
+        {
+            get
+            {
+                try
+                {
+                    string adapter = FindPrimaryDisplay()?.DeviceString?.Trim();
+                    return string.IsNullOrEmpty(adapter) ? null : adapter;
+                }
+                catch (Exception ex) when (ex is DllNotFoundException || ex is EntryPointNotFoundException)
+                {
+                    LogScreenProblem("The display functions of Windows are not available.", ex);
+                    return null;
+                }
+            }
+        }
+
         /// <summary>The name of the primary display device (<c>\\.\DISPLAY1</c>), or null to ask for the current display.</summary>
         private static string FindPrimaryDisplayDevice()
+        {
+            return FindPrimaryDisplay()?.DeviceName;
+        }
+
+        /// <summary>The primary display device (<c>EnumDisplayDevices</c>), or null if Windows names none.</summary>
+        private static DisplayDevice? FindPrimaryDisplay()
         {
             var device = new DisplayDevice { cb = Marshal.SizeOf(typeof(DisplayDevice)) };
             for (uint index = 0; EnumDisplayDevices(null, index, ref device, 0); index++)
             {
                 if ((device.StateFlags & DisplayDevicePrimaryDevice) != 0)
-                    return device.DeviceName;
+                    return device;
                 device = new DisplayDevice { cb = Marshal.SizeOf(typeof(DisplayDevice)) };
             }
             return null;

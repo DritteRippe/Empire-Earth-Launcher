@@ -157,7 +157,7 @@ namespace Empire_Earth_Launcher
                     SystemClock.Instance, logger);
                 var diagnostics = new DiagnosticsModel(networkDiagnostics, installations,
                     () => DiagnosticsModel.Collect(Application.ProductVersion, systemInfo, SystemClock.Instance,
-                        Environment.Is64BitOperatingSystem, installations, play, integrity, gameSettings, maintenance),
+                        Environment.Is64BitOperatingSystem, fileSystem, installations, play, integrity, gameSettings, maintenance),
                     anonymizer, fileSystem, logger);
 
                 logger.Info("Starting Empire Earth Launcher Form");

@@ -98,6 +98,13 @@ namespace Empire_Earth_Launcher.Core.Platform
         ScreenSize PrimaryScreenUnaware { get; }
 
         /// <summary>
+        /// The display adapter of the primary screen as Windows names it (its driver name, e.g. "NVIDIA GeForce GTX 1060");
+        /// null if unknown. Only for the diagnostics report, which names the display adapter instead of a GPU driver
+        /// version (ADR 0014, design review).
+        /// </summary>
+        string PrimaryDisplayAdapter { get; }
+
+        /// <summary>
         /// True if every character of <paramref name="text"/> exists in the ANSI code page of Windows (the code page for
         /// non-Unicode programs). The game is such a program: it cannot open a path with other characters (forum report
         /// section 8, test case 20; ADR 0015). True if the code page cannot be determined.

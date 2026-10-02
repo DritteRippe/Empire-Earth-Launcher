@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.Diagnostics;
+using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Platform;
 using Empire_Earth_Launcher.Core.Play;
@@ -173,6 +174,25 @@ namespace Empire_Earth_Launcher.Tests.Launcher
 
             Assert.That(result.Outcome, Is.EqualTo(ReportSaveOutcome.Failed));
             Assert.That(result.Problem, Is.Not.Empty);
+        }
+
+        /// <summary>The report says whether a DirectX wrapper is installed (ADR 0014, design review), for each game installed.</summary>
+        [Test]
+        public async Task TheDirectXWrapper_OfEachGame()
+        {
+            world.AddCommunityInstallation(Root, Product.NeoEE);
+            world.AddForeignInstallation(@"D:\Games\Empire Earth");
+            world.FileSystem.AddFile(@"D:\Games\Empire Earth\D3D8.dll", "dll");
+            await installations.RefreshAsync();
+            Installation foreign = installations.Result.Installations.Single(installation => installation.Kind == InstallationKind.Foreign);
+
+            var wrappers = DiagnosticsModel.DirectXWrappers(foreign, world.FileSystem);
+
+            Assert.That(wrappers.Select(wrapper => wrapper.Key), Is.EqualTo(new[] { Game.EmpireEarth }), "no AoC folder, no AoC line");
+            Assert.That(wrappers[0].Value.Reason, Is.EqualTo(RasterizerReason.WrapperFile));
+            Assert.That(DiagnosticsModel.DirectXWrappers(InstallationWorld.ByRoot(installations.Result, Root), world.FileSystem)
+                                        .Select(wrapper => wrapper.Key),
+                Is.EqualTo(new[] { Game.EmpireEarth, Game.ArtOfConquest }));
         }
 
         [Test]

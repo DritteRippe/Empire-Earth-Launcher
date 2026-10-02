@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Installations;
@@ -249,6 +250,32 @@ namespace Empire_Earth_Launcher.Tests.Core.GameSettings
 
             Assert.That(rasterizer.Name, Is.EqualTo("Direct3D"));
             Assert.That(rasterizer.Reason, Is.EqualTo(RasterizerReason.Wine));
+        }
+
+        /// <summary>
+        /// The wrapper rule on its own, for the diagnostics report (ADR 0014): also under Wine it says whether a wrapper is
+        /// installed and where that comes from; <see cref="ComputedValues.IsWrapper"/> reads the reason.
+        /// </summary>
+        [Test]
+        public void DirectXWrapper_3_3_TheWrapperRuleWithoutWine()
+        {
+            var world = new InstallationWorld();
+            Installation community = Community(world, @"game,gameaoc,additional\directx_wrapper");
+            world.AddForeignInstallation(@"C:\Games\EE");
+            world.FileSystem.AddFile(@"C:\Games\EE\DDraw.dll", "dll");
+            Installation foreign = world.Discover().Installations.Single(installation => installation.Kind == InstallationKind.Foreign);
+
+            RasterizerRecommendation fromInstallIni = ComputedValues.DirectXWrapper(community, Game.EmpireEarth, world.FileSystem);
+            RasterizerRecommendation fromFile = ComputedValues.DirectXWrapper(foreign, Game.EmpireEarth, world.FileSystem);
+            RasterizerRecommendation underWine = ComputedValues.Rasterizer(foreign, Game.EmpireEarth,
+                new FakeSystemInfo { IsWine = true }, world.FileSystem);
+
+            Assert.That(fromInstallIni.Reason, Is.EqualTo(RasterizerReason.WrapperInInstallInfo));
+            Assert.That(fromFile.Reason, Is.EqualTo(RasterizerReason.WrapperFile));
+            Assert.That(fromFile.WrapperFile, Is.EqualTo("DDraw.dll"));
+            Assert.That(underWine.Reason, Is.EqualTo(RasterizerReason.Wine), "the rasterizer rule keeps Wine first");
+            Assert.That(Enum.GetValues(typeof(RasterizerReason)).Cast<RasterizerReason>().Where(ComputedValues.IsWrapper),
+                Is.EquivalentTo(new[] { RasterizerReason.WrapperInInstallInfo, RasterizerReason.WrapperInUninstallKey, RasterizerReason.WrapperFile }));
         }
 
         // --- Window size -------------------------------------------------------------------------------------------

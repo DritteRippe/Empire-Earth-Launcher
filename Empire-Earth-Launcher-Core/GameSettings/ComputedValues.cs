@@ -185,6 +185,23 @@ namespace Empire_Earth_Launcher.Core.GameSettings
 
             if (systemInfo.IsWine)
                 return new RasterizerRecommendation(GameSettingsTable.Direct3DRasterizer, RasterizerReason.Wine, null);
+            return DirectXWrapper(installation, game, fileSystem);
+        }
+
+        /// <summary>
+        /// Whether a DirectX wrapper is installed for <paramref name="game"/> (the wrapper rule of contract 3.3, without the
+        /// Wine rule): from the components of <c>install.ini</c>, else of the uninstall key, and only without component
+        /// information from the wrapper files in the game folder. <see cref="IsWrapper"/> tells the answer, the reason where
+        /// it comes from; also for the diagnostics report (ADR 0014, design review).
+        /// </summary>
+        public static RasterizerRecommendation DirectXWrapper(Installation installation, Game game, IFileSystem fileSystem)
+        {
+            if (installation == null)
+                throw new ArgumentNullException(nameof(installation));
+            if (game == null)
+                throw new ArgumentNullException(nameof(game));
+            if (fileSystem == null)
+                throw new ArgumentNullException(nameof(fileSystem));
 
             SetupNameList components = installation.Components;
             if (components != null && components.Names.Count > 0)
@@ -204,6 +221,13 @@ namespace Empire_Earth_Launcher.Core.GameSettings
             return file != null
                 ? new RasterizerRecommendation(GameSettingsTable.Direct3DRasterizer, RasterizerReason.WrapperFile, file)
                 : new RasterizerRecommendation(GameSettingsTable.HardwareTnLRasterizer, RasterizerReason.NoWrapperFile, null);
+        }
+
+        /// <summary>True if <paramref name="reason"/> says that a DirectX wrapper is installed.</summary>
+        public static bool IsWrapper(RasterizerReason reason)
+        {
+            return reason == RasterizerReason.WrapperInInstallInfo || reason == RasterizerReason.WrapperInUninstallKey ||
+                   reason == RasterizerReason.WrapperFile;
         }
 
         /// <summary>

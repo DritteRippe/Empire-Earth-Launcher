@@ -6,7 +6,7 @@ namespace Empire_Earth_Launcher.Tests.Fakes
 {
     /// <summary>
     /// <see cref="ISystemInfo"/> with settable values. The default is Windows 10 (NT 10.0) without Wine and a
-    /// 1920x1080 screen at 100 %.
+    /// 1920x1080 screen at 100 % on "Sample Display Adapter".
     /// </summary>
     internal sealed class FakeSystemInfo : ISystemInfo
     {
@@ -17,6 +17,8 @@ namespace Empire_Earth_Launcher.Tests.Fakes
         public ScreenSize PrimaryScreen { get; set; } = new ScreenSize(1920, 1080);
 
         public ScreenSize PrimaryScreenUnaware { get; set; } = new ScreenSize(1920, 1080);
+
+        public string PrimaryDisplayAdapter { get; set; } = "Sample Display Adapter";
 
         /// <summary>The characters of the ANSI code page; by default those of Latin-1, close to code page 1252.</summary>
         public Func<char, bool> IsAnsiCharacter { get; set; } = c => c < 0x100;

@@ -147,6 +147,10 @@ namespace Empire_Earth_Launcher.Tests.Core.Diagnostics
                 Discovery = discovery,
                 ProgramVersions = new ProgramVersions(fileSystem, new FakeFileVersionReader()
                     .With(WinPath.Combine(eeFolder, "Empire Earth.exe"), "2.0.0.5")).Read(selected),
+                DirectXWrappers = new[] { Game.EmpireEarth, Game.ArtOfConquest }
+                    .Select(game => new KeyValuePair<Game, RasterizerRecommendation>(game,
+                        ComputedValues.DirectXWrapper(selected, game, fileSystem)))
+                    .ToList(),
                 Integrity = new IntegrityChecker(fileSystem, registry, mutexes, logger).Check(selected, IntegrityCheckKind.Quick),
                 Defaults = new[]
                 {

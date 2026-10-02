@@ -8,6 +8,7 @@ Created:      2026-10-02 20:04
 Launcher:     0.1.0-alpha
 Windows:      NT 10.0.19045, 64-bit
 Screen:       1920x1080 physical, 1536x864 for DPI-unaware programs (125 %)
+Display:      Sample Display Adapter
 UI language:  de-DE
 
 Installations (2)
@@ -26,6 +27,7 @@ Installations (2)
 
 Selected installation
   Programs:     Empire Earth.exe 2.0.0.5; EE-AOC.exe without version
+  DirectX wrapper: EE none (install.ini); AoC none (install.ini)
   Integrity:    Damaged, quick check, 4 files listed, 3 hashed, 1 finding
     - code Empire Earth/neoee.dll: changed
   Game defaults: EE applied; AoC pending (applied at the next start)
