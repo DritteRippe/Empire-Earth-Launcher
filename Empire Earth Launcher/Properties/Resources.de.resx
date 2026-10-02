@@ -766,4 +766,253 @@ Ihre jetzigen Einstellungen werden vorher als .reg-Dateien in {1} gesichert; ein
   <data name="RepairFallbackFormat" xml:space="preserve">
     <value>Keine Adresse vom Update-Server ({0}); dies ist die allgemeine Downloadseite.</value>
   </data>
+  <data name="ToolsCleanupHeading" xml:space="preserve">
+    <value>Alte Registry-Einträge</value>
+  </data>
+  <data name="CleanupInfo" xml:space="preserve">
+    <value>Reste entfernter Installationen (SSSI, Mad Doc, NeoEE) können eine neue Installation stören. Der Launcher löscht nur Einträge Ihres Windows-Kontos, nur wenn keine Installation sie nutzt und ihr Spielordner nicht mehr existiert, und erst nachdem er sie in den Sicherungsordner exportiert hat. Einträge für alle Benutzer werden nur angezeigt, mit einem Rat. Software\Sierra wird nie gelöscht: Dort liegen die CD-Keys von NeoEE.</value>
+  </data>
+  <data name="CleanupNothingToCleanUp" xml:space="preserve">
+    <value>Nichts zu bereinigen: Kein Eintrag Ihres Kontos ist ein Rest.</value>
+  </data>
+  <data name="CleanupCandidatesFormat" xml:space="preserve">
+    <value>{0} Einträge Ihres Kontos sind Reste einer entfernten Installation. Wählen Sie die zu löschenden aus.</value>
+  </data>
+  <data name="CleanupDeleteButton" xml:space="preserve">
+    <value>Auswahl löschen ...</value>
+  </data>
+  <data name="CleanupConfirmFormat" xml:space="preserve">
+    <value>Diese Registry-Einträge löschen?
+
+{0}
+
+Sie werden vorher in eine .reg-Datei in {1} exportiert; ein Doppelklick darauf stellt sie wieder her.</value>
+  </data>
+  <data name="CleanupOfferedFormat" xml:space="preserve">
+    <value>{0} (Ordner {1} existiert nicht mehr)</value>
+  </data>
+  <data name="CleanupAdviceExportFormat" xml:space="preserve">
+    <value>{0}: Rest einer entfernten Installation (Ordner {1} existiert nicht mehr). Der Eintrag gilt für alle Benutzer, daher ändert der Launcher ihn nicht. So entfernen Sie ihn: den Registrierungs-Editor als Administrator starten, mit der rechten Maustaste auf den Schlüssel klicken, „Exportieren“ wählen und die Datei speichern, dann den Schlüssel löschen.</value>
+  </data>
+  <data name="CleanupAdviceDoNotDeleteFormat" xml:space="preserve">
+    <value>{0}: nicht löschen, dort liegen die CD-Keys von NeoEE ({1}).</value>
+  </data>
+  <data name="CleanupCdKeysExist" xml:space="preserve">
+    <value>CD-Keys vorhanden</value>
+  </data>
+  <data name="CleanupCdKeysMissing" xml:space="preserve">
+    <value>keine CD-Keys</value>
+  </data>
+  <data name="CleanupCdKeysUnknown" xml:space="preserve">
+    <value>CD-Keys nicht lesbar</value>
+  </data>
+  <data name="CleanupKeepInstallationFormat" xml:space="preserve">
+    <value>{0}: bleibt erhalten, eine Installation von {1} wurde gefunden.</value>
+  </data>
+  <data name="CleanupKeepFolderFormat" xml:space="preserve">
+    <value>{0}: bleibt erhalten, der Ordner {1} existiert.</value>
+  </data>
+  <data name="CleanupKeepDriveFormat" xml:space="preserve">
+    <value>{0}: bleibt erhalten, der Ordner {1} liegt auf einem Laufwerk, das nicht angeschlossen oder keine lokale Festplatte ist.</value>
+  </data>
+  <data name="CleanupKeepNoFolderFormat" xml:space="preserve">
+    <value>{0}: bleibt erhalten, der Eintrag nennt keinen Spielordner.</value>
+  </data>
+  <data name="CleanupKeepUnreadableFormat" xml:space="preserve">
+    <value>{0}: bleibt erhalten, der Eintrag kann nicht gelesen werden.</value>
+  </data>
+  <data name="CleanupDoneFormat" xml:space="preserve">
+    <value>{0} Einträge gelöscht. Die Sicherung liegt in: {1}</value>
+  </data>
+  <data name="CleanupNoLongerStale" xml:space="preserve">
+    <value>Nichts wurde gelöscht: Ein Eintrag wird wieder genutzt (eine Installation oder ihr Laufwerk ist wieder da). Die Liste wurde aktualisiert.</value>
+  </data>
+  <data name="CleanupFailedFormat" xml:space="preserve">
+    <value>Nicht alle Einträge konnten gelöscht werden (Einzelheiten im Protokoll). Die Sicherung {0} stellt die gelöschten wieder her.</value>
+  </data>
+  <data name="ToolsWonHeading" xml:space="preserve">
+    <value>WON-Login</value>
+  </data>
+  <data name="WonInfo" xml:space="preserve">
+    <value>Wenn der Online-Login scheitert, zum Beispiel mit WS_GetCert_InvalidPubKeyBlock, hilft es, den WON-Login zurückzusetzen (Forum): Die Dateien _wonkver.pub und _wonlogin.ks beider Spiele werden in den Sicherungsordner verschoben, und das Spiel legt beim nächsten Login neue an. Der Sicherungsordner enthält dann Login-Daten: Geben Sie ihn nie weiter.</value>
+  </data>
+  <data name="WonFilesFormat" xml:space="preserve">
+    <value>WON-Login-Dateien: {0}</value>
+  </data>
+  <data name="WonNoFiles" xml:space="preserve">
+    <value>Keine WON-Login-Datei gefunden.</value>
+  </data>
+  <data name="WonResetButton" xml:space="preserve">
+    <value>WON-Login zurücksetzen</value>
+  </data>
+  <data name="WonDoneFormat" xml:space="preserve">
+    <value>{0} Dateien nach {1} verschoben. Dieser Ordner enthält Login-Daten: Geben Sie ihn nie weiter. Wenn der Login weiter scheitert, reparieren Sie die Installation mit dem Setup.</value>
+  </data>
+  <data name="WonPartialFormat" xml:space="preserve">
+    <value>Nach {0} kopiert, aber diese Dateien konnten nicht entfernt werden (Zugriff verweigert). Beenden Sie das Spiel und versuchen Sie es erneut, oder löschen Sie sie im Explorer:
+{1}</value>
+  </data>
+  <data name="WonNothingToReset" xml:space="preserve">
+    <value>Es wurde keine WON-Login-Datei gefunden; es gibt nichts zurückzusetzen.</value>
+  </data>
+  <data name="WonManifestUnusable" xml:space="preserve">
+    <value>Nichts wurde verschoben: Die Dateiliste des Setups kann nicht gelesen werden, daher kann der Launcher die Dateien der Installation nicht erkennen. Reparieren Sie die Installation mit dem Setup.</value>
+  </data>
+  <data name="ToolsVirtualStoreHeading" xml:space="preserve">
+    <value>VirtualStore</value>
+  </data>
+  <data name="VirtualStoreInfo" xml:space="preserve">
+    <value>Wenn ein Spiel unter „Program Files“ ohne Administratorrechte läuft, legt Windows die Dateien, die es ändert, als Kopien in %LOCALAPPDATA%\VirtualStore ab. Dann kann das Spiel andere Dateien als die Installation verwenden, zum Beispiel eine andere Version mit und ohne Administratorrechte (Forum).</value>
+  </data>
+  <data name="VirtualStoreNotVirtualized" xml:space="preserve">
+    <value>Nicht betroffen: Die Spielordner liegen nicht unter Program Files, ProgramData oder dem Windows-Ordner.</value>
+  </data>
+  <data name="VirtualStoreNone" xml:space="preserve">
+    <value>Keine Kopien im VirtualStore.</value>
+  </data>
+  <data name="VirtualStoreSeriousFormat" xml:space="preserve">
+    <value>{0} Dateien der Installation oder Programmdateien werden aus dem VirtualStore statt aus dem Spielordner verwendet; das Spiel kann daher eine andere Version ausführen. Beenden Sie das Spiel, verschieben Sie diese Kopien aus dem VirtualStore-Ordner und reparieren Sie die Installation mit dem Setup, falls das Spiel nicht startet.</value>
+  </data>
+  <data name="VirtualStoreRuntimeFormat" xml:space="preserve">
+    <value>{0} weitere Dateien (Lobby-Profile, Protokolle, Spielstände) liegen im VirtualStore; das ist normal für ein Spiel ohne Administratorrechte.</value>
+  </data>
+  <data name="VirtualStoreSeriousLineFormat" xml:space="preserve">
+    <value>{0} (verwendet statt {1})</value>
+  </data>
+  <data name="VirtualStoreTruncatedFormat" xml:space="preserve">
+    <value>Nur die ersten {0} Dateien sind aufgeführt.</value>
+  </data>
+  <data name="ToolsSavesHeading" xml:space="preserve">
+    <value>Spielstände und Szenarien</value>
+  </data>
+  <data name="SavesInfo" xml:space="preserve">
+    <value>Der Export kopiert alle Spielstände (.ees) und Szenarien (.scn) beider Spiele in einen neuen Ordner, auch die im VirtualStore. Für einen Mehrspieler-Spielstand braucht jeder Spieler dieselbe Datei mit genau demselben Namen, und der Host braucht die Ports 33334 bis 33336 (TCP und UDP) weitergeleitet (Forum).</value>
+  </data>
+  <data name="SavesCountFormat" xml:space="preserve">
+    <value>{0} Spielstände und {1} Szenarien gefunden.</value>
+  </data>
+  <data name="SavesShadowedFormat" xml:space="preserve">
+    <value>Von einer gleichnamigen VirtualStore-Kopie verdeckt (das Spiel verwendet die Kopie, der Export nimmt die Kopie): {0}</value>
+  </data>
+  <data name="ExportSavesButton" xml:space="preserve">
+    <value>Exportieren ...</value>
+  </data>
+  <data name="ImportEeSavesButton" xml:space="preserve">
+    <value>In Empire Earth importieren ...</value>
+  </data>
+  <data name="ImportAocSavesButton" xml:space="preserve">
+    <value>In The Art of Conquest importieren ...</value>
+  </data>
+  <data name="ExportFolderDescription" xml:space="preserve">
+    <value>Wählen Sie den Ordner für den Export; der Launcher legt darin einen neuen Ordner an.</value>
+  </data>
+  <data name="ImportDialogTitle" xml:space="preserve">
+    <value>Zu importierende Spielstände und Szenarien</value>
+  </data>
+  <data name="ImportFileFilter" xml:space="preserve">
+    <value>Spielstände und Szenarien (*.ees;*.scn)|*.ees;*.scn</value>
+  </data>
+  <data name="ExportDoneFormat" xml:space="preserve">
+    <value>{0} Dateien exportiert nach: {1}</value>
+  </data>
+  <data name="ExportPartialFormat" xml:space="preserve">
+    <value>{0} Dateien exportiert nach {1}; nicht exportiert (Einzelheiten im Protokoll): {2}</value>
+  </data>
+  <data name="ExportNothing" xml:space="preserve">
+    <value>Es gibt keinen Spielstand und kein Szenario zum Exportieren.</value>
+  </data>
+  <data name="ExportInsideGameFolder" xml:space="preserve">
+    <value>Wählen Sie einen Ordner außerhalb der Spielordner.</value>
+  </data>
+  <data name="ExportFailed" xml:space="preserve">
+    <value>Der Exportordner konnte nicht angelegt werden (Einzelheiten im Protokoll).</value>
+  </data>
+  <data name="ImportConfirmFormat" xml:space="preserve">
+    <value>Diese Dateien gibt es schon, sie würden ersetzt:
+
+{0}
+
+Die alten Dateien werden vorher in den Sicherungsordner kopiert. Ersetzen?</value>
+  </data>
+  <data name="ImportResultFormat" xml:space="preserve">
+    <value>{0} von {1} Dateien importiert.</value>
+  </data>
+  <data name="ImportFileProblemFormat" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="ImportCheckNotFound" xml:space="preserve">
+    <value>nicht gefunden</value>
+  </data>
+  <data name="ImportCheckWrongExtension" xml:space="preserve">
+    <value>nur .ees- und .scn-Dateien lassen sich importieren</value>
+  </data>
+  <data name="ImportCheckNotAPlainName" xml:space="preserve">
+    <value>kein einfacher Dateiname</value>
+  </data>
+  <data name="ImportCheckNameOutsideAnsi" xml:space="preserve">
+    <value>der Name enthält Zeichen, die das Spiel nicht lesen kann</value>
+  </data>
+  <data name="ImportCheckTooLarge" xml:space="preserve">
+    <value>größer als 64 MiB</value>
+  </data>
+  <data name="ImportCheckAlreadyInPlace" xml:space="preserve">
+    <value>liegt schon im Spielordner</value>
+  </data>
+  <data name="ImportCheckManifestFile" xml:space="preserve">
+    <value>eine Datei der Installation, wird nie ersetzt</value>
+  </data>
+  <data name="ImportCheckDuplicateName" xml:space="preserve">
+    <value>eine andere gewählte Datei hat denselben Namen</value>
+  </data>
+  <data name="ImportNotConfirmed" xml:space="preserve">
+    <value>nicht ersetzt</value>
+  </data>
+  <data name="ImportAccessDenied" xml:space="preserve">
+    <value>Zugriff verweigert</value>
+  </data>
+  <data name="ImportFailed" xml:space="preserve">
+    <value>konnte nicht geschrieben werden (Einzelheiten im Protokoll)</value>
+  </data>
+  <data name="ImportNameNoteFormat" xml:space="preserve">
+    <value>{0}: Der Name enthält Zeichen außerhalb von einfachem ASCII; im Mehrspieler braucht jeder Spieler genau diesen Namen.</value>
+  </data>
+  <data name="ImportBackupFormat" xml:space="preserve">
+    <value>Die ersetzten Dateien liegen in: {0}</value>
+  </data>
+  <data name="ToolsNamesHeading" xml:space="preserve">
+    <value>Spielernamen</value>
+  </data>
+  <data name="NamesInfo" xml:space="preserve">
+    <value>Sonderzeichen in Namen machen im Mehrspieler Probleme: Mit Symbolen in einem Spielernamen lässt sich ein Spielstand nicht laden, und Unicode-Zeichen in einem Namen ließen das Spiel abstürzen (Forum). Verwenden Sie die Buchstaben A bis Z, Ziffern und einfache Satzzeichen.</value>
+  </data>
+  <data name="NamesOkFormat" xml:space="preserve">
+    <value>Alle {0} Lobby-Profile und Spielernamen verwenden einfache Zeichen.</value>
+  </data>
+  <data name="NamesNone" xml:space="preserve">
+    <value>Kein Lobby-Profil und kein Spieler gefunden.</value>
+  </data>
+  <data name="NamesWarningFormat" xml:space="preserve">
+    <value>{0} Namen enthalten Zeichen außerhalb von einfachem ASCII:</value>
+  </data>
+  <data name="NameLobbyProfileFormat" xml:space="preserve">
+    <value>{0}, Lobby-Profil: {1}</value>
+  </data>
+  <data name="NamePlayerFormat" xml:space="preserve">
+    <value>{0}, Spieler: {1}</value>
+  </data>
+  <data name="ToolsBackupsHeading" xml:space="preserve">
+    <value>Sicherungen</value>
+  </data>
+  <data name="BackupFolderInfoFormat" xml:space="preserve">
+    <value>Der Launcher legt seine Sicherungen in {0} ab: .reg-Dateien geänderter oder gelöschter Registry-Einträge, die verschobenen WON-Login-Dateien und ersetzte Spielstände. Der Ordner enthält Login-Daten; geben Sie ihn nie weiter.</value>
+  </data>
+  <data name="OpenBackupFolderButton" xml:space="preserve">
+    <value>Sicherungsordner öffnen</value>
+  </data>
+  <data name="OpenBackupFolderFailedFormat" xml:space="preserve">
+    <value>Der Sicherungsordner konnte nicht geöffnet werden: {0}</value>
+  </data>
+  <data name="ToolsChecking" xml:space="preserve">
+    <value>Wird geprüft ...</value>
+  </data>
 </root>

@@ -84,6 +84,7 @@
     <Compile Include="GeneralUserControl.Designer.cs">
       <DependentUpon>GeneralUserControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="CleanupView.cs" />
     <Compile Include="GameSettingsModel.cs" />
     <Compile Include="InstallationService.cs" />
     <Compile Include="IntegrityModel.cs" />

@@ -766,4 +766,253 @@ Vos paramètres actuels sont d'abord enregistrés dans des fichiers .reg dans {1
   <data name="RepairFallbackFormat" xml:space="preserve">
     <value>Pas d'adresse du serveur de mises à jour ({0}) ; voici la page de téléchargement générale.</value>
   </data>
+  <data name="ToolsCleanupHeading" xml:space="preserve">
+    <value>Anciennes entrées du registre</value>
+  </data>
+  <data name="CleanupInfo" xml:space="preserve">
+    <value>Les restes d'installations supprimées (SSSI, Mad Doc, NeoEE) peuvent perturber une nouvelle installation. Le launcher ne supprime que des entrées de votre compte Windows, seulement si aucune installation ne les utilise et que leur dossier de jeu n'existe plus, et seulement après les avoir exportées dans le dossier de sauvegarde. Les entrées pour tous les utilisateurs sont seulement affichées, avec un conseil. Software\Sierra n'est jamais supprimé : il contient les clés CD de NeoEE.</value>
+  </data>
+  <data name="CleanupNothingToCleanUp" xml:space="preserve">
+    <value>Rien à nettoyer : aucune entrée de votre compte n'est un reste.</value>
+  </data>
+  <data name="CleanupCandidatesFormat" xml:space="preserve">
+    <value>{0} entrées de votre compte sont des restes d'une installation supprimée. Sélectionnez celles à supprimer.</value>
+  </data>
+  <data name="CleanupDeleteButton" xml:space="preserve">
+    <value>Supprimer la sélection...</value>
+  </data>
+  <data name="CleanupConfirmFormat" xml:space="preserve">
+    <value>Supprimer ces entrées du registre ?
+
+{0}
+
+Elles sont d'abord exportées dans un fichier .reg dans {1} ; double-cliquez dessus pour les restaurer.</value>
+  </data>
+  <data name="CleanupOfferedFormat" xml:space="preserve">
+    <value>{0} (le dossier {1} n'existe plus)</value>
+  </data>
+  <data name="CleanupAdviceExportFormat" xml:space="preserve">
+    <value>{0} : reste d'une installation supprimée (le dossier {1} n'existe plus). Elle s'applique à tous les utilisateurs, le launcher ne la modifie donc pas. Pour la supprimer : lancez l'Éditeur du Registre en tant qu'administrateur, cliquez avec le bouton droit sur la clé, choisissez Exporter et enregistrez le fichier, puis supprimez la clé.</value>
+  </data>
+  <data name="CleanupAdviceDoNotDeleteFormat" xml:space="preserve">
+    <value>{0} : ne pas supprimer, elle contient les clés CD de NeoEE ({1}).</value>
+  </data>
+  <data name="CleanupCdKeysExist" xml:space="preserve">
+    <value>clés CD présentes</value>
+  </data>
+  <data name="CleanupCdKeysMissing" xml:space="preserve">
+    <value>aucune clé CD</value>
+  </data>
+  <data name="CleanupCdKeysUnknown" xml:space="preserve">
+    <value>clés CD illisibles</value>
+  </data>
+  <data name="CleanupKeepInstallationFormat" xml:space="preserve">
+    <value>{0} : conservée, une installation de {1} a été trouvée.</value>
+  </data>
+  <data name="CleanupKeepFolderFormat" xml:space="preserve">
+    <value>{0} : conservée, son dossier {1} existe.</value>
+  </data>
+  <data name="CleanupKeepDriveFormat" xml:space="preserve">
+    <value>{0} : conservée, son dossier {1} se trouve sur un lecteur non connecté ou qui n'est pas un disque local.</value>
+  </data>
+  <data name="CleanupKeepNoFolderFormat" xml:space="preserve">
+    <value>{0} : conservée, elle n'indique aucun dossier de jeu.</value>
+  </data>
+  <data name="CleanupKeepUnreadableFormat" xml:space="preserve">
+    <value>{0} : conservée, elle ne peut pas être lue.</value>
+  </data>
+  <data name="CleanupDoneFormat" xml:space="preserve">
+    <value>{0} entrées supprimées. La sauvegarde se trouve dans : {1}</value>
+  </data>
+  <data name="CleanupNoLongerStale" xml:space="preserve">
+    <value>Rien n'a été supprimé : une entrée est de nouveau utilisée (une installation ou son lecteur est de retour). La liste a été mise à jour.</value>
+  </data>
+  <data name="CleanupFailedFormat" xml:space="preserve">
+    <value>Toutes les entrées n'ont pas pu être supprimées (détails dans le journal). La sauvegarde {0} restaure celles qui ont été supprimées.</value>
+  </data>
+  <data name="ToolsWonHeading" xml:space="preserve">
+    <value>Connexion WON</value>
+  </data>
+  <data name="WonInfo" xml:space="preserve">
+    <value>Si la connexion en ligne échoue, par exemple avec WS_GetCert_InvalidPubKeyBlock, réinitialiser la connexion WON aide (forum) : les fichiers _wonkver.pub et _wonlogin.ks des deux jeux sont déplacés dans le dossier de sauvegarde, et le jeu en crée de nouveaux à la prochaine connexion. Le dossier de sauvegarde contient alors des données de connexion : ne le transmettez jamais.</value>
+  </data>
+  <data name="WonFilesFormat" xml:space="preserve">
+    <value>Fichiers de connexion WON : {0}</value>
+  </data>
+  <data name="WonNoFiles" xml:space="preserve">
+    <value>Aucun fichier de connexion WON trouvé.</value>
+  </data>
+  <data name="WonResetButton" xml:space="preserve">
+    <value>Réinitialiser la connexion WON</value>
+  </data>
+  <data name="WonDoneFormat" xml:space="preserve">
+    <value>{0} fichiers déplacés dans {1}. Ce dossier contient des données de connexion : ne le transmettez jamais. Si la connexion échoue encore, réparez l'installation avec le setup.</value>
+  </data>
+  <data name="WonPartialFormat" xml:space="preserve">
+    <value>Copiés dans {0}, mais ces fichiers n'ont pas pu être supprimés (accès refusé). Fermez le jeu et réessayez, ou supprimez-les dans l'Explorateur :
+{1}</value>
+  </data>
+  <data name="WonNothingToReset" xml:space="preserve">
+    <value>Aucun fichier de connexion WON n'a été trouvé ; il n'y a rien à réinitialiser.</value>
+  </data>
+  <data name="WonManifestUnusable" xml:space="preserve">
+    <value>Rien n'a été déplacé : la liste des fichiers du setup ne peut pas être lue, le launcher ne peut donc pas reconnaître les fichiers de l'installation. Réparez l'installation avec le setup.</value>
+  </data>
+  <data name="ToolsVirtualStoreHeading" xml:space="preserve">
+    <value>VirtualStore</value>
+  </data>
+  <data name="VirtualStoreInfo" xml:space="preserve">
+    <value>Quand un jeu situé sous Program Files s'exécute sans droits d'administrateur, Windows conserve les fichiers qu'il modifie sous forme de copies dans %LOCALAPPDATA%\VirtualStore. Le jeu peut alors utiliser d'autres fichiers que l'installation, par exemple une autre version avec et sans droits d'administrateur (forum).</value>
+  </data>
+  <data name="VirtualStoreNotVirtualized" xml:space="preserve">
+    <value>Non concerné : les dossiers du jeu ne se trouvent pas sous Program Files, ProgramData ou le dossier Windows.</value>
+  </data>
+  <data name="VirtualStoreNone" xml:space="preserve">
+    <value>Aucune copie dans le VirtualStore.</value>
+  </data>
+  <data name="VirtualStoreSeriousFormat" xml:space="preserve">
+    <value>{0} fichiers de l'installation ou fichiers de programme sont utilisés depuis le VirtualStore au lieu du dossier du jeu, le jeu peut donc exécuter une autre version. Fermez le jeu, déplacez ces copies hors du dossier VirtualStore et réparez l'installation avec le setup si le jeu ne démarre pas.</value>
+  </data>
+  <data name="VirtualStoreRuntimeFormat" xml:space="preserve">
+    <value>{0} autres fichiers (profils du lobby, journaux, parties sauvegardées) se trouvent dans le VirtualStore ; c'est normal pour un jeu sans droits d'administrateur.</value>
+  </data>
+  <data name="VirtualStoreSeriousLineFormat" xml:space="preserve">
+    <value>{0} (utilisé à la place de {1})</value>
+  </data>
+  <data name="VirtualStoreTruncatedFormat" xml:space="preserve">
+    <value>Seuls les {0} premiers fichiers sont listés.</value>
+  </data>
+  <data name="ToolsSavesHeading" xml:space="preserve">
+    <value>Parties sauvegardées et scénarios</value>
+  </data>
+  <data name="SavesInfo" xml:space="preserve">
+    <value>L'export copie toutes les parties sauvegardées (.ees) et tous les scénarios (.scn) des deux jeux dans un nouveau dossier, y compris ceux du VirtualStore. Pour une partie multijoueur sauvegardée, chaque joueur a besoin du même fichier avec exactement le même nom, et l'hôte doit rediriger les ports 33334 à 33336 (TCP et UDP) (forum).</value>
+  </data>
+  <data name="SavesCountFormat" xml:space="preserve">
+    <value>{0} parties sauvegardées et {1} scénarios trouvés.</value>
+  </data>
+  <data name="SavesShadowedFormat" xml:space="preserve">
+    <value>Masqués par une copie du même nom dans le VirtualStore (le jeu utilise la copie, l'export prend la copie) : {0}</value>
+  </data>
+  <data name="ExportSavesButton" xml:space="preserve">
+    <value>Exporter...</value>
+  </data>
+  <data name="ImportEeSavesButton" xml:space="preserve">
+    <value>Importer dans Empire Earth...</value>
+  </data>
+  <data name="ImportAocSavesButton" xml:space="preserve">
+    <value>Importer dans The Art of Conquest...</value>
+  </data>
+  <data name="ExportFolderDescription" xml:space="preserve">
+    <value>Choisissez le dossier de l'export ; le launcher y crée un nouveau dossier.</value>
+  </data>
+  <data name="ImportDialogTitle" xml:space="preserve">
+    <value>Parties sauvegardées et scénarios à importer</value>
+  </data>
+  <data name="ImportFileFilter" xml:space="preserve">
+    <value>Parties sauvegardées et scénarios (*.ees;*.scn)|*.ees;*.scn</value>
+  </data>
+  <data name="ExportDoneFormat" xml:space="preserve">
+    <value>{0} fichiers exportés dans : {1}</value>
+  </data>
+  <data name="ExportPartialFormat" xml:space="preserve">
+    <value>{0} fichiers exportés dans {1} ; non exportés (détails dans le journal) : {2}</value>
+  </data>
+  <data name="ExportNothing" xml:space="preserve">
+    <value>Il n'y a aucune partie sauvegardée ni aucun scénario à exporter.</value>
+  </data>
+  <data name="ExportInsideGameFolder" xml:space="preserve">
+    <value>Choisissez un dossier en dehors des dossiers du jeu.</value>
+  </data>
+  <data name="ExportFailed" xml:space="preserve">
+    <value>Le dossier d'export n'a pas pu être créé (détails dans le journal).</value>
+  </data>
+  <data name="ImportConfirmFormat" xml:space="preserve">
+    <value>Ces fichiers existent déjà et seraient remplacés :
+
+{0}
+
+Les anciens fichiers sont d'abord copiés dans le dossier de sauvegarde. Les remplacer ?</value>
+  </data>
+  <data name="ImportResultFormat" xml:space="preserve">
+    <value>{0} fichiers sur {1} importés.</value>
+  </data>
+  <data name="ImportFileProblemFormat" xml:space="preserve">
+    <value>{0} : {1}</value>
+  </data>
+  <data name="ImportCheckNotFound" xml:space="preserve">
+    <value>introuvable</value>
+  </data>
+  <data name="ImportCheckWrongExtension" xml:space="preserve">
+    <value>seuls les fichiers .ees et .scn peuvent être importés</value>
+  </data>
+  <data name="ImportCheckNotAPlainName" xml:space="preserve">
+    <value>nom de fichier non valide</value>
+  </data>
+  <data name="ImportCheckNameOutsideAnsi" xml:space="preserve">
+    <value>le nom contient des caractères que le jeu ne peut pas lire</value>
+  </data>
+  <data name="ImportCheckTooLarge" xml:space="preserve">
+    <value>plus de 64 Mio</value>
+  </data>
+  <data name="ImportCheckAlreadyInPlace" xml:space="preserve">
+    <value>déjà dans le dossier du jeu</value>
+  </data>
+  <data name="ImportCheckManifestFile" xml:space="preserve">
+    <value>un fichier de l'installation, jamais remplacé</value>
+  </data>
+  <data name="ImportCheckDuplicateName" xml:space="preserve">
+    <value>un autre fichier sélectionné porte le même nom</value>
+  </data>
+  <data name="ImportNotConfirmed" xml:space="preserve">
+    <value>non remplacé</value>
+  </data>
+  <data name="ImportAccessDenied" xml:space="preserve">
+    <value>accès refusé</value>
+  </data>
+  <data name="ImportFailed" xml:space="preserve">
+    <value>n'a pas pu être écrit (détails dans le journal)</value>
+  </data>
+  <data name="ImportNameNoteFormat" xml:space="preserve">
+    <value>{0} : le nom contient des caractères hors ASCII simple ; en multijoueur, chaque joueur a besoin exactement de ce nom.</value>
+  </data>
+  <data name="ImportBackupFormat" xml:space="preserve">
+    <value>Les fichiers remplacés se trouvent dans : {0}</value>
+  </data>
+  <data name="ToolsNamesHeading" xml:space="preserve">
+    <value>Noms des joueurs</value>
+  </data>
+  <data name="NamesInfo" xml:space="preserve">
+    <value>Les caractères spéciaux dans les noms posent problème en multijoueur : avec des symboles dans un nom de joueur, une partie sauvegardée ne peut pas être chargée, et des caractères Unicode dans un nom ont fait planter le jeu (forum). Utilisez les lettres A à Z, des chiffres et une ponctuation simple.</value>
+  </data>
+  <data name="NamesOkFormat" xml:space="preserve">
+    <value>Les {0} profils du lobby et noms de joueurs utilisent tous des caractères simples.</value>
+  </data>
+  <data name="NamesNone" xml:space="preserve">
+    <value>Aucun profil du lobby ni aucun joueur trouvé.</value>
+  </data>
+  <data name="NamesWarningFormat" xml:space="preserve">
+    <value>{0} noms contiennent des caractères hors ASCII simple :</value>
+  </data>
+  <data name="NameLobbyProfileFormat" xml:space="preserve">
+    <value>{0}, profil du lobby : {1}</value>
+  </data>
+  <data name="NamePlayerFormat" xml:space="preserve">
+    <value>{0}, joueur : {1}</value>
+  </data>
+  <data name="ToolsBackupsHeading" xml:space="preserve">
+    <value>Sauvegardes</value>
+  </data>
+  <data name="BackupFolderInfoFormat" xml:space="preserve">
+    <value>Le launcher conserve ses sauvegardes dans {0} : fichiers .reg des entrées du registre modifiées ou supprimées, fichiers de connexion WON déplacés et parties sauvegardées remplacées. Le dossier contient des données de connexion ; ne le transmettez jamais.</value>
+  </data>
+  <data name="OpenBackupFolderButton" xml:space="preserve">
+    <value>Ouvrir le dossier de sauvegarde</value>
+  </data>
+  <data name="OpenBackupFolderFailedFormat" xml:space="preserve">
+    <value>Le dossier de sauvegarde n'a pas pu être ouvert : {0}</value>
+  </data>
+  <data name="ToolsChecking" xml:space="preserve">
+    <value>Vérification...</value>
+  </data>
 </root>

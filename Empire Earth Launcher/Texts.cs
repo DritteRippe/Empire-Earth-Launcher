@@ -5,8 +5,10 @@ using System.Linq;
 using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Installations;
+using Empire_Earth_Launcher.Core.Backup;
 using Empire_Earth_Launcher.Core.Integrity;
 using Empire_Earth_Launcher.Core.Lobby;
+using Empire_Earth_Launcher.Core.Maintenance;
 using Empire_Earth_Launcher.Core.Platform;
 using Empire_Earth_Launcher.Core.Play;
 using Empire_Earth_Launcher.Core.Repair;
@@ -791,6 +793,257 @@ namespace Empire_Earth_Launcher
             if (location.IsFromUpdateApi || location.Reason == FallbackReason.NoAppId || location.Reason == FallbackReason.NotAsked)
                 return null;
             return string.Format(CultureInfo.CurrentCulture, Resources.RepairFallbackFormat, Failure(location.Reason));
+        }
+
+        // --- Maintenance tools (L-WP8) -------------------------------------------------------------------------------
+
+        /// <summary>A registry key as the Registry Editor names it (<c>HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\...</c>).</summary>
+        internal static string RegistryKeyName(RegistryLocation key)
+        {
+            return RegFileWriter.KeyName(key);
+        }
+
+        /// <summary>A key the player can select in the registry cleanup, with the folder that no longer exists.</summary>
+        internal static string CleanupOffered(CleanupItem item)
+        {
+            if (item == null)
+                throw new ArgumentNullException(nameof(item));
+            return string.Format(CultureInfo.CurrentCulture, Resources.CleanupOfferedFormat, RegistryKeyName(item.Entry.Key),
+                item.Folder);
+        }
+
+        /// <summary>The line of a key of the read-only list: its advice (ADR 0007 plan review).</summary>
+        internal static string CleanupAdvice(CleanupItem item)
+        {
+            if (item == null)
+                throw new ArgumentNullException(nameof(item));
+            CleanupAdvice advice = item.Advice;
+            string key = RegistryKeyName(advice.Key);
+            switch (advice.Code)
+            {
+                case CleanupAdviceCode.LauncherCanDelete:
+                    return CleanupOffered(item);
+                case CleanupAdviceCode.ExportThenDeleteAsAdministrator:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.CleanupAdviceExportFormat, key, advice.Folder);
+                case CleanupAdviceCode.DoNotDeleteContainsCdKeys:
+                    string cdKeys = advice.CdKeysExist == true ? Resources.CleanupCdKeysExist
+                        : advice.CdKeysExist == false ? Resources.CleanupCdKeysMissing : Resources.CleanupCdKeysUnknown;
+                    return string.Format(CultureInfo.CurrentCulture, Resources.CleanupAdviceDoNotDeleteFormat, key, cdKeys);
+                case CleanupAdviceCode.KeepInstallationFound:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.CleanupKeepInstallationFormat, key,
+                        item.Entry.Product.AppName);
+                case CleanupAdviceCode.KeepFolderExists:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.CleanupKeepFolderFormat, key, advice.Folder);
+                case CleanupAdviceCode.KeepDriveNotFixed:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.CleanupKeepDriveFormat, key, advice.Folder);
+                case CleanupAdviceCode.KeepNoFolderNamed:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.CleanupKeepNoFolderFormat, key);
+                default:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.CleanupKeepUnreadableFormat, key);
+            }
+        }
+
+        /// <summary>The confirmation of the registry cleanup: the keys and the backup folder.</summary>
+        internal static string CleanupConfirm(IEnumerable<CleanupItem> selection, string backupFolder)
+        {
+            return string.Format(CultureInfo.CurrentCulture, Resources.CleanupConfirmFormat,
+                string.Join(Environment.NewLine, selection.Select(item => RegistryKeyName(item.Entry.Key))), backupFolder);
+        }
+
+        /// <summary>The result line of the registry cleanup.</summary>
+        internal static string CleanupResult(CleanupResult result)
+        {
+            if (result == null)
+                throw new ArgumentNullException(nameof(result));
+            switch (result.Outcome)
+            {
+                case CleanupOutcome.Done:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.CleanupDoneFormat, result.Deleted.Count, result.BackupFolder);
+                case CleanupOutcome.Blocked:
+                    return Block(result.Block);
+                case CleanupOutcome.NoLongerStale:
+                    return Resources.CleanupNoLongerStale;
+                case CleanupOutcome.BackupFailed:
+                    return Resources.ResultBackupFailed;
+                default:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.CleanupFailedFormat, result.BackupFile);
+            }
+        }
+
+        /// <summary>The WON login files found, or that there are none.</summary>
+        internal static string WonFiles(WonLoginFiles files)
+        {
+            if (files == null || files.ToMove.Count == 0)
+                return Resources.WonNoFiles;
+            return string.Format(CultureInfo.CurrentCulture, Resources.WonFilesFormat,
+                string.Join(", ", files.ToMove.Select(file => file.Path)));
+        }
+
+        /// <summary>The result of the WON login reset; it names the backup folder, which contains login data.</summary>
+        internal static string WonResult(WonResetResult result)
+        {
+            if (result == null)
+                throw new ArgumentNullException(nameof(result));
+            switch (result.Outcome)
+            {
+                case WonResetOutcome.Done:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.WonDoneFormat, result.Files.Count, result.BackupFolder);
+                case WonResetOutcome.Partial:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.WonPartialFormat, result.BackupFolder,
+                        string.Join(Environment.NewLine, result.Files.Where(file => file.Outcome != FileMoveOutcome.Moved)
+                                                                     .Select(file => file.Source)));
+                case WonResetOutcome.NothingToReset:
+                    return Resources.WonNothingToReset;
+                case WonResetOutcome.Blocked:
+                    return Block(result.Block);
+                case WonResetOutcome.ManifestUnusable:
+                    return Resources.WonManifestUnusable;
+                default:
+                    return Resources.ResultBackupFailed;
+            }
+        }
+
+        /// <summary>The state of the VirtualStore check: not affected, none, serious copies, other copies.</summary>
+        internal static string VirtualStoreState(VirtualStoreReport report)
+        {
+            if (report == null)
+                return Resources.ToolsChecking;
+            if (!report.IsVirtualizable)
+                return Resources.VirtualStoreNotVirtualized;
+            if (report.Findings.Count == 0)
+                return Resources.VirtualStoreNone;
+            var lines = new List<string>();
+            int serious = report.Findings.Count(finding => finding.IsSerious);
+            if (serious > 0)
+                lines.Add(string.Format(CultureInfo.CurrentCulture, Resources.VirtualStoreSeriousFormat, serious));
+            if (serious < report.Findings.Count)
+                lines.Add(string.Format(CultureInfo.CurrentCulture, Resources.VirtualStoreRuntimeFormat, report.Findings.Count - serious));
+            if (report.Truncated)
+                lines.Add(string.Format(CultureInfo.CurrentCulture, Resources.VirtualStoreTruncatedFormat, VirtualStoreScanner.MaxFiles));
+            return string.Join(Environment.NewLine, lines);
+        }
+
+        /// <summary>The copies of the VirtualStore check, serious ones first with the file they stand for.</summary>
+        internal static string VirtualStoreFiles(VirtualStoreReport report)
+        {
+            if (report == null)
+                return string.Empty;
+            return string.Join(Environment.NewLine, report.Findings.Select(finding => finding.IsSerious
+                ? string.Format(CultureInfo.CurrentCulture, Resources.VirtualStoreSeriousLineFormat, finding.VirtualStorePath, finding.GamePath)
+                : finding.VirtualStorePath));
+        }
+
+        /// <summary>The number of saved games and scenarios, and the files a VirtualStore copy hides.</summary>
+        internal static string SavedGamesState(IReadOnlyList<SavedGameFile> files)
+        {
+            if (files == null)
+                return Resources.ToolsChecking;
+            string count = string.Format(CultureInfo.CurrentCulture, Resources.SavesCountFormat,
+                files.Count(file => file.Kind == SavedGameKind.SavedGame), files.Count(file => file.Kind == SavedGameKind.Scenario));
+            List<string> hidden = files.Where(file => file.ShadowedPath != null).Select(file => file.ShadowedPath).ToList();
+            return hidden.Count == 0
+                ? count
+                : count + Environment.NewLine + string.Format(CultureInfo.CurrentCulture, Resources.SavesShadowedFormat, string.Join(", ", hidden));
+        }
+
+        /// <summary>The result of the export.</summary>
+        internal static string ExportResult(ExportResult result)
+        {
+            if (result == null)
+                throw new ArgumentNullException(nameof(result));
+            switch (result.Outcome)
+            {
+                case ExportOutcome.Done:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.ExportDoneFormat, result.Exported.Count, result.Folder);
+                case ExportOutcome.Partial:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.ExportPartialFormat, result.Exported.Count, result.Folder,
+                        string.Join(", ", result.Skipped.Select(skipped => skipped.Item1.Name)));
+                case ExportOutcome.NothingToExport:
+                    return Resources.ExportNothing;
+                case ExportOutcome.TargetInsideGameFolder:
+                case ExportOutcome.InvalidTarget:
+                    return Resources.ExportInsideGameFolder;
+                default:
+                    return Resources.ExportFailed;
+            }
+        }
+
+        /// <summary>The confirmation of an import that replaces files.</summary>
+        internal static string ImportConfirm(ImportPlan plan)
+        {
+            return string.Format(CultureInfo.CurrentCulture, Resources.ImportConfirmFormat,
+                string.Join(Environment.NewLine, plan.Importable.Where(file => file.Overwrites).Select(file => file.Target)));
+        }
+
+        /// <summary>
+        /// The result of an import: the number, every file that was not imported with the reason, the note about names outside
+        /// ASCII (multiplayer needs the same name), and the backup of replaced files.
+        /// </summary>
+        internal static string ImportResult(ImportResult result)
+        {
+            if (result == null)
+                throw new ArgumentNullException(nameof(result));
+            if (result.IsBlocked)
+                return Block(result.Block);
+            var lines = new List<string>
+            {
+                string.Format(CultureInfo.CurrentCulture, Resources.ImportResultFormat, result.ImportedCount, result.Files.Count)
+            };
+            foreach (var file in result.Files.Where(file => file.Item2 != ImportFileOutcome.Imported))
+                lines.Add(string.Format(CultureInfo.CurrentCulture, Resources.ImportFileProblemFormat, file.Item1.Name, ImportProblem(file.Item1, file.Item2)));
+            foreach (var file in result.Files.Where(file => file.Item2 == ImportFileOutcome.Imported && file.Item1.NameOutsideAscii))
+                lines.Add(string.Format(CultureInfo.CurrentCulture, Resources.ImportNameNoteFormat, file.Item1.Name));
+            if (result.BackupFolder != null)
+                lines.Add(string.Format(CultureInfo.CurrentCulture, Resources.ImportBackupFormat, result.BackupFolder));
+            return string.Join(Environment.NewLine, lines);
+        }
+
+        private static string ImportProblem(ImportCandidate file, ImportFileOutcome outcome)
+        {
+            switch (outcome)
+            {
+                case ImportFileOutcome.NotConfirmed:
+                    return Resources.ImportNotConfirmed;
+                case ImportFileOutcome.AccessDenied:
+                    return Resources.ImportAccessDenied;
+                case ImportFileOutcome.Failed:
+                    return Resources.ImportFailed;
+            }
+            switch (file.Check)
+            {
+                case ImportCheck.WrongExtension:
+                    return Resources.ImportCheckWrongExtension;
+                case ImportCheck.NotAPlainName:
+                    return Resources.ImportCheckNotAPlainName;
+                case ImportCheck.NameOutsideAnsiCodePage:
+                    return Resources.ImportCheckNameOutsideAnsi;
+                case ImportCheck.TooLarge:
+                    return Resources.ImportCheckTooLarge;
+                case ImportCheck.AlreadyInPlace:
+                    return Resources.ImportCheckAlreadyInPlace;
+                case ImportCheck.ManifestFile:
+                    return Resources.ImportCheckManifestFile;
+                case ImportCheck.DuplicateName:
+                    return Resources.ImportCheckDuplicateName;
+                default:
+                    return Resources.ImportCheckNotFound;
+            }
+        }
+
+        /// <summary>The result of the name check: none, all plain, or the names with characters outside printable ASCII.</summary>
+        internal static string NameCheck(NameCheckReport report)
+        {
+            if (report == null)
+                return Resources.ToolsChecking;
+            if (report.NamesChecked == 0)
+                return Resources.NamesNone;
+            if (report.Warnings.Count == 0)
+                return string.Format(CultureInfo.CurrentCulture, Resources.NamesOkFormat, report.NamesChecked);
+            var lines = new List<string> { string.Format(CultureInfo.CurrentCulture, Resources.NamesWarningFormat, report.Warnings.Count) };
+            lines.AddRange(report.Warnings.Select(warning => string.Format(CultureInfo.CurrentCulture,
+                warning.Source == NameSource.LobbyProfile ? Resources.NameLobbyProfileFormat : Resources.NamePlayerFormat,
+                GameName(warning.Game), warning.Name)));
+            return string.Join(Environment.NewLine, lines);
         }
     }
 }

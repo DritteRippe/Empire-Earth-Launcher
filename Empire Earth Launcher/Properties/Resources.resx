@@ -1018,4 +1018,333 @@ Your current settings are saved first as .reg files in {1}; double-click such a 
     <value>No address from the update server ({0}); this is the general download page.</value>
     <comment>Repair advice when the fixed download page is used (contract 4.3 step 3). {0}: the reason, one of the Failure texts.</comment>
   </data>
+  <data name="ToolsCleanupHeading" xml:space="preserve">
+    <value>Old registry entries</value>
+    <comment>Heading of the registry cleanup on the Tools page.</comment>
+  </data>
+  <data name="CleanupInfo" xml:space="preserve">
+    <value>Leftovers of removed installations (SSSI, Mad Doc, NeoEE) can disturb a new installation. The launcher deletes only entries of your Windows account, only when no installation uses them and their game folder is gone, and only after it has exported them to the backup folder. Entries for all users are only shown, with advice. Software\Sierra is never deleted: it contains the NeoEE CD keys.</value>
+    <comment>Below the heading of the registry cleanup (R5, ADR 0007).</comment>
+  </data>
+  <data name="CleanupNothingToCleanUp" xml:space="preserve">
+    <value>Nothing to clean up: no entry of your account is a leftover.</value>
+    <comment>Registry cleanup without a key the launcher could delete (ADR 0007 plan review); the read-only list follows.</comment>
+  </data>
+  <data name="CleanupCandidatesFormat" xml:space="preserve">
+    <value>{0} entries of your account are leftovers of a removed installation. Select the ones to delete.</value>
+    <comment>Registry cleanup with keys the launcher can delete. {0}: their number.</comment>
+  </data>
+  <data name="CleanupDeleteButton" xml:space="preserve">
+    <value>Delete selected...</value>
+    <comment>Button of the registry cleanup; at most about 26 characters.</comment>
+  </data>
+  <data name="CleanupConfirmFormat" xml:space="preserve">
+    <value>Delete these registry entries?
+
+{0}
+
+They are exported first to a .reg file in {1}; double-click it to restore them.</value>
+    <comment>Confirmation of the registry cleanup. {0}: the keys, one per line; {1}: the backup folder.</comment>
+  </data>
+  <data name="CleanupOfferedFormat" xml:space="preserve">
+    <value>{0} (folder {1} no longer exists)</value>
+    <comment>An entry of the registry cleanup the player can select. {0}: the key as the Registry Editor names it; {1}: the folder its values name.</comment>
+  </data>
+  <data name="CleanupAdviceExportFormat" xml:space="preserve">
+    <value>{0}: leftover of a removed installation (folder {1} no longer exists). It applies to all users, so the launcher does not change it. To remove it: start the Registry Editor as administrator, right-click the key, choose Export and save the file, then delete the key.</value>
+    <comment>Read-only advice for a stale HKLM key (SSSI or Mad Doc only, ADR 0007 plan review). {0}: the key; {1}: its folder.</comment>
+  </data>
+  <data name="CleanupAdviceDoNotDeleteFormat" xml:space="preserve">
+    <value>{0}: do not delete, it contains the NeoEE CD keys ({1}).</value>
+    <comment>Read-only entry of Software\Sierra (contract 3.8). {0}: the key; {1}: CleanupCdKeysExist, CleanupCdKeysMissing or CleanupCdKeysUnknown.</comment>
+  </data>
+  <data name="CleanupCdKeysExist" xml:space="preserve">
+    <value>CD keys present</value>
+    <comment>Part of CleanupAdviceDoNotDeleteFormat (O8: only whether they exist).</comment>
+  </data>
+  <data name="CleanupCdKeysMissing" xml:space="preserve">
+    <value>no CD keys</value>
+    <comment>Part of CleanupAdviceDoNotDeleteFormat.</comment>
+  </data>
+  <data name="CleanupCdKeysUnknown" xml:space="preserve">
+    <value>CD keys cannot be read</value>
+    <comment>Part of CleanupAdviceDoNotDeleteFormat.</comment>
+  </data>
+  <data name="CleanupKeepInstallationFormat" xml:space="preserve">
+    <value>{0}: kept, an installation of {1} was found.</value>
+    <comment>Read-only entry of the registry cleanup. {0}: the key; {1}: Empire Earth or NeoEE.</comment>
+  </data>
+  <data name="CleanupKeepFolderFormat" xml:space="preserve">
+    <value>{0}: kept, its folder {1} exists.</value>
+    <comment>Read-only entry of the registry cleanup. {0}: the key; {1}: the folder.</comment>
+  </data>
+  <data name="CleanupKeepDriveFormat" xml:space="preserve">
+    <value>{0}: kept, its folder {1} is on a drive that is not connected or not a local hard disk.</value>
+    <comment>Read-only entry of the registry cleanup (a missing USB stick is no removed installation). {0}: the key; {1}: the folder.</comment>
+  </data>
+  <data name="CleanupKeepNoFolderFormat" xml:space="preserve">
+    <value>{0}: kept, it names no game folder.</value>
+    <comment>Read-only entry of the registry cleanup. {0}: the key.</comment>
+  </data>
+  <data name="CleanupKeepUnreadableFormat" xml:space="preserve">
+    <value>{0}: kept, it cannot be read.</value>
+    <comment>Read-only entry of the registry cleanup. {0}: the key.</comment>
+  </data>
+  <data name="CleanupDoneFormat" xml:space="preserve">
+    <value>{0} entries deleted. The backup is in: {1}</value>
+    <comment>Result of the registry cleanup. {0}: number of keys; {1}: the backup folder.</comment>
+  </data>
+  <data name="CleanupNoLongerStale" xml:space="preserve">
+    <value>Nothing was deleted: an entry is in use again (an installation or its drive is back). The list was updated.</value>
+    <comment>Result of the registry cleanup when a selected key is not stale any more.</comment>
+  </data>
+  <data name="CleanupFailedFormat" xml:space="preserve">
+    <value>Not every entry could be deleted (details in the log). The backup {0} restores the deleted ones.</value>
+    <comment>Result of the registry cleanup when a delete failed after the backup. {0}: the backup file.</comment>
+  </data>
+  <data name="ToolsWonHeading" xml:space="preserve">
+    <value>WON login</value>
+    <comment>Heading of the WON login reset on the Tools page.</comment>
+  </data>
+  <data name="WonInfo" xml:space="preserve">
+    <value>If the online login fails, for example with WS_GetCert_InvalidPubKeyBlock, it helps to reset the WON login (forum): the files _wonkver.pub and _wonlogin.ks of both games are moved to the backup folder, and the game creates new ones at the next login. The backup folder then contains login data: never pass it on.</value>
+    <comment>Below the heading of the WON login reset (R6, forum p=83519, ADR 0007: the backup folder contains login data).</comment>
+  </data>
+  <data name="WonFilesFormat" xml:space="preserve">
+    <value>WON login files: {0}</value>
+    <comment>State of the WON login reset. {0}: the files found, separated by commas.</comment>
+  </data>
+  <data name="WonNoFiles" xml:space="preserve">
+    <value>No WON login file found.</value>
+    <comment>State of the WON login reset without files.</comment>
+  </data>
+  <data name="WonResetButton" xml:space="preserve">
+    <value>Reset WON login</value>
+    <comment>Button of the WON login reset; at most about 34 characters.</comment>
+  </data>
+  <data name="WonDoneFormat" xml:space="preserve">
+    <value>{0} files moved to {1}. This folder contains login data: never pass it on. If the login still fails, repair the installation with the setup.</value>
+    <comment>Result of the WON login reset. {0}: number of files; {1}: the backup folder.</comment>
+  </data>
+  <data name="WonPartialFormat" xml:space="preserve">
+    <value>Copied to {0}, but these files could not be removed (access denied). Close the game and try again, or delete them in the Explorer:
+{1}</value>
+    <comment>Result of the WON login reset when Windows denied removing files. {0}: the backup folder; {1}: the files, one per line.</comment>
+  </data>
+  <data name="WonNothingToReset" xml:space="preserve">
+    <value>No WON login file was found; there is nothing to reset.</value>
+    <comment>Result of the WON login reset without files.</comment>
+  </data>
+  <data name="WonManifestUnusable" xml:space="preserve">
+    <value>Nothing was moved: the list of files of the setup cannot be read, so the launcher cannot tell the files of the installation apart. Repair the installation with the setup.</value>
+    <comment>Result of the WON login reset when the manifest exists but cannot be used.</comment>
+  </data>
+  <data name="ToolsVirtualStoreHeading" xml:space="preserve">
+    <value>VirtualStore</value>
+    <comment>Heading of the VirtualStore check on the Tools page (a Windows term).</comment>
+  </data>
+  <data name="VirtualStoreInfo" xml:space="preserve">
+    <value>When a game below Program Files runs without administrator rights, Windows keeps the files it changes as copies in %LOCALAPPDATA%\VirtualStore. Then the game can use other files than the installation, for example another version with and without administrator rights (forum).</value>
+    <comment>Below the heading of the VirtualStore check (R8, forum 4.12).</comment>
+  </data>
+  <data name="VirtualStoreNotVirtualized" xml:space="preserve">
+    <value>Not affected: the game folders are not below Program Files, ProgramData or the Windows folder.</value>
+    <comment>VirtualStore check of an installation outside the virtualized folders.</comment>
+  </data>
+  <data name="VirtualStoreNone" xml:space="preserve">
+    <value>No copies in the VirtualStore.</value>
+    <comment>VirtualStore check without copies.</comment>
+  </data>
+  <data name="VirtualStoreSeriousFormat" xml:space="preserve">
+    <value>{0} files of the installation or program files are used from the VirtualStore instead of the game folder, so the game may run another version. Close the game, move these copies out of the VirtualStore folder, and repair the installation with the setup if the game does not start.</value>
+    <comment>VirtualStore check with shadowed manifest or program files (serious). {0}: their number.</comment>
+  </data>
+  <data name="VirtualStoreRuntimeFormat" xml:space="preserve">
+    <value>{0} other files (lobby profiles, logs, saved games) are in the VirtualStore; that is normal for a game without administrator rights.</value>
+    <comment>VirtualStore check with runtime files (information). {0}: their number.</comment>
+  </data>
+  <data name="VirtualStoreSeriousLineFormat" xml:space="preserve">
+    <value>{0} (used instead of {1})</value>
+    <comment>A serious VirtualStore copy in the list. {0}: the copy; {1}: the file of the game folder.</comment>
+  </data>
+  <data name="VirtualStoreTruncatedFormat" xml:space="preserve">
+    <value>Only the first {0} files are listed.</value>
+    <comment>Below a long VirtualStore list. {0}: the limit.</comment>
+  </data>
+  <data name="ToolsSavesHeading" xml:space="preserve">
+    <value>Saved games and scenarios</value>
+    <comment>Heading of the saved games on the Tools page.</comment>
+  </data>
+  <data name="SavesInfo" xml:space="preserve">
+    <value>Export copies all saved games (.ees) and scenarios (.scn) of both games into a new folder, also those in the VirtualStore. For a multiplayer saved game every player needs the same file with exactly the same name, and the host needs the ports 33334 to 33336 (TCP and UDP) forwarded (forum).</value>
+    <comment>Below the heading of the saved games (R10, forum t=9004 p=44629, p=44615).</comment>
+  </data>
+  <data name="SavesCountFormat" xml:space="preserve">
+    <value>{0} saved games and {1} scenarios found.</value>
+    <comment>State of the saved games. {0}, {1}: numbers.</comment>
+  </data>
+  <data name="SavesShadowedFormat" xml:space="preserve">
+    <value>Hidden by a VirtualStore copy of the same name (the game uses the copy, the export takes the copy): {0}</value>
+    <comment>Below the number of saved games when a VirtualStore copy hides a file of the game folder. {0}: the hidden files.</comment>
+  </data>
+  <data name="ExportSavesButton" xml:space="preserve">
+    <value>Export...</value>
+    <comment>Button of the saved games; at most about 20 characters.</comment>
+  </data>
+  <data name="ImportEeSavesButton" xml:space="preserve">
+    <value>Import into Empire Earth...</value>
+    <comment>Button of the saved games; at most about 34 characters.</comment>
+  </data>
+  <data name="ImportAocSavesButton" xml:space="preserve">
+    <value>Import into The Art of Conquest...</value>
+    <comment>Button of the saved games; at most about 38 characters.</comment>
+  </data>
+  <data name="ExportFolderDescription" xml:space="preserve">
+    <value>Choose the folder for the export; the launcher creates a new folder in it.</value>
+    <comment>Description of the folder dialog of the export.</comment>
+  </data>
+  <data name="ImportDialogTitle" xml:space="preserve">
+    <value>Saved games and scenarios to import</value>
+    <comment>Title of the file dialog of the import.</comment>
+  </data>
+  <data name="ImportFileFilter" xml:space="preserve">
+    <value>Saved games and scenarios (*.ees;*.scn)|*.ees;*.scn</value>
+    <comment>Filter of the file dialog of the import: the text before | is shown, the part after it must stay *.ees;*.scn.</comment>
+  </data>
+  <data name="ExportDoneFormat" xml:space="preserve">
+    <value>{0} files exported to: {1}</value>
+    <comment>Result of the export. {0}: number; {1}: the new folder.</comment>
+  </data>
+  <data name="ExportPartialFormat" xml:space="preserve">
+    <value>{0} files exported to {1}; not exported (details in the log): {2}</value>
+    <comment>Result of the export with files left out. {0}: number; {1}: the folder; {2}: the files left out.</comment>
+  </data>
+  <data name="ExportNothing" xml:space="preserve">
+    <value>There is no saved game and no scenario to export.</value>
+    <comment>Result of the export without files.</comment>
+  </data>
+  <data name="ExportInsideGameFolder" xml:space="preserve">
+    <value>Choose a folder outside the game folders.</value>
+    <comment>Result of the export into a game folder.</comment>
+  </data>
+  <data name="ExportFailed" xml:space="preserve">
+    <value>The export folder could not be created (details in the log).</value>
+    <comment>Result of the export when its folder fails.</comment>
+  </data>
+  <data name="ImportConfirmFormat" xml:space="preserve">
+    <value>These files exist already and would be replaced:
+
+{0}
+
+The old files are copied to the backup folder first. Replace them?</value>
+    <comment>Confirmation of an import that replaces files. {0}: the files, one per line.</comment>
+  </data>
+  <data name="ImportResultFormat" xml:space="preserve">
+    <value>{0} of {1} files imported.</value>
+    <comment>Result of the import. {0}, {1}: numbers.</comment>
+  </data>
+  <data name="ImportFileProblemFormat" xml:space="preserve">
+    <value>{0}: {1}</value>
+    <comment>A file of the import that was not imported. {0}: the file name; {1}: the reason.</comment>
+  </data>
+  <data name="ImportCheckNotFound" xml:space="preserve">
+    <value>not found</value>
+    <comment>Reason of ImportFileProblemFormat.</comment>
+  </data>
+  <data name="ImportCheckWrongExtension" xml:space="preserve">
+    <value>only .ees and .scn files can be imported</value>
+    <comment>Reason of ImportFileProblemFormat.</comment>
+  </data>
+  <data name="ImportCheckNotAPlainName" xml:space="preserve">
+    <value>not a plain file name</value>
+    <comment>Reason of ImportFileProblemFormat.</comment>
+  </data>
+  <data name="ImportCheckNameOutsideAnsi" xml:space="preserve">
+    <value>the name has characters the game cannot read</value>
+    <comment>Reason of ImportFileProblemFormat.</comment>
+  </data>
+  <data name="ImportCheckTooLarge" xml:space="preserve">
+    <value>larger than 64 MiB</value>
+    <comment>Reason of ImportFileProblemFormat.</comment>
+  </data>
+  <data name="ImportCheckAlreadyInPlace" xml:space="preserve">
+    <value>already in the game folder</value>
+    <comment>Reason of ImportFileProblemFormat.</comment>
+  </data>
+  <data name="ImportCheckManifestFile" xml:space="preserve">
+    <value>a file of the installation, never replaced</value>
+    <comment>Reason of ImportFileProblemFormat (contract 2.5).</comment>
+  </data>
+  <data name="ImportCheckDuplicateName" xml:space="preserve">
+    <value>another selected file has the same name</value>
+    <comment>Reason of ImportFileProblemFormat.</comment>
+  </data>
+  <data name="ImportNotConfirmed" xml:space="preserve">
+    <value>not replaced</value>
+    <comment>Reason of ImportFileProblemFormat (the player did not confirm).</comment>
+  </data>
+  <data name="ImportAccessDenied" xml:space="preserve">
+    <value>access denied</value>
+    <comment>Reason of ImportFileProblemFormat.</comment>
+  </data>
+  <data name="ImportFailed" xml:space="preserve">
+    <value>could not be written (details in the log)</value>
+    <comment>Reason of ImportFileProblemFormat.</comment>
+  </data>
+  <data name="ImportNameNoteFormat" xml:space="preserve">
+    <value>{0}: the name has characters outside plain ASCII; in multiplayer every player needs exactly this name.</value>
+    <comment>Note below the result of the import (forum t=9004 p=44629, t=3563 p=23879). {0}: the file name.</comment>
+  </data>
+  <data name="ImportBackupFormat" xml:space="preserve">
+    <value>The replaced files are in: {0}</value>
+    <comment>Below the result of an import that replaced files. {0}: the backup folder.</comment>
+  </data>
+  <data name="ToolsNamesHeading" xml:space="preserve">
+    <value>Player names</value>
+    <comment>Heading of the name check on the Tools page.</comment>
+  </data>
+  <data name="NamesInfo" xml:space="preserve">
+    <value>Special characters in names cause problems in multiplayer: with symbols in a player name a saved game cannot be loaded, and Unicode characters in a name made the game crash (forum). Use letters A to Z, digits and simple punctuation.</value>
+    <comment>Below the heading of the name check (forum t=3563 p=23879, t=2126 p=14281).</comment>
+  </data>
+  <data name="NamesOkFormat" xml:space="preserve">
+    <value>All {0} lobby profiles and player names use plain characters.</value>
+    <comment>Name check without warnings. {0}: number.</comment>
+  </data>
+  <data name="NamesNone" xml:space="preserve">
+    <value>No lobby profile and no player found.</value>
+    <comment>Name check without names.</comment>
+  </data>
+  <data name="NamesWarningFormat" xml:space="preserve">
+    <value>{0} names have characters outside plain ASCII:</value>
+    <comment>Name check with warnings; the names follow. {0}: number.</comment>
+  </data>
+  <data name="NameLobbyProfileFormat" xml:space="preserve">
+    <value>{0}, lobby profile: {1}</value>
+    <comment>A name of the name check. {0}: the game; {1}: the name.</comment>
+  </data>
+  <data name="NamePlayerFormat" xml:space="preserve">
+    <value>{0}, player: {1}</value>
+    <comment>A name of the name check (folder Users\&lt;Name&gt;). {0}: the game; {1}: the name.</comment>
+  </data>
+  <data name="ToolsBackupsHeading" xml:space="preserve">
+    <value>Backups</value>
+    <comment>Heading of the backup folder on the Tools page.</comment>
+  </data>
+  <data name="BackupFolderInfoFormat" xml:space="preserve">
+    <value>The launcher keeps its backups in {0}: .reg files of changed or deleted registry entries, the moved WON login files and replaced saved games. The folder contains login data; never pass it on.</value>
+    <comment>Below the heading of the backups (ADR 0007). {0}: the backup folder.</comment>
+  </data>
+  <data name="OpenBackupFolderButton" xml:space="preserve">
+    <value>Open backup folder</value>
+    <comment>Button of the backups; at most about 34 characters.</comment>
+  </data>
+  <data name="OpenBackupFolderFailedFormat" xml:space="preserve">
+    <value>The backup folder could not be opened: {0}</value>
+    <comment>Message when the Explorer cannot open it. {0}: the error.</comment>
+  </data>
+  <data name="ToolsChecking" xml:space="preserve">
+    <value>Checking...</value>
+    <comment>State of a tool of the Tools page while it reads.</comment>
+  </data>
 </root>

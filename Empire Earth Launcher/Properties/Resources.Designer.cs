@@ -90,6 +90,15 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The launcher keeps its backups in {0}: .reg files of changed or deleted registry entries, the moved [rest of string was truncated].
+        /// </summary>
+        internal static string BackupFolderInfoFormat {
+            get {
+                return ResourceManager.GetString("BackupFolderInfoFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Not possible while {0} is running..
         /// </summary>
         internal static string BlockedByGameFormat {
@@ -123,6 +132,177 @@ namespace Empire_Earth_Launcher.Properties {
             get {
                 object obj = ResourceManager.GetObject("checked_disabled", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: do not delete, it contains the NeoEE CD keys ({1})..
+        /// </summary>
+        internal static string CleanupAdviceDoNotDeleteFormat {
+            get {
+                return ResourceManager.GetString("CleanupAdviceDoNotDeleteFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: leftover of a removed installation (folder {1} no longer exists). It applies to all users, so t[rest of string was truncated].
+        /// </summary>
+        internal static string CleanupAdviceExportFormat {
+            get {
+                return ResourceManager.GetString("CleanupAdviceExportFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} entries of your account are leftovers of a removed installation. Select the ones to delete..
+        /// </summary>
+        internal static string CleanupCandidatesFormat {
+            get {
+                return ResourceManager.GetString("CleanupCandidatesFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CD keys present.
+        /// </summary>
+        internal static string CleanupCdKeysExist {
+            get {
+                return ResourceManager.GetString("CleanupCdKeysExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to no CD keys.
+        /// </summary>
+        internal static string CleanupCdKeysMissing {
+            get {
+                return ResourceManager.GetString("CleanupCdKeysMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CD keys cannot be read.
+        /// </summary>
+        internal static string CleanupCdKeysUnknown {
+            get {
+                return ResourceManager.GetString("CleanupCdKeysUnknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete these registry entries?  {0}  They are exported first to a .reg file in {1}; double-click it [rest of string was truncated].
+        /// </summary>
+        internal static string CleanupConfirmFormat {
+            get {
+                return ResourceManager.GetString("CleanupConfirmFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete selected....
+        /// </summary>
+        internal static string CleanupDeleteButton {
+            get {
+                return ResourceManager.GetString("CleanupDeleteButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} entries deleted. The backup is in: {1}.
+        /// </summary>
+        internal static string CleanupDoneFormat {
+            get {
+                return ResourceManager.GetString("CleanupDoneFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not every entry could be deleted (details in the log). The backup {0} restores the deleted ones..
+        /// </summary>
+        internal static string CleanupFailedFormat {
+            get {
+                return ResourceManager.GetString("CleanupFailedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Leftovers of removed installations (SSSI, Mad Doc, NeoEE) can disturb a new installation. The launch[rest of string was truncated].
+        /// </summary>
+        internal static string CleanupInfo {
+            get {
+                return ResourceManager.GetString("CleanupInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: kept, its folder {1} is on a drive that is not connected or not a local hard disk..
+        /// </summary>
+        internal static string CleanupKeepDriveFormat {
+            get {
+                return ResourceManager.GetString("CleanupKeepDriveFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: kept, its folder {1} exists..
+        /// </summary>
+        internal static string CleanupKeepFolderFormat {
+            get {
+                return ResourceManager.GetString("CleanupKeepFolderFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: kept, an installation of {1} was found..
+        /// </summary>
+        internal static string CleanupKeepInstallationFormat {
+            get {
+                return ResourceManager.GetString("CleanupKeepInstallationFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: kept, it names no game folder..
+        /// </summary>
+        internal static string CleanupKeepNoFolderFormat {
+            get {
+                return ResourceManager.GetString("CleanupKeepNoFolderFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: kept, it cannot be read..
+        /// </summary>
+        internal static string CleanupKeepUnreadableFormat {
+            get {
+                return ResourceManager.GetString("CleanupKeepUnreadableFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nothing was deleted: an entry is in use again (an installation or its drive is back). The list was u[rest of string was truncated].
+        /// </summary>
+        internal static string CleanupNoLongerStale {
+            get {
+                return ResourceManager.GetString("CleanupNoLongerStale", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nothing to clean up: no entry of your account is a leftover..
+        /// </summary>
+        internal static string CleanupNothingToCleanUp {
+            get {
+                return ResourceManager.GetString("CleanupNothingToCleanUp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} (folder {1} no longer exists).
+        /// </summary>
+        internal static string CleanupOfferedFormat {
+            get {
+                return ResourceManager.GetString("CleanupOfferedFormat", resourceCulture);
             }
         }
         
@@ -488,6 +668,69 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} files exported to: {1}.
+        /// </summary>
+        internal static string ExportDoneFormat {
+            get {
+                return ResourceManager.GetString("ExportDoneFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The export folder could not be created (details in the log)..
+        /// </summary>
+        internal static string ExportFailed {
+            get {
+                return ResourceManager.GetString("ExportFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Choose the folder for the export; the launcher creates a new folder in it..
+        /// </summary>
+        internal static string ExportFolderDescription {
+            get {
+                return ResourceManager.GetString("ExportFolderDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Choose a folder outside the game folders..
+        /// </summary>
+        internal static string ExportInsideGameFolder {
+            get {
+                return ResourceManager.GetString("ExportInsideGameFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There is no saved game and no scenario to export..
+        /// </summary>
+        internal static string ExportNothing {
+            get {
+                return ResourceManager.GetString("ExportNothing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} files exported to {1}; not exported (details in the log): {2}.
+        /// </summary>
+        internal static string ExportPartialFormat {
+            get {
+                return ResourceManager.GetString("ExportPartialFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export....
+        /// </summary>
+        internal static string ExportSavesButton {
+            get {
+                return ResourceManager.GetString("ExportSavesButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to no connection.
         /// </summary>
         internal static string FailureNetwork {
@@ -817,6 +1060,186 @@ namespace Empire_Earth_Launcher.Properties {
         internal static string HintsNone {
             get {
                 return ResourceManager.GetString("HintsNone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to access denied.
+        /// </summary>
+        internal static string ImportAccessDenied {
+            get {
+                return ResourceManager.GetString("ImportAccessDenied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Import into The Art of Conquest....
+        /// </summary>
+        internal static string ImportAocSavesButton {
+            get {
+                return ResourceManager.GetString("ImportAocSavesButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The replaced files are in: {0}.
+        /// </summary>
+        internal static string ImportBackupFormat {
+            get {
+                return ResourceManager.GetString("ImportBackupFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to already in the game folder.
+        /// </summary>
+        internal static string ImportCheckAlreadyInPlace {
+            get {
+                return ResourceManager.GetString("ImportCheckAlreadyInPlace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to another selected file has the same name.
+        /// </summary>
+        internal static string ImportCheckDuplicateName {
+            get {
+                return ResourceManager.GetString("ImportCheckDuplicateName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to a file of the installation, never replaced.
+        /// </summary>
+        internal static string ImportCheckManifestFile {
+            get {
+                return ResourceManager.GetString("ImportCheckManifestFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to the name has characters the game cannot read.
+        /// </summary>
+        internal static string ImportCheckNameOutsideAnsi {
+            get {
+                return ResourceManager.GetString("ImportCheckNameOutsideAnsi", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to not a plain file name.
+        /// </summary>
+        internal static string ImportCheckNotAPlainName {
+            get {
+                return ResourceManager.GetString("ImportCheckNotAPlainName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to not found.
+        /// </summary>
+        internal static string ImportCheckNotFound {
+            get {
+                return ResourceManager.GetString("ImportCheckNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to larger than 64 MiB.
+        /// </summary>
+        internal static string ImportCheckTooLarge {
+            get {
+                return ResourceManager.GetString("ImportCheckTooLarge", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to only .ees and .scn files can be imported.
+        /// </summary>
+        internal static string ImportCheckWrongExtension {
+            get {
+                return ResourceManager.GetString("ImportCheckWrongExtension", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to These files exist already and would be replaced:  {0}  The old files are copied to the backup folder[rest of string was truncated].
+        /// </summary>
+        internal static string ImportConfirmFormat {
+            get {
+                return ResourceManager.GetString("ImportConfirmFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saved games and scenarios to import.
+        /// </summary>
+        internal static string ImportDialogTitle {
+            get {
+                return ResourceManager.GetString("ImportDialogTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Import into Empire Earth....
+        /// </summary>
+        internal static string ImportEeSavesButton {
+            get {
+                return ResourceManager.GetString("ImportEeSavesButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to could not be written (details in the log).
+        /// </summary>
+        internal static string ImportFailed {
+            get {
+                return ResourceManager.GetString("ImportFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saved games and scenarios (*.ees;*.scn)|*.ees;*.scn.
+        /// </summary>
+        internal static string ImportFileFilter {
+            get {
+                return ResourceManager.GetString("ImportFileFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: {1}.
+        /// </summary>
+        internal static string ImportFileProblemFormat {
+            get {
+                return ResourceManager.GetString("ImportFileProblemFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: the name has characters outside plain ASCII; in multiplayer every player needs exactly this nam[rest of string was truncated].
+        /// </summary>
+        internal static string ImportNameNoteFormat {
+            get {
+                return ResourceManager.GetString("ImportNameNoteFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to not replaced.
+        /// </summary>
+        internal static string ImportNotConfirmed {
+            get {
+                return ResourceManager.GetString("ImportNotConfirmed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} of {1} files imported..
+        /// </summary>
+        internal static string ImportResultFormat {
+            get {
+                return ResourceManager.GetString("ImportResultFormat", resourceCulture);
             }
         }
         
@@ -1388,6 +1811,60 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0}, lobby profile: {1}.
+        /// </summary>
+        internal static string NameLobbyProfileFormat {
+            get {
+                return ResourceManager.GetString("NameLobbyProfileFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}, player: {1}.
+        /// </summary>
+        internal static string NamePlayerFormat {
+            get {
+                return ResourceManager.GetString("NamePlayerFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Special characters in names cause problems in multiplayer: with symbols in a player name a saved gam[rest of string was truncated].
+        /// </summary>
+        internal static string NamesInfo {
+            get {
+                return ResourceManager.GetString("NamesInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No lobby profile and no player found..
+        /// </summary>
+        internal static string NamesNone {
+            get {
+                return ResourceManager.GetString("NamesNone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All {0} lobby profiles and player names use plain characters..
+        /// </summary>
+        internal static string NamesOkFormat {
+            get {
+                return ResourceManager.GetString("NamesOkFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} names have characters outside plain ASCII:.
+        /// </summary>
+        internal static string NamesWarningFormat {
+            get {
+                return ResourceManager.GetString("NamesWarningFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Launcher.
         /// </summary>
         internal static string NavigationLauncher {
@@ -1474,6 +1951,24 @@ namespace Empire_Earth_Launcher.Properties {
         internal static string OnlinePlayersUnavailableSeeLog {
             get {
                 return ResourceManager.GetString("OnlinePlayersUnavailableSeeLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open backup folder.
+        /// </summary>
+        internal static string OpenBackupFolderButton {
+            get {
+                return ResourceManager.GetString("OpenBackupFolderButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The backup folder could not be opened: {0}.
+        /// </summary>
+        internal static string OpenBackupFolderFailedFormat {
+            get {
+                return ResourceManager.GetString("OpenBackupFolderFailedFormat", resourceCulture);
             }
         }
         
@@ -1851,6 +2346,33 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} saved games and {1} scenarios found..
+        /// </summary>
+        internal static string SavesCountFormat {
+            get {
+                return ResourceManager.GetString("SavesCountFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export copies all saved games (.ees) and scenarios (.scn) of both games into a new folder, also thos[rest of string was truncated].
+        /// </summary>
+        internal static string SavesInfo {
+            get {
+                return ResourceManager.GetString("SavesInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hidden by a VirtualStore copy of the same name (the game uses the copy, the export takes the copy): [rest of string was truncated].
+        /// </summary>
+        internal static string SavesShadowedFormat {
+            get {
+                return ResourceManager.GetString("SavesShadowedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Select the Empire Earth folder (the folder of {0})..
         /// </summary>
         internal static string SelectGameDirectoryFormat {
@@ -1986,6 +2508,33 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Backups.
+        /// </summary>
+        internal static string ToolsBackupsHeading {
+            get {
+                return ResourceManager.GetString("ToolsBackupsHeading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Checking....
+        /// </summary>
+        internal static string ToolsChecking {
+            get {
+                return ResourceManager.GetString("ToolsChecking", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Old registry entries.
+        /// </summary>
+        internal static string ToolsCleanupHeading {
+            get {
+                return ResourceManager.GetString("ToolsCleanupHeading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Installation files.
         /// </summary>
         internal static string ToolsFilesHeading {
@@ -1995,11 +2544,47 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Player names.
+        /// </summary>
+        internal static string ToolsNamesHeading {
+            get {
+                return ResourceManager.GetString("ToolsNamesHeading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saved games and scenarios.
+        /// </summary>
+        internal static string ToolsSavesHeading {
+            get {
+                return ResourceManager.GetString("ToolsSavesHeading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Updates.
         /// </summary>
         internal static string ToolsUpdatesHeading {
             get {
                 return ResourceManager.GetString("ToolsUpdatesHeading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to VirtualStore.
+        /// </summary>
+        internal static string ToolsVirtualStoreHeading {
+            get {
+                return ResourceManager.GetString("ToolsVirtualStoreHeading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to WON login.
+        /// </summary>
+        internal static string ToolsWonHeading {
+            get {
+                return ResourceManager.GetString("ToolsWonHeading", resourceCulture);
             }
         }
         
@@ -2154,6 +2739,141 @@ namespace Empire_Earth_Launcher.Properties {
         internal static string VersionSetupUpToDateFormat {
             get {
                 return ResourceManager.GetString("VersionSetupUpToDateFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to When a game below Program Files runs without administrator rights, Windows keeps the files it change[rest of string was truncated].
+        /// </summary>
+        internal static string VirtualStoreInfo {
+            get {
+                return ResourceManager.GetString("VirtualStoreInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No copies in the VirtualStore..
+        /// </summary>
+        internal static string VirtualStoreNone {
+            get {
+                return ResourceManager.GetString("VirtualStoreNone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not affected: the game folders are not below Program Files, ProgramData or the Windows folder..
+        /// </summary>
+        internal static string VirtualStoreNotVirtualized {
+            get {
+                return ResourceManager.GetString("VirtualStoreNotVirtualized", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} other files (lobby profiles, logs, saved games) are in the VirtualStore; that is normal for a ga[rest of string was truncated].
+        /// </summary>
+        internal static string VirtualStoreRuntimeFormat {
+            get {
+                return ResourceManager.GetString("VirtualStoreRuntimeFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} files of the installation or program files are used from the VirtualStore instead of the game fo[rest of string was truncated].
+        /// </summary>
+        internal static string VirtualStoreSeriousFormat {
+            get {
+                return ResourceManager.GetString("VirtualStoreSeriousFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} (used instead of {1}).
+        /// </summary>
+        internal static string VirtualStoreSeriousLineFormat {
+            get {
+                return ResourceManager.GetString("VirtualStoreSeriousLineFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Only the first {0} files are listed..
+        /// </summary>
+        internal static string VirtualStoreTruncatedFormat {
+            get {
+                return ResourceManager.GetString("VirtualStoreTruncatedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} files moved to {1}. This folder contains login data: never pass it on. If the login still fails,[rest of string was truncated].
+        /// </summary>
+        internal static string WonDoneFormat {
+            get {
+                return ResourceManager.GetString("WonDoneFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to WON login files: {0}.
+        /// </summary>
+        internal static string WonFilesFormat {
+            get {
+                return ResourceManager.GetString("WonFilesFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to If the online login fails, for example with WS_GetCert_InvalidPubKeyBlock, it helps to reset the WON[rest of string was truncated].
+        /// </summary>
+        internal static string WonInfo {
+            get {
+                return ResourceManager.GetString("WonInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nothing was moved: the list of files of the setup cannot be read, so the launcher cannot tell the fi[rest of string was truncated].
+        /// </summary>
+        internal static string WonManifestUnusable {
+            get {
+                return ResourceManager.GetString("WonManifestUnusable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No WON login file found..
+        /// </summary>
+        internal static string WonNoFiles {
+            get {
+                return ResourceManager.GetString("WonNoFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No WON login file was found; there is nothing to reset..
+        /// </summary>
+        internal static string WonNothingToReset {
+            get {
+                return ResourceManager.GetString("WonNothingToReset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Copied to {0}, but these files could not be removed (access denied). Close the game and try again, o[rest of string was truncated].
+        /// </summary>
+        internal static string WonPartialFormat {
+            get {
+                return ResourceManager.GetString("WonPartialFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reset WON login.
+        /// </summary>
+        internal static string WonResetButton {
+            get {
+                return ResourceManager.GetString("WonResetButton", resourceCulture);
             }
         }
     }
