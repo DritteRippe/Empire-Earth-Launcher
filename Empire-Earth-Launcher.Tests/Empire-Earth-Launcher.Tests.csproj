@@ -82,6 +82,7 @@
     <Compile Include="Core\Platform\RegistryPathTests.cs" />
     <Compile Include="Core\Platform\RegistryValueTests.cs" />
     <Compile Include="Core\Platform\RegistryWritePolicyTests.cs" />
+    <Compile Include="Core\Platform\SystemInfoTests.cs" />
     <Compile Include="Core\Platform\WindowsMutexProbeTests.cs" />
     <Compile Include="Core\Platform\WinPathTests.cs" />
     <Compile Include="Core\Play\MutationGuardTests.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Fakes\BlockingRegistry.cs" />
     <Compile Include="Fakes\FakeClock.cs" />
     <Compile Include="Fakes\FakeMutexProbe.cs" />
+    <Compile Include="Fakes\FakeSystemInfo.cs" />
     <Compile Include="Fakes\InMemoryFileSystem.cs" />
     <Compile Include="Fakes\InMemoryFileSystemTests.cs" />
     <Compile Include="Fakes\InMemoryRegistry.cs" />
