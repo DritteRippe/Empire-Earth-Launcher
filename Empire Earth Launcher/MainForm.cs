@@ -5,7 +5,6 @@ using Empire_Earth_Launcher.Core.Lobby;
 using Empire_Earth_Launcher.Core.Logging;
 using Empire_Earth_Launcher.Core.Settings;
 using Empire_Earth_Launcher.Properties;
-using Empire_Earth_WON;
 
 namespace Empire_Earth_Launcher
 {
@@ -21,11 +20,10 @@ namespace Empire_Earth_Launcher
         /// <param name="lobbyProfiles">Reads the lobby profiles of the game folder.</param>
         /// <param name="gameSettings">The game settings of the selected installation (L-WP5).</param>
         /// <param name="uiOperation">Runs the asynchronous work of the pages (ADR 0004).</param>
-        /// <param name="neoClient">Client for the online player list; null if the server settings are invalid.</param>
-        /// <param name="playerListPollIntervalMilliseconds">Delay between two requests of the player list.</param>
+        /// <param name="playerList">Polls the online player list; null if the server settings are invalid.</param>
         internal MainForm(ILogger logger, IThemeService themeService, SettingsStore settings,
             InstallationService installations, LobbyProfileRepository lobbyProfiles, GameSettingsModel gameSettings,
-            UiOperation uiOperation, NeoApiClient neoClient, int playerListPollIntervalMilliseconds)
+            UiOperation uiOperation, PlayerListPoller playerList)
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.OptimizedDoubleBuffer, true);
@@ -35,8 +33,8 @@ namespace Empire_Earth_Launcher
 
             // The pages are created by InitializeComponent (designer), which needs parameterless constructors,
             // so they receive their services here.
-            generalUserControl.Initialize(logger, themeService, installations, lobbyProfiles, neoClient,
-                playerListPollIntervalMilliseconds, gameSettings, uiOperation);
+            generalUserControl.Initialize(logger, themeService, installations, lobbyProfiles, playerList, gameSettings,
+                uiOperation);
             settingsUserControl.Initialize(themeService, gameSettings, installations, uiOperation);
             launcherSettingsUserControl.Initialize(themeService, settings, installations, uiOperation);
 

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Globalization;
-using System.Threading;
 using System.Windows.Forms;
 using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Lobby;
@@ -14,10 +12,6 @@ namespace Empire_Earth_Launcher
 {
     public partial class GeneralUserControl : UserControl
     {
-        /// <summary>Granularity of the poll delay, so that cancelling the worker does not wait for a whole interval.</summary>
-        private const int CancellationCheckMilliseconds = 100;
-
-        private BackgroundWorker backgroundWorker;
         private ILogger logger;
         private InstallationService installations;
         private GameSettingsModel gameSettings;
@@ -25,20 +19,14 @@ namespace Empire_Earth_Launcher
 
         /// <summary>The hint the info bar shows; null while it shows the display question or nothing.</summary>
         private ConsistencyFinding shownFinding;
-        private NeoApiClient neoClient;
 
-        /// <summary>Delay between two requests of the online player list.</summary>
-        private int playerListPollIntervalMilliseconds;
+        /// <summary>Polls the online player list (ADR 0004); null if the server settings are invalid.</summary>
+        private PlayerListPoller playerList;
         private LobbyProfileRepository lobbyProfiles;
 
         /// <summary>Profiles shown in the user list, in the same order.</summary>
         private IList<LobbyPersistentData.LobbyGlobalData.PlayerInfoGlobalData> profiles =
             new LobbyPersistentData.LobbyGlobalData.PlayerInfoGlobalData[0];
-
-        /// <summary>
-        /// True while the player list cannot be fetched, so that an outage is logged once and not every poll.
-        /// </summary>
-        private bool playerListUnavailable;
 
         public GeneralUserControl()
         {
@@ -48,15 +36,6 @@ namespace Empire_Earth_Launcher
             // No file or network I/O here: the constructor also runs inside the Visual Studio designer and
             // during MainForm.InitializeComponent, where an exception would prevent the launcher from starting.
             // Loading happens in OnLoad.
-            backgroundWorker = new BackgroundWorker()
-            {
-                WorkerReportsProgress = true,
-                WorkerSupportsCancellation = true
-            };
-            backgroundWorker.DoWork += backgroundWorker_DoWork;
-            backgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
-            backgroundWorker.RunWorkerCompleted += backgroundWorker_RunWorkerCompleted;
-            Disposed += (sender, e) => backgroundWorker.CancelAsync();
         }
 
         /// <summary>
@@ -84,14 +63,13 @@ namespace Empire_Earth_Launcher
         /// <param name="installations">The installations; the lobby files are read from the EE folder of the selected one,
         /// again when it changes.</param>
         /// <param name="lobbyProfiles">Reads the lobby profiles of the game folder (VirtualStore copy first).</param>
-        /// <param name="neoClient">Client for the online player list; null disables the list (invalid server
-        /// settings).</param>
-        /// <param name="playerListPollIntervalMilliseconds">Delay between two requests of the player list.</param>
+        /// <param name="playerList">Polls the online player list, started when the page loads and ended with it; null
+        /// disables the list (invalid server settings).</param>
         /// <param name="gameSettings">The game settings: the display question and the hints of the info bar (L-WP5).</param>
         /// <param name="uiOperation">Runs the answer to the display question (ADR 0004).</param>
         internal void Initialize(ILogger logger, IThemeService themeService, InstallationService installations,
-            LobbyProfileRepository lobbyProfiles, NeoApiClient neoClient, int playerListPollIntervalMilliseconds,
-            GameSettingsModel gameSettings, UiOperation uiOperation)
+            LobbyProfileRepository lobbyProfiles, PlayerListPoller playerList, GameSettingsModel gameSettings,
+            UiOperation uiOperation)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
@@ -99,14 +77,11 @@ namespace Empire_Earth_Launcher
                 throw new ArgumentNullException(nameof(themeService));
             if (installations == null)
                 throw new ArgumentNullException(nameof(installations));
-            if (neoClient != null && playerListPollIntervalMilliseconds <= 0)
-                throw new ArgumentOutOfRangeException(nameof(playerListPollIntervalMilliseconds));
 
             this.logger = logger;
             this.lobbyProfiles = lobbyProfiles ?? throw new ArgumentNullException(nameof(lobbyProfiles));
             this.installations = installations;
-            this.neoClient = neoClient;
-            this.playerListPollIntervalMilliseconds = playerListPollIntervalMilliseconds;
+            this.playerList = playerList;
             themeService.Register(launcherKryptonPalette, this);
 
             EventHandler reloadLobbyProfiles = (sender, e) => OnInstallationsChanged();
@@ -182,15 +157,21 @@ namespace Empire_Earth_Launcher
             StartPlayerListPolling();
         }
 
+        /// <summary>
+        /// Starts the polling of the online player list (no request before the page loads); it ends with the page. The poller
+        /// logs an outage once and the return of the list once (ADR 0004).
+        /// </summary>
         private void StartPlayerListPolling()
         {
-            if (neoClient == null)
+            if (playerList == null)
             {
                 neoOnlineKryptonGroupBox.Values.Heading = Resources.OnlinePlayersInvalidSettings;
                 return;
             }
             neoOnlineKryptonGroupBox.Values.Heading = Resources.OnlinePlayersLoading;
-            backgroundWorker.RunWorkerAsync();
+            playerList.Updated += OnPlayerListUpdated;
+            Disposed += (sender, e) => playerList.Dispose();
+            playerList.Start();
         }
 
         /// <summary>
@@ -241,25 +222,30 @@ namespace Empire_Earth_Launcher
             neoOnlineKryptonGroupBox.Values.Description = reason;
         }
 
-        private void backgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        /// <summary>A result of the player list, on the UI thread (the poller was started there).</summary>
+        private void OnPlayerListUpdated(object sender, PlayerListUpdate update)
         {
             if (IsDisposed)
                 return;
 
-            if (e.UserState is NeoApiClient.ConnectedPlayersMessage message)
-                ShowOnlinePlayers(message);
-            else
-                ShowPlayerListUnavailable(e.UserState as Exception);
+            switch (update.Status)
+            {
+                case PlayerListStatus.Available:
+                    ShowOnlinePlayers(update.Message);
+                    break;
+                case PlayerListStatus.Unavailable:
+                    ShowPlayerListUnavailable();
+                    break;
+                default:
+                    // The polling ended by an error of its own (logged by the poller).
+                    onlinePlayersKryptonDataGridView.Rows.Clear();
+                    neoOnlineKryptonGroupBox.Values.Heading = Resources.OnlinePlayersUnavailableSeeLog;
+                    break;
+            }
         }
 
         private void ShowOnlinePlayers(NeoApiClient.ConnectedPlayersMessage message)
         {
-            if (playerListUnavailable)
-            {
-                logger.Info("The online player list is available again.");
-                playerListUnavailable = false;
-            }
-
             onlinePlayersKryptonDataGridView.Rows.Clear();
 
             neoOnlineKryptonGroupBox.Values.Heading =
@@ -272,70 +258,10 @@ namespace Empire_Earth_Launcher
             }
         }
 
-        private void ShowPlayerListUnavailable(Exception error)
+        private void ShowPlayerListUnavailable()
         {
-            if (!playerListUnavailable)
-            {
-                logger.Error("The online player list of " + neoClient.Endpoint + " is unavailable, retrying every " +
-                             playerListPollIntervalMilliseconds + " ms.", error);
-                playerListUnavailable = true;
-            }
-
             onlinePlayersKryptonDataGridView.Rows.Clear();
             neoOnlineKryptonGroupBox.Values.Heading = Resources.OnlinePlayersUnavailable;
-        }
-
-        private void backgroundWorker_DoWork(object sender, DoWorkEventArgs e)
-        {
-            BackgroundWorker worker = (BackgroundWorker)sender;
-            while (!worker.CancellationPending)
-            {
-                object result = RequestConnectedPlayers();
-                // A request can take several seconds; the control may have been disposed meanwhile.
-                if (worker.CancellationPending)
-                    break;
-                worker.ReportProgress(0, result);
-
-                for (int waited = 0;
-                     waited < playerListPollIntervalMilliseconds && !worker.CancellationPending;
-                     waited += CancellationCheckMilliseconds)
-                {
-                    Thread.Sleep(CancellationCheckMilliseconds);
-                }
-            }
-            e.Cancel = true;
-        }
-
-        /// <summary>
-        /// Runs on the worker thread. Returns the message on success, otherwise the error, so that one
-        /// failed request never ends the polling.
-        /// </summary>
-        private object RequestConnectedPlayers()
-        {
-            try
-            {
-                NeoApiClient.ConnectedPlayersMessage message;
-                Exception error;
-                return neoClient.TryGetConnectedPlayers(out message, out error) ? (object)message : error;
-            }
-            catch (Exception ex)
-            {
-                // TryGetConnectedPlayers already turns network and protocol errors into a result; anything else is a
-                // bug, but it must not end the polling either.
-                return ex;
-            }
-        }
-
-        private void backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            // DoWork catches the errors of each request, so this only reports bugs in the polling loop itself
-            // instead of letting the BackgroundWorker swallow them.
-            if (e.Error == null)
-                return;
-
-            logger.Error("The online player list polling stopped unexpectedly.", e.Error);
-            if (!IsDisposed)
-                neoOnlineKryptonGroupBox.Values.Heading = Resources.OnlinePlayersUnavailableSeeLog;
         }
 
         private void usersLobbyKryptonComboBox_SelectedIndexChanged(object sender, EventArgs e)

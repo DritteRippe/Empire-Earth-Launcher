@@ -79,13 +79,18 @@ namespace Empire_Earth_Launcher
                 new CompatibilityOptions(registry, systemInfo, guard, backups, logger),
                 settingsStore, systemInfo, backups.Directory, logger);
 
-            // Server settings stay application settings in "Empire Earth Launcher.exe.config" (ADR 0005).
+            // Server settings stay application settings in "Empire Earth Launcher.exe.config" (ADR 0005). The poller sends no
+            // request before the Play page starts it (ADR 0004).
             int playerListPollIntervalMilliseconds;
             NeoApiClient neoClient = CreateNeoClient(Settings.Default, out playerListPollIntervalMilliseconds);
+            PlayerListPoller playerList = neoClient == null
+                ? null
+                : new PlayerListPoller(new NeoPlayerListSource(neoClient),
+                    TimeSpan.FromMilliseconds(playerListPollIntervalMilliseconds), logger);
 
             logger.Info("Starting Empire Earth Launcher Form");
             Application.Run(new MainForm(logger, themeService, settingsStore, installations, lobbyProfiles, gameSettings,
-                uiOperation, neoClient, playerListPollIntervalMilliseconds));
+                uiOperation, playerList));
         }
 
         /// <summary>

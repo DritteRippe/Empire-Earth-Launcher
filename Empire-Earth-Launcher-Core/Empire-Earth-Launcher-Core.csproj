@@ -71,6 +71,7 @@
     <Compile Include="Installations\SetupNameList.cs" />
     <Compile Include="Installations\UninstallKeyScanner.cs" />
     <Compile Include="Lobby\LobbyProfileRepository.cs" />
+    <Compile Include="Lobby\PlayerListPoller.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Logging\TraceFileLogger.cs" />
     <Compile Include="Platform\FileSystemExtensions.cs" />
