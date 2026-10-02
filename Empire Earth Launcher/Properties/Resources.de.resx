@@ -467,7 +467,7 @@ Ihre jetzigen Einstellungen werden vorher als .reg-Dateien in {1} gesichert; ein
     <value>Ein Windows-Kompatibilitätsmodus ist schon gesetzt, daher wird kein zweiter angeboten. Hat das Setup ihn für alle Benutzer gesetzt, entfernt ihn ein benutzerdefinierter Lauf des Setups ohne „Kompatibilitätsmodus für ältere Windows-Versionen aktivieren“.</value>
   </data>
   <data name="CompatibilityNotOffered" xml:space="preserve">
-    <value>Unter Windows 7 und unter Wine bietet der Launcher keine Kompatibilitätsoptionen an; das aktuelle Setup setzt dort auch keine.</value>
+    <value>Unter Windows 7 und unter Wine bietet der Launcher keine Kompatibilitätsoptionen an. Unter Windows 7 kann das aktuelle Setup sie setzen, wenn Sie sie bei der Installation auswählen.</value>
   </data>
   <data name="CompatibilityLegacyFormat" xml:space="preserve">
     <value>Kompatibilitätswerte eines älteren Setups ({0}), die unter Windows 7 schwarze Bildschirme verursachen können. Führen Sie das aktuelle Community-Setup aus: Es entfernt sie.</value>

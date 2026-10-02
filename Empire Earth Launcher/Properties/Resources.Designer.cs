@@ -210,7 +210,7 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to On Windows 7 and under Wine the launcher offers no compatibility options; the current setup sets non[rest of string was truncated].
+        ///   Looks up a localized string similar to On Windows 7 and under Wine the launcher offers no compatibility options. On Windows 7 the current s[rest of string was truncated].
         /// </summary>
         internal static string CompatibilityNotOffered {
             get {

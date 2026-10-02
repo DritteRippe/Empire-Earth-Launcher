@@ -467,7 +467,7 @@ Vos paramètres actuels sont d'abord enregistrés dans des fichiers .reg dans {1
     <value>Un mode de compatibilité Windows est déjà défini, aucun deuxième n'est donc proposé. Si le setup l'a défini pour tous les utilisateurs, une installation personnalisée du setup sans « Activer le mode de compatibilité avec une version antérieure de Windows » le retire.</value>
   </data>
   <data name="CompatibilityNotOffered" xml:space="preserve">
-    <value>Sous Windows 7 et sous Wine, le launcher ne propose aucune option de compatibilité ; le setup actuel n'en définit pas non plus.</value>
+    <value>Sous Windows 7 et sous Wine, le launcher ne propose aucune option de compatibilité. Sous Windows 7, le setup actuel peut les définir si vous les choisissez lors de l'installation.</value>
   </data>
   <data name="CompatibilityLegacyFormat" xml:space="preserve">
     <value>Valeurs de compatibilité d'un ancien setup ({0}), qui peuvent provoquer des écrans noirs sous Windows 7. Lancez le setup communautaire actuel : il les supprime.</value>

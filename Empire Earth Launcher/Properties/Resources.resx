@@ -619,7 +619,7 @@ Your current settings are saved first as .reg files in {1}; double-click such a 
     <comment>Below the compatibility options (ADR 0015). The quoted text is the task of the setup (messages.iss, TaskCompatibilityWindows) and must match it.</comment>
   </data>
   <data name="CompatibilityNotOffered" xml:space="preserve">
-    <value>On Windows 7 and under Wine the launcher offers no compatibility options; the current setup sets none there either.</value>
+    <value>On Windows 7 and under Wine the launcher offers no compatibility options. On Windows 7 the current setup can set them if you choose them during the installation.</value>
     <comment>Instead of the compatibility options on Windows 7 and Wine (contract 3.7).</comment>
   </data>
   <data name="CompatibilityLegacyFormat" xml:space="preserve">
