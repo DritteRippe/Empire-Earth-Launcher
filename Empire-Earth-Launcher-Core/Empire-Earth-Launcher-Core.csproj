@@ -71,6 +71,10 @@
     <Compile Include="Installations\RegistryReads.cs" />
     <Compile Include="Installations\SetupNameList.cs" />
     <Compile Include="Installations\UninstallKeyScanner.cs" />
+    <Compile Include="Integrity\FileClassifier.cs" />
+    <Compile Include="Integrity\IntegrityChecker.cs" />
+    <Compile Include="Integrity\IntegrityReport.cs" />
+    <Compile Include="Integrity\ManifestReader.cs" />
     <Compile Include="Lobby\LobbyProfileRepository.cs" />
     <Compile Include="Lobby\PlayerListPoller.cs" />
     <Compile Include="Logging\ILogger.cs" />

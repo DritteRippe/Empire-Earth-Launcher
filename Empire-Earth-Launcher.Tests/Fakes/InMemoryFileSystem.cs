@@ -51,6 +51,7 @@ namespace Empire_Earth_Launcher.Tests.Fakes
         private readonly Dictionary<string, int> openCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         private readonly List<Tuple<string, FileSystemOperation, FileSystemStatus>> faults =
             new List<Tuple<string, FileSystemOperation, FileSystemStatus>>();
+        private int openStreams;
 
         public InMemoryFileSystem(IClock clock = null)
         {
@@ -60,6 +61,18 @@ namespace Empire_Earth_Launcher.Tests.Fakes
 
         /// <summary>Called with "exists &lt;path&gt;" by every <see cref="FileExists"/> (order tests).</summary>
         public Action<string> OnFileExists { get; set; }
+
+        /// <summary>
+        /// Called with the path before every <see cref="Stream.Read(byte[], int, int)"/> of a stream of <see cref="OpenRead"/>,
+        /// on the reading thread: a test can let a setup start or block while a file is read.
+        /// </summary>
+        public Action<string> OnRead { get; set; }
+
+        /// <summary>Streams of <see cref="OpenRead"/> that are not disposed yet.</summary>
+        public int OpenStreamCount
+        {
+            get { return openStreams; }
+        }
 
         /// <summary>Number of <see cref="OpenRead"/> calls that returned a stream, over all files.</summary>
         public int TotalOpenCount
@@ -190,7 +203,8 @@ namespace Empire_Earth_Launcher.Tests.Fakes
             if (!files.TryGetValue(key, out FileData file))
                 return FileSystemResult<Stream>.Failure(FileSystemStatus.NotFound, "Could not find file " + path);
             openCounts[key] = OpenCount(key) + 1;
-            return FileSystemResult<Stream>.Success(new MemoryStream(file.Content, false));
+            System.Threading.Interlocked.Increment(ref openStreams);
+            return FileSystemResult<Stream>.Success(new TrackedStream(this, file.Path, file.Content));
         }
 
         public FileSystemResult<IReadOnlyList<string>> GetFiles(string directory)
@@ -373,6 +387,37 @@ namespace Empire_Earth_Launcher.Tests.Fakes
             if (!TryKey(path, out string key))
                 throw new ArgumentException("A valid full Windows path is required: " + path, nameof(path));
             return key;
+        }
+
+        /// <summary>A read-only stream of a file that reports its reads (<see cref="OnRead"/>) and its disposal.</summary>
+        private sealed class TrackedStream : MemoryStream
+        {
+            private readonly InMemoryFileSystem owner;
+            private readonly string path;
+            private bool disposed;
+
+            public TrackedStream(InMemoryFileSystem owner, string path, byte[] content)
+                : base(content, false)
+            {
+                this.owner = owner;
+                this.path = path;
+            }
+
+            public override int Read(byte[] buffer, int offset, int count)
+            {
+                owner.OnRead?.Invoke(path);
+                return base.Read(buffer, offset, count);
+            }
+
+            protected override void Dispose(bool disposing)
+            {
+                if (!disposed)
+                {
+                    disposed = true;
+                    System.Threading.Interlocked.Decrement(ref owner.openStreams);
+                }
+                base.Dispose(disposing);
+            }
         }
 
         private static string RootOf(string key)

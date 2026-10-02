@@ -91,6 +91,9 @@
     <Compile Include="Core\Installations\InstallInfoFileTests.cs" />
     <Compile Include="Core\Installations\InstallRecordReaderTests.cs" />
     <Compile Include="Core\Installations\UninstallKeyScannerTests.cs" />
+    <Compile Include="Core\Integrity\FileClassifierTests.cs" />
+    <Compile Include="Core\Integrity\IntegrityCheckerTests.cs" />
+    <Compile Include="Core\Integrity\ManifestReaderTests.cs" />
     <Compile Include="Core\Lobby\LobbyProfileRepositoryTests.cs" />
     <Compile Include="Core\Lobby\PlayerListPollerTests.cs" />
     <Compile Include="Core\Logging\LogTrimmingTests.cs" />
@@ -160,6 +163,7 @@
     <Compile Include="TestSupport\ProjectFile.cs" />
     <Compile Include="TestSupport\RegFileImporter.cs" />
     <Compile Include="TestSupport\RepositoryRoot.cs" />
+    <Compile Include="TestSupport\SampleHashes.cs" />
     <Compile Include="TestSupport\TemporaryDirectory.cs" />
     <Compile Include="TestSupport\TestCategories.cs" />
     <Compile Include="Won\DeadlineStreamTests.cs" />

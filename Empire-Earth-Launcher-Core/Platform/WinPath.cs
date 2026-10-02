@@ -223,7 +223,12 @@ namespace Empire_Earth_Launcher.Core.Platform
             return ManifestPathError.None;
         }
 
-        private static ManifestPathError CheckManifestPath(string manifestPath)
+        /// <summary>
+        /// Checks a path of the integrity manifest without an install root (contract 2.2): the rules of
+        /// <see cref="TryResolveManifestPath"/> except the final "below the root" check, which needs the root. Used by
+        /// the manifest reader, which refuses the whole manifest for one such path.
+        /// </summary>
+        public static ManifestPathError CheckManifestPath(string manifestPath)
         {
             if (string.IsNullOrEmpty(manifestPath))
                 return ManifestPathError.Empty;
