@@ -589,4 +589,181 @@ Ihre jetzigen Einstellungen werden vorher als .reg-Dateien in {1} gesichert; ein
   <data name="RepairPageNotOpenedFormat" xml:space="preserve">
     <value>Die Seite konnte nicht geöffnet werden. Kopieren Sie die Adresse in Ihren Browser: {0}</value>
   </data>
+  <data name="NavigationTools" xml:space="preserve">
+    <value>Werkzeuge</value>
+  </data>
+  <data name="ToolsFilesHeading" xml:space="preserve">
+    <value>Dateien der Installation</value>
+  </data>
+  <data name="ToolsUpdatesHeading" xml:space="preserve">
+    <value>Updates</value>
+  </data>
+  <data name="FullCheckButton" xml:space="preserve">
+    <value>Alle Dateien prüfen</value>
+  </data>
+  <data name="CancelCheckButton" xml:space="preserve">
+    <value>Prüfung abbrechen</value>
+  </data>
+  <data name="RepairAdviceButton" xml:space="preserve">
+    <value>Reparatur-Hinweise</value>
+  </data>
+  <data name="IntegrityRepairButton" xml:space="preserve">
+    <value>Reparieren ...</value>
+  </data>
+  <data name="IntegrityDetailsButton" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="IntegrityCheckInfo" xml:space="preserve">
+    <value>Die schnelle Prüfung läuft bei jedem Start und nach einem Setup und prüft die Programmdateien. „Alle Dateien prüfen“ vergleicht auch die Spieldaten; das kann einige Minuten dauern. Der Launcher liest die Dateien nur.</value>
+  </data>
+  <data name="IntegrityBadgeChecking" xml:space="preserve">
+    <value>Dateien: werden geprüft ...</value>
+  </data>
+  <data name="IntegrityBadgeOk" xml:space="preserve">
+    <value>Dateien: OK</value>
+  </data>
+  <data name="IntegrityBadgeModified" xml:space="preserve">
+    <value>Dateien: OK, Spieldaten geändert</value>
+  </data>
+  <data name="IntegrityBadgeIncomplete" xml:space="preserve">
+    <value>Dateien: unvollständig</value>
+  </data>
+  <data name="IntegrityBadgeDamaged" xml:space="preserve">
+    <value>Dateien: beschädigt</value>
+  </data>
+  <data name="IntegrityBadgeChanged" xml:space="preserve">
+    <value>Dateien: seit der Installation geändert</value>
+  </data>
+  <data name="IntegrityBadgeLegacy" xml:space="preserve">
+    <value>Dateien: keine Prüfung (älteres Setup)</value>
+  </data>
+  <data name="IntegrityBadgeUnknown" xml:space="preserve">
+    <value>Dateien: nicht prüfbar</value>
+  </data>
+  <data name="IntegrityBadgeCancelled" xml:space="preserve">
+    <value>Dateien: Prüfung abgebrochen</value>
+  </data>
+  <data name="IntegrityBadgeUnreliableFormat" xml:space="preserve">
+    <value>{0} (unzuverlässig)</value>
+  </data>
+  <data name="IntegrityNotChecked" xml:space="preserve">
+    <value>Nicht geprüft: Diese Installation stammt nicht vom Community-Setup, das die Liste der Dateien für die Prüfung schreibt.</value>
+  </data>
+  <data name="IntegrityOkQuickFormat" xml:space="preserve">
+    <value>Alle {0} Dateien aus der Liste des Setups sind vorhanden, und die {1} Programmdateien sind unverändert (schnelle Prüfung).</value>
+  </data>
+  <data name="IntegrityOkFullFormat" xml:space="preserve">
+    <value>Alle {0} Dateien aus der Liste des Setups sind vorhanden, und die {1} mit ihrer Prüfsumme verglichenen Dateien sind unverändert (vollständige Prüfung).</value>
+  </data>
+  <data name="IntegrityModifiedFormat" xml:space="preserve">
+    <value>{0} Dateien der Spieldaten weichen von der Installation ab, zum Beispiel durch Mods, HD-Pakete oder bearbeitete Zivilisationen. Das ist nur ein Hinweis: Die Programmdateien sind unverändert.</value>
+  </data>
+  <data name="IntegrityFilesIntro" xml:space="preserve">
+    <value>Dateien der Installation fehlen oder sind beschädigt. Antivirenprogramme löschen Spieldateien oft oder verschieben sie in die Quarantäne.</value>
+  </data>
+  <data name="IntegrityChangedIntro" xml:space="preserve">
+    <value>Programmdateien haben sich seit der Installation geändert. Der NeoEE-Updater kann NeoEE-Dateien ersetzen; wenn das Spiel nicht funktioniert, reparieren Sie die Installation mit dem Setup.</value>
+  </data>
+  <data name="IntegrityUnknownLegacy" xml:space="preserve">
+    <value>Mit dem Community-Setup 1.7.2 oder älter installiert, das keine Liste der Dateien schreibt. Führen Sie das aktuelle Setup aus, um die Prüfung zu ermöglichen.</value>
+  </data>
+  <data name="IntegrityUnknownNewerContract" xml:space="preserve">
+    <value>Mit einem neueren Setup installiert, als dieser Launcher kennt. Bitte aktualisieren Sie den Launcher.</value>
+  </data>
+  <data name="IntegrityUnknownOlderSetup" xml:space="preserve">
+    <value>Nach dem aktuellen Setup lief ein älteres Setup, oder das letzte Setup konnte seine Einträge nicht ersetzen. Führen Sie das aktuelle Setup aus.</value>
+  </data>
+  <data name="IntegrityUnknownNoRecords" xml:space="preserve">
+    <value>Der letzte Lauf des Setups wurde nicht beendet, oder das Setup konnte seine Liste der Dateien nicht schreiben. Führen Sie das Setup erneut aus, um die Installation zu reparieren.</value>
+  </data>
+  <data name="IntegrityUnknownUnreadable" xml:space="preserve">
+    <value>Einige Dateien konnten nicht gelesen werden (in Verwendung oder Zugriff verweigert). Schließen Sie das Spiel und prüfen Sie erneut.</value>
+  </data>
+  <data name="IntegrityCancelledSetup" xml:space="preserve">
+    <value>Die Prüfung wurde abgebrochen, weil ein Setup gestartet wurde. Sie läuft erneut, sobald das Setup beendet ist.</value>
+  </data>
+  <data name="IntegrityCancelledRequested" xml:space="preserve">
+    <value>Die Prüfung wurde abgebrochen.</value>
+  </data>
+  <data name="IntegrityUnreliableFormat" xml:space="preserve">
+    <value>Empire Earth und NeoEE sind im selben Ordner installiert: Das Setup von {0} kann Dateien von {1} ersetzt haben, daher ist diese Prüfung unzuverlässig.</value>
+  </data>
+  <data name="IntegrityChecking" xml:space="preserve">
+    <value>Die Dateien der Installation werden geprüft ...</value>
+  </data>
+  <data name="IntegrityProgressFormat" xml:space="preserve">
+    <value>Prüfung: {0} von {1} Dateien</value>
+  </data>
+  <data name="IntegrityFileMissingFormat" xml:space="preserve">
+    <value>{0}: fehlt</value>
+  </data>
+  <data name="IntegrityFileMissingAfterInstallFormat" xml:space="preserve">
+    <value>{0}: fehlt seit der Installation</value>
+  </data>
+  <data name="IntegrityFileDamagedFormat" xml:space="preserve">
+    <value>{0}: beschädigt oder ersetzt</value>
+  </data>
+  <data name="IntegrityFileChangedFormat" xml:space="preserve">
+    <value>{0}: seit der Installation geändert</value>
+  </data>
+  <data name="IntegrityFileModifiedFormat" xml:space="preserve">
+    <value>{0}: verändert</value>
+  </data>
+  <data name="IntegrityFileUnreadableFormat" xml:space="preserve">
+    <value>{0}: nicht lesbar</value>
+  </data>
+  <data name="IntegrityMoreFilesFormat" xml:space="preserve">
+    <value>und {0} weitere Dateien</value>
+  </data>
+  <data name="VersionCheckPlayButton" xml:space="preserve">
+    <value>Version prüfen</value>
+  </data>
+  <data name="VersionCheckToolsButton" xml:space="preserve">
+    <value>Nach Updates suchen</value>
+  </data>
+  <data name="VersionCheckInfo" xml:space="preserve">
+    <value>Fragt api.empireearth.eu, ob das installierte Spiel und das Setup aktuell sind. Gesendet werden nur die AppId der Installation und die Version.</value>
+  </data>
+  <data name="VersionChecking" xml:space="preserve">
+    <value>Der Update-Server wird gefragt ...</value>
+  </data>
+  <data name="VersionGameUpToDateFormat" xml:space="preserve">
+    <value>Spielversion {0}: aktuell.</value>
+  </data>
+  <data name="VersionGameUpdateFormat" xml:space="preserve">
+    <value>Spielversion {0}: Version {1} ist verfügbar.</value>
+  </data>
+  <data name="VersionSetupUpToDateFormat" xml:space="preserve">
+    <value>Setup-Version {0}: aktuell.</value>
+  </data>
+  <data name="VersionSetupUpdateFormat" xml:space="preserve">
+    <value>Setup-Version {0}: Version {1} ist verfügbar.</value>
+  </data>
+  <data name="VersionNotPossible" xml:space="preserve">
+    <value>Keine Versionsprüfung: Prüfen lassen sich nur Installationen des Community-Setups mit eingetragener Version.</value>
+  </data>
+  <data name="VersionFailedFormat" xml:space="preserve">
+    <value>Der Update-Server konnte nicht gefragt werden ({0}); Einzelheiten im Protokoll.</value>
+  </data>
+  <data name="FailureTimeout" xml:space="preserve">
+    <value>keine Antwort innerhalb von 10 Sekunden</value>
+  </data>
+  <data name="FailureTls" xml:space="preserve">
+    <value>die sichere Verbindung ist fehlgeschlagen</value>
+  </data>
+  <data name="FailureNetwork" xml:space="preserve">
+    <value>keine Verbindung</value>
+  </data>
+  <data name="FailureStatus" xml:space="preserve">
+    <value>unerwartete Antwort des Servers</value>
+  </data>
+  <data name="FailureUrlRejected" xml:space="preserve">
+    <value>der Server nannte eine nicht erlaubte Adresse</value>
+  </data>
+  <data name="RepairLocating" xml:space="preserve">
+    <value>Der Update-Server wird nach dem aktuellen Setup gefragt ...</value>
+  </data>
+  <data name="RepairFallbackFormat" xml:space="preserve">
+    <value>Keine Adresse vom Update-Server ({0}); dies ist die allgemeine Downloadseite.</value>
+  </data>
 </root>

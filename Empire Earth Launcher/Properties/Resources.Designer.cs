@@ -108,6 +108,15 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cancel check.
+        /// </summary>
+        internal static string CancelCheckButton {
+            get {
+                return ResourceManager.GetString("CancelCheckButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap checked_disabled {
@@ -479,6 +488,51 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to no connection.
+        /// </summary>
+        internal static string FailureNetwork {
+            get {
+                return ResourceManager.GetString("FailureNetwork", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to unexpected answer of the server.
+        /// </summary>
+        internal static string FailureStatus {
+            get {
+                return ResourceManager.GetString("FailureStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to no answer within 10 seconds.
+        /// </summary>
+        internal static string FailureTimeout {
+            get {
+                return ResourceManager.GetString("FailureTimeout", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to the secure connection failed.
+        /// </summary>
+        internal static string FailureTls {
+            get {
+                return ResourceManager.GetString("FailureTls", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to the server named an address that is not allowed.
+        /// </summary>
+        internal static string FailureUrlRejected {
+            get {
+                return ResourceManager.GetString("FailureUrlRejected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0}: Game Bit Depth ({1}) differs from Texture Bit Depth ({2}); the main menu can turn white and unr[rest of string was truncated].
         /// </summary>
         internal static string FindingBitDepthMismatchFormat {
@@ -565,6 +619,15 @@ namespace Empire_Earth_Launcher.Properties {
         internal static string FriendsUnreadable {
             get {
                 return ResourceManager.GetString("FriendsUnreadable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Check all files.
+        /// </summary>
+        internal static string FullCheckButton {
+            get {
+                return ResourceManager.GetString("FullCheckButton", resourceCulture);
             }
         }
         
@@ -956,6 +1019,330 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Files: check cancelled.
+        /// </summary>
+        internal static string IntegrityBadgeCancelled {
+            get {
+                return ResourceManager.GetString("IntegrityBadgeCancelled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Files: changed since the installation.
+        /// </summary>
+        internal static string IntegrityBadgeChanged {
+            get {
+                return ResourceManager.GetString("IntegrityBadgeChanged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Files: checking....
+        /// </summary>
+        internal static string IntegrityBadgeChecking {
+            get {
+                return ResourceManager.GetString("IntegrityBadgeChecking", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Files: damaged.
+        /// </summary>
+        internal static string IntegrityBadgeDamaged {
+            get {
+                return ResourceManager.GetString("IntegrityBadgeDamaged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Files: incomplete.
+        /// </summary>
+        internal static string IntegrityBadgeIncomplete {
+            get {
+                return ResourceManager.GetString("IntegrityBadgeIncomplete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Files: no check (older setup).
+        /// </summary>
+        internal static string IntegrityBadgeLegacy {
+            get {
+                return ResourceManager.GetString("IntegrityBadgeLegacy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Files: OK, game data changed.
+        /// </summary>
+        internal static string IntegrityBadgeModified {
+            get {
+                return ResourceManager.GetString("IntegrityBadgeModified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Files: OK.
+        /// </summary>
+        internal static string IntegrityBadgeOk {
+            get {
+                return ResourceManager.GetString("IntegrityBadgeOk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Files: cannot be checked.
+        /// </summary>
+        internal static string IntegrityBadgeUnknown {
+            get {
+                return ResourceManager.GetString("IntegrityBadgeUnknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} (unreliable).
+        /// </summary>
+        internal static string IntegrityBadgeUnreliableFormat {
+            get {
+                return ResourceManager.GetString("IntegrityBadgeUnreliableFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The check was cancelled..
+        /// </summary>
+        internal static string IntegrityCancelledRequested {
+            get {
+                return ResourceManager.GetString("IntegrityCancelledRequested", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The check was cancelled because a setup started. It runs again when the setup has ended..
+        /// </summary>
+        internal static string IntegrityCancelledSetup {
+            get {
+                return ResourceManager.GetString("IntegrityCancelledSetup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Program files have changed since the installation. The NeoEE updater can replace NeoEE files; if the[rest of string was truncated].
+        /// </summary>
+        internal static string IntegrityChangedIntro {
+            get {
+                return ResourceManager.GetString("IntegrityChangedIntro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The quick check runs at every start and after a setup and checks the program files. "Check all files[rest of string was truncated].
+        /// </summary>
+        internal static string IntegrityCheckInfo {
+            get {
+                return ResourceManager.GetString("IntegrityCheckInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Checking the files of the installation....
+        /// </summary>
+        internal static string IntegrityChecking {
+            get {
+                return ResourceManager.GetString("IntegrityChecking", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Details.
+        /// </summary>
+        internal static string IntegrityDetailsButton {
+            get {
+                return ResourceManager.GetString("IntegrityDetailsButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: changed since the installation.
+        /// </summary>
+        internal static string IntegrityFileChangedFormat {
+            get {
+                return ResourceManager.GetString("IntegrityFileChangedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: damaged or replaced.
+        /// </summary>
+        internal static string IntegrityFileDamagedFormat {
+            get {
+                return ResourceManager.GetString("IntegrityFileDamagedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: missing since the installation.
+        /// </summary>
+        internal static string IntegrityFileMissingAfterInstallFormat {
+            get {
+                return ResourceManager.GetString("IntegrityFileMissingAfterInstallFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: missing.
+        /// </summary>
+        internal static string IntegrityFileMissingFormat {
+            get {
+                return ResourceManager.GetString("IntegrityFileMissingFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: modified.
+        /// </summary>
+        internal static string IntegrityFileModifiedFormat {
+            get {
+                return ResourceManager.GetString("IntegrityFileModifiedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Files of the installation are missing or damaged. Antivirus programs often delete game files or move[rest of string was truncated].
+        /// </summary>
+        internal static string IntegrityFilesIntro {
+            get {
+                return ResourceManager.GetString("IntegrityFilesIntro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: cannot be read.
+        /// </summary>
+        internal static string IntegrityFileUnreadableFormat {
+            get {
+                return ResourceManager.GetString("IntegrityFileUnreadableFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} files of the game data differ from the installation, for example because of mods, HD packs or ed[rest of string was truncated].
+        /// </summary>
+        internal static string IntegrityModifiedFormat {
+            get {
+                return ResourceManager.GetString("IntegrityModifiedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to and {0} more files.
+        /// </summary>
+        internal static string IntegrityMoreFilesFormat {
+            get {
+                return ResourceManager.GetString("IntegrityMoreFilesFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not checked: this installation was not made by the community setup, which writes the list of files f[rest of string was truncated].
+        /// </summary>
+        internal static string IntegrityNotChecked {
+            get {
+                return ResourceManager.GetString("IntegrityNotChecked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All {0} files of the setup's list are there, and the {1} files compared with their checksum are unch[rest of string was truncated].
+        /// </summary>
+        internal static string IntegrityOkFullFormat {
+            get {
+                return ResourceManager.GetString("IntegrityOkFullFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All {0} files of the setup's list are there, and the {1} program files are unchanged (quick check)..
+        /// </summary>
+        internal static string IntegrityOkQuickFormat {
+            get {
+                return ResourceManager.GetString("IntegrityOkQuickFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Checking: {0} of {1} files.
+        /// </summary>
+        internal static string IntegrityProgressFormat {
+            get {
+                return ResourceManager.GetString("IntegrityProgressFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Repair....
+        /// </summary>
+        internal static string IntegrityRepairButton {
+            get {
+                return ResourceManager.GetString("IntegrityRepairButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Installed by the community setup 1.7.2 or older, which writes no list of files. Run the current setu[rest of string was truncated].
+        /// </summary>
+        internal static string IntegrityUnknownLegacy {
+            get {
+                return ResourceManager.GetString("IntegrityUnknownLegacy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Installed by a newer setup than this launcher knows. Please update the launcher..
+        /// </summary>
+        internal static string IntegrityUnknownNewerContract {
+            get {
+                return ResourceManager.GetString("IntegrityUnknownNewerContract", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The last run of the setup did not finish, or the setup could not write its list of files. Run the se[rest of string was truncated].
+        /// </summary>
+        internal static string IntegrityUnknownNoRecords {
+            get {
+                return ResourceManager.GetString("IntegrityUnknownNoRecords", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An older setup ran after the current one, or the last setup could not replace its records. Run the c[rest of string was truncated].
+        /// </summary>
+        internal static string IntegrityUnknownOlderSetup {
+            get {
+                return ResourceManager.GetString("IntegrityUnknownOlderSetup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Some files could not be read (in use or access denied). Close the game and check again..
+        /// </summary>
+        internal static string IntegrityUnknownUnreadable {
+            get {
+                return ResourceManager.GetString("IntegrityUnknownUnreadable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Empire Earth and NeoEE are installed in the same folder: the setup of {0} may have replaced files of[rest of string was truncated].
+        /// </summary>
+        internal static string IntegrityUnreliableFormat {
+            get {
+                return ResourceManager.GetString("IntegrityUnreliableFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Empire Earth Launcher is already running. Please use the open window (it may be minimized or behind [rest of string was truncated].
         /// </summary>
         internal static string LauncherAlreadyRunning {
@@ -1024,6 +1411,15 @@ namespace Empire_Earth_Launcher.Properties {
         internal static string NavigationSettings {
             get {
                 return ResourceManager.GetString("NavigationSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tools.
+        /// </summary>
+        internal static string NavigationTools {
+            get {
+                return ResourceManager.GetString("NavigationTools", resourceCulture);
             }
         }
         
@@ -1230,6 +1626,15 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Repair advice.
+        /// </summary>
+        internal static string RepairAdviceButton {
+            get {
+                return ResourceManager.GetString("RepairAdviceButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Repair the installation.
         /// </summary>
         internal static string RepairAdviceTitle {
@@ -1253,6 +1658,24 @@ namespace Empire_Earth_Launcher.Properties {
         internal static string RepairDownloadPageLabel {
             get {
                 return ResourceManager.GetString("RepairDownloadPageLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No address from the update server ({0}); this is the general download page..
+        /// </summary>
+        internal static string RepairFallbackFormat {
+            get {
+                return ResourceManager.GetString("RepairFallbackFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Asking the update server for the current setup....
+        /// </summary>
+        internal static string RepairLocating {
+            get {
+                return ResourceManager.GetString("RepairLocating", resourceCulture);
             }
         }
         
@@ -1563,6 +1986,24 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Installation files.
+        /// </summary>
+        internal static string ToolsFilesHeading {
+            get {
+                return ResourceManager.GetString("ToolsFilesHeading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Updates.
+        /// </summary>
+        internal static string ToolsUpdatesHeading {
+            get {
+                return ResourceManager.GetString("ToolsUpdatesHeading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Language.
         /// </summary>
         internal static string UiLanguageLabel {
@@ -1623,6 +2064,96 @@ namespace Empire_Earth_Launcher.Properties {
         internal static string UnknownError {
             get {
                 return ResourceManager.GetString("UnknownError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Asks api.empireearth.eu whether the installed game and setup are current. Only the AppId of the inst[rest of string was truncated].
+        /// </summary>
+        internal static string VersionCheckInfo {
+            get {
+                return ResourceManager.GetString("VersionCheckInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Asking the update server....
+        /// </summary>
+        internal static string VersionChecking {
+            get {
+                return ResourceManager.GetString("VersionChecking", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Check version.
+        /// </summary>
+        internal static string VersionCheckPlayButton {
+            get {
+                return ResourceManager.GetString("VersionCheckPlayButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Check for updates.
+        /// </summary>
+        internal static string VersionCheckToolsButton {
+            get {
+                return ResourceManager.GetString("VersionCheckToolsButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The update server could not be asked ({0}); details in the log..
+        /// </summary>
+        internal static string VersionFailedFormat {
+            get {
+                return ResourceManager.GetString("VersionFailedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game version {0}: version {1} is available..
+        /// </summary>
+        internal static string VersionGameUpdateFormat {
+            get {
+                return ResourceManager.GetString("VersionGameUpdateFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game version {0}: up to date..
+        /// </summary>
+        internal static string VersionGameUpToDateFormat {
+            get {
+                return ResourceManager.GetString("VersionGameUpToDateFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No version check: only installations of the community setup with a recorded version can be checked..
+        /// </summary>
+        internal static string VersionNotPossible {
+            get {
+                return ResourceManager.GetString("VersionNotPossible", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Setup version {0}: version {1} is available..
+        /// </summary>
+        internal static string VersionSetupUpdateFormat {
+            get {
+                return ResourceManager.GetString("VersionSetupUpdateFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Setup version {0}: up to date..
+        /// </summary>
+        internal static string VersionSetupUpToDateFormat {
+            get {
+                return ResourceManager.GetString("VersionSetupUpToDateFormat", resourceCulture);
             }
         }
     }

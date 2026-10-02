@@ -4,6 +4,7 @@ using System.Linq;
 using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Installations;
+using Empire_Earth_Launcher.Core.Integrity;
 using Empire_Earth_Launcher.Core.Lobby;
 using Empire_Earth_Launcher.Core.Platform;
 using Empire_Earth_Launcher.Core.Play;
@@ -482,6 +483,195 @@ namespace Empire_Earth_Launcher.Tests.Launcher
                 @"1. The installation in D:\Empire Earth was not made by the community setup (for example a CD or GOG installation). " +
                 "The setup does not repair it; it installs its own copy of the game in a new folder." + Environment.NewLine +
                 @"2. First add an exception for the folder D:\Empire Earth in your antivirus program; otherwise it removes the files again."));
+        }
+
+        // --- Integrity and update API (L-WP7, contract 2.5, 2.6, 4.3, 4.5) ----------------------------------------------
+
+        private static IntegrityFinding FileFinding(string path, FileClass fileClass, FindingKind kind)
+        {
+            return new IntegrityFinding(path, WinPath.Combine(PlayRoot, path), fileClass, kind, null, null, null);
+        }
+
+        private static IntegrityReport Finished(Installation installation, params IntegrityFinding[] findings)
+        {
+            return IntegrityReport.Finished(installation, IntegrityCheckKind.Quick, findings, 1500, 40);
+        }
+
+        [Test]
+        public void IntegrityBadge_HasATextForEveryState_AndNoneForAForeignInstallation()
+        {
+            Installation community = PlayInstallation();
+            Installation foreign = PlayInstallation(InstallMode.Unknown, InstallationKind.Foreign);
+            IntegrityFinding missingData = FileFinding("Empire Earth/Data/file0001.dat", FileClass.Data, FindingKind.Missing);
+            IntegrityFinding changedData = FileFinding("Empire Earth/Data/file0002.dat", FileClass.Data, FindingKind.HashDiffers);
+            IntegrityFinding missingProgram = FileFinding("Empire Earth/Empire Earth.exe", FileClass.Code, FindingKind.Missing);
+
+            Assert.That(Texts.IntegrityBadge(null, false), Is.Empty);
+            Assert.That(Texts.IntegrityBadge(null, true), Is.EqualTo("Files: checking..."));
+            Assert.That(Texts.IntegrityBadge(IntegrityReport.NotChecked(foreign, IntegrityCheckKind.Quick), false), Is.Empty,
+                "contract 2.5: foreign, no check and no message");
+            Assert.That(Texts.IntegrityBadge(Finished(community), false), Is.EqualTo("Files: OK"));
+            Assert.That(Texts.IntegrityBadge(Finished(community, changedData), false), Is.EqualTo("Files: OK, game data changed"));
+            Assert.That(Texts.IntegrityBadge(Finished(community, missingData), false), Is.EqualTo("Files: incomplete"));
+            Assert.That(Texts.IntegrityBadge(Finished(community, missingData, missingProgram), false), Is.EqualTo("Files: damaged"));
+            Assert.That(Texts.IntegrityBadge(IntegrityReport.Unknown(community, IntegrityCheckKind.Quick, UnknownReason.LegacySetup),
+                false), Is.EqualTo("Files: no check (older setup)"));
+            Assert.That(Texts.IntegrityBadge(IntegrityReport.Unknown(community, IntegrityCheckKind.Quick, UnknownReason.NoManifest),
+                false), Is.EqualTo("Files: cannot be checked"));
+            Assert.That(Texts.IntegrityBadge(IntegrityReport.Cancelled(community, IntegrityCheckKind.Full, CancelReason.SetupRunning),
+                false), Is.EqualTo("Files: check cancelled"));
+            Assert.That(Texts.IntegrityBadge(Finished(community), true), Is.EqualTo("Files: checking..."), "a running check first");
+        }
+
+        [Test]
+        public void IntegrityBadge_O11_TwoProductsInOneFolder_AreUnreliable()
+        {
+            Installation installation = PlayInstallation();
+            installation.OtherProductInRoot = Product.EE;
+
+            Assert.That(Texts.IntegrityBadge(Finished(installation), false), Is.EqualTo("Files: OK (unreliable)"));
+            Assert.That(Texts.IntegrityExplanation(Finished(installation)).Split(new[] { Environment.NewLine }, StringSplitOptions.None)[1],
+                Is.EqualTo("Empire Earth and NeoEE are installed in the same folder: the setup of Empire Earth may have replaced " +
+                           "files of NeoEE, so this check is unreliable."));
+        }
+
+        [Test]
+        public void Contract_2_6_ChangedNeoEEProgramFiles_AreWordedNeutrally()
+        {
+            IntegrityFinding changedProgram = FileFinding("Empire Earth/neoee.dll", FileClass.Code, FindingKind.HashDiffers);
+            IntegrityReport neoee = Finished(PlayInstallation(), changedProgram);
+            var ee = new Installation(Product.EE, PlayRoot, PlayRoot + @"\Empire Earth", null, InstallationKind.Community,
+                InstallMode.Admin, new[] { InstallationSource.RegistryRecord });
+            IntegrityReport eeReport = Finished(ee, changedProgram);
+
+            Assert.That(Texts.IntegrityBadge(neoee, false), Is.EqualTo("Files: changed since the installation"));
+            Assert.That(Texts.IntegrityExplanation(neoee), Does.StartWith("Program files have changed since the installation."));
+            Assert.That(Texts.IntegrityFiles(neoee), Is.EqualTo("Empire Earth/neoee.dll: changed since the installation"));
+            Assert.That(Texts.IntegrityBadge(eeReport, false), Is.EqualTo("Files: damaged"));
+            Assert.That(Texts.IntegrityFiles(eeReport), Is.EqualTo("Empire Earth/neoee.dll: damaged or replaced"));
+
+            IntegrityReport missingToo = Finished(PlayInstallation(), changedProgram,
+                FileFinding("Empire Earth/Empire Earth.exe", FileClass.Code, FindingKind.Missing));
+            Assert.That(Texts.IntegrityBadge(missingToo, false), Is.EqualTo("Files: damaged"), "a missing file is no update");
+            Assert.That(Texts.IntegrityFiles(missingToo), Does.Contain("Empire Earth/neoee.dll: changed since the installation"));
+        }
+
+        [Test]
+        public void IntegrityExplanation_Contract_2_5_TheTextsForCommunityLegacyAndForeign()
+        {
+            Installation community = PlayInstallation();
+
+            Assert.That(Texts.IntegrityExplanation(IntegrityReport.Unknown(community, IntegrityCheckKind.Quick, UnknownReason.LegacySetup)),
+                Is.EqualTo("Installed by the community setup 1.7.2 or older, which writes no list of files. Run the current setup to enable the check."));
+            Assert.That(Texts.IntegrityExplanation(IntegrityReport.Unknown(community, IntegrityCheckKind.Quick, UnknownReason.OlderSetupRanAfter)),
+                Is.EqualTo("An older setup ran after the current one, or the last setup could not replace its records. Run the current setup."));
+            foreach (UnknownReason reason in new[] { UnknownReason.NoInstallInfo, UnknownReason.NoManifest,
+                         UnknownReason.ManifestUnreadable, UnknownReason.InvalidManifest })
+                Assert.That(Texts.IntegrityExplanation(IntegrityReport.Unknown(community, IntegrityCheckKind.Quick, reason)),
+                    Does.StartWith("The last run of the setup did not finish"), reason.ToString());
+            Assert.That(Texts.IntegrityExplanation(IntegrityReport.Unknown(community, IntegrityCheckKind.Quick, UnknownReason.NewerContract)),
+                Is.EqualTo("Installed by a newer setup than this launcher knows. Please update the launcher."));
+            Assert.That(Texts.IntegrityExplanation(IntegrityReport.Unknown(community, IntegrityCheckKind.Quick, UnknownReason.FilesUnreadable)),
+                Does.StartWith("Some files could not be read"));
+            Assert.That(Texts.IntegrityExplanation(IntegrityReport.NotChecked(PlayInstallation(InstallMode.Unknown, InstallationKind.Foreign),
+                IntegrityCheckKind.Quick)), Does.StartWith("Not checked: this installation was not made by the community setup"));
+            Assert.That(Texts.IntegrityExplanation(IntegrityReport.Cancelled(community, IntegrityCheckKind.Full, CancelReason.SetupRunning)),
+                Is.EqualTo("The check was cancelled because a setup started. It runs again when the setup has ended."));
+            Assert.That(Texts.IntegrityExplanation(IntegrityReport.Cancelled(community, IntegrityCheckKind.Full, CancelReason.Requested)),
+                Is.EqualTo("The check was cancelled."));
+            Assert.That(Texts.IntegrityExplanation(Finished(community)),
+                Is.EqualTo("All 1500 files of the setup's list are there, and the 40 program files are unchanged (quick check)."));
+            Assert.That(Texts.IntegrityExplanation(IntegrityReport.Finished(community, IntegrityCheckKind.Full, new IntegrityFinding[0], 1500, 1480)),
+                Does.EndWith("the 1480 files compared with their checksum are unchanged (full check)."));
+        }
+
+        [Test]
+        public void RepairReason_Contract_2_5_NamesTheFiles_AtMostTen_DamagedFirst()
+        {
+            var findings = new List<IntegrityFinding> { FileFinding("Empire Earth/Data/file0000.dat", FileClass.Data, FindingKind.HashDiffers) };
+            for (int i = 1; i <= 11; i++)
+                findings.Add(FileFinding("Empire Earth/Data/file" + i.ToString("0000", System.Globalization.CultureInfo.InvariantCulture) + ".dat",
+                    FileClass.Data, FindingKind.Missing));
+            findings.Add(FileFinding("Empire Earth/Empire Earth.exe", FileClass.Code, FindingKind.MissingAfterInstall));
+            IntegrityReport report = Finished(PlayInstallation(), findings.ToArray());
+            RepairAdvice advice = RepairAdvice.ForIntegrity(report);
+
+            string[] lines = Texts.RepairReasonText(advice, report).Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+
+            Assert.That(lines[0], Is.EqualTo("Files of the installation are missing or damaged. Antivirus programs often delete game files " +
+                                             "or move them to quarantine."));
+            Assert.That(lines[1], Is.Empty);
+            Assert.That(lines[2], Is.EqualTo("Empire Earth/Empire Earth.exe: missing since the installation"), "damaged first");
+            Assert.That(lines[3], Is.EqualTo("Empire Earth/Data/file0001.dat: missing"));
+            Assert.That(lines.Length, Is.EqualTo(13), "explanation, empty line, ten files, the rest");
+            Assert.That(lines[12], Is.EqualTo("and 3 more files"), "two missing files and the changed one");
+            Assert.That(Texts.IntegrityFiles(report).Split(new[] { Environment.NewLine }, StringSplitOptions.None),
+                Has.Length.EqualTo(13).And.Contains("Empire Earth/Data/file0000.dat: modified"), "the Tools page lists every file");
+            Assert.That(Texts.RepairSteps(advice), Does.StartWith("1. First add an exception for the folder " + PlayRoot));
+        }
+
+        [Test]
+        public void RepairReason_OfTheOtherAdvice()
+        {
+            Installation installation = PlayInstallation();
+            IntegrityReport unknown = IntegrityReport.Unknown(installation, IntegrityCheckKind.Quick, UnknownReason.NoManifest);
+            var update = new VersionCheckResult(installation, VersionKind.Game, "2.0.0.5", VersionCheckOutcome.UpdateAvailable, "2.0.1",
+                FallbackReason.None);
+
+            Assert.That(Texts.RepairReasonText(RepairAdvice.ForIntegrity(unknown), unknown), Does.StartWith("The last run of the setup"));
+            Assert.That(Texts.RepairReasonText(RepairAdvice.ForUpdate(update), null), Is.EqualTo("Game version 2.0.0.5: version 2.0.1 is available."));
+            Assert.That(Texts.RepairReasonText(RepairAdvice.For(installation, RepairReason.ProgramMissing, new[] { Game.ArtOfConquest }), null),
+                Does.StartWith("EE-AOC.exe is missing in " + PlayRoot + @"\Empire Earth - The Art of Conquest. Antivirus programs"));
+            Assert.That(Texts.RepairReasonText(RepairAdvice.For(installation, RepairReason.Requested), null), Is.Null);
+        }
+
+        [Test]
+        public void IntegrityProgress_CountsTheFiles()
+        {
+            Assert.That(Texts.IntegrityProgress(new IntegrityProgress(250, 1500)), Is.EqualTo("Checking: 250 of 1500 files"));
+        }
+
+        [Test]
+        public void VersionResult_Contract_4_5_EveryOutcome()
+        {
+            Installation installation = PlayInstallation();
+            VersionCheckResult Result(VersionKind kind, VersionCheckOutcome outcome, string latest = null,
+                FallbackReason failure = FallbackReason.None)
+            {
+                return new VersionCheckResult(installation, kind, kind == VersionKind.Game ? "2.0.0.5" : "2.0.0", outcome, latest, failure);
+            }
+
+            Assert.That(Texts.VersionResult(Result(VersionKind.Game, VersionCheckOutcome.UpToDate)), Is.EqualTo("Game version 2.0.0.5: up to date."));
+            Assert.That(Texts.VersionResult(Result(VersionKind.Game, VersionCheckOutcome.UpdateAvailable, "?")),
+                Is.EqualTo("Game version 2.0.0.5: version ? is available."));
+            Assert.That(Texts.VersionResult(Result(VersionKind.Setup, VersionCheckOutcome.UpToDate)), Is.EqualTo("Setup version 2.0.0: up to date."));
+            Assert.That(Texts.VersionResult(Result(VersionKind.Setup, VersionCheckOutcome.UpdateAvailable, "2.1.0")),
+                Is.EqualTo("Setup version 2.0.0: version 2.1.0 is available."));
+            Assert.That(Texts.VersionResult(Result(VersionKind.Game, VersionCheckOutcome.NotPossible)), Does.StartWith("No version check:"));
+            Assert.That(Texts.VersionResult(Result(VersionKind.Game, VersionCheckOutcome.Failed, null, FallbackReason.TlsError)),
+                Is.EqualTo("The update server could not be asked (the secure connection failed); details in the log."));
+            Assert.That(Texts.VersionResults(Result(VersionKind.Game, VersionCheckOutcome.NotPossible),
+                Result(VersionKind.Setup, VersionCheckOutcome.NotPossible)), Does.Not.Contain(Environment.NewLine), "said once");
+            Assert.That(Texts.VersionResults(null, null), Is.Empty);
+        }
+
+        [TestCase(FallbackReason.Timeout, "no answer within 10 seconds")]
+        [TestCase(FallbackReason.TlsError, "the secure connection failed")]
+        [TestCase(FallbackReason.NetworkError, "no connection")]
+        [TestCase(FallbackReason.StatusNotOk, "unexpected answer of the server")]
+        [TestCase(FallbackReason.UrlRejected, "the server named an address that is not allowed")]
+        public void DownloadFallback_Contract_4_3_SaysWhyTheFixedPageIsUsed(FallbackReason reason, string expected)
+        {
+            Assert.That(Texts.DownloadFallback(SetupDownloadLocation.FixedPage(reason, "detail")), Is.EqualTo(
+                "No address from the update server (" + expected + "); this is the general download page."));
+        }
+
+        [Test]
+        public void DownloadFallback_NoNoteForTheAddressOfTheApi_NoAppId_OrBeforeAsking()
+        {
+            Assert.That(Texts.DownloadFallback(SetupDownloadLocation.FromUpdateApi("https://empireearth.eu/files/setup.exe")), Is.Null);
+            Assert.That(Texts.DownloadFallback(SetupDownloadLocation.FixedPage(FallbackReason.NoAppId, null)), Is.Null);
+            Assert.That(Texts.DownloadFallback(SetupDownloadLocation.NotAsked), Is.Null);
         }
     }
 }

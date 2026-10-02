@@ -782,4 +782,240 @@ Your current settings are saved first as .reg files in {1}; double-click such a 
     <value>The page could not be opened. Copy the address into your browser: {0}</value>
     <comment>Repair advice when the browser could not be opened. {0}: the address of the download page.</comment>
   </data>
+  <data name="NavigationTools" xml:space="preserve">
+    <value>Tools</value>
+    <comment>Navigation button of the Tools page.</comment>
+  </data>
+  <data name="ToolsFilesHeading" xml:space="preserve">
+    <value>Installation files</value>
+    <comment>Heading of the integrity check on the Tools page.</comment>
+  </data>
+  <data name="ToolsUpdatesHeading" xml:space="preserve">
+    <value>Updates</value>
+    <comment>Heading of the version check on the Tools page.</comment>
+  </data>
+  <data name="FullCheckButton" xml:space="preserve">
+    <value>Check all files</value>
+    <comment>Button on the Tools page: starts the full check of the installation (contract 2.5); at most about 26 characters.</comment>
+  </data>
+  <data name="CancelCheckButton" xml:space="preserve">
+    <value>Cancel check</value>
+    <comment>Button on the Tools page: cancels the running check; at most about 26 characters.</comment>
+  </data>
+  <data name="RepairAdviceButton" xml:space="preserve">
+    <value>Repair advice</value>
+    <comment>Button on the Tools page: opens the repair advice (contract 4.4); at most about 26 characters.</comment>
+  </data>
+  <data name="IntegrityRepairButton" xml:space="preserve">
+    <value>Repair...</value>
+    <comment>Button next to the integrity state on the Play page: opens the repair advice; at most about 14 characters.</comment>
+  </data>
+  <data name="IntegrityDetailsButton" xml:space="preserve">
+    <value>Details</value>
+    <comment>Button next to the integrity state on the Play page: opens the Tools page; at most about 14 characters.</comment>
+  </data>
+  <data name="IntegrityCheckInfo" xml:space="preserve">
+    <value>The quick check runs at every start and after a setup and checks the program files. "Check all files" also compares the game data; that can take a few minutes. The launcher only reads the files.</value>
+    <comment>Below the heading of the integrity check on the Tools page. The quoted text is FullCheckButton.</comment>
+  </data>
+  <data name="IntegrityBadgeChecking" xml:space="preserve">
+    <value>Files: checking...</value>
+    <comment>Integrity state on the Play page while the check runs; at most about 40 characters.</comment>
+  </data>
+  <data name="IntegrityBadgeOk" xml:space="preserve">
+    <value>Files: OK</value>
+    <comment>Integrity state on the Play page (contract 2.5: OK); at most about 40 characters.</comment>
+  </data>
+  <data name="IntegrityBadgeModified" xml:space="preserve">
+    <value>Files: OK, game data changed</value>
+    <comment>Integrity state on the Play page (contract 2.5: Modified, e.g. mods); at most about 40 characters.</comment>
+  </data>
+  <data name="IntegrityBadgeIncomplete" xml:space="preserve">
+    <value>Files: incomplete</value>
+    <comment>Integrity state on the Play page (contract 2.5: Incomplete); at most about 40 characters.</comment>
+  </data>
+  <data name="IntegrityBadgeDamaged" xml:space="preserve">
+    <value>Files: damaged</value>
+    <comment>Integrity state on the Play page (contract 2.5: Damaged); at most about 40 characters.</comment>
+  </data>
+  <data name="IntegrityBadgeChanged" xml:space="preserve">
+    <value>Files: changed since the installation</value>
+    <comment>Integrity state on the Play page when NeoEE program files differ (contract 2.6, O2: neutral wording); at most about 40 characters.</comment>
+  </data>
+  <data name="IntegrityBadgeLegacy" xml:space="preserve">
+    <value>Files: no check (older setup)</value>
+    <comment>Integrity state on the Play page of an installation of the community setup 1.7.2 or older (contract 2.5); at most about 40 characters.</comment>
+  </data>
+  <data name="IntegrityBadgeUnknown" xml:space="preserve">
+    <value>Files: cannot be checked</value>
+    <comment>Integrity state on the Play page (contract 2.5: Unknown); the Tools page says why; at most about 40 characters.</comment>
+  </data>
+  <data name="IntegrityBadgeCancelled" xml:space="preserve">
+    <value>Files: check cancelled</value>
+    <comment>Integrity state on the Play page when the check was cancelled (a setup started, contract 4.2); at most about 40 characters.</comment>
+  </data>
+  <data name="IntegrityBadgeUnreliableFormat" xml:space="preserve">
+    <value>{0} (unreliable)</value>
+    <comment>Integrity state on the Play page when EE and NeoEE share the folder (contract O11). {0}: the state, e.g. Files: OK.</comment>
+  </data>
+  <data name="IntegrityNotChecked" xml:space="preserve">
+    <value>Not checked: this installation was not made by the community setup, which writes the list of files for the check.</value>
+    <comment>Tools page, integrity of a foreign installation (contract 2.5: no check).</comment>
+  </data>
+  <data name="IntegrityOkQuickFormat" xml:space="preserve">
+    <value>All {0} files of the setup's list are there, and the {1} program files are unchanged (quick check).</value>
+    <comment>Tools page, state OK after the quick check. {0}: number of files of the list, {1}: number of program files compared.</comment>
+  </data>
+  <data name="IntegrityOkFullFormat" xml:space="preserve">
+    <value>All {0} files of the setup's list are there, and the {1} files compared with their checksum are unchanged (full check).</value>
+    <comment>Tools page, state OK after the full check. {0}: number of files of the list, {1}: number of files compared.</comment>
+  </data>
+  <data name="IntegrityModifiedFormat" xml:space="preserve">
+    <value>{0} files of the game data differ from the installation, for example because of mods, HD packs or edited civilizations. This is only information: the program files are unchanged.</value>
+    <comment>Tools page, state Modified (contract 2.5). {0}: number of changed data files.</comment>
+  </data>
+  <data name="IntegrityFilesIntro" xml:space="preserve">
+    <value>Files of the installation are missing or damaged. Antivirus programs often delete game files or move them to quarantine.</value>
+    <comment>Tools page and repair advice, states Damaged and Incomplete (contract 2.5); the files follow, the repair steps start with the antivirus exception.</comment>
+  </data>
+  <data name="IntegrityChangedIntro" xml:space="preserve">
+    <value>Program files have changed since the installation. The NeoEE updater can replace NeoEE files; if the game does not work, repair the installation with the setup.</value>
+    <comment>Tools page and repair advice when only NeoEE program files differ (contract 2.6, O2: neutral wording).</comment>
+  </data>
+  <data name="IntegrityUnknownLegacy" xml:space="preserve">
+    <value>Installed by the community setup 1.7.2 or older, which writes no list of files. Run the current setup to enable the check.</value>
+    <comment>Tools page, state Unknown of an installation of the community setup 1.7.2 or older (contract 2.5).</comment>
+  </data>
+  <data name="IntegrityUnknownNewerContract" xml:space="preserve">
+    <value>Installed by a newer setup than this launcher knows. Please update the launcher.</value>
+    <comment>Tools page, state Unknown (contract 5: a newer contract version).</comment>
+  </data>
+  <data name="IntegrityUnknownOlderSetup" xml:space="preserve">
+    <value>An older setup ran after the current one, or the last setup could not replace its records. Run the current setup.</value>
+    <comment>Tools page, state Unknown: the uninstall key lacks the contract version (contract 2.5).</comment>
+  </data>
+  <data name="IntegrityUnknownNoRecords" xml:space="preserve">
+    <value>The last run of the setup did not finish, or the setup could not write its list of files. Run the setup again to repair the installation.</value>
+    <comment>Tools page, state Unknown: no usable install.ini or list of files (contract 2.5).</comment>
+  </data>
+  <data name="IntegrityUnknownUnreadable" xml:space="preserve">
+    <value>Some files could not be read (in use or access denied). Close the game and check again.</value>
+    <comment>Tools page, state Unknown: files could not be read.</comment>
+  </data>
+  <data name="IntegrityCancelledSetup" xml:space="preserve">
+    <value>The check was cancelled because a setup started. It runs again when the setup has ended.</value>
+    <comment>Tools page, the check was cancelled by a setup (contract 4.2).</comment>
+  </data>
+  <data name="IntegrityCancelledRequested" xml:space="preserve">
+    <value>The check was cancelled.</value>
+    <comment>Tools page, the check was cancelled with CancelCheckButton.</comment>
+  </data>
+  <data name="IntegrityUnreliableFormat" xml:space="preserve">
+    <value>Empire Earth and NeoEE are installed in the same folder: the setup of {0} may have replaced files of {1}, so this check is unreliable.</value>
+    <comment>Tools page (contract O11). {0}: the other product, {1}: the product checked (Empire Earth or NeoEE).</comment>
+  </data>
+  <data name="IntegrityChecking" xml:space="preserve">
+    <value>Checking the files of the installation...</value>
+    <comment>Tools page while the check runs.</comment>
+  </data>
+  <data name="IntegrityProgressFormat" xml:space="preserve">
+    <value>Checking: {0} of {1} files</value>
+    <comment>Tools page during the full check. {0}: files checked, {1}: all files.</comment>
+  </data>
+  <data name="IntegrityFileMissingFormat" xml:space="preserve">
+    <value>{0}: missing</value>
+    <comment>One file of the integrity findings. {0}: the path in the installation.</comment>
+  </data>
+  <data name="IntegrityFileMissingAfterInstallFormat" xml:space="preserve">
+    <value>{0}: missing since the installation</value>
+    <comment>One file of the integrity findings: the setup found it gone at the end of the installation. {0}: the path.</comment>
+  </data>
+  <data name="IntegrityFileDamagedFormat" xml:space="preserve">
+    <value>{0}: damaged or replaced</value>
+    <comment>One file of the integrity findings: a program file with another checksum. {0}: the path.</comment>
+  </data>
+  <data name="IntegrityFileChangedFormat" xml:space="preserve">
+    <value>{0}: changed since the installation</value>
+    <comment>One file of the integrity findings: a NeoEE program file with another checksum (contract O2). {0}: the path.</comment>
+  </data>
+  <data name="IntegrityFileModifiedFormat" xml:space="preserve">
+    <value>{0}: modified</value>
+    <comment>One file of the integrity findings: a data file with another checksum (only information). {0}: the path.</comment>
+  </data>
+  <data name="IntegrityFileUnreadableFormat" xml:space="preserve">
+    <value>{0}: cannot be read</value>
+    <comment>One file of the integrity findings: it could not be read. {0}: the path.</comment>
+  </data>
+  <data name="IntegrityMoreFilesFormat" xml:space="preserve">
+    <value>and {0} more files</value>
+    <comment>Below the first files of the repair advice. {0}: the number of further files.</comment>
+  </data>
+  <data name="VersionCheckPlayButton" xml:space="preserve">
+    <value>Check version</value>
+    <comment>Button next to the versions on the Play page: asks the update server (contract 4.5); at most about 16 characters.</comment>
+  </data>
+  <data name="VersionCheckToolsButton" xml:space="preserve">
+    <value>Check for updates</value>
+    <comment>Button on the Tools page: asks the update server about the game and the setup version (contract 4.5); at most about 26 characters.</comment>
+  </data>
+  <data name="VersionCheckInfo" xml:space="preserve">
+    <value>Asks api.empireearth.eu whether the installed game and setup are current. Only the AppId of the installation and the version are sent.</value>
+    <comment>Below the heading of the version check on the Tools page (contract 4.3: no telemetry).</comment>
+  </data>
+  <data name="VersionChecking" xml:space="preserve">
+    <value>Asking the update server...</value>
+    <comment>Play and Tools pages while the version check runs.</comment>
+  </data>
+  <data name="VersionGameUpToDateFormat" xml:space="preserve">
+    <value>Game version {0}: up to date.</value>
+    <comment>Result of the version check (contract 4.5). {0}: the installed game version.</comment>
+  </data>
+  <data name="VersionGameUpdateFormat" xml:space="preserve">
+    <value>Game version {0}: version {1} is available.</value>
+    <comment>Result of the version check (contract 4.5). {0}: the installed game version, {1}: the latest version or ?.</comment>
+  </data>
+  <data name="VersionSetupUpToDateFormat" xml:space="preserve">
+    <value>Setup version {0}: up to date.</value>
+    <comment>Result of the version check (contract 4.5). {0}: the version of the setup that installed the game.</comment>
+  </data>
+  <data name="VersionSetupUpdateFormat" xml:space="preserve">
+    <value>Setup version {0}: version {1} is available.</value>
+    <comment>Result of the version check (contract 4.5). {0}: the installed setup version, {1}: the latest version or ?.</comment>
+  </data>
+  <data name="VersionNotPossible" xml:space="preserve">
+    <value>No version check: only installations of the community setup with a recorded version can be checked.</value>
+    <comment>Result of the version check for a foreign installation or one without a version (contract 4.5).</comment>
+  </data>
+  <data name="VersionFailedFormat" xml:space="preserve">
+    <value>The update server could not be asked ({0}); details in the log.</value>
+    <comment>Result of the version check without an answer. {0}: the reason, one of the Failure texts.</comment>
+  </data>
+  <data name="FailureTimeout" xml:space="preserve">
+    <value>no answer within 10 seconds</value>
+    <comment>Reason in VersionFailedFormat and RepairFallbackFormat.</comment>
+  </data>
+  <data name="FailureTls" xml:space="preserve">
+    <value>the secure connection failed</value>
+    <comment>Reason in VersionFailedFormat and RepairFallbackFormat (TLS handshake or certificate).</comment>
+  </data>
+  <data name="FailureNetwork" xml:space="preserve">
+    <value>no connection</value>
+    <comment>Reason in VersionFailedFormat and RepairFallbackFormat (offline, DNS, proxy).</comment>
+  </data>
+  <data name="FailureStatus" xml:space="preserve">
+    <value>unexpected answer of the server</value>
+    <comment>Reason in VersionFailedFormat and RepairFallbackFormat (an HTTP status other than 200).</comment>
+  </data>
+  <data name="FailureUrlRejected" xml:space="preserve">
+    <value>the server named an address that is not allowed</value>
+    <comment>Reason in RepairFallbackFormat (the URL policy refused the answer, contract 4.3).</comment>
+  </data>
+  <data name="RepairLocating" xml:space="preserve">
+    <value>Asking the update server for the current setup...</value>
+    <comment>Repair advice while the update API is asked (contract 4.3).</comment>
+  </data>
+  <data name="RepairFallbackFormat" xml:space="preserve">
+    <value>No address from the update server ({0}); this is the general download page.</value>
+    <comment>Repair advice when the fixed download page is used (contract 4.3 step 3). {0}: the reason, one of the Failure texts.</comment>
+  </data>
 </root>

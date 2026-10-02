@@ -5,6 +5,7 @@ using System.Linq;
 using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Installations;
+using Empire_Earth_Launcher.Core.Integrity;
 using Empire_Earth_Launcher.Core.Lobby;
 using Empire_Earth_Launcher.Core.Platform;
 using Empire_Earth_Launcher.Core.Play;
@@ -515,6 +516,281 @@ namespace Empire_Earth_Launcher
                 throw new ArgumentNullException(nameof(advice));
             return string.Join(Environment.NewLine, advice.Steps.Select((step, index) =>
                 (index + 1).ToString(CultureInfo.CurrentCulture) + ". " + RepairStep(advice, step)));
+        }
+
+        /// <summary>
+        /// Why the repair advice is shown, above its steps: the files of an integrity report (contract 2.5), the missing
+        /// programs of a damaged installation, the available version (contract 4.5); null for the advice on request.
+        /// </summary>
+        /// <param name="advice">The advice.</param>
+        /// <param name="report">The report the advice was made from (<see cref="RepairReason.IntegrityFindings"/>,
+        /// <see cref="RepairReason.IntegrityUnknown"/>); null otherwise.</param>
+        internal static string RepairReasonText(RepairAdvice advice, IntegrityReport report)
+        {
+            if (advice == null)
+                throw new ArgumentNullException(nameof(advice));
+            switch (advice.Reason)
+            {
+                case RepairReason.IntegrityFindings:
+                case RepairReason.IntegrityUnknown:
+                    if (report == null)
+                        throw new ArgumentNullException(nameof(report), "The advice of a report needs the report.");
+                    return IntegrityAdviceReason(report);
+                case RepairReason.ProgramMissing:
+                    Game first = advice.MissingPrograms.Count > 0 ? advice.MissingPrograms[0] : Game.EmpireEarth;
+                    return string.Format(CultureInfo.CurrentCulture, Resources.InstallationDamagedFormat,
+                        ProgramNames(advice.MissingPrograms), advice.Installation.GetGameFolder(first));
+                case RepairReason.UpdateAvailable:
+                    return VersionResult(advice.Update);
+                default:
+                    return null;
+            }
+        }
+
+        // --- Integrity (L-WP7, contract 2.5 and 2.6) ------------------------------------------------------------------
+
+        /// <summary>
+        /// The short integrity state of the Play page: "checking" while a check runs, the state of the report, "unreliable"
+        /// for two products in one folder (O11); empty without a report and for a foreign installation, which gets no message
+        /// (contract 2.5). A community installation of a setup up to 1.7.2 gets its own badge and no dialog.
+        /// </summary>
+        internal static string IntegrityBadge(IntegrityReport report, bool checking)
+        {
+            if (checking)
+                return Resources.IntegrityBadgeChecking;
+            if (report == null || report.State == IntegrityState.NotChecked)
+                return string.Empty;
+            string badge;
+            switch (report.State)
+            {
+                case IntegrityState.Ok:
+                    badge = Resources.IntegrityBadgeOk;
+                    break;
+                case IntegrityState.Modified:
+                    badge = Resources.IntegrityBadgeModified;
+                    break;
+                case IntegrityState.Incomplete:
+                    badge = Resources.IntegrityBadgeIncomplete;
+                    break;
+                case IntegrityState.Damaged:
+                    badge = IsNeutralChange(report) ? Resources.IntegrityBadgeChanged : Resources.IntegrityBadgeDamaged;
+                    break;
+                case IntegrityState.Unknown:
+                    badge = report.UnknownReason == UnknownReason.LegacySetup
+                        ? Resources.IntegrityBadgeLegacy
+                        : Resources.IntegrityBadgeUnknown;
+                    break;
+                default:
+                    badge = Resources.IntegrityBadgeCancelled;
+                    break;
+            }
+            return report.IsUnreliable
+                ? string.Format(CultureInfo.CurrentCulture, Resources.IntegrityBadgeUnreliableFormat, badge)
+                : badge;
+        }
+
+        /// <summary>
+        /// The explanation of an integrity report for the Tools page and the repair advice (contract 2.5): what the state
+        /// means and what to do, plus the "unreliable" line of two products in one folder (O11). The files are listed by
+        /// <see cref="IntegrityFiles"/>.
+        /// </summary>
+        internal static string IntegrityExplanation(IntegrityReport report)
+        {
+            if (report == null)
+                throw new ArgumentNullException(nameof(report));
+            string text;
+            switch (report.State)
+            {
+                case IntegrityState.NotChecked:
+                    return report.Installation.State == InstallationState.FolderMissing
+                        ? Resources.GameDirectorySourceUserMissing
+                        : Resources.IntegrityNotChecked;
+                case IntegrityState.Ok:
+                    text = string.Format(CultureInfo.CurrentCulture,
+                        report.Kind == IntegrityCheckKind.Full ? Resources.IntegrityOkFullFormat : Resources.IntegrityOkQuickFormat,
+                        report.ListedFiles, report.HashedFiles);
+                    break;
+                case IntegrityState.Modified:
+                    text = string.Format(CultureInfo.CurrentCulture, Resources.IntegrityModifiedFormat,
+                        report.Findings.Count(finding => finding.State == IntegrityState.Modified));
+                    break;
+                case IntegrityState.Incomplete:
+                case IntegrityState.Damaged:
+                    text = IsNeutralChange(report) ? Resources.IntegrityChangedIntro : Resources.IntegrityFilesIntro;
+                    break;
+                case IntegrityState.Unknown:
+                    text = UnknownExplanation(report.UnknownReason);
+                    break;
+                default:
+                    text = report.CancelReason == CancelReason.SetupRunning
+                        ? Resources.IntegrityCancelledSetup
+                        : Resources.IntegrityCancelledRequested;
+                    break;
+            }
+            if (report.IsUnreliable)
+                text += Environment.NewLine + string.Format(CultureInfo.CurrentCulture, Resources.IntegrityUnreliableFormat,
+                    report.Installation.OtherProductInRoot.AppName, report.Installation.Product.AppName);
+            return text;
+        }
+
+        private static string UnknownExplanation(UnknownReason reason)
+        {
+            switch (reason)
+            {
+                case UnknownReason.LegacySetup:
+                    return Resources.IntegrityUnknownLegacy;
+                case UnknownReason.NewerContract:
+                    return Resources.IntegrityUnknownNewerContract;
+                case UnknownReason.OlderSetupRanAfter:
+                    return Resources.IntegrityUnknownOlderSetup;
+                case UnknownReason.FilesUnreadable:
+                    return Resources.IntegrityUnknownUnreadable;
+                default:
+                    // NoInstallInfo, NoManifest, ManifestUnreadable, InvalidManifest: the records of the setup are missing
+                    // or unusable.
+                    return Resources.IntegrityUnknownNoRecords;
+            }
+        }
+
+        /// <summary>
+        /// True if the findings are only NeoEE program files with another checksum: the NeoEE updater may have replaced them,
+        /// so they are worded neutrally (contract 2.6, O2).
+        /// </summary>
+        private static bool IsNeutralChange(IntegrityReport report)
+        {
+            return report.UsesNeutralWording && report.SeriousFindings.All(finding =>
+                finding.Kind == FindingKind.HashDiffers && finding.Class == FileClass.Code);
+        }
+
+        /// <summary>One file of the findings with what is wrong with it; NeoEE program files are worded neutrally (O2).</summary>
+        internal static string IntegrityFile(IntegrityFinding finding, bool neutral)
+        {
+            if (finding == null)
+                throw new ArgumentNullException(nameof(finding));
+            string format;
+            switch (finding.Kind)
+            {
+                case FindingKind.Missing:
+                    format = Resources.IntegrityFileMissingFormat;
+                    break;
+                case FindingKind.MissingAfterInstall:
+                    format = Resources.IntegrityFileMissingAfterInstallFormat;
+                    break;
+                case FindingKind.HashDiffers:
+                    format = finding.Class != FileClass.Code ? Resources.IntegrityFileModifiedFormat
+                        : neutral ? Resources.IntegrityFileChangedFormat : Resources.IntegrityFileDamagedFormat;
+                    break;
+                default:
+                    format = Resources.IntegrityFileUnreadableFormat;
+                    break;
+            }
+            return string.Format(CultureInfo.CurrentCulture, format, finding.Path);
+        }
+
+        /// <summary>
+        /// The files of <paramref name="report"/>, one per line, the missing and damaged ones first; at most
+        /// <paramref name="maximum"/> lines and then "and n more files". Empty without findings.
+        /// </summary>
+        internal static string IntegrityFiles(IntegrityReport report, int maximum = int.MaxValue)
+        {
+            if (report == null)
+                throw new ArgumentNullException(nameof(report));
+            bool neutral = report.UsesNeutralWording;
+            IReadOnlyList<IntegrityFinding> serious = report.SeriousFindings;
+            var seriousSet = new HashSet<IntegrityFinding>(serious);
+            List<IntegrityFinding> files = serious.Concat(report.Findings.Where(finding => !seriousSet.Contains(finding))).ToList();
+            var lines = files.Take(maximum).Select(finding => IntegrityFile(finding, neutral)).ToList();
+            if (files.Count > maximum)
+                lines.Add(string.Format(CultureInfo.CurrentCulture, Resources.IntegrityMoreFilesFormat, files.Count - maximum));
+            return string.Join(Environment.NewLine, lines);
+        }
+
+        /// <summary>The most files the repair advice lists; the Tools page lists all of them.</summary>
+        internal const int MaxFilesInAdvice = 10;
+
+        /// <summary>Why the repair advice of an integrity report is shown: the explanation and up to ten files (contract 2.5).</summary>
+        internal static string IntegrityAdviceReason(IntegrityReport report)
+        {
+            string files = IntegrityFiles(report, MaxFilesInAdvice);
+            return files.Length == 0
+                ? IntegrityExplanation(report)
+                : IntegrityExplanation(report) + Environment.NewLine + Environment.NewLine + files;
+        }
+
+        /// <summary>The progress line of the full check.</summary>
+        internal static string IntegrityProgress(IntegrityProgress progress)
+        {
+            if (progress == null)
+                throw new ArgumentNullException(nameof(progress));
+            return string.Format(CultureInfo.CurrentCulture, Resources.IntegrityProgressFormat, progress.CheckedFiles,
+                progress.TotalFiles);
+        }
+
+        // --- Update API (L-WP7, contract 4.3 and 4.5) ---------------------------------------------------------------
+
+        /// <summary>The result of a version check in one line (contract 4.5).</summary>
+        internal static string VersionResult(VersionCheckResult result)
+        {
+            if (result == null)
+                throw new ArgumentNullException(nameof(result));
+            bool game = result.Kind == VersionKind.Game;
+            switch (result.Outcome)
+            {
+                case VersionCheckOutcome.UpToDate:
+                    return string.Format(CultureInfo.CurrentCulture,
+                        game ? Resources.VersionGameUpToDateFormat : Resources.VersionSetupUpToDateFormat, result.InstalledVersion);
+                case VersionCheckOutcome.UpdateAvailable:
+                    return string.Format(CultureInfo.CurrentCulture,
+                        game ? Resources.VersionGameUpdateFormat : Resources.VersionSetupUpdateFormat, result.InstalledVersion,
+                        result.LatestVersion);
+                case VersionCheckOutcome.NotPossible:
+                    return Resources.VersionNotPossible;
+                default:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.VersionFailedFormat, Failure(result.Failure));
+            }
+        }
+
+        /// <summary>The results of the version checks that ran, one per line; empty if none ran.</summary>
+        internal static string VersionResults(VersionCheckResult game, VersionCheckResult setup)
+        {
+            var lines = new List<string>();
+            if (game != null)
+                lines.Add(VersionResult(game));
+            if (setup != null && !(setup.Outcome == VersionCheckOutcome.NotPossible && game?.Outcome == VersionCheckOutcome.NotPossible))
+                lines.Add(VersionResult(setup));
+            return string.Join(Environment.NewLine, lines);
+        }
+
+        /// <summary>Why the update API gave no usable answer, as a part of a sentence.</summary>
+        internal static string Failure(FallbackReason reason)
+        {
+            switch (reason)
+            {
+                case FallbackReason.Timeout:
+                    return Resources.FailureTimeout;
+                case FallbackReason.TlsError:
+                    return Resources.FailureTls;
+                case FallbackReason.StatusNotOk:
+                    return Resources.FailureStatus;
+                case FallbackReason.UrlRejected:
+                    return Resources.FailureUrlRejected;
+                default:
+                    return Resources.FailureNetwork;
+            }
+        }
+
+        /// <summary>
+        /// The note of the repair advice when the fixed download page is used because the update API gave no address
+        /// (contract 4.3 step 3, "no silent fallbacks"); null for an address of the API, for an installation without an
+        /// AppId (the fixed page is its page) and before the API was asked.
+        /// </summary>
+        internal static string DownloadFallback(SetupDownloadLocation location)
+        {
+            if (location == null)
+                throw new ArgumentNullException(nameof(location));
+            if (location.IsFromUpdateApi || location.Reason == FallbackReason.NoAppId || location.Reason == FallbackReason.NotAsked)
+                return null;
+            return string.Format(CultureInfo.CurrentCulture, Resources.RepairFallbackFormat, Failure(location.Reason));
         }
     }
 }
