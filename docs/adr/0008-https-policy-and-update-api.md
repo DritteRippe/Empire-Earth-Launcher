@@ -1,6 +1,6 @@
 # 0008 HTTPS policy and use of the update API
 
-Status: **Accepted** (2026-10-02)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review, see the Amendment section)
 
 ## Context
 
@@ -53,3 +53,17 @@ certificate problems are real and must not be "fixed" by turning validation off.
 - **Following redirects within the allow-list**: more code, no need (the API answers with the URL in the body).
   Rejected.
 - **Pinning the API certificate**: breaks on every certificate renewal of the hosting. Rejected.
+
+## Amendment 2026-10-02 (design review)
+
+- **The certificate test is broader.** The architecture test fails on any of
+  `ServerCertificateValidationCallback`, `ServerCertificateCustomValidationCallback` (the `HttpClientHandler`
+  property since .NET 4.7.1, the path this launcher uses), `RemoteCertificateValidationCallback` and
+  `DangerousAcceptAnyServerCertificateValidator` in a `.cs` file outside the test project, and on
+  `CheckCertificateRevocationList = false`.
+- **Bounded answer.** The 4 KiB limit is set as `HttpClient.MaxResponseContentBufferSize = 4096` (a property of
+  the client, not of the handler) and the body is read through that buffered path; a test checks the handler
+  settings (`AllowAutoRedirect = false`, `UseCookies = false`) and the client limit.
+- **TLS handshake failures** (`HttpRequestException` with an inner `AuthenticationException`, e.g. no common
+  cipher suite on Windows 7 or a wrong certificate as in R16) are one of the tested fallback reasons; the
+  log names the inner exception type.

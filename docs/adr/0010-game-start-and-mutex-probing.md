@@ -1,6 +1,6 @@
 # 0010 Game start, mutex probing and single instance
 
-Status: **Accepted** (2026-10-02)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review, see the Amendment section)
 
 ## Context
 
@@ -52,3 +52,18 @@ chosen by the user only apply when the program is started through the shell (con
   same name, and needs no mutex knowledge; the mutexes are what the setup itself uses. Kept only as extra
   information in the diagnostics report.
 - **`UseShellExecute = false`**: breaks compatibility layers with `RUNASADMIN` (error 740). Rejected.
+
+## Amendment 2026-10-02 (design review)
+
+- **Running games and setups also block changes, not only Play**: every action that writes game settings,
+  layers, the marker or files in the game folders goes through the mutation guard of ADR 0016.
+- **Hanging game** (forum report table 8 row 14, t=2815, t=5859): when the game mutex exists, the message
+  names the program and, if `Process.GetProcessesByName` finds a process of that name, says that it may hang
+  and how to end it in the Task Manager. The launcher still never kills a process.
+- **Process id**: `Process.Start` with `UseShellExecute = true` may return `null` (an existing process took
+  over the request) or a process whose id is not readable; the start is then logged with `pid unknown` and
+  counts as started. `FakeProcessStarter` covers both cases.
+- **Version display**: the Play page shows the file version (`FileVersionInfo`) of `Empire Earth.exe` and
+  `EE-AOC.exe` of the selected installation (forum report table 8 row 1, version conflicts of forum 4.12); the
+  diagnostics report contains it too. No reference list is compared (the integrity manifest does that for
+  `community` installations).

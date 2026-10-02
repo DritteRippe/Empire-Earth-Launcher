@@ -1,6 +1,6 @@
 # 0012 Test strategy
 
-Status: **Accepted** (2026-10-02)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review, see the Amendment section)
 
 ## Context
 
@@ -54,3 +54,26 @@ UI (briefing D6, contract 7).
 - **Moq/NSubstitute**: a new dependency; fakes are simpler for stateful registry and file system behaviour.
   Rejected.
 - **UI automation tests**: not runnable under Mono, brittle; manual test plan instead. Rejected.
+
+## Amendment 2026-10-02 (design review)
+
+- **Laptop package**: the last work package builds Release locally with the CI mechanism (ADR 0001
+  amendment) and packs launcher and mod creator with satellites and licenses into a zip plus `.sha256` in the
+  scratch folder, never in the repository. `docs/TEST-PLAN.de.md` says how the package gets onto the laptop and
+  how to build it on Windows with Visual Studio/MSBuild instead.
+- **The test plan grows with the code**: the first work package creates `docs/TEST-PLAN.de.md` (prerequisites,
+  getting the package, where log, settings and backups are); every later package adds its cases in the same
+  commit. That is an acceptance criterion of each package.
+- **Only checkable acceptance criteria**:
+  - "does not block the window" -> a test that `DiscoverAsync` with a blocking fake registry call returns an
+    unfinished task at once;
+  - performance -> counted, not timed: the quick check opens every listed file at most once and hashes no
+    `data` file (counting fake file system);
+  - "no designer layout lost" -> a script check that the designer diff contains only removed placeholder
+    controls (with their field declarations and `Controls.Add` lines) and text assignments, plus screenshots in
+    the test plan;
+  - "every cleanup entry has evidence" -> unit test on the `Evidence` field (ADR 0007 amendment);
+  - "no placeholders" -> architecture test with the list of removed control names (ADR 0014 amendment).
+- **More architecture and contract tests**: the broader certificate test (ADR 0008 amendment); comparisons and
+  upper-casing under `CurrentCulture` `tr-TR`; `InMemoryRegistry` has a "32-bit Windows" mode (HKLM64 is
+  HKLM32) and discovery yields no duplicates there; the registry alias table (ADR 0007 amendment).

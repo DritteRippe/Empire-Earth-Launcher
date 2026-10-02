@@ -1,6 +1,6 @@
 # 0007 Registry write scope, protected keys and .reg backups
 
-Status: **Accepted** (2026-10-02)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review, see the Amendment section)
 
 ## Context
 
@@ -65,3 +65,38 @@ of its own account, backs up before overwriting and never changes the protected 
 - **Cleanup by wildcard or vendor root key**: exactly the dangerous variant of the forum. Rejected.
 - **Offer elevation for HKLM cleanup**: contradicts contract 4.1/2.5 ("MUST NOT ask for elevation").
   Rejected.
+
+## Amendment 2026-10-02 (design review)
+
+The review found three gaps in the protection of the CD keys, a cleanup rule that could delete the
+player's active settings, and a restore promise that `.reg` files cannot keep.
+
+- **Canonical paths before every policy check.** `RegistryWritePolicy` first maps every path to a canonical
+  form, then checks it:
+  - case folded (ordinal ignore case), `/` treated as `\`, doubled and trailing backslashes removed;
+  - a `WOW6432Node` segment after `Software` is removed and turns the location into the 32-bit view
+    (`HKLM64\Software\WOW6432Node\Sierra\CDKeys` is the same key as `HKLM32\Software\Sierra\CDKeys`);
+  - `HKCU\Software\Classes\VirtualStore\MACHINE\SOFTWARE\[WOW6432Node\]<rest>` (registry virtualization: where
+    HKLM writes of non-elevated 32-bit legacy programs land) is mapped to the HKLM equivalent and is protected
+    exactly like it.
+  Protected is the **whole subtree** of `Software\Sierra\CDKeys` (subkeys and values) and every ancestor, in
+  every hive, view and alias, for every operation (`SetValue`, `DeleteValue`, `DeleteSubKeyTree`,
+  `CreateSubKey`). A table test runs every alias against every operation; the allow-list is checked after the
+  canonical form, so an alias can never reach an allowed path either.
+- **Cleanup conditions** (R5). The game settings keys of contract 3.1 are never offered while an installation
+  of that product is found, nor while the folder their "Installed From" values name is on a drive that is
+  missing, removable or a network drive (a missing USB or network drive is not a stale installation). The
+  cleanup list lives as a table in `ARCHITECTURE.md` (key, hive, evidence, condition); every code entry has a
+  mandatory `Evidence` field that a unit test checks against `t=\d+|p=\d+|setup:`. The evidence found so far
+  names mostly HKLM keys (p=49553) and vendor names without hive (p=4756), so the HKCU part may stay small or
+  empty; then the feature is honestly "display only". Registry-VirtualStore leftovers of Sierra, SSSI and Mad
+  Doc below `HKCU\Software\Classes\VirtualStore\MACHINE\SOFTWARE` are shown (they are in HKCU), with the
+  CD-key subtree excluded by the rule above.
+- **Exact restore.** For every value an action creates (it did not exist before), the backup gets a delete
+  line `"<name>"=-` below its key, so importing the `.reg` file brings back the previous state of the values.
+  Keys are never deleted by a backup file (a key the action created stays, empty after the import). The
+  writer also covers: `REG_SZ` with CR, LF or NUL as `hex(1):` (UTF-16 LE), `REG_NONE` as `hex(0):`, unknown
+  types as `hex(<n>):`, the default value as `@`, value names with `\` and `"` escaped. Each case has a golden
+  file; a test checks that delete lines come after the key header and before the next key.
+- **Backups contain login material** (moved `_wonlogin.ks`, `_wonkver.pub`): the README and the Tools page
+  say so; the backup folder is under the user's own profile and is never part of the diagnostics report.

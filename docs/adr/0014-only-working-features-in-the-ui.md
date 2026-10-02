@@ -1,6 +1,6 @@
 # 0014 Only working features in the UI
 
-Status: **Accepted** (2026-10-02)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review, see the Amendment section)
 
 ## Context
 
@@ -35,3 +35,43 @@ dummy from a broken feature.
 ## Alternatives considered
 
 - **Keep dummies disabled with "coming soon"**: still noise for players and testers. Rejected.
+
+## Amendment 2026-10-02 (design review)
+
+The first list was incomplete. Removed (field, designer code, handlers, resources) are exactly these
+controls of `v2` at `cab4d44`; an architecture test fails if one of the names appears in a `*.Designer.cs`
+again. Working replacements get new names in their work packages.
+
+- `LauncherSettingsUserControl`: `diagnosticDataKryptonCheckBox` ("Allow us to collect diagnostic data ...":
+  contradicts "no telemetry", ARCHITECTURE 10), `associateModFilesKryptonCheckBox`, `gameStartKryptonLabel`,
+  `gameStartKryptonComboBox`, `gameCloseKryptonLabel`, `gameCloseKryptonComboBox`;
+- `SettingsUserControl`: `magicButtonsKryptonGroupBox` with `repairCdKeysKryptonButton`,
+  `resetGameKryptonButton`, `clearRegistryKryptonButton`; `compatibilityKryptonGroupBox` and
+  `windowsCompatibilityKryptonGroupBox` with `compatibilityModeKryptonCheckBox`,
+  `compatibilityModeKryptonComboBox`, `clearHeapAllocationKryptonCheckBox`,
+  `bitDepthMitigationKryptonCheckBox`, `gameWorkingKryptonButton`, `autoDetectCompatibilityKryptonButton`;
+  `directXKryptonGroupBox` with `directXKryptonLabel`, `directXKryptonComboBox`,
+  `directXWrapperKryptonCheckBox`, `dgVoodooSettingsKryptonButton`, `resolutionKryptonLabel`,
+  `resolutionKryptonComboBox`, `monitorKryptonLabel`, `monitorKryptonComboBox`, `gameFontKryptonLabel`,
+  `gameFontKryptonTextBox`, `browseGameFontKryptonButton`; `advancedSettingsKryptonGroupBox` with
+  `dreXmodKryptonCheckBox`, `dreXmodVersionKryptonComboBox`, `neoEEKryptonCheckBox`,
+  `discordPresenceKryptonCheckBox`, `hdTexturesKryptonCheckBox`, `skipIntroKryptonCheckBox`
+  (the working compatibility warning panel `compatibilityWarning*` stays);
+- `GeneralUserControl`: `languageKryptonGroupBox` with `languageKryptonLabel`, `languageKryptonComboBox`,
+  `fallbackLanguageKryptonLabel`, `fallbackLanguageKryptonComboBox`, `gameTextKryptonCheckBox`,
+  `voicesKryptonCheckBox`, `lobbyKryptonCheckBox`; `onlineRankingKryptonGroupBox` with
+  `rankingUserKryptonLabel`, `rankingPointsKryptonLabel`, `rankingRankKryptonLabel`; `modsInUseKryptonLabel`;
+- `MainForm`: `modsKryptonCheckButton`.
+
+Order: the removal is the **first** commit of the localization work package, before texts move to
+`ApplyTexts()` and get translated, so that no dead text is translated.
+
+Not in v2, with reasons (README "planned"):
+
+- **DirectX wrapper switch** (forum report table 8 row 4): switching means adding or removing DLLs in the game
+  folders; the launcher must not change game files (contract 2.5), the setup does it (custom installation).
+  The diagnostics report shows whether a wrapper is installed.
+- **Resolution choice with 4:3 hint** (row 6): the game has its own resolution option; v2 offers "apply the
+  recommended display settings" (contract 3.6) and the warning below 768 pixels. A chooser is a later feature.
+- **GPU driver version in the log** (row 4): needs WMI or HKLM class-key reading for little support value; the
+  diagnostics report names the primary display adapter (`EnumDisplayDevices`).

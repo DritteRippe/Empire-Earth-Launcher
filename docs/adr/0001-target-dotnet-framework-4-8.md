@@ -1,6 +1,6 @@
 # 0001 Target .NET Framework 4.8
 
-Status: **Accepted** (2026-10-02)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review, see the Amendment section)
 
 ## Context
 
@@ -54,3 +54,27 @@ are `AnyCPU` with `Prefer32Bit` false (as today: registry views are always expli
   Windows 7 for .NET 7 and later.
 - **4.6.2 or 4.7.2**: same toolchain effort, but not built into current Windows, and 4.8 is the last
   .NET Framework version with the longest support.
+
+## Amendment 2026-10-02 (design review)
+
+The review of the v2 design checked the platform claims against the vendor requirements and the build path
+to the user's test laptop.
+
+- **Windows 8.0 is not supported.** .NET Framework 4.8 supports Windows 7 SP1, 8.1, 10 (1607 and later)
+  and 11, but not Windows 8.0 (Microsoft, ".NET Framework system requirements"). The setup still starts on
+  Windows 8.0 (`MinVersion` 6.1 SP1, `setup_is6.iss` lines 361-366), so the briefing's "same Windows range as
+  the setup" holds except for 8.0. The README says: Windows 7 SP1, 8.1, 10, 11; Windows 8.0 users upgrade to
+  8.1 (free) to run the launcher.
+- **Windows 7 SP1 is "supported, untested".** The laptop test runs on Windows 10/11. Installing .NET 4.8 on
+  Windows 7 SP1 has prerequisites that the README lists from Microsoft's installation page (checked when the
+  README is written, not assumed here). TLS: Windows 7 SChannel offers TLS 1.2 only on request (ADR 0008) and
+  a smaller set of cipher suites than current Windows; whether `api.empireearth.eu` accepts one of them is
+  unknown. Because every HTTPS failure ends in the fixed download page (ADR 0008), the launcher stays usable.
+  The test plan has an optional Windows 7 VM case (start, Krypton rendering, API request or fallback).
+- **The CI path is reproduced locally.** Commits are never pushed in this work (briefing D8), so
+  `build.yml` cannot produce the test builds. The first work package therefore adds a local Release build
+  that uses the same mechanism as CI: `mono nuget.exe install Microsoft.NETFramework.ReferenceAssemblies.net48
+  -Version 1.0.3`, then xbuild `/p:Configuration=Release` with `FrameworkPathOverride` pointing at its
+  `v4.8` folder, then the tests from `bin/Release`. The last work package packs the Release builds of launcher
+  and mod creator (with `de/` and `fr/` satellite folders, `LICENSE`, `THIRD-PARTY-NOTICES.md`,
+  `licenses/THIRD-PARTY-LICENSES.txt`) into a zip with a SHA-256 file for the laptop test (ADR 0012).
