@@ -65,7 +65,7 @@ namespace Empire_Earth_Launcher.Core.Platform
                 if (finished != lookup)
                 {
                     // The lookup goes on in Windows; its result or error is observed and dropped.
-                    lookup.ContinueWith(task => task.Exception, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted,
+                    _ = lookup.ContinueWith(task => task.Exception, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted,
                         TaskScheduler.Default);
                     return DnsLookup.Unresolved(host, DnsOutcome.Timeout, "no answer within " + DnsTimeout.TotalSeconds + " s",
                         watch.Elapsed);
