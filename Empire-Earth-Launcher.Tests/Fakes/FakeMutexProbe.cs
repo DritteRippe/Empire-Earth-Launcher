@@ -7,9 +7,10 @@ namespace Empire_Earth_Launcher.Tests.Fakes
 {
     /// <summary>
     /// <see cref="IMutexProbe"/> with a set of existing mutex names (case-sensitive, like Windows kernel object names).
-    /// Records every name it was asked about.
+    /// Records every name it was asked about. As <see cref="IMutexOwner"/> it creates names in the same set, so a second
+    /// launcher sees the mutex of the first (single instance, ADR 0010).
     /// </summary>
-    internal sealed class FakeMutexProbe : IMutexProbe
+    internal sealed class FakeMutexProbe : IMutexProbe, IMutexOwner
     {
         private readonly HashSet<string> existing = new HashSet<string>(StringComparer.Ordinal);
         private readonly List<string> probed = new List<string>();
@@ -35,6 +36,38 @@ namespace Empire_Earth_Launcher.Tests.Fakes
         public void Remove(string name)
         {
             existing.Remove(name);
+        }
+
+        public IDisposable TryCreate(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentException("A mutex name is required.", nameof(name));
+            if (existing.Contains(name))
+                return null;
+            existing.Add(name);
+            return new Handle(this, name);
+        }
+
+        /// <summary>A created mutex; disposing it removes the name.</summary>
+        private sealed class Handle : IDisposable
+        {
+            private readonly FakeMutexProbe owner;
+            private readonly string name;
+            private bool disposed;
+
+            public Handle(FakeMutexProbe owner, string name)
+            {
+                this.owner = owner;
+                this.name = name;
+            }
+
+            public void Dispose()
+            {
+                if (disposed)
+                    return;
+                disposed = true;
+                owner.Remove(name);
+            }
         }
 
         public bool Exists(string name)

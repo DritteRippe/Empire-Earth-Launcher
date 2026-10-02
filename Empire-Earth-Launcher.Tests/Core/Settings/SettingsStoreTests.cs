@@ -44,6 +44,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Settings
             Assert.That(settings.ThemeName, Is.EqualTo("Light"));
             Assert.That(settings.CustomThemeFile, Is.Empty);
             Assert.That(settings.UiCulture, Is.Empty, "the Windows language");
+            Assert.That(settings.LastGame, Is.Empty, "Empire Earth");
             Assert.That(settings.SchemaVersion, Is.EqualTo(1));
         }
 
@@ -228,14 +229,14 @@ namespace Empire_Earth_Launcher.Tests.Core.Settings
         public void UnknownMembers_SurviveASave()
         {
             // A newer launcher with the same schema version added members; this launcher keeps them.
-            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"LastGame\":\"AoC\",\"HiddenWarnings\":[{\"Name\":\"Game Bit Depth\",\"Value\":\"16\"}],\"ThemeName\":\"Dark\"}");
+            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"FavoriteMap\":\"Earth\",\"HiddenWarnings\":[{\"Name\":\"Game Bit Depth\",\"Value\":\"16\"}],\"ThemeName\":\"Dark\"}");
             store.Load();
 
             store.Current.ThemeName = "Blue";
             Assert.That(store.Save(), Is.EqualTo(SettingsSaveStatus.Saved));
 
             string saved = fileSystem.GetText(File);
-            Assert.That(saved, Does.Contain("\"LastGame\": \"AoC\""));
+            Assert.That(saved, Does.Contain("\"FavoriteMap\": \"Earth\""));
             Assert.That(saved, Does.Contain("\"Game Bit Depth\""));
             Assert.That(saved, Does.Contain("\"ThemeName\": \"Blue\""));
         }
@@ -253,6 +254,21 @@ namespace Empire_Earth_Launcher.Tests.Core.Settings
 
             Assert.That(fileSystem.GetText(File), Does.Contain("\"UiCulture\": \"de\""));
             Assert.That(new SettingsStore(fileSystem, File, logger).LoadAndGet().UiCulture, Is.EqualTo("de"));
+        }
+
+        [Test]
+        public void LastGame_IsLoadedAndSaved()
+        {
+            // LastGame was an unknown member before L-WP6; files of earlier test builds simply lack it.
+            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"ThemeName\":\"Dark\",\"LastGame\":null}");
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Loaded));
+            Assert.That(store.Current.LastGame, Is.Empty);
+
+            store.Current.LastGame = "AoC";
+            Assert.That(store.Save(), Is.EqualTo(SettingsSaveStatus.Saved));
+
+            Assert.That(fileSystem.GetText(File), Does.Contain("\"LastGame\": \"AoC\""));
+            Assert.That(new SettingsStore(fileSystem, File, logger).LoadAndGet().LastGame, Is.EqualTo("AoC"));
         }
 
         [Test]

@@ -68,6 +68,7 @@
     <Compile Include="Core\Backup\RegistryExportTests.cs" />
     <Compile Include="Core\Contract\CompatibilityLayersTests.cs" />
     <Compile Include="Core\Contract\ContractNamesTests.cs" />
+    <Compile Include="Core\Contract\GameTests.cs" />
     <Compile Include="Core\GameSettings\CompatibilityOptionsTests.cs" />
     <Compile Include="Core\GameSettings\ComputedValuesTests.cs" />
     <Compile Include="Core\GameSettings\ConsistencyChecksTests.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="Core\Platform\ShellProcessStarterTests.cs" />
     <Compile Include="Core\Platform\SystemInfoTests.cs" />
     <Compile Include="Core\Platform\WindowsFileVersionReaderTests.cs" />
+    <Compile Include="Core\Platform\WindowsMutexOwnerTests.cs" />
     <Compile Include="Core\Platform\WindowsMutexProbeTests.cs" />
     <Compile Include="Core\Platform\WindowsProcessListTests.cs" />
     <Compile Include="Core\Platform\WinPathTests.cs" />
@@ -106,6 +108,7 @@
     <Compile Include="Core\Play\ProgramVersionsTests.cs" />
     <Compile Include="Core\Play\RunningGameDetectorTests.cs" />
     <Compile Include="Core\Play\SetupWatcherTests.cs" />
+    <Compile Include="Core\Play\SingleInstanceTests.cs" />
     <Compile Include="Core\Repair\RepairAdviceTests.cs" />
     <Compile Include="Core\Settings\LauncherPathsTests.cs" />
     <Compile Include="Core\Settings\SettingsStoreTests.cs" />
@@ -126,6 +129,7 @@
     <Compile Include="Fakes\WriteForbiddingRegistry.cs" />
     <Compile Include="Launcher\GameSettingsModelTests.cs" />
     <Compile Include="Launcher\InstallationServiceTests.cs" />
+    <Compile Include="Launcher\SingleInstanceStartupTests.cs" />
     <Compile Include="Launcher\TextsTests.cs" />
     <Compile Include="Launcher\UiLanguageStartupTests.cs" />
     <Compile Include="Launcher\UiOperationTests.cs" />

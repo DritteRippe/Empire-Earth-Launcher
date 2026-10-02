@@ -13,9 +13,6 @@ namespace Empire_Earth_Launcher.Core.Settings
     /// so an older launcher never removes them. Adding an optional member is a compatible change that keeps
     /// <see cref="CurrentSchemaVersion"/>; renaming, removing or changing the meaning of a member raises it.
     /// </para>
-    /// <para>
-    /// Members still to come with their work packages (ARCHITECTURE 8): last game.
-    /// </para>
     /// </remarks>
     [DataContract(Name = "LauncherSettings", Namespace = "")]
     public sealed class LauncherSettings : IExtensibleDataObject
@@ -66,6 +63,14 @@ namespace Empire_Earth_Launcher.Core.Settings
         [DataMember(Order = 5)]
         public List<HiddenHint> HiddenHints { get; set; }
 
+        /// <summary>
+        /// The game chosen on the Play page last time: <c>EE</c> or <c>AoC</c> (<c>Contract.Game.Id</c>); empty or unknown
+        /// means Empire Earth, and The Art of Conquest only counts while the installation has it. Added in L-WP6 as an
+        /// optional member (schema 1).
+        /// </summary>
+        [DataMember(Order = 6)]
+        public string LastGame { get; set; }
+
         /// <summary>Members of the file this launcher does not know (written by a newer launcher).</summary>
         public ExtensionDataObject ExtensionData { get; set; }
 
@@ -76,6 +81,7 @@ namespace Empire_Earth_Launcher.Core.Settings
             CustomThemeFile = string.Empty;
             UiCulture = UiLanguage.Windows;
             HiddenHints = new List<HiddenHint>();
+            LastGame = string.Empty;
         }
 
         /// <summary>The serializer creates the object without a constructor: start from the defaults.</summary>
@@ -96,6 +102,7 @@ namespace Empire_Earth_Launcher.Core.Settings
             UiCulture = UiCulture ?? UiLanguage.Windows;
             HiddenHints = HiddenHints ?? new List<HiddenHint>();
             HiddenHints.RemoveAll(hint => hint == null);
+            LastGame = LastGame ?? string.Empty;
         }
     }
 

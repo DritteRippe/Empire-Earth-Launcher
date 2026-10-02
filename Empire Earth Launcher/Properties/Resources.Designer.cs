@@ -947,6 +947,15 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Empire Earth Launcher is already running. Please use the open window (it may be minimized or behind [rest of string was truncated].
+        /// </summary>
+        internal static string LauncherAlreadyRunning {
+            get {
+                return ResourceManager.GetString("LauncherAlreadyRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Launcher Settings.
         /// </summary>
         internal static string LauncherSettingsHeading {

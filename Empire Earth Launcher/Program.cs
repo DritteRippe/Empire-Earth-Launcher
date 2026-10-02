@@ -54,6 +54,20 @@ namespace Empire_Earth_Launcher
             var settingsStore = new SettingsStore(fileSystem, LauncherPaths.SettingsFile, logger);
             settingsStore.Load();
             ApplyUiLanguage(logger, settingsStore.Current.UiCulture);
+
+            // One launcher per Windows session (ADR 0010); a second one says so in the UI language and ends. The handle is
+            // kept until the launcher ends.
+            using (IDisposable singleInstance = ClaimSingleInstance(new WindowsMutexOwner(logger), logger, ShowAlreadyRunning))
+            {
+                if (singleInstance == null)
+                    return;
+                Run(fileSystem, settingsStore);
+            }
+        }
+
+        /// <summary>Creates the services of the launcher and runs the main window (the composition root).</summary>
+        private static void Run(LocalFileSystem fileSystem, SettingsStore settingsStore)
+        {
             var themeService = new KryptonThemeService(logger, LauncherPaths.ThemesDirectory);
             ApplySavedTheme(themeService, settingsStore.Current);
 
@@ -91,6 +105,25 @@ namespace Empire_Earth_Launcher
             logger.Info("Starting Empire Earth Launcher Form");
             Application.Run(new MainForm(logger, themeService, settingsStore, installations, lobbyProfiles, gameSettings,
                 uiOperation, playerList));
+        }
+
+        /// <summary>
+        /// Claims the single-instance mutex <see cref="SingleInstance.MutexName"/> (ADR 0010); if another launcher holds it,
+        /// shows <see cref="Resources.LauncherAlreadyRunning"/> and returns null, and the launcher ends.
+        /// </summary>
+        internal static IDisposable ClaimSingleInstance(IMutexOwner owner, ILogger log, Action<string> showMessage)
+        {
+            if (showMessage == null)
+                throw new ArgumentNullException(nameof(showMessage));
+            IDisposable handle = SingleInstance.TryClaim(owner, log);
+            if (handle == null)
+                showMessage(Resources.LauncherAlreadyRunning);
+            return handle;
+        }
+
+        private static void ShowAlreadyRunning(string message)
+        {
+            MessageBox.Show(message, Resources.LauncherTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         /// <summary>

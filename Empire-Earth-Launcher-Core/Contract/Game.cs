@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Empire_Earth_Launcher.Core.Contract
 {
@@ -45,6 +47,12 @@ namespace Empire_Earth_Launcher.Core.Contract
         /// setup uses it as <c>AppMutex</c> (contract 4.2).
         /// </summary>
         public string MutexName { get; }
+
+        /// <summary>The game with the id <paramref name="id"/> (<c>EE</c> or <c>AoC</c>, ignoring case), or null if it is unknown.</summary>
+        public static Game FromId(string id)
+        {
+            return All.FirstOrDefault(game => string.Equals(game.Id, id, StringComparison.OrdinalIgnoreCase));
+        }
 
         public override string ToString()
         {

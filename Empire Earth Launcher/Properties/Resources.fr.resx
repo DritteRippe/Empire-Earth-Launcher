@@ -502,4 +502,7 @@ Vos paramètres actuels sont d'abord enregistrés dans des fichiers .reg dans {1
   <data name="FindingFolderNotAnsiFormat" xml:space="preserve">
     <value>{0} : le dossier {1} contient des caractères que Windows ne connaît pas pour les programmes non Unicode comme le jeu ; le jeu risque de ne pas trouver ses fichiers. S'il ne démarre pas, copiez-le dans un dossier dont le nom ne contient que les lettres A à Z et des chiffres.</value>
   </data>
+  <data name="LauncherAlreadyRunning" xml:space="preserve">
+    <value>Empire Earth Launcher est déjà ouvert. Utilisez la fenêtre ouverte (elle est peut-être réduite ou cachée par d'autres fenêtres).</value>
+  </data>
 </root>
