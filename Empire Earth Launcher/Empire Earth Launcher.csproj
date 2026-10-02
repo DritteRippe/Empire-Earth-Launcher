@@ -89,6 +89,7 @@
     <Compile Include="InstallationService.cs" />
     <Compile Include="IntegrityModel.cs" />
     <Compile Include="IThemeService.cs" />
+    <Compile Include="MaintenanceModel.cs" />
     <Compile Include="PlayModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Integrity;
+using Empire_Earth_Launcher.Core.Maintenance;
 using Empire_Earth_Launcher.Core.Play;
 using Empire_Earth_Launcher.Core.Repair;
 using Empire_Earth_Launcher.Properties;
@@ -13,14 +18,17 @@ using Krypton.Toolkit;
 namespace Empire_Earth_Launcher
 {
     /// <summary>
-    /// The Tools page (L-WP7): the integrity check of the selected installation with its explanation and files (contract
-    /// 2.5), the full check with progress and cancel, the repair advice (contract 4.4), and the version check of the game
-    /// and the setup (contract 4.5). The maintenance tools and the network diagnostics follow in L-WP8 and L-WP9.
+    /// The Tools page: the integrity check of the selected installation with its explanation and files (contract 2.5), the
+    /// full check with progress and cancel, the repair advice (contract 4.4), and the version check of the game and the setup
+    /// (contract 4.5) (L-WP7); the maintenance tools of L-WP8: the registry cleanup (R5), the WON login reset (R6), the
+    /// VirtualStore check (R8), saved games and scenarios and the name check (R10), and "Open backup folder" (ADR 0007). The
+    /// network diagnostics follow in L-WP9.
     /// </summary>
     /// <remarks>
     /// The controls are stacked in <see cref="LayoutPage"/> from the texts they show, so longer translations push the
     /// following controls down; the page scrolls. The work runs through <see cref="UiOperation"/>,
-    /// <see cref="IntegrityModel"/> and <see cref="UpdateModel"/>; this class only shows their state.
+    /// <see cref="IntegrityModel"/>, <see cref="UpdateModel"/> and <see cref="MaintenanceModel"/>; this class only shows
+    /// their state and asks the player (folders, files, confirmations).
     /// </remarks>
     public partial class ToolsUserControl : UserControl
     {
@@ -32,7 +40,16 @@ namespace Empire_Earth_Launcher
         private IThemeService themeService;
         private IntegrityModel integrity;
         private UpdateModel updates;
+        private MaintenanceModel maintenance;
         private UiOperation uiOperation;
+
+        /// <summary>The registry cleanup as shown, so that the check boxes map to its keys.</summary>
+        private CleanupView cleanupView;
+
+        /// <summary>The result lines of the last actions; empty until one ran.</summary>
+        private string cleanupResult = string.Empty;
+        private string wonResult = string.Empty;
+        private string savesResult = string.Empty;
 
         public ToolsUserControl()
         {
@@ -54,6 +71,24 @@ namespace Empire_Earth_Launcher
             updatesHeadingKryptonLabel.Values.Text = Resources.ToolsUpdatesHeading;
             versionInfoKryptonWrapLabel.Text = Resources.VersionCheckInfo;
             versionCheckKryptonButton.Values.Text = Resources.VersionCheckToolsButton;
+
+            cleanupHeadingKryptonLabel.Values.Text = Resources.ToolsCleanupHeading;
+            cleanupInfoKryptonWrapLabel.Text = Resources.CleanupInfo;
+            cleanupDeleteKryptonButton.Values.Text = Resources.CleanupDeleteButton;
+            wonHeadingKryptonLabel.Values.Text = Resources.ToolsWonHeading;
+            wonInfoKryptonWrapLabel.Text = Resources.WonInfo;
+            wonResetKryptonButton.Values.Text = Resources.WonResetButton;
+            virtualStoreHeadingKryptonLabel.Values.Text = Resources.ToolsVirtualStoreHeading;
+            virtualStoreInfoKryptonWrapLabel.Text = Resources.VirtualStoreInfo;
+            savesHeadingKryptonLabel.Values.Text = Resources.ToolsSavesHeading;
+            savesInfoKryptonWrapLabel.Text = Resources.SavesInfo;
+            exportSavesKryptonButton.Values.Text = Resources.ExportSavesButton;
+            importEeSavesKryptonButton.Values.Text = Resources.ImportEeSavesButton;
+            importAocSavesKryptonButton.Values.Text = Resources.ImportAocSavesButton;
+            namesHeadingKryptonLabel.Values.Text = Resources.ToolsNamesHeading;
+            namesInfoKryptonWrapLabel.Text = Resources.NamesInfo;
+            backupsHeadingKryptonLabel.Values.Text = Resources.ToolsBackupsHeading;
+            openBackupFolderKryptonButton.Values.Text = Resources.OpenBackupFolderButton;
         }
 
         /// <summary>
@@ -64,15 +99,17 @@ namespace Empire_Earth_Launcher
         /// <param name="integrity">The integrity check of the selected installation.</param>
         /// <param name="updates">The update API: version check and the download of the repair advice.</param>
         /// <param name="setupWatcher">While a setup runs, no check starts and the page says so (contract 4.2).</param>
+        /// <param name="maintenance">The maintenance tools of L-WP8.</param>
         /// <param name="uiOperation">Runs the work of the page (ADR 0004).</param>
         internal void Initialize(IThemeService themeService, IntegrityModel integrity, UpdateModel updates,
-            SetupWatcher setupWatcher, UiOperation uiOperation)
+            SetupWatcher setupWatcher, MaintenanceModel maintenance, UiOperation uiOperation)
         {
             if (setupWatcher == null)
                 throw new ArgumentNullException(nameof(setupWatcher));
             this.themeService = themeService ?? throw new ArgumentNullException(nameof(themeService));
             this.integrity = integrity ?? throw new ArgumentNullException(nameof(integrity));
             this.updates = updates ?? throw new ArgumentNullException(nameof(updates));
+            this.maintenance = maintenance ?? throw new ArgumentNullException(nameof(maintenance));
             this.uiOperation = uiOperation ?? throw new ArgumentNullException(nameof(uiOperation));
             themeService.Register(launcherKryptonPalette, this);
 
@@ -80,12 +117,14 @@ namespace Empire_Earth_Launcher
             EventHandler<SetupStateEventArgs> showSetup = (sender, e) => ShowState();
             integrity.Changed += showState;
             updates.Changed += showState;
+            maintenance.Changed += showState;
             setupWatcher.SetupStarted += showSetup;
             setupWatcher.SetupFinished += showSetup;
             Disposed += (sender, e) =>
             {
                 integrity.Changed -= showState;
                 updates.Changed -= showState;
+                maintenance.Changed -= showState;
                 setupWatcher.SetupStarted -= showSetup;
                 setupWatcher.SetupFinished -= showSetup;
             };
@@ -120,7 +159,87 @@ namespace Empire_Earth_Launcher
                 ? Resources.VersionChecking
                 : Texts.VersionResults(updates.GameResult, updates.SetupResult);
             versionCheckKryptonButton.Enabled = updates.CanCheck;
+            ShowMaintenance();
             LayoutPage();
+        }
+
+        /// <summary>The state of the maintenance tools: what the last scan found, the results of the last actions, which buttons work.</summary>
+        private void ShowMaintenance()
+        {
+            MaintenanceScan scan = maintenance.Scan;
+            Installation selected = maintenance.Selected;
+            bool canChange = maintenance.CanChange;
+            string blocked = maintenance.RunningSetup == null ? null : Texts.SetupRunning(maintenance.RunningSetup);
+
+            ShowCleanup(scan?.Cleanup, canChange);
+            cleanupResultKryptonWrapLabel.Text = blocked ?? cleanupResult;
+
+            wonStateKryptonWrapLabel.Text = selected == null ? Texts.GameSettingsInstallation(null)
+                : scan == null ? Resources.ToolsChecking : Texts.WonFiles(scan.WonFiles);
+            wonResetKryptonButton.Enabled = selected != null && canChange;
+            wonResultKryptonWrapLabel.Text = blocked ?? wonResult;
+
+            virtualStoreStateKryptonWrapLabel.Text = selected == null ? Texts.GameSettingsInstallation(null)
+                : Texts.VirtualStoreState(scan?.VirtualStore);
+            string copies = Texts.VirtualStoreFiles(scan?.VirtualStore);
+            virtualStoreFilesKryptonTextBox.Text = copies;
+            SetShown(virtualStoreFilesKryptonTextBox, copies.Length > 0);
+
+            savesStateKryptonWrapLabel.Text = selected == null ? Texts.GameSettingsInstallation(null)
+                : Texts.SavedGamesState(scan?.SavedGames);
+            exportSavesKryptonButton.Enabled = selected != null && !maintenance.IsBusy;
+            importEeSavesKryptonButton.Enabled = selected != null && canChange;
+            importAocSavesKryptonButton.Enabled = selected != null && selected.HasArtOfConquest && canChange;
+            savesResultKryptonWrapLabel.Text = blocked ?? savesResult;
+
+            namesStateKryptonWrapLabel.Text = selected == null ? Texts.GameSettingsInstallation(null) : Texts.NameCheck(scan?.Names);
+            backupsInfoKryptonWrapLabel.Text = string.Format(CultureInfo.CurrentCulture, Resources.BackupFolderInfoFormat,
+                maintenance.BackupDirectory);
+        }
+
+        /// <summary>
+        /// The registry cleanup (<see cref="CleanupView"/>): the summary, the keys to select (kept selected across scans), the
+        /// read-only list, and the delete button only when a key is selected.
+        /// </summary>
+        private void ShowCleanup(CleanupScan scan, bool canChange)
+        {
+            var selected = new HashSet<string>(SelectedKeys().Select(item => item.Entry.Id));
+            cleanupView = CleanupView.For(scan, 0, canChange);
+            cleanupStateKryptonWrapLabel.Text = cleanupView.Summary;
+            cleanupKryptonCheckedListBox.BeginUpdate();
+            cleanupKryptonCheckedListBox.Items.Clear();
+            for (int i = 0; i < cleanupView.Offered.Count; i++)
+            {
+                cleanupKryptonCheckedListBox.Items.Add(cleanupView.OfferedTexts[i]);
+                if (selected.Contains(cleanupView.Offered[i].Entry.Id))
+                    cleanupKryptonCheckedListBox.SetItemChecked(i, true);
+            }
+            cleanupKryptonCheckedListBox.EndUpdate();
+            cleanupKryptonCheckedListBox.Height = Math.Min(5, Math.Max(1, cleanupView.Offered.Count)) * 18 + 6;
+            SetShown(cleanupKryptonCheckedListBox, cleanupView.ShowsList);
+            cleanupReadOnlyKryptonTextBox.Text = cleanupView.ReadOnlyText;
+            SetShown(cleanupReadOnlyKryptonTextBox, cleanupView.ReadOnlyText.Length > 0);
+            UpdateDeleteButton(cleanupKryptonCheckedListBox.CheckedIndices.Count);
+        }
+
+        private void UpdateDeleteButton(int selectedCount)
+        {
+            CleanupView view = CleanupView.For(maintenance.Scan?.Cleanup, selectedCount, maintenance.CanChange);
+            cleanupDeleteKryptonButton.Enabled = view.DeleteEnabled;
+        }
+
+        /// <summary>The offered keys whose check box is set.</summary>
+        private List<CleanupItem> SelectedKeys()
+        {
+            var items = new List<CleanupItem>();
+            if (cleanupView == null)
+                return items;
+            foreach (int index in cleanupKryptonCheckedListBox.CheckedIndices)
+            {
+                if (index >= 0 && index < cleanupView.Offered.Count)
+                    items.Add(cleanupView.Offered[index]);
+            }
+            return items;
         }
 
         /// <summary>The state line: the setup that runs, the progress, "checking", the explanation of the report, or nothing.</summary>
@@ -187,6 +306,46 @@ namespace Empire_Earth_Launcher
             Place(versionInfoKryptonWrapLabel);
             Place(versionResultKryptonWrapLabel);
             Place(versionCheckKryptonButton);
+
+            y += Gap;
+            Place(cleanupHeadingKryptonLabel);
+            Place(cleanupInfoKryptonWrapLabel);
+            Place(cleanupStateKryptonWrapLabel);
+            Place(cleanupKryptonCheckedListBox);
+            Place(cleanupReadOnlyKryptonTextBox);
+            Place(cleanupDeleteKryptonButton);
+            Place(cleanupResultKryptonWrapLabel);
+
+            y += Gap;
+            Place(wonHeadingKryptonLabel);
+            Place(wonInfoKryptonWrapLabel);
+            Place(wonStateKryptonWrapLabel);
+            Place(wonResetKryptonButton);
+            Place(wonResultKryptonWrapLabel);
+
+            y += Gap;
+            Place(virtualStoreHeadingKryptonLabel);
+            Place(virtualStoreInfoKryptonWrapLabel);
+            Place(virtualStoreStateKryptonWrapLabel);
+            Place(virtualStoreFilesKryptonTextBox);
+
+            y += Gap;
+            Place(savesHeadingKryptonLabel);
+            Place(savesInfoKryptonWrapLabel);
+            Place(savesStateKryptonWrapLabel);
+            Place(exportSavesKryptonButton);
+            PlaceRow(importEeSavesKryptonButton, importAocSavesKryptonButton);
+            Place(savesResultKryptonWrapLabel);
+
+            y += Gap;
+            Place(namesHeadingKryptonLabel);
+            Place(namesInfoKryptonWrapLabel);
+            Place(namesStateKryptonWrapLabel);
+
+            y += Gap;
+            Place(backupsHeadingKryptonLabel);
+            Place(backupsInfoKryptonWrapLabel);
+            Place(openBackupFolderKryptonButton);
             toolsScrollPanel.ResumeLayout(true);
         }
 
@@ -234,6 +393,120 @@ namespace Empire_Earth_Launcher
         private void versionCheckKryptonButton_Click(object sender, EventArgs e)
         {
             uiOperation.Run(versionCheckKryptonButton, () => CheckVersionsAsync(this, true, updates, themeService, uiOperation));
+        }
+
+        // --- Maintenance tools (L-WP8) ---------------------------------------------------------------------------------
+
+        private void cleanupKryptonCheckedListBox_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            // ItemCheck comes before the check box changes: count the new state.
+            int selected = cleanupKryptonCheckedListBox.CheckedIndices.Count + (e.NewValue == CheckState.Checked ? 1 : -1);
+            UpdateDeleteButton(Math.Max(0, selected));
+        }
+
+        /// <summary>The registry cleanup (R5): confirmation with the keys and the backup folder, then guard, backup, delete.</summary>
+        private void cleanupDeleteKryptonButton_Click(object sender, EventArgs e)
+        {
+            List<CleanupItem> selection = SelectedKeys();
+            if (selection.Count == 0 || !maintenance.CanChange)
+                return;
+            if (MessageBox.Show(FindForm(), Texts.CleanupConfirm(selection, maintenance.BackupDirectory), Resources.LauncherTitle,
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
+                return;
+            uiOperation.Run(cleanupDeleteKryptonButton, async () =>
+            {
+                CleanupResult result = await maintenance.DeleteKeysAsync(selection);
+                cleanupResult = Texts.CleanupResult(result);
+                ShowState();
+            });
+        }
+
+        /// <summary>The WON login reset (R6, forum p=83519); the result names the backup folder, which contains login data.</summary>
+        private void wonResetKryptonButton_Click(object sender, EventArgs e)
+        {
+            if (maintenance.Selected == null || !maintenance.CanChange)
+                return;
+            uiOperation.Run(wonResetKryptonButton, async () =>
+            {
+                WonResetResult result = await maintenance.ResetWonLoginAsync();
+                wonResult = Texts.WonResult(result);
+                ShowState();
+            });
+        }
+
+        /// <summary>The export of saved games and scenarios (R10) into a new folder of the folder the player chooses.</summary>
+        private void exportSavesKryptonButton_Click(object sender, EventArgs e)
+        {
+            if (maintenance.Selected == null)
+                return;
+            string folder;
+            using (var dialog = new FolderBrowserDialog())
+            {
+                dialog.Description = Resources.ExportFolderDescription;
+                dialog.ShowNewFolderButton = true;
+                string documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                if (!string.IsNullOrEmpty(documents) && Directory.Exists(documents))
+                    dialog.SelectedPath = documents;
+                if (dialog.ShowDialog(this) != DialogResult.OK)
+                    return;
+                folder = dialog.SelectedPath;
+            }
+            uiOperation.Run(exportSavesKryptonButton, async () =>
+            {
+                ExportResult result = await maintenance.ExportAsync(folder);
+                savesResult = Texts.ExportResult(result);
+                ShowState();
+            });
+        }
+
+        private void importEeSavesKryptonButton_Click(object sender, EventArgs e)
+        {
+            Import(Game.EmpireEarth, importEeSavesKryptonButton);
+        }
+
+        private void importAocSavesKryptonButton_Click(object sender, EventArgs e)
+        {
+            Import(Game.ArtOfConquest, importAocSavesKryptonButton);
+        }
+
+        /// <summary>
+        /// The import of saved games and scenarios (R10): the player chooses files, the core checks them, a file that would
+        /// replace one of the same name only after the player confirmed it (its old version goes to the backup folder).
+        /// </summary>
+        private void Import(Game game, KryptonButton button)
+        {
+            if (maintenance.Selected == null || !maintenance.CanChange)
+                return;
+            string[] files;
+            using (var dialog = new OpenFileDialog())
+            {
+                dialog.Title = Resources.ImportDialogTitle;
+                dialog.Filter = Resources.ImportFileFilter;
+                dialog.Multiselect = true;
+                dialog.CheckFileExists = true;
+                if (dialog.ShowDialog(this) != DialogResult.OK)
+                    return;
+                files = dialog.FileNames;
+            }
+            ImportPlan plan = maintenance.PlanImport(game, files);
+            bool overwrite = plan.NeedsOverwriteConfirmation &&
+                             MessageBox.Show(FindForm(), Texts.ImportConfirm(plan), Resources.LauncherTitle, MessageBoxButtons.YesNo,
+                                 MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes;
+            uiOperation.Run(button, async () =>
+            {
+                ImportResult result = await maintenance.ImportAsync(plan, overwrite);
+                savesResult = Texts.ImportResult(result);
+                ShowState();
+            });
+        }
+
+        /// <summary>"Open backup folder" (ADR 0007): the Explorer, through the shell.</summary>
+        private void openBackupFolderKryptonButton_Click(object sender, EventArgs e)
+        {
+            string problem = maintenance.OpenBackupFolder();
+            if (problem != null)
+                MessageBox.Show(FindForm(), string.Format(CultureInfo.CurrentCulture, Resources.OpenBackupFolderFailedFormat, problem),
+                    Resources.LauncherTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         /// <summary>

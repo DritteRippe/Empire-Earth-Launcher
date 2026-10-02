@@ -31,13 +31,14 @@ namespace Empire_Earth_Launcher
         /// <param name="play">The Play page: game choice, versions, start (L-WP6).</param>
         /// <param name="integrity">The integrity check of the selected installation (L-WP7).</param>
         /// <param name="updates">The update API: version check and the download of the repair advice (L-WP7).</param>
+        /// <param name="maintenance">The maintenance tools of the Tools page (L-WP8).</param>
         /// <param name="setupWatcher">Watches the setup mutexes; the window ticks it every half second (contract 4.2).</param>
         /// <param name="uiOperation">Runs the asynchronous work of the pages (ADR 0004).</param>
         /// <param name="playerList">Polls the online player list; null if the server settings are invalid.</param>
         internal MainForm(ILogger logger, IThemeService themeService, SettingsStore settings,
             InstallationService installations, LobbyProfileRepository lobbyProfiles, GameSettingsModel gameSettings,
-            PlayModel play, IntegrityModel integrity, UpdateModel updates, SetupWatcher setupWatcher, UiOperation uiOperation,
-            PlayerListPoller playerList)
+            PlayModel play, IntegrityModel integrity, UpdateModel updates, MaintenanceModel maintenance, SetupWatcher setupWatcher,
+            UiOperation uiOperation, PlayerListPoller playerList)
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.OptimizedDoubleBuffer, true);
@@ -50,7 +51,7 @@ namespace Empire_Earth_Launcher
             generalUserControl.Initialize(logger, themeService, installations, lobbyProfiles, playerList, gameSettings, play,
                 integrity, updates, uiOperation);
             settingsUserControl.Initialize(themeService, gameSettings, installations, setupWatcher, uiOperation);
-            toolsUserControl.Initialize(themeService, integrity, updates, setupWatcher, uiOperation);
+            toolsUserControl.Initialize(themeService, integrity, updates, setupWatcher, maintenance, uiOperation);
             launcherSettingsUserControl.Initialize(themeService, settings, installations, uiOperation);
 
             // A page cannot be assigned to Tag in the designer, so the navigation is wired up here.

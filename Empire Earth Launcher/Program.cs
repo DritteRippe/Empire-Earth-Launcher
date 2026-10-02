@@ -12,6 +12,7 @@ using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Integrity;
 using Empire_Earth_Launcher.Core.Lobby;
 using Empire_Earth_Launcher.Core.Logging;
+using Empire_Earth_Launcher.Core.Maintenance;
 using Empire_Earth_Launcher.Core.Platform;
 using Empire_Earth_Launcher.Core.Play;
 using Empire_Earth_Launcher.Core.Repair;
@@ -91,7 +92,9 @@ namespace Empire_Earth_Launcher
             var installations = new InstallationService(logger, settingsStore,
                 new InstallationDiscovery(registry, fileSystem, logger), fileSystem, LauncherPaths.ApplicationDirectory,
                 setupWatcher);
-            var lobbyProfiles = new LobbyProfileRepository(logger, fileSystem, CreateEffectivePathResolver(fileSystem));
+            // The files the game really uses (VirtualStore copy first, ADR 0016): lobby profiles, saves, WON files.
+            EffectivePathResolver effectivePaths = CreateEffectivePathResolver(fileSystem);
+            var lobbyProfiles = new LobbyProfileRepository(logger, fileSystem, effectivePaths);
             var uiOperation = new UiOperation(logger);
 
             // Game settings of contract 3 (L-WP5): every change asks the mutation guard (no setup, no game running, ADR 0016)
@@ -117,6 +120,16 @@ namespace Empire_Earth_Launcher
             var integrity = new IntegrityModel(new IntegrityChecker(fileSystem, registry, mutexProbe, logger), installations,
                 setupWatcher, logger);
 
+            // Maintenance tools (L-WP8): read-only scans after every search; the registry cleanup, the WON login reset and the
+            // import of saved games ask the mutation guard and back up first (ADR 0007, ADR 0016); the export only reads.
+            var fileBackup = new FileBackup(fileSystem, backups, logger);
+            var maintenance = new MaintenanceModel(new RegistryCleanup(registry, fileSystem, guard, backups, logger),
+                new WonLoginReset(fileSystem, effectivePaths, guard, fileBackup, logger),
+                new VirtualStoreScanner(fileSystem, effectivePaths, logger),
+                new SavedGames(fileSystem, effectivePaths, systemInfo, guard, fileBackup, SystemClock.Instance, logger),
+                new NameChecks(fileSystem, effectivePaths, lobbyProfiles, logger), installations, setupWatcher, shell, fileSystem,
+                backups.Directory, logger);
+
             // Server settings stay application settings in "Empire Earth Launcher.exe.config" (ADR 0005). The poller sends no
             // request before the Play page starts it (ADR 0004).
             int playerListPollIntervalMilliseconds;
@@ -135,7 +148,7 @@ namespace Empire_Earth_Launcher
 
                 logger.Info("Starting Empire Earth Launcher Form");
                 Application.Run(new MainForm(logger, themeService, settingsStore, installations, lobbyProfiles, gameSettings,
-                    play, integrity, updates, setupWatcher, uiOperation, playerList));
+                    play, integrity, updates, maintenance, setupWatcher, uiOperation, playerList));
             }
         }
 
