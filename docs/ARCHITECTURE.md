@@ -149,7 +149,7 @@ Empire_Earth_Mod.exe ──> Empire_Earth_Mod_Lib.dll ──> BCL only
   HKCU game settings values, the defaults marker, the GPU preference and the HKCU compatibility layer
   values, plus the launcher's own folder below `%LOCALAPPDATA%`, files the player imports into the game
   folders and the WON login files it moves into a backup. `Program` wraps the Windows registry in
-  `PolicyCheckedRegistry` (from the first package that uses the registry, L-WP4), so no code path can write
+  `PolicyCheckedRegistry` (since L-WP4, the first package that uses the registry), so no code path can write
   around the policy; the protected keys are refused on the canonical form first, then the allow-list is matched
   on the key as it is written (ADR 0007, implementation amendment).
 
@@ -160,14 +160,30 @@ Empire_Earth_Mod.exe ──> Empire_Earth_Mod_Lib.dll ──> BCL only
 1. `Program.Main`: global exception handlers, logger (trimmed `log.txt`), settings (`settings.json`,
    damaged file moved aside), UI culture (setting or Windows), theme, single-instance check
    ([ADR 0010](adr/0010-game-start-and-mutex-probing.md)).
-2. MainForm opens at once; the pages show "searching" states. Nothing blocks the window.
+2. MainForm opens at once; the pages show "searching" states. Nothing blocks the window. `MainForm.OnShown` starts the
+   discovery through `UiOperation` (`InstallationService.RefreshAsync` -> `InstallationDiscovery.DiscoverAsync`, thread
+   pool).
 3. **Discovery** (background, contract 1.4): user choice, registry records (NeoEE before EE; HKCU, HKLM64,
    HKLM32), uninstall keys by `Publisher`, "Installed From" values, launcher folder. For "Installed From" the
    **key goes before the hive** (Neo in HKCU, HKLM32, HKLM64, then SSSI in the same order), as for sources 2
    and 3 ("NeoEE before EE; per product ..."); the old locator let the hive win (forum report section 8,
    test case 8). Candidates are merged by normalized root (`WinPath`), classified (`community`,
    `community-legacy`, `foreign`), damaged ones kept; each keeps its real EE and AoC folder (ADR 0015). Every
-   dropped candidate is logged with the reason.
+   dropped candidate is logged with the reason (exactly one line). Refinements of L-WP4, all within the contract:
+   - **Kind**: without `install.ini`, a registry record with `ContractVersion` 1 or higher also means `community`
+     (the setup deletes `install.ini` at the start of a run that may break off; the integrity check then gives the
+     repair advice, contract 2.5). `install.ini` wins over the record when both exist (contract 1.1).
+   - **AoC folder of foreign installations**: the AoC "Installed From" values of the same product in the same hive
+     and view, only if `EE-AOC.exe` is there (ADR 0015 amendment).
+   - **User choice**: it selects the installation whose root, EE folder or AoC folder it is, else the one whose root
+     a recognized folder (EE folder, AoC folder, install root) implies; a folder that is missing or holds no program
+     stays an installation of its own, so the player sees exactly that folder. Picking an installation in the list
+     saves its EE folder.
+   - **Order of the list**: by the most specific source of each installation (the chosen one first), then by the
+     order in which they were found; without a choice the first one is used. On 32-bit Windows a value read through
+     both HKLM views is one candidate.
+   - **Lobby profiles** come from the EE folder of the selected installation through the `EffectivePathResolver`
+     (ADR 0016 amendment).
 4. The selected installation (user choice, else first found) goes to the pages.
 5. **Quick check** (background, contract 2.5): manifest and `install.ini` read; existence of every listed
    file and the hashes of the `code` files. Result: OK, Modified, Incomplete, Damaged or Unknown.
@@ -365,8 +381,8 @@ Decided in [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md):
   (comments removed, entries with `type` or `mimetype` skipped): the same keys in `en`, `de`, `fr`; no empty
   value; the same `{n}` placeholders. A second test checks that image and file entries exist only in the
   neutral resx; further tests check the generated `Resources` class, the project items and the built satellite
-  assemblies. Since L-WP3 the three languages have the same 53 string keys (before: `en` and `fr` 30 each and
-  about 50 designer-only texts, [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md), corrected evidence).
+  assemblies. Since L-WP4 the three languages have the same 74 string keys (L-WP3: 53; before: `en` and `fr` 30
+  each and about 50 designer-only texts, [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md), corrected evidence).
 - German is proof-read by the user in the laptop test; French texts are marked "review open" in
   `docs/TRANSLATING.md` until a French speaker has read them.
 - The UI language follows Windows unless the setting `UiCulture` (Launcher page) chooses one; it is applied at
@@ -521,7 +537,9 @@ change (contract 5); the launcher already implements the stated reading:
 - **3.3 upper-casing**: "ASCII letters only" would make setup and launcher byte-identical; until then the
   launcher keeps `ToUpperInvariant` and compares case-insensitively (ADR 0015).
 - **1.4 EE folder of foreign installations**: say explicitly that the EE and AoC folders of `foreign`
-  installations are the real folders named by "Installed From" (ADR 0015).
+  installations are the real folders named by "Installed From" (ADR 0015), the AoC folder from the same hive.
+- **1.4 Kind**: "without `install.ini`, a registry record with `ContractVersion` 1 or higher also means `community`"
+  (L-WP4, see 4.1).
 
 Platform: Windows 8.0 is not supported (.NET 4.8); Windows 7 SP1 is supported but not tested on the laptop
 (optional VM case in the test plan; TLS cipher suites of Windows 7 against `api.empireearth.eu` unknown, the
@@ -548,8 +566,9 @@ be built after every package from L-WP6 on.
 | L-WP8 | Maintenance tools | registry cleanup by the table of 4.6, WON login reset, VirtualStore, saves and scenarios, name checks, all behind the mutation guard |
 | L-WP9 | Network diagnostics, report, laptop package | adapters, DNS, `NeoEE.cfg`, `upnp_info.txt`, `CDKeyCheck`, outage hint, anonymized report, final docs, test plan completeness, Release zip with SHA-256 |
 
-Done so far: L-WP1 to L-WP3 (see the CHANGELOG). Implementation details of L-WP2 that refine ADR 0004, 0005, 0007
-and 0016, and of L-WP3 that refine ADR 0009 and 0014, are recorded in their amendments.
+Done so far: L-WP1 to L-WP4 (see the CHANGELOG). Implementation details of L-WP2 that refine ADR 0004, 0005, 0007
+and 0016, of L-WP3 that refine ADR 0009 and 0014, and of L-WP4 that refine ADR 0004, 0006, 0015 and 0016 are recorded
+in their amendments.
 
 ## 16. Not in v2
 

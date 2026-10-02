@@ -13,6 +13,38 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
 
 ### Added
 
+- Discovery of every Empire Earth installation (contract 1.4, `Empire-Earth-Launcher-Core/Installations`), in place of
+  the old game folder detection. Five sources: the folder chosen on the *Launcher* page, the install records of setups
+  since v2 (HKCU, HKLM 64-bit, HKLM 32-bit view; NeoEE before EE), the uninstall keys `{<GUID>}_is1` of community
+  setups (only the two exact publishers of the contract, `Inno Setup: App Path` before `InstallLocation`), the
+  "Installed From" values (key before hive: `Software\Neo\Empire Earth` in HKCU, HKLM32, HKLM64, then
+  `Software\SSSI\Empire Earth`; the old detection let HKCU win over the key, so an old retail entry beat a NeoEE
+  installation, forum report section 8 test case 8) and the launcher folder or its parent. Entries of the same
+  install folder are one installation (the most specific source wins); `install.ini` (BOM, LF/CRLF, unknown sections
+  and keys, names ignoring case) decides between community setups since v2, setups up to 1.7.2 and other
+  installations (NeoEE if `neoee.dll` is there). Each installation carries its real Empire Earth and Art of Conquest
+  folder ([ADR 0015](docs/adr/0015-game-settings-target-folders-and-write-timing.md)): `C:\Games\EE` stays
+  `C:\Games\EE`, `D:\Empire Earth` has the root `D:\`. A missing `Empire Earth.exe` (or `EE-AOC.exe` with the
+  component `gameaoc`) means damaged, not "not found"; a chosen folder that does not exist stays chosen. Two products
+  in one folder use the `install.ini` written last (O11); a `ContractVersion` above the launcher's is flagged
+  (contract 5). A source that cannot be read drops only that candidate, with one log line; the discovery only reads
+  and runs in the background.
+- *Launcher* page: a list of the installations found (product, install folder, Empire Earth folder, type, state, with
+  tooltips); picking one makes it the choice. Below the list a hint when several installations share one set of game
+  settings (ADR 0015), when EE and NeoEE share a folder, when a setup is newer than the launcher, and the antivirus
+  advice for a damaged installation. "..." now also accepts the install folder or the Art of Conquest folder without a
+  question. 21 new texts in English, German and French.
+- Effective game paths ([ADR 0016](docs/adr/0016-mutation-guard-and-effective-game-paths.md)): in a game folder below
+  `Program Files`, `Program Files (x86)`, `ProgramData` or the Windows folder the launcher reads the copy of a file in
+  `%LOCALAPPDATA%\VirtualStore` first, as the game does; the lobby profiles and friends use it.
+- Test plan: cases WP4-01 to WP4-18 (installations of setup 1.7.2 and v2 for all users and for one user, a second
+  Windows account, retail/GOG or a copy with another folder name, key before hive, damaged installations, the choice of
+  root, game folder or AoC folder, VirtualStore, the page in three languages, the log).
+- Tests: a table test with a case for every rule of contract 1.4 and every row of 1.5 (it reads the rules from
+  `docs/CONTRACT.md`), the readers of every source, 32-bit Windows without duplicates, no write (fakes that fail on a
+  write), a discovery with a blocking registry that returns at once, the effective paths. The cases of the old
+  `GameDirectoryLocatorTests` live on under their names in `GameDirectoryLocatorPortTests`; no test is skipped under
+  Mono any more.
 - German user interface: `Properties/Resources.de.resx` translates all 50 texts of the launcher
   ([ADR 0009](docs/adr/0009-localization-with-resx-en-de-fr.md)); the build puts it next to the program as
   `de\Empire Earth Launcher.resources.dll`, like the French `fr\`. The launcher uses it when the Windows display
@@ -69,6 +101,13 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
 
 ### Changed
 
+- The launcher wraps the Windows registry in the write policy of ADR 0007 (`PolicyCheckedRegistry`); the discovery only
+  reads. It starts once the main window is shown, through `UiOperation`; until it has finished the pages show
+  "Searching for Empire Earth installations...".
+- The lobby profiles come from the Empire Earth folder of the selected installation, through the file system
+  abstraction of the core.
+- The rows of the *Launcher* page moved up to make room for the list of installations; the theme list has the width
+  of the other lists.
 - Every text of the launcher's windows comes from `Properties/Resources.resx` and is set in one `ApplyTexts()`
   method per window or page ([ADR 0009](docs/adr/0009-localization-with-resx-en-de-fr.md)); about 20 texts that
   existed only in the designer (navigation, page headings, labels, buttons, the compatibility warning, the
@@ -108,6 +147,8 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
 
 ### Removed
 
+- `GameDirectoryLocator` and `GameDirectoryService` of the launcher (replaced by the discovery of the core and
+  `InstallationService`) and their tests, which ran on Windows only (the cases are ported).
 - The placeholder controls that had no function ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md),
   exact list in its amendment): on the *Launcher* page the checkbox "Allow us to collect diagnostic data" (the
   launcher sends no telemetry), the `.eem` file association and the "When starting/closing the game" choices; on

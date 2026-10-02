@@ -1,6 +1,6 @@
 # 0006 Platform abstractions and Windows path logic
 
-Status: **Accepted** (2026-10-02)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (L-WP4, see the Amendment section)
 
 ## Context
 
@@ -59,3 +59,11 @@ network. On `v2` four tests are skipped under Mono because they use `System.IO.P
 - **`protected virtual` hooks** as in `GameDirectoryLocator`: workable for one value, unmanageable for the
   contract's many sources. Rejected.
 - **Tests only on Windows**: the local verify runs on Linux. Rejected.
+
+## Amendment 2026-10-02 (L-WP4)
+
+The consequence above is reached: `GameDirectoryLocator` was replaced by the discovery of the core, which reads the
+registry through `IRegistry` and the files through `IFileSystem`. Its tests, among them the four that ran on Windows
+only, are ported with their names to `Core/Installations/GameDirectoryLocatorPortTests` and run on the in-memory
+registry and file system; the test run no longer skips a test. The discovery tests use the 32-bit mode of
+`InMemoryRegistry` (one HKLM for both views) to show that no installation appears twice.

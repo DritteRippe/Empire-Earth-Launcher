@@ -100,22 +100,23 @@ Changing the English text of an existing key means checking the German and Frenc
 - By hand on Windows: choose the language on the *Launcher* page, restart the launcher and look at every page:
   the navigation, *Play* (game choice, player list, profile), *Settings* (compatibility warning and its dialog),
   *Launcher* (labels, theme list and its file dialog, game folder dialogs and the question when the folder does
-  not contain `Empire Earth.exe`). `log.txt` names the language in use (`UI language: de (launcher setting)`).
-  The German test plan has these cases (section L-WP3).
+  not contain `Empire Earth.exe`, the list of installations with its column headers, types, states and tooltips,
+  and the hints below it). `log.txt` names the language in use (`UI language: de (launcher setting)`).
+  The German test plan has these cases (sections L-WP3 and L-WP4, WP4-17).
 
 ## Status
 
-53 texts (state of L-WP3).
+74 texts (state of L-WP4: 21 texts of the list of installations were added).
 
 | Language | Translated | Review |
 |---|---|---|
-| English | 53 | source |
-| German `de` | 53 | proof-reading by a native speaker in the laptop test ([TEST-PLAN.de.md](TEST-PLAN.de.md), cases WP3-*); open until that test |
-| French `fr` | 53 | **open**: only `NavigationPlay` ("Jouer") and `NavigationSettings` ("Paramètres") come from the original French authors; all other French texts were written during the review fixes and v2 without a native speaker |
+| English | 74 | source |
+| German `de` | 74 | proof-reading by a native speaker in the laptop test ([TEST-PLAN.de.md](TEST-PLAN.de.md), cases WP3-* and WP4-17); open until that test |
+| French `fr` | 74 | **open**: only `NavigationPlay` ("Jouer") and `NavigationSettings` ("Paramètres") come from the original French authors; all other French texts were written during the review fixes and v2 without a native speaker |
 
 ### Help wanted
 
-- **French**: a native speaker who reads the 51 French texts other than the two navigation texts in
+- **French**: a native speaker who reads the 72 French texts other than the two navigation texts in
   `Resources.fr.resx`, ideally while looking at each page.
 - **Other languages**: Portuguese (Brazil), Chinese, Spanish, Italian, Polish, Russian and Korean are game
   languages of the setup; the launcher shows English for them. See [Adding a language](#adding-a-language).

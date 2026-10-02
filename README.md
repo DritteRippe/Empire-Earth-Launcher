@@ -14,8 +14,11 @@ removed and the features behind them are listed below.
 
 **Available now**
 
-- NeoEE online player list, with the lobby profiles and friends of the game folder
-- Empire Earth folder detection, or a folder chosen by the user
+- NeoEE online player list, with the lobby profiles and friends of the game folder (also when the game keeps them
+  in the VirtualStore)
+- Detection of every Empire Earth installation: community setups (current and up to 1.7.2, admin, user and
+  portable), retail, GOG and copies with their real folders; the *Launcher* page lists them with their state
+  (a missing `Empire Earth.exe` shows as damaged) and lets the player choose one or another folder
 - Themes (Krypton palette files)
 - English, German and French user interface, following Windows or chosen on the *Launcher* page
   ([docs/TRANSLATING.md](docs/TRANSLATING.md))
@@ -156,10 +159,15 @@ cover:
   (`WinPath`, including the manifest paths of contract 2.2), the file system and registry abstractions with their
   in-memory fakes, the canonical form of registry keys and the registry write policy, the mutex probe and the
   mutation guard, `settings.json` (including damaged, unreadable and newer files), the log format and trimming,
-  the launcher's file locations and the lobby profiles;
+  the launcher's file locations, the lobby profiles, and the discovery of the installations (`Installations/`: the
+  `install.ini` parser, the readers of the registry records, uninstall keys and "Installed From" values, a table
+  test with a case for every rule of contract 1.4 and 1.5, real folders of foreign installations, every form of
+  the user choice, one log line per dropped candidate, no write, no duplicates on 32-bit Windows, a discovery that
+  does not block its caller, the VirtualStore paths, and the cases of the old game folder tests under their
+  names);
 - the UI helpers of the launcher (`Launcher/`): `UiOperation`, the "unexpected error" message, the logging of
   unobserved task exceptions, the texts chosen for results (`Texts`), the UI language applied at start and the
-  game folder detection;
+  installation service;
 - the WON lobby file parser, the NeoEE protocol framing, reply parsing and request deadline (`Won/`), and the mod
   library (`Mod/`: product folders, file types, versions, the working directory of the mod creator, `.eem`
   export/import including damaged archives);
@@ -177,9 +185,8 @@ satellite assemblies; they find the source tree by walking up from the test prog
 `Empire-Earth.sln`, so run the test program from its build folder inside the repository. The tests use fakes
 (`Fakes/`: in-memory registry with both HKLM views and a 32-bit Windows mode, in-memory file system with Windows
 path rules, mutex probe, clock, logger) and only write below the temporary folder; they never contact a server,
-never touch the real registry or `%LOCALAPPDATA%` and never show UI. Tests that depend on Windows path semantics
-of the old game folder detection are marked `[Platform(Include = "Win")]` and reported as skipped under Mono
-(they go away with the new discovery). The core, the launcher and the WON library make their internal helpers
+never touch the real registry or `%LOCALAPPDATA%` and never show UI. Path logic is `WinPath` string logic, so every
+test also runs under Mono; no test is skipped. The core, the launcher and the WON library make their internal helpers
 visible to the test assembly (`InternalsVisibleTo`).
 
 **Continuous integration**: `.github/workflows/build.yml` restores and builds the solution in Release on
@@ -226,6 +233,10 @@ docs/                             ARCHITECTURE.md (v2 target), CONTRACT.md (shar
 Empire-Earth-Launcher-Core/       UI-free core library of the launcher (Empire_Earth_Launcher_Core.dll, ADR 0003):
 │                                 only the BCL and the WON library, no WinForms, System.Drawing or Krypton
 ├─ Contract/                      Fixed names of docs/CONTRACT.md: products, games, keys, files, contract version
+├─ Installations/                 Discovery of the installations (contract 1.4): install records, install.ini,
+│                                 uninstall keys, "Installed From" values, launcher folder -> InstallationDiscovery
+│                                 -> Installation with real EE/AoC folders (ADR 0015); EffectivePathResolver
+│                                 (VirtualStore copies of game files, ADR 0016)
 ├─ Platform/                      Windows behind interfaces (ADR 0006): IRegistry/WindowsRegistry (explicit views),
 │                                 RegistryLocation, RegistryValue, RegistryPath (canonical form), RegistryWritePolicy
 │                                 and PolicyCheckedRegistry (protected keys, allow-list, ADR 0007), IFileSystem/
@@ -233,7 +244,7 @@ Empire-Earth-Launcher-Core/       UI-free core library of the launcher (Empire_E
 ├─ Logging/                       ILogger, TraceFileLogger (log file with trimming)
 ├─ Settings/                      LauncherSettings, SettingsStore (settings.json, ADR 0005), LauncherPaths,
 │                                 UiLanguage (the language setting, ADR 0009)
-├─ Lobby/                         LobbyProfileRepository: lobby profiles and friends of the game folder
+├─ Lobby/                         LobbyProfileRepository: lobby profiles and friends of the game folder (effective paths)
 └─ Play/                          MutationGuard: no change while a setup or a game runs (ADR 0016)
 Empire Earth Launcher/            The launcher (WinForms + Krypton UI)
 ├─ Program.cs                     Entry point and composition root: creates and passes on the services
@@ -242,7 +253,7 @@ Empire Earth Launcher/            The launcher (WinForms + Krypton UI)
 ├─ Texts.cs                       Results -> texts in the UI language (ADR 0009); each window has its ApplyTexts()
 ├─ Properties/Resources*.resx     All UI texts: English (neutral), German (.de), French (.fr), and the images
 ├─ IThemeService.cs               Theme interface (implemented by KryptonThemeService.cs)
-├─ GameDirectory*.cs              Detection of the Empire Earth folder (replaced by the core's discovery in L-WP4)
+├─ InstallationService.cs         The installations found and the selected one (runs the core's discovery)
 └─ Resources/                     Images and icon used by the UI
 Empire-Earth-WON/                 WON/NeoEE library, no UI (used by the launcher)
 ├─ NeoApiClient.cs                Client for the NeoEE lobby server
@@ -258,7 +269,7 @@ Empire-Earth-Launcher.Tests/      Unit tests (NUnitLite console program), one fo
 ├─ Architecture/                  Rules for the whole solution (project settings, core dependencies, registry aliases,
 │                                 placeholder controls, ApplyTexts, resource parity)
 ├─ Core/                          The core library, one folder per area
-├─ Launcher/                      UI helpers, game folder detection
+├─ Launcher/                      UI helpers, installation service
 ├─ Won/                           WON lobby files, NeoEE protocol
 ├─ Mod/                           Mod library and .eem archives
 ├─ Fakes/                         In-memory registry and file system, mutex probe, clock, logger (with tests)
@@ -269,10 +280,31 @@ packages/                         NuGet packages, restored on build (not committ
 
 ### Configuration and files
 
-- **Game folder**: the launcher reads the WON lobby files from the Empire Earth folder. It uses the folder
-  chosen on the *Launcher* page, otherwise the installation registered by the Empire Earth setups
-  (`Installed From Volume` + `Installed From Directory` below `Software\Neo\Empire Earth` or
-  `Software\SSSI\Empire Earth`, HKCU before HKLM), otherwise its own folder if it contains `Empire Earth.exe`.
+- **Installations** ([contract 1.4](docs/CONTRACT.md#14-discovery-by-the-launcher)): when its window is shown, the
+  launcher searches every installation of Empire Earth in the background, from five sources: the folder chosen on
+  the *Launcher* page; the install records of community setups since v2
+  (`Software\Empire Earth Community\Installations\<NeoEE|EE>`, HKCU, then HKLM 64-bit, then 32-bit view); the
+  uninstall keys `{<GUID>}_is1` whose publisher is exactly `Empire Earth Community` or
+  `Empire Earth Community & NeoEE` (every community setup, also 1.7.2); the `Installed From Volume` and
+  `Installed From Directory` values of `Software\Neo\Empire Earth`, then `Software\SSSI\Empire Earth` (retail, GOG
+  and older installations use the SSSI key), each in HKCU, HKLM 32-bit, HKLM 64-bit view (the key comes before
+  the hive); and the folder of the launcher or its parent. Entries for the same install folder are one
+  installation; `_setupdata_<Product>\install.ini` tells community setups since v2 (also portable ones) apart from
+  setups up to 1.7.2 and from other installations. Each installation keeps its real game folders, e.g. `C:\Games\EE`
+  of a copy or `D:\Empire Earth` directly below a drive. The *Launcher* page lists them (product, install folder,
+  Empire Earth folder, type, state) and uses the chosen one, else the first one found. An installation whose
+  `Empire Earth.exe` (or `EE-AOC.exe`) is missing is listed as damaged, never as "not found" (antivirus programs
+  often delete or quarantine game files). A hint says when several installations share one set of game settings
+  (all EE installations, also retail and GOG, use `Software\SSSI\Empire Earth`), when EE and NeoEE are installed in
+  the same folder, and when a setup is newer than the launcher. The search only reads; the log names every
+  candidate and why it was used or left out.
+- **Game folder**: the folder chosen with "..." on the *Launcher* page (or by picking an installation of the list)
+  is saved in `settings.json` (`GameDirectory`, the Empire Earth folder of the installation); it may be the install
+  folder, the Empire Earth folder or the Art of Conquest folder, and it stays chosen even if it no longer exists, so
+  that the player sees it. *Auto-detect* removes the choice. The launcher reads the WON lobby files from the
+  Empire Earth folder of the selected installation; for a game folder below `Program Files`, `ProgramData` or the
+  Windows folder it reads the copy in `%LOCALAPPDATA%\VirtualStore\...` first when one exists, because the game
+  (a program without a manifest) reads and writes there, the launcher not.
 - **Contract with the setup**: [docs/CONTRACT.md](docs/CONTRACT.md) (shared with the Empire Earth Setup
   repository, draft) specifies the install record, the integrity manifest, the per-user default game settings
   and the repair hand-off that launcher v2 is built on.
@@ -306,8 +338,7 @@ packages/                         NuGet packages, restored on build (not committ
   messages with ISO time stamps; it never contains CD-key values or WON login data (ADR 0013). Errors of
   background tasks that nobody handled are logged there as well.
 - **Registry**: the core opens every HKLM key with an explicit view (64- or 32-bit) and never depends on the
-  launcher's own bitness (contract 0); the old game folder detection above is replaced by the core's discovery in
-  a later work package. Every change of the registry passes the write policy of
+  launcher's own bitness (contract 0). Every change of the registry passes the write policy of
   [ADR 0007](docs/adr/0007-registry-write-scope-and-reg-backups.md): only HKCU keys of an allow-list, and never
   `Software\Sierra\CDKeys` (the NeoEE CD keys), the install records or the uninstall keys, in no hive, view or
   alias. The launcher does not change the registry yet; the game settings follow in a later work package.

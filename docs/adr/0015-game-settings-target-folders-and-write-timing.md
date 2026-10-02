@@ -1,6 +1,7 @@
 # 0015 Game settings: target folders and when the launcher writes
 
-Status: **Accepted** (2026-10-02)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation of the discovery in L-WP4, see the Amendment
+section)
 
 ## Context
 
@@ -85,3 +86,32 @@ ways in which the first design could break a working installation:
   base game having been started once; the contract requires S before every start. Rejected.
 - **ASCII-only upper-casing now**: would deviate from the contract text in one repository. Deferred to the next
   contract change.
+
+## Amendment 2026-10-02 (implementation, L-WP4)
+
+The discovery of the core (`Installations.InstallationDiscovery`) gives every `Installation` its real `EeFolder` and
+`AocFolder`; the S values, the first run and Play (L-WP5, L-WP6) take the folders from there. Details decided while
+implementing, keeping the decision:
+
+- **Key before hive** for "Installed From" (`InstalledFromReader`): `Software\Neo\Empire Earth` in HKCU, HKLM32, HKLM64,
+  then `Software\SSSI\Empire Earth` in the same order, with a table test (also "SSSI in HKCU + Neo in HKLM32 -> Neo
+  first"). The contract text stays as it is until the next contract change (ARCHITECTURE 14).
+- **AoC folder of foreign installations**: the "Installed From" values of the AoC key of the same product **in the same
+  hive and view** as the EE values that found the installation, and only if `EE-AOC.exe` is there; a folder of another
+  hive could belong to another installation (a retail installation in HKLM32 and a copy in HKCU). A user choice of an
+  AoC folder supplies it as well when no source names one.
+- **The choice that is saved** when the player picks an installation of the list is its EE folder, not its root: for
+  `C:\Games\EE` the root `C:\Games` alone would not say which folder holds the game once the "Installed From" values
+  point elsewhere.
+- **Unambiguous** (the rule for the first run at launcher start) is `DiscoveryResult.IsUnambiguous`: chosen by the user,
+  or no other installation found has the same product (all EE installations, also retail and GOG, share the SSSI key).
+  The Launcher page shows the hint of this ADR per product with more than one installation
+  (`DiscoveryResult.ProductsWithSharedSettings`); its text says that the settings, including the game folder stored
+  there, are the same for all of them, which is true before and after Play writes them (L-WP6).
+- **Higher contract version**: `Installation.HasNewerContract`; the Launcher page already shows the hint to update the
+  launcher; defaults and reset honour it in L-WP5.
+
+Evidence: `Core/Installations/InstalledFromReaderTests` (order table), `DiscoveryContractTests` (every rule of contract
+1.4 and 1.5), `InstallationDiscoveryTests` (`C:\Games\EE`, `D:\Empire Earth` with root `D:\`, the user choice of root,
+EE folder and AoC folder, also when they do not exist, shared keys and `IsUnambiguous`), `Launcher/InstallationServiceTests`
+(the EE folder is saved).

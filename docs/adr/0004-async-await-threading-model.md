@@ -1,6 +1,6 @@
 # 0004 async/await threading model
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2, see the Amendment section)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2 and L-WP4, see the Amendment sections)
 
 ## Context
 
@@ -80,3 +80,12 @@ implementing, keeping the decision:
 - **`TaskScheduler.UnobservedTaskException`** is subscribed right after the logger is created; the handler logs the
   exception as an error and calls `SetObserved()` (`Program.LogUnobservedTaskException`, with a test).
 - The first user of `UiOperation` is the asynchronous discovery of L-WP4; until then no page needs it.
+
+## Amendment 2026-10-02 (L-WP4)
+
+The installation discovery is the first asynchronous work of the launcher. `InstallationDiscovery.DiscoverAsync` runs
+the discovery on the thread pool (`Task.Run`) and takes a `CancellationToken`; a test shows that with a registry whose
+reads block it returns an unfinished task at once. The launcher's `InstallationService` awaits it on the UI thread,
+raises `Changed` when a refresh starts and ends, and uses only the result of the latest refresh. The main window starts
+it in `OnShown` through `UiOperation.Run` (the Auto-detect button is the trigger and is disabled meanwhile); the pages
+show "searching" until the result is there.

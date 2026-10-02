@@ -1,6 +1,6 @@
 # 0016 Mutation guard and effective game paths
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2, see the Amendment section)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2 and L-WP4, see the Amendment sections)
 
 ## Context
 
@@ -74,3 +74,24 @@ implementing, keeping the decision:
 
 Evidence: `Core/Play/MutationGuardTests` (both blocked cases for every mutex, order, setup before game, names that
 must not block), `Core/Platform/WindowsMutexProbeTests` (real named mutexes with random names, also under Mono).
+
+## Amendment 2026-10-02 (implementation, L-WP4)
+
+`Installations.EffectivePathResolver` exists in the core, and the lobby profiles and friends are read through it
+(`LobbyProfileRepository` on `IFileSystem`). Details decided while implementing, keeping the decision:
+
+- **Which folders are virtualizable** is given by the composition root: `Program` passes the folders of Windows
+  (`ProgramFiles`, `ProgramFilesX86`, `CommonApplicationData`, `Windows`) and `%LOCALAPPDATA%\VirtualStore`; the core
+  has no environment access of its own and the tests pass Windows paths. Without `%LOCALAPPDATA%` nothing is
+  virtualizable. Only paths with a drive below one of these folders are looked up in the VirtualStore; everything
+  else (`C:\Games\EE`, `%LOCALAPPDATA%\Programs\...` of a user installation, network paths) never is, so a stale copy
+  of another folder is never used.
+- **The VirtualStore path** is the path without its drive below the VirtualStore folder
+  (`C:\Program Files (x86)\X\f` -> `%LOCALAPPDATA%\VirtualStore\Program Files (x86)\X\f`); a copy counts also when the
+  original does not exist (the game created the file while it was virtualized).
+- **One answer for both places**: `Resolve` returns the game path, the VirtualStore path (or null) and which one is
+  effective, so that the export (both places) and the import (where the game reads) of L-WP8 use the same rule.
+- Reading a VirtualStore copy is logged (`The game uses the VirtualStore copy ... of ...`), so the test plan can see it
+  (`docs/TEST-PLAN.de.md`, WP4-16).
+
+Evidence: `Core/Installations/EffectivePathResolverTests`, `Core/Lobby/LobbyProfileRepositoryTests` (VirtualStore cases).
