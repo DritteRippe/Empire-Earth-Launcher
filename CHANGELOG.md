@@ -13,6 +13,56 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
 
 ### Added
 
+- Play (R3, [ADR 0010](docs/adr/0010-game-start-and-mutex-probing.md), contract 3.6, 3.7, 4.2;
+  `Empire-Earth-Launcher-Core/Play/GameStarter.cs`): the *Play* page starts Empire Earth or The Art of Conquest of the
+  selected installation (The Art of Conquest only if the installation has an AoC folder; the choice is saved as
+  `LastGame` in `settings.json`, an optional member of schema 1). Fixed order: a running setup (`EE_Setup`,
+  `NeoEE_Setup`) refuses the start; the same game running refuses it, with the hint how to end a hanging
+  `Empire Earth.exe` in the Task Manager when a process of that name exists (forum t=2815, t=5859; the launcher never
+  ends a process); the other game running asks "start anyway?"; a missing program refuses it with the repair advice;
+  then the "Installed From" values of the game are synchronized from its real folder and the defaults of a first run
+  applied (a display question goes to the info bar and never blocks the start); then the program starts through the
+  Windows shell (`UseShellExecute = true`) in its real game folder, without arguments and without asking for elevation
+  itself, so that every compatibility layer applies, also "Run as administrator" (no error 740). The start is logged
+  with installation, game, program and process id (`pid unknown` when the shell gives no process). Start errors are
+  messages, not exceptions: a cancelled elevation prompt (1223), denied access (5, 1260), a file an antivirus blocks
+  (225, 226, with the repair advice), any other error with its number. When the other game runs and the player starts
+  anyway, the game settings are not touched (the mutation guard, ADR 0016) and the game starts.
+- File versions of `Empire Earth.exe` and `EE-AOC.exe` on the *Play* page, as Explorer shows them (forum report
+  section 8 row 1), through `IFileVersionReader`.
+- Repair advice (R9, contract 4.4; `Empire-Earth-Launcher-Core/Repair/RepairAdvice.cs`, `RepairAdviceDialog`): when a
+  program is missing, a window explains it and lists the steps: an antivirus exception for the install folder first,
+  close the game and run the current community setup, keep the folder and the install mode ("Install for all users",
+  "Install for me only" or the portable setup), keep the NeoEE task "Register NeoEE CDKeys"; for a foreign
+  installation that the community setup installs its own copy instead of repairing it. "Open download page" opens
+  `https://empireearth.eu/download` in the default browser through the shell, not elevated; the update API comes with
+  L-WP7. The launcher never downloads or starts the setup.
+- A running setup is watched while the launcher runs (contract 4.2, `SetupWatcher`): every two seconds the setup
+  mutexes are probed; while one exists, Play, the answers of the info bar and every change on the *Settings* page are
+  disabled and both pages say "The … setup is running …"; the installations are not searched (no `install.ini` is read)
+  until it has ended, and then searched again. The events "setup started" and "setup finished" are the hooks for the
+  integrity check of L-WP7.
+- One launcher per Windows session: the launcher holds the mutex `EmpireEarthCommunityLauncher` (reserved for a future
+  `AppMutex` of the setup, contract O10); a second start shows "Empire Earth Launcher is already running …" and ends.
+- 29 new texts in English, German and French for Play, the repair advice, a running setup and a second launcher (now
+  154).
+- Platform adapters in the core: `IProcessStarter`/`ShellProcessStarter` (shell execute, only absolute `https` URLs),
+  `IFileVersionReader`/`WindowsFileVersionReader`, `IProcessList`/`WindowsProcessList` (only counts processes),
+  `IMutexOwner`/`WindowsMutexOwner` (the single-instance mutex; if it cannot be created, the launcher starts anyway).
+- Test plan: cases WP6-01 to WP6-15 (both games, file versions, the last game, AoC without a previous Empire Earth
+  start, a running setup before and after the launcher start, a running and a hanging game, "Run as administrator"
+  with the UAC prompt, a missing program with the repair window and the download page, a damaged NeoEE installation,
+  the player list without network, a second launcher, the three languages, the log); the mapping of section 7 has no
+  "offen (L-WP6)" any more.
+- Tests: the start order with fakes and once with the real game settings, every refusal and start error, the setup
+  watcher with a fake clock and manual ticks, the deferred search during a setup, the player list poller (no request
+  before Start, one log line per outage and one when the list is back, exceptions of a request, cancel, dispose, a
+  request still running at dispose, the context of the events), the repair advice per kind, product and mode, the
+  single instance with `FakeMutexProbe`, the Play page model, the start information of the shell starter (also under
+  Mono), the file version of a real file. Two architecture tests (category `SourceTree`): `TestIsolationTests` (the
+  test program creates no `WindowsRegistry`, uses no `Microsoft.Win32.Registry`, no HTTP client, socket or DNS lookup
+  and no file of the launcher's real folder, so it can run on the laptop) and `ProcessRulesTests` (only the shell
+  starter calls `Process.Start`, never without the shell or with "runas", nothing ends a process).
 - Game settings for the Windows account that runs the launcher (contract 3, R1, R3, R4;
   `Empire-Earth-Launcher-Core/GameSettings`): the table of contract 3.2 with its classes S ("Installed From"), D
   (display) and P (player defaults), the computed values of 3.3 and the defaults marker of 3.5
@@ -162,6 +212,18 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
 
 ### Changed
 
+- The online player list is polled by `PlayerListPoller` in the core (`async` loop with `Task.Delay`,
+  [ADR 0004](docs/adr/0004-async-await-threading-model.md)) instead of a `BackgroundWorker` of the *Play* page. It keeps
+  the fixes of the code review: no request before the page has loaded, a failed or throwing request is shown as
+  "unavailable" and the polling goes on, an outage is logged once and its end once (same log texts), no result after
+  the page is gone, and a failure of the loop itself is logged and shown as "see the log". Its event "available /
+  unavailable" is the hook for the outage hint of L-WP9.
+- `Program` composes Play: the setup watcher (ticked by the main window every half second), the shell starter, the
+  process list, the file version reader and `PlayModel`; `InstallationService` waits for a running setup. The single
+  instance is checked before any window or service exists.
+- ADR 0004, 0005, 0010, 0012 and 0016 record the implementation of L-WP6 in amendments; `docs/TRANSLATING.md` lists
+  154 texts and the new screens to check.
+
 - The registry write policy is narrower ([ADR 0007](docs/adr/0007-registry-write-scope-and-reg-backups.md) plan
   review): every allowed key lists its value names (the values of contract 3.2 per game settings key, `EE` and `AoC`
   for the marker); in `UserGpuPreferences` and `AppCompatFlags\Layers` only the full path of a game program is a
@@ -234,6 +296,10 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
   rule "no `async`/`await`" of the 4.0 build is gone.
 
 ### Removed
+
+- The `BackgroundWorker` loop of the *Play* page (replaced by `PlayerListPoller`). The mod creator keeps its own
+  build worker.
+- The Play button and game choice without function of L-WP3 (ADR 0014): both work now.
 
 - `GameDirectoryLocator` and `GameDirectoryService` of the launcher (replaced by the discovery of the core and
   `InstallationService`) and their tests, which ran on Windows only (the cases are ported).

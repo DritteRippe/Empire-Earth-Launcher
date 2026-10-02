@@ -8,7 +8,7 @@ contract shared with the Empire Earth Setup.
 | | |
 |---|---|
 | Status | **Target**: describes v2 as it is being built on branch `v2`; the README describes what exists today |
-| Based on | branch `v2` at `2dc6c43` (refactor/quality-fixes plus the contract), contract version 1 (draft); revised after the design review (ADR amendments of 2026-10-02, ADR 0015, 0016) and after the plan review before L-WP5 (amendments "plan review" of ADR 0007, 0008, 0011, 0012, 0013, 0015, 0016) |
+| Based on | branch `v2` at `2dc6c43` (refactor/quality-fixes plus the contract), contract version 1 (draft); revised after the design review (ADR amendments of 2026-10-02, ADR 0015, 0016) and after the plan review before L-WP5 (amendments "plan review" of ADR 0007, 0008, 0011, 0012, 0013, 0015, 0016); implementation notes of L-WP2 to L-WP6 in the sections and the ADR amendments |
 | Scope | the launcher, its UI-free core library, the WON library, the mod library and mod creator, the tests, the build |
 
 Contents: [1. Goals and constraints](#1-goals-and-constraints) · [2. Module map](#2-module-map) ·
@@ -57,8 +57,9 @@ Empire-Earth.sln
 │  │                   classes, contract version; CompatibilityLayers (entries of 3.7, old values)
 │  ├─ Platform/        abstractions + Windows implementations (ADR 0006):
 │  │                   IRegistry / WindowsRegistry (hive + view always explicit), IFileSystem /
-│  │                   LocalFileSystem, WinPath (Windows path rules as pure string logic), IProcessStarter,
-│  │                   IMutexProbe, ISystemInfo (Windows version, Wine, primary screen in physical and in
+│  │                   LocalFileSystem, WinPath (Windows path rules as pure string logic), IProcessStarter /
+│  │                   ShellProcessStarter (L-WP6), IProcessList, IFileVersionReader, IMutexProbe, IMutexOwner
+│  │                   (single instance), ISystemInfo (Windows version, Wine, primary screen in physical and in
 │  │                   DPI-unaware pixels, ANSI code page),
 │  │                   IClock, IHttpsClient (ADR 0008), INetworkInfo; RegistryPath (canonical form:
 │  │                   WOW6432Node, registry VirtualStore), RegistryWritePolicy and PolicyCheckedRegistry
@@ -78,16 +79,16 @@ Empire-Earth.sln
 │  │                   (contract 3, L-WP5)
 │  ├─ Backup/          RegFileWriter (.reg export), RegistryExport, BackupLocations (ADR 0007, L-WP5);
 │  │                   FileBackup (move files into a dated backup folder, L-WP8)
-│  ├─ Play/            GameStarter, running-game and running-setup detection, MutationGuard
-│  │                   (contract 4.2, 3.7, ADR 0010, ADR 0016)
+│  ├─ Play/            GameStarter, RunningGameDetector, SetupWatcher, ProgramVersions, SingleInstance,
+│  │                   MutationGuard (contract 4.2, 3.7, ADR 0010, ADR 0016; L-WP6)
 │  ├─ Repair/          UpdateUrlPolicy (port of the setup's IsAllowedUpdateUrl), SetupDownloadLocator,
-│  │                   UpdateChecker, RepairAdvice (contract 4)
+│  │                   UpdateChecker, RepairAdvice (contract 4; RepairAdvice since L-WP6, the rest L-WP7)
 │  ├─ Maintenance/     RegistryCleanup, WonLoginReset, VirtualStoreScanner, SavedGames (export, import,
 │  │                   name checks)
 │  ├─ Diagnostics/     NetworkDiagnostics (adapters, DNS, NeoEE status, upnp_info.txt, NeoEE.cfg),
 │  │                   WONLobby.cfg reader (CDKeyCheck, read-only), DiagnosticsReport
 │  └─ Lobby/           LobbyProfileRepository (moved), PlayerListPoller (async replacement of the
-│                      BackgroundWorker loop)
+│                      worker loop of the Play page, L-WP6)
 ├─ Empire-Earth-WON/                      Empire_Earth_WON.dll - unchanged role: NeoEE status protocol
 │                                         (NeoApiClient, DeadlineStream), WON lobby files
 ├─ Empire-Earth-Mod/
@@ -97,8 +98,8 @@ Empire-Earth.sln
 │                                         Program (composition root), MainForm, pages, dialogs,
 │                                         Texts (core results -> localized strings), UiOperation (async
 │                                         event handler helper), InstallationService, GameSettingsModel
-│                                         (state of the game settings for two pages), KryptonThemeService,
-│                                         app.manifest
+│                                         (state of the game settings for two pages), PlayModel (the Play
+│                                         page), RepairAdviceDialog, KryptonThemeService, app.manifest
 └─ Empire-Earth-Launcher.Tests/           one NUnitLite program: Core/, Launcher/, Won/, Mod/,
                                           Architecture/ (dependency, project and resource rules),
                                           Fakes/ (in-memory registry and file system, fake HTTP, process,
@@ -126,8 +127,10 @@ The placeholders of the old designer were removed from the UI in L-WP3, as the f
 work, so that none of them was translated
 ([ADR 0014](adr/0014-only-working-features-in-the-ui.md), amendment: the exact list of control names, which
 an architecture test checks; it includes the "collect diagnostic data" checkbox, which contradicts "no
-telemetry"). The README keeps them as planned features. Until the pages are filled by their work packages, the
-Play page keeps the game choice and the Play button without function (L-WP6). Since L-WP5 the *Settings* page is the
+telemetry"). The README keeps them as planned features. The game choice and the Play button, kept without function
+until then, work since L-WP6: below the choice the group shows the file versions of both programs and a state line
+(searching, setup running, started); refusals and start errors are message boxes, a missing program opens the repair
+advice window. Since L-WP5 the *Settings* page is the
 Game settings page (one scrolling panel; the compatibility warning stands in place of the compatibility options until
 it is confirmed), and the Play page shows the display question or the first visible hint in an info bar with "Hide"
 and "Details".
@@ -165,8 +168,9 @@ Empire_Earth_Mod.exe ──> Empire_Earth_Mod_Lib.dll ──> BCL only
 ### 4.1 Start-up
 
 1. `Program.Main`: global exception handlers, logger (trimmed `log.txt`), settings (`settings.json`,
-   damaged file moved aside), UI culture (setting or Windows), theme, single-instance check
-   ([ADR 0010](adr/0010-game-start-and-mutex-probing.md)).
+   damaged file moved aside), UI culture (setting or Windows), single-instance check
+   ([ADR 0010](adr/0010-game-start-and-mutex-probing.md); since L-WP6 before the theme and every other service, so a
+   second launcher ends at once after its localized message), theme.
 2. MainForm opens at once; the pages show "searching" states. Nothing blocks the window. `MainForm.OnShown` starts the
    discovery through `UiOperation` (`InstallationService.RefreshAsync` -> `InstallationDiscovery.DiscoverAsync`, thread
    pool).
@@ -218,8 +222,11 @@ Empire_Earth_Mod.exe ──> Empire_Earth_Mod_Lib.dll ──> BCL only
    window against the screen as the game sees it (ADR 0011), screen below 768 pixels, game folder without drive letter
    or outside the ANSI code page. Hidden hints are `HiddenHints` entries of `settings.json` (finding and game
    settings key, plus the values or the folder); the checkbox "Play page" on the Settings page hides or shows them.
-8. Online player list polling starts (existing behaviour, now `PlayerListPoller`).
-9. The setup-mutex watcher starts (every 2 s while the launcher runs).
+8. Online player list polling starts (existing behaviour, now `PlayerListPoller`, L-WP6: started when the Play page
+   loads, ended with it).
+9. The setup-mutex watcher starts (every 2 s while the launcher runs). Since L-WP6 the main window ticks it every 500 ms
+   and it probes when two seconds have passed by its `IClock`; the first probe is part of the first search
+   (`InstallationService.RefreshAsync`), which waits while a setup runs (4.3).
 
 ### 4.2 Play
 
@@ -239,11 +246,25 @@ Click Play -> button disabled -> `GameStarter.StartAsync(installation, game)`:
 6. Logged: installation, game, program, process id (`pid unknown` if `Process.Start` returns none). Findings
    of the quick check never block (contract 2.5).
 
+Implemented in L-WP6 (`GameStarter`, `PlayModel`, [ADR 0010](adr/0010-game-start-and-mutex-probing.md) amendment):
+every refusal and start error is a `StartResult` (setup running, same game running with `ProcessFound`, other game
+running, chosen folder missing, `Damaged` with `RepairAdvice` also for Windows errors 2 and 3, blocked by an antivirus
+225/226 with `RepairAdvice`, elevation cancelled 1223, access denied 5/1260, any other error with its number). Step 4 asks
+the mutation guard: when the player starts while the other game runs, class S and the first run are blocked and logged,
+and the game starts anyway. The first run of step 4 may produce the display question; it joins the info bar
+(`GameSettingsModel.AddQuestion`) and never blocks the start. The Art of Conquest can only be chosen when the
+installation has an AoC folder; the choice is `LastGame` in `settings.json`.
+
 ### 4.3 Setup finished
 
 The watcher sees the setup mutex appear -> a running integrity check is cancelled, Play and every guarded change
 are blocked. It sees the mutex disappear -> discovery and quick check run again -> pages update. A game start is
 refused while the mutex exists.
+
+Implemented in L-WP6 (`SetupWatcher`): the events "setup started" and "setup finished" are the hooks; the pages
+disable Play and every guarded change and name the setup; `InstallationService` searches again on "finished", and a
+refresh while a setup runs only waits and keeps the previous result, so `install.ini` is not read then (contract 4.2).
+A refresh that itself sees the end goes on alone. The integrity check registers the same hooks in L-WP7.
 
 ### 4.4 Reset game settings
 
@@ -272,7 +293,11 @@ redirects) -> trimmed body accepted only if `UpdateUrlPolicy` allows it -> other
 folder, same mode, keep "Register NeoEE CDKeys", antivirus exception first, foreign installations are not
 repaired) and opens the URL in the default browser, not elevated. The launcher never downloads or starts
 the setup. `RepairAdvice` (the texts of contract 4.4 and the fixed page) exists from L-WP6 on; L-WP7 adds the
-API request. The game version check (`&type=game&version=`, contract 4.5) for installations with an AppId runs on
+API request. Implemented in L-WP6: the steps are codes (`RepairStep`) that `Texts` turns into sentences with the folder
+and the install mode in the words of the setup ("Install for all users", "Install for me only", the portable setup,
+the task "Register NeoEE CDKeys"); the folder of a foreign installation is its EE folder, never a whole drive; the
+window (`RepairAdviceDialog`) stays open after "Open download page" and shows the address to copy if the browser
+cannot be opened. The game version check (`&type=game&version=`, contract 4.5) for installations with an AppId runs on
 request and is not optional; the setup version check is (ADR 0008 plan review). TLS: `Program` sets
 `SecurityProtocol` once, `Tls12` on Windows 7 only.
 
@@ -355,7 +380,9 @@ Decided in [ADR 0004](adr/0004-async-await-threading-model.md):
 - One operation of a kind at a time (a second click while a reset runs is ignored).
 - `TaskScheduler.UnobservedTaskException` is logged.
 - The online player list keeps its semantics (no I/O in constructors, one log line per outage, cancel on
-  dispose, whole-exchange timeout of `NeoApiClient`); the loop becomes `async` with `Task.Delay`.
+  dispose, whole-exchange timeout of `NeoApiClient`); the loop becomes `async` with `Task.Delay`
+  (`PlayerListPoller`, L-WP6; its events come through the context of `Start`, [ADR 0004](adr/0004-async-await-threading-model.md)
+  amendment).
 
 ## 6. Error handling
 
@@ -395,7 +422,7 @@ Decided in [ADR 0005](adr/0005-own-settings-file-instead-of-user-config.md):
 
 | What | Where | Format |
 |---|---|---|
-| user settings: chosen folder, theme, custom theme file, UI language, last game, hidden hints (`HiddenHints`: finding and game settings key, values or folder; L-WP5) | `%LOCALAPPDATA%\Empire Earth Launcher\settings.json` | JSON (`DataContractJsonSerializer`), `SchemaVersion`, unknown members kept, written as `.tmp` then replaced; damaged file renamed to `settings.json.damaged` and defaults used; a file that cannot be read or has a higher `SchemaVersion` is never overwritten (ADR 0005 amendment) |
+| user settings: chosen folder, theme, custom theme file, UI language, last game (`LastGame`, L-WP6), hidden hints (`HiddenHints`: finding and game settings key, values or folder; L-WP5) | `%LOCALAPPDATA%\Empire Earth Launcher\settings.json` | JSON (`DataContractJsonSerializer`), `SchemaVersion`, unknown members kept, written as `.tmp` then replaced; damaged file renamed to `settings.json.damaged` and defaults used; a file that cannot be read or has a higher `SchemaVersion` is never overwritten (ADR 0005 amendment) |
 | server settings: NeoEE host, port, timeout, poll interval | `Empire Earth Launcher.exe.config` next to the program | `applicationSettings` (read-only, admin-editable, as today) |
 | log | `%LOCALAPPDATA%\Empire Earth Launcher\log.txt` | text |
 | backups (`.reg`, moved WON files) | `%LOCALAPPDATA%\Empire Earth Launcher\Backups\<yyyy-MM-dd_HHmmss>_<what>\` (L-WP5: `display-settings`, `reset-game-settings`, `remove-runasadmin`) | `.reg` (Windows Registry Editor 5.00, UTF-16 LE with BOM, CRLF) per game `<time>_<Product>_<EE|AoC>.reg` or `<time>_Layers.reg`, and original files |
@@ -421,7 +448,7 @@ Decided in [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md):
   (comments removed, entries with `type` or `mimetype` skipped): the same keys in `en`, `de`, `fr`; no empty
   value; the same `{n}` placeholders. A second test checks that image and file entries exist only in the
   neutral resx; further tests check the generated `Resources` class, the project items and the built satellite
-  assemblies. Since L-WP5 the three languages have the same 125 string keys (L-WP4: 74; L-WP3: 53; before: `en` and
+  assemblies. Since L-WP6 the three languages have the same 154 string keys (L-WP5: 125; L-WP4: 74; L-WP3: 53; before: `en` and
   `fr` 30 each and about 50 designer-only texts, [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md), corrected
   evidence).
 - German is proof-read by the user in the laptop test; French texts are marked "review open" in
@@ -497,7 +524,11 @@ Decided in [ADR 0012](adr/0012-test-strategy.md):
   record, shared with the setup repository; the tests run on the laptop too (`Tests\` in the laptop package,
   category `SourceTree` excluded); `TestPlanTests` checks that the test plan assigns every requirement and every
   forum test case. Implemented in L-WP5: `TestPlanTests`, and the category on every test that reads the source tree,
-  enforced by `RepositoryRoot` (ADR 0012 amendment of L-WP5).
+  enforced by `RepositoryRoot` (ADR 0012 amendment of L-WP5). Implemented in L-WP6: `TestIsolationTests` (the tests
+  create no `WindowsRegistry`, no HTTP client, socket or DNS lookup, use no `Microsoft.Win32.Registry` and no file of
+  the launcher's real folder) and `ProcessRulesTests` (only the shell starter calls `Process.Start`, never without the
+  shell or with "runas", nothing ends a process); the laptop package with `Tests\` was built once and its tests ran
+  outside the repository with `--where "cat != SourceTree"`: 2213 passed, none failed (ADR 0012 amendment of L-WP6).
 
 ## 12. Build and CI
 
@@ -600,6 +631,11 @@ change (contract 5); the launcher already implements the stated reading:
   does not show them for an installation whose `Tasks` contain the setup's opt-in task `compatibility_legacy` (3.7
   MUST NOT, implemented in L-WP5); it offers no switches on Windows 7 although 3.7 now allows the values of that row
   (MAY), because the setup sets them on request and the plan keeps the launcher's switches to Windows 8 and later.
+- **3.6 Class S before every start** (L-WP6): the launcher does not change game settings while a game runs (ADR 0016),
+  so when the player starts one game while the other runs, class S is not synchronized for that start (logged); the
+  next start without the other game does it. Proposed wording: "before every game start while no other game runs".
+- **4.2 Discovery while a setup runs** (L-WP6, not a text change): the launcher implements "reads `install.ini` only
+  after the mutex is gone" by not starting the search at all while a setup mutex exists and searching once it is gone.
 - **Backups of class S and of the compatibility switches** (L-WP5): ADR 0007 asks for a backup before every
   overwrite. Class S is synchronized before every Play (contract 3.6) and logged with old and new value; a `.reg`
   file per start would fill the backup folder with copies of two derived values. A compatibility switch changes one
@@ -639,9 +675,10 @@ of L-WP9 need the results of every tool, and L-WP8 holds the WON login reset, a 
 | L-WP8 | Maintenance tools | registry cleanup by the table of 4.6 (HKCU only, advice never names `Software\Sierra`), WON login reset, VirtualStore, saves and scenarios, name checks, all behind the mutation guard |
 | L-WP9 | Network diagnostics, report, laptop package | adapters, DNS, `NeoEE.cfg`, `upnp_info.txt`, `CDKeyCheck`, outage hint, report with the privacy rules of ADR 0013, final docs, test plan without "offen", Release zip with `Tests\` and SHA-256 |
 
-Done so far: L-WP1 to L-WP5 (see the CHANGELOG). Implementation details of L-WP2 that refine ADR 0004, 0005, 0007
-and 0016, of L-WP3 that refine ADR 0009 and 0014, of L-WP4 that refine ADR 0004, 0006, 0015 and 0016, and of L-WP5
-that refine ADR 0007, 0011, 0012, 0015 and 0016 are recorded in their amendments.
+Done so far: L-WP1 to L-WP6 (see the CHANGELOG). Implementation details of L-WP2 that refine ADR 0004, 0005, 0007
+and 0016, of L-WP3 that refine ADR 0009 and 0014, of L-WP4 that refine ADR 0004, 0006, 0015 and 0016, of L-WP5
+that refine ADR 0007, 0011, 0012, 0015 and 0016, and of L-WP6 that refine ADR 0004, 0005, 0010, 0012, 0014 and 0016 are
+recorded in their amendments. From L-WP6 on the laptop package can be built with `Tests\`.
 
 ## 16. Not in v2
 

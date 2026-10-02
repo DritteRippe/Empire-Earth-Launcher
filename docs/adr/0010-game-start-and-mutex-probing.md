@@ -1,6 +1,7 @@
 # 0010 Game start, mutex probing and single instance
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review, see the Amendment section)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; implementation in L-WP6), see the Amendment
+sections
 
 ## Context
 
@@ -67,3 +68,50 @@ chosen by the user only apply when the program is started through the shell (con
   `EE-AOC.exe` of the selected installation (forum report table 8 row 1, version conflicts of forum 4.12); the
   diagnostics report contains it too. No reference list is compared (the integrity manifest does that for
   `community` installations).
+
+## Amendment 2026-10-02 (implementation, L-WP6)
+
+`Play.GameStarter`, `Play.RunningGameDetector`, `Play.SetupWatcher`, `Play.SingleInstance`, `Play.ProgramVersions` and
+the adapters `ShellProcessStarter`, `WindowsProcessList`, `WindowsFileVersionReader` and `WindowsMutexOwner` exist.
+Details decided while implementing, keeping the decision:
+
+- **The order** is setup mutex (`NeoEE_Setup`, then `EE_Setup`) -> mutex of the game -> mutex of the other game ->
+  folder and program -> class S -> first run of the defaults if the marker is missing (contract 3.6) -> start -> log.
+  A test with fakes records every step in one journal and compares it; a second test runs it with the real game
+  settings and checks that class S is written before the shell is called.
+- **Results, not exceptions**: `StartOutcome` is `Started`, `SetupRunning`, `AlreadyRunning` (with `ProcessFound`),
+  `OtherGameRunning` (the page asks and starts again with `startEvenIfOtherGameRuns`), `FolderMissing` (a chosen folder
+  that is gone), `Damaged` (the program is missing before the start, or Windows reports error 2 or 3: with
+  `RepairAdvice`), `BlockedByAntivirus` (225, 226: with `RepairAdvice`), `ElevationCancelled` (1223, logged as
+  information), `AccessDenied` (5, 1260) and `Failed` (any other error, with its number and message). Only programming
+  errors throw (no installation, The Art of Conquest of an installation without it).
+- **The game settings never stop a start.** If the player starts while the other game runs, the mutation guard blocks
+  class S and the first run (the running game may write the shared settings on exit, ADR 0016); the start goes on and
+  the log says that "Installed From" was not synchronized. A display question of the first run joins the info bar.
+- **Start information**: `ShellProcessStarter.CreateProgramStartInfo` sets `UseShellExecute = true`, the real game folder
+  as working folder, no arguments, an empty verb and no shell error dialog; `CreateUrlStartInfo` accepts only absolute
+  `https` URLs. Both are unit-tested; the start itself is a test plan case (WP6-01, WP6-09). `ProcessRulesTests` keeps
+  `Process.Start` in this one class, without `UseShellExecute = false`, without "runas", and finds no code that ends a
+  process.
+- **Process id**: a start without a process object, or with an unreadable id, is logged as `pid unknown` and counts as
+  started.
+- **Hanging game**: `IProcessList.IsRunning` counts the processes of the program name (`Empire Earth.exe` ->
+  `Empire Earth`) and disposes them at once; a failure to list them is logged and means "no process".
+- **File versions** are the four numbers of the version resource (what Explorer shows as "File version"), not the
+  version string; 0.0.0.0 means "no version information".
+- **Setup watcher**: probes when two seconds have passed by its clock; its events "setup started" and "setup finished"
+  are the hooks. `InstallationService` registers "finished" and searches again; while a setup runs a refresh only waits
+  and keeps the previous result, so `install.ini` is not read then (contract 4.2). The pages disable Play and every
+  guarded change and say why.
+- **Single instance**: the mutex is created through `IMutexOwner` (`new Mutex(false, name, out createdNew)`, never
+  acquired); `UnauthorizedAccessException` means another launcher (an elevated one of the same session). Any other
+  error starts the launcher anyway (logged): two windows are better than none. The check runs after the UI language
+  is applied and before any window or service exists; `Program.ClaimSingleInstance` is tested with `FakeMutexProbe`.
+- **UI**: the refusals and errors are Windows message boxes (their text wraps in every language); the repair advice is
+  `RepairAdviceDialog`, built in code with labels that wrap at a fixed width, and opens the page through
+  `PlayModel.OpenDownloadPage` without closing (the steps stay readable).
+
+Evidence: `Core/Play/GameStarterTests`, `RunningGameDetectorTests`, `SetupWatcherTests`, `SingleInstanceTests`,
+`ProgramVersionsTests`, `Core/Platform/ShellProcessStarterTests`, `WindowsMutexOwnerTests`,
+`WindowsFileVersionReaderTests`, `WindowsProcessListTests`, `Launcher/PlayModelTests`, `SingleInstanceStartupTests`,
+`InstallationServiceTests` (a running setup), `Architecture/ProcessRulesTests`; test plan WP6-01 to WP6-15.

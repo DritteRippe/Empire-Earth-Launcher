@@ -1,6 +1,7 @@
 # 0004 async/await threading model
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2 and L-WP4, see the Amendment sections)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2, L-WP4 and L-WP6, see the Amendment
+sections)
 
 ## Context
 
@@ -89,3 +90,32 @@ reads block it returns an unfinished task at once. The launcher's `InstallationS
 raises `Changed` when a refresh starts and ends, and uses only the result of the latest refresh. The main window starts
 it in `OnShown` through `UiOperation.Run` (the Auto-detect button is the trigger and is disabled meanwhile); the pages
 show "searching" until the result is there.
+
+## Amendment 2026-10-02 (implementation, L-WP6)
+
+`Lobby.PlayerListPoller` replaces the worker loop of the Play page; Play and the setup watcher use the model as decided.
+Details decided while implementing, keeping the decision:
+
+- **Events instead of `IProgress<T>`**: the poller raises `Updated` (one result: available with the players,
+  unavailable with the error, or stopped) and `AvailabilityChanged` (the first result, the start of an outage, the
+  return of the list: the hook for the outage hint of L-WP9) through the `SynchronizationContext` of the thread that
+  called `Start`, so the page gets them on the UI thread, and directly on the polling thread in the tests. Two
+  subscribers (the page now, the outage hint later) are easier with events than with one `IProgress<T>`.
+- **The behaviour of the old loop stays and is tested** (`Core/Lobby/PlayerListPollerTests`): no request before
+  `Start` (review finding wart-S5); every request on the thread pool, a request that fails or throws is "unavailable"
+  and the loop goes on (korr-S3, wart-S6); one log line when an outage starts and one when the list is back, with the
+  texts of before; no result after `Dispose` or the cancel of the token passed to `Start`, also not of a request that
+  was still running (korr-S5); the delay is the configured interval. A handler that throws is logged and the other
+  handlers still run; an exception of the loop itself (a bug) ends it with one log line and the state "stopped", which
+  the page shows as "see the log" (the old `RunWorkerCompleted` path). The delay is injectable for the tests.
+- **Program creates the poller** from the server settings (null when they are invalid); the page starts it when it
+  loads and disposes it with itself.
+- **The setup watcher** (`Play.SetupWatcher`) is ticked by a WinForms timer of the main window every 500 ms on the UI
+  thread; it probes only when two seconds have passed by its `IClock`, so the tests tick it by hand with a fake clock.
+  Its events run on the UI thread.
+- **A start runs on the thread pool** (`GameStarter.StartAsync`): the shell waits while Windows shows the elevation
+  prompt of a `RUNASADMIN` layer, and `Process.Start` calls `ShellExecuteEx` on an STA thread of its own. The Play page
+  is the trigger of `UiOperation`, so the game choice cannot change during a start.
+
+Evidence: `Core/Lobby/PlayerListPollerTests`, `Core/Play/SetupWatcherTests`, `Core/Play/GameStarterTests`
+(`StartAsync_StartsOnTheThreadPool`).

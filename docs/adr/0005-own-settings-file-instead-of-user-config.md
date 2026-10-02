@@ -1,6 +1,6 @@
 # 0005 Own settings file instead of user.config
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2, see the Amendment section)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2 and L-WP6, see the Amendment sections)
 
 ## Context
 
@@ -80,3 +80,10 @@ the decision:
   reading, because the JSON reader of .NET and Mono rejects it.
 - **Members**: `UiCulture`, `LastGame` and the hidden warnings are added by the packages that use them (L-WP3,
   L-WP6, L-WP5) as optional members of schema 1; adding an optional member is a compatible change.
+
+## Amendment 2026-10-02 (implementation, L-WP6)
+
+`LastGame` exists as the optional member planned above (order 6, schema 1 stays): `EE` or `AoC` (`Game.Id`), empty by
+default and for `null`; an unknown value means Empire Earth and is kept in the file. The Play page uses The Art of
+Conquest only while the selected installation has an AoC folder. Tests: `SettingsStoreTests.LastGame_IsLoadedAndSaved`
+(the unknown-member test now uses another member), `Launcher/PlayModelTests`.

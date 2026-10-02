@@ -1,7 +1,7 @@
 # 0012 Test strategy
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review; implementation in L-WP5), see the
-Amendment sections
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review; implementation in L-WP5 and
+L-WP6), see the Amendment sections
 
 ## Context
 
@@ -137,3 +137,23 @@ UI (briefing D6, contract 7).
   difference.
 - **Windows adapters** (`WindowsSystemInfo`, the `.reg` import by double-click, the UI) are covered by the test plan
   cases WP5-01 to WP5-20.
+
+## Amendment 2026-10-02 (implementation, L-WP6)
+
+- **`TestIsolationTests`** (`Architecture/`, category `SourceTree`) implements the check of the plan review: it reads
+  every source of the test project and fails on `new WindowsRegistry(`, a direct use of `Microsoft.Win32.Registry`
+  (`Registry.CurrentUser`, `Registry.GetValue`, ...), `RegistryKey`/`OpenBaseKey`, an HTTP client or request, a socket,
+  a DNS lookup, a request to the NeoEE status server, `SpecialFolder.LocalApplicationData` and a store or logger
+  created on the launcher's real files (`LauncherPaths.SettingsFile`, ...). Self-tests run every rule against a
+  forbidden and against allowed samples (`new SocketException(...)`, reading `LauncherPaths.LogFile` for an
+  assertion, a fake named `Registry`).
+- **`ProcessRulesTests`** (category `SourceTree`) checks the sources of the launcher and the core for the rules of
+  ADR 0010 (see its amendment of L-WP6).
+- **The laptop package with `Tests\`** was built once in the scratch folder from the local Release build (like CI):
+  `Empire-Earth-Launcher\`, `Empire-Earth-Mod-Creator\`, `Tests\` (the test program and its libraries, no sources),
+  `LICENSE`, `THIRD-PARTY-NOTICES.md`, `THIRD-PARTY-LICENSES.txt`, plus a `.sha256` file. Unpacked outside the
+  repository, `mono Tests/Empire-Earth-Launcher.Tests.exe --where "cat != SourceTree"` passed 2213 tests with no
+  failure (2360 tests in the repository); the tests of the category `SourceTree` fail there, as intended.
+- New fakes: `FakeProcessStarter` (records starts and URLs, returns a process id or null, throws a configured
+  exception), `FakeProcessList`, `FakeFileVersionReader`; `FakeMutexProbe` is also an `IMutexOwner`, and it and
+  `InMemoryFileSystem` can report every probe and existence check into a journal, for the order test of the start.

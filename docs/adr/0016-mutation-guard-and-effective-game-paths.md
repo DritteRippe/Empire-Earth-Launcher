@@ -1,7 +1,7 @@
 # 0016 Mutation guard and effective game paths
 
 Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2 and L-WP4; plan review;
-implementation in L-WP5), see the Amendment sections
+implementation in L-WP5 and L-WP6), see the Amendment sections
 
 ## Context
 
@@ -125,3 +125,15 @@ action, before the backup; the registry work of an action takes milliseconds.
 Evidence: `GameDefaultsServiceTests.EveryWritingAction_IsBlockedBySetupAndGame` (7 actions x setup and game mutex,
 14 cases: no change, no backup folder), `CompatibilityOptionsTests.EveryChange_IsBlockedBySetupAndGame` (4 cases),
 `Launcher/GameSettingsModelTests` (the start blocked by a setup).
+
+## Amendment 2026-10-02 (implementation, L-WP6)
+
+- **The UI shows the block before the click.** The setup watcher (ADR 0010) tells the pages within two seconds that
+  a setup runs: Play, the two answers of the info bar, "Apply recommended display", the reset and its confirmation,
+  the compatibility switches and "remove RUNASADMIN" are disabled, and the pages name the setup. The guard itself is
+  unchanged and still asked by every action (the watcher can be up to two seconds late).
+- **Play and the guard**: the start of a game asks the guard through class S and the first run. When the player starts
+  a game while the other one runs, the guard blocks both, nothing is written and the game starts (ADR 0010 amendment of
+  L-WP6); the settings follow at the next start without the other game.
+- **Discovery while a setup runs**: the search of the installations waits for the end of the setup instead of reading
+  `install.ini` (contract 4.2); the integrity check of L-WP7 uses the same hooks to cancel and rerun.

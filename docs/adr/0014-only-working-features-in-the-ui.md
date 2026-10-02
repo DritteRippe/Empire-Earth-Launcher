@@ -1,7 +1,7 @@
 # 0014 Only working features in the UI
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review and implementation in L-WP3, see the Amendment
-sections)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review and implementation in L-WP3; implementation in
+L-WP6), see the Amendment sections
 
 ## Context
 
@@ -98,3 +98,9 @@ Details:
   v2: the Play button and the game choice of the Play page (L-WP6) and the compatibility warning of the Settings
   page, whose options come with L-WP5 (after confirming it the page is empty). The test plan names these gaps.
 - The README lists the removed features as planned ("not in v2") with the reasons above.
+
+## Amendment 2026-10-02 (implementation, L-WP6)
+
+The game choice and the Play button, which L-WP3 kept without function as the only exception of this record, work:
+Play starts the chosen game (ADR 0010), The Art of Conquest can only be chosen when the installation has it, and the
+group shows the file versions and a state line. No control without function is left on the *Play* page.

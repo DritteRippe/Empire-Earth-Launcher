@@ -109,24 +109,31 @@ Changing the English text of an existing key means checking the German and Frenc
   state, the display question, the buttons with their confirmations in place, the hints with their checkbox
   "Play page", the compatibility options and the result lines; the *Play* page shows the display question or a
   hint in an info bar. Long texts there wrap and push the following controls down; the buttons do not wrap, so
-  keep their limits. `log.txt` names the language in use (`UI language: de (launcher setting)`).
-  The German test plan has these cases (sections L-WP3 to L-WP5, WP4-17 and WP5-17).
+  keep their limits. The *Play* page shows the file versions and a state line below the game choice; its messages
+  (a running game with the Task Manager hint, the question before starting the second game, start errors) are
+  Windows message boxes, and the window "Repair the installation" (a missing program) wraps its text and grows
+  with it. Some texts quote what another program shows in the same language: the Task Manager of Windows
+  (`StartHangingHintFormat`), the install mode options of Inno Setup (`RepairStepKeepFolderAllUsersFormat`,
+  `RepairStepKeepFolderCurrentUserFormat`) and the CD-key task of the setup (`RepairStepCdKeys`); keep them equal
+  to those programs. `log.txt` names the language in use (`UI language: de (launcher setting)`).
+  The German test plan has these cases (sections L-WP3 to L-WP6, WP4-17, WP5-17 and WP6-14).
 
 ## Status
 
-125 texts (state of L-WP5: 51 texts of the game settings were added; L-WP4 added 21 for the list of installations).
+154 texts (state of L-WP6: 29 texts of Play, the repair advice, a running setup and a second launcher were added;
+L-WP5 added 51 for the game settings, L-WP4 21 for the list of installations).
 
 | Language | Translated | Review |
 |---|---|---|
-| English | 125 | source |
-| German `de` | 125 | proof-reading by a native speaker in the laptop test ([TEST-PLAN.de.md](TEST-PLAN.de.md), cases WP3-*, WP4-17 and WP5-17); open until that test |
-| French `fr` | 125 | **open**: only `NavigationPlay` ("Jouer") and `NavigationSettings` ("Paramètres") come from the original French authors; all other French texts were written during the review fixes and v2 without a native speaker |
+| English | 154 | source |
+| German `de` | 154 | proof-reading by a native speaker in the laptop test ([TEST-PLAN.de.md](TEST-PLAN.de.md), cases WP3-*, WP4-17, WP5-17 and WP6-14); open until that test |
+| French `fr` | 154 | **open**: only `NavigationPlay` ("Jouer") and `NavigationSettings` ("Paramètres") come from the original French authors; all other French texts were written during the review fixes and v2 without a native speaker |
 
 ### Help wanted
 
-- **French**: a native speaker who reads the 123 French texts other than the two navigation texts in
-  `Resources.fr.resx`, ideally while looking at each page. The 51 texts of the game settings (keys from
-  `GameSettingsDefaultsHeading` to `FindingFolderNotAnsiFormat`, at the end of the file) are the newest and
-  the longest.
+- **French**: a native speaker who reads the 152 French texts other than the two navigation texts in
+  `Resources.fr.resx`, ideally while looking at each page. The 29 texts of Play and the repair advice (keys from
+  `LauncherAlreadyRunning` to `RepairPageNotOpenedFormat`, at the end of the file) are the newest; before them the 51
+  texts of the game settings (from `GameSettingsDefaultsHeading` to `FindingFolderNotAnsiFormat`) are the longest.
 - **Other languages**: Portuguese (Brazil), Chinese, Spanish, Italian, Polish, Russian and Korean are game
   languages of the setup; the launcher shows English for them. See [Adding a language](#adding-a-language).

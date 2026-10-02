@@ -14,6 +14,15 @@ removed and the features behind them are listed below.
 
 **Available now**
 
+- Play Empire Earth or The Art of Conquest of the selected installation: the launcher waits while a setup runs, does
+  not start a game twice (and explains how to end a hanging one in the Task Manager), asks before starting the second
+  game, keeps the "Installed From" values of the game in step, starts the program through Windows so that its
+  compatibility settings apply (also "Run as administrator"), shows the file versions of both programs and logs every
+  start
+- Repair advice when a program is missing: what to do with the community setup (antivirus exception first, same folder
+  and install mode, keep the NeoEE CD-key task) and a button that opens the download page; the launcher never
+  downloads, starts or elevates the setup itself
+- One launcher at a time (a second start says so and ends)
 - NeoEE online player list, with the lobby profiles and friends of the game folder (also when the game keeps them
   in the VirtualStore)
 - Detection of every Empire Earth installation: community setups (current and up to 1.7.2, admin, user and
@@ -33,9 +42,8 @@ removed and the features behind them are listed below.
 
 **Coming with v2** (each with its work package, ARCHITECTURE section 15)
 
-- Play Empire Earth or The Art of Conquest safely: detection of a running game or setup, start log, file versions
-- Integrity check of the installation and repair advice (CD keys are repaired by re-running the community setup;
-  the launcher never touches them)
+- Integrity check of the installation, the download address of the update API for the repair advice and the game
+  version check (CD keys are repaired by re-running the community setup; the launcher never touches them)
 - Maintenance tools: registry cleanup of old installations, WON login reset, VirtualStore check, saved games and
   scenarios export/import
 - Network diagnostics and a configuration report
@@ -51,7 +59,8 @@ removed and the features behind them are listed below.
 - Writing the GPU driver version into the log (the diagnostics report names the display adapter)
 
 **No telemetry**: the old checkbox "Allow us to collect diagnostic data" is gone. The launcher collects no usage or
-diagnostic data; today its only connection is the request for the NeoEE player list.
+diagnostic data; today its only connection is the request for the NeoEE player list (the download page of the repair
+advice opens in your browser only when you click its button).
 
 ## 🌐 Download
 Sorry, at the moment the launcher is **ABSOLUTELY NOT** available for download in its current state.\
@@ -174,10 +183,14 @@ cover:
   game settings (`GameSettings/`: the value table against contract 3.2, the computed values, the marker, the first
   run, the display question, the reset and the restore of its backup by import, the consistency checks at 100 % and
   150 % scaling, the hidden hints, the compatibility options and the launcher's write policy, every writing action
-  blocked by a running setup and game);
+  blocked by a running setup and game), Play (`Play/`: the order of `GameStarter` with fakes and with the real game
+  settings, every refusal and start error as a result, the setup watcher with a fake clock, the single instance, the
+  file versions), the repair advice (`Repair/`), the online player list poller (`Lobby/`) and the start information of
+  the shell starter;
 - the UI helpers of the launcher (`Launcher/`): `UiOperation`, the "unexpected error" message, the logging of
   unobserved task exceptions, the texts chosen for results (`Texts`), the UI language applied at start, the
-  installation service and the model of the game settings pages (`GameSettingsModel`);
+  installation service (also while a setup runs), the models of the game settings pages (`GameSettingsModel`) and of
+  the Play page (`PlayModel`), and the message of a second launcher;
 - the WON lobby file parser, the NeoEE protocol framing, reply parsing and request deadline (`Won/`), and the mod
   library (`Mod/`: product folders, file types, versions, the working directory of the mod creator, `.eem`
   export/import including damaged archives);
@@ -189,15 +202,19 @@ cover:
   in `ApplyTexts()` (`ApplyTextsTests`), and English, German and French have the same texts, placeholders and
   built satellite assemblies (`ResourceParityTests`); and the test plan (`TestPlanTests`): unique case IDs, the
   cases of the current work package, every case named in the documents exists, and the mapping of the requirements
-  and forum test cases is complete.
+  and forum test cases is complete; the tests themselves touch no registry, network or launcher file
+  (`TestIsolationTests`), and only the shell starter starts programs, never without the shell or elevated, and
+  nothing ends a process (`ProcessRulesTests`).
 
 Architecture tests read the project files, `packages.config`, `App.config`, `app.manifest`, the core's sources,
 the launcher's designer files, code and `.resx` files, `docs/CONTRACT.md`, ADR 0014, the test plan and the other
 documents, the CI workflow and the built satellite assemblies (the tests that read the documents carry the category
 `SourceTree`); they find the source tree by walking up from the test program to
-`Empire-Earth.sln`, so run the test program from its build folder inside the repository. The tests use fakes
+`Empire-Earth.sln`, so run the test program from its build folder inside the repository; a copy outside it (the
+`Tests\` folder of the laptop package) runs the others with `--where "cat != SourceTree"`. The tests use fakes
 (`Fakes/`: in-memory registry with both HKLM views and a 32-bit Windows mode, in-memory file system with Windows
-path rules, mutex probe, clock, logger, system information with Windows version, Wine, screen and code page) and
+path rules, mutex probe and owner, clock, logger, system information with Windows version, Wine, screen and code
+page, process starter, process list, file versions) and
 only write below the temporary folder; they never contact a server, never touch the real registry or
 `%LOCALAPPDATA%` and never show UI. Path logic is `WinPath` string logic, so every
 test also runs under Mono; no test is skipped. The core, the launcher and the WON library make their internal helpers
@@ -260,13 +277,19 @@ Empire-Earth-Launcher-Core/       UI-free core library of the launcher (Empire_E
 ├─ Platform/                      Windows behind interfaces (ADR 0006): IRegistry/WindowsRegistry (explicit views),
 │                                 RegistryLocation, RegistryValue, RegistryPath (canonical form), RegistryWritePolicy
 │                                 and PolicyCheckedRegistry (protected keys, allow-list, ADR 0007), IFileSystem/
-│                                 LocalFileSystem, WinPath (Windows path rules), IMutexProbe/WindowsMutexProbe, IClock,
-│                                 ISystemInfo/WindowsSystemInfo (Windows version, Wine, screen size, code page)
+│                                 LocalFileSystem, WinPath (Windows path rules), IMutexProbe/WindowsMutexProbe,
+│                                 IMutexOwner/WindowsMutexOwner (single instance), IClock, ISystemInfo/WindowsSystemInfo
+│                                 (Windows version, Wine, screen size, code page), IProcessStarter/ShellProcessStarter
+│                                 (shell execute), IProcessList, IFileVersionReader
 ├─ Logging/                       ILogger, TraceFileLogger (log file with trimming)
 ├─ Settings/                      LauncherSettings, SettingsStore (settings.json, ADR 0005), LauncherPaths,
 │                                 UiLanguage (the language setting, ADR 0009)
-├─ Lobby/                         LobbyProfileRepository: lobby profiles and friends of the game folder (effective paths)
-└─ Play/                          MutationGuard: no change while a setup or a game runs (ADR 0016)
+├─ Lobby/                         LobbyProfileRepository: lobby profiles and friends of the game folder (effective paths);
+│                                 PlayerListPoller: the online player list (async loop, ADR 0004)
+├─ Play/                          GameStarter (ADR 0010: setup, game, program, Installed From, first run, shell start),
+│                                 RunningGameDetector, SetupWatcher (setup mutexes every 2 s), ProgramVersions,
+│                                 SingleInstance, MutationGuard (no change while a setup or a game runs, ADR 0016)
+└─ Repair/                        RepairAdvice: the steps of contract 4.4 and the download page
 Empire Earth Launcher/            The launcher (WinForms + Krypton UI)
 ├─ Program.cs                     Entry point and composition root: creates and passes on the services
 ├─ app.manifest                   Application manifest: asInvoker, Windows 7 to 11, not DPI-aware
@@ -276,6 +299,8 @@ Empire Earth Launcher/            The launcher (WinForms + Krypton UI)
 ├─ IThemeService.cs               Theme interface (implemented by KryptonThemeService.cs)
 ├─ InstallationService.cs         The installations found and the selected one (runs the core's discovery)
 ├─ GameSettingsModel.cs           State and actions of the game settings for the Settings and Play pages
+├─ PlayModel.cs                   State and actions of the Play page (game choice, versions, start)
+├─ RepairAdviceDialog.cs          The repair advice window (built in code, wraps every language)
 └─ Resources/                     Images and icon used by the UI
 Empire-Earth-WON/                 WON/NeoEE library, no UI (used by the launcher)
 ├─ NeoApiClient.cs                Client for the NeoEE lobby server
@@ -289,12 +314,14 @@ Empire-Earth-Mod/
 └─ Empire-Earth-Mod/              Mod creator (WinForms), uses Empire-Earth-Mod-Lib
 Empire-Earth-Launcher.Tests/      Unit tests (NUnitLite console program), one folder per tested project:
 ├─ Architecture/                  Rules for the whole solution (project settings, core dependencies, registry aliases,
-│                                 placeholder controls, ApplyTexts, resource parity)
+│                                 placeholder controls, ApplyTexts, resource parity, test plan, test isolation,
+│                                 process starts)
 ├─ Core/                          The core library, one folder per area
-├─ Launcher/                      UI helpers, installation service
+├─ Launcher/                      UI helpers, installation service, page models, start of a second launcher
 ├─ Won/                           WON lobby files, NeoEE protocol
 ├─ Mod/                           Mod library and .eem archives
-├─ Fakes/                         In-memory registry and file system, mutex probe, clock, logger (with tests)
+├─ Fakes/                         In-memory registry and file system, mutex probe, clock, logger, process starter,
+│                                 process list, file versions (with tests)
 └─ TestSupport/                   Temporary folders, chunked streams, repository root, project files
 packages/                         NuGet packages, restored on build (not committed)
 .github/workflows/build.yml       CI build and test run
@@ -334,7 +361,14 @@ packages/                         NuGet packages, restored on build (not committ
   core library, thin WinForms UI on .NET Framework 4.8), data flows, threading, error handling, logging,
   localization and tests; the decisions behind it are recorded in [docs/adr/](docs/adr/README.md). Until v2 is
   complete, this README describes what exists today.
-- **User settings** (game folder, theme, custom theme file, UI language, hints hidden from the *Play* page) are kept in
+- **Play** ([ADR 0010](docs/adr/0010-game-start-and-mutex-probing.md)): *Play* starts the chosen game of the selected
+  installation (`LastGame` in `settings.json`) in this order: no setup may run (`EE_Setup`, `NeoEE_Setup`), the same
+  game may not run (its mutex), the other game running asks first, the program must exist (else the repair advice),
+  then the "Installed From" values are synchronized and the first run of the defaults is done, then the program
+  starts through the Windows shell in its game folder. The log has one line per start with the process id. While a
+  setup runs (checked every two seconds), nothing is started, changed or searched; the installations are searched
+  again when it has ended. Only one launcher runs per Windows session (mutex `EmpireEarthCommunityLauncher`).
+- **User settings** (game folder, theme, custom theme file, UI language, hints hidden from the *Play* page, last game) are kept in
   `%LOCALAPPDATA%\Empire Earth Launcher\settings.json` (UTF-8 JSON with a `SchemaVersion`,
   [ADR 0005](docs/adr/0005-own-settings-file-instead-of-user-config.md)), so they survive moving or updating
   the launcher. The file is written as `settings.json.tmp` first and then swapped in, so a crash never leaves
