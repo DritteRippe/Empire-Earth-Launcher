@@ -38,15 +38,48 @@ namespace Empire_Earth_Launcher.Core.Platform
         NotCurrentUser,
 
         /// <summary>Not a key and operation of the allow-list.</summary>
-        NotInAllowList
+        NotInAllowList,
+
+        /// <summary>
+        /// A key of the allow-list, but not a value name of its rule: not a value of the contract tables (3.2, 3.5), not the
+        /// full path of a game program (3.4, 3.7).
+        /// </summary>
+        ValueNotAllowed,
+
+        /// <summary>
+        /// A compatibility value whose content would change other than by the entries the launcher may switch on this
+        /// Windows (contract 3.7, ADR 0007 plan review): e.g. <c>WINXPSP3</c> or <c>RUNASADMIN</c> added, another entry
+        /// removed, or the current value unknown.
+        /// </summary>
+        LayerContent
     }
 
-    /// <summary>One entry of the allow-list: an exact HKCU key and the operations allowed on it.</summary>
+    /// <summary>
+    /// One entry of the allow-list: an exact HKCU key, the operations allowed on it and, for value operations, the value
+    /// names (any, a list, or the full paths of the game programs) and for compatibility values a check of the content.
+    /// </summary>
     public sealed class RegistryWriteRule
     {
+        private readonly ReadOnlyCollection<string> valueNames;
+        private readonly ReadOnlyCollection<string> layerEntries;
+
+        /// <summary>A rule for any value name of the key (the cleanup lists and the tests use it).</summary>
         /// <param name="currentUserKey">Path below HKCU, spelled as the key is written (case does not matter).</param>
         /// <param name="operations">The allowed operations on that key (not on its subkeys).</param>
         public RegistryWriteRule(string currentUserKey, params RegistryOperation[] operations)
+            : this(currentUserKey, null, false, null, operations)
+        {
+        }
+
+        /// <summary>A rule for the values <paramref name="valueNames"/> of the key (compared ignoring case).</summary>
+        public RegistryWriteRule(string currentUserKey, IEnumerable<string> valueNames, params RegistryOperation[] operations)
+            : this(currentUserKey, (valueNames ?? throw new ArgumentNullException(nameof(valueNames))).ToList(), false, null,
+                operations)
+        {
+        }
+
+        private RegistryWriteRule(string currentUserKey, IList<string> valueNames, bool programPaths, IList<string> layerEntries,
+            RegistryOperation[] operations)
         {
             if (currentUserKey == null)
                 throw new ArgumentNullException(nameof(currentUserKey));
@@ -56,6 +89,28 @@ namespace Empire_Earth_Launcher.Core.Platform
             if (Key.IsRoot)
                 throw new ArgumentException("HKCU itself can never be changed.", nameof(currentUserKey));
             Operations = new ReadOnlyCollection<RegistryOperation>(operations.Distinct().ToList());
+            this.valueNames = valueNames == null ? null : new ReadOnlyCollection<string>(valueNames);
+            OnlyProgramPaths = programPaths;
+            this.layerEntries = layerEntries == null ? null : new ReadOnlyCollection<string>(layerEntries);
+        }
+
+        /// <summary>A rule whose value names are full paths of a game program (contract 3.4: the GPU preference).</summary>
+        public static RegistryWriteRule ForProgramPaths(string currentUserKey, params RegistryOperation[] operations)
+        {
+            return new RegistryWriteRule(currentUserKey, null, true, null, operations);
+        }
+
+        /// <summary>
+        /// A rule for compatibility values (contract 3.7): the value names are full paths of a game program, a written value
+        /// may differ from the current one only by <paramref name="switchableEntries"/>, and a value may be deleted only if
+        /// it holds nothing else or is exactly <c>~ RUNASADMIN</c> (<see cref="CompatibilityLayers"/>).
+        /// </summary>
+        public static RegistryWriteRule ForCompatibilityLayers(string currentUserKey, IEnumerable<string> switchableEntries,
+            params RegistryOperation[] operations)
+        {
+            if (switchableEntries == null)
+                throw new ArgumentNullException(nameof(switchableEntries));
+            return new RegistryWriteRule(currentUserKey, null, true, switchableEntries.ToList(), operations);
         }
 
         /// <summary>The HKCU key.</summary>
@@ -63,14 +118,56 @@ namespace Empire_Earth_Launcher.Core.Platform
 
         public IReadOnlyList<RegistryOperation> Operations { get; }
 
-        internal bool Allows(RegistryOperation operation, RegistryLocation key)
+        /// <summary>The value names of the rule; null if any name (or <see cref="OnlyProgramPaths"/>) is allowed.</summary>
+        public IReadOnlyList<string> ValueNames
+        {
+            get { return valueNames; }
+        }
+
+        /// <summary>True if the value names must be full paths of a game program (<see cref="IsProgramPath"/>).</summary>
+        public bool OnlyProgramPaths { get; }
+
+        /// <summary>
+        /// The compatibility entries a written value may add or remove; null if the rule does not check the content.
+        /// </summary>
+        public IReadOnlyList<string> LayerEntries
+        {
+            get { return layerEntries; }
+        }
+
+        /// <summary>
+        /// True for the full path of a game program in normal form (<see cref="WinPath"/>): <c>Empire Earth.exe</c> or
+        /// <c>EE-AOC.exe</c> in a folder with a drive or on a share, as the setup writes the value names of contract 3.4
+        /// and 3.7. Which installation it belongs to is up to the caller (only discovered installations).
+        /// </summary>
+        public static bool IsProgramPath(string valueName)
+        {
+            if (string.IsNullOrWhiteSpace(valueName) || !WinPath.IsFullyQualified(valueName) ||
+                !string.Equals(WinPath.Normalize(valueName), valueName, StringComparison.Ordinal))
+                return false;
+            string fileName = WinPath.GetFileName(valueName);
+            return Game.All.Any(game => string.Equals(game.ProgramName, fileName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        internal bool Matches(RegistryOperation operation, RegistryLocation key)
         {
             return Operations.Contains(operation) && Key.Equals(key);
         }
 
+        internal bool AllowsValueName(string valueName)
+        {
+            if (valueName == null)
+                return true; // key operations
+            if (OnlyProgramPaths)
+                return IsProgramPath(valueName);
+            return valueNames == null || valueNames.Contains(valueName, StringComparer.OrdinalIgnoreCase);
+        }
+
         public override string ToString()
         {
-            return Key + " (" + string.Join(", ", Operations) + ")";
+            string names = OnlyProgramPaths ? "program paths" : valueNames == null ? "any value" : valueNames.Count + " values";
+            return Key + " (" + string.Join(", ", Operations) + "; " + names +
+                   (layerEntries == null ? string.Empty : "; layers " + string.Join(" ", layerEntries)) + ")";
         }
     }
 
@@ -136,18 +233,14 @@ namespace Empire_Earth_Launcher.Core.Platform
     /// list names that alias itself.
     /// </para>
     /// <para>
-    /// <see cref="Default"/> holds the keys of the contract (game settings keys and their <c>Game Options</c> of
-    /// 3.1, defaults markers of 3.5, GPU preference of 3.4, compatibility layers of 3.7), at key level; restricting
-    /// them to the value names of the contract tables comes with the game settings work package.
+    /// For value operations a matching rule must also allow the value name (<see cref="RegistryWriteDenial.ValueNotAllowed"/>),
+    /// and a rule for compatibility values checks the content of the written value against the current one
+    /// (<see cref="RegistryWriteDenial.LayerContent"/>). The launcher's allow-list, narrowed to the value names of the
+    /// contract tables, the program paths and the layer content, is <c>GameSettings.LauncherWritePolicy</c> (ADR 0007).
     /// </para>
     /// </remarks>
     public sealed class RegistryWritePolicy
     {
-        private static readonly RegistryOperation[] ValueAndKeyCreation =
-        {
-            RegistryOperation.SetValue, RegistryOperation.DeleteValue, RegistryOperation.CreateSubKey
-        };
-
         /// <summary>Keys whose subtree and ancestors are refused, with the reason (all canonical).</summary>
         private static readonly IReadOnlyList<Tuple<RegistryLocation, RegistryWriteDenial>> ProtectedKeys = BuildProtectedKeys();
 
@@ -163,9 +256,6 @@ namespace Empire_Earth_Launcher.Core.Platform
                 throw new ArgumentException("The allow-list contains null.", nameof(allowList));
         }
 
-        /// <summary>The policy of the launcher: the contract keys of ADR 0007 (see the remarks).</summary>
-        public static RegistryWritePolicy Default { get; } = new RegistryWritePolicy(ContractAllowList());
-
         /// <summary>The allow-list of this policy.</summary>
         public IReadOnlyList<RegistryWriteRule> AllowList
         {
@@ -176,7 +266,12 @@ namespace Empire_Earth_Launcher.Core.Platform
         /// <param name="operation">The change.</param>
         /// <param name="key">The key that is changed (for <see cref="RegistryOperation.CreateSubKey"/> the new key).</param>
         /// <param name="valueName">The value of a value operation; null for key operations.</param>
-        public RegistryWriteDecision Check(RegistryOperation operation, RegistryLocation key, string valueName = null)
+        /// <param name="newValue">The value <see cref="RegistryOperation.SetValue"/> writes (for the content check).</param>
+        /// <param name="readCurrentValue">
+        /// Reads the current value, for the content check of compatibility values; without it such a change is refused.
+        /// </param>
+        public RegistryWriteDecision Check(RegistryOperation operation, RegistryLocation key, string valueName = null,
+            RegistryValue newValue = null, Func<RegistryResult<RegistryValue>> readCurrentValue = null)
         {
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
@@ -185,9 +280,40 @@ namespace Empire_Earth_Launcher.Core.Platform
             RegistryWriteDenial denial = FindProtection(key, canonical);
             if (denial == RegistryWriteDenial.None && key.Hive != RegistryHive.CurrentUser)
                 denial = RegistryWriteDenial.NotCurrentUser;
-            if (denial == RegistryWriteDenial.None && !allowList.Any(rule => rule.Allows(operation, key)))
-                denial = RegistryWriteDenial.NotInAllowList;
+            if (denial == RegistryWriteDenial.None)
+            {
+                List<RegistryWriteRule> matching = allowList.Where(rule => rule.Matches(operation, key)).ToList();
+                RegistryWriteRule rule = matching.FirstOrDefault(candidate => candidate.AllowsValueName(valueName));
+                if (matching.Count == 0)
+                    denial = RegistryWriteDenial.NotInAllowList;
+                else if (rule == null)
+                    denial = RegistryWriteDenial.ValueNotAllowed;
+                else if (rule.LayerEntries != null && valueName != null &&
+                         !IsAllowedLayerChange(operation, rule.LayerEntries, newValue, readCurrentValue))
+                    denial = RegistryWriteDenial.LayerContent;
+            }
             return new RegistryWriteDecision(operation, key, valueName, canonical, denial);
+        }
+
+        /// <summary>The content check of a compatibility value (contract 3.7, ADR 0007 plan review).</summary>
+        private static bool IsAllowedLayerChange(RegistryOperation operation, IReadOnlyList<string> switchable,
+            RegistryValue newValue, Func<RegistryResult<RegistryValue>> readCurrentValue)
+        {
+            if (readCurrentValue == null)
+                return false;
+            RegistryResult<RegistryValue> current = readCurrentValue();
+            string currentText;
+            if (current.Status == RegistryStatus.Missing)
+                currentText = null;
+            else if (current.IsOk && current.Value.Type == RegistryValueType.String)
+                currentText = current.Value.StringValue;
+            else
+                return false; // unreadable, or not a string: nothing may be assumed about its entries
+
+            if (operation == RegistryOperation.DeleteValue)
+                return CompatibilityLayers.IsAllowedDeletion(currentText, switchable);
+            return newValue != null && newValue.Type == RegistryValueType.String &&
+                   CompatibilityLayers.IsAllowedChange(currentText, newValue.StringValue, switchable);
         }
 
         private static RegistryWriteDenial FindProtection(RegistryLocation key, RegistryLocation canonical)
@@ -230,22 +356,6 @@ namespace Empire_Earth_Launcher.Core.Platform
             Add(ContractNames.InstallRecordsKey, RegistryWriteDenial.InstallRecord);
             Add(ContractNames.UninstallKey, RegistryWriteDenial.UninstallKey);
             return keys.AsReadOnly();
-        }
-
-        private static IEnumerable<RegistryWriteRule> ContractAllowList()
-        {
-            foreach (Product product in Product.All)
-            {
-                foreach (Game game in Game.All)
-                {
-                    string settingsKey = product.GetGameSettingsKey(game);
-                    yield return new RegistryWriteRule(settingsKey, ValueAndKeyCreation);
-                    yield return new RegistryWriteRule(settingsKey + @"\" + ContractNames.GameOptionsSubKeyName, ValueAndKeyCreation);
-                }
-                yield return new RegistryWriteRule(product.DefaultsMarkerKey, ValueAndKeyCreation);
-            }
-            yield return new RegistryWriteRule(ContractNames.GpuPreferencesKey, ValueAndKeyCreation);
-            yield return new RegistryWriteRule(ContractNames.CompatibilityLayersKey, ValueAndKeyCreation);
         }
     }
 }

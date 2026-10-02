@@ -23,6 +23,10 @@ namespace Empire_Earth_Launcher.Core.Platform
     /// reaches the registry, so that no code path of the launcher can write around the policy (ADR 0007). Reads
     /// are not restricted: the diagnostics may check that the CD keys exist (contract 3.8).
     /// </summary>
+    /// <remarks>
+    /// For the content check of compatibility values the policy compares the written value with the current one, which
+    /// this wrapper reads from the registry just before the change.
+    /// </remarks>
     public sealed class PolicyCheckedRegistry : IRegistry
     {
         private readonly IRegistry registry;
@@ -57,7 +61,7 @@ namespace Empire_Earth_Launcher.Core.Platform
         /// <exception cref="RegistryWriteDeniedException">The policy refuses the change.</exception>
         public RegistryResult CreateSubKey(RegistryLocation key)
         {
-            Demand(RegistryOperation.CreateSubKey, key, null);
+            Demand(RegistryOperation.CreateSubKey, key, null, null);
             return registry.CreateSubKey(key);
         }
 
@@ -66,7 +70,9 @@ namespace Empire_Earth_Launcher.Core.Platform
         {
             if (valueName == null)
                 throw new ArgumentNullException(nameof(valueName));
-            Demand(RegistryOperation.SetValue, key, valueName);
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+            Demand(RegistryOperation.SetValue, key, valueName, value);
             return registry.SetValue(key, valueName, value);
         }
 
@@ -75,22 +81,23 @@ namespace Empire_Earth_Launcher.Core.Platform
         {
             if (valueName == null)
                 throw new ArgumentNullException(nameof(valueName));
-            Demand(RegistryOperation.DeleteValue, key, valueName);
+            Demand(RegistryOperation.DeleteValue, key, valueName, null);
             return registry.DeleteValue(key, valueName);
         }
 
         /// <exception cref="RegistryWriteDeniedException">The policy refuses the change.</exception>
         public RegistryResult DeleteSubKeyTree(RegistryLocation key)
         {
-            Demand(RegistryOperation.DeleteSubKeyTree, key, null);
+            Demand(RegistryOperation.DeleteSubKeyTree, key, null, null);
             return registry.DeleteSubKeyTree(key);
         }
 
-        private void Demand(RegistryOperation operation, RegistryLocation key, string valueName)
+        private void Demand(RegistryOperation operation, RegistryLocation key, string valueName, RegistryValue value)
         {
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
-            RegistryWriteDecision decision = policy.Check(operation, key, valueName);
+            RegistryWriteDecision decision = policy.Check(operation, key, valueName, value,
+                valueName == null ? (Func<RegistryResult<RegistryValue>>)null : () => registry.GetValue(key, valueName));
             if (!decision.IsAllowed)
                 throw new RegistryWriteDeniedException(decision);
         }

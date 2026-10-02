@@ -1,4 +1,5 @@
 ﻿using Empire_Earth_Launcher.Core.Contract;
+using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Platform;
 using Empire_Earth_Launcher.Tests.Fakes;
 using NUnit.Framework;
@@ -20,7 +21,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Platform
         {
             inner = new InMemoryRegistry();
             inner.Seed(CdKeys, "Empire Earth", RegistryValue.FromString("not logged, not shown"));
-            registry = new PolicyCheckedRegistry(inner, RegistryWritePolicy.Default);
+            registry = new PolicyCheckedRegistry(inner, LauncherWritePolicy.Default);
         }
 
         [Test]

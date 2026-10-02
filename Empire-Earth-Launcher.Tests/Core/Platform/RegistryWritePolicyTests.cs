@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Linq;
 using Empire_Earth_Launcher.Core.Contract;
+using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Platform;
 using NUnit.Framework;
 
 namespace Empire_Earth_Launcher.Tests.Core.Platform
 {
     /// <summary>
-    /// The allow-list part of <see cref="RegistryWritePolicy"/> and the order of its rules (ADR 0007). The
-    /// protected keys under all their aliases are checked by <c>Architecture/RegistryAliasPolicyTests</c>.
+    /// The allow-list part of <see cref="RegistryWritePolicy"/> and the order of its rules (ADR 0007), with the launcher's
+    /// allow-list (<see cref="LauncherWritePolicy"/>) at key level. The protected keys under all their aliases are checked
+    /// by <c>Architecture/RegistryAliasPolicyTests</c>, the value names and the layer content by
+    /// <c>Core/GameSettings/LauncherWritePolicyTests</c>.
     /// </summary>
     [TestFixture]
     public class RegistryWritePolicyTests
@@ -16,9 +19,25 @@ namespace Empire_Earth_Launcher.Tests.Core.Platform
         private static readonly RegistryOperation[] AllOperations =
             (RegistryOperation[])Enum.GetValues(typeof(RegistryOperation));
 
+        /// <summary>
+        /// Checks the operation with a value name the allow-list knows for that key (a value of the contract tables, a game
+        /// program path), so that only the key decides; for compatibility values the current value is missing.
+        /// </summary>
         private static RegistryWriteDecision Check(RegistryOperation operation, string location)
         {
-            return RegistryWritePolicy.Default.Check(operation, RegistryLocation.Parse(location), "Value");
+            RegistryLocation key = RegistryLocation.Parse(location);
+            string valueName = null;
+            if (operation == RegistryOperation.SetValue || operation == RegistryOperation.DeleteValue)
+            {
+                string path = key.Path.ToUpperInvariant();
+                valueName = path.EndsWith(@"\GAME OPTIONS", StringComparison.Ordinal) ? "Map Type"
+                    : path.Contains(@"\GAMEDEFAULTS\") ? "EE"
+                    : path.EndsWith("USERGPUPREFERENCES", StringComparison.Ordinal) || path.EndsWith("LAYERS", StringComparison.Ordinal)
+                        ? @"C:\Games\EE\Empire Earth.exe"
+                        : "Wait for VSync";
+            }
+            return LauncherWritePolicy.Default.Check(operation, key, valueName, RegistryValue.FromString("~ HIGHDPIAWARE"),
+                () => RegistryResult<RegistryValue>.Failure(RegistryStatus.Missing, "missing"));
         }
 
         [Test]
@@ -104,7 +123,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Platform
         [Test]
         public void Decision_DescribesItself()
         {
-            RegistryWriteDecision decision = RegistryWritePolicy.Default.Check(RegistryOperation.DeleteSubKeyTree,
+            RegistryWriteDecision decision = LauncherWritePolicy.Default.Check(RegistryOperation.DeleteSubKeyTree,
                 RegistryLocation.Parse(@"HKLM64\Software\WOW6432Node\Sierra"));
 
             Assert.That(decision.IsAllowed, Is.False);

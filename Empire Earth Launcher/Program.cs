@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Lobby;
 using Empire_Earth_Launcher.Core.Logging;
@@ -54,8 +55,12 @@ namespace Empire_Earth_Launcher
             var themeService = new KryptonThemeService(logger, LauncherPaths.ThemesDirectory);
             ApplySavedTheme(themeService, settingsStore.Current);
 
-            // Every change of the registry passes the write policy (ADR 0007); the discovery only reads.
-            var registry = new PolicyCheckedRegistry(new WindowsRegistry(), RegistryWritePolicy.Default);
+            // Every change of the registry passes the write policy (ADR 0007): the values of the contract tables, the
+            // program paths and, from Windows 8 on and outside Wine, the compatibility entries of contract 3.7. The
+            // discovery only reads.
+            var systemInfo = new WindowsSystemInfo(logger);
+            logger.Info(systemInfo.Describe());
+            var registry = new PolicyCheckedRegistry(new WindowsRegistry(), LauncherWritePolicy.For(systemInfo));
             // The discovery starts when the main window is shown (MainForm.OnShown) and runs in the background.
             var installations = new InstallationService(logger, settingsStore,
                 new InstallationDiscovery(registry, fileSystem, logger), fileSystem, LauncherPaths.ApplicationDirectory);

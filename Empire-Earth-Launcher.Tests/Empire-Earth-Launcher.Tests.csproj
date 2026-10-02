@@ -65,9 +65,11 @@
     <Compile Include="Core\Backup\BackupLocationsTests.cs" />
     <Compile Include="Core\Backup\RegFileWriterTests.cs" />
     <Compile Include="Core\Backup\RegistryExportTests.cs" />
+    <Compile Include="Core\Contract\CompatibilityLayersTests.cs" />
     <Compile Include="Core\Contract\ContractNamesTests.cs" />
     <Compile Include="Core\GameSettings\ComputedValuesTests.cs" />
     <Compile Include="Core\GameSettings\GameSettingsTableContractTests.cs" />
+    <Compile Include="Core\GameSettings\LauncherWritePolicyTests.cs" />
     <Compile Include="Core\Installations\DiscoveryContractTests.cs" />
     <Compile Include="Core\Installations\EffectivePathResolverTests.cs" />
     <Compile Include="Core\Installations\GameDirectoryLocatorPortTests.cs" />

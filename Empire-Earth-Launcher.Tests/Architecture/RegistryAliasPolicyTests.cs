@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Platform;
 using Microsoft.Win32;
 using NUnit.Framework;
@@ -140,7 +141,7 @@ namespace Empire_Earth_Launcher.Tests.Architecture
             RegistryWriteDenial expected)
         {
             RegistryLocation key = RegistryLocation.Parse(location);
-            RegistryWritePolicy policy = allowListNamesIt ? PolicyThatLists(key) : RegistryWritePolicy.Default;
+            RegistryWritePolicy policy = allowListNamesIt ? PolicyThatLists(key) : LauncherWritePolicy.Default;
 
             foreach (string valueName in ValueNames(operation))
             {
@@ -180,17 +181,21 @@ namespace Empire_Earth_Launcher.Tests.Architecture
                 Is.EqualTo(value));
         }
 
-        /// <summary>The keys the launcher must be able to change stay allowed (the table test is not vacuous).</summary>
-        [TestCase(@"HKCU\Software\Neo\Empire Earth")]
-        [TestCase(@"HKCU\Software\SSSI\Empire Earth\Game Options")]
-        [TestCase(@"HKCU\Software\Mad Doc Software\EE-AOC")]
-        [TestCase(@"HKCU\Software\Empire Earth Community\GameDefaults\NeoEE")]
-        [TestCase(@"HKCU\Software\Microsoft\DirectX\UserGpuPreferences")]
-        [TestCase(@"HKCU\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers")]
-        public void ContractKey_StaysAllowed(string location)
+        /// <summary>
+        /// The keys and values the launcher must be able to change stay allowed (the table test is not vacuous). Since L-WP5
+        /// the allow-list names the values of the contract tables, so each key is checked with one of its values.
+        /// </summary>
+        [TestCase(@"HKCU\Software\Neo\Empire Earth", "Wait for VSync")]
+        [TestCase(@"HKCU\Software\SSSI\Empire Earth\Game Options", "Map Type")]
+        [TestCase(@"HKCU\Software\Mad Doc Software\EE-AOC", "Installed From Directory")]
+        [TestCase(@"HKCU\Software\Empire Earth Community\GameDefaults\NeoEE", "AoC")]
+        [TestCase(@"HKCU\Software\Microsoft\DirectX\UserGpuPreferences", @"C:\Games\EE\Empire Earth.exe")]
+        [TestCase(@"HKCU\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers", @"C:\Games\EE\Empire Earth.exe")]
+        public void ContractKey_StaysAllowed(string location, string valueName)
         {
-            RegistryWriteDecision decision = RegistryWritePolicy.Default.Check(RegistryOperation.SetValue,
-                RegistryLocation.Parse(location), "Value");
+            RegistryWriteDecision decision = LauncherWritePolicy.Default.Check(RegistryOperation.SetValue,
+                RegistryLocation.Parse(location), valueName, RegistryValue.FromString("~ HIGHDPIAWARE"),
+                () => RegistryResult<RegistryValue>.Failure(RegistryStatus.Missing, "missing"));
 
             Assert.That(decision.IsAllowed, Is.True, decision.ToString());
         }

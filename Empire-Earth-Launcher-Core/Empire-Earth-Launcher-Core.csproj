@@ -45,11 +45,13 @@
     <Compile Include="Backup\BackupLocations.cs" />
     <Compile Include="Backup\RegFileWriter.cs" />
     <Compile Include="Backup\RegistryExport.cs" />
+    <Compile Include="Contract\CompatibilityLayers.cs" />
     <Compile Include="Contract\ContractNames.cs" />
     <Compile Include="Contract\Game.cs" />
     <Compile Include="Contract\Product.cs" />
     <Compile Include="GameSettings\ComputedValues.cs" />
     <Compile Include="GameSettings\GameSettingsTable.cs" />
+    <Compile Include="GameSettings\LauncherWritePolicy.cs" />
     <Compile Include="GameSettings\RecommendedValues.cs" />
     <Compile Include="Installations\DiscoveryResult.cs" />
     <Compile Include="Installations\EffectivePathResolver.cs" />
