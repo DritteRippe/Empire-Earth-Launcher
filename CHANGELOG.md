@@ -23,6 +23,12 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
   the first window; a hint says so after a change. Only the texts change, number and date formats stay those of
   Windows. An unknown value in the file is logged and means the Windows language. The log names the language
   in use (`UI language: de (launcher setting)`).
+- `docs/TRANSLATING.md`: the languages of the launcher, where the texts are, the rules for placeholders, line
+  breaks and lengths, how to add a text or a language, how to test a translation, and the review state (German:
+  proof-reading in the laptop test; French: review open for all texts but the two navigation texts of the
+  original authors).
+- Test plan: cases WP3-01 to WP3-17 (removed placeholders, every page in German, English and French, proof-reading
+  the German texts, the language setting, the satellite folders, scaling with German texts).
 - `ResourceParityTests`: English, German and French have the same string keys (comments and entries with a
   `type` or `mimetype` are not compared), no empty text and the same `{n}` placeholders; images and file
   references exist only in the neutral `Resources.resx`; `Resources.Designer.cs` has a property for every text;
@@ -94,6 +100,9 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
 - The executables set `Prefer32Bit` to false explicitly (they stay AnyCPU and run as 64-bit processes on 64-bit
   Windows, as before); the mod library now builds deterministically like the other projects.
 - CI builds against `Microsoft.NETFramework.ReferenceAssemblies.net48` 1.0.3 instead of the net40 package.
+- README: the feature list says what works, what comes with v2 and what is planned but not in v2 (the removed
+  placeholders), and that the launcher has no telemetry; localization, settings and tests describe the three
+  languages.
 - README: requirements per Windows version, Windows build commands for 4.8, the limits of the Mono build; the
   rule "no `async`/`await`" of the 4.0 build is gone.
 

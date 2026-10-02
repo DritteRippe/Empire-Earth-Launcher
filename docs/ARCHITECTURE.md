@@ -63,7 +63,8 @@ Empire-Earth.sln
 │  │                   WOW6432Node, registry VirtualStore), RegistryWritePolicy and PolicyCheckedRegistry
 │  │                   (the IRegistry wrapper every change passes, ADR 0007)
 │  ├─ Logging/         ILogger, LogLevel, TraceFileLogger, log trimming (moved from the launcher)
-│  ├─ Settings/        LauncherSettings, SettingsStore (settings.json, ADR 0005), LauncherPaths
+│  ├─ Settings/        LauncherSettings, SettingsStore (settings.json, ADR 0005), LauncherPaths, UiLanguage
+│  │                   (the language setting, ADR 0009)
 │  ├─ Installations/   install record, install.ini, uninstall keys, "Installed From", launcher folder,
 │  │                   user choice -> InstallationDiscovery -> Installation with real EE/AoC folders
 │  │                   (contract 1, ADR 0015); EffectivePathResolver (VirtualStore, ADR 0016)
@@ -116,11 +117,13 @@ The navigation keeps the existing look (MainForm, Krypton palette, gold buttons)
 | **Tools** | integrity details and full check, repair advice, registry cleanup, WON login reset, VirtualStore check, saved games and scenarios, network diagnostics, "copy diagnostics report", open backup folder | R2, R5 to R10 |
 | **Launcher** | installations found and the user's choice, hint when several installations share one game settings key, theme, language (system, English, German, French) | R1, R17 |
 
-The placeholders of the old designer are removed from the UI until they are implemented, as the first step
-of the localization work, so that none of them is translated
+The placeholders of the old designer were removed from the UI in L-WP3, as the first step of the localization
+work, so that none of them was translated
 ([ADR 0014](adr/0014-only-working-features-in-the-ui.md), amendment: the exact list of control names, which
 an architecture test checks; it includes the "collect diagnostic data" checkbox, which contradicts "no
-telemetry"). The README keeps them as planned features.
+telemetry"). The README keeps them as planned features. Until the pages are filled by their work packages, the
+Play page keeps the game choice and the Play button without function (L-WP6) and the Settings page shows only the
+compatibility warning (L-WP5).
 
 ## 3. Dependency rules
 
@@ -354,18 +357,24 @@ Decided in [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md):
   are complete; every other UI culture falls back to English. Portuguese (Brazil) and Chinese are not
   machine-translated.
 - Every UI text is set from code from `Properties/Resources*.resx` of the launcher (including the
-  navigation, which today comes from `MainForm.fr.resx`); designer texts are placeholders that are
-  overwritten at start. One place per text makes the parity test possible.
+  navigation, which came from `MainForm.fr.resx` before L-WP3), in one `ApplyTexts()` per window or page;
+  `Texts` picks the text for a result. Designer texts are placeholders that are overwritten at start; an
+  architecture test (`ApplyTextsTests`) checks that every designer text is set again. One place per text makes
+  the parity test possible.
 - An architecture test reads the `.resx` files of the source tree and checks the **string entries**
   (comments removed, entries with `type` or `mimetype` skipped): the same keys in `en`, `de`, `fr`; no empty
   value; the same `{n}` placeholders. A second test checks that image and file entries exist only in the
-  neutral resx. Today `en` and `fr` have the same 30 string keys; the gap is about 50 designer-only texts
-  ([ADR 0009](adr/0009-localization-with-resx-en-de-fr.md), corrected evidence).
+  neutral resx; further tests check the generated `Resources` class, the project items and the built satellite
+  assemblies. Since L-WP3 the three languages have the same 53 string keys (before: `en` and `fr` 30 each and
+  about 50 designer-only texts, [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md), corrected evidence).
 - German is proof-read by the user in the laptop test; French texts are marked "review open" in
   `docs/TRANSLATING.md` until a French speaker has read them.
-- The UI language follows Windows unless the setting chooses one (needs a restart).
+- The UI language follows Windows unless the setting `UiCulture` (Launcher page) chooses one; it is applied at
+  start, before the first window, for the UI culture only (formats stay those of Windows), so a change needs a
+  restart.
 - The mod creator keeps English and French (no new texts in v2).
-- Contributor guide for new languages: `docs/TRANSLATING.md` (to be written with the first new texts).
+- Contributor guide: [TRANSLATING.md](TRANSLATING.md) (languages, files, placeholder rules, adding a text or a
+  language, review state: French "review open").
 
 ## 10. Security and privacy
 
@@ -413,8 +422,9 @@ Decided in [ADR 0012](adr/0012-test-strategy.md):
   failing backup and with a higher contract version; mutation guard for every writing action; URL policy with
   every case of the setup's unit tests.
 - **Architecture tests**: core references no UI assembly; every project targets v4.8 with `LangVersion` 8.0
-  and `Deterministic`; resource parity (strings only); no certificate-validation override in the sources; no
-  removed placeholder control name in a designer file; the registry alias table.
+  and `Deterministic`; resource parity (strings only, also of the built satellites); every designer text set
+  again in `ApplyTexts()`; no certificate-validation override in the sources; no removed placeholder control
+  name in a designer file; the registry alias table.
 - **Only checkable criteria** ([ADR 0012](adr/0012-test-strategy.md) amendment): "does not block" is a test
   that the async method returns an unfinished task with a blocking fake; performance is counted (file opens,
   hashes), not timed; translation quality and layout are test-plan cases.
@@ -538,8 +548,8 @@ be built after every package from L-WP6 on.
 | L-WP8 | Maintenance tools | registry cleanup by the table of 4.6, WON login reset, VirtualStore, saves and scenarios, name checks, all behind the mutation guard |
 | L-WP9 | Network diagnostics, report, laptop package | adapters, DNS, `NeoEE.cfg`, `upnp_info.txt`, `CDKeyCheck`, outage hint, anonymized report, final docs, test plan completeness, Release zip with SHA-256 |
 
-Done so far: L-WP1 and L-WP2 (see the CHANGELOG). Implementation details of L-WP2 that refine ADR 0004, 0005, 0007
-and 0016 are recorded in their amendments.
+Done so far: L-WP1 to L-WP3 (see the CHANGELOG). Implementation details of L-WP2 that refine ADR 0004, 0005, 0007
+and 0016, and of L-WP3 that refine ADR 0009 and 0014, are recorded in their amendments.
 
 ## 16. Not in v2
 

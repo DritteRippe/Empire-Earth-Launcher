@@ -1,6 +1,7 @@
 # 0009 Localization with resx: English, German, French
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review, see the Amendment section)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review and implementation in L-WP3, see the Amendment
+sections)
 
 ## Context
 
@@ -70,3 +71,36 @@ Consequences for the decision (unchanged otherwise):
 - Quality of translations is not machine-checkable: German is proof-read by the user during the laptop test
   (a test-plan case per page); French translations of new texts are marked "review open" in
   `docs/TRANSLATING.md` until a French speaker has read them.
+
+## Amendment 2026-10-02 (implementation, L-WP3)
+
+Implemented as decided: `Properties/Resources.resx`, `Resources.de.resx` and `Resources.fr.resx` have the same 53
+string keys; MainForm, the three pages and the launcher's message dialog set their texts in `ApplyTexts()`,
+called right after `InitializeComponent`; `MainForm.fr.resx` is merged into `Resources.fr.resx` and removed; the
+launcher assembly has `NeutralResourcesLanguage("en")`. Refinements made while implementing, all keeping the
+decision:
+
+- **Form layout stays where it is.** MainForm remains a localizable form whose layout is in `MainForm.resx`; that
+  file keeps neutral placeholder texts. Only `Properties/Resources` has files per language, which an architecture
+  test (`ApplyTextsTests`) checks together with "every designer text with a letter is set again in
+  `ApplyTexts()`" and "hand-written code assigns no literal text".
+- **`Texts`** turns results into texts (player state, lobby profiles and friends, origin of the game folder), so
+  the pages no longer pick resources in `switch` statements.
+- **Language setting.** `UiCulture` in `settings.json` (optional member of schema 1, ADR 0005): empty for the
+  Windows language, or `en`, `de`, `fr`, compared ignoring case and white space (`UiLanguage` in the core). An
+  unknown value means the Windows language and is logged, the file is not rewritten. `Program` sets
+  `CurrentUICulture` of the UI thread and `CultureInfo.DefaultThreadCurrentUICulture` before the first window;
+  `CurrentCulture` stays, so numbers and dates keep the Windows format. The list on the Launcher page names the
+  languages in their own language ("English", "Deutsch", "Français", not resources); only "Windows language" is
+  translated. A change is saved at once and used from the next start on (a hint says so); switching the texts of
+  open windows was not worth the risk of half-translated windows.
+- **Parity test** (`ResourceParityTests`) also checks that `Resources.Designer.cs` has a property per text, that
+  the launcher project embeds each translation and that the built satellite assembly of each language holds
+  exactly the texts of its resx. The resource generator of xbuild keeps the CRLF line breaks of the resx files in
+  the texts while the test's XML parser turns them into LF, so the test compares line breaks as LF (and does not
+  depend on what a generator does).
+- **Resource fallback** checked with the built satellites under Mono: `de-AT` shows German, `fr-CA` French,
+  `es-ES` and `pt-BR` English.
+- **Quality**: German addresses the player with "Sie", like the setup. French: only the two navigation texts
+  "Jouer" and "Paramètres" come from the original French authors; all other French texts are marked "review
+  open" in [TRANSLATING.md](../TRANSLATING.md).

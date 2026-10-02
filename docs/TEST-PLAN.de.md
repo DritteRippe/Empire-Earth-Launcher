@@ -7,7 +7,7 @@ von Krypton und die Texte der Oberfläche ([ADR 0012](adr/0012-test-strategy.md)
 
 | | |
 |---|---|
-| Stand | Fälle von L-WP1 und L-WP2; jedes weitere Arbeitspaket ergänzt seinen Abschnitt in 5 im selben Commit |
+| Stand | Fälle von L-WP1 bis L-WP3; jedes weitere Arbeitspaket ergänzt seinen Abschnitt in 5 im selben Commit |
 | Sprache | Deutsch (die Programmtexte gibt es auf Englisch, Deutsch und Französisch) |
 | Gehört zu | [ARCHITECTURE.md](ARCHITECTURE.md), Abschnitt 11 und 15 |
 
@@ -109,7 +109,7 @@ Alle Dateien des Launchers liegen pro Benutzer unter `%LOCALAPPDATA%\Empire Eart
 | Was | Ort | seit |
 |---|---|---|
 | Protokoll | `log.txt`, ältere Einträge in `log.txt.old` (ab 1 MiB gekürzt) | heute |
-| Einstellungen (Spielordner, Theme) | `settings.json`; eine beschädigte Datei wird zu `settings.json.damaged`, beim Speichern entsteht kurz `settings.json.tmp` | L-WP2 |
+| Einstellungen (Spielordner, Theme, ab L-WP3 Sprache) | `settings.json`; eine beschädigte Datei wird zu `settings.json.damaged`, beim Speichern entsteht kurz `settings.json.tmp` | L-WP2 |
 | Sicherungen (`.reg`-Dateien, verschobene WON-Dateien) | `Backups\<yyyy-MM-dd_HHmmss>_<was>\` | ab L-WP5 |
 | Arbeitsordner des Mod-Creators | `Mod Creator\` | heute |
 
@@ -164,8 +164,10 @@ WP1-01 | OK |
 
 Die Einstellungen liegen jetzt in `settings.json` (Abschnitt 3). Die Fälle brauchen kein installiertes Spiel.
 Vor WP2-01 eine vorhandene `settings.json` (und `settings.json.damaged`) löschen. Zum Bearbeiten der Datei den
-Launcher immer erst schließen; Editor: Notepad. Die Oberfläche ist bis L-WP3 englisch, die Schaltflächen heißen
-hier so, wie sie heute angezeigt werden.
+Launcher immer erst schließen; Editor: Notepad. Die Fälle nennen die englischen Texte; ab L-WP3 zeigt der Launcher
+auf einem deutschen Windows deutsche Texte: „Auto-detect“ heißt dann „Automatisch“, „Chosen manually“ „Von Hand
+gewählt“, die Seite *Launcher* bleibt *Launcher*. Wer die Fälle wörtlich nachvollziehen will, stellt vorher die
+Sprache auf „English“ (WP3-10 und WP3-11).
 
 | Fall | Schritte | Erwartet |
 |---|---|---|
@@ -188,7 +190,35 @@ Registry mit 32- und 64-Bit-Ansicht (ab L-WP4).
 
 ### L-WP3 – Oberfläche aufräumen, Übersetzung Deutsch und Französisch
 
-Wird mit L-WP3 ergänzt.
+Ab L-WP3 zeigt der Launcher nur noch Bedienelemente, die etwas tun; die Attrappen der alten Oberfläche (Liste in
+[ADR 0014](adr/0014-only-working-features-in-the-ui.md)) sind entfernt. Alle Texte gibt es auf Englisch, Deutsch und
+Französisch; der Launcher folgt der Anzeigesprache von Windows (jede andere Sprache zeigt Englisch), außer auf der
+Seite *Launcher* ist eine Sprache gewählt. Die Fälle brauchen kein installiertes Spiel.
+
+Erwartete Lücken bis zu späteren Paketen: Auf der Seite *Spielen* ist die Gruppe „Spiel“ unter der Spielauswahl leer
+und die Schaltfläche „Spielen“ startet noch nichts (L-WP4 bis L-WP6); die Seite *Einstellungen* ist nach dem
+Bestätigen des Hinweises leer (die Optionen kommen mit L-WP5). Das ist kein Fehler dieses Pakets. Screenshots bitte
+pro Seite und Sprache, Dateiname z. B. `WP3-de-Spielen.png`.
+
+| Fall | Schritte | Erwartet |
+|---|---|---|
+| WP3-01 | Windows mit deutscher Anzeigesprache; in `settings.json` kein `UiCulture` oder `"UiCulture": ""`. Launcher starten. | Texte deutsch. Navigation: „Spielen“, „Einstellungen“, „Launcher“ untereinander ohne Lücke; keine Schaltfläche „Mods“. Titel „Empire Earth Launcher“. `log.txt`: `UI language: de-DE (Windows)` (bzw. die Windows-Sprache, z. B. `de-AT`). |
+| WP3-02 | Seite *Spielen* ansehen, Screenshot. | Gruppe „Spiel“ mit „Empire Earth“ und „The Art of Conquest“; goldene Schaltfläche „Spielen“; rechts „Spieler online (...)“, danach „Spieler online (nicht verfügbar)“ oder „Spieler online (Anzahl)“; unten „Profil:“ mit Liste bzw. „Keine Empire-Earth-Installation gefunden“. **Nicht** mehr da: Gruppe „Language Settings“ (Language, Fallback, Game Text, Lobby, Voices), „No mods in use“, „Online Ranking“. |
+| WP3-03 | Alle deutschen Texte der Seite *Spielen* lesen (gegenlesen). | Verständlich, richtig geschrieben, nichts abgeschnitten oder überlappend. Jede Abweichung mit Screenshot und Verbesserungsvorschlag notieren. |
+| WP3-04 | Seite *Einstellungen* öffnen, Screenshot. | Nur der Kompatibilitätshinweis: Buch-Bild, drei Absätze deutscher Text, vollständig sichtbar, darunter „Bestätigen“. **Nicht** mehr da: „Magic Button“ (Repair CD-Keys, Reset the Game, Clear Registry), „Compatibility“, „Windows“, „DirectX“, „Advanced Settings“. |
+| WP3-05 | „Bestätigen“ klicken; Text des Dialogs lesen; „OK“. | Dialog „Kompatibilitätsoptionen“ mit deutschem Text (zwei Sätze) und „OK“. Danach ist die Seite leer (siehe oben). Texte gegenlesen wie in WP3-03. |
+| WP3-06 | Seite *Launcher* öffnen, Screenshot; Texte gegenlesen. | Überschrift „Launcher-Einstellungen“; „Design“ mit Liste (erster Eintrag „Eigene Datei...“); „Sprache“ mit „Windows-Sprache“ ausgewählt; „Empire-Earth-Ordner:“ mit „...“ und „Automatisch“, darunter die Herkunft (z. B. „Nicht gefunden, bitte den Ordner von Empire Earth.exe wählen“). **Nicht** mehr da: „Allow us to collect diagnostic data …“, „When starting the game“, „When closing the game“, „Associate Empire Earth Mod files …“. |
+| WP3-07 | Liste „Sprache“ aufklappen. | Vier Einträge: „Windows-Sprache“, „English“, „Deutsch“, „Français“ (die Sprachen immer in ihrer eigenen Sprache). |
+| WP3-08 | In der Liste „Design“ „Eigene Datei...“ wählen, Dateityp-Liste im Dialog ansehen, abbrechen. | Dateidialog mit „Design-Datei (*.xml)“ und „Alle Dateien (*.*)“; nach Abbrechen ist wieder das vorherige Design ausgewählt. |
+| WP3-09 | „...“ neben dem Ordner klicken; einen Ordner **ohne** `Empire Earth.exe` wählen; Frage lesen, „Nein“. | Ordnerdialog mit „Wählen Sie den Empire-Earth-Ordner (den Ordner von Empire Earth.exe).“; dann „Dieser Ordner enthält kein Empire Earth.exe:“, der Ordner, „Trotzdem verwenden?“ mit Ja/Nein. Nach „Nein“ bleibt alles wie vorher. |
+| WP3-10 | Sprache „English“ wählen. | Unter der Liste erscheint „Die neue Sprache gilt ab dem nächsten Start des Launchers.“; die Texte bleiben bis zum Neustart deutsch. Nach dem Schließen enthält `settings.json` `"UiCulture": "en"`. Wieder „Windows-Sprache“ gewählt: der Hinweis verschwindet. |
+| WP3-11 | „English“ wählen, Launcher neu starten, alle drei Seiten ansehen (Screenshots), auf *Einstellungen* „Confirm“ klicken. | Alles englisch: „Play“, „Settings“, „Launcher“; „Game“, „Online Players (...)“, „Profile:“; Hinweis und „Confirm“, Dialog „Compatibility options“ mit „OK“; „Launcher Settings“, „Theme“, „Language“ („English“ ausgewählt), „Empire Earth folder:“, „Auto-detect“. `log.txt`: `UI language: en (launcher setting)`. |
+| WP3-12 | „Français“ wählen, neu starten, alle drei Seiten ansehen (Screenshots). | Alles französisch: „Jouer“, „Paramètres“, „Launcher“; „Jeu“, „Joueurs en ligne (...)“, „Profil :“; „Confirmer“; „Paramètres du launcher“, „Thème“, „Langue“, „Dossier d'Empire Earth :“, „Détecter“. Französisch nicht gegenlesen (Review offen, `docs/TRANSLATING.md`); nur abgeschnittene oder überlappende Texte notieren. |
+| WP3-13 | „Windows-Sprache“ wählen, neu starten. | Wieder deutsch wie in WP3-01; `settings.json`: `"UiCulture": ""`. |
+| WP3-14 | Launcher schließen, in `settings.json` `"UiCulture": "es"` eintragen, Launcher starten, Seite *Launcher* ansehen. | Startet normal in der Windows-Sprache; „Sprache“ zeigt „Windows-Sprache“. `log.txt`: Warnung `The UI language "es" of the launcher settings is unknown, the Windows language is used.` Danach den Eintrag wieder auf `""` setzen. |
+| WP3-15 | Im entpackten Ordner `Empire-Earth-Launcher\` nachsehen. Dann den Ordner `de` testweise in `de-weg` umbenennen, Launcher starten, danach zurück umbenennen. | Neben `Empire Earth Launcher.exe` liegen `de\` und `fr\` mit je `Empire Earth Launcher.resources.dll`. Ohne `de\` startet der Launcher normal und zeigt auf deutschem Windows Englisch. |
+| WP3-16 | Skalierung 125 % oder 150 % (wie WP1-08), deutsche Oberfläche, Screenshot jeder Seite. Danach Skalierung zurückstellen. | Keine abgeschnittenen deutschen Texte, besonders „Empire-Earth-Ordner:“, „Automatisch“, „Profil:“, „Bestätigen“ und der Kompatibilitätshinweis. |
+| WP3-17 | Nach allen Fällen `log.txt` durchsehen. | Keine `Unhandled exception`, keine `A background task failed`; Warnungen nur die aus WP3-14. |
 
 ### L-WP4 – Installationserkennung (Vertrag 1)
 

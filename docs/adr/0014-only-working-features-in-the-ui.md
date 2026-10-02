@@ -1,6 +1,7 @@
 # 0014 Only working features in the UI
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review, see the Amendment section)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review and implementation in L-WP3, see the Amendment
+sections)
 
 ## Context
 
@@ -75,3 +76,25 @@ Not in v2, with reasons (README "planned"):
   recommended display settings" (contract 3.6) and the warning below 768 pixels. A chooser is a later feature.
 - **GPU driver version in the log** (row 4): needs WMI or HKLM class-key reading for little support value; the
   diagnostics report names the primary display adapter (`EnumDisplayDevices`).
+
+## Amendment 2026-10-02 (implementation, L-WP3)
+
+The 51 controls of the list above (6 on the Launcher page, 31 on the Settings page, 13 on the Play page, the Mods
+button) were removed in the first commit of L-WP3 with their fields, designer statements, `Controls.Add` calls and
+resx entries; none of them had an event handler. A check of the designer diff (script in the scratch folder of
+the v2 work) confirmed that the removal and the following localization commits change nothing in the designer
+files but the listed controls and text assignments, so no remaining control moved. `PlaceholderControlsTests`
+reads the list above from this file and checks that no name of it appears in a designer file, the code or the
+resx files of the launcher, or as a field of the assembly, and that the compatibility warning is still there.
+
+Details:
+
+- **Navigation**: the Launcher button moved up to the position of the removed Mods button (its location is in
+  `MainForm.resx`), so the navigation has no gap. This is the only layout change.
+- **New controls get new names**: the language setting of ADR 0009 uses `uiLanguageKryptonLabel`,
+  `uiLanguageKryptonComboBox` and `uiLanguageHintKryptonLabel`, placed where the removed "When starting the game"
+  row was.
+- **Still without function until their work packages**, because they are not placeholders of a feature outside
+  v2: the Play button and the game choice of the Play page (L-WP6) and the compatibility warning of the Settings
+  page, whose options come with L-WP5 (after confirming it the page is empty). The test plan names these gaps.
+- The README lists the removed features as planned ("not in v2") with the reasons above.
