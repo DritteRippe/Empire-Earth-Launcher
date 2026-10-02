@@ -101,6 +101,15 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
 
 ### Changed
 
+- `docs/CONTRACT.md`, revision 2 (identical to the copy in the setup repository; contract version still 1, draft):
+  tables of the window size limits (3.3) and of the GPU preference values (3.4); the setup's opt-in task
+  `compatibility_legacy` with the flags on Windows 7, without a Windows version layer, and the marker `(opt-in)` in
+  the table of 3.7 (the launcher MAY offer these flags on Windows 7 now, and must not call such a value a leftover
+  of an earlier setup when `Tasks` contains `compatibility_legacy`); while `EE_Setup` or `NeoEE_Setup` exists the
+  launcher must neither read `install.ini` and `files.sha256` nor run an integrity check, and it opens these files
+  with at least `FileShare.Read | FileShare.Delete` (4.2, as planned in ADR 0016); a manifest the setup could not
+  replace means Unknown, through the missing `Empire Earth Community: ContractVersion` (1.3, 2.1, 2.5). The launcher
+  code does not change with this revision; its packages implement the new rules.
 - The launcher wraps the Windows registry in the write policy of ADR 0007 (`PolicyCheckedRegistry`); the discovery only
   reads. It starts once the main window is shown, through `UiOperation`; until it has finished the pages show
   "Searching for Empire Earth installations...".

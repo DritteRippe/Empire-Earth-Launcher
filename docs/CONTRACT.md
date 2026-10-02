@@ -10,7 +10,7 @@ repositories at once (same text, same commit subject), see [5. Versioning](#5-ve
 |---|---|
 | Contract version | **1** |
 | Status | **Draft**: specified for setup v2 and launcher v2, not implemented by a release yet |
-| Based on | setup `setup_is6.iss`, `config_ee.iss`, `config_neoee.iss`, `utils.iss` (branch `v2` at fb375aa) and the setup's decision records 0004, 0005, 0007 and 0008 (`docs/adr`, branch `v2` at 1f86fb3), launcher `GameDirectoryLocator.cs` (branch `v2` at 79464d4), the official setups 1.7.2 |
+| Based on | setup `setup_is6.iss`, `config_ee.iss`, `config_neoee.iss`, `utils.iss` (branch `v2` at 2ce68ee, plus the task `compatibility_legacy` that revision 2 adds) and the setup's decision records 0004, 0005, 0007, 0008 and 0010 (`docs/adr`, branch `v2` at 2ce68ee), launcher `GameDirectoryLocator.cs` (branch `v2` at 79464d4) and the launcher's decision record 0016 (branch `v2` at ec02afa), the official setups 1.7.2 |
 
 The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. "Setup" means the EE and the
 NeoEE setup of every build variant, including their uninstallers; "launcher" means the Empire Earth
@@ -172,9 +172,10 @@ Written by Inno Setup itself in the Regular variants, by every community setup v
 
 Inno Setup deletes this key and writes it again on every run of a setup. Setups since v2 therefore
 write `Empire Earth Community: ContractVersion` at the end of `ssPostInstall`, after the manifest
-([2.1](#21-location-and-lifetime)); the value is missing if a setup up to 1.7.2 ran over the
-installation afterwards ([2.5](#25-verification-by-the-launcher)). Portable setups have no uninstall
-key, so there such a later run cannot be detected.
+([2.1](#21-location-and-lifetime)), and only if that run replaced `install.ini` and the manifest; the
+value is missing if a setup up to 1.7.2 ran over the installation afterwards, or if the last run could
+not replace the two files ([2.5](#25-verification-by-the-launcher)). Portable setups have no uninstall
+key, so there neither case can be detected.
 
 Other readers of this key: the setup itself (previous installation, certificate) and Empire Earth
 Diagnostic (its shortcut passes `{<AppId>}_is1`). The launcher MUST NOT write it.
@@ -259,11 +260,15 @@ The launcher detects that by the rule in [2.5](#25-verification-by-the-launcher)
 `<root>\_setupdata_<Product>\files.sha256`, written by setups since v2 in every install mode.
 
 - **Deleted** at the start of the installation step (`ssInstall`), so that an aborted run leaves no
-  manifest that looks valid.
+  manifest that looks valid. If the deletion fails (a program holds the file open without
+  `FILE_SHARE_DELETE`, see [4.2](#42-running-setup)), the setup logs it.
 - **Written** at the end of `ssPostInstall`, after every other step (random maps, NeoEE CD keys),
-  together with `install.ini`: first as `files.sha256.tmp`, then renamed. After it the Regular variants
-  write `Empire Earth Community: ContractVersion` into the uninstall key
-  ([1.3](#13-uninstall-key-informative)).
+  together with `install.ini`: first as `files.sha256.tmp`, then renamed (the rename does not
+  overwrite, so the old file must be gone). After it the Regular variants write
+  `Empire Earth Community: ContractVersion` into the uninstall key
+  ([1.3](#13-uninstall-key-informative)), **only if** this run deleted the old `install.ini` and
+  manifest and wrote and renamed both new ones; otherwise the value is missing and the launcher reports
+  Unknown ([2.5](#25-verification-by-the-launcher)).
 - **Complete on every run**: first installation, update, repair, change of components and download of
   localized files all write a new manifest of everything that run processed ([2.3](#23-which-files)).
   Running the setup again is the only way to refresh it.
@@ -331,7 +336,7 @@ By the extension of the last name of the path, compared case-insensitively:
 ### 2.5 Verification by the launcher
 
 - **Quick check**, SHOULD run at every start in the background: existence of every listed file and the
-  hash of every `code` file.
+  hash of every `code` file. Neither check runs while a setup runs ([4.2](#42-running-setup)).
 - **Full check**, on request of the user: the hashes of every `code` and `data` file.
 
 | Finding | Class | State |
@@ -356,12 +361,19 @@ By the extension of the last name of the path, compared case-insensitively:
   installation of another account, a later installation of the same product in another folder), this
   rule does not apply. Portable installations have no uninstall key: there such a later run is not
   detectable.
+- **Manifest not replaced** (install modes `admin` and `user`): if the last run of a setup since v2
+  could not delete `install.ini` or `files.sha256` at `ssInstall` or could not rename the new ones (a
+  program held them open without `FILE_SHARE_DELETE`, [4.2](#42-running-setup)), the files may still be
+  those of an earlier run. That run writes no `Empire Earth Community: ContractVersion`
+  ([2.1](#21-location-and-lifetime)), so the rule above gives Unknown as well. Portable installations:
+  not detectable, the setup only logs it.
 - **Damaged** or **Incomplete**: a localized message (English, German, French) that names the files, says
   that antivirus programs often delete or quarantine game files (t=11045 p=48037, t=41147 p=80317),
   suggests an exception for the install root, and offers the repair ([4](#4-repair-hand-off)).
 - **Modified**: only listed in the diagnostics.
 - **Unknown**: kind `community` whose uninstall key lacks the value (see above): "an older setup ran
-  after the current one, run the current setup"; other kind `community` (the last setup run did not
+  after the current one, or the last setup could not replace its records; run the current setup";
+  other kind `community` (the last setup run did not
   finish, or the setup could not write the manifest): the repair advice; kind `community-legacy`:
   "installed by an older setup, run the current setup to enable the check"; kind `foreign`: no check
   and no message.
@@ -482,17 +494,31 @@ Who writes what, and when:
     removes in `[InstallDelete]` before it installs a wrapper; the game itself ships none of them).
 - **`Game Window Width`**: the width of the primary screen in physical pixels, limited to 1024 to 1920.
   **`Game Window Height`**: its height, limited to 768 to 1080. Each dimension is limited on its own
-  (setup: `GetSystemMetrics(SM_CXSCREEN/SM_CYSCREEN)`, `MinGameWindowWidth` ... `MaxGameWindowHeight`).
-  The launcher MUST measure physical pixels (DPI-aware process or `EnumDisplaySettings`), **O4**. A
-  screen lower than 768 pixels gets a warning in the setup and in the launcher (t=3863).
+  (setup: `GetSystemMetrics(SM_CXSCREEN/SM_CYSCREEN)`, `MinGameWindowWidth` ... `MaxGameWindowHeight`),
+  with the limits of the table below. The launcher MUST measure physical pixels (DPI-aware process or
+  `EnumDisplaySettings`), **O4**. A screen lower than 768 pixels gets a warning in the setup and in the
+  launcher (t=3863).
+
+| Value | Screen size | Minimum | Maximum |
+|---|---|---|---|
+| `Game Window Width` | width of the primary screen (`SM_CXSCREEN`) | `1024` | `1920` |
+| `Game Window Height` | height of the primary screen (`SM_CYSCREEN`) | `768` | `1080` |
+
+A screen size below the minimum gives the minimum, one above the maximum the maximum, e.g. 1366 x 768
+stays 1366 x 768, 2560 x 1440 gives 1920 x 1080 and 800 x 600 gives 1024 x 768.
 
 ### 3.4 GPU preference
 
 Windows 10 and later, only if the task `compatibility_windows` was selected (`Tasks` of `install.ini` or
-of the uninstall key): `HKCU\Software\Microsoft\DirectX\UserGpuPreferences`, value name = full path of
-the program (`<root>\Empire Earth\Empire Earth.exe`, and `<root>\Empire Earth - The Art of
-Conquest\EE-AOC.exe` if AoC is installed), REG_SZ `GpuPreference=2;` (high-performance graphics card).
-The uninstaller removes it for the account that uninstalls (`uninsdeletevalue`).
+of the uninstall key): `HKCU\Software\Microsoft\DirectX\UserGpuPreferences`, one REG_SZ value per
+program of the table below, whose game is installed (component), value name = full path of the
+program, data `GpuPreference=2;` (high-performance graphics card). The uninstaller removes it for the
+account that uninstalls (`uninsdeletevalue`).
+
+| Value name | Component | Data | Windows versions | Task |
+|---|---|---|---|---|
+| `<root>\Empire Earth\Empire Earth.exe` | `game` | `GpuPreference=2;` | 10 and later | `compatibility_windows` |
+| `<root>\Empire Earth - The Art of Conquest\EE-AOC.exe` | `gameaoc` | `GpuPreference=2;` | 10 and later | `compatibility_windows` |
 
 ### 3.5 Defaults marker
 
@@ -545,41 +571,57 @@ no row applies, the setup writes no value.
 
 | Task | Values | Windows versions | Root (admin/user/portable) |
 |---|---|---|---|
-| `everyoneadminstart` | `RUNASADMIN` | all | HKLM / - / - |
+| `everyoneadminstart` | `RUNASADMIN` | all (opt-in) | HKLM / - / - |
 | `compatibility` | `DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation` | 8 and later | HKLM / HKCU / HKCU |
+| `compatibility_legacy` | `DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation` | 7 only (opt-in) | HKLM / HKCU / HKCU |
 | `compatibility_windows` | `WIN7RTM` | 8 and later | HKLM / HKCU / HKCU |
 
 - **Windows versions**: `all` = every Windows the setup runs on (Windows 7 SP1 and later); `8 and later`
-  = Windows 8 (NT 6.2) and later, below it the setup neither shows nor selects the task (`MinVersion`).
+  = Windows 8 (NT 6.2) and later, below it the setup neither shows nor selects the task (`MinVersion`);
+  `7 only` = below Windows 8, i.e. Windows 7 SP1, from Windows 8 on the setup neither shows nor selects
+  the task (`OnlyBelowVersion`). `(opt-in)`: the task is not selected by default (`Flags: unchecked`).
   **Root**: the root in the install modes `admin` / `user` / `portable`; `-` = the task does not exist
   in that mode.
-- `everyoneadminstart` is opt-in (unchecked); `compatibility` and `compatibility_windows` are selected by
-  default (their page is only shown with the custom settings). Under Wine the setup offers none of the
-  three tasks.
+- `everyoneadminstart` and `compatibility_legacy` are opt-in; `compatibility` and `compatibility_windows`
+  are selected by default (their page is only shown with the custom settings). Under Wine the setup
+  offers none of the four tasks.
+- `compatibility` and `compatibility_legacy` add the same values and never apply together, because no
+  Windows version has both tasks. `compatibility_legacy` never adds a Windows version layer (no
+  `WINXPSP3`, setup ADR 0010).
 - Outside `admin` mode `compatibility_windows` applies only together with `compatibility`.
 - Examples: Windows 10, `admin`, default tasks:
   `~ DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation WIN7RTM`; Windows 7, `admin`, with
-  `everyoneadminstart`: `~ RUNASADMIN`; Windows 7, `user`: no value.
-- **Windows Vista and 7: no compatibility values** except the opt-in `~ RUNASADMIN` (**O7**). Earlier
-  setups wrote values there (official 1.7.2: `EE-AOC.exe`
-  `~ DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation WINXPSP3`, `Empire Earth.exe` none). On
-  Windows Vista and 7 every run of the setup removes, in the root of its install mode and for both
-  programs, a value that is exactly one of `~ WINXPSP3`, `~ RUNASADMIN WINXPSP3`,
-  `~ DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation`,
+  `everyoneadminstart`: `~ RUNASADMIN`; Windows 7, `admin`, with `everyoneadminstart` and
+  `compatibility_legacy`: `~ RUNASADMIN DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation`;
+  Windows 7, `user`, with `compatibility_legacy`: `~ DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation`;
+  Windows 7, `user`, default tasks: no value.
+- **Windows Vista and 7: no compatibility values by default** (**O7**); only the opt-in rows
+  `everyoneadminstart` and `compatibility_legacy` write one. Earlier setups wrote values there (official
+  1.7.2: `EE-AOC.exe` `~ DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation WINXPSP3`,
+  `Empire Earth.exe` none). On Windows Vista and 7 every run of the setup removes, in the root of its
+  install mode and for both programs, a value that is exactly one of `~ WINXPSP3`,
+  `~ RUNASADMIN WINXPSP3`, `~ DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation`,
   `~ DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation WINXPSP3`,
   `~ RUNASADMIN DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation` and
   `~ RUNASADMIN DWM8And16BitMitigation HIGHDPIAWARE HeapClearAllocation WINXPSP3` (setup:
-  `IsLegacyVistaCompatValue`). Every other value stays, e.g. one the player set.
+  `IsLegacyVistaCompatValue`), **except** for a program whose value this run writes with
+  `compatibility_legacy` (the task and the component of the program selected; setup:
+  `ShouldRemoveLegacyVistaCompatValue`): that value is the run's own and stays. Every other value stays,
+  e.g. one the player set.
 
 The launcher:
 
-- MAY offer the values of the rows `compatibility` and `compatibility_windows` as options, and SHOULD
-  offer them only on the Windows versions of the table; it writes them into HKCU only, keeps every other
-  entry of the value, and shows the HKLM value read-only;
+- MAY offer the values of the rows `compatibility`, `compatibility_legacy` and `compatibility_windows`
+  as options, and SHOULD offer them only on the Windows versions of the table; it writes them into HKCU
+  only, keeps every other entry of the value, and shows the HKLM value read-only;
 - MUST NOT offer `RUNASADMIN`: running the game elevated is opt-in through the setup only, the online
   lobby should not run elevated;
 - MAY remove the HKCU value if it is exactly `~ RUNASADMIN` (the default of setups up to 1.7.2), like
   the setup's `RemoveLegacyRunAsAdmin`;
+- MUST NOT describe one of the six old values above as a leftover of an earlier setup if `Tasks` of the
+  installation (`install.ini`, else the uninstall key) contains `compatibility_legacy`: then it is the
+  value of the setup's opt-in task, which a run of the current setup keeps (the setup preselects the
+  tasks of the previous run);
 - MUST start the games with shell execute semantics (`UseShellExecute = true`) and the game folder as
   working folder, so that every layer applies, including an elevation the user chose (a plain
   `CreateProcess` fails with error 740 then).
@@ -615,11 +657,26 @@ the manifest and `Empire Earth Community: ContractVersion` in the uninstall key.
 ### 4.2 Running setup
 
 While a setup runs it holds its setup mutex (`EE_Setup` or `NeoEE_Setup`, the names of `SetupMutex`,
-without `Global\`). While one of them exists the launcher MUST NOT start a game and SHOULD show that a
-setup is running;
-when it is gone, the launcher runs the discovery ([1.4](#14-discovery-by-the-launcher)) and the quick
-check ([2.5](#25-verification-by-the-launcher)) again. The other way round, the setup does not install
-while a game mutex ([Folders, programs and mutexes](#folders-programs-and-mutexes)) exists.
+without `Global\`), from its first window on. While one of them exists the launcher:
+
+- MUST NOT start a game and SHOULD show that a setup is running;
+- MUST NOT read `install.ini` or `files.sha256` of any installation and MUST NOT run the quick or the
+  full check ([2.5](#25-verification-by-the-launcher)); a check that is running when a setup mutex
+  appears is cancelled without findings. The discovery ([1.4](#14-discovery-by-the-launcher)) reads
+  `install.ini` only after the mutex is gone.
+
+When it is gone, the launcher runs the discovery and the quick check again.
+
+The launcher opens `install.ini`, `files.sha256` and every file it hashes with sharing that includes
+at least `FILE_SHARE_READ | FILE_SHARE_DELETE` (.NET: `FileShare.Read | FileShare.Delete`), so that a
+setup that starts while a file is open can still delete and rename it. A file that is open cannot be
+created again under the same name until the launcher closes it, which is why the launcher does not read
+these files at all while a setup runs. A setup that could not replace `install.ini` or the manifest
+leaves the installation in the state Unknown ([2.5](#25-verification-by-the-launcher)); for portable
+installations that is not detectable.
+
+The other way round, the setup does not install while a game mutex
+([Folders, programs and mutexes](#folders-programs-and-mutexes)) exists.
 
 ### 4.3 Where the user gets the setup
 
@@ -684,6 +741,7 @@ An available update uses the hand-off of [4.3](#43-where-the-user-gets-the-setup
 |---|---|---|---|---|
 | 1 (draft) | 2026-10-02 | first version | v2 (planned) | v2 (planned) |
 | 1 (draft) | 2026-10-02 | revision 2026-10-02 (review of the setup v2 plan): optional `SetupBuild` (1.1, 1.2); the setup writes ASCII, the manifest with LF, `install.ini` with CRLF, and no manifest if a path is not ASCII (1.2, 2.2, O3); `Empire Earth Community: ContractVersion` in the uninstall key, Unknown if it is missing after a later run of an older setup (1.3, 1.5, 2.1, 2.5); the manifest lists every processed file (2.3); no defaults marker from portable setups (3.5); table of the compatibility values, none on Windows Vista/7 (3.7, O7); O4, O11 and O12 answered | v2 (planned) | v2 (planned) |
+| 1 (draft) | 2026-10-02 | revision 2 (second review of the setup v2 plan): tables of the window size limits (3.3) and of the GPU preference values (3.4), checked against the script like 3.2 and 3.7; opt-in row `compatibility_legacy` (Windows 7 only, the flags without a Windows version layer) and its exception from the cleanup of the old values, `(opt-in)` in the table, such a value is no leftover for the launcher (3.7, O4, O7, setup ADR 0010); while a setup runs the launcher reads neither `install.ini` nor `files.sha256` and runs no check, and opens them with `FILE_SHARE_READ` and `FILE_SHARE_DELETE` (4.2, 2.5); `Empire Earth Community: ContractVersion` only if the run replaced `install.ini` and the manifest, Unknown otherwise, not detectable for portable installations (1.3, 2.1, 2.5) | v2 (planned) | v2 (planned) |
 
 ## 6. Open questions
 
@@ -705,15 +763,16 @@ An available update uses the hand-off of [4.3](#43-where-the-user-gets-the-setup
   [3.7](#37-compatibility-flags)); without it, it is DPI-virtualized at 150 % and sees logical pixels.
   The setup's test plan therefore runs the case at 150 % twice, with and without the task
   `compatibility`. If the window only fits with `HIGHDPIAWARE`, [3.3](#33-computed-values) says so (on
-  Windows Vista and 7 the setup no longer writes it).
+  Windows 7 the setup writes it only with the opt-in task `compatibility_legacy`).
 - **O5 Portable**: portable setups write no registry record; the launcher finds them through the user
   choice, its own folder or the HKCU "Installed From" values. Should they write an HKCU record anyway?
   Proposal: no.
 - **O6 Mutable files**: does the game rewrite installed files other than `cfg ini conf config log` (e.g.
   in `Data\WONLobby Resources`)? Test on Windows: play, then run the full check and list the
   differences.
-- **O7 Defaults under review** (decided, setup ADR 0005): no compatibility values on Windows Vista and 7
-  except the opt-in `~ RUNASADMIN`, unchanged values on Windows 8 and later, see the table in
+- **O7 Defaults under review** (decided, setup ADR 0005, amended by ADR 0010): no compatibility values
+  on Windows Vista and 7 by default, only the opt-in `~ RUNASADMIN` and the opt-in flags of
+  `compatibility_legacy` (without `WINXPSP3`), unchanged values on Windows 8 and later, see the table in
   [3.7](#37-compatibility-flags). Official 1.7.2 wrote no value for `Empire Earth.exe` on Windows 7,
   and the forum evidence is weak (t=4280 p=30477, p=30479, p=30480, p=30485; t=1827 p=12147). The
   DirectX wrapper preselection stays, so the `Rasterizer Name` rule of [3.3](#33-computed-values) does
@@ -748,16 +807,17 @@ Setup v2:
 - defaults marker ([3.5](#35-defaults-marker)) in HKCU with the components `game` and `gameaoc`, Regular
   variants only;
 - `Empire Earth Community: ContractVersion` in the uninstall key after the manifest
-  ([1.3](#13-uninstall-key-informative)), Regular variants only;
+  ([1.3](#13-uninstall-key-informative)), Regular variants only, and only if the run replaced
+  `install.ini` and the manifest ([2.1](#21-location-and-lifetime));
 - recording of the processed files (`AfterInstall`), deleting `install.ini` and `files.sha256` at
   `ssInstall`, writing both as ASCII at the end of `ssPostInstall` (temporary file, then rename), with
   `[MissingAfterInstall]` and the localized antivirus hint;
-- compatibility values as in the table of [3.7](#37-compatibility-flags), including the removal of the
-  old values on Windows Vista and 7;
+- compatibility values as in the table of [3.7](#37-compatibility-flags), including the opt-in row
+  `compatibility_legacy` and the removal of the old values on Windows Vista and 7 with its exception;
 - unit tests (`ci/tests/unit_tests.iss`) for the manifest line, the path conversion, the INI values, the
-  ASCII check and the old compatibility values;
-- `GameSettings`, `BuildCompatibilityFlags`, the compatibility entries, `CodeFileExtensions` and this
-  document changed together.
+  ASCII check, the old compatibility values and the exception of their removal;
+- `GameSettings`, the window size limits, the GPU preference entries, `BuildCompatibilityFlags`, the
+  compatibility entries, `CodeFileExtensions` and this document changed together.
 
 Launcher v2, in the UI-free core library with unit tests (fake registry and file system, no network):
 
@@ -767,4 +827,6 @@ Launcher v2, in the UI-free core library with unit tests (fake registry and file
   root, classes, states, the uninstall key rule of [2.5](#25-verification-by-the-launcher);
 - defaults, marker, consistency checks and reset with backup ([3](#3-per-user-default-game-settings));
 - repair hand-off and update check ([4](#4-repair-hand-off)) with the URL cases of the setup's unit tests;
-- setup and game mutexes, starting the games with shell execute.
+- setup and game mutexes ([4.2](#42-running-setup)): no game start, no reading of `install.ini` and
+  `files.sha256` and no integrity check while a setup mutex exists, a running check cancelled, the
+  share modes; starting the games with shell execute.
