@@ -133,26 +133,44 @@ Changing the English text of an existing key means checking the German and Frenc
   shows in the same language: the Task Manager of Windows (`StartHangingHintFormat`), the install mode options of
   Inno Setup (`RepairStepKeepFolderAllUsersFormat`, `RepairStepKeepFolderCurrentUserFormat`) and the CD-key task of
   the setup (`RepairStepCdKeys`); keep them equal to those programs. `IntegrityCheckInfo` quotes `FullCheckButton`;
-  keep both equal. `log.txt` names the language in use (`UI language: de (launcher setting)`).
-  The German test plan has these cases (sections L-WP3 to L-WP8, WP4-17, WP5-17, WP6-14, WP7-14 and WP8-15).
+  keep both equal. Since L-WP9 the *Tools* page ends with two more sections. "Network" has an explanation, the button
+  "Check network" (at most about 26 characters), a result line (one of the verdicts `NetworkVerdict*`), the hints
+  (`NetworkHint*`) and a read-only text box with one detail line per adapter, name lookup, server and file
+  (`NetworkAdapterFormat`, `NetworkDns*`, `NetworkApi*`, `NetworkStatus*`, `NetworkNeoEeCfgFormat`,
+  `NetworkWonLobbyFormat`, `NetworkUpnp*`, `NetworkPortsFormat`); the short texts `NetworkKind*`, `NetworkClass*`,
+  `NetworkIPv6*`, `NetworkOn`, `NetworkOff`, `NetworkNone` and `NetworkInvalid` are inserted into those lines, so keep
+  them short and without a full stop. "Diagnostics report" has an explanation, "Copy report" and "Save report..." in
+  one row (at most about 26 characters each), a result line and a text box with the report. The report itself is
+  English on purpose, like `log.txt` (it is read in the forum), and is not a resource. `ReportSaveDialogTitle` and
+  `ReportFileFilter` are the title and the file type line of the save dialog (keep `|*.txt`); `ReportFileNameFormat`
+  is the proposed file name, so it must not contain `\ / : * ? " < > |`. On the *Play* page the link
+  `PlayerListCheckNetworkLink` (at most about 30 characters) appears below a player list that is "not available"; to
+  see it, follow WP9-05 of the test plan. Keep untranslated: `NeoEE.cfg`, `WONLobby.cfg`, `upnp_info.txt`,
+  `Empire Earth Launcher.exe.config`, `Active: false`, `CDKeyCheck`, `true`, TCP, UDP, IPv4, IPv6, HTTP, DNS, NAT,
+  CGNAT, DS-Lite, Hamachi and the address ranges (`100.64.0.0/10`, `0.0.0.0`). The verdict `NetworkVerdictOutage`
+  ("Probably a server outage, not your computer") must say clearly that the player's computer is not the cause.
+  `log.txt` names the language in use (`UI language: de (launcher setting)`).
+  The German test plan has these cases (sections L-WP3 to L-WP9, WP4-17, WP5-17, WP6-14, WP7-14, WP8-15 and WP9-14).
 
 ## Status
 
-293 texts (state of L-WP8: 80 texts of the maintenance tools on the *Tools* page were added; L-WP7 added 59 for the
+369 texts (state of L-WP9, the last work package of v2: 76 texts of the network check and the diagnostics report on the
+*Tools* page and the link of the *Play* page were added; L-WP8 added 80 for the maintenance tools, L-WP7 59 for the
 integrity check, the *Tools* page, the version check and the download of the update API, L-WP6 29 for Play, the repair
 advice, a running setup and a second launcher, L-WP5 51 for the game settings, L-WP4 21 for the list of installations).
 
 | Language | Translated | Review |
 |---|---|---|
-| English | 293 | source |
-| German `de` | 293 | proof-reading by a native speaker in the laptop test ([TEST-PLAN.de.md](TEST-PLAN.de.md), cases WP3-*, WP4-17, WP5-17, WP6-14, WP7-14 and WP8-15); open until that test |
-| French `fr` | 293 | **open**: only `NavigationPlay` ("Jouer") and `NavigationSettings` ("Paramètres") come from the original French authors; all other French texts were written during the review fixes and v2 without a native speaker |
+| English | 369 | source |
+| German `de` | 369 | proof-reading by a native speaker in the laptop test ([TEST-PLAN.de.md](TEST-PLAN.de.md), cases WP3-*, WP4-17, WP5-17, WP6-14, WP7-14, WP8-15 and WP9-14); open until that test |
+| French `fr` | 369 | **open**: only `NavigationPlay` ("Jouer") and `NavigationSettings` ("Paramètres") come from the original French authors; all other French texts were written during the review fixes and v2 without a native speaker |
 
 ### Help wanted
 
-- **French**: a native speaker who reads the 291 French texts other than the two navigation texts in
-  `Resources.fr.resx`, ideally while looking at each page. The 80 texts of the maintenance tools (keys from
-  `ToolsCleanupHeading` to `ToolsChecking`, at the end of the file) are the newest; before them come the 59 texts of
+- **French**: a native speaker who reads the 367 French texts other than the two navigation texts in
+  `Resources.fr.resx`, ideally while looking at each page. The 76 texts of the network check and the diagnostics
+  report (keys from `ToolsNetworkHeading` to `PlayerListCheckNetworkLink`, at the end of the file) are the newest;
+  before them come the 80 texts of the maintenance tools (from `ToolsCleanupHeading` to `ToolsChecking`), the 59 texts of
   the integrity check and the update API (from `NavigationTools` to `RepairFallbackFormat`) and the 29 texts of Play
   and the repair advice (from `LauncherAlreadyRunning` to `RepairPageNotOpenedFormat`); the 51 texts of the game
   settings (from `GameSettingsDefaultsHeading` to `FindingFolderNotAnsiFormat`) and the explanations of the
