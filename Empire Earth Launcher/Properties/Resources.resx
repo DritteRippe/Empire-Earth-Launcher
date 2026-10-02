@@ -1347,4 +1347,308 @@ The old files are copied to the backup folder first. Replace them?</value>
     <value>Checking...</value>
     <comment>State of a tool of the Tools page while it reads.</comment>
   </data>
+  <data name="ToolsNetworkHeading" xml:space="preserve">
+    <value>Network</value>
+    <comment>Heading of the network diagnostics on the Tools page.</comment>
+  </data>
+  <data name="NetworkInfo" xml:space="preserve">
+    <value>On request the launcher checks what the support forum asked again and again: the network adapters of this computer, the name lookup (DNS) of the NeoEE servers, the update server, the NeoEE status server, NeoEE.cfg and WONLobby.cfg of the game folders (only read) and upnp_info.txt. It sends nothing but the AppId of the installation to the update server and asks no service for your public address.</value>
+    <comment>Below the heading of the network diagnostics (R7, ARCHITECTURE 4.6). Keep the file names untranslated.</comment>
+  </data>
+  <data name="NetworkCheckButton" xml:space="preserve">
+    <value>Check network</value>
+    <comment>Button of the network diagnostics; at most about 26 characters.</comment>
+  </data>
+  <data name="NetworkChecking" xml:space="preserve">
+    <value>Checking the network ...</value>
+    <comment>State line while the network diagnostics run (up to about 20 seconds).</comment>
+  </data>
+  <data name="NetworkVerdictServerAnswersFormat" xml:space="preserve">
+    <value>The NeoEE server answers ({0} players online). If the lobby still fails, see the hints below and the WON login on this page.</value>
+    <comment>Outage verdict: the status server answered. {0}: the number of online players.</comment>
+  </data>
+  <data name="NetworkVerdictOutage" xml:space="preserve">
+    <value>Probably a server outage, not your computer: the server names resolve and the update server answers, but the NeoEE server does not. Try again later; nothing needs to be changed on this computer.</value>
+    <comment>Outage verdict (forum report section 8 row 9, not droppable): DNS works, the update API answers, the status server does not.</comment>
+  </data>
+  <data name="NetworkVerdictNameNotResolvedFormat" xml:space="preserve">
+    <value>The update server answers, but the name {0} of the NeoEE server cannot be resolved. The DNS server of your connection may have a problem, or the server name has changed: try again later or restart the router.</value>
+    <comment>Outage verdict: the update API answers, DNS of the status server fails. {0}: the host name.</comment>
+  </data>
+  <data name="NetworkVerdictNoConnection" xml:space="preserve">
+    <value>This computer seems to have no internet connection: the name of the NeoEE server cannot be resolved and the update server does not answer. Check the network connection (cable, Wi-Fi, flight mode).</value>
+    <comment>Outage verdict: DNS fails and the update API does not answer (or could not be asked).</comment>
+  </data>
+  <data name="NetworkVerdictNoServerReached" xml:space="preserve">
+    <value>No server answers although the names resolve. A firewall, an antivirus program or a proxy may block the launcher, or both servers are down. Check the exceptions of the firewall and the antivirus program, then try again.</value>
+    <comment>Outage verdict: DNS works, but neither the update API nor the status server answers.</comment>
+  </data>
+  <data name="NetworkVerdictUndetermined" xml:space="preserve">
+    <value>The NeoEE server does not answer. Whether the server is down cannot be told: the update server is only asked with the AppId of an installation of the community setup, and there is none.</value>
+    <comment>Outage verdict: DNS works, the status server does not answer, the update API was not asked (no AppId, ADR 0008).</comment>
+  </data>
+  <data name="NetworkVerdictNotConfigured" xml:space="preserve">
+    <value>The NeoEE server is not configured (the server settings in Empire Earth Launcher.exe.config are invalid), so it was not asked.</value>
+    <comment>Outage verdict: no status server settings. Keep the file name untranslated.</comment>
+  </data>
+  <data name="NetworkHintNoConnection" xml:space="preserve">
+    <value>No connected network adapter has an IPv4 gateway: the computer seems to be offline.</value>
+    <comment>Hint of the network diagnostics.</comment>
+  </data>
+  <data name="NetworkHintIPv6Only" xml:space="preserve">
+    <value>Your connection has IPv6 but no IPv4 gateway. Empire Earth needs IPv4: ask your provider for an IPv4 connection.</value>
+    <comment>Hint of the network diagnostics (IPv6 only, forum t=11057 p=48100).</comment>
+  </data>
+  <data name="NetworkHintVirtualAdaptersFormat" xml:space="preserve">
+    <value>{0} virtual or VPN adapters are connected (for example Hamachi, a VPN or a virtual machine). In the lobby options and in the game's multiplayer options choose the same real adapter with the IPv4 address of your home network; a virtual adapter can hide hosted games or crash the game.</value>
+    <comment>Hint of the network diagnostics (forum 4.10). {0}: their number.</comment>
+  </data>
+  <data name="NetworkHintSeveralAdaptersFormat" xml:space="preserve">
+    <value>{0} network adapters are connected with a gateway (for example cable and Wi-Fi). Choose the same one in the lobby options and in the game's multiplayer options.</value>
+    <comment>Hint of the network diagnostics (forum 4.10). {0}: their number.</comment>
+  </data>
+  <data name="NetworkHintCgnat" xml:space="preserve">
+    <value>The router reports an address of carrier-grade NAT (100.64.0.0/10): your provider shares one public address with other customers, so port forwarding cannot work. NeoEE's RIP hosting still works for normal games; for scenarios and saved games ask your provider for a public IPv4 address.</value>
+    <comment>Hint of the network diagnostics (upnp_info.txt, CGNAT, forum 4.9).</comment>
+  </data>
+  <data name="NetworkHintDsLite" xml:space="preserve">
+    <value>The router has no public IPv4 address of its own and the computer uses IPv6: probably DS-Lite. Port forwarding for IPv4 cannot work; NeoEE's RIP hosting still works for normal games. For scenarios and saved games ask your provider for a public IPv4 address (in the forum this solved it).</value>
+    <comment>Hint of the network diagnostics (upnp_info.txt and IPv6, DS-Lite, t=11057 p=48100).</comment>
+  </data>
+  <data name="NetworkHintNoExternalIPv4" xml:space="preserve">
+    <value>The router reports no external IPv4 address (0.0.0.0). Port forwarding needs one; check the internet connection of the router.</value>
+    <comment>Hint of the network diagnostics (upnp_info.txt).</comment>
+  </data>
+  <data name="NetworkHintPrivateExternal" xml:space="preserve">
+    <value>The router's external address is a private one: a second router or modem is in front of it (double NAT). Forward the ports on both devices, or switch the modem to router or bridge mode.</value>
+    <comment>Hint of the network diagnostics (upnp_info.txt, double NAT, forum 4.9).</comment>
+  </data>
+  <data name="NetworkHintRipOffFormat" xml:space="preserve">
+    <value>NeoEE.cfg of {0}: RIP hosting is switched off (Active: false). Without it every hosted game needs port forwarding; the setup installs the file with RIP hosting on.</value>
+    <comment>Hint of the network diagnostics (t=5843 p=39204). {0}: Empire Earth or The Art of Conquest. Keep NeoEE.cfg and Active: false untranslated.</comment>
+  </data>
+  <data name="NetworkHintCdKeyCheckFormat" xml:space="preserve">
+    <value>WONLobby.cfg of {0}: CDKeyCheck is not true. NeoEE needs it; run the community setup as a repair to install the file again (the launcher does not change it).</value>
+    <comment>Hint of the network diagnostics (t=10950 p=47202). {0}: Empire Earth or The Art of Conquest. Keep WONLobby.cfg and CDKeyCheck untranslated.</comment>
+  </data>
+  <data name="NetworkAdaptersUnreadable" xml:space="preserve">
+    <value>The network adapters could not be listed.</value>
+    <comment>Detail line of the network diagnostics.</comment>
+  </data>
+  <data name="NetworkAdapterFormat" xml:space="preserve">
+    <value>{0} "{1}": IPv4 {2}, gateway {3}, IPv6 {4}</value>
+    <comment>Detail line of one adapter. {0}: its type (NetworkKind...); {1}: the driver name; {2}: addresses; {3}: gateway; {4}: NetworkIPv6...</comment>
+  </data>
+  <data name="NetworkAdapterVirtual" xml:space="preserve">
+    <value>, virtual or VPN</value>
+    <comment>Appended to NetworkAdapterFormat.</comment>
+  </data>
+  <data name="NetworkAdapterDisconnected" xml:space="preserve">
+    <value>, not connected</value>
+    <comment>Appended to NetworkAdapterFormat.</comment>
+  </data>
+  <data name="NetworkKindEthernet" xml:space="preserve">
+    <value>Ethernet</value>
+    <comment>Adapter type in NetworkAdapterFormat.</comment>
+  </data>
+  <data name="NetworkKindWireless" xml:space="preserve">
+    <value>Wi-Fi</value>
+    <comment>Adapter type in NetworkAdapterFormat.</comment>
+  </data>
+  <data name="NetworkKindTunnel" xml:space="preserve">
+    <value>Tunnel (VPN)</value>
+    <comment>Adapter type in NetworkAdapterFormat.</comment>
+  </data>
+  <data name="NetworkKindPpp" xml:space="preserve">
+    <value>Dial-up (PPP)</value>
+    <comment>Adapter type in NetworkAdapterFormat.</comment>
+  </data>
+  <data name="NetworkKindMobile" xml:space="preserve">
+    <value>Mobile broadband</value>
+    <comment>Adapter type in NetworkAdapterFormat.</comment>
+  </data>
+  <data name="NetworkKindOther" xml:space="preserve">
+    <value>Other adapter</value>
+    <comment>Adapter type in NetworkAdapterFormat.</comment>
+  </data>
+  <data name="NetworkNone" xml:space="preserve">
+    <value>none</value>
+    <comment>No address or gateway in NetworkAdapterFormat.</comment>
+  </data>
+  <data name="NetworkIPv6None" xml:space="preserve">
+    <value>none</value>
+    <comment>IPv6 class in NetworkAdapterFormat (ADR 0013: IPv6 only as a class).</comment>
+  </data>
+  <data name="NetworkIPv6LinkLocal" xml:space="preserve">
+    <value>link-local only</value>
+    <comment>IPv6 class in NetworkAdapterFormat.</comment>
+  </data>
+  <data name="NetworkIPv6Global" xml:space="preserve">
+    <value>available</value>
+    <comment>IPv6 class in NetworkAdapterFormat: a global IPv6 address.</comment>
+  </data>
+  <data name="NetworkClassPrivate" xml:space="preserve">
+    <value>private address</value>
+    <comment>Class of an IPv4 address that is not shown.</comment>
+  </data>
+  <data name="NetworkClassLinkLocal" xml:space="preserve">
+    <value>link-local address</value>
+    <comment>Class of an IPv4 address.</comment>
+  </data>
+  <data name="NetworkClassCgnat" xml:space="preserve">
+    <value>CGNAT address</value>
+    <comment>Class of an IPv4 address (100.64.0.0/10).</comment>
+  </data>
+  <data name="NetworkClassPublic" xml:space="preserve">
+    <value>public address</value>
+    <comment>Class of an IPv4 address; its value is never shown (ADR 0013).</comment>
+  </data>
+  <data name="NetworkClassUnspecified" xml:space="preserve">
+    <value>none (0.0.0.0)</value>
+    <comment>Class of the address 0.0.0.0.</comment>
+  </data>
+  <data name="NetworkClassSpecial" xml:space="preserve">
+    <value>special address</value>
+    <comment>Class of a loopback, multicast or reserved address.</comment>
+  </data>
+  <data name="NetworkDnsResolvedFormat" xml:space="preserve">
+    <value>Name lookup {0}: OK</value>
+    <comment>Detail line. {0}: the server name.</comment>
+  </data>
+  <data name="NetworkDnsNotFoundFormat" xml:space="preserve">
+    <value>Name lookup {0}: name not found</value>
+    <comment>Detail line. {0}: the server name.</comment>
+  </data>
+  <data name="NetworkDnsTimeoutFormat" xml:space="preserve">
+    <value>Name lookup {0}: no answer</value>
+    <comment>Detail line. {0}: the server name.</comment>
+  </data>
+  <data name="NetworkDnsFailedFormat" xml:space="preserve">
+    <value>Name lookup {0}: failed</value>
+    <comment>Detail line. {0}: the server name.</comment>
+  </data>
+  <data name="NetworkApiAnsweredFormat" xml:space="preserve">
+    <value>Update server: answers (HTTP {0})</value>
+    <comment>Detail line. {0}: the HTTP status.</comment>
+  </data>
+  <data name="NetworkApiNoAnswerFormat" xml:space="preserve">
+    <value>Update server: no answer ({0})</value>
+    <comment>Detail line. {0}: FailureTimeout, FailureTls or FailureNetwork.</comment>
+  </data>
+  <data name="NetworkApiNotAsked" xml:space="preserve">
+    <value>Update server: not asked (no installation of the community setup with an AppId)</value>
+    <comment>Detail line.</comment>
+  </data>
+  <data name="NetworkStatusAnsweredFormat" xml:space="preserve">
+    <value>NeoEE status server {0}: answers, {1} players online</value>
+    <comment>Detail line. {0}: host:port; {1}: players.</comment>
+  </data>
+  <data name="NetworkStatusNoAnswerFormat" xml:space="preserve">
+    <value>NeoEE status server {0}: no answer</value>
+    <comment>Detail line. {0}: host:port.</comment>
+  </data>
+  <data name="NetworkStatusNotConfigured" xml:space="preserve">
+    <value>NeoEE status server: not configured</value>
+    <comment>Detail line.</comment>
+  </data>
+  <data name="NetworkNeoEeCfgFormat" xml:space="preserve">
+    <value>{0}, NeoEE.cfg: RIP hosting {1}, server {2}, game port {3}, relay ports {4}, port check {5}, UPnP {6}</value>
+    <comment>Detail line (read-only). {0}: the game; {1}, {5}, {6}: NetworkOn/NetworkOff/?; {2}: server; {3}, {4}: ports.</comment>
+  </data>
+  <data name="NetworkOn" xml:space="preserve">
+    <value>on</value>
+    <comment>Value in NetworkNeoEeCfgFormat.</comment>
+  </data>
+  <data name="NetworkOff" xml:space="preserve">
+    <value>off</value>
+    <comment>Value in NetworkNeoEeCfgFormat.</comment>
+  </data>
+  <data name="NetworkFileMissingFormat" xml:space="preserve">
+    <value>{0}, {1}: not found</value>
+    <comment>Detail line. {0}: the game; {1}: the file name.</comment>
+  </data>
+  <data name="NetworkFileUnreadableFormat" xml:space="preserve">
+    <value>{0}, {1}: cannot be read</value>
+    <comment>Detail line. {0}: the game; {1}: the file name.</comment>
+  </data>
+  <data name="NetworkWonLobbyFormat" xml:space="preserve">
+    <value>{0}, WONLobby.cfg: CDKeyCheck {1}, file transfer port {2}, lobby port {3}</value>
+    <comment>Detail line (read-only). {0}: the game; {1}: true, false, ? or NetworkInvalid; {2}, {3}: ports.</comment>
+  </data>
+  <data name="NetworkInvalid" xml:space="preserve">
+    <value>invalid</value>
+    <comment>A value of a file that is not what the game expects.</comment>
+  </data>
+  <data name="NetworkUpnpMissingFormat" xml:space="preserve">
+    <value>{0}, upnp_info.txt: not found (NeoEE may write it while you host)</value>
+    <comment>Detail line. {0}: the game.</comment>
+  </data>
+  <data name="NetworkUpnpUnknownFormat" xml:space="preserve">
+    <value>{0}, upnp_info.txt: unknown format</value>
+    <comment>Detail line (ARCHITECTURE 14: the format is not documented). {0}: the game.</comment>
+  </data>
+  <data name="NetworkUpnpFormat" xml:space="preserve">
+    <value>{0}, upnp_info.txt: external address {1}, local address {2}</value>
+    <comment>Detail line. {0}: the game; {1}: the class of the external address (NetworkClass...), never its value; {2}: the local address or NetworkNone.</comment>
+  </data>
+  <data name="NetworkPortsFormat" xml:space="preserve">
+    <value>Port forwarding for hosting ({0}): {1} to {2}. Only the host needs it; with RIP hosting most normal games work without it.</value>
+    <comment>Detail line (forum 4.9). {0}: the game; {1}: ports with TCP/UDP; {2}: the address or NetworkPortsThisComputer.</comment>
+  </data>
+  <data name="NetworkPortsThisComputer" xml:space="preserve">
+    <value>the IPv4 address of this computer</value>
+    <comment>Part of NetworkPortsFormat when the address is not unique.</comment>
+  </data>
+  <data name="ToolsReportHeading" xml:space="preserve">
+    <value>Diagnostics report</value>
+    <comment>Heading of the diagnostics report on the Tools page.</comment>
+  </data>
+  <data name="ReportInfo" xml:space="preserve">
+    <value>A text with everything the launcher found, for a post in the forum or a message to a helper. It is in English, the language of the support, and contains no CD keys, no login data, no player names, no MAC or public IP address and no user or computer name. The launcher never sends it; read it before you post it.</value>
+    <comment>Below the heading of the diagnostics report (ADR 0013 plan review).</comment>
+  </data>
+  <data name="CopyReportButton" xml:space="preserve">
+    <value>Copy report</value>
+    <comment>Button of the diagnostics report; at most about 26 characters.</comment>
+  </data>
+  <data name="SaveReportButton" xml:space="preserve">
+    <value>Save report...</value>
+    <comment>Button of the diagnostics report; at most about 26 characters.</comment>
+  </data>
+  <data name="ReportCopied" xml:space="preserve">
+    <value>The report was copied to the clipboard; it is shown below.</value>
+    <comment>Result of Copy report.</comment>
+  </data>
+  <data name="ReportCopyFailedFormat" xml:space="preserve">
+    <value>The report could not be copied to the clipboard: {0}. It is shown below; select it and copy it.</value>
+    <comment>Result of Copy report. {0}: the error of Windows.</comment>
+  </data>
+  <data name="ReportSavedFormat" xml:space="preserve">
+    <value>The report was saved: {0}</value>
+    <comment>Result of Save report. {0}: the file.</comment>
+  </data>
+  <data name="ReportSaveFailedFormat" xml:space="preserve">
+    <value>The report could not be saved: {0}</value>
+    <comment>Result of Save report. {0}: the reason.</comment>
+  </data>
+  <data name="ReportSaveRefused" xml:space="preserve">
+    <value>The report is not saved in a game folder or the installation folder; choose another folder.</value>
+    <comment>Result of Save report for a file inside an installation (the launcher never writes into the installation).</comment>
+  </data>
+  <data name="ReportSaveDialogTitle" xml:space="preserve">
+    <value>Save diagnostics report</value>
+    <comment>Title of the save dialog.</comment>
+  </data>
+  <data name="ReportFileFilter" xml:space="preserve">
+    <value>Text file (*.txt)|*.txt</value>
+    <comment>Filter of the save dialog: description|pattern; keep |*.txt.</comment>
+  </data>
+  <data name="ReportFileNameFormat" xml:space="preserve">
+    <value>Empire Earth Launcher report {0}</value>
+    <comment>Proposed file name of the report. {0}: date and time.</comment>
+  </data>
+  <data name="PlayerListCheckNetworkLink" xml:space="preserve">
+    <value>Why? Check the network</value>
+    <comment>Link below an unavailable player list on the Play page; at most about 30 characters.</comment>
+  </data>
 </root>

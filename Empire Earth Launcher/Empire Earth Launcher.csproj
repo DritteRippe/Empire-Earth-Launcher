@@ -85,6 +85,7 @@
       <DependentUpon>GeneralUserControl.cs</DependentUpon>
     </Compile>
     <Compile Include="CleanupView.cs" />
+    <Compile Include="DiagnosticsModel.cs" />
     <Compile Include="GameSettingsModel.cs" />
     <Compile Include="InstallationService.cs" />
     <Compile Include="IntegrityModel.cs" />

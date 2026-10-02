@@ -1015,4 +1015,232 @@ Les anciens fichiers sont d'abord copiés dans le dossier de sauvegarde. Les rem
   <data name="ToolsChecking" xml:space="preserve">
     <value>Vérification...</value>
   </data>
+  <data name="ToolsNetworkHeading" xml:space="preserve">
+    <value>Réseau</value>
+  </data>
+  <data name="NetworkInfo" xml:space="preserve">
+    <value>À la demande, le launcher vérifie ce que le forum d'assistance demandait sans cesse : les cartes réseau de cet ordinateur, la résolution de noms (DNS) des serveurs NeoEE, le serveur de mises à jour, le serveur d'état NeoEE, NeoEE.cfg et WONLobby.cfg des dossiers de jeu (en lecture seule) et upnp_info.txt. Il n'envoie au serveur de mises à jour que l'AppId de l'installation et ne demande votre adresse publique à aucun service.</value>
+  </data>
+  <data name="NetworkCheckButton" xml:space="preserve">
+    <value>Vérifier le réseau</value>
+  </data>
+  <data name="NetworkChecking" xml:space="preserve">
+    <value>Vérification du réseau ...</value>
+  </data>
+  <data name="NetworkVerdictServerAnswersFormat" xml:space="preserve">
+    <value>Le serveur NeoEE répond ({0} joueurs en ligne). Si le lobby ne fonctionne toujours pas, voyez les conseils ci-dessous et la connexion WON sur cette page.</value>
+  </data>
+  <data name="NetworkVerdictOutage" xml:space="preserve">
+    <value>Probablement une panne du serveur, pas votre ordinateur : les noms des serveurs sont résolus et le serveur de mises à jour répond, mais pas le serveur NeoEE. Réessayez plus tard ; rien n'est à changer sur cet ordinateur.</value>
+  </data>
+  <data name="NetworkVerdictNameNotResolvedFormat" xml:space="preserve">
+    <value>Le serveur de mises à jour répond, mais le nom {0} du serveur NeoEE ne peut pas être résolu. Le serveur DNS de votre connexion a peut-être un problème, ou le nom du serveur a changé : réessayez plus tard ou redémarrez le routeur.</value>
+  </data>
+  <data name="NetworkVerdictNoConnection" xml:space="preserve">
+    <value>Cet ordinateur semble ne pas avoir de connexion Internet : le nom du serveur NeoEE ne peut pas être résolu et le serveur de mises à jour ne répond pas. Vérifiez la connexion réseau (câble, Wi-Fi, mode avion).</value>
+  </data>
+  <data name="NetworkVerdictNoServerReached" xml:space="preserve">
+    <value>Aucun serveur ne répond bien que les noms soient résolus. Un pare-feu, un antivirus ou un proxy bloque peut-être le launcher, ou les deux serveurs sont en panne. Vérifiez les exceptions du pare-feu et de l'antivirus, puis réessayez.</value>
+  </data>
+  <data name="NetworkVerdictUndetermined" xml:space="preserve">
+    <value>Le serveur NeoEE ne répond pas. Impossible de dire si le serveur est en panne : le serveur de mises à jour n'est interrogé qu'avec l'AppId d'une installation du setup communautaire, et il n'y en a aucune.</value>
+  </data>
+  <data name="NetworkVerdictNotConfigured" xml:space="preserve">
+    <value>Le serveur NeoEE n'est pas configuré (les paramètres du serveur dans Empire Earth Launcher.exe.config ne sont pas valides) ; il n'a donc pas été interrogé.</value>
+  </data>
+  <data name="NetworkHintNoConnection" xml:space="preserve">
+    <value>Aucune carte réseau connectée n'a de passerelle IPv4 : l'ordinateur semble hors ligne.</value>
+  </data>
+  <data name="NetworkHintIPv6Only" xml:space="preserve">
+    <value>Votre connexion a l'IPv6 mais aucune passerelle IPv4. Empire Earth a besoin de l'IPv4 : demandez une connexion IPv4 à votre fournisseur.</value>
+  </data>
+  <data name="NetworkHintVirtualAdaptersFormat" xml:space="preserve">
+    <value>{0} cartes réseau virtuelles ou VPN sont connectées (par exemple Hamachi, un VPN ou une machine virtuelle). Dans les options du lobby et dans les options multijoueur du jeu, choisissez la même carte réelle avec l'adresse IPv4 de votre réseau domestique ; une carte virtuelle peut masquer les parties hébergées ou faire planter le jeu.</value>
+  </data>
+  <data name="NetworkHintSeveralAdaptersFormat" xml:space="preserve">
+    <value>{0} cartes réseau sont connectées avec une passerelle (par exemple câble et Wi-Fi). Choisissez la même dans les options du lobby et dans les options multijoueur du jeu.</value>
+  </data>
+  <data name="NetworkHintCgnat" xml:space="preserve">
+    <value>Le routeur indique une adresse de NAT de l'opérateur (100.64.0.0/10) : votre fournisseur partage une adresse publique avec d'autres clients, la redirection de ports ne peut donc pas fonctionner. L'hébergement RIP de NeoEE fonctionne toujours pour les parties normales ; pour les scénarios et les parties sauvegardées, demandez une adresse IPv4 publique à votre fournisseur.</value>
+  </data>
+  <data name="NetworkHintDsLite" xml:space="preserve">
+    <value>Le routeur n'a pas d'adresse IPv4 publique propre et l'ordinateur utilise l'IPv6 : probablement du DS-Lite. La redirection de ports IPv4 ne peut pas fonctionner ; l'hébergement RIP de NeoEE fonctionne toujours pour les parties normales. Pour les scénarios et les parties sauvegardées, demandez une adresse IPv4 publique à votre fournisseur (sur le forum, cela a résolu le problème).</value>
+  </data>
+  <data name="NetworkHintNoExternalIPv4" xml:space="preserve">
+    <value>Le routeur n'indique aucune adresse IPv4 externe (0.0.0.0). La redirection de ports en a besoin ; vérifiez la connexion Internet du routeur.</value>
+  </data>
+  <data name="NetworkHintPrivateExternal" xml:space="preserve">
+    <value>L'adresse externe du routeur est une adresse privée : un deuxième routeur ou modem se trouve devant lui (double NAT). Redirigez les ports sur les deux appareils, ou passez le modem en mode routeur ou pont.</value>
+  </data>
+  <data name="NetworkHintRipOffFormat" xml:space="preserve">
+    <value>NeoEE.cfg de {0} : l'hébergement RIP est désactivé (Active: false). Sans lui, chaque partie hébergée a besoin d'une redirection de ports ; le setup installe le fichier avec l'hébergement RIP activé.</value>
+  </data>
+  <data name="NetworkHintCdKeyCheckFormat" xml:space="preserve">
+    <value>WONLobby.cfg de {0} : CDKeyCheck n'est pas à true. NeoEE en a besoin ; exécutez le setup communautaire en réparation pour réinstaller le fichier (le launcher ne le modifie pas).</value>
+  </data>
+  <data name="NetworkAdaptersUnreadable" xml:space="preserve">
+    <value>Les cartes réseau n'ont pas pu être listées.</value>
+  </data>
+  <data name="NetworkAdapterFormat" xml:space="preserve">
+    <value>{0} « {1} » : IPv4 {2}, passerelle {3}, IPv6 {4}</value>
+  </data>
+  <data name="NetworkAdapterVirtual" xml:space="preserve">
+    <value>, virtuelle ou VPN</value>
+  </data>
+  <data name="NetworkAdapterDisconnected" xml:space="preserve">
+    <value>, non connectée</value>
+  </data>
+  <data name="NetworkKindEthernet" xml:space="preserve">
+    <value>Ethernet</value>
+  </data>
+  <data name="NetworkKindWireless" xml:space="preserve">
+    <value>Wi-Fi</value>
+  </data>
+  <data name="NetworkKindTunnel" xml:space="preserve">
+    <value>Tunnel (VPN)</value>
+  </data>
+  <data name="NetworkKindPpp" xml:space="preserve">
+    <value>Accès à distance (PPP)</value>
+  </data>
+  <data name="NetworkKindMobile" xml:space="preserve">
+    <value>Haut débit mobile</value>
+  </data>
+  <data name="NetworkKindOther" xml:space="preserve">
+    <value>Autre carte</value>
+  </data>
+  <data name="NetworkNone" xml:space="preserve">
+    <value>aucune</value>
+  </data>
+  <data name="NetworkIPv6None" xml:space="preserve">
+    <value>aucune</value>
+  </data>
+  <data name="NetworkIPv6LinkLocal" xml:space="preserve">
+    <value>liaison locale uniquement</value>
+  </data>
+  <data name="NetworkIPv6Global" xml:space="preserve">
+    <value>disponible</value>
+  </data>
+  <data name="NetworkClassPrivate" xml:space="preserve">
+    <value>adresse privée</value>
+  </data>
+  <data name="NetworkClassLinkLocal" xml:space="preserve">
+    <value>adresse de liaison locale</value>
+  </data>
+  <data name="NetworkClassCgnat" xml:space="preserve">
+    <value>adresse CGNAT</value>
+  </data>
+  <data name="NetworkClassPublic" xml:space="preserve">
+    <value>adresse publique</value>
+  </data>
+  <data name="NetworkClassUnspecified" xml:space="preserve">
+    <value>aucune (0.0.0.0)</value>
+  </data>
+  <data name="NetworkClassSpecial" xml:space="preserve">
+    <value>adresse spéciale</value>
+  </data>
+  <data name="NetworkDnsResolvedFormat" xml:space="preserve">
+    <value>Résolution de {0} : OK</value>
+  </data>
+  <data name="NetworkDnsNotFoundFormat" xml:space="preserve">
+    <value>Résolution de {0} : nom introuvable</value>
+  </data>
+  <data name="NetworkDnsTimeoutFormat" xml:space="preserve">
+    <value>Résolution de {0} : aucune réponse</value>
+  </data>
+  <data name="NetworkDnsFailedFormat" xml:space="preserve">
+    <value>Résolution de {0} : échec</value>
+  </data>
+  <data name="NetworkApiAnsweredFormat" xml:space="preserve">
+    <value>Serveur de mises à jour : répond (HTTP {0})</value>
+  </data>
+  <data name="NetworkApiNoAnswerFormat" xml:space="preserve">
+    <value>Serveur de mises à jour : aucune réponse ({0})</value>
+  </data>
+  <data name="NetworkApiNotAsked" xml:space="preserve">
+    <value>Serveur de mises à jour : non interrogé (aucune installation du setup communautaire avec une AppId)</value>
+  </data>
+  <data name="NetworkStatusAnsweredFormat" xml:space="preserve">
+    <value>Serveur d'état NeoEE {0} : répond, {1} joueurs en ligne</value>
+  </data>
+  <data name="NetworkStatusNoAnswerFormat" xml:space="preserve">
+    <value>Serveur d'état NeoEE {0} : aucune réponse</value>
+  </data>
+  <data name="NetworkStatusNotConfigured" xml:space="preserve">
+    <value>Serveur d'état NeoEE : non configuré</value>
+  </data>
+  <data name="NetworkNeoEeCfgFormat" xml:space="preserve">
+    <value>{0}, NeoEE.cfg : hébergement RIP {1}, serveur {2}, port de jeu {3}, ports relais {4}, vérification des ports {5}, UPnP {6}</value>
+  </data>
+  <data name="NetworkOn" xml:space="preserve">
+    <value>activé</value>
+  </data>
+  <data name="NetworkOff" xml:space="preserve">
+    <value>désactivé</value>
+  </data>
+  <data name="NetworkFileMissingFormat" xml:space="preserve">
+    <value>{0}, {1} : introuvable</value>
+  </data>
+  <data name="NetworkFileUnreadableFormat" xml:space="preserve">
+    <value>{0}, {1} : illisible</value>
+  </data>
+  <data name="NetworkWonLobbyFormat" xml:space="preserve">
+    <value>{0}, WONLobby.cfg : CDKeyCheck {1}, port de transfert de fichiers {2}, port du lobby {3}</value>
+  </data>
+  <data name="NetworkInvalid" xml:space="preserve">
+    <value>non valide</value>
+  </data>
+  <data name="NetworkUpnpMissingFormat" xml:space="preserve">
+    <value>{0}, upnp_info.txt : introuvable (NeoEE peut l'écrire pendant que vous hébergez)</value>
+  </data>
+  <data name="NetworkUpnpUnknownFormat" xml:space="preserve">
+    <value>{0}, upnp_info.txt : format inconnu</value>
+  </data>
+  <data name="NetworkUpnpFormat" xml:space="preserve">
+    <value>{0}, upnp_info.txt : adresse externe {1}, adresse locale {2}</value>
+  </data>
+  <data name="NetworkPortsFormat" xml:space="preserve">
+    <value>Redirection de ports pour héberger ({0}) : {1} vers {2}. Seul l'hôte en a besoin ; avec l'hébergement RIP, la plupart des parties normales fonctionnent sans.</value>
+  </data>
+  <data name="NetworkPortsThisComputer" xml:space="preserve">
+    <value>l'adresse IPv4 de cet ordinateur</value>
+  </data>
+  <data name="ToolsReportHeading" xml:space="preserve">
+    <value>Rapport de diagnostic</value>
+  </data>
+  <data name="ReportInfo" xml:space="preserve">
+    <value>Un texte avec tout ce que le launcher a trouvé, pour un message sur le forum ou à une personne qui vous aide. Il est en anglais, la langue de l'assistance, et ne contient ni clés CD, ni données de connexion, ni noms de joueurs, ni adresse MAC ou IP publique, ni nom d'utilisateur ou d'ordinateur. Le launcher ne l'envoie jamais ; lisez-le avant de le publier.</value>
+  </data>
+  <data name="CopyReportButton" xml:space="preserve">
+    <value>Copier le rapport</value>
+  </data>
+  <data name="SaveReportButton" xml:space="preserve">
+    <value>Enregistrer le rapport...</value>
+  </data>
+  <data name="ReportCopied" xml:space="preserve">
+    <value>Le rapport a été copié dans le presse-papiers ; il est affiché ci-dessous.</value>
+  </data>
+  <data name="ReportCopyFailedFormat" xml:space="preserve">
+    <value>Le rapport n'a pas pu être copié dans le presse-papiers : {0}. Il est affiché ci-dessous ; sélectionnez-le et copiez-le.</value>
+  </data>
+  <data name="ReportSavedFormat" xml:space="preserve">
+    <value>Le rapport a été enregistré : {0}</value>
+  </data>
+  <data name="ReportSaveFailedFormat" xml:space="preserve">
+    <value>Le rapport n'a pas pu être enregistré : {0}</value>
+  </data>
+  <data name="ReportSaveRefused" xml:space="preserve">
+    <value>Le rapport n'est pas enregistré dans un dossier de jeu ni dans le dossier d'installation ; choisissez un autre dossier.</value>
+  </data>
+  <data name="ReportSaveDialogTitle" xml:space="preserve">
+    <value>Enregistrer le rapport de diagnostic</value>
+  </data>
+  <data name="ReportFileFilter" xml:space="preserve">
+    <value>Fichier texte (*.txt)|*.txt</value>
+  </data>
+  <data name="ReportFileNameFormat" xml:space="preserve">
+    <value>Rapport Empire Earth Launcher {0}</value>
+  </data>
+  <data name="PlayerListCheckNetworkLink" xml:space="preserve">
+    <value>Pourquoi ? Vérifier le réseau</value>
+  </data>
 </root>

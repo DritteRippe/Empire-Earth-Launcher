@@ -462,6 +462,15 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Copy report.
+        /// </summary>
+        internal static string CopyReportButton {
+            get {
+                return ResourceManager.GetString("CopyReportButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0}: set up by a newer launcher or setup; the launcher leaves them as they are..
         /// </summary>
         internal static string DefaultsStatusAppliedByNewerFormat {
@@ -1901,6 +1910,564 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to , not connected.
+        /// </summary>
+        internal static string NetworkAdapterDisconnected {
+            get {
+                return ResourceManager.GetString("NetworkAdapterDisconnected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} "{1}": IPv4 {2}, gateway {3}, IPv6 {4}.
+        /// </summary>
+        internal static string NetworkAdapterFormat {
+            get {
+                return ResourceManager.GetString("NetworkAdapterFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The network adapters could not be listed..
+        /// </summary>
+        internal static string NetworkAdaptersUnreadable {
+            get {
+                return ResourceManager.GetString("NetworkAdaptersUnreadable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to , virtual or VPN.
+        /// </summary>
+        internal static string NetworkAdapterVirtual {
+            get {
+                return ResourceManager.GetString("NetworkAdapterVirtual", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update server: answers (HTTP {0}).
+        /// </summary>
+        internal static string NetworkApiAnsweredFormat {
+            get {
+                return ResourceManager.GetString("NetworkApiAnsweredFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update server: no answer ({0}).
+        /// </summary>
+        internal static string NetworkApiNoAnswerFormat {
+            get {
+                return ResourceManager.GetString("NetworkApiNoAnswerFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update server: not asked (no installation of the community setup with an AppId).
+        /// </summary>
+        internal static string NetworkApiNotAsked {
+            get {
+                return ResourceManager.GetString("NetworkApiNotAsked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Check network.
+        /// </summary>
+        internal static string NetworkCheckButton {
+            get {
+                return ResourceManager.GetString("NetworkCheckButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Checking the network ....
+        /// </summary>
+        internal static string NetworkChecking {
+            get {
+                return ResourceManager.GetString("NetworkChecking", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CGNAT address.
+        /// </summary>
+        internal static string NetworkClassCgnat {
+            get {
+                return ResourceManager.GetString("NetworkClassCgnat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to link-local address.
+        /// </summary>
+        internal static string NetworkClassLinkLocal {
+            get {
+                return ResourceManager.GetString("NetworkClassLinkLocal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to private address.
+        /// </summary>
+        internal static string NetworkClassPrivate {
+            get {
+                return ResourceManager.GetString("NetworkClassPrivate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to public address.
+        /// </summary>
+        internal static string NetworkClassPublic {
+            get {
+                return ResourceManager.GetString("NetworkClassPublic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to special address.
+        /// </summary>
+        internal static string NetworkClassSpecial {
+            get {
+                return ResourceManager.GetString("NetworkClassSpecial", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to none (0.0.0.0).
+        /// </summary>
+        internal static string NetworkClassUnspecified {
+            get {
+                return ResourceManager.GetString("NetworkClassUnspecified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name lookup {0}: failed.
+        /// </summary>
+        internal static string NetworkDnsFailedFormat {
+            get {
+                return ResourceManager.GetString("NetworkDnsFailedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name lookup {0}: name not found.
+        /// </summary>
+        internal static string NetworkDnsNotFoundFormat {
+            get {
+                return ResourceManager.GetString("NetworkDnsNotFoundFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name lookup {0}: OK.
+        /// </summary>
+        internal static string NetworkDnsResolvedFormat {
+            get {
+                return ResourceManager.GetString("NetworkDnsResolvedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name lookup {0}: no answer.
+        /// </summary>
+        internal static string NetworkDnsTimeoutFormat {
+            get {
+                return ResourceManager.GetString("NetworkDnsTimeoutFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}, {1}: not found.
+        /// </summary>
+        internal static string NetworkFileMissingFormat {
+            get {
+                return ResourceManager.GetString("NetworkFileMissingFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}, {1}: cannot be read.
+        /// </summary>
+        internal static string NetworkFileUnreadableFormat {
+            get {
+                return ResourceManager.GetString("NetworkFileUnreadableFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to WONLobby.cfg of {0}: CDKeyCheck is not true. NeoEE needs it; run the community setup as a repair to [rest of string was truncated].
+        /// </summary>
+        internal static string NetworkHintCdKeyCheckFormat {
+            get {
+                return ResourceManager.GetString("NetworkHintCdKeyCheckFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The router reports an address of carrier-grade NAT (100.64.0.0/10): your provider shares one public [rest of string was truncated].
+        /// </summary>
+        internal static string NetworkHintCgnat {
+            get {
+                return ResourceManager.GetString("NetworkHintCgnat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The router has no public IPv4 address of its own and the computer uses IPv6: probably DS-Lite. Port [rest of string was truncated].
+        /// </summary>
+        internal static string NetworkHintDsLite {
+            get {
+                return ResourceManager.GetString("NetworkHintDsLite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your connection has IPv6 but no IPv4 gateway. Empire Earth needs IPv4: ask your provider for an IPv4[rest of string was truncated].
+        /// </summary>
+        internal static string NetworkHintIPv6Only {
+            get {
+                return ResourceManager.GetString("NetworkHintIPv6Only", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No connected network adapter has an IPv4 gateway: the computer seems to be offline..
+        /// </summary>
+        internal static string NetworkHintNoConnection {
+            get {
+                return ResourceManager.GetString("NetworkHintNoConnection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The router reports no external IPv4 address (0.0.0.0). Port forwarding needs one; check the internet[rest of string was truncated].
+        /// </summary>
+        internal static string NetworkHintNoExternalIPv4 {
+            get {
+                return ResourceManager.GetString("NetworkHintNoExternalIPv4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The router's external address is a private one: a second router or modem is in front of it (double N[rest of string was truncated].
+        /// </summary>
+        internal static string NetworkHintPrivateExternal {
+            get {
+                return ResourceManager.GetString("NetworkHintPrivateExternal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to NeoEE.cfg of {0}: RIP hosting is switched off (Active: false). Without it every hosted game needs po[rest of string was truncated].
+        /// </summary>
+        internal static string NetworkHintRipOffFormat {
+            get {
+                return ResourceManager.GetString("NetworkHintRipOffFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} network adapters are connected with a gateway (for example cable and Wi-Fi). Choose the same one[rest of string was truncated].
+        /// </summary>
+        internal static string NetworkHintSeveralAdaptersFormat {
+            get {
+                return ResourceManager.GetString("NetworkHintSeveralAdaptersFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} virtual or VPN adapters are connected (for example Hamachi, a VPN or a virtual machine). In the [rest of string was truncated].
+        /// </summary>
+        internal static string NetworkHintVirtualAdaptersFormat {
+            get {
+                return ResourceManager.GetString("NetworkHintVirtualAdaptersFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to On request the launcher checks what the support forum asked again and again: the network adapters of[rest of string was truncated].
+        /// </summary>
+        internal static string NetworkInfo {
+            get {
+                return ResourceManager.GetString("NetworkInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to invalid.
+        /// </summary>
+        internal static string NetworkInvalid {
+            get {
+                return ResourceManager.GetString("NetworkInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to available.
+        /// </summary>
+        internal static string NetworkIPv6Global {
+            get {
+                return ResourceManager.GetString("NetworkIPv6Global", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to link-local only.
+        /// </summary>
+        internal static string NetworkIPv6LinkLocal {
+            get {
+                return ResourceManager.GetString("NetworkIPv6LinkLocal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to none.
+        /// </summary>
+        internal static string NetworkIPv6None {
+            get {
+                return ResourceManager.GetString("NetworkIPv6None", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ethernet.
+        /// </summary>
+        internal static string NetworkKindEthernet {
+            get {
+                return ResourceManager.GetString("NetworkKindEthernet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mobile broadband.
+        /// </summary>
+        internal static string NetworkKindMobile {
+            get {
+                return ResourceManager.GetString("NetworkKindMobile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Other adapter.
+        /// </summary>
+        internal static string NetworkKindOther {
+            get {
+                return ResourceManager.GetString("NetworkKindOther", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dial-up (PPP).
+        /// </summary>
+        internal static string NetworkKindPpp {
+            get {
+                return ResourceManager.GetString("NetworkKindPpp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tunnel (VPN).
+        /// </summary>
+        internal static string NetworkKindTunnel {
+            get {
+                return ResourceManager.GetString("NetworkKindTunnel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wi-Fi.
+        /// </summary>
+        internal static string NetworkKindWireless {
+            get {
+                return ResourceManager.GetString("NetworkKindWireless", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}, NeoEE.cfg: RIP hosting {1}, server {2}, game port {3}, relay ports {4}, port check {5}, UPnP {6[rest of string was truncated].
+        /// </summary>
+        internal static string NetworkNeoEeCfgFormat {
+            get {
+                return ResourceManager.GetString("NetworkNeoEeCfgFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to none.
+        /// </summary>
+        internal static string NetworkNone {
+            get {
+                return ResourceManager.GetString("NetworkNone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to off.
+        /// </summary>
+        internal static string NetworkOff {
+            get {
+                return ResourceManager.GetString("NetworkOff", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to on.
+        /// </summary>
+        internal static string NetworkOn {
+            get {
+                return ResourceManager.GetString("NetworkOn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Port forwarding for hosting ({0}): {1} to {2}. Only the host needs it; with RIP hosting most normal [rest of string was truncated].
+        /// </summary>
+        internal static string NetworkPortsFormat {
+            get {
+                return ResourceManager.GetString("NetworkPortsFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to the IPv4 address of this computer.
+        /// </summary>
+        internal static string NetworkPortsThisComputer {
+            get {
+                return ResourceManager.GetString("NetworkPortsThisComputer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to NeoEE status server {0}: answers, {1} players online.
+        /// </summary>
+        internal static string NetworkStatusAnsweredFormat {
+            get {
+                return ResourceManager.GetString("NetworkStatusAnsweredFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to NeoEE status server {0}: no answer.
+        /// </summary>
+        internal static string NetworkStatusNoAnswerFormat {
+            get {
+                return ResourceManager.GetString("NetworkStatusNoAnswerFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to NeoEE status server: not configured.
+        /// </summary>
+        internal static string NetworkStatusNotConfigured {
+            get {
+                return ResourceManager.GetString("NetworkStatusNotConfigured", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}, upnp_info.txt: external address {1}, local address {2}.
+        /// </summary>
+        internal static string NetworkUpnpFormat {
+            get {
+                return ResourceManager.GetString("NetworkUpnpFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}, upnp_info.txt: not found (NeoEE may write it while you host).
+        /// </summary>
+        internal static string NetworkUpnpMissingFormat {
+            get {
+                return ResourceManager.GetString("NetworkUpnpMissingFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}, upnp_info.txt: unknown format.
+        /// </summary>
+        internal static string NetworkUpnpUnknownFormat {
+            get {
+                return ResourceManager.GetString("NetworkUpnpUnknownFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The update server answers, but the name {0} of the NeoEE server cannot be resolved. The DNS server o[rest of string was truncated].
+        /// </summary>
+        internal static string NetworkVerdictNameNotResolvedFormat {
+            get {
+                return ResourceManager.GetString("NetworkVerdictNameNotResolvedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This computer seems to have no internet connection: the name of the NeoEE server cannot be resolved [rest of string was truncated].
+        /// </summary>
+        internal static string NetworkVerdictNoConnection {
+            get {
+                return ResourceManager.GetString("NetworkVerdictNoConnection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No server answers although the names resolve. A firewall, an antivirus program or a proxy may block [rest of string was truncated].
+        /// </summary>
+        internal static string NetworkVerdictNoServerReached {
+            get {
+                return ResourceManager.GetString("NetworkVerdictNoServerReached", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The NeoEE server is not configured (the server settings in Empire Earth Launcher.exe.config are inva[rest of string was truncated].
+        /// </summary>
+        internal static string NetworkVerdictNotConfigured {
+            get {
+                return ResourceManager.GetString("NetworkVerdictNotConfigured", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Probably a server outage, not your computer: the server names resolve and the update server answers,[rest of string was truncated].
+        /// </summary>
+        internal static string NetworkVerdictOutage {
+            get {
+                return ResourceManager.GetString("NetworkVerdictOutage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The NeoEE server answers ({0} players online). If the lobby still fails, see the hints below and the[rest of string was truncated].
+        /// </summary>
+        internal static string NetworkVerdictServerAnswersFormat {
+            get {
+                return ResourceManager.GetString("NetworkVerdictServerAnswersFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The NeoEE server does not answer. Whether the server is down cannot be told: the update server is on[rest of string was truncated].
+        /// </summary>
+        internal static string NetworkVerdictUndetermined {
+            get {
+                return ResourceManager.GetString("NetworkVerdictUndetermined", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}, WONLobby.cfg: CDKeyCheck {1}, file transfer port {2}, lobby port {3}.
+        /// </summary>
+        internal static string NetworkWonLobbyFormat {
+            get {
+                return ResourceManager.GetString("NetworkWonLobbyFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No lobby profile found.
         /// </summary>
         internal static string NoLobbyProfileFound {
@@ -1978,6 +2545,15 @@ namespace Empire_Earth_Launcher.Properties {
         internal static string PlayButton {
             get {
                 return ResourceManager.GetString("PlayButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Why? Check the network.
+        /// </summary>
+        internal static string PlayerListCheckNetworkLink {
+            get {
+                return ResourceManager.GetString("PlayerListCheckNetworkLink", resourceCulture);
             }
         }
         
@@ -2265,6 +2841,87 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The report was copied to the clipboard; it is shown below..
+        /// </summary>
+        internal static string ReportCopied {
+            get {
+                return ResourceManager.GetString("ReportCopied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The report could not be copied to the clipboard: {0}. It is shown below; select it and copy it..
+        /// </summary>
+        internal static string ReportCopyFailedFormat {
+            get {
+                return ResourceManager.GetString("ReportCopyFailedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Text file (*.txt)|*.txt.
+        /// </summary>
+        internal static string ReportFileFilter {
+            get {
+                return ResourceManager.GetString("ReportFileFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Empire Earth Launcher report {0}.
+        /// </summary>
+        internal static string ReportFileNameFormat {
+            get {
+                return ResourceManager.GetString("ReportFileNameFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A text with everything the launcher found, for a post in the forum or a message to a helper. It is i[rest of string was truncated].
+        /// </summary>
+        internal static string ReportInfo {
+            get {
+                return ResourceManager.GetString("ReportInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The report was saved: {0}.
+        /// </summary>
+        internal static string ReportSavedFormat {
+            get {
+                return ResourceManager.GetString("ReportSavedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save diagnostics report.
+        /// </summary>
+        internal static string ReportSaveDialogTitle {
+            get {
+                return ResourceManager.GetString("ReportSaveDialogTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The report could not be saved: {0}.
+        /// </summary>
+        internal static string ReportSaveFailedFormat {
+            get {
+                return ResourceManager.GetString("ReportSaveFailedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The report is not saved in a game folder or the installation folder; choose another folder..
+        /// </summary>
+        internal static string ReportSaveRefused {
+            get {
+                return ResourceManager.GetString("ReportSaveRefused", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Reset now.
         /// </summary>
         internal static string ResetConfirmButton {
@@ -2342,6 +2999,15 @@ namespace Empire_Earth_Launcher.Properties {
         internal static string ResultNewerContract {
             get {
                 return ResourceManager.GetString("ResultNewerContract", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save report....
+        /// </summary>
+        internal static string SaveReportButton {
+            get {
+                return ResourceManager.GetString("SaveReportButton", resourceCulture);
             }
         }
         
@@ -2549,6 +3215,24 @@ namespace Empire_Earth_Launcher.Properties {
         internal static string ToolsNamesHeading {
             get {
                 return ResourceManager.GetString("ToolsNamesHeading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Network.
+        /// </summary>
+        internal static string ToolsNetworkHeading {
+            get {
+                return ResourceManager.GetString("ToolsNetworkHeading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Diagnostics report.
+        /// </summary>
+        internal static string ToolsReportHeading {
+            get {
+                return ResourceManager.GetString("ToolsReportHeading", resourceCulture);
             }
         }
         

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Empire_Earth_Launcher.Core.Contract;
+using Empire_Earth_Launcher.Core.Diagnostics;
 using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Backup;
@@ -1044,6 +1045,280 @@ namespace Empire_Earth_Launcher
                 warning.Source == NameSource.LobbyProfile ? Resources.NameLobbyProfileFormat : Resources.NamePlayerFormat,
                 GameName(warning.Game), warning.Name)));
             return string.Join(Environment.NewLine, lines);
+        }
+
+        // --- Network diagnostics and diagnostics report (L-WP9) ------------------------------------------------------
+
+        /// <summary>The outage verdict of the network check (forum report section 8 row 9), as the state line of the section.</summary>
+        internal static string NetworkVerdict(NetworkReport report)
+        {
+            if (report == null)
+                throw new ArgumentNullException(nameof(report));
+            switch (report.Verdict)
+            {
+                case OutageVerdict.ServerAnswers:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.NetworkVerdictServerAnswersFormat, report.OnlinePlayers ?? 0);
+                case OutageVerdict.ProbablyServerOutage:
+                    return Resources.NetworkVerdictOutage;
+                case OutageVerdict.ServerNameNotResolved:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.NetworkVerdictNameNotResolvedFormat,
+                        report.Lookups.Count > 0 ? report.Lookups[0].Host : "?");
+                case OutageVerdict.NoConnection:
+                    return Resources.NetworkVerdictNoConnection;
+                case OutageVerdict.NoServerReached:
+                    return Resources.NetworkVerdictNoServerReached;
+                case OutageVerdict.Undetermined:
+                    return Resources.NetworkVerdictUndetermined;
+                default:
+                    return Resources.NetworkVerdictNotConfigured;
+            }
+        }
+
+        /// <summary>The hints of the network check, one paragraph each; empty without hints.</summary>
+        internal static string NetworkHints(NetworkReport report)
+        {
+            if (report == null)
+                throw new ArgumentNullException(nameof(report));
+            return string.Join(Environment.NewLine + Environment.NewLine, report.Hints.Select(NetworkHintText));
+        }
+
+        /// <summary>One hint of the network check.</summary>
+        internal static string NetworkHintText(NetworkHint hint)
+        {
+            switch (hint.Code)
+            {
+                case NetworkHintCode.NoConnection:
+                    return Resources.NetworkHintNoConnection;
+                case NetworkHintCode.IPv6Only:
+                    return Resources.NetworkHintIPv6Only;
+                case NetworkHintCode.VirtualAdapters:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.NetworkHintVirtualAdaptersFormat, hint.Count);
+                case NetworkHintCode.SeveralAdapters:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.NetworkHintSeveralAdaptersFormat, hint.Count);
+                case NetworkHintCode.CgnatAddress:
+                    return Resources.NetworkHintCgnat;
+                case NetworkHintCode.DsLite:
+                    return Resources.NetworkHintDsLite;
+                case NetworkHintCode.NoExternalIPv4:
+                    return Resources.NetworkHintNoExternalIPv4;
+                case NetworkHintCode.PrivateExternalAddress:
+                    return Resources.NetworkHintPrivateExternal;
+                case NetworkHintCode.RipHostingOff:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.NetworkHintRipOffFormat, GameName(hint.Game));
+                default:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.NetworkHintCdKeyCheckFormat, GameName(hint.Game));
+            }
+        }
+
+        /// <summary>
+        /// The details of the network check, one line each: adapters (type, driver name, IPv4 where it may be shown, IPv6 as a
+        /// class; ADR 0013 plan review), name lookups, update server, status server, the files of the game folders (read only)
+        /// and the port forwarding table.
+        /// </summary>
+        internal static string NetworkDetails(NetworkReport report)
+        {
+            if (report == null)
+                throw new ArgumentNullException(nameof(report));
+            var lines = new List<string>();
+            if (report.Adapters.Problem != null)
+                lines.Add(Resources.NetworkAdaptersUnreadable);
+            lines.AddRange(report.Adapters.Adapters.Select(NetworkAdapterLine));
+            lines.AddRange(report.Lookups.Select(NetworkLookup));
+            lines.Add(NetworkUpdateApi(report));
+            lines.Add(report.StatusEndpoint == null ? Resources.NetworkStatusNotConfigured
+                : report.StatusServer == StatusServerAnswer.Answered
+                    ? string.Format(CultureInfo.CurrentCulture, Resources.NetworkStatusAnsweredFormat, report.StatusEndpoint, report.OnlinePlayers ?? 0)
+                    : string.Format(CultureInfo.CurrentCulture, Resources.NetworkStatusNoAnswerFormat, report.StatusEndpoint));
+            lines.AddRange(report.NeoEeConfigs.Select(NetworkNeoEeConfig));
+            lines.AddRange(report.WonLobbyConfigs.Select(NetworkWonLobbyConfig));
+            lines.AddRange(report.UpnpInfos.Select(NetworkUpnpInfo));
+            string target = report.ForwardingTarget == null
+                ? Resources.NetworkPortsThisComputer
+                : NetworkAddress(report.ForwardingTarget);
+            PortForwarding first = report.PortForwarding.FirstOrDefault();
+            foreach (PortForwarding table in report.PortForwarding)
+            {
+                if (table != first && table.SamePortsAs(first))
+                    continue;
+                string games = table == first && report.PortForwarding.All(other => other.SamePortsAs(first))
+                    ? string.Join(", ", report.PortForwarding.Select(other => GameName(other.Game)))
+                    : GameName(table.Game);
+                lines.Add(string.Format(CultureInfo.CurrentCulture, Resources.NetworkPortsFormat, games, table, target));
+            }
+            return string.Join(Environment.NewLine, lines);
+        }
+
+        private static string NetworkAdapterLine(NetworkAdapter adapter)
+        {
+            List<string> ipv4 = adapter.Addresses.Where(address => address.IsIPv4).Select(address => NetworkAddress(address.Address) +
+                (AddressClassifier.MayShow(address.Address) && address.PrefixLength > 0
+                    ? "/" + address.PrefixLength.ToString(CultureInfo.InvariantCulture)
+                    : string.Empty)).ToList();
+            List<string> gateways = adapter.Gateways.Where(gateway => gateway.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                .Select(NetworkAddress).ToList();
+            string text = string.Format(CultureInfo.CurrentCulture, Resources.NetworkAdapterFormat, NetworkKind(adapter.Kind),
+                adapter.Description, ipv4.Count == 0 ? Resources.NetworkNone : string.Join(" ", ipv4),
+                gateways.Count == 0 ? Resources.NetworkNone : string.Join(" ", gateways),
+                NetworkIPv6(AddressClassifier.IPv6ClassOf(adapter.Addresses.Select(address => address.Address))));
+            if (!adapter.IsUp)
+                text += Resources.NetworkAdapterDisconnected;
+            if (NetworkDiagnostics.IsVirtual(adapter))
+                text += Resources.NetworkAdapterVirtual;
+            return text;
+        }
+
+        /// <summary>An IPv4 address as the page may show it: the value if private or link-local, else its class (ADR 0013).</summary>
+        internal static string NetworkAddress(System.Net.IPAddress address)
+        {
+            if (address.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
+                return NetworkIPv6(IPv6Class.Global);
+            return AddressClassifier.MayShow(address) ? address.ToString() : NetworkClass(AddressClassifier.ClassOf(address));
+        }
+
+        internal static string NetworkClass(IPv4Class addressClass)
+        {
+            switch (addressClass)
+            {
+                case IPv4Class.Private:
+                    return Resources.NetworkClassPrivate;
+                case IPv4Class.LinkLocal:
+                    return Resources.NetworkClassLinkLocal;
+                case IPv4Class.Cgnat:
+                    return Resources.NetworkClassCgnat;
+                case IPv4Class.Public:
+                    return Resources.NetworkClassPublic;
+                case IPv4Class.Unspecified:
+                    return Resources.NetworkClassUnspecified;
+                default:
+                    return Resources.NetworkClassSpecial;
+            }
+        }
+
+        private static string NetworkIPv6(IPv6Class addressClass)
+        {
+            switch (addressClass)
+            {
+                case IPv6Class.None:
+                    return Resources.NetworkIPv6None;
+                case IPv6Class.LinkLocalOnly:
+                    return Resources.NetworkIPv6LinkLocal;
+                default:
+                    return Resources.NetworkIPv6Global;
+            }
+        }
+
+        private static string NetworkKind(NetworkAdapterKind kind)
+        {
+            switch (kind)
+            {
+                case NetworkAdapterKind.Ethernet:
+                    return Resources.NetworkKindEthernet;
+                case NetworkAdapterKind.Wireless:
+                    return Resources.NetworkKindWireless;
+                case NetworkAdapterKind.Tunnel:
+                    return Resources.NetworkKindTunnel;
+                case NetworkAdapterKind.Ppp:
+                    return Resources.NetworkKindPpp;
+                case NetworkAdapterKind.MobileBroadband:
+                    return Resources.NetworkKindMobile;
+                default:
+                    return Resources.NetworkKindOther;
+            }
+        }
+
+        private static string NetworkLookup(DnsLookup lookup)
+        {
+            switch (lookup.Outcome)
+            {
+                case DnsOutcome.Resolved:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.NetworkDnsResolvedFormat, lookup.Host);
+                case DnsOutcome.NotFound:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.NetworkDnsNotFoundFormat, lookup.Host);
+                case DnsOutcome.Timeout:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.NetworkDnsTimeoutFormat, lookup.Host);
+                default:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.NetworkDnsFailedFormat, lookup.Host);
+            }
+        }
+
+        private static string NetworkUpdateApi(NetworkReport report)
+        {
+            HttpsResponse response = report.UpdateApiResponse;
+            if (response == null)
+                return Resources.NetworkApiNotAsked;
+            if (response.Outcome == HttpsOutcome.Answered)
+                return string.Format(CultureInfo.CurrentCulture, Resources.NetworkApiAnsweredFormat, response.StatusCode);
+            FallbackReason reason = response.Outcome == HttpsOutcome.Timeout ? FallbackReason.Timeout
+                : response.Outcome == HttpsOutcome.TlsError ? FallbackReason.TlsError : FallbackReason.NetworkError;
+            return string.Format(CultureInfo.CurrentCulture, Resources.NetworkApiNoAnswerFormat, Failure(reason));
+        }
+
+        private static string NetworkFileState(Game game, string fileName, ConfigFileStatus status)
+        {
+            return string.Format(CultureInfo.CurrentCulture,
+                status == ConfigFileStatus.Missing ? Resources.NetworkFileMissingFormat : Resources.NetworkFileUnreadableFormat,
+                GameName(game), fileName);
+        }
+
+        private static string OnOff(bool? value)
+        {
+            return value == null ? "?" : value.Value ? Resources.NetworkOn : Resources.NetworkOff;
+        }
+
+        private static string Number(int? value)
+        {
+            return value == null ? "?" : value.Value.ToString(CultureInfo.CurrentCulture);
+        }
+
+        private static string NetworkNeoEeConfig(NeoEeConfig config)
+        {
+            if (config.Status != ConfigFileStatus.Read)
+                return NetworkFileState(config.Game, NeoEeConfigReader.FileName, config.Status);
+            return string.Format(CultureInfo.CurrentCulture, Resources.NetworkNeoEeCfgFormat, GameName(config.Game), OnOff(config.Active),
+                config.Server ?? "?", Number(config.DefaultPort), Number(config.MemberPorts), OnOff(config.PortCheck), OnOff(config.TryUpnp));
+        }
+
+        private static string NetworkWonLobbyConfig(WonLobbyConfig config)
+        {
+            if (config.Status != ConfigFileStatus.Read)
+                return NetworkFileState(config.Game, WonLobbyConfigReader.FileName, config.Status);
+            string cdKeyCheck = config.CdKeyCheckInvalid ? Resources.NetworkInvalid
+                : config.CdKeyCheck == null ? "?" : config.CdKeyCheck.Value ? "true" : "false";
+            return string.Format(CultureInfo.CurrentCulture, Resources.NetworkWonLobbyFormat, GameName(config.Game), cdKeyCheck,
+                Number(config.FileTransferPort), Number(config.LobbyPort));
+        }
+
+        private static string NetworkUpnpInfo(UpnpInfo info)
+        {
+            switch (info.Status)
+            {
+                case UpnpInfoStatus.Missing:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.NetworkUpnpMissingFormat, GameName(info.Game));
+                case UpnpInfoStatus.Unreadable:
+                    return NetworkFileState(info.Game, UpnpInfoParser.FileName, ConfigFileStatus.Unreadable);
+                case UpnpInfoStatus.UnknownFormat:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.NetworkUpnpUnknownFormat, GameName(info.Game));
+                default:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.NetworkUpnpFormat, GameName(info.Game),
+                        info.ExternalAddressClass == null ? Resources.NetworkNone : NetworkClass(info.ExternalAddressClass.Value),
+                        info.LocalAddress == null ? Resources.NetworkNone : NetworkAddress(info.LocalAddress));
+            }
+        }
+
+        /// <summary>The result line of saving the diagnostics report.</summary>
+        internal static string ReportSaved(ReportSaveResult result)
+        {
+            if (result == null)
+                throw new ArgumentNullException(nameof(result));
+            switch (result.Outcome)
+            {
+                case ReportSaveOutcome.Saved:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.ReportSavedFormat, result.Path);
+                case ReportSaveOutcome.InsideInstallation:
+                    return Resources.ReportSaveRefused;
+                default:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.ReportSaveFailedFormat, result.Problem);
+            }
         }
     }
 }
