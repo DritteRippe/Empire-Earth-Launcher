@@ -444,33 +444,6 @@
   <data name="&gt;&gt;playKryptonCheckButton.ZOrder" xml:space="preserve">
     <value>6</value>
   </data>
-  <data name="modsKryptonCheckButton.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="modsKryptonCheckButton.Location" type="System.Drawing.Point, System.Drawing">
-    <value>4, 182</value>
-  </data>
-  <data name="modsKryptonCheckButton.Size" type="System.Drawing.Size, System.Drawing">
-    <value>122, 52</value>
-  </data>
-  <data name="modsKryptonCheckButton.TabIndex" type="System.Int32, mscorlib">
-    <value>1</value>
-  </data>
-  <data name="modsKryptonCheckButton.Values.Text" xml:space="preserve">
-    <value>Mods</value>
-  </data>
-  <data name="&gt;&gt;modsKryptonCheckButton.Name" xml:space="preserve">
-    <value>modsKryptonCheckButton</value>
-  </data>
-  <data name="&gt;&gt;modsKryptonCheckButton.Type" xml:space="preserve">
-    <value>Krypton.Toolkit.KryptonCheckButton, Krypton.Toolkit, Version=5.550.2108.0, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="&gt;&gt;modsKryptonCheckButton.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;modsKryptonCheckButton.ZOrder" xml:space="preserve">
-    <value>5</value>
-  </data>
   <data name="settingsKryptonCheckButton.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>

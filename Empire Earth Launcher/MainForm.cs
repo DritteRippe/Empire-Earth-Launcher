@@ -35,20 +35,15 @@ namespace Empire_Earth_Launcher
 
             // A page cannot be assigned to Tag in the designer, so the navigation is wired up here.
             playKryptonCheckButton.Tag = generalUserControl;
-            modsKryptonCheckButton.Tag = null;
             settingsKryptonCheckButton.Tag = settingsUserControl;
             launcherKryptonCheckButton.Tag = launcherSettingsUserControl;
-            navigationButtons = new[]
-            {
-                playKryptonCheckButton, modsKryptonCheckButton, settingsKryptonCheckButton, launcherKryptonCheckButton
-            };
+            navigationButtons = new[] { playKryptonCheckButton, settingsKryptonCheckButton, launcherKryptonCheckButton };
         }
 
         /// <summary>
         /// Shared Click handler of the navigation buttons, which behave like radio buttons: the clicked button
         /// stays checked (a second click does not uncheck it), all others are unchecked, and only the page in
-        /// the clicked button's Tag is visible. A button without a page (Mods, not implemented yet) hides all
-        /// pages.
+        /// the clicked button's Tag is visible.
         /// </summary>
         private void navigationKryptonCheckButton_Click(object sender, EventArgs e)
         {

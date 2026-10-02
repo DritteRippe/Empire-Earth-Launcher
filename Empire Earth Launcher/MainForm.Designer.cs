@@ -34,7 +34,6 @@ namespace Empire_Earth_Launcher
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.launcherKryptonPalette = new Krypton.Toolkit.KryptonPalette(this.components);
             this.playKryptonCheckButton = new Krypton.Toolkit.KryptonCheckButton();
-            this.modsKryptonCheckButton = new Krypton.Toolkit.KryptonCheckButton();
             this.settingsKryptonCheckButton = new Krypton.Toolkit.KryptonCheckButton();
             this.launcherKryptonCheckButton = new Krypton.Toolkit.KryptonCheckButton();
             this.generalUserControl = new Empire_Earth_Launcher.GeneralUserControl();
@@ -121,23 +120,6 @@ namespace Empire_Earth_Launcher
             this.playKryptonCheckButton.Values.Text = resources.GetString("playKryptonCheckButton.Values.Text");
             this.playKryptonCheckButton.Click += new System.EventHandler(this.navigationKryptonCheckButton_Click);
             // 
-            // modsKryptonCheckButton
-            // 
-            resources.ApplyResources(this.modsKryptonCheckButton, "modsKryptonCheckButton");
-            this.modsKryptonCheckButton.Name = "modsKryptonCheckButton";
-            this.modsKryptonCheckButton.OverrideDefault.Border.DrawBorders = ((Krypton.Toolkit.PaletteDrawBorders)((((Krypton.Toolkit.PaletteDrawBorders.Top | Krypton.Toolkit.PaletteDrawBorders.Bottom) 
-            | Krypton.Toolkit.PaletteDrawBorders.Left) 
-            | Krypton.Toolkit.PaletteDrawBorders.Right)));
-            this.modsKryptonCheckButton.OverrideDefault.Border.Rounding = 0F;
-            this.modsKryptonCheckButton.Palette = this.launcherKryptonPalette;
-            this.modsKryptonCheckButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.modsKryptonCheckButton.StateCommon.Border.DrawBorders = ((Krypton.Toolkit.PaletteDrawBorders)((((Krypton.Toolkit.PaletteDrawBorders.Top | Krypton.Toolkit.PaletteDrawBorders.Bottom) 
-            | Krypton.Toolkit.PaletteDrawBorders.Left) 
-            | Krypton.Toolkit.PaletteDrawBorders.Right)));
-            this.modsKryptonCheckButton.StateCommon.Border.Rounding = 0F;
-            this.modsKryptonCheckButton.Values.Text = resources.GetString("modsKryptonCheckButton.Values.Text");
-            this.modsKryptonCheckButton.Click += new System.EventHandler(this.navigationKryptonCheckButton_Click);
-            // 
             // settingsKryptonCheckButton
             // 
             resources.ApplyResources(this.settingsKryptonCheckButton, "settingsKryptonCheckButton");
@@ -195,7 +177,6 @@ namespace Empire_Earth_Launcher
             this.Controls.Add(this.launcherSettingsUserControl);
             this.Controls.Add(this.launcherKryptonCheckButton);
             this.Controls.Add(this.settingsKryptonCheckButton);
-            this.Controls.Add(this.modsKryptonCheckButton);
             this.Controls.Add(this.playKryptonCheckButton);
             this.Name = "MainForm";
             this.Palette = this.launcherKryptonPalette;
@@ -209,7 +190,6 @@ namespace Empire_Earth_Launcher
 
         #endregion
         private Krypton.Toolkit.KryptonCheckButton playKryptonCheckButton;
-        private Krypton.Toolkit.KryptonCheckButton modsKryptonCheckButton;
         private Krypton.Toolkit.KryptonCheckButton settingsKryptonCheckButton;
         private Krypton.Toolkit.KryptonCheckButton launcherKryptonCheckButton;
         private Krypton.Toolkit.KryptonPalette launcherKryptonPalette;

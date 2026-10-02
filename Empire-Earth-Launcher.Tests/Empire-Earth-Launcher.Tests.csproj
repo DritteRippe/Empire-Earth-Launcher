@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Architecture\CoreDependencyTests.cs" />
+    <Compile Include="Architecture\PlaceholderControlsTests.cs" />
     <Compile Include="Architecture\ProjectConventionsTests.cs" />
     <Compile Include="Architecture\RegistryAliasPolicyTests.cs" />
     <Compile Include="Core\Contract\ContractNamesTests.cs" />

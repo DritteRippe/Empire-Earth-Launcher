@@ -38,20 +38,12 @@ namespace Empire_Earth_Launcher
             this.browseGameDirectoryKryptonButton = new Krypton.Toolkit.KryptonButton();
             this.gameDirectoryKryptonTextBox = new Krypton.Toolkit.KryptonTextBox();
             this.gameDirectoryKryptonLabel = new Krypton.Toolkit.KryptonLabel();
-            this.associateModFilesKryptonCheckBox = new Krypton.Toolkit.KryptonCheckBox();
-            this.gameCloseKryptonLabel = new Krypton.Toolkit.KryptonLabel();
-            this.gameCloseKryptonComboBox = new Krypton.Toolkit.KryptonComboBox();
-            this.gameStartKryptonLabel = new Krypton.Toolkit.KryptonLabel();
-            this.gameStartKryptonComboBox = new Krypton.Toolkit.KryptonComboBox();
-            this.diagnosticDataKryptonCheckBox = new Krypton.Toolkit.KryptonCheckBox();
             this.themeKryptonLabel = new Krypton.Toolkit.KryptonLabel();
             this.themeKryptonComboBox = new Krypton.Toolkit.KryptonComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.launcherSettingsKryptonGroupBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.launcherSettingsKryptonGroupBox.Panel)).BeginInit();
             this.launcherSettingsKryptonGroupBox.Panel.SuspendLayout();
             this.launcherSettingsKryptonGroupBox.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.gameCloseKryptonComboBox)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gameStartKryptonComboBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.themeKryptonComboBox)).BeginInit();
             this.SuspendLayout();
             // 
@@ -130,12 +122,6 @@ namespace Empire_Earth_Launcher
             this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.browseGameDirectoryKryptonButton);
             this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.gameDirectoryKryptonTextBox);
             this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.gameDirectoryKryptonLabel);
-            this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.associateModFilesKryptonCheckBox);
-            this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.gameCloseKryptonLabel);
-            this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.gameCloseKryptonComboBox);
-            this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.gameStartKryptonLabel);
-            this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.gameStartKryptonComboBox);
-            this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.diagnosticDataKryptonCheckBox);
             this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.themeKryptonLabel);
             this.launcherSettingsKryptonGroupBox.Panel.Controls.Add(this.themeKryptonComboBox);
             this.launcherSettingsKryptonGroupBox.Size = new System.Drawing.Size(540, 350);
@@ -194,72 +180,6 @@ namespace Empire_Earth_Launcher
             this.gameDirectoryKryptonLabel.TabIndex = 10;
             this.gameDirectoryKryptonLabel.Values.Text = "Empire Earth folder :";
             // 
-            // associateModFilesKryptonCheckBox
-            // 
-            this.associateModFilesKryptonCheckBox.Location = new System.Drawing.Point(13, 136);
-            this.associateModFilesKryptonCheckBox.Name = "associateModFilesKryptonCheckBox";
-            this.associateModFilesKryptonCheckBox.Palette = this.launcherKryptonPalette;
-            this.associateModFilesKryptonCheckBox.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.associateModFilesKryptonCheckBox.Size = new System.Drawing.Size(394, 20);
-            this.associateModFilesKryptonCheckBox.TabIndex = 9;
-            this.associateModFilesKryptonCheckBox.Values.Text = "Associate Empire Earth Mod files (.eem) with the Launcher";
-            // 
-            // gameCloseKryptonLabel
-            // 
-            this.gameCloseKryptonLabel.Location = new System.Drawing.Point(13, 108);
-            this.gameCloseKryptonLabel.Name = "gameCloseKryptonLabel";
-            this.gameCloseKryptonLabel.Palette = this.launcherKryptonPalette;
-            this.gameCloseKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.gameCloseKryptonLabel.Size = new System.Drawing.Size(145, 20);
-            this.gameCloseKryptonLabel.TabIndex = 7;
-            this.gameCloseKryptonLabel.Values.Text = "When closing the game :";
-            // 
-            // gameCloseKryptonComboBox
-            // 
-            this.gameCloseKryptonComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
-            this.gameCloseKryptonComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.gameCloseKryptonComboBox.DropDownWidth = 141;
-            this.gameCloseKryptonComboBox.IntegralHeight = false;
-            this.gameCloseKryptonComboBox.Location = new System.Drawing.Point(168, 107);
-            this.gameCloseKryptonComboBox.Name = "gameCloseKryptonComboBox";
-            this.gameCloseKryptonComboBox.Palette = this.launcherKryptonPalette;
-            this.gameCloseKryptonComboBox.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.gameCloseKryptonComboBox.Size = new System.Drawing.Size(239, 23);
-            this.gameCloseKryptonComboBox.TabIndex = 8;
-            // 
-            // gameStartKryptonLabel
-            // 
-            this.gameStartKryptonLabel.Location = new System.Drawing.Point(13, 79);
-            this.gameStartKryptonLabel.Name = "gameStartKryptonLabel";
-            this.gameStartKryptonLabel.Palette = this.launcherKryptonPalette;
-            this.gameStartKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.gameStartKryptonLabel.Size = new System.Drawing.Size(149, 20);
-            this.gameStartKryptonLabel.TabIndex = 5;
-            this.gameStartKryptonLabel.Values.Text = "When starting the game :";
-            // 
-            // gameStartKryptonComboBox
-            // 
-            this.gameStartKryptonComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
-            this.gameStartKryptonComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.gameStartKryptonComboBox.DropDownWidth = 141;
-            this.gameStartKryptonComboBox.IntegralHeight = false;
-            this.gameStartKryptonComboBox.Location = new System.Drawing.Point(168, 78);
-            this.gameStartKryptonComboBox.Name = "gameStartKryptonComboBox";
-            this.gameStartKryptonComboBox.Palette = this.launcherKryptonPalette;
-            this.gameStartKryptonComboBox.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.gameStartKryptonComboBox.Size = new System.Drawing.Size(239, 23);
-            this.gameStartKryptonComboBox.TabIndex = 6;
-            // 
-            // diagnosticDataKryptonCheckBox
-            // 
-            this.diagnosticDataKryptonCheckBox.Location = new System.Drawing.Point(13, 13);
-            this.diagnosticDataKryptonCheckBox.Name = "diagnosticDataKryptonCheckBox";
-            this.diagnosticDataKryptonCheckBox.Palette = this.launcherKryptonPalette;
-            this.diagnosticDataKryptonCheckBox.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.diagnosticDataKryptonCheckBox.Size = new System.Drawing.Size(398, 20);
-            this.diagnosticDataKryptonCheckBox.TabIndex = 4;
-            this.diagnosticDataKryptonCheckBox.Values.Text = "Allow us to collect diagnostic data to improve Empire Earth support";
-            // 
             // themeKryptonLabel
             // 
             this.themeKryptonLabel.Location = new System.Drawing.Point(13, 41);
@@ -298,8 +218,6 @@ namespace Empire_Earth_Launcher
             this.launcherSettingsKryptonGroupBox.Panel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.launcherSettingsKryptonGroupBox)).EndInit();
             this.launcherSettingsKryptonGroupBox.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.gameCloseKryptonComboBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gameStartKryptonComboBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.themeKryptonComboBox)).EndInit();
             this.ResumeLayout(false);
 
@@ -311,12 +229,6 @@ namespace Empire_Earth_Launcher
         private Krypton.Toolkit.KryptonGroupBox launcherSettingsKryptonGroupBox;
         private Krypton.Toolkit.KryptonComboBox themeKryptonComboBox;
         private Krypton.Toolkit.KryptonLabel themeKryptonLabel;
-        private Krypton.Toolkit.KryptonCheckBox diagnosticDataKryptonCheckBox;
-        private Krypton.Toolkit.KryptonCheckBox associateModFilesKryptonCheckBox;
-        private Krypton.Toolkit.KryptonLabel gameCloseKryptonLabel;
-        private Krypton.Toolkit.KryptonComboBox gameCloseKryptonComboBox;
-        private Krypton.Toolkit.KryptonLabel gameStartKryptonLabel;
-        private Krypton.Toolkit.KryptonComboBox gameStartKryptonComboBox;
         private Krypton.Toolkit.KryptonLabel gameDirectoryKryptonLabel;
         private Krypton.Toolkit.KryptonTextBox gameDirectoryKryptonTextBox;
         private Krypton.Toolkit.KryptonButton browseGameDirectoryKryptonButton;

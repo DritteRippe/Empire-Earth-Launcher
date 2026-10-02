@@ -71,6 +71,17 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
 
 ### Removed
 
+- The placeholder controls that had no function ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md),
+  exact list in its amendment): on the *Launcher* page the checkbox "Allow us to collect diagnostic data" (the
+  launcher sends no telemetry), the `.eem` file association and the "When starting/closing the game" choices; on
+  the *Settings* page the "Magic Button" group (Repair CD-Keys, Reset the Game, Clear Registry) and the
+  Compatibility, Windows, DirectX and Advanced Settings groups (compatibility mode, heap, 8/16 bit, DirectX
+  wrapper, dgVoodoo, resolution, monitor, game font, dreXmod, NeoEE, Discord presence, HD textures, skip intro);
+  on the *Play* page the game language and online ranking groups and "No mods in use"; the *Mods* navigation
+  button. The working compatibility warning of the *Settings* page stays. Removed are the fields, the designer
+  code and the resources; none of them had a handler. An architecture test (`PlaceholderControlsTests`) keeps
+  the names out of the launcher's designer files, code and resources. Features that v2 implements come back as
+  working controls with new names in their work packages (reset, compatibility options, repair advice, ...).
 - `UserSettingsRecovery` (recovery from a damaged `user.config`): the launcher has no user-scoped .NET settings
   left; the behaviour lives on in `SettingsStore` with its tests.
 - Support for Windows XP, Vista, Windows 8.0 and Windows 10 versions 1507 and 1511, which cannot run the

@@ -124,9 +124,6 @@
   <data name="playKryptonCheckButton.Values.Text" xml:space="preserve">
     <value>Jouer</value>
   </data>
-  <data name="modsKryptonCheckButton.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
   <data name="settingsKryptonCheckButton.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
