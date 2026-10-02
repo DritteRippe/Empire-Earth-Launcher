@@ -79,6 +79,7 @@
     <Compile Include="Core\Contract\ContractNamesTests.cs" />
     <Compile Include="Core\Contract\GameTests.cs" />
     <Compile Include="Core\Diagnostics\AddressClassifierTests.cs" />
+    <Compile Include="Core\Diagnostics\DiagnosticsReportTests.cs" />
     <Compile Include="Core\Diagnostics\GameConfigReadersTests.cs" />
     <Compile Include="Core\Diagnostics\NetworkDiagnosticsTests.cs" />
     <Compile Include="Core\Diagnostics\OutageHintTests.cs" />
@@ -231,6 +232,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Core\Backup\Golden\UnknownTypes.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\Diagnostics\Golden\DiagnosticsReport.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="..\docs\contract-samples\files.sha256">

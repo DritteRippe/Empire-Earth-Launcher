@@ -42,6 +42,10 @@
 # the backup tests (Empire-Earth-Launcher.Tests/Core/Backup/Golden) are compared byte by byte.
 *.reg       binary
 
+# The golden file of the diagnostics report (Empire-Earth-Launcher.Tests/Core/Diagnostics/Golden) is compared byte by
+# byte with the report, whose lines end with CRLF as the Windows clipboard and Notepad expect.
+Empire-Earth-Launcher.Tests/Core/Diagnostics/Golden/*.txt text eol=crlf
+
 # Byte samples of the shared contract (docs/contract-samples, ADR 0012 plan review): install-*.ini ASCII with CRLF,
 # files.sha256 ASCII with LF, record.reg UTF-16 LE with BOM and CRLF, as the setup writes them. The setup repository
 # keeps the same folder; git must never convert a byte of it.
