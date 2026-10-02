@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Empire_Earth_Launcher.Core.Settings
 {
@@ -13,7 +14,7 @@ namespace Empire_Earth_Launcher.Core.Settings
     /// <see cref="CurrentSchemaVersion"/>; renaming, removing or changing the meaning of a member raises it.
     /// </para>
     /// <para>
-    /// Members still to come with their work packages (ARCHITECTURE 8): last game, hidden warnings.
+    /// Members still to come with their work packages (ARCHITECTURE 8): last game.
     /// </para>
     /// </remarks>
     [DataContract(Name = "LauncherSettings", Namespace = "")]
@@ -58,6 +59,13 @@ namespace Empire_Earth_Launcher.Core.Settings
         [DataMember(Order = 4)]
         public string UiCulture { get; set; }
 
+        /// <summary>
+        /// The hints of the consistency checks the player hid (ADR 0015): each with the values it was about, so that the hint
+        /// shows again when a value changes. Added in L-WP5 as an optional member (schema 1).
+        /// </summary>
+        [DataMember(Order = 5)]
+        public List<HiddenHint> HiddenHints { get; set; }
+
         /// <summary>Members of the file this launcher does not know (written by a newer launcher).</summary>
         public ExtensionDataObject ExtensionData { get; set; }
 
@@ -67,6 +75,7 @@ namespace Empire_Earth_Launcher.Core.Settings
             ThemeName = DefaultThemeName;
             CustomThemeFile = string.Empty;
             UiCulture = UiLanguage.Windows;
+            HiddenHints = new List<HiddenHint>();
         }
 
         /// <summary>The serializer creates the object without a constructor: start from the defaults.</summary>
@@ -85,6 +94,27 @@ namespace Empire_Earth_Launcher.Core.Settings
             ThemeName = ThemeName ?? DefaultThemeName;
             CustomThemeFile = CustomThemeFile ?? string.Empty;
             UiCulture = UiCulture ?? UiLanguage.Windows;
+            HiddenHints = HiddenHints ?? new List<HiddenHint>();
+            HiddenHints.RemoveAll(hint => hint == null);
         }
+    }
+
+    /// <summary>
+    /// A hint the player hid (ADR 0015, ARCHITECTURE 8 "hidden warnings"): what it is about and the values it showed. Written
+    /// and compared by <c>GameSettings.HintVisibility</c>.
+    /// </summary>
+    [DataContract(Name = "HiddenHint", Namespace = "")]
+    public sealed class HiddenHint : IExtensibleDataObject
+    {
+        /// <summary>The finding and its game settings key, e.g. <c>BitDepthMismatch HKCU\Software\Neo\Empire Earth</c>.</summary>
+        [DataMember(Order = 0)]
+        public string Hint { get; set; }
+
+        /// <summary>The values when it was hidden, e.g. <c>Game Bit Depth=16; Texture Bit Depth=32</c>.</summary>
+        [DataMember(Order = 1)]
+        public string Values { get; set; }
+
+        /// <summary>Members of a newer launcher.</summary>
+        public ExtensionDataObject ExtensionData { get; set; }
     }
 }

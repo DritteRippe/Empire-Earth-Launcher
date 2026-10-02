@@ -49,10 +49,13 @@
     <Compile Include="Contract\ContractNames.cs" />
     <Compile Include="Contract\Game.cs" />
     <Compile Include="Contract\Product.cs" />
+    <Compile Include="GameSettings\CompatibilityOptions.cs" />
     <Compile Include="GameSettings\ComputedValues.cs" />
+    <Compile Include="GameSettings\ConsistencyChecks.cs" />
     <Compile Include="GameSettings\GameDefaultsModel.cs" />
     <Compile Include="GameSettings\GameDefaultsService.cs" />
     <Compile Include="GameSettings\GameSettingsTable.cs" />
+    <Compile Include="GameSettings\HintVisibility.cs" />
     <Compile Include="GameSettings\LauncherWritePolicy.cs" />
     <Compile Include="GameSettings\RecommendedValues.cs" />
     <Compile Include="Installations\DiscoveryResult.cs" />
