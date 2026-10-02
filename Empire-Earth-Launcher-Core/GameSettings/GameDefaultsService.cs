@@ -37,6 +37,8 @@ namespace Empire_Earth_Launcher.Core.GameSettings
     /// </para>
     /// <para>
     /// Synchronous: the registry work takes milliseconds; the UI runs it through <c>UiOperation</c> on the thread pool.
+    /// The writing methods run one at a time (one lock): the defaults at the launcher start and the first Play run on two
+    /// threads of the pool and would otherwise both see a missing marker and both write a backup (build/UI review).
     /// </para>
     /// </remarks>
     public sealed class GameDefaultsService : IGameStartPreparation
@@ -47,6 +49,9 @@ namespace Empire_Earth_Launcher.Core.GameSettings
         private readonly MutationGuard guard;
         private readonly BackupLocations backups;
         private readonly ILogger logger;
+
+        /// <summary>Serializes the writing methods (the launcher start, Play, the page and the reset run on the thread pool).</summary>
+        private readonly object writes = new object();
 
         /// <param name="registry">The registry, wrapped in the launcher's write policy (<see cref="LauncherWritePolicy"/>).</param>
         /// <param name="fileSystem">For the wrapper files of the rasterizer rule.</param>
@@ -154,6 +159,12 @@ namespace Empire_Earth_Launcher.Core.GameSettings
         /// </summary>
         public DefaultsStartup ApplyAtLauncherStart(DiscoveryResult discovery)
         {
+            lock (writes)
+                return ApplyAtLauncherStartNow(discovery);
+        }
+
+        private DefaultsStartup ApplyAtLauncherStartNow(DiscoveryResult discovery)
+        {
             if (discovery == null)
                 throw new ArgumentNullException(nameof(discovery));
             var games = new List<GameDefaultsAtStart>();
@@ -213,6 +224,12 @@ namespace Empire_Earth_Launcher.Core.GameSettings
         /// <paramref name="question"/> if existing display values differ.
         /// </summary>
         public DefaultsAtStart ApplyDefaultsIfNeeded(Installation installation, Game game, out DisplayQuestion question)
+        {
+            lock (writes)
+                return ApplyDefaultsIfNeededNow(installation, game, out question);
+        }
+
+        private DefaultsAtStart ApplyDefaultsIfNeededNow(Installation installation, Game game, out DisplayQuestion question)
         {
             if (installation == null)
                 throw new ArgumentNullException(nameof(installation));
@@ -329,6 +346,12 @@ namespace Empire_Earth_Launcher.Core.GameSettings
         /// </summary>
         public GameSettingsResult SynchronizeInstalledFrom(Installation installation, Game game)
         {
+            lock (writes)
+                return SynchronizeInstalledFromNow(installation, game);
+        }
+
+        private GameSettingsResult SynchronizeInstalledFromNow(Installation installation, Game game)
+        {
             if (installation == null)
                 throw new ArgumentNullException(nameof(installation));
             if (game == null)
@@ -373,6 +396,12 @@ namespace Empire_Earth_Launcher.Core.GameSettings
         /// </summary>
         public GameSettingsResult AnswerDisplayQuestion(DisplayQuestion question, bool apply)
         {
+            lock (writes)
+                return AnswerDisplayQuestionNow(question, apply);
+        }
+
+        private GameSettingsResult AnswerDisplayQuestionNow(DisplayQuestion question, bool apply)
+        {
             if (question == null)
                 throw new ArgumentNullException(nameof(question));
             MutationCheck check = guard.Check("answer the question about the recommended display settings");
@@ -401,6 +430,12 @@ namespace Empire_Earth_Launcher.Core.GameSettings
         /// of the installation, then the display values (class D) overwritten. Nothing else changes.
         /// </summary>
         public GameSettingsResult ApplyRecommendedDisplay(Installation installation)
+        {
+            lock (writes)
+                return ApplyRecommendedDisplayNow(installation);
+        }
+
+        private GameSettingsResult ApplyRecommendedDisplayNow(Installation installation)
         {
             if (installation == null)
                 throw new ArgumentNullException(nameof(installation));
@@ -434,6 +469,12 @@ namespace Empire_Earth_Launcher.Core.GameSettings
         /// Refused for an installation of a newer contract (contract 5).
         /// </summary>
         public GameSettingsResult Reset(Installation installation)
+        {
+            lock (writes)
+                return ResetNow(installation);
+        }
+
+        private GameSettingsResult ResetNow(Installation installation)
         {
             if (installation == null)
                 throw new ArgumentNullException(nameof(installation));

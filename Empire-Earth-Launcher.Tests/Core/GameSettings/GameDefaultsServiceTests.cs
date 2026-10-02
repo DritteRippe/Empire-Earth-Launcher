@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Installations;
@@ -91,6 +93,36 @@ namespace Empire_Earth_Launcher.Tests.Core.GameSettings
             Assert.That(w.Get(NeoMarker, "EE"), Is.EqualTo(Dw(1)));
             Assert.That(w.Get(NeoMarker, "AoC"), Is.EqualTo(Dw(1)));
             Assert.That(w.ValuesBelow(NeoEE), Has.Count.EqualTo(GameSettingsTable.All.Count));
+        }
+
+        /// <summary>
+        /// Build/UI review: the defaults at the launcher start and a quick first Play run on two threads of the pool. The
+        /// writing methods run one at a time, so Play waits and then finds the marker: one first run, not two.
+        /// </summary>
+        [Test]
+        public void Start_AndAFirstPlayAtTheSameTime_RunOneAfterTheOther()
+        {
+            w.AddAdminInstallationOfAnotherAccount(NeoRoot, Product.NeoEE);
+            DiscoveryResult discovery = w.Discover();
+            using (var blocking = new BlockingRegistry(w.Registry))
+            {
+                var service = new GameDefaultsService(blocking, w.FileSystem, w.SystemInfo, w.Guard, w.Backups, w.Logger);
+
+                Task<DefaultsStartup> start = Task.Run(() => service.ApplyAtLauncherStart(discovery));
+                Assert.That(blocking.Entered.WaitOne(TimeSpan.FromSeconds(10)), Is.True, "the start reads the registry");
+                Task<DefaultsAtStart> play = Task.Run(() => service.ApplyDefaultsIfNeeded(discovery.Selected, Game.EmpireEarth, out _));
+                Thread.Sleep(200);
+                Assert.That(blocking.Waiting, Is.EqualTo(1), "Play waits for the start, it does not read the registry meanwhile");
+                Assert.That(play.IsCompleted, Is.False);
+
+                blocking.Release();
+                Assert.That(Task.WaitAll(new Task[] { start, play }, TimeSpan.FromSeconds(10)), Is.True);
+
+                Assert.That(start.Result.Games.First(g => g.Game == Game.EmpireEarth).Defaults, Is.EqualTo(DefaultsAtStart.FirstRun));
+                Assert.That(play.Result, Is.EqualTo(DefaultsAtStart.None), "Play finds the marker of the start");
+                Assert.That(w.Logger.MessagesOf(LogLevel.Info).Count(m => m.StartsWith("Game defaults: first run of NeoEE EE ", StringComparison.Ordinal)),
+                    Is.EqualTo(1));
+            }
         }
 
         [Test]

@@ -565,6 +565,9 @@ section 15); all of them are done, newest first below. It has not been released;
 - A scan that fails after a successful action of the *Tools* page no longer hides the result of the action
   (build/UI review): the page shows that the keys were deleted, the WON login was reset or the files were imported,
   and the failed scan is logged.
+- A quick click on "Play" while the defaults of the launcher start are still being applied no longer runs the first
+  run twice (build/UI review): the writing methods of `GameDefaultsService` run one at a time, so the start waits for
+  the defaults and finds their marker (one backup, one "first run" line in the log).
 
 ### Security
 

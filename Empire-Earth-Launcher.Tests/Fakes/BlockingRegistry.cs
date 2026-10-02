@@ -14,6 +14,7 @@ namespace Empire_Earth_Launcher.Tests.Fakes
         private readonly IRegistry inner;
         private readonly ManualResetEventSlim released = new ManualResetEventSlim(false);
         private readonly ManualResetEventSlim entered = new ManualResetEventSlim(false);
+        private int waiting;
 
         public BlockingRegistry(IRegistry inner)
         {
@@ -24,6 +25,12 @@ namespace Empire_Earth_Launcher.Tests.Fakes
         public WaitHandle Entered
         {
             get { return entered.WaitHandle; }
+        }
+
+        /// <summary>How many reads wait right now.</summary>
+        public int Waiting
+        {
+            get { return Volatile.Read(ref waiting); }
         }
 
         /// <summary>Lets every waiting and later read through.</summary>
@@ -41,9 +48,17 @@ namespace Empire_Earth_Launcher.Tests.Fakes
 
         private void Block()
         {
+            Interlocked.Increment(ref waiting);
             entered.Set();
-            if (!released.Wait(TimeSpan.FromSeconds(30)))
-                throw new TimeoutException("The test did not release the blocking registry.");
+            try
+            {
+                if (!released.Wait(TimeSpan.FromSeconds(30)))
+                    throw new TimeoutException("The test did not release the blocking registry.");
+            }
+            finally
+            {
+                Interlocked.Decrement(ref waiting);
+            }
         }
 
         public RegistryResult ProbeKey(RegistryLocation key)
