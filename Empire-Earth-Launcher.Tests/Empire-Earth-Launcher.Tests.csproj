@@ -101,6 +101,7 @@
     <Compile Include="Core\Platform\WindowsProcessListTests.cs" />
     <Compile Include="Core\Platform\WinPathTests.cs" />
     <Compile Include="Core\Play\MutationGuardTests.cs" />
+    <Compile Include="Core\Repair\RepairAdviceTests.cs" />
     <Compile Include="Core\Settings\LauncherPathsTests.cs" />
     <Compile Include="Core\Settings\SettingsStoreTests.cs" />
     <Compile Include="Core\Settings\UiLanguageTests.cs" />

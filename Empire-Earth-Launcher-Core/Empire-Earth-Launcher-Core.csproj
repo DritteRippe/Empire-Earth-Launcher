@@ -97,6 +97,7 @@
     <Compile Include="Platform\WinPath.cs" />
     <Compile Include="Play\MutationGuard.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repair\RepairAdvice.cs" />
     <Compile Include="Settings\LauncherPaths.cs" />
     <Compile Include="Settings\LauncherSettings.cs" />
     <Compile Include="Settings\SettingsStore.cs" />
