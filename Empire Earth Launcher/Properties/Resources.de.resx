@@ -1,0 +1,278 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="LauncherTitle" xml:space="preserve">
+    <value>Empire Earth Launcher</value>
+  </data>
+  <data name="UnexpectedErrorClosing" xml:space="preserve">
+    <value>Ein unerwarteter Fehler ist aufgetreten, der Launcher muss beendet werden.</value>
+  </data>
+  <data name="UnexpectedErrorContinuing" xml:space="preserve">
+    <value>Ein unerwarteter Fehler ist aufgetreten. Der Launcher versucht weiterzuarbeiten.</value>
+  </data>
+  <data name="UnknownError" xml:space="preserve">
+    <value>Unbekannter Fehler.</value>
+  </data>
+  <data name="DetailsWrittenToLogFormat" xml:space="preserve">
+    <value>Details stehen in {0}.</value>
+  </data>
+  <data name="OnlinePlayersFormat" xml:space="preserve">
+    <value>Spieler online ({0})</value>
+  </data>
+  <data name="OnlinePlayersLoading" xml:space="preserve">
+    <value>Spieler online (...)</value>
+  </data>
+  <data name="OnlinePlayersUnavailable" xml:space="preserve">
+    <value>Spieler online (nicht verfügbar)</value>
+  </data>
+  <data name="OnlinePlayersUnavailableSeeLog" xml:space="preserve">
+    <value>Spieler online (nicht verfügbar, siehe Protokoll)</value>
+  </data>
+  <data name="OnlinePlayersInvalidSettings" xml:space="preserve">
+    <value>Spieler online (ungültige Servereinstellungen, siehe Protokoll)</value>
+  </data>
+  <data name="GameDirectoryNotFound" xml:space="preserve">
+    <value>Keine Empire-Earth-Installation gefunden</value>
+  </data>
+  <data name="NoLobbyProfileFound" xml:space="preserve">
+    <value>Kein Lobby-Profil gefunden</value>
+  </data>
+  <data name="LobbyProfilesUnreadable" xml:space="preserve">
+    <value>Die Lobby-Profile konnten nicht gelesen werden (siehe Protokoll)</value>
+  </data>
+  <data name="FriendsFormat" xml:space="preserve">
+    <value>Freunde ({0})</value>
+  </data>
+  <data name="FriendsUnreadable" xml:space="preserve">
+    <value>Die Freunde konnten nicht gelesen werden (siehe Protokoll)</value>
+  </data>
+  <data name="PlayerStateLobby" xml:space="preserve">
+    <value>Lobby</value>
+  </data>
+  <data name="PlayerStateRoom" xml:space="preserve">
+    <value>Raum</value>
+  </data>
+  <data name="PlayerStatePlaying" xml:space="preserve">
+    <value>Im Spiel</value>
+  </data>
+  <data name="PlayerStateUnknownFormat" xml:space="preserve">
+    <value>Unbekannt ({0})</value>
+  </data>
+  <data name="ThemeFileFilter" xml:space="preserve">
+    <value>Design-Datei (*.xml)|*.xml|Alle Dateien (*.*)|*.*</value>
+  </data>
+  <data name="ThemeNotLoadedFormat" xml:space="preserve">
+    <value>Das Design konnte nicht geladen werden. Details stehen in {0}.</value>
+  </data>
+  <data name="GameDirectorySourceUser" xml:space="preserve">
+    <value>Von Hand gewählt</value>
+  </data>
+  <data name="GameDirectorySourceUserMissing" xml:space="preserve">
+    <value>Von Hand gewählt, aber der Ordner existiert nicht</value>
+  </data>
+  <data name="GameDirectorySourceRegistry" xml:space="preserve">
+    <value>Aus der Spielinstallation erkannt</value>
+  </data>
+  <data name="GameDirectorySourceLauncherFolder" xml:space="preserve">
+    <value>Im Ordner des Launchers erkannt</value>
+  </data>
+  <data name="GameDirectoryNotFoundHintFormat" xml:space="preserve">
+    <value>Nicht gefunden, bitte den Ordner von {0} wählen</value>
+  </data>
+  <data name="SelectGameDirectoryFormat" xml:space="preserve">
+    <value>Wählen Sie den Empire-Earth-Ordner (den Ordner von {0}).</value>
+  </data>
+  <data name="GameExecutableMissingFormat" xml:space="preserve">
+    <value>Dieser Ordner enthält kein {0}:
+{1}
+
+Trotzdem verwenden?</value>
+  </data>
+  <data name="CompatibilityHintTitle" xml:space="preserve">
+    <value>Kompatibilitätsoptionen</value>
+  </data>
+  <data name="CompatibilityHintMessage" xml:space="preserve">
+    <value>Ändern Sie immer nur eine Option und starten Sie dann das Spiel, um sie zu prüfen.
+Läuft das Spiel schlechter, machen Sie die letzte Änderung rückgängig.</value>
+  </data>
+  <data name="NavigationPlay" xml:space="preserve">
+    <value>Spielen</value>
+  </data>
+  <data name="NavigationSettings" xml:space="preserve">
+    <value>Einstellungen</value>
+  </data>
+  <data name="NavigationLauncher" xml:space="preserve">
+    <value>Launcher</value>
+  </data>
+  <data name="PlayButton" xml:space="preserve">
+    <value>Spielen</value>
+  </data>
+  <data name="GameChoiceHeading" xml:space="preserve">
+    <value>Spiel</value>
+  </data>
+  <data name="GameEmpireEarth" xml:space="preserve">
+    <value>Empire Earth</value>
+  </data>
+  <data name="GameArtOfConquest" xml:space="preserve">
+    <value>The Art of Conquest</value>
+  </data>
+  <data name="LobbyProfileLabel" xml:space="preserve">
+    <value>Profil:</value>
+  </data>
+  <data name="PlayerListNameColumn" xml:space="preserve">
+    <value>Spieler</value>
+  </data>
+  <data name="PlayerListStateColumn" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="CompatibilityWarningText" xml:space="preserve">
+    <value>Hier finden Sie erweiterte Kompatibilitätsoptionen. Sie können Kompatibilitätsprobleme lösen oder das Spiel schneller machen, es aber auch instabil oder unspielbar machen.
+
+Empire Earth ist ein altes Spiel. Obwohl es kaum Leistung braucht, läuft es auf vielen Computern schlecht, besonders auf Laptops.
+
+Mit diesen Optionen lassen sich viele Probleme lösen, die richtige Kombination zu finden kann aber etwas dauern.</value>
+  </data>
+  <data name="CompatibilityWarningConfirm" xml:space="preserve">
+    <value>Bestätigen</value>
+  </data>
+  <data name="LauncherSettingsHeading" xml:space="preserve">
+    <value>Launcher-Einstellungen</value>
+  </data>
+  <data name="ThemeLabel" xml:space="preserve">
+    <value>Design</value>
+  </data>
+  <data name="ThemeCustom" xml:space="preserve">
+    <value>Eigene Datei...</value>
+  </data>
+  <data name="GameDirectoryLabel" xml:space="preserve">
+    <value>Empire-Earth-Ordner:</value>
+  </data>
+  <data name="DetectGameDirectoryButton" xml:space="preserve">
+    <value>Automatisch</value>
+  </data>
+  <data name="DialogOk" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="DialogYes" xml:space="preserve">
+    <value>Ja</value>
+  </data>
+  <data name="DialogNo" xml:space="preserve">
+    <value>Nein</value>
+  </data>
+</root>

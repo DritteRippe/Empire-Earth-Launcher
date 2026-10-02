@@ -13,6 +13,11 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
 
 ### Added
 
+- German user interface: `Properties/Resources.de.resx` translates all 50 texts of the launcher
+  ([ADR 0009](docs/adr/0009-localization-with-resx-en-de-fr.md)); the build puts it next to the program as
+  `de\Empire Earth Launcher.resources.dll`, like the French `fr\`. The launcher uses it when the Windows display
+  language is German (or the language setting chooses it). The German texts address the player formally ("Sie"),
+  as the setup does.
 - The UI-free core library `Empire-Earth-Launcher-Core` (`Empire_Earth_Launcher_Core.dll`, next to the launcher;
   [ADR 0003](docs/adr/0003-ui-free-core-library.md)). It references only the BCL and the WON library, which an
   architecture test checks, and holds:
