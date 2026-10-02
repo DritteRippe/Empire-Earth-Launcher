@@ -93,6 +93,8 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="KryptonThemeService.cs" />
+    <Compile Include="UiOperation.cs" />
+    <Compile Include="UnexpectedError.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

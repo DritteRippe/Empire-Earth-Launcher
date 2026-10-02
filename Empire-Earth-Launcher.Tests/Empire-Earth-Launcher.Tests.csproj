@@ -83,6 +83,8 @@
     <Compile Include="Fakes\InMemoryRegistryTests.cs" />
     <Compile Include="Fakes\RecordingLogger.cs" />
     <Compile Include="Launcher\GameDirectoryLocatorTests.cs" />
+    <Compile Include="Launcher\UiOperationTests.cs" />
+    <Compile Include="Launcher\UnexpectedErrorTests.cs" />
     <Compile Include="Mod\ModArchiveTests.cs" />
     <Compile Include="Mod\ModAssetsTests.cs" />
     <Compile Include="Mod\ModDataTests.cs" />

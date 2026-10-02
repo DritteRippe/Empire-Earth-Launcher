@@ -1,6 +1,6 @@
 # 0004 async/await threading model
 
-Status: **Accepted** (2026-10-02)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2, see the Amendment section)
 
 ## Context
 
@@ -60,3 +60,23 @@ window must not receive results.
 - **Synchronous core, UI calls `Task.Run`**: spreads threading decisions across the UI and makes tests of
   cancellation impossible in the core. Rejected.
 - **Reactive Extensions**: a new dependency for a few operations. Rejected.
+
+## Amendment 2026-10-02 (implementation, L-WP2)
+
+`UiOperation` and the logging of unobserved task exceptions exist in the launcher project. Details decided while
+implementing, keeping the decision:
+
+- **An instance, not a static class**: `UiOperation` needs the logger, and the launcher has no global logger
+  (ADR 0013), so the composition root creates one instance and passes it to the pages that start asynchronous work;
+  the call stays `uiOperation.Run(trigger, work)`. Its logic is `RunAsync(trigger, name, setEnabled, work, report)`
+  without WinForms types, which the tests drive with a fake trigger: disabled during the work, enabled afterwards
+  also after an exception thrown before the first `await`, one error report per failure, a failing report logged,
+  `OperationCanceledException` logged as information only, a second start from the same trigger ignored, other
+  triggers independent.
+- **The error text is the existing "unexpected error" message** of the global handlers (`UnexpectedError`, shared
+  with `Program`): an exception that reaches the UI boundary is a programming error by ADR 0013, because the core
+  returns environment problems as results. The texts exist in English and French; German comes with the complete
+  German resources of L-WP3. No new user-visible text is added.
+- **`TaskScheduler.UnobservedTaskException`** is subscribed right after the logger is created; the handler logs the
+  exception as an error and calls `SetObserved()` (`Program.LogUnobservedTaskException`, with a test).
+- The first user of `UiOperation` is the asynchronous discovery of L-WP4; until then no page needs it.

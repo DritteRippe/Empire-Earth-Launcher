@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Empire_Earth_Launcher.Core.Logging;
 using Empire_Earth_Launcher.Core.Platform;
@@ -36,6 +36,8 @@ namespace Empire_Earth_Launcher
 
             logger = new TraceFileLogger(LauncherPaths.LogFile);
             logger.Info("Starting Empire Earth Launcher v" + Application.ProductVersion);
+            // A failed task whose exception nobody awaited would otherwise vanish silently (ADR 0004).
+            TaskScheduler.UnobservedTaskException += (sender, e) => LogUnobservedTaskException(logger, e);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(true);
 
@@ -116,6 +118,16 @@ namespace Empire_Earth_Launcher
             }
         }
 
+        /// <summary>
+        /// Logs the exception of a task that failed while nobody awaited it, and marks it observed. Since .NET 4.5
+        /// such an exception does not end the process by default, so without this it would not show up anywhere.
+        /// </summary>
+        internal static void LogUnobservedTaskException(ILogger log, UnobservedTaskExceptionEventArgs e)
+        {
+            log.Error("A background task failed and nobody handled its error.", e.Exception);
+            e.SetObserved();
+        }
+
         private static void OnUiThreadException(object sender, ThreadExceptionEventArgs e)
         {
             ReportUnhandledException(e.Exception, false);
@@ -147,13 +159,7 @@ namespace Empire_Earth_Launcher
                 Console.Error.WriteLine(logException);
             }
 
-            string message = (isTerminating ? Resources.UnexpectedErrorClosing : Resources.UnexpectedErrorContinuing)
-                             + Environment.NewLine + Environment.NewLine
-                             + (exception != null ? exception.Message : Resources.UnknownError)
-                             + Environment.NewLine + Environment.NewLine
-                             + string.Format(CultureInfo.CurrentCulture, Resources.DetailsWrittenToLogFormat,
-                                 LauncherPaths.LogFile);
-            MessageBox.Show(message, Resources.LauncherTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            UnexpectedError.Show(null, exception, isTerminating);
         }
     }
 }

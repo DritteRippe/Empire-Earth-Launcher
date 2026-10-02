@@ -19,7 +19,7 @@ Rules:
 | [0001](0001-target-dotnet-framework-4-8.md) | Target .NET Framework 4.8 | Accepted, amended 2026-10-02 |
 | [0002](0002-keep-classic-project-files-and-packages-config.md) | Keep classic project files and packages.config | Accepted |
 | [0003](0003-ui-free-core-library.md) | One UI-free core library, thin WinForms UI | Accepted |
-| [0004](0004-async-await-threading-model.md) | async/await threading model | Accepted |
+| [0004](0004-async-await-threading-model.md) | async/await threading model | Accepted, amended 2026-10-02 |
 | [0005](0005-own-settings-file-instead-of-user-config.md) | Own settings file instead of user.config | Accepted, amended 2026-10-02 |
 | [0006](0006-platform-abstractions-and-windows-path-logic.md) | Platform abstractions and Windows path logic | Accepted |
 | [0007](0007-registry-write-scope-and-reg-backups.md) | Registry write scope, protected keys and .reg backups | Accepted, amended 2026-10-02 |
