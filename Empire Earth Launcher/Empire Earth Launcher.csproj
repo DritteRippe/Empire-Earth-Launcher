@@ -39,6 +39,9 @@
   <PropertyGroup>
     <StartupObject>Empire_Earth_Launcher.Program</StartupObject>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Krypton.Toolkit, Version=5.550.2108.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Krypton.Toolkit.5.550.2108.1\lib\net48\Krypton.Toolkit.dll</HintPath>
@@ -131,6 +134,7 @@
       <DependentUpon>SettingsUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="App.config" />
+    <None Include="app.manifest" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
