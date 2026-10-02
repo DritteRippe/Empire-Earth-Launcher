@@ -795,20 +795,37 @@ Further points to settle in the work packages, on real Windows (test plan):
   umlaut names (WP8-08, WP8-04, WP8-14, WP8-10);
 - Krypton's net48 build on Windows 7 SP1 and on scaled screens.
 
-Proposed clarifications of the contract text, to be made in both repositories at once at the next contract
-change (contract 5); the launcher already implements the stated reading:
+Clarifications of the contract text that this section proposed, made by contract revision 3 in both repositories
+at once (contract 5, still version 1); the launcher already implemented the stated reading, so its code did not
+change:
 
-- **1.4 source 4 order**: "per key HKCU, then HKLM32, then HKLM64; `Software\Neo\Empire Earth` before
-  `Software\SSSI\Empire Earth`" (key before hive), like sources 2 and 3.
-- **3.3 upper-casing**: "ASCII letters only" would make setup and launcher byte-identical; until then the
-  launcher keeps `ToUpperInvariant` and compares case-insensitively (ADR 0015).
-- **1.4 EE folder of foreign installations**: say explicitly that the EE and AoC folders of `foreign`
-  installations are the real folders named by "Installed From" (ADR 0015), the AoC folder from the same hive.
-- **1.4 Kind**: "without `install.ini`, a registry record with `ContractVersion` 1 or higher also means `community`"
+- **1.4 source 4 order**: key before hive, `Software\Neo\Empire Earth` in HKCU, HKLM32, HKLM64, then
+  `Software\SSSI\Empire Earth` in the same order, like sources 2 and 3.
+- **1.4 EE and AoC folders of foreign installations**: the real folders the sources name ("Installed From", ADR 0015),
+  the AoC folder from the AoC key in the same hive and view or from the user choice, which may be an AoC folder.
+- **1.4 Kind**: without `install.ini`, a registry record with `ContractVersion` 1 or higher also means `community`
   (L-WP4, see 4.1).
-- **3.6 First run at start**: "at launcher start class S is only created when both values are missing, and only for an
-  installation that is unambiguous for its game settings key; it is synchronized before every start" (ADR 0015 plan
-  review).
+- **3.6 Launcher start** (ADR 0015 plan review): class S is only created when both values are missing, and like the
+  first run only for an installation that is unambiguous for its game settings key; it is synchronized before every
+  start.
+- **3.6 Class S before every start** (L-WP6): "before every game start while no other game runs"; the launcher does
+  not change game settings while a game runs (ADR 0016), the next start without the other game does it.
+- **3.6 Display question**: the launcher asks once per start of the launcher until the question is answered (the
+  markers wait for the answer), so a launcher closed without an answer asks again; the contract says "until the user
+  answers" (3.2, 3.5, 3.6).
+- **2.5 Modified** (L-WP7, review fixes): "no message and no repair offer; the state may be shown, the files are listed
+  only in the diagnostics". The *Play* page shows the state as one informative line, "Files: OK, game data changed",
+  without "Repair...", without a message and without a window, because a player who installed a mod or an HD pack
+  should see that the check knows it; the files are listed on the *Tools* page and in the diagnostics report.
+- **4.5 No answer of the update API** (L-WP7): "a request without an answer of HTTP 200 is no statement about the
+  version". The launcher reports it as "could not be asked" (with the reason in the log), so the player is never told
+  that an unchecked version is current; the setup's `CheckUpdate` asks no update question then.
+
+Still open, or readings that need no change of the contract text:
+
+- **3.3 upper-casing**: "ASCII letters only" would make setup and launcher byte-identical, but it changes the
+  launcher's code, so it is no clarification and revision 3 left it out; until a later contract change the launcher
+  keeps `ToUpperInvariant` and compares case-insensitively (ADR 0015).
 - **Shared byte samples** (not a contract text change, hand-over to the setup work): `docs/contract-samples/` exists
   in the launcher since L-WP7 (`install-admin.ini`, `install-user.ini` with `[MissingAfterInstall]`,
   `install-portable.ini`, `files.sha256`, `record.reg`, all synthetic, `-text` in `.gitattributes`). The setup repository
@@ -816,10 +833,6 @@ change (contract 5); the launcher already implements the stated reading:
   `BuildMissingAfterInstallText` and the manifest lines with it, and `ci/compare_contract.py` compares the folder as it
   compares the contract (ADR 0012 plan review). Until then the launcher's copy is a proposal; a change of a sample is a
   step in both repositories.
-- **4.5 No answer of the update API** (L-WP7): the setup's `CheckUpdate` treats a missing answer as "no update"; the
-  launcher reports it as "could not be asked" (with the reason in the log), so the player is never told that an
-  unchecked version is current. Proposed wording: "A request without an answer of HTTP 200 is no statement about the
-  version."
 - **2.5 The message of Damaged and Incomplete** (L-WP7, not a text change): the quick check runs in the background, so
   the launcher gives the message of 2.5 as the state on the Play page with "Repair...", the explanation and the files on
   the *Tools* page and the repair window; it opens no window by itself.
@@ -828,9 +841,6 @@ change (contract 5); the launcher already implements the stated reading:
   does not show them for an installation whose `Tasks` contain the setup's opt-in task `compatibility_legacy` (3.7
   MUST NOT, implemented in L-WP5); it offers no switches on Windows 7 although 3.7 now allows the values of that row
   (MAY), because the setup sets them on request and the plan keeps the launcher's switches to Windows 8 and later.
-- **3.6 Class S before every start** (L-WP6): the launcher does not change game settings while a game runs (ADR 0016),
-  so when the player starts one game while the other runs, class S is not synchronized for that start (logged); the
-  next start without the other game does it. Proposed wording: "before every game start while no other game runs".
 - **4.2 Discovery while a setup runs** (L-WP6, not a text change): the launcher implements "reads `install.ini` only
   after the mutex is gone" by not starting the search at all while a setup mutex exists and searching once it is gone.
 - **Backups of class S and of the compatibility switches** (L-WP5): ADR 0007 asks for a backup before every
@@ -839,15 +849,6 @@ change (contract 5); the launcher already implements the stated reading:
   entry the player chose on the same page and is undone by the same switch (logged with old and new value). Both
   therefore write no backup; removing `~ RUNASADMIN`, which the launcher cannot add back, and every change of D and P
   values write one (ADR 0007 amendment of L-WP5).
-- **2.5 Modified** (L-WP7, review fixes, not a text change): the contract says "only listed in the diagnostics". The
-  launcher reads the *Tools* page and the diagnostics report as the diagnostics: the files are listed there only. The
-  *Play* page shows the state as one informative line, "Files: OK, game data changed", without "Repair...", without a
-  message and without a window, because a player who installed a mod or an HD pack should see that the check knows it.
-  Proposed wording: "Modified: no message and no repair offer; the state may be shown, the files are listed only in the
-  diagnostics."
-- **3.6 Display question**: the contract says the launcher asks once; the launcher asks once per start of the
-  launcher until it is answered (the markers wait for the answer), so a launcher closed without an answer asks again.
-  Proposed wording for the next contract change: "asks until the user answers".
 
 Platform: Windows 8.0 is not supported (.NET 4.8); Windows 7 SP1 is supported but not tested on the laptop
 (optional VM case in the test plan; TLS cipher suites of Windows 7 against `api.empireearth.eu` unknown, the

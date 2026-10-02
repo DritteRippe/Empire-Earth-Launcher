@@ -1,7 +1,7 @@
 # 0015 Game settings: target folders and when the launcher writes
 
 Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation of the discovery in L-WP4; plan review;
-implementation in L-WP5), see the Amendment sections
+implementation in L-WP5; contract revision 3), see the Amendment sections
 
 ## Context
 
@@ -170,3 +170,21 @@ present and different -> untouched; ambiguous -> nothing; one value missing -> n
 the guard -> nothing; `C:\Games\EE`, `D:\Empire Earth`, network folder; newer contract), `ComputedValuesTests`
 (`tr-TR`), `ConsistencyChecksTests`, `HintVisibilityTests`, `CompatibilityOptionsTests`, `Launcher/GameSettingsModelTests`;
 test plan WP5-01 to WP5-04 and WP5-19.
+
+## Amendment 2026-10-02 (contract revision 3)
+
+Contract revision 3 (both repositories in one step, contract 5; still version 1, draft) states the readings this record
+kept for the next contract change (ARCHITECTURE 14); the launcher already implemented them, its code did not change:
+
+- **1.4**: "Installed From" key before hive (amendment of L-WP4); the EE folder of a `foreign` installation is the real
+  folder its sources name, its AoC folder comes from the AoC key in the same hive and view or from the user choice,
+  which may be an AoC folder (decision "Real folders", amendment of L-WP4).
+- **3.6**: at the launcher start class S is only created when both values are missing, and like the first run only for
+  an installation that is unambiguous for its game settings key (amendment of the plan review); the display question
+  is asked until the user answers, and the marker follows the answer (amendment of L-WP5, contract 3.2 and 3.5 too);
+  class S before every game start while no other game runs (ADR 0016).
+- **Not in revision 3**: ASCII-only upper-casing (Alternatives considered). It would change the launcher's code, so it
+  is no clarification of what the launcher does; it stays an open point of ARCHITECTURE 14.
+
+Evidence: `docs/CONTRACT.md` 1.4, 3.2, 3.5 and 3.6 and its history (section 5); the tests named in the amendments
+above, unchanged.

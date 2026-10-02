@@ -399,6 +399,18 @@ section 15); all of them are done, newest first below. It has not been released;
 
 ### Changed
 
+- `docs/CONTRACT.md`, revision 3 (identical to the copy in the setup repository; contract version still 1, draft: only
+  compatible clarifications by its section 5). It now says what launcher v2 already does, so the code does not change
+  (one comment of `InstalledFromReader` names the contract): "Installed From" key before hive, the real EE and AoC
+  folders of foreign installations (the AoC folder from the same hive and view or from the user choice, which may be an
+  AoC folder), a registry record without `install.ini` also means `community` (1.4); Modified gets no message and no
+  repair offer, the state may be shown, as the line "Files: OK, game data changed" of the *Play* page does (2.5); at the
+  launcher start class S is only created when both values are missing, and like the first run only for an unambiguous
+  installation; class S before every game start while no other game runs; the display question until the player
+  answers (3.2, 3.5, 3.6); a request without an answer of HTTP 200 is no statement about the version (4.5). For the
+  setup, O11 also names the `<AppId>` folder of setups up to 1.7.2 as a trigger of its shared-folder question.
+  ARCHITECTURE 14 lists these points as done and keeps the ASCII-only upper-casing of 3.3 and the shared byte samples
+  open; ADR 0015 records it in an amendment.
 - The *Tools* page ends with "Network" and "Diagnostics report"; the *Play* page has the link "Why? Check the
   network" in the group of the online players, visible only while the list is "not available". `Program` composes
   `WindowsNetworkInfo`, the status server, `NetworkDiagnostics` and `DiagnosticsModel` with the user, computer and

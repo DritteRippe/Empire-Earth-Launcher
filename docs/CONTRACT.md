@@ -10,7 +10,7 @@ repositories at once (same text, same commit subject), see [5. Versioning](#5-ve
 |---|---|
 | Contract version | **1** |
 | Status | **Draft**: specified for setup v2 and launcher v2, not implemented by a release yet |
-| Based on | setup `setup_is6.iss`, `config_ee.iss`, `config_neoee.iss`, `utils.iss` (branch `v2` at 2ce68ee, plus the task `compatibility_legacy` that revision 2 adds) and the setup's decision records 0004, 0005, 0007, 0008 and 0010 (`docs/adr`, branch `v2` at 2ce68ee), launcher `GameDirectoryLocator.cs` (branch `v2` at 79464d4) and the launcher's decision record 0016 (branch `v2` at ec02afa), the official setups 1.7.2 |
+| Based on | setup `setup_is6.iss`, `config_ee.iss`, `config_neoee.iss`, `utils.iss` (branch `v2` at 2ce68ee, plus the task `compatibility_legacy` that revision 2 adds) and the setup's decision records 0004, 0005, 0007, 0008 and 0010 (`docs/adr`, branch `v2` at 2ce68ee), launcher `GameDirectoryLocator.cs` (branch `v2` at 79464d4) and the launcher's decision record 0016 (branch `v2` at ec02afa), the official setups 1.7.2; revision 3 also on setup `environment.iss` (branch `v2` at 3a9498d) and the launcher v2 core library with its decision records 0015 and 0016 (branch `v2` at 1b49410) |
 
 The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. "Setup" means the EE and the
 NeoEE setup of every build variant, including their uninstallers; "launcher" means the Empire Earth
@@ -189,8 +189,9 @@ folder (optional), an install mode, an AppId (optional), versions, its source an
 
 Sources, in the order of default preference:
 
-1. **User choice**: the folder chosen in the launcher settings. It may be the install root or the EE
-   folder. It always wins and is kept even if it does not exist (any more), so that the user sees it.
+1. **User choice**: the folder chosen in the launcher settings. It may be the install root, the EE
+   folder or the AoC folder. It always wins and is kept even if it does not exist (any more), so that the
+   user sees it.
 2. **Registry records** ([1.1](#11-registry-record)): product NeoEE before EE; per product HKCU, then
    HKLM64, then HKLM32.
 3. **Uninstall keys** of community setups (every version, including 1.7.2): the subkeys of
@@ -198,10 +199,11 @@ Sources, in the order of default preference:
    form `{<GUID>}_is1` and whose `Publisher` is exactly one of the two publishers of
    [Products](#products) (which also gives the product); NeoEE before EE. Root: `Inno Setup: App Path`,
    else `InstallLocation`. AppId: the GUID of the key name.
-4. **"Installed From" values** ([3.3](#33-computed-values)) of the Empire Earth settings key: HKCU, then
-   HKLM32, then HKLM64; `Software\Neo\Empire Earth` (NeoEE) before `Software\SSSI\Empire Earth` (EE).
-   They name the EE folder; the root is its parent. Retail, GOG and older installations also use the
-   SSSI key.
+4. **"Installed From" values** ([3.3](#33-computed-values)) of the Empire Earth settings key, key before
+   hive like the product order of sources 2 and 3: `Software\Neo\Empire Earth` (NeoEE) in HKCU, then
+   HKLM32, then HKLM64, then `Software\SSSI\Empire Earth` (EE) in the same order. They name the EE
+   folder, whose name need not be `Empire Earth` (e.g. `C:\Games\EE`); the root is its parent. Retail,
+   GOG and older installations also use the SSSI key.
 5. **Launcher folder**: the folder of the launcher or its parent, if it is an EE folder or an install
    root.
 
@@ -216,15 +218,22 @@ Rules:
   source wins (2 before 3 before 4 before 5); the user choice only selects.
 - **Kind**: for every root the launcher reads `_setupdata_NeoEE\install.ini` and
   `_setupdata_EE\install.ini` if they exist (this also finds portable installations and those found by
-  sources 1, 4 and 5). `ContractVersion` 1 or higher: `community`. Otherwise a match of source 3:
-  `community-legacy`. Otherwise `foreign`; its product is NeoEE if the EE folder contains `neoee.dll`,
-  else EE.
+  sources 1, 4 and 5). `ContractVersion` 1 or higher: `community`; without a readable `install.ini`,
+  a registry record ([1.1](#11-registry-record)) of the root with `ContractVersion` 1 or higher also
+  means `community`. Otherwise a match of source 3: `community-legacy`. Otherwise `foreign`; its product
+  is NeoEE if the EE folder contains `neoee.dll`, else EE. The EE folder of `community` and
+  `community-legacy` installations is `<root>\Empire Earth`; that of a `foreign` installation is the real
+  folder its sources name (in the order of the Merge rule: the "Installed From" values of source 4, the
+  launcher folder, then the user choice), else `<root>\Empire Earth`.
 - **Two products in one root** (EE and NeoEE installed into the same folder, two `install.ini` files):
   the launcher uses the one modified last, warns that the two products share one folder and reports the
   integrity state as unreliable (**O11**).
 - **AoC folder**: `<root>\Empire Earth - The Art of Conquest` if `EE-AOC.exe` exists there or
   `Components` contains `gameaoc` (then a missing program means damaged); for `foreign` installations
-  also the folder named by the "Installed From" values of the AoC settings key.
+  otherwise the folder named by the "Installed From" values of the AoC settings key of the same product
+  in the same hive and view as the EE values that found the installation (a folder of another hive can
+  belong to another installation), or the AoC folder the user chose; either only if `EE-AOC.exe` is
+  there.
 - **Default selection**: without a user choice the launcher uses the first installation in the order of
   the sources. It SHOULD show every installation it found and let the user choose; the choice is saved
   as source 1.
@@ -370,7 +379,8 @@ By the extension of the last name of the path, compared case-insensitively:
 - **Damaged** or **Incomplete**: a localized message (English, German, French) that names the files, says
   that antivirus programs often delete or quarantine game files (t=11045 p=48037, t=41147 p=80317),
   suggests an exception for the install root, and offers the repair ([4](#4-repair-hand-off)).
-- **Modified**: only listed in the diagnostics.
+- **Modified**: no message and no repair offer; the state may be shown, the files are listed only in
+  the diagnostics.
 - **Unknown**: kind `community` whose uninstall key lacks the value (see above): "an older setup ran
   after the current one, or the last setup could not replace its records; run the current setup";
   other kind `community` (the last setup run did not
@@ -452,8 +462,8 @@ Who writes what, and when:
 
 | Class | Setup (account that runs it, every run) | Launcher, first run ([3.5](#35-defaults-marker) marker missing) | Launcher, before every game start | Launcher, reset |
 |---|---|---|---|---|
-| S | overwrite | overwrite if different | overwrite if different | overwrite |
-| D | overwrite (`deletevalue`) | create if missing; offer once to overwrite values that differ | | overwrite |
+| S | overwrite | at the launcher start: create if both values are missing ([3.6](#36-launcher-procedures)) | overwrite if different | overwrite |
+| D | overwrite (`deletevalue`) | create if missing; offer to overwrite values that differ, until the user answers | | overwrite |
 | P | create if missing (`createvalueifdoesntexist`) | create if missing | | overwrite |
 | GPU preference ([3.4](#34-gpu-preference)) | overwrite | create if missing | | overwrite |
 
@@ -532,8 +542,8 @@ contract version whose defaults were applied to this game for this account; miss
 - **Portable setups write no marker**: they have no uninstaller that could remove it. The launcher's
   first run ([3.6](#36-launcher-procedures)) then finds the D values the setup has just written and
   does not ask.
-- **Launcher**: writes the marker after the first run of [3.6](#36-launcher-procedures) (whatever the
-  user answered) and after a reset.
+- **Launcher**: writes the marker after the first run of [3.6](#36-launcher-procedures) (with the display
+  question: once the user answered it, whatever the answer) and after a reset.
 - **Marker present**: only class S is kept in sync; D and P values are not touched (a value the player
   deleted stays deleted). If the marker is lower than the launcher's contract version, the launcher
   creates the values added since that version if they are missing, and raises the marker. A higher
@@ -541,13 +551,23 @@ contract version whose defaults were applied to this game for this account; miss
 
 ### 3.6 Launcher procedures
 
+- **Launcher start** (and every new search of the installations, e.g. after the user chose a folder):
+  only for an installation that is unambiguous for its game settings key (the user chose it, or no
+  other installation found uses that key; community EE, retail and GOG installations all use
+  `Software\SSSI\Empire Earth`): class S of each game is created if both values are missing and is not
+  changed there; then the first run of each game whose marker is missing. For any other installation
+  the first run waits for the first start of that game from the launcher or a reset, so that the
+  launcher never points the values of a shared key at another installation by itself.
 - **First run**, per account, product and game (marker missing):
-  1. class S;
+  1. class S (at the launcher start only created as above, before a game start synchronized);
   2. P and the GPU preference: create if missing;
-  3. D: create if missing; if an existing D value differs from its default, ask once, without blocking
-     the start: "Apply the recommended display settings?" Yes: `.reg` backup, then overwrite D;
-  4. write the marker.
-- **Before every game start**: class S for the game that is started; old values that change are logged.
+  3. D: create if missing; if an existing D value differs from its default, ask without blocking the
+     start, until the user answers: "Apply the recommended display settings?" Yes: `.reg` backup, then
+     overwrite D;
+  4. write the marker; with the question only once the user answered it.
+- **Before every game start while no other game runs**: class S for the game that is started, then the
+  first run if its marker is missing; old values that change are logged. While the other game runs the
+  launcher changes no game settings (logged); the next start without it does.
 - **Reset**, after the user confirmed it: a `.reg` backup of the game settings key with its
   subkeys (e.g. `reg.exe export`) into `%LOCALAPPDATA%\Empire Earth Launcher\Backups\`, file name with
   date and time, product and game; then overwrite S, D, P and the GPU preference; then the marker. If
@@ -716,7 +736,10 @@ The same API as the setup's `CheckUpdate`, only for installations with an AppId:
 | `&type=setup&version=<SetupVersion>` | `false` if this setup version is outdated |
 | `&type=game` or `&type=setup` | the latest version; shown only if it has at most 32 characters of `0-9 . - _ space A-Z a-z`, else `?` |
 
-An available update uses the hand-off of [4.3](#43-where-the-user-gets-the-setup).
+A request without an answer of HTTP 200 (no connection, timeout, certificate error, another status) is
+no statement about the version: the launcher reports that it could not ask, never that the version is
+current (the setup's `CheckUpdate` then asks no update question). An available update uses the
+hand-off of [4.3](#43-where-the-user-gets-the-setup).
 
 ## 5. Versioning
 
@@ -742,6 +765,7 @@ An available update uses the hand-off of [4.3](#43-where-the-user-gets-the-setup
 | 1 (draft) | 2026-10-02 | first version | v2 (planned) | v2 (planned) |
 | 1 (draft) | 2026-10-02 | revision 2026-10-02 (review of the setup v2 plan): optional `SetupBuild` (1.1, 1.2); the setup writes ASCII, the manifest with LF, `install.ini` with CRLF, and no manifest if a path is not ASCII (1.2, 2.2, O3); `Empire Earth Community: ContractVersion` in the uninstall key, Unknown if it is missing after a later run of an older setup (1.3, 1.5, 2.1, 2.5); the manifest lists every processed file (2.3); no defaults marker from portable setups (3.5); table of the compatibility values, none on Windows Vista/7 (3.7, O7); O4, O11 and O12 answered | v2 (planned) | v2 (planned) |
 | 1 (draft) | 2026-10-02 | revision 2 (second review of the setup v2 plan): tables of the window size limits (3.3) and of the GPU preference values (3.4), checked against the script like 3.2 and 3.7; opt-in row `compatibility_legacy` (Windows 7 only, the flags without a Windows version layer) and its exception from the cleanup of the old values, `(opt-in)` in the table, such a value is no leftover for the launcher (3.7, O4, O7, setup ADR 0010); while a setup runs the launcher reads neither `install.ini` nor `files.sha256` and runs no check, and opens them with `FILE_SHARE_READ` and `FILE_SHARE_DELETE` (4.2, 2.5); `Empire Earth Community: ContractVersion` only if the run replaced `install.ini` and the manifest, Unknown otherwise, not detectable for portable installations (1.3, 2.1, 2.5) | v2 (planned) | v2 (planned) |
+| 1 (draft) | 2026-10-02 | revision 3 (compatible clarifications after the reviews of setup v2 and launcher v2, which already behave so): source 4 reads key before hive, the EE and AoC folders of `foreign` installations are the real folders (the AoC folder from the same hive and view), the user choice may be the AoC folder, a registry record without `install.ini` also means `community` (1.4); Modified gets no message and no repair offer, the state may be shown (2.5); at the launcher start class S is only created, and the first run only for an installation that is unambiguous for its game settings key; class S before every game start while no other game runs; the display question until the user answers (3.2, 3.5, 3.6); a request without an answer of HTTP 200 is no statement about the version (4.5); O11 also names the `<AppId>` setup data folder of setups up to 1.7.2 | v2 (planned) | v2 (planned) |
 
 ## 6. Open questions
 
@@ -788,11 +812,12 @@ An available update uses the hand-off of [4.3](#43-where-the-user-gets-the-setup
 - **O11 One folder for EE and NeoEE** (decided): the setup allows it (separate setup data folders), but
   the integrity check of the product installed first becomes useless. The setup asks a Yes/No question
   when the user leaves the folder page and the folder already holds the other product
-  (`_setupdata_<other product>` exists, or the other product's uninstall key has this folder as
-  `Inno Setup: App Path`): it names the consequences (the integrity check of the other product;
-  uninstalling one removes files and firewall rules of the other) and recommends another folder. "Yes"
-  (default) stays on the folder page, "No" continues. Silent installations only log it. The launcher
-  rule of [1.4](#14-discovery-by-the-launcher) stays.
+  (`_setupdata_<other product>` exists, or `<AppId of the other product>`, the setup data folder of
+  setups up to 1.7.2, or the other product's uninstall key in HKLM (both views) or HKCU has this folder
+  as `Inno Setup: App Path`, which also finds installations of 1.7.2): it names the consequences (the
+  integrity check of the other product; uninstalling one removes files and firewall rules of the
+  other) and recommends another folder. "Yes" (default) stays on the folder page, "No" continues.
+  Silent installations only log it. The launcher rule of [1.4](#14-discovery-by-the-launcher) stays.
 - **O12 Copy check** (answered locally): CI has no access to the other repository. The setup repository
   has `ci/compare_contract.py <path of the other clone>`, which compares the SHA-256 of both copies
   (exit code 0: identical, 1: different, both hashes printed, 2: a file is missing). Every change of

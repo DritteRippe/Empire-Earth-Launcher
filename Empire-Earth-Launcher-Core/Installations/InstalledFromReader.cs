@@ -61,7 +61,7 @@ namespace Empire_Earth_Launcher.Core.Installations
     /// <summary>
     /// Reads the "Installed From" values (contract 1.4, source 4). The order is key before hive:
     /// <c>Software\Neo\Empire Earth</c> in HKCU, HKLM32, HKLM64, then <c>Software\SSSI\Empire Earth</c> in the same
-    /// order, like the product order of sources 2 and 3 (ADR 0015, proposed clarification of the contract). The old
+    /// order, like the product order of sources 2 and 3 (ADR 0015; contract 1.4 says so since revision 3). The old
     /// locator let the hive win, so an old SSSI value in HKCU beat a Neo value in HKLM (forum report section 8, test
     /// case 8). Read-only.
     /// </summary>
