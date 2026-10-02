@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using NUnit.Framework.Interfaces;
+using NUnit.Framework.Internal;
 
 namespace Empire_Earth_Launcher.Tests.TestSupport
 {
@@ -11,7 +13,9 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
     /// The test program is always run from its build output inside the repository (CI, the verify script and
     /// Visual Studio all do that), so the solution is found by walking up from
     /// <c>Empire-Earth-Launcher.Tests\bin\&lt;Configuration&gt;\</c>. A copy of the test program outside the
-    /// source tree cannot check the sources; every test that uses this class then fails with an explanation.
+    /// source tree cannot check the sources; every test that uses this class then fails with an explanation. Such tests
+    /// carry the category <see cref="TestCategories.SourceTree"/> so that the laptop package can leave them out; a test
+    /// method without it fails here (ADR 0012 plan review).
     /// </remarks>
     internal static class RepositoryRoot
     {
@@ -24,7 +28,11 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
         /// <exception cref="InvalidOperationException">No folder above the test assembly contains the solution.</exception>
         public static string Path
         {
-            get { return root.Value; }
+            get
+            {
+                RequireSourceTreeCategory();
+                return root.Value;
+            }
         }
 
         /// <summary>Full path of the solution file.</summary>
@@ -69,6 +77,25 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
             if (!full.StartsWith(prefix, StringComparison.Ordinal))
                 throw new ArgumentException("The path is outside the repository: " + fullPath, nameof(fullPath));
             return full.Substring(prefix.Length).Replace(System.IO.Path.DirectorySeparatorChar, '/');
+        }
+
+        /// <summary>
+        /// Fails a test method that reads the source tree without the category <see cref="TestCategories.SourceTree"/> on
+        /// itself or its fixture. Test case sources and one-time set-ups are not checked: while NUnit builds the tests
+        /// the current test is a placeholder without a parent, and a set-up runs for the fixture, a suite.
+        /// </summary>
+        private static void RequireSourceTreeCategory()
+        {
+            ITest test = TestExecutionContext.CurrentContext?.CurrentTest;
+            if (test == null || test.IsSuite || test.Parent == null)
+                return;
+            for (ITest current = test; current != null; current = current.Parent)
+            {
+                if (current.Properties[PropertyNames.Category].Contains(TestCategories.SourceTree))
+                    return;
+            }
+            throw new InvalidOperationException(test.FullName + " reads the source tree but has no [Category(TestCategories." +
+                                                nameof(TestCategories.SourceTree) + ")] (ADR 0012 plan review).");
         }
 
         private static string Find()

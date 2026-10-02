@@ -18,6 +18,7 @@ namespace Empire_Earth_Launcher.Tests.Architecture
     /// from a form resx (<c>resources.GetString</c>); texts without letters ("...", "?", "") stay in the designer.
     /// </remarks>
     [TestFixture]
+    [Category(TestCategories.SourceTree)]
     public class ApplyTextsTests
     {
         private const string LauncherFolder = "Empire Earth Launcher";

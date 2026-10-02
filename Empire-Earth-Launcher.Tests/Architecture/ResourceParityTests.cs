@@ -23,6 +23,7 @@ namespace Empire_Earth_Launcher.Tests.Architecture
     /// satellites inherit them. How to add a text or a language is described in <c>docs/TRANSLATING.md</c>.
     /// </remarks>
     [TestFixture]
+    [Category(TestCategories.SourceTree)]
     public class ResourceParityTests
     {
         private const string PropertiesFolder = "Empire Earth Launcher/Properties";

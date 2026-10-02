@@ -12,6 +12,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Contract
     /// A name that changes in one place only fails here.
     /// </summary>
     [TestFixture]
+    [Category(TestCategories.SourceTree)]
     public class ContractNamesTests
     {
         private static string contract;

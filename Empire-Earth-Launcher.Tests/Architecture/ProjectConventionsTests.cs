@@ -21,6 +21,7 @@ namespace Empire_Earth_Launcher.Tests.Architecture
     /// <c>packages.config</c>, <c>App.config</c> and application manifest, and the CI workflow.
     /// </remarks>
     [TestFixture]
+    [Category(TestCategories.SourceTree)]
     public class ProjectConventionsTests
     {
         private const string TargetFramework = ".NETFramework,Version=v4.8";

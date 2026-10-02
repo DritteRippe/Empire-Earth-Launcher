@@ -590,6 +590,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Installations
         }
 
         [Test]
+        [Category(TestCategories.SourceTree)]
         public void EveryRuleOfTheContractHasACase()
         {
             IReadOnlyList<string> rules = ContractRules();

@@ -113,6 +113,7 @@ namespace Empire_Earth_Launcher.Tests.Architecture
         }
 
         [Test]
+        [Category(TestCategories.SourceTree)]
         public void TheListIsTheOneOfAdr0014()
         {
             string adr = File.ReadAllText(RepositoryRoot.GetFullPath(Adr0014));
@@ -128,6 +129,7 @@ namespace Empire_Earth_Launcher.Tests.Architecture
         }
 
         [Test]
+        [Category(TestCategories.SourceTree)]
         public void DesignerFiles_NameNoRemovedControl()
         {
             List<string> designerFiles = LauncherSources("*.Designer.cs").ToList();
@@ -139,6 +141,7 @@ namespace Empire_Earth_Launcher.Tests.Architecture
         }
 
         [Test]
+        [Category(TestCategories.SourceTree)]
         public void CodeAndResources_NameNoRemovedControl()
         {
             // Handlers and resources went with the controls.
@@ -164,6 +167,7 @@ namespace Empire_Earth_Launcher.Tests.Architecture
         }
 
         [Test]
+        [Category(TestCategories.SourceTree)]
         public void CompatibilityWarningPanel_IsKept()
         {
             string designer = File.ReadAllText(RepositoryRoot.GetFullPath(LauncherFolder + "/SettingsUserControl.Designer.cs"));

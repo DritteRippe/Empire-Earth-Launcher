@@ -72,6 +72,7 @@ namespace Empire_Earth_Launcher.Tests.Architecture
         }
 
         [Test]
+        [Category(TestCategories.SourceTree)]
         public void CoreProject_IsALibraryWithTheDocumentedNames()
         {
             ProjectFile core = ProjectFile.Load(CoreProject);
@@ -82,6 +83,7 @@ namespace Empire_Earth_Launcher.Tests.Architecture
         }
 
         [Test]
+        [Category(TestCategories.SourceTree)]
         public void CoreProject_ReferencesOnlyTheBclAndTheWonProject()
         {
             ProjectFile core = ProjectFile.Load(CoreProject);
@@ -96,6 +98,7 @@ namespace Empire_Earth_Launcher.Tests.Architecture
         }
 
         [Test]
+        [Category(TestCategories.SourceTree)]
         public void CoreSources_UseNoUiNamespace()
         {
             ProjectFile core = ProjectFile.Load(CoreProject);
