@@ -37,6 +37,7 @@ namespace Empire_Earth_Launcher
         public GeneralUserControl()
         {
             InitializeComponent();
+            ApplyTexts();
 
             // No file or network I/O here: the constructor also runs inside the Visual Studio designer and
             // during MainForm.InitializeComponent, where an exception would prevent the launcher from starting.
@@ -50,6 +51,22 @@ namespace Empire_Earth_Launcher
             backgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
             backgroundWorker.RunWorkerCompleted += backgroundWorker_RunWorkerCompleted;
             Disposed += (sender, e) => backgroundWorker.CancelAsync();
+        }
+
+        /// <summary>
+        /// Sets the texts of the page from the resources in the UI language (ADR 0009); the designer texts are
+        /// placeholders. The heading of the player list shows its state and is changed when the state changes.
+        /// </summary>
+        private void ApplyTexts()
+        {
+            gameSettingsKryptonGroupBox.Values.Heading = Resources.GameChoiceHeading;
+            empireEarthKryptonRadioButton.Values.Text = Resources.GameEmpireEarth;
+            artOfConquestKryptonRadioButton.Values.Text = Resources.GameArtOfConquest;
+            playKryptonButton.Values.Text = Resources.PlayButton;
+            neoOnlineKryptonGroupBox.Values.Heading = Resources.OnlinePlayersLoading;
+            lobbyUserKryptonLabel.Values.Text = Resources.LobbyProfileLabel;
+            usernameColumn.HeaderText = Resources.PlayerListNameColumn;
+            stateColumn.HeaderText = Resources.PlayerListStateColumn;
         }
 
         /// <summary>
@@ -121,23 +138,16 @@ namespace Empire_Earth_Launcher
 
             // Both lobby files come from the same game folder (the profile list used to be read relative to the
             // current directory and the user files from a hard-coded installation path).
-            switch (lobbyProfiles.LoadProfiles(gameDirectory.Location, out profiles))
+            LobbyProfilesStatus status = lobbyProfiles.LoadProfiles(gameDirectory.Location, out profiles);
+            if (status != LobbyProfilesStatus.Loaded)
             {
-                case LobbyProfilesStatus.Loaded:
-                    foreach (var profile in profiles)
-                        usersLobbyKryptonComboBox.Items.Add(profile.Username);
-                    usersLobbyKryptonComboBox.SelectedIndex = 0;
-                    break;
-                case LobbyProfilesStatus.GameDirectoryNotFound:
-                    ShowLobbyProfilesUnavailable(Resources.GameDirectoryNotFound);
-                    break;
-                case LobbyProfilesStatus.Unreadable:
-                    ShowLobbyProfilesUnavailable(Resources.LobbyProfilesUnreadable);
-                    break;
-                default:
-                    ShowLobbyProfilesUnavailable(Resources.NoLobbyProfileFound);
-                    break;
+                ShowLobbyProfilesUnavailable(Texts.LobbyProfilesProblem(status));
+                return;
             }
+
+            foreach (var profile in profiles)
+                usersLobbyKryptonComboBox.Items.Add(profile.Username);
+            usersLobbyKryptonComboBox.SelectedIndex = 0;
         }
 
         private void ShowLobbyProfilesUnavailable(string reason)
@@ -173,25 +183,7 @@ namespace Empire_Earth_Launcher
             foreach (NeoApiClient.ConnectedPlayersMessage.PlayerInfo pInfo in message.PlayersInfo)
             {
                 if (!usersLobbyKryptonComboBox.Text.Equals(pInfo.Name, StringComparison.InvariantCultureIgnoreCase))
-                    onlinePlayersKryptonDataGridView.Rows.Add(pInfo.Name, GetGameStateText(pInfo.GameState));
-            }
-        }
-
-        /// <summary>
-        /// Display text of a player's game state, with a fallback for states the launcher does not know.
-        /// </summary>
-        private static string GetGameStateText(NeoApiClient.ConnectedPlayersMessage.PlayerInfo.PlayerGameState gameState)
-        {
-            switch (gameState)
-            {
-                case NeoApiClient.ConnectedPlayersMessage.PlayerInfo.PlayerGameState.Lobby:
-                    return Resources.PlayerStateLobby;
-                case NeoApiClient.ConnectedPlayersMessage.PlayerInfo.PlayerGameState.Room:
-                    return Resources.PlayerStateRoom;
-                case NeoApiClient.ConnectedPlayersMessage.PlayerInfo.PlayerGameState.Playing:
-                    return Resources.PlayerStatePlaying;
-                default:
-                    return string.Format(CultureInfo.CurrentCulture, Resources.PlayerStateUnknownFormat, (int)gameState);
+                    onlinePlayersKryptonDataGridView.Rows.Add(pInfo.Name, Texts.PlayerGameState(pInfo.GameState));
             }
         }
 
@@ -268,19 +260,8 @@ namespace Empire_Earth_Launcher
                 return;
 
             IDictionary<string, uint> friends;
-            switch (lobbyProfiles.LoadFriends(gameDirectory.Location, profiles[index], out friends))
-            {
-                case LobbyFriendsStatus.Loaded:
-                    neoOnlineKryptonGroupBox.Values.Description =
-                        string.Format(CultureInfo.CurrentCulture, Resources.FriendsFormat, friends.Count);
-                    break;
-                case LobbyFriendsStatus.Unreadable:
-                    neoOnlineKryptonGroupBox.Values.Description = Resources.FriendsUnreadable;
-                    break;
-                default:
-                    neoOnlineKryptonGroupBox.Values.Description = string.Empty;
-                    break;
-            }
+            LobbyFriendsStatus status = lobbyProfiles.LoadFriends(gameDirectory.Location, profiles[index], out friends);
+            neoOnlineKryptonGroupBox.Values.Description = Texts.LobbyFriends(status, friends?.Count ?? 0);
         }
     }
 }

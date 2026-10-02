@@ -93,6 +93,7 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="KryptonThemeService.cs" />
+    <Compile Include="Texts.cs" />
     <Compile Include="UiOperation.cs" />
     <Compile Include="UnexpectedError.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -106,9 +107,6 @@
     <Compile Include="SettingsUserControl.Designer.cs">
       <DependentUpon>SettingsUserControl.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="MainForm.fr.resx">
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

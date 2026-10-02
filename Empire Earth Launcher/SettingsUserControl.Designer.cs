@@ -125,7 +125,7 @@ namespace Empire_Earth_Launcher
             this.compatibilityWarningKryptonWrapLabel.Palette = this.launcherKryptonPalette;
             this.compatibilityWarningKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.compatibilityWarningKryptonWrapLabel.Size = new System.Drawing.Size(310, 222);
-            this.compatibilityWarningKryptonWrapLabel.Text = resources.GetString("compatibilityWarningKryptonWrapLabel.Text");
+            this.compatibilityWarningKryptonWrapLabel.Text = "Compatibility warning";
             this.compatibilityWarningKryptonWrapLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // compatibilityWarningConfirmationKryptonButton

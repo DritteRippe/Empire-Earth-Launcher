@@ -11,6 +11,17 @@ namespace Empire_Earth_Launcher
         public SettingsUserControl()
         {
             InitializeComponent();
+            ApplyTexts();
+        }
+
+        /// <summary>
+        /// Sets the texts of the page from the resources in the UI language (ADR 0009); the designer texts are
+        /// placeholders.
+        /// </summary>
+        private void ApplyTexts()
+        {
+            compatibilityWarningKryptonWrapLabel.Text = Resources.CompatibilityWarningText;
+            compatibilityWarningConfirmationKryptonButton.Values.Text = Resources.CompatibilityWarningConfirm;
         }
 
         /// <summary>

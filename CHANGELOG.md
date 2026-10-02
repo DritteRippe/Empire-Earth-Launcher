@@ -48,6 +48,19 @@ Launcher v2 is built on branch `v2` in work packages ([docs/ARCHITECTURE.md](doc
 
 ### Changed
 
+- Every text of the launcher's windows comes from `Properties/Resources.resx` and is set in one `ApplyTexts()`
+  method per window or page ([ADR 0009](docs/adr/0009-localization-with-resx-en-de-fr.md)); about 20 texts that
+  existed only in the designer (navigation, page headings, labels, buttons, the compatibility warning, the
+  buttons of the launcher's message dialog) are now resources with a translator comment. The French navigation
+  texts moved from `MainForm.fr.resx` (removed) into `Resources.fr.resx`, and French translations of the new
+  texts were added. The launcher declares English as its neutral language. `Texts` turns results (player state,
+  lobby profiles and friends, origin of the game folder) into texts. An architecture test (`ApplyTextsTests`)
+  checks that every designer text with a letter is set again in `ApplyTexts()`, that hand-written code assigns
+  no literal text and that no window has a resx of its own per language. Some English texts were adjusted:
+  "Game" instead of "Game Settings" above the game choice (the group holds only the choice now), "Profile:"
+  instead of "User:", "Player" for the player column, "Empire Earth folder:" without the space before the
+  colon and "Custom file..." for the first item of the theme list; the message dialog shows its title also in
+  the taskbar instead of "LauncherDialog".
 - The logger, the launcher's file locations and the lobby profile reader moved unchanged into the core library
   (namespaces `Empire_Earth_Launcher.Core.Logging`, `.Settings`, `.Lobby`); their tests moved with them.
 - The launcher keeps its user settings (game folder, theme, custom theme file) in

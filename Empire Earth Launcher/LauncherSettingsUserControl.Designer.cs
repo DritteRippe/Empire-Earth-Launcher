@@ -178,7 +178,7 @@ namespace Empire_Earth_Launcher
             this.gameDirectoryKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.gameDirectoryKryptonLabel.Size = new System.Drawing.Size(122, 20);
             this.gameDirectoryKryptonLabel.TabIndex = 10;
-            this.gameDirectoryKryptonLabel.Values.Text = "Empire Earth folder :";
+            this.gameDirectoryKryptonLabel.Values.Text = "Empire Earth folder:";
             // 
             // themeKryptonLabel
             // 
@@ -197,7 +197,7 @@ namespace Empire_Earth_Launcher
             this.themeKryptonComboBox.DropDownWidth = 141;
             this.themeKryptonComboBox.IntegralHeight = false;
             this.themeKryptonComboBox.Items.AddRange(new object[] {
-            "Custom"});
+            "Custom file..."});
             this.themeKryptonComboBox.Location = new System.Drawing.Point(67, 40);
             this.themeKryptonComboBox.Name = "themeKryptonComboBox";
             this.themeKryptonComboBox.Palette = this.launcherKryptonPalette;

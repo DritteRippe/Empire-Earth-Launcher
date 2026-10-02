@@ -280,4 +280,88 @@ Use it anyway?</value>
     <value>Change one option at a time and start the game to check it.
 If the game gets worse, undo the last change.</value>
   </data>
+  <data name="NavigationPlay" xml:space="preserve">
+    <value>Play</value>
+    <comment>Navigation button of the Play page.</comment>
+  </data>
+  <data name="NavigationSettings" xml:space="preserve">
+    <value>Settings</value>
+    <comment>Navigation button of the Settings page.</comment>
+  </data>
+  <data name="NavigationLauncher" xml:space="preserve">
+    <value>Launcher</value>
+    <comment>Navigation button of the page with the launcher's own settings.</comment>
+  </data>
+  <data name="PlayButton" xml:space="preserve">
+    <value>Play</value>
+    <comment>Big gold button of the Play page; at most about 12 characters.</comment>
+  </data>
+  <data name="GameChoiceHeading" xml:space="preserve">
+    <value>Game</value>
+    <comment>Heading of the choice between Empire Earth and The Art of Conquest.</comment>
+  </data>
+  <data name="GameEmpireEarth" xml:space="preserve">
+    <value>Empire Earth</value>
+    <comment>Name of the game; not translated.</comment>
+  </data>
+  <data name="GameArtOfConquest" xml:space="preserve">
+    <value>The Art of Conquest</value>
+    <comment>Name of the expansion; not translated.</comment>
+  </data>
+  <data name="LobbyProfileLabel" xml:space="preserve">
+    <value>Profile:</value>
+    <comment>Label of the list of the player's lobby profiles; at most about 9 characters.</comment>
+  </data>
+  <data name="PlayerListNameColumn" xml:space="preserve">
+    <value>Player</value>
+    <comment>Column of the online player list (name).</comment>
+  </data>
+  <data name="PlayerListStateColumn" xml:space="preserve">
+    <value>State</value>
+    <comment>Column of the online player list (lobby, room, playing).</comment>
+  </data>
+  <data name="CompatibilityWarningText" xml:space="preserve">
+    <value>Here you can find advanced compatibility options. These options can solve compatibility problems or make the game faster as well as make the game unstable or not functional.
+
+Empire Earth is an old game and although it requires very little performance, it will run poorly on many computers, especially laptops.
+
+However you should be able to solve many problems with these options, but finding the right combination of settings can take some time.</value>
+    <comment>Warning shown before the compatibility options; the box has room for about 14 lines of 50 characters.</comment>
+  </data>
+  <data name="CompatibilityWarningConfirm" xml:space="preserve">
+    <value>Confirm</value>
+    <comment>Button that closes the compatibility warning.</comment>
+  </data>
+  <data name="LauncherSettingsHeading" xml:space="preserve">
+    <value>Launcher Settings</value>
+    <comment>Heading of the page with the launcher's own settings.</comment>
+  </data>
+  <data name="ThemeLabel" xml:space="preserve">
+    <value>Theme</value>
+    <comment>Label of the theme list; at most about 8 characters.</comment>
+  </data>
+  <data name="ThemeCustom" xml:space="preserve">
+    <value>Custom file...</value>
+    <comment>First item of the theme list: opens a theme file.</comment>
+  </data>
+  <data name="GameDirectoryLabel" xml:space="preserve">
+    <value>Empire Earth folder:</value>
+    <comment>Label of the game folder; at most about 25 characters.</comment>
+  </data>
+  <data name="DetectGameDirectoryButton" xml:space="preserve">
+    <value>Auto-detect</value>
+    <comment>Button that switches back to the automatic detection of the game folder; at most about 12 characters.</comment>
+  </data>
+  <data name="DialogOk" xml:space="preserve">
+    <value>OK</value>
+    <comment>Button of the launcher's message dialog.</comment>
+  </data>
+  <data name="DialogYes" xml:space="preserve">
+    <value>Yes</value>
+    <comment>Button of the launcher's message dialog.</comment>
+  </data>
+  <data name="DialogNo" xml:space="preserve">
+    <value>No</value>
+    <comment>Button of the launcher's message dialog.</comment>
+  </data>
 </root>

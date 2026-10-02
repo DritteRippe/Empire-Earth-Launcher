@@ -129,11 +129,38 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Confirm.
+        /// </summary>
+        internal static string CompatibilityWarningConfirm {
+            get {
+                return ResourceManager.GetString("CompatibilityWarningConfirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Here you can find advanced compatibility options. These options can solve compatibility problems or [rest of string was truncated].
+        /// </summary>
+        internal static string CompatibilityWarningText {
+            get {
+                return ResourceManager.GetString("CompatibilityWarningText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Details have been written to {0}..
         /// </summary>
         internal static string DetailsWrittenToLogFormat {
             get {
                 return ResourceManager.GetString("DetailsWrittenToLogFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Auto-detect.
+        /// </summary>
+        internal static string DetectGameDirectoryButton {
+            get {
+                return ResourceManager.GetString("DetectGameDirectoryButton", resourceCulture);
             }
         }
         
@@ -174,6 +201,33 @@ namespace Empire_Earth_Launcher.Properties {
             get {
                 object obj = ResourceManager.GetObject("DialogEdge", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No.
+        /// </summary>
+        internal static string DialogNo {
+            get {
+                return ResourceManager.GetString("DialogNo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OK.
+        /// </summary>
+        internal static string DialogOk {
+            get {
+                return ResourceManager.GetString("DialogOk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yes.
+        /// </summary>
+        internal static string DialogYes {
+            get {
+                return ResourceManager.GetString("DialogYes", resourceCulture);
             }
         }
         
@@ -236,6 +290,33 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The Art of Conquest.
+        /// </summary>
+        internal static string GameArtOfConquest {
+            get {
+                return ResourceManager.GetString("GameArtOfConquest", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game.
+        /// </summary>
+        internal static string GameChoiceHeading {
+            get {
+                return ResourceManager.GetString("GameChoiceHeading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Empire Earth folder:.
+        /// </summary>
+        internal static string GameDirectoryLabel {
+            get {
+                return ResourceManager.GetString("GameDirectoryLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Empire Earth installation not found.
         /// </summary>
         internal static string GameDirectoryNotFound {
@@ -290,11 +371,29 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Empire Earth.
+        /// </summary>
+        internal static string GameEmpireEarth {
+            get {
+                return ResourceManager.GetString("GameEmpireEarth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This folder does not contain {0}: {1}  Use it anyway?.
         /// </summary>
         internal static string GameExecutableMissingFormat {
             get {
                 return ResourceManager.GetString("GameExecutableMissingFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Launcher Settings.
+        /// </summary>
+        internal static string LauncherSettingsHeading {
+            get {
+                return ResourceManager.GetString("LauncherSettingsHeading", resourceCulture);
             }
         }
         
@@ -308,11 +407,47 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Profile:.
+        /// </summary>
+        internal static string LobbyProfileLabel {
+            get {
+                return ResourceManager.GetString("LobbyProfileLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Lobby profiles could not be read (see the log).
         /// </summary>
         internal static string LobbyProfilesUnreadable {
             get {
                 return ResourceManager.GetString("LobbyProfilesUnreadable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Launcher.
+        /// </summary>
+        internal static string NavigationLauncher {
+            get {
+                return ResourceManager.GetString("NavigationLauncher", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Play.
+        /// </summary>
+        internal static string NavigationPlay {
+            get {
+                return ResourceManager.GetString("NavigationPlay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings.
+        /// </summary>
+        internal static string NavigationSettings {
+            get {
+                return ResourceManager.GetString("NavigationSettings", resourceCulture);
             }
         }
         
@@ -367,6 +502,33 @@ namespace Empire_Earth_Launcher.Properties {
         internal static string OnlinePlayersUnavailableSeeLog {
             get {
                 return ResourceManager.GetString("OnlinePlayersUnavailableSeeLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Play.
+        /// </summary>
+        internal static string PlayButton {
+            get {
+                return ResourceManager.GetString("PlayButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Player.
+        /// </summary>
+        internal static string PlayerListNameColumn {
+            get {
+                return ResourceManager.GetString("PlayerListNameColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to State.
+        /// </summary>
+        internal static string PlayerListStateColumn {
+            get {
+                return ResourceManager.GetString("PlayerListStateColumn", resourceCulture);
             }
         }
         
@@ -456,11 +618,29 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Custom file....
+        /// </summary>
+        internal static string ThemeCustom {
+            get {
+                return ResourceManager.GetString("ThemeCustom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Theme File (*.xml)|*.xml|All files (*.*)|*.*.
         /// </summary>
         internal static string ThemeFileFilter {
             get {
                 return ResourceManager.GetString("ThemeFileFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Theme.
+        /// </summary>
+        internal static string ThemeLabel {
+            get {
+                return ResourceManager.GetString("ThemeLabel", resourceCulture);
             }
         }
         

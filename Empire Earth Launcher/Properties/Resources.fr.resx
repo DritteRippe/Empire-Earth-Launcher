@@ -211,4 +211,68 @@ L'utiliser quand même ?</value>
     <value>Modifiez une option à la fois et lancez le jeu pour la vérifier.
 Si le jeu fonctionne moins bien, annulez la dernière modification.</value>
   </data>
+  <data name="NavigationPlay" xml:space="preserve">
+    <value>Jouer</value>
+  </data>
+  <data name="NavigationSettings" xml:space="preserve">
+    <value>Paramètres</value>
+  </data>
+  <data name="NavigationLauncher" xml:space="preserve">
+    <value>Launcher</value>
+  </data>
+  <data name="PlayButton" xml:space="preserve">
+    <value>Jouer</value>
+  </data>
+  <data name="GameChoiceHeading" xml:space="preserve">
+    <value>Jeu</value>
+  </data>
+  <data name="GameEmpireEarth" xml:space="preserve">
+    <value>Empire Earth</value>
+  </data>
+  <data name="GameArtOfConquest" xml:space="preserve">
+    <value>The Art of Conquest</value>
+  </data>
+  <data name="LobbyProfileLabel" xml:space="preserve">
+    <value>Profil :</value>
+  </data>
+  <data name="PlayerListNameColumn" xml:space="preserve">
+    <value>Joueur</value>
+  </data>
+  <data name="PlayerListStateColumn" xml:space="preserve">
+    <value>État</value>
+  </data>
+  <data name="CompatibilityWarningText" xml:space="preserve">
+    <value>Vous trouverez ici des options de compatibilité avancées. Elles peuvent résoudre des problèmes de compatibilité ou rendre le jeu plus rapide, mais aussi le rendre instable ou inutilisable.
+
+Empire Earth est un jeu ancien : bien qu'il demande très peu de puissance, il fonctionne mal sur de nombreux ordinateurs, surtout les portables.
+
+Ces options permettent de résoudre de nombreux problèmes, mais trouver la bonne combinaison peut prendre du temps.</value>
+  </data>
+  <data name="CompatibilityWarningConfirm" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="LauncherSettingsHeading" xml:space="preserve">
+    <value>Paramètres du launcher</value>
+  </data>
+  <data name="ThemeLabel" xml:space="preserve">
+    <value>Thème</value>
+  </data>
+  <data name="ThemeCustom" xml:space="preserve">
+    <value>Fichier personnalisé...</value>
+  </data>
+  <data name="GameDirectoryLabel" xml:space="preserve">
+    <value>Dossier d'Empire Earth :</value>
+  </data>
+  <data name="DetectGameDirectoryButton" xml:space="preserve">
+    <value>Détecter</value>
+  </data>
+  <data name="DialogOk" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="DialogYes" xml:space="preserve">
+    <value>Oui</value>
+  </data>
+  <data name="DialogNo" xml:space="preserve">
+    <value>Non</value>
+  </data>
 </root>

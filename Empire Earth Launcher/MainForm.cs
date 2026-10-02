@@ -3,6 +3,7 @@ using System;
 using System.Windows.Forms;
 using Empire_Earth_Launcher.Core.Logging;
 using Empire_Earth_Launcher.Core.Settings;
+using Empire_Earth_Launcher.Properties;
 using Empire_Earth_WON;
 
 namespace Empire_Earth_Launcher
@@ -24,6 +25,7 @@ namespace Empire_Earth_Launcher
             SetStyle(ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.OptimizedDoubleBuffer, true);
             InitializeComponent();
+            ApplyTexts();
             themeService.Register(launcherKryptonPalette, this);
 
             // The pages are created by InitializeComponent (designer), which needs parameterless constructors,
@@ -38,6 +40,18 @@ namespace Empire_Earth_Launcher
             settingsKryptonCheckButton.Tag = settingsUserControl;
             launcherKryptonCheckButton.Tag = launcherSettingsUserControl;
             navigationButtons = new[] { playKryptonCheckButton, settingsKryptonCheckButton, launcherKryptonCheckButton };
+        }
+
+        /// <summary>
+        /// Sets the window title and the navigation texts from the resources in the UI language (ADR 0009). The texts
+        /// in MainForm.resx are placeholders for the designer.
+        /// </summary>
+        private void ApplyTexts()
+        {
+            Text = Resources.LauncherTitle;
+            playKryptonCheckButton.Values.Text = Resources.NavigationPlay;
+            settingsKryptonCheckButton.Values.Text = Resources.NavigationSettings;
+            launcherKryptonCheckButton.Values.Text = Resources.NavigationLauncher;
         }
 
         /// <summary>

@@ -415,11 +415,4 @@
         i6ZORq4AAAAASUVORK5CYII=
 </value>
   </data>
-  <data name="compatibilityWarningKryptonWrapLabel.Text" xml:space="preserve">
-    <value>Here you can find advanced compatibility options. These options can solve compatibility problems or make the game faster as well as make the game unstable or not functional.
-
-Empire Earth is an old game and although it requires very little performance, it will run poorly on many computers, especially laptops.
-
-However you should be able to solve many problems with these options, but finding the right combination of settings can take some time.</value>
-  </data>
 </root>

@@ -2,6 +2,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Empire_Earth_Launcher.Properties;
 
 namespace Empire_Earth_Launcher
 {
@@ -29,9 +30,22 @@ namespace Empire_Earth_Launcher
             topRightCornerPictureBox.Image.RotateFlip(RotateFlipType.RotateNoneFlipX);
             bottomLeftCornerPictureBox.Image.RotateFlip(RotateFlipType.Rotate180FlipX);
 
-            titleKryptonLabel.Text = title;
-            messageKryptonLabel.Text = message;
+            ApplyTexts(title, message);
             ShowButtons(buttons);
+        }
+
+        /// <summary>
+        /// Sets the texts of the dialog: title and message as given by the caller (already in the UI language), the
+        /// buttons from the resources (ADR 0009). The designer texts are placeholders.
+        /// </summary>
+        private void ApplyTexts(string title, string message)
+        {
+            Text = title;
+            titleKryptonLabel.Values.Text = title;
+            messageKryptonLabel.Values.Text = message;
+            okKryptonButton.Values.Text = Resources.DialogOk;
+            yesKryptonButton.Values.Text = Resources.DialogYes;
+            noKryptonButton.Values.Text = Resources.DialogNo;
         }
 
         /// <summary>

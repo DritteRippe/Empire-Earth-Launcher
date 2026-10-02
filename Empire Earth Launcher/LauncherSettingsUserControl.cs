@@ -25,6 +25,21 @@ namespace Empire_Earth_Launcher
         public LauncherSettingsUserControl()
         {
             InitializeComponent();
+            ApplyTexts();
+        }
+
+        /// <summary>
+        /// Sets the texts of the page from the resources in the UI language (ADR 0009); the designer texts are
+        /// placeholders. Texts that depend on the state (where the game folder comes from) are set where the state
+        /// changes.
+        /// </summary>
+        private void ApplyTexts()
+        {
+            launcherSettingsKryptonGroupBox.Values.Heading = Resources.LauncherSettingsHeading;
+            themeKryptonLabel.Values.Text = Resources.ThemeLabel;
+            themeKryptonComboBox.Items[CustomThemeIndex] = Resources.ThemeCustom;
+            gameDirectoryKryptonLabel.Values.Text = Resources.GameDirectoryLabel;
+            detectGameDirectoryKryptonButton.Values.Text = Resources.DetectGameDirectoryButton;
         }
 
         /// <summary>
@@ -154,24 +169,8 @@ namespace Empire_Earth_Launcher
         {
             string location = gameDirectory.Location;
             gameDirectoryKryptonTextBox.Text = location ?? string.Empty;
-            switch (gameDirectory.Source)
-            {
-                case GameDirectorySource.UserSetting:
-                    gameDirectorySourceKryptonLabel.Values.Text = Directory.Exists(location)
-                        ? Resources.GameDirectorySourceUser
-                        : Resources.GameDirectorySourceUserMissing;
-                    break;
-                case GameDirectorySource.Registry:
-                    gameDirectorySourceKryptonLabel.Values.Text = Resources.GameDirectorySourceRegistry;
-                    break;
-                case GameDirectorySource.LauncherFolder:
-                    gameDirectorySourceKryptonLabel.Values.Text = Resources.GameDirectorySourceLauncherFolder;
-                    break;
-                default:
-                    gameDirectorySourceKryptonLabel.Values.Text = string.Format(CultureInfo.CurrentCulture,
-                        Resources.GameDirectoryNotFoundHintFormat, GameDirectoryLocator.GameExecutableName);
-                    break;
-            }
+            gameDirectorySourceKryptonLabel.Values.Text = Texts.GameDirectoryOrigin(gameDirectory.Source,
+                location != null && Directory.Exists(location));
         }
 
         private void browseGameDirectoryKryptonButton_Click(object sender, EventArgs e)

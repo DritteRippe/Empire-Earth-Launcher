@@ -187,7 +187,7 @@ namespace Empire_Earth_Launcher
             this.lobbyUserKryptonLabel.Size = new System.Drawing.Size(59, 20);
             this.lobbyUserKryptonLabel.StateCommon.ShortText.TextH = Krypton.Toolkit.PaletteRelativeAlign.Center;
             this.lobbyUserKryptonLabel.TabIndex = 14;
-            this.lobbyUserKryptonLabel.Values.Text = "User:";
+            this.lobbyUserKryptonLabel.Values.Text = "Profile:";
             // 
             // usersLobbyKryptonComboBox
             // 
@@ -216,7 +216,7 @@ namespace Empire_Earth_Launcher
             this.gameSettingsKryptonGroupBox.Panel.Controls.Add(this.empireEarthKryptonRadioButton);
             this.gameSettingsKryptonGroupBox.Size = new System.Drawing.Size(322, 202);
             this.gameSettingsKryptonGroupBox.TabIndex = 2;
-            this.gameSettingsKryptonGroupBox.Values.Heading = "Game Settings";
+            this.gameSettingsKryptonGroupBox.Values.Heading = "Game";
             // 
             // artOfConquestKryptonRadioButton
             // 
@@ -269,7 +269,7 @@ namespace Empire_Earth_Launcher
             // usernameColumn
             // 
             this.usernameColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.usernameColumn.HeaderText = "Username";
+            this.usernameColumn.HeaderText = "Player";
             this.usernameColumn.Name = "usernameColumn";
             this.usernameColumn.ReadOnly = true;
             // 
