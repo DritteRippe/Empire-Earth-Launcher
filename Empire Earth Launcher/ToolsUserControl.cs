@@ -46,6 +46,9 @@ namespace Empire_Earth_Launcher
         /// <summary>The registry cleanup as shown, so that the check boxes map to its keys.</summary>
         private CleanupView cleanupView;
 
+        /// <summary>The scan whose keys the list shows; the list is filled again only for a new scan.</summary>
+        private CleanupScan shownCleanupScan;
+
         /// <summary>The result lines of the last actions; empty until one ran.</summary>
         private string cleanupResult = string.Empty;
         private string wonResult = string.Empty;
@@ -203,6 +206,12 @@ namespace Empire_Earth_Launcher
         /// </summary>
         private void ShowCleanup(CleanupScan scan, bool canChange)
         {
+            if (scan != null && scan == shownCleanupScan)
+            {
+                UpdateDeleteButton(cleanupKryptonCheckedListBox.CheckedIndices.Count);
+                return;
+            }
+            shownCleanupScan = scan;
             var selected = new HashSet<string>(SelectedKeys().Select(item => item.Entry.Id));
             cleanupView = CleanupView.For(scan, 0, canChange);
             cleanupStateKryptonWrapLabel.Text = cleanupView.Summary;
