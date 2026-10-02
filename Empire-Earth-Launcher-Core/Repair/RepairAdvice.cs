@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.Installations;
+using Empire_Earth_Launcher.Core.Integrity;
 using Empire_Earth_Launcher.Core.Logging;
 using Empire_Earth_Launcher.Core.Platform;
 
@@ -21,7 +22,22 @@ namespace Empire_Earth_Launcher.Core.Repair
         ProgramMissing,
 
         /// <summary>The player asked for the repair advice.</summary>
-        Requested
+        Requested,
+
+        /// <summary>
+        /// The integrity check found files missing or changed (Damaged or Incomplete, contract 2.5): the advice names the
+        /// files and puts the antivirus exception first (t=11045 p=48037, t=41147 p=80317).
+        /// </summary>
+        IntegrityFindings,
+
+        /// <summary>
+        /// The integrity state of a community installation is Unknown because its records are missing, unusable or outdated
+        /// (no manifest, an older setup ran afterwards, ...): run the current setup (contract 2.5).
+        /// </summary>
+        IntegrityUnknown,
+
+        /// <summary>The version check found a newer game or setup (contract 4.5): the hand-off of contract 4.3.</summary>
+        UpdateAvailable
     }
 
     /// <summary>
@@ -65,22 +81,26 @@ namespace Empire_Earth_Launcher.Core.Repair
     /// elevates anything for the repair, it opens the download page in the browser with its own rights.
     /// </summary>
     /// <remarks>
-    /// Until L-WP7 adds the update API (<c>SetupDownloadLocator</c>, contract 4.3 steps 1 and 2), the download page is
-    /// always the fixed page of contract 4.3 step 3, <see cref="DownloadPageUrl"/>.
+    /// An advice starts with the fixed page of contract 4.3 step 3 (<see cref="SetupDownloadLocation.NotAsked"/>); the
+    /// launcher asks the update API through <see cref="SetupDownloadLocator"/> when it shows the advice and continues with
+    /// <see cref="WithLocation"/> (contract 4.3 steps 1 and 2, L-WP7).
     /// </remarks>
     public sealed class RepairAdvice
     {
         /// <summary>The fixed download page of the community setup (contract 4.3 step 3).</summary>
-        public const string DownloadPageUrl = "https://empireearth.eu/download";
+        public const string DownloadPageUrl = SetupDownloadLocator.FixedPageUrl;
 
         private RepairAdvice(Installation installation, RepairReason reason, IEnumerable<Game> missingPrograms,
-            IEnumerable<RepairStep> steps, string downloadUrl)
+            IEnumerable<RepairStep> steps, IEnumerable<IntegrityFinding> files, VersionCheckResult update,
+            SetupDownloadLocation location)
         {
             Installation = installation;
             Reason = reason;
             MissingPrograms = new ReadOnlyCollection<Game>(missingPrograms.ToList());
             Steps = new ReadOnlyCollection<RepairStep>(steps.ToList());
-            DownloadUrl = downloadUrl;
+            Files = new ReadOnlyCollection<IntegrityFinding>(files.ToList());
+            Update = update;
+            Location = location;
         }
 
         /// <summary>The installation the advice is for.</summary>
@@ -103,13 +123,28 @@ namespace Empire_Earth_Launcher.Core.Repair
         /// <summary>The steps of contract 4.4 that apply, in order.</summary>
         public IReadOnlyList<RepairStep> Steps { get; }
 
-        /// <summary>The page with the setup download (contract 4.3).</summary>
-        public string DownloadUrl { get; }
+        /// <summary>
+        /// For <see cref="RepairReason.IntegrityFindings"/>: the missing and changed files the message names (contract 2.5),
+        /// damaged ones first; empty otherwise.
+        /// </summary>
+        public IReadOnlyList<IntegrityFinding> Files { get; }
 
-        /// <summary>True while the page is the fixed one of contract 4.3 step 3 (always until L-WP7).</summary>
+        /// <summary>For <see cref="RepairReason.UpdateAvailable"/>: the result of the version check; null otherwise.</summary>
+        public VersionCheckResult Update { get; }
+
+        /// <summary>Where the setup is downloaded: the fixed page until the update API answered (contract 4.3).</summary>
+        public SetupDownloadLocation Location { get; }
+
+        /// <summary>The page with the setup download (contract 4.3).</summary>
+        public string DownloadUrl
+        {
+            get { return Location.Url; }
+        }
+
+        /// <summary>True if the page is the fixed one of contract 4.3 step 3 (the update API was not asked or gave no URL).</summary>
         public bool IsFixedPage
         {
-            get { return DownloadUrl == DownloadPageUrl; }
+            get { return !Location.IsFromUpdateApi; }
         }
 
         /// <summary>
@@ -129,10 +164,59 @@ namespace Empire_Earth_Launcher.Core.Repair
                 ? (missingPrograms ?? installation.MissingPrograms).Distinct().ToList()
                 : new List<Game>();
 
+            if (reason == RepairReason.IntegrityFindings || reason == RepairReason.IntegrityUnknown ||
+                reason == RepairReason.UpdateAvailable)
+                throw new ArgumentException("The advice of " + reason + " is made by ForIntegrity or ForUpdate.", nameof(reason));
+            return new RepairAdvice(installation, reason, missing, StepsFor(installation, reason), new IntegrityFinding[0], null,
+                SetupDownloadLocation.NotAsked);
+        }
+
+        /// <summary>
+        /// The advice for a report that offers the repair (<see cref="IntegrityReport.OffersRepair"/>): Damaged and Incomplete
+        /// name the files and put the antivirus exception first; an Unknown community installation gets the steps of a run of
+        /// the current setup (contract 2.5).
+        /// </summary>
+        public static RepairAdvice ForIntegrity(IntegrityReport report)
+        {
+            if (report == null)
+                throw new ArgumentNullException(nameof(report));
+            if (!report.OffersRepair)
+                throw new ArgumentException("The report " + report + " offers no repair.", nameof(report));
+            RepairReason reason = report.State == IntegrityState.Unknown ? RepairReason.IntegrityUnknown : RepairReason.IntegrityFindings;
+            return new RepairAdvice(report.Installation, reason, new Game[0], StepsFor(report.Installation, reason),
+                report.SeriousFindings, null, SetupDownloadLocation.NotAsked);
+        }
+
+        /// <summary>The hand-off for an available update (contract 4.5: "An available update uses the hand-off of 4.3").</summary>
+        public static RepairAdvice ForUpdate(VersionCheckResult update)
+        {
+            if (update == null)
+                throw new ArgumentNullException(nameof(update));
+            if (update.Outcome != VersionCheckOutcome.UpdateAvailable)
+                throw new ArgumentException("No update is available: " + update, nameof(update));
+            return new RepairAdvice(update.Installation, RepairReason.UpdateAvailable, new Game[0],
+                StepsFor(update.Installation, RepairReason.UpdateAvailable), new IntegrityFinding[0], update,
+                SetupDownloadLocation.NotAsked);
+        }
+
+        /// <summary>The same advice with the download of <paramref name="location"/> (the answer of the update API).</summary>
+        public RepairAdvice WithLocation(SetupDownloadLocation location)
+        {
+            if (location == null)
+                throw new ArgumentNullException(nameof(location));
+            return new RepairAdvice(Installation, Reason, MissingPrograms, Steps, Files, Update, location);
+        }
+
+        /// <summary>
+        /// The steps of contract 4.4: foreign installations are not repaired; the antivirus exception comes first when files
+        /// were deleted or changed; community installations (also those of setups up to 1.7.2) get the run of the setup.
+        /// </summary>
+        private static IEnumerable<RepairStep> StepsFor(Installation installation, RepairReason reason)
+        {
             var steps = new List<RepairStep>();
             if (installation.Kind == InstallationKind.Foreign)
                 steps.Add(RepairStep.ForeignNotRepaired);
-            if (reason == RepairReason.ProgramMissing)
+            if (reason == RepairReason.ProgramMissing || reason == RepairReason.IntegrityFindings)
                 steps.Add(RepairStep.AddAntivirusException);
             if (installation.Kind != InstallationKind.Foreign)
             {
@@ -141,7 +225,7 @@ namespace Empire_Earth_Launcher.Core.Repair
                 if (installation.Product == Product.NeoEE)
                     steps.Add(RepairStep.KeepCdKeysTask);
             }
-            return new RepairAdvice(installation, reason, missing, steps, DownloadPageUrl);
+            return steps;
         }
 
         /// <summary>
@@ -154,8 +238,8 @@ namespace Empire_Earth_Launcher.Core.Repair
                 throw new ArgumentNullException(nameof(starter));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
-            logger.Info("Repair advice for " + Installation.Root + ": opening the download page " + DownloadUrl +
-                        (IsFixedPage ? " (the fixed page of contract 4.3; the update API is not asked)." : "."));
+            logger.Info("Repair advice for " + Installation.Root + ": opening the download page " + DownloadUrl + " (" +
+                        (IsFixedPage ? "the fixed page of contract 4.3: " + Location.Reason : "named by the update API") + ").");
             try
             {
                 starter.OpenUrl(DownloadUrl);

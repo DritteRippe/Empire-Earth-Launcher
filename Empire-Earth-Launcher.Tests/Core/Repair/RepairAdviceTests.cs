@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.Installations;
+using Empire_Earth_Launcher.Core.Integrity;
 using Empire_Earth_Launcher.Core.Repair;
 using Empire_Earth_Launcher.Tests.Fakes;
 using NUnit.Framework;
@@ -157,6 +158,115 @@ namespace Empire_Earth_Launcher.Tests.Core.Repair
             Assert.That(result, Is.EqualTo(DownloadPageResult.Failed));
             Assert.That(logger.Entries.Last().Exception, Is.SameAs(starter.OpenException));
             Assert.That(logger.Entries.Last().Message, Does.Contain("could not be opened"));
+        }
+
+        // --- L-WP7: the integrity check, the version check and the update API -----------------------------------------
+
+        private static IntegrityFinding Finding(string path, FindingKind kind)
+        {
+            return new IntegrityFinding(path, NeoRoot + @"\" + path.Replace('/', '\\'), FileClassifier.Classify(path), kind,
+                kind == FindingKind.MissingAfterInstall ? null : "expected", kind == FindingKind.HashDiffers ? "actual" : null, null);
+        }
+
+        [Test]
+        public void Contract_2_5_DamagedOrIncomplete_NameTheFiles_AndTheAntivirusExceptionComesFirst()
+        {
+            Installation installation = Community(Product.NeoEE, NeoRoot, InstallMode.Admin);
+            IntegrityReport report = IntegrityReport.Finished(installation, IntegrityCheckKind.Full, new[]
+            {
+                Finding("Empire Earth/Data/file0001.dat", FindingKind.Missing),
+                Finding("Empire Earth/Data/file0002.dat", FindingKind.HashDiffers),
+                Finding("Empire Earth/neoee.dll", FindingKind.Missing)
+            }, 10, 9);
+
+            RepairAdvice advice = RepairAdvice.ForIntegrity(report);
+
+            Assert.That(advice.Reason, Is.EqualTo(RepairReason.IntegrityFindings));
+            Assert.That(advice.Steps, Is.EqualTo(new[]
+            {
+                RepairStep.AddAntivirusException, RepairStep.CloseGameAndRunSetup, RepairStep.KeepFolderAndMode,
+                RepairStep.KeepCdKeysTask
+            }));
+            Assert.That(advice.Files.Select(file => file.Path), Is.EqualTo(new[]
+            {
+                "Empire Earth/neoee.dll", "Empire Earth/Data/file0001.dat"
+            }), "the damaged file first; a modified data file is not named");
+            Assert.That(advice.MissingPrograms, Is.Empty);
+        }
+
+        [Test]
+        public void Contract_2_5_UnknownOfACommunityInstallation_RunTheCurrentSetup_WithoutAntivirus()
+        {
+            IntegrityReport report = IntegrityReport.Unknown(Community(Product.EE, EERoot, InstallMode.User),
+                IntegrityCheckKind.Quick, UnknownReason.OlderSetupRanAfter);
+
+            RepairAdvice advice = RepairAdvice.ForIntegrity(report);
+
+            Assert.That(advice.Reason, Is.EqualTo(RepairReason.IntegrityUnknown));
+            Assert.That(advice.Steps, Is.EqualTo(new[] { RepairStep.CloseGameAndRunSetup, RepairStep.KeepFolderAndMode }));
+            Assert.That(advice.Files, Is.Empty);
+        }
+
+        [TestCase(UnknownReason.LegacySetup)]
+        [TestCase(UnknownReason.NewerContract)]
+        [TestCase(UnknownReason.FilesUnreadable)]
+        public void Contract_2_5_AReportWithoutRepair_HasNoAdvice(UnknownReason reason)
+        {
+            IntegrityReport report = IntegrityReport.Unknown(Community(Product.NeoEE, NeoRoot, InstallMode.Admin),
+                IntegrityCheckKind.Quick, reason);
+
+            Assert.That(report.OffersRepair, Is.False);
+            Assert.Throws<ArgumentException>(() => RepairAdvice.ForIntegrity(report));
+        }
+
+        [Test]
+        public void Contract_4_5_AnAvailableUpdate_UsesTheHandOff()
+        {
+            var update = new VersionCheckResult(Community(Product.NeoEE, NeoRoot, InstallMode.Admin), VersionKind.Game, "2.0.0.5",
+                VersionCheckOutcome.UpdateAvailable, "2.0.1.0", FallbackReason.None);
+
+            RepairAdvice advice = RepairAdvice.ForUpdate(update);
+
+            Assert.That(advice.Reason, Is.EqualTo(RepairReason.UpdateAvailable));
+            Assert.That(advice.Update, Is.SameAs(update));
+            Assert.That(advice.Steps, Is.EqualTo(new[]
+            {
+                RepairStep.CloseGameAndRunSetup, RepairStep.KeepFolderAndMode, RepairStep.KeepCdKeysTask
+            }));
+            Assert.Throws<ArgumentException>(() => RepairAdvice.ForUpdate(new VersionCheckResult(update.Installation,
+                VersionKind.Game, "2.0.0.5", VersionCheckOutcome.UpToDate, null, FallbackReason.None)));
+        }
+
+        [Test]
+        public void TheReasonsOfTheChecks_AreNotMadeByFor()
+        {
+            Installation installation = Community(Product.NeoEE, NeoRoot, InstallMode.Admin);
+
+            Assert.Throws<ArgumentException>(() => RepairAdvice.For(installation, RepairReason.IntegrityFindings));
+            Assert.Throws<ArgumentException>(() => RepairAdvice.For(installation, RepairReason.UpdateAvailable));
+        }
+
+        [Test]
+        public void Contract_4_3_WithLocation_UsesTheUrlOfTheUpdateApi()
+        {
+            var client = new FakeHttpsClient().Answer(
+                "https://api.empireearth.eu/setup/?product=00000000-0000-0000-0000-000000000AEE", 200,
+                "https://files.empireearth.eu/setup.exe");
+            var logger = new RecordingLogger();
+            RepairAdvice advice = RepairAdvice.For(Community(Product.NeoEE, NeoRoot, InstallMode.Admin), RepairReason.Requested);
+            Assert.That(advice.Location.Reason, Is.EqualTo(FallbackReason.NotAsked));
+
+            RepairAdvice located = advice.WithLocation(
+                new SetupDownloadLocator(client, logger).LocateAsync("00000000-0000-0000-0000-000000000AEE").Result);
+            var starter = new FakeProcessStarter();
+            located.OpenDownloadPage(starter, logger);
+
+            Assert.That(located.DownloadUrl, Is.EqualTo("https://files.empireearth.eu/setup.exe"));
+            Assert.That(located.IsFixedPage, Is.False);
+            Assert.That(located.Steps, Is.EqualTo(advice.Steps));
+            Assert.That(starter.OpenedUrls, Is.EqualTo(new[] { "https://files.empireearth.eu/setup.exe" }));
+            Assert.That(logger.Messages.Last(), Does.Contain("named by the update API"));
+            Assert.That(advice.DownloadUrl, Is.EqualTo(RepairAdvice.DownloadPageUrl), "the original advice is unchanged");
         }
 
         [Test]
