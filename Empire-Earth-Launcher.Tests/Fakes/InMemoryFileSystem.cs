@@ -58,6 +58,9 @@ namespace Empire_Earth_Launcher.Tests.Fakes
             AddDrive("C:");
         }
 
+        /// <summary>Called with "exists &lt;path&gt;" by every <see cref="FileExists"/> (order tests).</summary>
+        public Action<string> OnFileExists { get; set; }
+
         /// <summary>Number of <see cref="OpenRead"/> calls that returned a stream, over all files.</summary>
         public int TotalOpenCount
         {
@@ -151,6 +154,7 @@ namespace Empire_Earth_Launcher.Tests.Fakes
         {
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
+            OnFileExists?.Invoke("exists " + path);
             return TryKey(path, out string key) && files.ContainsKey(key);
         }
 

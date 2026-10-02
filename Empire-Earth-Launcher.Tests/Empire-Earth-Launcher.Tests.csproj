@@ -100,7 +100,10 @@
     <Compile Include="Core\Platform\WindowsMutexProbeTests.cs" />
     <Compile Include="Core\Platform\WindowsProcessListTests.cs" />
     <Compile Include="Core\Platform\WinPathTests.cs" />
+    <Compile Include="Core\Play\GameStarterTests.cs" />
     <Compile Include="Core\Play\MutationGuardTests.cs" />
+    <Compile Include="Core\Play\ProgramVersionsTests.cs" />
+    <Compile Include="Core\Play\RunningGameDetectorTests.cs" />
     <Compile Include="Core\Repair\RepairAdviceTests.cs" />
     <Compile Include="Core\Settings\LauncherPathsTests.cs" />
     <Compile Include="Core\Settings\SettingsStoreTests.cs" />

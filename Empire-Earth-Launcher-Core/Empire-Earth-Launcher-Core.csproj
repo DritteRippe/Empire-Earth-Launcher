@@ -95,7 +95,11 @@
     <Compile Include="Platform\WindowsRegistry.cs" />
     <Compile Include="Platform\WindowsSystemInfo.cs" />
     <Compile Include="Platform\WinPath.cs" />
+    <Compile Include="Play\GameStarter.cs" />
+    <Compile Include="Play\IGameStartPreparation.cs" />
     <Compile Include="Play\MutationGuard.cs" />
+    <Compile Include="Play\ProgramVersions.cs" />
+    <Compile Include="Play\RunningGameDetector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repair\RepairAdvice.cs" />
     <Compile Include="Settings\LauncherPaths.cs" />

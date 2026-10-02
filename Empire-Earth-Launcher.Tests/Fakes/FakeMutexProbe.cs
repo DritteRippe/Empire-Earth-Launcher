@@ -14,6 +14,9 @@ namespace Empire_Earth_Launcher.Tests.Fakes
         private readonly HashSet<string> existing = new HashSet<string>(StringComparer.Ordinal);
         private readonly List<string> probed = new List<string>();
 
+        /// <summary>Called with "mutex &lt;name&gt;" by every <see cref="Exists"/> (order tests).</summary>
+        public Action<string> OnProbe { get; set; }
+
         /// <summary>Every name passed to <see cref="Exists"/>, in order.</summary>
         public IReadOnlyList<string> Probed
         {
@@ -38,6 +41,7 @@ namespace Empire_Earth_Launcher.Tests.Fakes
         {
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentException("A mutex name is required.", nameof(name));
+            OnProbe?.Invoke("mutex " + name);
             probed.Add(name);
             return existing.Contains(name);
         }

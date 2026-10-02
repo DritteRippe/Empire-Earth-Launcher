@@ -21,7 +21,7 @@ namespace Empire_Earth_Launcher.Core.GameSettings
     /// <b>When</b> (contract 3.6, ADR 0015 with its amendments): at the launcher start only for an installation that is
     /// unambiguous for its game settings key (<see cref="DiscoveryResult.IsUnambiguous"/>) and only if the mutation guard
     /// allows it; class S is then only created when both values are missing, never changed. Before a game starts, class S
-    /// is synchronized (<see cref="SynchronizeInstalledFrom"/>, for L-WP6). The reset and the display settings run on the
+    /// is synchronized (<see cref="SynchronizeInstalledFrom"/>, by <see cref="GameStarter"/>). The reset and the display settings run on the
     /// player's request. No defaults and no reset for an installation of a newer contract (contract 5).
     /// </para>
     /// <para>
@@ -39,7 +39,7 @@ namespace Empire_Earth_Launcher.Core.GameSettings
     /// Synchronous: the registry work takes milliseconds; the UI runs it through <c>UiOperation</c> on the thread pool.
     /// </para>
     /// </remarks>
-    public sealed class GameDefaultsService
+    public sealed class GameDefaultsService : IGameStartPreparation
     {
         private readonly IRegistry registry;
         private readonly IFileSystem fileSystem;
@@ -209,7 +209,7 @@ namespace Empire_Earth_Launcher.Core.GameSettings
 
         /// <summary>
         /// The first run of one game if its marker is missing, or the values added since a lower marker (contract 3.5,
-        /// 3.6), after the mutation guard: for the first Play of a game (L-WP6). Returns the display question in
+        /// 3.6), after the mutation guard: for the first Play of a game (<see cref="GameStarter"/>). Returns the display question in
         /// <paramref name="question"/> if existing display values differ.
         /// </summary>
         public DefaultsAtStart ApplyDefaultsIfNeeded(Installation installation, Game game, out DisplayQuestion question)
@@ -319,7 +319,7 @@ namespace Empire_Earth_Launcher.Core.GameSettings
             return marker.State == MarkerState.Missing ? DefaultsAtStart.FirstRun : DefaultsAtStart.Updated;
         }
 
-        // --- Before a game starts (public API for L-WP6) ---------------------------------------------------------------
+        // --- Before a game starts (IGameStartPreparation, used by GameStarter) ----------------------------------------
 
         /// <summary>
         /// Class S before a game starts (contract 3.6): the "Installed From" values of <paramref name="game"/> from its real
