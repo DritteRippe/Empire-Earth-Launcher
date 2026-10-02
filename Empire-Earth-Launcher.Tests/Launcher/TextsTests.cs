@@ -227,7 +227,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
 
             Assert.That(Texts.CompatibilityInfo(state).Split(new[] { Environment.NewLine }, StringSplitOptions.None), Is.EqualTo(new[]
             {
-                "On Windows 7 and under Wine the launcher offers no compatibility options; the current setup sets none there either.",
+                "On Windows 7 and under Wine the launcher offers no compatibility options. On Windows 7 the current setup can set them if you choose them during the installation.",
                 "Compatibility values of an older setup (HKCU, EE-AOC.exe: ~ RUNASADMIN WINXPSP3), which can cause black screens on Windows 7. Run the current community setup: it removes them.",
                 "An older setup set \"Run as administrator\" for your account (~ RUNASADMIN). The online lobby should not run as administrator.",
             }));
