@@ -258,6 +258,9 @@ Generated_Code/
 # because we have git ;-)
 _UpgradeReport_Files/
 Backup*/
+# ... but not the backup code of the core and its tests (.reg backups of the game settings, ADR 0007)
+!Empire-Earth-Launcher-Core/Backup/
+!Empire-Earth-Launcher.Tests/Core/Backup/
 UpgradeLog*.XML
 UpgradeLog*.htm
 ServiceFabricBackup/
