@@ -11,7 +11,8 @@ namespace Empire_Earth_Launcher.Tests.Architecture
     /// <summary>
     /// The tests touch nothing of the computer they run on (ADR 0012 plan review, REV-06): the test program also runs from
     /// the <c>Tests\</c> folder of the laptop package on real Windows (test plan WP1-11), so it must not create a
-    /// <c>WindowsRegistry</c>, use <c>Microsoft.Win32.Registry</c> directly, create an HTTP client or a socket, ask a server
+    /// <c>WindowsRegistry</c>, use <c>Microsoft.Win32.Registry</c> directly, create an HTTP client (also the launcher's
+    /// <c>HttpsClient</c>; its handler settings are inspected without a request) or a socket, ask a server
     /// or write into the launcher's real folder below <c>%LOCALAPPDATA%</c>. Checked on the sources of the test project;
     /// temporary folders and mutexes with random names are allowed.
     /// </summary>
@@ -47,6 +48,7 @@ namespace Empire_Earth_Launcher.Tests.Architecture
                 @"(?<![\w.])(Microsoft\.Win32\.)?Registry\s*\.\s*(CurrentUser|LocalMachine|ClassesRoot|Users|CurrentConfig|PerformanceData|GetValue|SetValue)\b"),
             new Rule("a real registry key", @"\b(RegistryKey|OpenBaseKey|OpenRemoteBaseKey|RegLoadAppKey)\b"),
             new Rule("an HTTP client", @"\bnew\s+(HttpClient|HttpClientHandler|WebClient|WebRequestHandler)\s*\("),
+            new Rule("the HTTPS client of the launcher", @"\bnew\s+HttpsClient\s*\("),
             new Rule("an HTTP request", @"\b(HttpWebRequest|WebRequest\s*\.\s*Create(Http)?)\b"),
             new Rule("a socket", @"\bnew\s+(Socket|TcpClient|UdpClient|TcpListener)\s*\("),
             new Rule("a DNS lookup", @"\bDns\s*\.\s*(GetHost\w*|Resolve)\b"),
@@ -95,6 +97,7 @@ namespace Empire_Earth_Launcher.Tests.Architecture
         [TestCase("using (RegistryKey key = RegistryKey.OpenBaseKey(hive, view))", "a real registry key")]
         [TestCase("using (var client = new HttpClient())", "an HTTP client")]
         [TestCase("new WebClient().DownloadString(url);", "an HTTP client")]
+        [TestCase("using (var client = new HttpsClient())", "the HTTPS client of the launcher")]
         [TestCase("var request = WebRequest.Create(url);", "an HTTP request")]
         [TestCase("var client = new TcpClient(\"titan.empireearth.eu\", 10005);", "a socket")]
         [TestCase("Dns.GetHostAddresses(\"neoee.net\");", "a DNS lookup")]
@@ -112,6 +115,8 @@ namespace Empire_Earth_Launcher.Tests.Architecture
         [TestCase("RegistryLocation.CurrentUser(@\"Software\\Neo\")")]
         [TestCase("Assert.That(world.Registry.GetValue(key, \"Installed From Volume\").IsOk, Is.True);")]
         [TestCase("// new WindowsRegistry() is created only by Program")]
+        [TestCase("var client = new FakeHttpsClient();")]
+        [TestCase("using (HttpClientHandler handler = HttpsClient.CreateHandler())")]
         public void TheRules_AllowWhatTouchesNothing(string line)
         {
             Assert.That(Offenders("Sample.cs", new[] { line }), Is.Empty);

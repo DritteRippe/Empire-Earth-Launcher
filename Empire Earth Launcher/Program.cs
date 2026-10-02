@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -76,6 +77,8 @@ namespace Empire_Earth_Launcher
             // discovery only reads.
             var systemInfo = new WindowsSystemInfo(logger);
             logger.Info(systemInfo.Describe());
+            // The TLS versions of every HTTPS request, set once before the first one (ADR 0008 plan review).
+            ConfigureTls(systemInfo.WindowsVersion, logger);
             var registry = new PolicyCheckedRegistry(new WindowsRegistry(), LauncherWritePolicy.For(systemInfo));
             // The setup mutexes (contract 4.2, ADR 0010): the main window ticks the watcher every half second, it probes every
             // two seconds. While a setup runs nothing reads install.ini, no game starts and nothing changes.
@@ -119,6 +122,35 @@ namespace Empire_Earth_Launcher
             logger.Info("Starting Empire Earth Launcher Form");
             Application.Run(new MainForm(logger, themeService, settingsStore, installations, lobbyProfiles, gameSettings, play,
                 setupWatcher, uiOperation, playerList));
+        }
+
+        /// <summary>
+        /// The TLS versions the launcher asks for on <paramref name="windowsVersion"/> (ADR 0008 plan review): exactly TLS 1.2
+        /// on Windows 7 (NT 6.1), where SChannel offers TLS 1.2 to a program only when the program asks for it; null on
+        /// every other Windows, which keeps <see cref="SecurityProtocolType.SystemDefault"/> (Windows chooses, TLS 1.2 or
+        /// 1.3). Never TLS 1.3 by name (handshakes fail where SChannel has no TLS 1.3) and never an older version.
+        /// </summary>
+        internal static SecurityProtocolType? TlsProtocolsFor(Version windowsVersion)
+        {
+            if (windowsVersion == null)
+                throw new ArgumentNullException(nameof(windowsVersion));
+            return windowsVersion.Major == 6 && windowsVersion.Minor == 1 ? SecurityProtocolType.Tls12 : (SecurityProtocolType?)null;
+        }
+
+        /// <summary>
+        /// Sets <see cref="ServicePointManager.SecurityProtocol"/>, process-wide, from <see cref="TlsProtocolsFor"/>: the only
+        /// assignment in the launcher (an architecture test checks it), made once before the first request.
+        /// </summary>
+        private static void ConfigureTls(Version windowsVersion, ILogger log)
+        {
+            SecurityProtocolType? protocols = TlsProtocolsFor(windowsVersion);
+            if (protocols == null)
+            {
+                log.Info("TLS: the versions Windows chooses (" + ServicePointManager.SecurityProtocol + ").");
+                return;
+            }
+            ServicePointManager.SecurityProtocol = protocols.Value;
+            log.Info("TLS: Windows 7, TLS 1.2 requested explicitly (" + ServicePointManager.SecurityProtocol + ").");
         }
 
         /// <summary>
