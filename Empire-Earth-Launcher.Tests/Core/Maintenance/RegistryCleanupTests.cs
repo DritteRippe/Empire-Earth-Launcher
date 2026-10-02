@@ -436,6 +436,51 @@ namespace Empire_Earth_Launcher.Tests.Core.Maintenance
             Assert.That(w.RawRegistry.ProbeKey(key).IsOk, Is.True);
         }
 
+        /// <summary>
+        /// Security review (ADR 0007, D6): a symbolic registry link below a key to delete could point at
+        /// <c>Software\Sierra\CDKeys</c>; the cleanup never follows it, so the backup fails and nothing is deleted.
+        /// </summary>
+        [Test]
+        public void Delete_WhenTheTreeHoldsASymbolicLink_NothingIsDeleted()
+        {
+            SeedCdKeys();
+            RegistryLocation key = Seed("hkcu-ee-ee");
+            w.RawRegistry.SeedLink(key.Child("Sierra"));
+            RegistryCleanup cleanup = CreateCleanup();
+            CleanupScan scan = cleanup.Scan(w.Discover());
+            int changes = w.Changes.Count;
+
+            CleanupResult result = cleanup.Delete(scan, scan.Offered);
+
+            Assert.That(result.Outcome, Is.EqualTo(CleanupOutcome.BackupFailed));
+            Assert.That(result.Deleted, Is.Empty);
+            Assert.That(w.Changes, Has.Count.EqualTo(changes));
+            Assert.That(w.RawRegistry.ProbeKey(key).IsOk, Is.True);
+            Assert.That(w.RawRegistry.ProbeKey(RegistryLocation.CurrentUser(@"Software\Sierra\CDKeys")).IsOk, Is.True);
+        }
+
+        /// <summary>A link that appears after the backup (between backup and deletion) stops the deletion too.</summary>
+        [Test]
+        public void Delete_WhenASymbolicLinkAppearsAfterTheBackup_TheKeyIsNotDeleted()
+        {
+            RegistryLocation key = Seed("hkcu-ee-ee");
+            RegistryCleanup cleanup = CreateCleanup();
+            CleanupScan scan = cleanup.Scan(w.Discover());
+            w.FileSystem.OnRead = path =>
+            {
+                // The read-back of the backup file: the backup is written, the deletion comes next.
+                if (path.EndsWith(".reg", StringComparison.OrdinalIgnoreCase))
+                    w.RawRegistry.SeedLink(key.Child("Sierra"));
+            };
+
+            CleanupResult result = cleanup.Delete(scan, scan.Offered);
+
+            Assert.That(result.Outcome, Is.EqualTo(CleanupOutcome.Failed));
+            Assert.That(result.Deleted, Is.Empty);
+            Assert.That(result.BackupFile, Is.Not.Null);
+            Assert.That(w.RawRegistry.ProbeKey(key).IsOk, Is.True);
+        }
+
         /// <summary>ADR 0016: the deletion is blocked by a setup and by a game and changes nothing, no backup either.</summary>
         [Test]
         public void Delete_IsBlockedBySetupAndGame(

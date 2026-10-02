@@ -402,6 +402,42 @@ oder hatte, macht WP8-02 zuerst, vor allen Fällen, die Schlüssel anlegen.
 | WP8-14 | „Sicherungsordner öffnen“, einmal vor allen anderen Fällen dieses Pakets (Ordner fehlt noch, z. B. nach Umbenennen von `Backups`) und einmal danach. | Der Explorer öffnet `%LOCALAPPDATA%\Empire Earth Launcher\Backups` ohne UAC-Abfrage; fehlt er, legt der Launcher ihn vorher an. Danach liegen dort die Ordner `…_registry-cleanup`, `…_won-login-reset`, `…_import-saved-games` (und `…_reset-game-settings` aus L-WP5). Der Text unter „Sicherungen“ nennt den Ordner und dass er Login-Daten enthält. |
 | WP8-15 | Seite *Werkzeuge* mit allen Abschnitten (mit angebotenem Eintrag, Ratschlägen, VirtualStore-Liste, Ergebniszeilen) und die Rückfragen aus WP8-03 und WP8-10 auf Deutsch, Englisch und Französisch, je bei 100 % und 150 %; Screenshots. | Nichts abgeschnitten oder überlappend; die Seite scrollt; lange Pfade umbrechen oder lassen sich im Textfeld lesen. Deutsche Texte gegenlesen wie in WP3-03; französische Texte notieren, die unklar wirken. |
 | WP8-16 | Nach allen Fällen `log.txt` durchsehen. | Keine `Unhandled exception`, keine `A background task failed`, keine `The scan of the maintenance tools failed.`; nach jeder Suche eine Zeile `Registry cleanup: … key(s) offered, … shown read-only …`; kein CD-Key, kein Spieler- oder Profilname; nie `… existed before the cleanup and is missing now.` |
+| WP8-17 | Optional, für Fortgeschrittene (Sicherheitsprüfung): symbolische Registry-Verknüpfung unter einem veralteten Eintrag. Mit dem Schlüssel aus WP8-03 (angelegt, Launcher bietet ihn an) in einer PowerShell (normaler Benutzer) das Skript „Verknüpfung anlegen“ unter dieser Tabelle ausführen: Es legt `HKCU\Software\EELinkTest` mit dem Wert `Probe` an und unter `HKCU\Software\SSSI\Empire Earth` die Verknüpfung `Link` darauf. Launcher neu starten, *Werkzeuge*, den Eintrag ankreuzen, „Auswahl löschen ...“ → „Ja“. Danach `reg query "HKCU\Software\EELinkTest"`, zum Schluss das Skript „Aufräumen“. | „Nichts wurde geändert: Die Sicherung konnte nicht geschrieben werden (Einzelheiten im Protokoll).“; `HKCU\Software\SSSI\Empire Earth` und `HKCU\Software\EELinkTest` mit `Probe` sind unverändert da; im Sicherungsordner keine `.reg`-Datei, die `EELinkTest` oder `Probe` enthält. `log.txt`: `Registry cleanup: nothing was deleted because the backup failed: … is a symbolic registry link; it is neither followed nor backed up …`. |
+| WP8-18 | R5, Ordner, den der Launcher nicht ansehen darf (Sicherheitsprüfung): Schlüssel wie in WP8-03 anlegen, dazu den Ordner `C:\GIBTESNICHT\Empire Earth`. In einer Eingabeaufforderung als Administrator `icacls "C:\GIBTESNICHT" /deny "%USERNAME%:(OI)(CI)F"` (`%USERNAME%` ist das Konto, mit dem der Launcher läuft; die Eingabeaufforderung als Administrator mit diesem Konto öffnen oder den Namen einsetzen). Launcher als dieses Konto starten, *Werkzeuge*. Danach als Administrator `icacls "C:\GIBTESNICHT" /remove:d "%USERNAME%"`, `rmdir /s /q "C:\GIBTESNICHT"` und `reg delete "HKCU\Software\SSSI\Empire Earth" /f`. | Der Eintrag wird nicht angeboten; in der Liste darunter „HKEY_CURRENT_USER\Software\SSSI\Empire Earth: bleibt erhalten, der Launcher darf den Ordner C:\GIBTESNICHT\Empire Earth oder seinen übergeordneten Ordner nicht ansehen und kann daher nicht feststellen, ob der Ordner noch existiert.“ `log.txt`: `Registry cleanup: … is kept, whether C:\GIBTESNICHT\Empire Earth exists cannot be told.` |
+
+Skripte zu WP8-17 (PowerShell 5.1 oder 7, normaler Benutzer, nicht als Administrator). „Verknüpfung anlegen“:
+
+```powershell
+Add-Type -Namespace EE -Name Reg -MemberDefinition @'
+[DllImport("advapi32.dll", CharSet = CharSet.Unicode)] public static extern int RegCreateKeyEx(IntPtr key, string subKey, int reserved, string cls, int options, int sam, IntPtr security, out IntPtr result, out int disposition);
+[DllImport("advapi32.dll", CharSet = CharSet.Unicode)] public static extern int RegOpenKeyEx(IntPtr key, string subKey, int options, int sam, out IntPtr result);
+[DllImport("advapi32.dll", CharSet = CharSet.Unicode)] public static extern int RegSetValueEx(IntPtr key, string name, int reserved, int type, byte[] data, int size);
+[DllImport("advapi32.dll")] public static extern int RegCloseKey(IntPtr key);
+[DllImport("ntdll.dll")] public static extern int NtDeleteKey(IntPtr key);
+'@
+$hkcu = [IntPtr](-2147483647)   # HKEY_CURRENT_USER
+$sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+New-Item 'HKCU:\Software\EELinkTest' -Force | Out-Null
+New-ItemProperty 'HKCU:\Software\EELinkTest' -Name Probe -Value 1 -PropertyType DWord -Force | Out-Null
+$link = [IntPtr]::Zero; $disposition = 0
+# REG_OPTION_CREATE_LINK = 2, KEY_ALL_ACCESS = 0xF003F, REG_LINK = 6
+[EE.Reg]::RegCreateKeyEx($hkcu, 'Software\SSSI\Empire Earth\Link', 0, $null, 2, 0xF003F, [IntPtr]::Zero, [ref]$link, [ref]$disposition)
+$target = [Text.Encoding]::Unicode.GetBytes("\REGISTRY\USER\$sid\Software\EELinkTest")
+[EE.Reg]::RegSetValueEx($link, 'SymbolicLinkValue', 0, 6, $target, $target.Length)
+[EE.Reg]::RegCloseKey($link) | Out-Null
+```
+
+Beide Aufrufe geben `0` aus. „Aufräumen“ (in derselben PowerShell; die Verknüpfung selbst lässt sich nur so löschen, `reg
+delete` würde ihr folgen):
+
+```powershell
+$link = [IntPtr]::Zero
+# REG_OPTION_OPEN_LINK = 8, DELETE = 0x10000
+[EE.Reg]::RegOpenKeyEx($hkcu, 'Software\SSSI\Empire Earth\Link', 8, 0x10000, [ref]$link)
+[EE.Reg]::NtDeleteKey($link); [EE.Reg]::RegCloseKey($link) | Out-Null
+reg delete "HKCU\Software\SSSI\Empire Earth" /f
+reg delete "HKCU\Software\EELinkTest" /f
+```
 
 ### L-WP9 – Netzwerkdiagnose, Bericht, Laptop-Paket
 
@@ -474,7 +510,7 @@ existiert, kein „offen“ mehr, und jede Zeile „Setup:“ oder „entfällt:
 | R2 | Integritätsmanifest | WP7-01, WP7-02, WP7-03, WP7-04, WP7-05, WP7-06, WP7-07, WP7-08, WP7-09, WP7-13; Setup: TP-50 (das Setup schreibt das Manifest) |
 | R3 | Spielen, laufende Instanzen, Kompatibilitätsoptionen | WP5-12, WP5-13, WP5-14, WP6-01, WP6-03, WP6-07, WP6-08, WP6-09, WP6-15 |
 | R4 | Spieleinstellungen zurücksetzen mit `.reg`-Sicherung | WP5-08, WP5-09, WP5-10, WP5-11 |
-| R5 | Registry-Bereinigung | WP8-01, WP8-02, WP8-03, WP8-04, WP8-05, WP8-13 |
+| R5 | Registry-Bereinigung | WP8-01, WP8-02, WP8-03, WP8-04, WP8-05, WP8-13, WP8-17, WP8-18 |
 | R6 | WON-Login zurücksetzen | WP8-06, WP8-07, WP8-14 |
 | R7 | Netzwerkdiagnose | WP9-01, WP9-02, WP9-03, WP9-04, WP9-05, WP9-06, WP9-07, WP9-08, WP9-09, WP9-10, WP9-13 |
 | R8 | VirtualStore | WP4-16, WP8-08, WP8-09, WP8-11 |

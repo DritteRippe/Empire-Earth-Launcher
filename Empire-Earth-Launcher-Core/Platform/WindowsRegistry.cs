@@ -24,6 +24,15 @@ namespace Empire_Earth_Launcher.Core.Platform
     public sealed class WindowsRegistry : IRegistry
     {
         private const int ErrorSuccess = 0;
+        private const int ErrorFileNotFound = 2;
+        private const int ErrorPathNotFound = 3;
+        private const int ErrorAccessDenied = 5;
+        private const int RegOptionOpenLink = 0x8;
+        private const int KeyQueryValue = 0x1;
+        private const int KeyWow6464Key = 0x100;
+        private const int KeyWow6432Key = 0x200;
+        private const int RegLink = 6;
+        private const string SymbolicLinkValueName = "SymbolicLinkValue";
 
         public RegistryResult ProbeKey(RegistryLocation key)
         {
@@ -33,6 +42,40 @@ namespace Empire_Earth_Launcher.Core.Platform
             {
                 using (RegistryKey opened = Open(key, false))
                     return opened == null ? Missing("The key does not exist: " + key) : RegistryResult.Success;
+            });
+        }
+
+        /// <remarks>
+        /// <see cref="RegistryKey"/> always follows links, so the key is opened with <c>RegOpenKeyEx</c> and
+        /// <c>REG_OPTION_OPEN_LINK</c>, which opens a link itself; a link has the value <c>SymbolicLinkValue</c> of type
+        /// <c>REG_LINK</c>. Only the last name of the path is looked at this way: the callers walk a tree from its root.
+        /// </remarks>
+        public RegistryResult<bool> IsLink(RegistryLocation key)
+        {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+            if (key.IsRoot)
+                return RegistryResult<bool>.Success(false);
+            return Run(() =>
+            {
+                using (RegistryKey baseKey = RegistryKey.OpenBaseKey(key.Hive, key.View))
+                {
+                    int access = KeyQueryValue | (key.View == RegistryView.Registry64 ? KeyWow6464Key
+                        : key.View == RegistryView.Registry32 ? KeyWow6432Key : 0);
+                    int error = NativeMethods.RegOpenKeyEx(baseKey.Handle, key.Path, RegOptionOpenLink, access, out IntPtr opened);
+                    if (error == ErrorFileNotFound || error == ErrorPathNotFound)
+                        return RegistryResult<bool>.Failure(RegistryStatus.Missing, "The key does not exist: " + key);
+                    if (error != ErrorSuccess)
+                        return RegistryResult<bool>.Failure(error == ErrorAccessDenied ? RegistryStatus.AccessDenied : RegistryStatus.IoError,
+                            key + ": " + new Win32Exception(error).Message);
+                    using (var handle = new SafeRegistryHandle(opened, true))
+                    {
+                        int size = 0;
+                        int queried = NativeMethods.RegQueryValueEx(handle, SymbolicLinkValueName, IntPtr.Zero, out int type,
+                            IntPtr.Zero, ref size);
+                        return RegistryResult<bool>.Success(queried == ErrorSuccess && type == RegLink);
+                    }
+                }
             });
         }
 
@@ -282,6 +325,10 @@ namespace Empire_Earth_Launcher.Core.Platform
             [DllImport("advapi32.dll", CharSet = CharSet.Unicode, EntryPoint = "RegQueryValueExW")]
             public static extern int RegQueryValueEx(SafeRegistryHandle key, string valueName, IntPtr reserved,
                 out int type, IntPtr data, ref int dataSize);
+
+            [DllImport("advapi32.dll", CharSet = CharSet.Unicode, EntryPoint = "RegOpenKeyExW")]
+            public static extern int RegOpenKeyEx(SafeRegistryHandle key, string subKey, int options, int samDesired,
+                out IntPtr result);
         }
     }
 }

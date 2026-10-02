@@ -271,6 +271,16 @@ namespace Empire_Earth_Launcher.Core.Maintenance
             var deleted = new List<RegistryLocation>();
             foreach (CleanupItem item in selected)
             {
+                // Read once more right before the deletion: a symbolic link that appeared after the backup would make
+                // DeleteSubKeyTree delete what it points at (security review), and the backup must still hold the tree.
+                RegistryResult<IReadOnlyList<RegFileKey>> now = RegistryExport.ReadTree(registry, item.Entry.Key);
+                if (!now.IsOk)
+                {
+                    logger.Error("Registry cleanup: " + item.Entry.Key + " is not deleted: " + now + "; the backup " + file +
+                                 " restores the keys deleted before.");
+                    CheckCdKeys(cdKeysBefore);
+                    return new CleanupResult(CleanupOutcome.Failed, null, file, deleted, item.Entry.Key + ": " + now);
+                }
                 RegistryResult result = registry.DeleteSubKeyTree(item.Entry.Key);
                 if (!result.IsOk && result.Status != RegistryStatus.Missing)
                 {

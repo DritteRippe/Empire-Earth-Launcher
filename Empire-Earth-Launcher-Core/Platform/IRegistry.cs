@@ -115,6 +115,14 @@ namespace Empire_Earth_Launcher.Core.Platform
         /// <summary><see cref="RegistryStatus.Ok"/> if the key exists, <see cref="RegistryStatus.Missing"/> if not.</summary>
         RegistryResult ProbeKey(RegistryLocation key);
 
+        /// <summary>
+        /// True if the key itself is a symbolic registry link (<c>REG_LINK</c>), looked at without following it
+        /// (<see cref="RegistryStatus.Missing"/> if it does not exist). The other operations follow links, so code that walks a
+        /// tree to back it up and delete it must not enter one (security review: a link can point at
+        /// <c>Software\Sierra\CDKeys</c>).
+        /// </summary>
+        RegistryResult<bool> IsLink(RegistryLocation key);
+
         /// <summary>Reads a value (<see cref="RegistryStatus.Missing"/> if the key or the value does not exist).</summary>
         RegistryResult<RegistryValue> GetValue(RegistryLocation key, string valueName);
 

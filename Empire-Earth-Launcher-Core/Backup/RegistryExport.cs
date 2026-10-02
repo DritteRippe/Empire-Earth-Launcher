@@ -7,7 +7,9 @@ namespace Empire_Earth_Launcher.Core.Backup
     /// <summary>
     /// Reads a registry key with its subkeys into <see cref="RegFileKey"/>s for a <c>.reg</c> backup (ADR 0007). Only
     /// reads; a key or value that cannot be read makes the whole export fail, so that a backup is complete or not
-    /// written at all ("if the backup fails, nothing is changed", contract 3.6).
+    /// written at all ("if the backup fails, nothing is changed", contract 3.6). A symbolic registry link in the tree also
+    /// makes it fail (security review): reading through it would export, and deleting the tree would delete, the keys it
+    /// points at, e.g. <c>Software\Sierra\CDKeys</c> (D6).
     /// </summary>
     public static class RegistryExport
     {
@@ -46,6 +48,12 @@ namespace Empire_Earth_Launcher.Core.Backup
             if (!RegFileWriter.CanWrite(key))
                 return RegistryResult.Failure(RegistryStatus.InvalidName,
                     "the key " + RegFileWriter.Describe(key.Path) + " cannot be written to a .reg file");
+            RegistryResult<bool> link = registry.IsLink(key);
+            if (!link.IsOk)
+                return RegistryResult.Failure(link.Status, key + ": " + link.Detail);
+            if (link.Value)
+                return RegistryResult.Failure(RegistryStatus.IoError,
+                    key + " is a symbolic registry link; it is neither followed nor backed up");
 
             var exported = new RegFileKey(key);
             keys.Add(exported);

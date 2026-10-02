@@ -59,6 +59,21 @@ namespace Empire_Earth_Launcher.Tests.Core.Backup
             Assert.That(result.Detail, Does.Contain("\\u000d\\u000a"), "the log shows the control characters, not a line break");
         }
 
+        /// <summary>Security review: a symbolic registry link in the tree (or the root itself) is neither followed nor exported.</summary>
+        [TestCase(@"Game Options\Linked")]
+        [TestCase("")]
+        public void ReadTree_FailsForASymbolicLink(string link)
+        {
+            var registry = new InMemoryRegistry();
+            registry.Seed(Settings.Child("Game Options"), "Map Size", RegistryValue.FromDWord(2));
+            registry.SeedLink(link.Length == 0 ? Settings : Settings.Child(link));
+
+            RegistryResult<IReadOnlyList<RegFileKey>> result = RegistryExport.ReadTree(registry, Settings);
+
+            Assert.That(result.IsOk, Is.False);
+            Assert.That(result.Detail, Does.Contain("is a symbolic registry link"));
+        }
+
         [Test]
         public void ReadTree_OfAMissingKeyIsEmpty()
         {

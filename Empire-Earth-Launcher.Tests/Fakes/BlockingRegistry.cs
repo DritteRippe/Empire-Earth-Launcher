@@ -52,6 +52,12 @@ namespace Empire_Earth_Launcher.Tests.Fakes
             return inner.ProbeKey(key);
         }
 
+        public RegistryResult<bool> IsLink(RegistryLocation key)
+        {
+            Block();
+            return inner.IsLink(key);
+        }
+
         public RegistryResult<RegistryValue> GetValue(RegistryLocation key, string valueName)
         {
             Block();

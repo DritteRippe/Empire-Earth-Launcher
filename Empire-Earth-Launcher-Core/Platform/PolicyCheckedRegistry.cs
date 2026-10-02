@@ -43,6 +43,11 @@ namespace Empire_Earth_Launcher.Core.Platform
             return registry.ProbeKey(key);
         }
 
+        public RegistryResult<bool> IsLink(RegistryLocation key)
+        {
+            return registry.IsLink(key);
+        }
+
         public RegistryResult<RegistryValue> GetValue(RegistryLocation key, string valueName)
         {
             return registry.GetValue(key, valueName);

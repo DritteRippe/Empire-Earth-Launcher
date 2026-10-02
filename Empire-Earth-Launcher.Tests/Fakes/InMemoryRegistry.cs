@@ -39,6 +39,9 @@ namespace Empire_Earth_Launcher.Tests.Fakes
 
             public Dictionary<string, Tuple<string, RegistryValue>> Values { get; } =
                 new Dictionary<string, Tuple<string, RegistryValue>>(StringComparer.OrdinalIgnoreCase);
+
+            /// <summary>A symbolic link (<see cref="SeedLink"/>); its values and subkeys stand for those of its target.</summary>
+            public bool IsLink { get; set; }
         }
 
         private sealed class Fault
@@ -86,6 +89,14 @@ namespace Empire_Earth_Launcher.Tests.Fakes
         }
 
         /// <summary>
+        /// Makes <paramref name="key"/> (created if needed) a symbolic registry link; the test seeds what the link shows below it.
+        /// </summary>
+        public void SeedLink(RegistryLocation key)
+        {
+            SeedKeyNode(key).IsLink = true;
+        }
+
+        /// <summary>
         /// From now on every operation on <paramref name="key"/> and its subkeys (also through an alias that names
         /// the same key) fails with <paramref name="status"/>; with <paramref name="writesOnly"/> only changes do.
         /// </summary>
@@ -105,6 +116,19 @@ namespace Empire_Earth_Launcher.Tests.Fakes
             if (!fault.IsOk)
                 return fault;
             return Find(key) == null ? Missing(key) : RegistryResult.Success;
+        }
+
+        public RegistryResult<bool> IsLink(RegistryLocation key)
+        {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+            RegistryResult fault = CheckFault(key, false);
+            if (!fault.IsOk)
+                return RegistryResult<bool>.Failure(fault.Status, fault.Detail);
+            Key found = Find(key);
+            return found == null
+                ? RegistryResult<bool>.Failure(RegistryStatus.Missing, "The key does not exist: " + key)
+                : RegistryResult<bool>.Success(found.IsLink);
         }
 
         public RegistryResult<RegistryValue> GetValue(RegistryLocation key, string valueName)

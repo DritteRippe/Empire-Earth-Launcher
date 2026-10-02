@@ -580,3 +580,9 @@ section 15); all of them are done, newest first below. It has not been released;
   is also false when access is denied, so a folder now counts as missing only if its parent can be listed without it (or
   the parent is missing in the same sense). Otherwise the key is kept as "whether the folder exists cannot be told"
   (`CleanupKeepFolderUnknownFormat`, en/de/fr).
+- The registry cleanup and the reset of the game settings never follow a symbolic registry link (security review, D6):
+  `RegistryKey` follows links, so a link below a key to delete (for example to `Software\Sierra\CDKeys`) would have
+  been exported into the backup and deleted with the tree. `IRegistry.IsLink` opens each key with
+  `REG_OPTION_OPEN_LINK`; `RegistryExport` refuses a tree with a link, so the backup fails and nothing changes, and the
+  cleanup reads the tree once more right before each deletion. Test plan: WP8-17 (link, optional) and WP8-18 (a folder
+  the launcher may not look at).
