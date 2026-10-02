@@ -31,12 +31,13 @@ namespace Empire_Earth_Launcher.Tests.Architecture
 
         /// <summary>
         /// Everything the core may reference (ARCHITECTURE 3): the BCL parts it needs and the WON library. A new
-        /// entry needs a reason in ARCHITECTURE.md.
+        /// entry needs a reason in ARCHITECTURE.md. System.IO.Compression was planned for a zip export of saved games;
+        /// L-WP8 dropped it, so the core does not read or write zip files.
         /// </summary>
         private static readonly string[] AllowedAssemblies =
         {
             "mscorlib", "System", "System.Core", "System.Runtime.Serialization", "System.Xml", "System.Net.Http",
-            "System.IO.Compression", "Empire_Earth_WON",
+            "Empire_Earth_WON",
         };
 
         private static readonly Regex UiNamespaceUsage = new Regex(

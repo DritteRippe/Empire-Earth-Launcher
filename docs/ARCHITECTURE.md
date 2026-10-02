@@ -151,8 +151,7 @@ and "Details".
 Empire Earth Launcher.exe ──> Empire_Earth_Launcher_Core.dll ──> Empire_Earth_WON.dll
           │                                │
           └──> Krypton.Toolkit             └──> BCL only (System, System.Core, System.Net.Http,
-                                                System.Runtime.Serialization, System.Xml,
-                                                System.IO.Compression)
+                                                System.Runtime.Serialization, System.Xml)
 Empire_Earth_Mod.exe ──> Empire_Earth_Mod_Lib.dll ──> BCL only
 ```
 
