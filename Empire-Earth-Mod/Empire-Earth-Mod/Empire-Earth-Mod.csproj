@@ -8,12 +8,13 @@
         <OutputType>WinExe</OutputType>
         <RootNamespace>Empire_Earth_Mod</RootNamespace>
         <AssemblyName>Empire_Earth_Mod</AssemblyName>
-        <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+        <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
         <Deterministic>true</Deterministic>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <LangVersion>8.0</LangVersion>
+        <Prefer32Bit>false</Prefer32Bit>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>
@@ -36,7 +37,7 @@
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="Krypton.Toolkit, Version=5.550.2108.0, Culture=neutral, processorArchitecture=MSIL">
-          <HintPath>..\..\packages\Krypton.Toolkit.5.550.2108.1\lib\net40\Krypton.Toolkit.dll</HintPath>
+          <HintPath>..\..\packages\Krypton.Toolkit.5.550.2108.1\lib\net48\Krypton.Toolkit.dll</HintPath>
         </Reference>
         <Reference Include="System" />
         <Reference Include="System.Core" />
