@@ -3,10 +3,12 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Empire_Earth_Launcher.Core.Backup;
+using Empire_Earth_Launcher.Core.Diagnostics;
 using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Integrity;
@@ -146,9 +148,21 @@ namespace Empire_Earth_Launcher
                 var updates = new UpdateModel(new SetupDownloadLocator(https, logger), new UpdateChecker(https, logger),
                     installations, shell, logger);
 
+                // Network diagnostics and the diagnostics report (L-WP9, R7): only on request; DNS, the update API with the
+                // AppId and the status server, nothing else (ADR 0008). The report and the log lines of the check follow the
+                // privacy rules of ADR 0013 (plan review); the report is copied or saved, never sent.
+                var anonymizer = new ReportAnonymizer(CurrentPrivateNames());
+                var networkDiagnostics = new NetworkDiagnostics(new WindowsNetworkInfo(),
+                    neoClient == null ? null : new NeoStatusServer(neoClient), https, fileSystem, effectivePaths, anonymizer,
+                    SystemClock.Instance, logger);
+                var diagnostics = new DiagnosticsModel(networkDiagnostics, installations,
+                    () => DiagnosticsModel.Collect(Application.ProductVersion, systemInfo, SystemClock.Instance,
+                        Environment.Is64BitOperatingSystem, installations, play, integrity, gameSettings, maintenance),
+                    anonymizer, fileSystem, logger);
+
                 logger.Info("Starting Empire Earth Launcher Form");
                 Application.Run(new MainForm(logger, themeService, settingsStore, installations, lobbyProfiles, gameSettings,
-                    play, integrity, updates, maintenance, setupWatcher, uiOperation, playerList));
+                    play, integrity, updates, maintenance, diagnostics, setupWatcher, uiOperation, playerList));
             }
         }
 
@@ -218,6 +232,29 @@ namespace Empire_Earth_Launcher
                 Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
                 Environment.GetFolderPath(Environment.SpecialFolder.Windows)
             });
+        }
+
+        /// <summary>
+        /// What identifies this player and computer and never appears in the diagnostics report or in the log lines of the
+        /// network diagnostics (ADR 0013 plan review): the user name, the profile folders, the computer and the domain name.
+        /// </summary>
+        private static PrivateNames CurrentPrivateNames()
+        {
+            string hostName = null;
+            string domainName = null;
+            try
+            {
+                IPGlobalProperties properties = IPGlobalProperties.GetIPGlobalProperties();
+                hostName = properties.HostName;
+                domainName = properties.DomainName;
+            }
+            catch (NetworkInformationException ex)
+            {
+                logger.Warning("The host and domain name of this computer are unknown; the report replaces the NetBIOS name only.", ex);
+            }
+            return new PrivateNames(Environment.UserName, new[] { Environment.MachineName, hostName }, domainName,
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
         }
 
         /// <summary>

@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Empire_Earth_Launcher.Core.Contract;
+using Empire_Earth_Launcher.Core.Diagnostics;
 using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Integrity;
@@ -20,7 +21,8 @@ namespace Empire_Earth_Launcher
     /// The Play page: the game choice (The Art of Conquest only if the installation has it), the file versions of the
     /// programs with the version check on request (L-WP7, contract 4.5), the integrity state of the installation (L-WP7,
     /// contract 2.5), Play (L-WP6, ADR 0010) with its refusals, the repair advice and the "setup is running" state, the info
-    /// bar of the game settings (L-WP5), and the lobby profiles with the online player list.
+    /// bar of the game settings (L-WP5), and the lobby profiles with the online player list, whose "not available" links to the
+    /// network check of the Tools page (L-WP9).
     /// </summary>
     public partial class GeneralUserControl : UserControl
     {
@@ -74,6 +76,7 @@ namespace Empire_Earth_Launcher
             integrityKryptonButton.Values.Text = Resources.IntegrityDetailsButton;
             neoOnlineKryptonGroupBox.Values.Heading = Resources.OnlinePlayersLoading;
             lobbyUserKryptonLabel.Values.Text = Resources.LobbyProfileLabel;
+            networkCheckKryptonLinkLabel.Values.Text = Resources.PlayerListCheckNetworkLink;
             usernameColumn.HeaderText = Resources.PlayerListNameColumn;
             stateColumn.HeaderText = Resources.PlayerListStateColumn;
         }
@@ -439,11 +442,28 @@ namespace Empire_Earth_Launcher
             neoOnlineKryptonGroupBox.Values.Description = reason;
         }
 
+        /// <summary>
+        /// Raised when the player clicks the link of an unavailable player list: the Tools page shows the network check and
+        /// runs it (L-WP9, the outage hint of forum report section 8 row 9).
+        /// </summary>
+        internal event EventHandler NetworkCheckRequested;
+
+        private void networkCheckKryptonLinkLabel_LinkClicked(object sender, EventArgs e)
+        {
+            NetworkCheckRequested?.Invoke(this, EventArgs.Empty);
+        }
+
         /// <summary>A result of the player list, on the UI thread (the poller was started there).</summary>
         private void OnPlayerListUpdated(object sender, PlayerListUpdate update)
         {
             if (IsDisposed)
                 return;
+
+            // "Not available" links to the network check, which tells a server outage from a problem of this computer.
+            bool link = OutageHint.LinksToNetworkCheck(update.Status);
+            networkCheckKryptonLinkLabel.Visible = link;
+            if (link)
+                networkCheckKryptonLinkLabel.BringToFront();
 
             switch (update.Status)
             {

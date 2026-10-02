@@ -34,6 +34,7 @@ namespace Empire_Earth_Launcher
             this.launcherKryptonPalette = new Krypton.Toolkit.KryptonPalette(this.components);
             this.playKryptonButton = new Krypton.Toolkit.KryptonButton();
             this.neoOnlineKryptonGroupBox = new Krypton.Toolkit.KryptonGroupBox();
+            this.networkCheckKryptonLinkLabel = new Krypton.Toolkit.KryptonLinkLabel();
             this.lobbyUserKryptonLabel = new Krypton.Toolkit.KryptonLabel();
             this.usersLobbyKryptonComboBox = new Krypton.Toolkit.KryptonComboBox();
             this.gameSettingsKryptonGroupBox = new Krypton.Toolkit.KryptonGroupBox();
@@ -182,6 +183,7 @@ namespace Empire_Earth_Launcher
             // 
             // neoOnlineKryptonGroupBox.Panel
             // 
+            this.neoOnlineKryptonGroupBox.Panel.Controls.Add(this.networkCheckKryptonLinkLabel);
             this.neoOnlineKryptonGroupBox.Panel.Controls.Add(this.onlinePlayersKryptonDataGridView);
             this.neoOnlineKryptonGroupBox.Panel.Controls.Add(this.lobbyUserKryptonLabel);
             this.neoOnlineKryptonGroupBox.Panel.Controls.Add(this.usersLobbyKryptonComboBox);
@@ -189,6 +191,19 @@ namespace Empire_Earth_Launcher
             this.neoOnlineKryptonGroupBox.TabIndex = 9;
             this.neoOnlineKryptonGroupBox.Values.Description = "";
             this.neoOnlineKryptonGroupBox.Values.Heading = "Online Players";
+            // 
+            // networkCheckKryptonLinkLabel
+            // 
+            this.networkCheckKryptonLinkLabel.AutoSize = false;
+            this.networkCheckKryptonLinkLabel.Location = new System.Drawing.Point(6, 8);
+            this.networkCheckKryptonLinkLabel.Name = "networkCheckKryptonLinkLabel";
+            this.networkCheckKryptonLinkLabel.Palette = this.launcherKryptonPalette;
+            this.networkCheckKryptonLinkLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.networkCheckKryptonLinkLabel.Size = new System.Drawing.Size(194, 20);
+            this.networkCheckKryptonLinkLabel.TabIndex = 16;
+            this.networkCheckKryptonLinkLabel.Values.Text = "Why? Check the network";
+            this.networkCheckKryptonLinkLabel.Visible = false;
+            this.networkCheckKryptonLinkLabel.LinkClicked += new System.EventHandler(this.networkCheckKryptonLinkLabel_LinkClicked);
             // 
             // lobbyUserKryptonLabel
             // 
@@ -468,6 +483,7 @@ namespace Empire_Earth_Launcher
         private Krypton.Toolkit.KryptonWrapLabel integrityKryptonWrapLabel;
         private Krypton.Toolkit.KryptonButton versionCheckKryptonButton;
         private Krypton.Toolkit.KryptonButton integrityKryptonButton;
+        private Krypton.Toolkit.KryptonLinkLabel networkCheckKryptonLinkLabel;
         private Krypton.Toolkit.KryptonLabel lobbyUserKryptonLabel;
         private Krypton.Toolkit.KryptonComboBox usersLobbyKryptonComboBox;
         private Krypton.Toolkit.KryptonDataGridView onlinePlayersKryptonDataGridView;

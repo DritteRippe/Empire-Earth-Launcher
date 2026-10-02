@@ -75,6 +75,18 @@ namespace Empire_Earth_Launcher
             this.backupsHeadingKryptonLabel = new Krypton.Toolkit.KryptonLabel();
             this.backupsInfoKryptonWrapLabel = new Krypton.Toolkit.KryptonWrapLabel();
             this.openBackupFolderKryptonButton = new Krypton.Toolkit.KryptonButton();
+            this.networkHeadingKryptonLabel = new Krypton.Toolkit.KryptonLabel();
+            this.networkInfoKryptonWrapLabel = new Krypton.Toolkit.KryptonWrapLabel();
+            this.networkCheckKryptonButton = new Krypton.Toolkit.KryptonButton();
+            this.networkVerdictKryptonWrapLabel = new Krypton.Toolkit.KryptonWrapLabel();
+            this.networkHintsKryptonWrapLabel = new Krypton.Toolkit.KryptonWrapLabel();
+            this.networkDetailsKryptonTextBox = new Krypton.Toolkit.KryptonTextBox();
+            this.reportHeadingKryptonLabel = new Krypton.Toolkit.KryptonLabel();
+            this.reportInfoKryptonWrapLabel = new Krypton.Toolkit.KryptonWrapLabel();
+            this.copyReportKryptonButton = new Krypton.Toolkit.KryptonButton();
+            this.saveReportKryptonButton = new Krypton.Toolkit.KryptonButton();
+            this.reportResultKryptonWrapLabel = new Krypton.Toolkit.KryptonWrapLabel();
+            this.reportKryptonTextBox = new Krypton.Toolkit.KryptonTextBox();
             this.toolsScrollPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -185,6 +197,18 @@ namespace Empire_Earth_Launcher
             this.toolsScrollPanel.Controls.Add(this.backupsHeadingKryptonLabel);
             this.toolsScrollPanel.Controls.Add(this.backupsInfoKryptonWrapLabel);
             this.toolsScrollPanel.Controls.Add(this.openBackupFolderKryptonButton);
+            this.toolsScrollPanel.Controls.Add(this.networkHeadingKryptonLabel);
+            this.toolsScrollPanel.Controls.Add(this.networkInfoKryptonWrapLabel);
+            this.toolsScrollPanel.Controls.Add(this.networkCheckKryptonButton);
+            this.toolsScrollPanel.Controls.Add(this.networkVerdictKryptonWrapLabel);
+            this.toolsScrollPanel.Controls.Add(this.networkHintsKryptonWrapLabel);
+            this.toolsScrollPanel.Controls.Add(this.networkDetailsKryptonTextBox);
+            this.toolsScrollPanel.Controls.Add(this.reportHeadingKryptonLabel);
+            this.toolsScrollPanel.Controls.Add(this.reportInfoKryptonWrapLabel);
+            this.toolsScrollPanel.Controls.Add(this.copyReportKryptonButton);
+            this.toolsScrollPanel.Controls.Add(this.saveReportKryptonButton);
+            this.toolsScrollPanel.Controls.Add(this.reportResultKryptonWrapLabel);
+            this.toolsScrollPanel.Controls.Add(this.reportKryptonTextBox);
             this.toolsScrollPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.toolsScrollPanel.Location = new System.Drawing.Point(0, 0);
             this.toolsScrollPanel.Name = "toolsScrollPanel";
@@ -698,6 +722,156 @@ namespace Empire_Earth_Launcher
             this.openBackupFolderKryptonButton.Values.Text = "Open backup folder";
             this.openBackupFolderKryptonButton.Click += new System.EventHandler(this.openBackupFolderKryptonButton_Click);
             // 
+            // networkHeadingKryptonLabel
+            // 
+            this.networkHeadingKryptonLabel.LabelStyle = Krypton.Toolkit.LabelStyle.BoldControl;
+            this.networkHeadingKryptonLabel.Location = new System.Drawing.Point(12, 1820);
+            this.networkHeadingKryptonLabel.Name = "networkHeadingKryptonLabel";
+            this.networkHeadingKryptonLabel.Palette = this.launcherKryptonPalette;
+            this.networkHeadingKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.networkHeadingKryptonLabel.Size = new System.Drawing.Size(505, 20);
+            this.networkHeadingKryptonLabel.TabIndex = 24;
+            this.networkHeadingKryptonLabel.Values.Text = "Network";
+            // 
+            // networkInfoKryptonWrapLabel
+            // 
+            this.networkInfoKryptonWrapLabel.AutoSize = false;
+            this.networkInfoKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.networkInfoKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.networkInfoKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
+            this.networkInfoKryptonWrapLabel.Location = new System.Drawing.Point(12, 1846);
+            this.networkInfoKryptonWrapLabel.Name = "networkInfoKryptonWrapLabel";
+            this.networkInfoKryptonWrapLabel.Palette = this.launcherKryptonPalette;
+            this.networkInfoKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.networkInfoKryptonWrapLabel.Size = new System.Drawing.Size(505, 82);
+            this.networkInfoKryptonWrapLabel.Text = "";
+            // 
+            // networkCheckKryptonButton
+            // 
+            this.networkCheckKryptonButton.Location = new System.Drawing.Point(12, 1934);
+            this.networkCheckKryptonButton.Name = "networkCheckKryptonButton";
+            this.networkCheckKryptonButton.Palette = this.launcherKryptonPalette;
+            this.networkCheckKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.networkCheckKryptonButton.Size = new System.Drawing.Size(248, 28);
+            this.networkCheckKryptonButton.TabIndex = 25;
+            this.networkCheckKryptonButton.Values.Text = "Check network";
+            this.networkCheckKryptonButton.Click += new System.EventHandler(this.networkCheckKryptonButton_Click);
+            // 
+            // networkVerdictKryptonWrapLabel
+            // 
+            this.networkVerdictKryptonWrapLabel.AutoSize = false;
+            this.networkVerdictKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.networkVerdictKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.networkVerdictKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
+            this.networkVerdictKryptonWrapLabel.Location = new System.Drawing.Point(12, 1968);
+            this.networkVerdictKryptonWrapLabel.Name = "networkVerdictKryptonWrapLabel";
+            this.networkVerdictKryptonWrapLabel.Palette = this.launcherKryptonPalette;
+            this.networkVerdictKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.networkVerdictKryptonWrapLabel.Size = new System.Drawing.Size(505, 50);
+            this.networkVerdictKryptonWrapLabel.Text = "";
+            // 
+            // networkHintsKryptonWrapLabel
+            // 
+            this.networkHintsKryptonWrapLabel.AutoSize = false;
+            this.networkHintsKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.networkHintsKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.networkHintsKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
+            this.networkHintsKryptonWrapLabel.Location = new System.Drawing.Point(12, 2024);
+            this.networkHintsKryptonWrapLabel.Name = "networkHintsKryptonWrapLabel";
+            this.networkHintsKryptonWrapLabel.Palette = this.launcherKryptonPalette;
+            this.networkHintsKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.networkHintsKryptonWrapLabel.Size = new System.Drawing.Size(505, 50);
+            this.networkHintsKryptonWrapLabel.Text = "";
+            // 
+            // networkDetailsKryptonTextBox
+            // 
+            this.networkDetailsKryptonTextBox.Location = new System.Drawing.Point(12, 2080);
+            this.networkDetailsKryptonTextBox.Multiline = true;
+            this.networkDetailsKryptonTextBox.Name = "networkDetailsKryptonTextBox";
+            this.networkDetailsKryptonTextBox.Palette = this.launcherKryptonPalette;
+            this.networkDetailsKryptonTextBox.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.networkDetailsKryptonTextBox.ReadOnly = true;
+            this.networkDetailsKryptonTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.networkDetailsKryptonTextBox.Size = new System.Drawing.Size(505, 120);
+            this.networkDetailsKryptonTextBox.TabIndex = 26;
+            this.networkDetailsKryptonTextBox.Text = "";
+            this.networkDetailsKryptonTextBox.Visible = false;
+            this.networkDetailsKryptonTextBox.WordWrap = false;
+            // 
+            // reportHeadingKryptonLabel
+            // 
+            this.reportHeadingKryptonLabel.LabelStyle = Krypton.Toolkit.LabelStyle.BoldControl;
+            this.reportHeadingKryptonLabel.Location = new System.Drawing.Point(12, 2182);
+            this.reportHeadingKryptonLabel.Name = "reportHeadingKryptonLabel";
+            this.reportHeadingKryptonLabel.Palette = this.launcherKryptonPalette;
+            this.reportHeadingKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.reportHeadingKryptonLabel.Size = new System.Drawing.Size(505, 20);
+            this.reportHeadingKryptonLabel.TabIndex = 27;
+            this.reportHeadingKryptonLabel.Values.Text = "Diagnostics report";
+            // 
+            // reportInfoKryptonWrapLabel
+            // 
+            this.reportInfoKryptonWrapLabel.AutoSize = false;
+            this.reportInfoKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.reportInfoKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.reportInfoKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
+            this.reportInfoKryptonWrapLabel.Location = new System.Drawing.Point(12, 2208);
+            this.reportInfoKryptonWrapLabel.Name = "reportInfoKryptonWrapLabel";
+            this.reportInfoKryptonWrapLabel.Palette = this.launcherKryptonPalette;
+            this.reportInfoKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.reportInfoKryptonWrapLabel.Size = new System.Drawing.Size(505, 66);
+            this.reportInfoKryptonWrapLabel.Text = "";
+            // 
+            // copyReportKryptonButton
+            // 
+            this.copyReportKryptonButton.Location = new System.Drawing.Point(12, 2280);
+            this.copyReportKryptonButton.Name = "copyReportKryptonButton";
+            this.copyReportKryptonButton.Palette = this.launcherKryptonPalette;
+            this.copyReportKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.copyReportKryptonButton.Size = new System.Drawing.Size(248, 28);
+            this.copyReportKryptonButton.TabIndex = 28;
+            this.copyReportKryptonButton.Values.Text = "Copy report";
+            this.copyReportKryptonButton.Click += new System.EventHandler(this.copyReportKryptonButton_Click);
+            // 
+            // saveReportKryptonButton
+            // 
+            this.saveReportKryptonButton.Location = new System.Drawing.Point(267, 2280);
+            this.saveReportKryptonButton.Name = "saveReportKryptonButton";
+            this.saveReportKryptonButton.Palette = this.launcherKryptonPalette;
+            this.saveReportKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.saveReportKryptonButton.Size = new System.Drawing.Size(250, 28);
+            this.saveReportKryptonButton.TabIndex = 29;
+            this.saveReportKryptonButton.Values.Text = "Save report...";
+            this.saveReportKryptonButton.Click += new System.EventHandler(this.saveReportKryptonButton_Click);
+            // 
+            // reportResultKryptonWrapLabel
+            // 
+            this.reportResultKryptonWrapLabel.AutoSize = false;
+            this.reportResultKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.reportResultKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.reportResultKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
+            this.reportResultKryptonWrapLabel.Location = new System.Drawing.Point(12, 2314);
+            this.reportResultKryptonWrapLabel.Name = "reportResultKryptonWrapLabel";
+            this.reportResultKryptonWrapLabel.Palette = this.launcherKryptonPalette;
+            this.reportResultKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.reportResultKryptonWrapLabel.Size = new System.Drawing.Size(505, 34);
+            this.reportResultKryptonWrapLabel.Text = "";
+            // 
+            // reportKryptonTextBox
+            // 
+            this.reportKryptonTextBox.Location = new System.Drawing.Point(12, 2354);
+            this.reportKryptonTextBox.Multiline = true;
+            this.reportKryptonTextBox.Name = "reportKryptonTextBox";
+            this.reportKryptonTextBox.Palette = this.launcherKryptonPalette;
+            this.reportKryptonTextBox.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.reportKryptonTextBox.ReadOnly = true;
+            this.reportKryptonTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.reportKryptonTextBox.Size = new System.Drawing.Size(505, 160);
+            this.reportKryptonTextBox.TabIndex = 30;
+            this.reportKryptonTextBox.Text = "";
+            this.reportKryptonTextBox.Visible = false;
+            this.reportKryptonTextBox.WordWrap = false;
+            // 
             // ToolsUserControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -756,5 +930,17 @@ namespace Empire_Earth_Launcher
         private Krypton.Toolkit.KryptonLabel backupsHeadingKryptonLabel;
         private Krypton.Toolkit.KryptonWrapLabel backupsInfoKryptonWrapLabel;
         private Krypton.Toolkit.KryptonButton openBackupFolderKryptonButton;
+        private Krypton.Toolkit.KryptonLabel networkHeadingKryptonLabel;
+        private Krypton.Toolkit.KryptonWrapLabel networkInfoKryptonWrapLabel;
+        private Krypton.Toolkit.KryptonButton networkCheckKryptonButton;
+        private Krypton.Toolkit.KryptonWrapLabel networkVerdictKryptonWrapLabel;
+        private Krypton.Toolkit.KryptonWrapLabel networkHintsKryptonWrapLabel;
+        private Krypton.Toolkit.KryptonTextBox networkDetailsKryptonTextBox;
+        private Krypton.Toolkit.KryptonLabel reportHeadingKryptonLabel;
+        private Krypton.Toolkit.KryptonWrapLabel reportInfoKryptonWrapLabel;
+        private Krypton.Toolkit.KryptonButton copyReportKryptonButton;
+        private Krypton.Toolkit.KryptonButton saveReportKryptonButton;
+        private Krypton.Toolkit.KryptonWrapLabel reportResultKryptonWrapLabel;
+        private Krypton.Toolkit.KryptonTextBox reportKryptonTextBox;
     }
 }

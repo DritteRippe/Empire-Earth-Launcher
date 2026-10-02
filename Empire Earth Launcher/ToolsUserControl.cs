@@ -4,9 +4,11 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Empire_Earth_Launcher.Core.Contract;
+using Empire_Earth_Launcher.Core.Diagnostics;
 using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Integrity;
 using Empire_Earth_Launcher.Core.Maintenance;
@@ -21,8 +23,8 @@ namespace Empire_Earth_Launcher
     /// The Tools page: the integrity check of the selected installation with its explanation and files (contract 2.5), the
     /// full check with progress and cancel, the repair advice (contract 4.4), and the version check of the game and the setup
     /// (contract 4.5) (L-WP7); the maintenance tools of L-WP8: the registry cleanup (R5), the WON login reset (R6), the
-    /// VirtualStore check (R8), saved games and scenarios and the name check (R10), and "Open backup folder" (ADR 0007). The
-    /// network diagnostics follow in L-WP9.
+    /// VirtualStore check (R8), saved games and scenarios and the name check (R10), and "Open backup folder" (ADR 0007); the
+    /// network diagnostics with the outage hint (R7) and the diagnostics report, copied or saved, never sent (L-WP9).
     /// </summary>
     /// <remarks>
     /// The controls are stacked in <see cref="LayoutPage"/> from the texts they show, so longer translations push the
@@ -41,6 +43,7 @@ namespace Empire_Earth_Launcher
         private IntegrityModel integrity;
         private UpdateModel updates;
         private MaintenanceModel maintenance;
+        private DiagnosticsModel diagnostics;
         private UiOperation uiOperation;
 
         /// <summary>The registry cleanup as shown, so that the check boxes map to its keys.</summary>
@@ -53,6 +56,7 @@ namespace Empire_Earth_Launcher
         private string cleanupResult = string.Empty;
         private string wonResult = string.Empty;
         private string savesResult = string.Empty;
+        private string reportResult = string.Empty;
 
         public ToolsUserControl()
         {
@@ -92,6 +96,14 @@ namespace Empire_Earth_Launcher
             namesInfoKryptonWrapLabel.Text = Resources.NamesInfo;
             backupsHeadingKryptonLabel.Values.Text = Resources.ToolsBackupsHeading;
             openBackupFolderKryptonButton.Values.Text = Resources.OpenBackupFolderButton;
+
+            networkHeadingKryptonLabel.Values.Text = Resources.ToolsNetworkHeading;
+            networkInfoKryptonWrapLabel.Text = Resources.NetworkInfo;
+            networkCheckKryptonButton.Values.Text = Resources.NetworkCheckButton;
+            reportHeadingKryptonLabel.Values.Text = Resources.ToolsReportHeading;
+            reportInfoKryptonWrapLabel.Text = Resources.ReportInfo;
+            copyReportKryptonButton.Values.Text = Resources.CopyReportButton;
+            saveReportKryptonButton.Values.Text = Resources.SaveReportButton;
         }
 
         /// <summary>
@@ -103,9 +115,10 @@ namespace Empire_Earth_Launcher
         /// <param name="updates">The update API: version check and the download of the repair advice.</param>
         /// <param name="setupWatcher">While a setup runs, no check starts and the page says so (contract 4.2).</param>
         /// <param name="maintenance">The maintenance tools of L-WP8.</param>
+        /// <param name="diagnostics">The network diagnostics and the diagnostics report of L-WP9.</param>
         /// <param name="uiOperation">Runs the work of the page (ADR 0004).</param>
         internal void Initialize(IThemeService themeService, IntegrityModel integrity, UpdateModel updates,
-            SetupWatcher setupWatcher, MaintenanceModel maintenance, UiOperation uiOperation)
+            SetupWatcher setupWatcher, MaintenanceModel maintenance, DiagnosticsModel diagnostics, UiOperation uiOperation)
         {
             if (setupWatcher == null)
                 throw new ArgumentNullException(nameof(setupWatcher));
@@ -113,6 +126,7 @@ namespace Empire_Earth_Launcher
             this.integrity = integrity ?? throw new ArgumentNullException(nameof(integrity));
             this.updates = updates ?? throw new ArgumentNullException(nameof(updates));
             this.maintenance = maintenance ?? throw new ArgumentNullException(nameof(maintenance));
+            this.diagnostics = diagnostics ?? throw new ArgumentNullException(nameof(diagnostics));
             this.uiOperation = uiOperation ?? throw new ArgumentNullException(nameof(uiOperation));
             themeService.Register(launcherKryptonPalette, this);
 
@@ -121,6 +135,7 @@ namespace Empire_Earth_Launcher
             integrity.Changed += showState;
             updates.Changed += showState;
             maintenance.Changed += showState;
+            diagnostics.Changed += showState;
             setupWatcher.SetupStarted += showSetup;
             setupWatcher.SetupFinished += showSetup;
             Disposed += (sender, e) =>
@@ -128,6 +143,7 @@ namespace Empire_Earth_Launcher
                 integrity.Changed -= showState;
                 updates.Changed -= showState;
                 maintenance.Changed -= showState;
+                diagnostics.Changed -= showState;
                 setupWatcher.SetupStarted -= showSetup;
                 setupWatcher.SetupFinished -= showSetup;
             };
@@ -163,7 +179,28 @@ namespace Empire_Earth_Launcher
                 : Texts.VersionResults(updates.GameResult, updates.SetupResult);
             versionCheckKryptonButton.Enabled = updates.CanCheck;
             ShowMaintenance();
+            ShowDiagnostics();
             LayoutPage();
+        }
+
+        /// <summary>
+        /// The network diagnostics (the verdict, the hints and the details of the latest check, which runs only on request) and
+        /// the result of the last copy or save of the report with the text that left the launcher.
+        /// </summary>
+        private void ShowDiagnostics()
+        {
+            NetworkReport network = diagnostics.Network;
+            networkCheckKryptonButton.Enabled = !diagnostics.IsChecking;
+            networkVerdictKryptonWrapLabel.Text = diagnostics.IsChecking ? Resources.NetworkChecking
+                : network == null ? string.Empty : Texts.NetworkVerdict(network);
+            string hints = network == null || diagnostics.IsChecking ? string.Empty : Texts.NetworkHints(network);
+            networkHintsKryptonWrapLabel.Text = hints;
+            SetShown(networkHintsKryptonWrapLabel, hints.Length > 0);
+            string details = network == null || diagnostics.IsChecking ? string.Empty : Texts.NetworkDetails(network);
+            networkDetailsKryptonTextBox.Text = details;
+            SetShown(networkDetailsKryptonTextBox, details.Length > 0);
+            reportResultKryptonWrapLabel.Text = reportResult;
+            SetShown(reportKryptonTextBox, reportKryptonTextBox.Text.Length > 0);
         }
 
         /// <summary>The state of the maintenance tools: what the last scan found, the results of the last actions, which buttons work.</summary>
@@ -355,6 +392,21 @@ namespace Empire_Earth_Launcher
             Place(backupsHeadingKryptonLabel);
             Place(backupsInfoKryptonWrapLabel);
             Place(openBackupFolderKryptonButton);
+
+            y += Gap;
+            Place(networkHeadingKryptonLabel);
+            Place(networkInfoKryptonWrapLabel);
+            Place(networkCheckKryptonButton);
+            Place(networkVerdictKryptonWrapLabel);
+            Place(networkHintsKryptonWrapLabel);
+            Place(networkDetailsKryptonTextBox);
+
+            y += Gap;
+            Place(reportHeadingKryptonLabel);
+            Place(reportInfoKryptonWrapLabel);
+            PlaceRow(copyReportKryptonButton, saveReportKryptonButton);
+            Place(reportResultKryptonWrapLabel);
+            Place(reportKryptonTextBox);
             toolsScrollPanel.ResumeLayout(true);
         }
 
@@ -516,6 +568,71 @@ namespace Empire_Earth_Launcher
             if (problem != null)
                 MessageBox.Show(FindForm(), string.Format(CultureInfo.CurrentCulture, Resources.OpenBackupFolderFailedFormat, problem),
                     Resources.LauncherTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+
+        // --- Network diagnostics and diagnostics report (L-WP9) --------------------------------------------------------
+
+        /// <summary>The network check on request (R7): DNS, the update API, the status server and the files of the game folders.</summary>
+        private void networkCheckKryptonButton_Click(object sender, EventArgs e)
+        {
+            uiOperation.Run(networkCheckKryptonButton, () => diagnostics.CheckNetworkAsync());
+        }
+
+        /// <summary>
+        /// The link of an unavailable player list on the Play page: shows the network section and starts the check, which the
+        /// player asked for with the click.
+        /// </summary>
+        internal void ShowNetworkCheck()
+        {
+            toolsScrollPanel.ScrollControlIntoView(networkHeadingKryptonLabel);
+            if (!diagnostics.IsChecking)
+                uiOperation.Run(networkCheckKryptonButton, () => diagnostics.CheckNetworkAsync());
+        }
+
+        /// <summary>Copies the report to the clipboard and shows the text that was copied (it is never sent).</summary>
+        private void copyReportKryptonButton_Click(object sender, EventArgs e)
+        {
+            string report = diagnostics.BuildReport();
+            reportKryptonTextBox.Text = report;
+            try
+            {
+                Clipboard.SetText(report);
+                diagnostics.ReportCopied(report);
+                reportResult = Resources.ReportCopied;
+            }
+            catch (ExternalException ex)
+            {
+                reportResult = string.Format(CultureInfo.CurrentCulture, Resources.ReportCopyFailedFormat, ex.Message);
+            }
+            ShowState();
+            toolsScrollPanel.ScrollControlIntoView(reportKryptonTextBox);
+        }
+
+        /// <summary>Saves the report into a file the player chooses (UTF-8, never into the installation).</summary>
+        private void saveReportKryptonButton_Click(object sender, EventArgs e)
+        {
+            string report = diagnostics.BuildReport();
+            string path;
+            using (var dialog = new SaveFileDialog())
+            {
+                dialog.Title = Resources.ReportSaveDialogTitle;
+                dialog.Filter = Resources.ReportFileFilter;
+                dialog.DefaultExt = "txt";
+                dialog.AddExtension = true;
+                dialog.OverwritePrompt = true;
+                dialog.FileName = string.Format(CultureInfo.CurrentCulture, Resources.ReportFileNameFormat,
+                    DateTime.Now.ToString("yyyy-MM-dd_HHmm", CultureInfo.InvariantCulture));
+                string documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                if (!string.IsNullOrEmpty(documents) && Directory.Exists(documents))
+                    dialog.InitialDirectory = documents;
+                if (dialog.ShowDialog(this) != DialogResult.OK)
+                    return;
+                path = dialog.FileName;
+            }
+            reportKryptonTextBox.Text = report;
+            reportResult = Texts.ReportSaved(diagnostics.SaveReport(path, report));
+            ShowState();
+            toolsScrollPanel.ScrollControlIntoView(reportKryptonTextBox);
         }
 
         /// <summary>
