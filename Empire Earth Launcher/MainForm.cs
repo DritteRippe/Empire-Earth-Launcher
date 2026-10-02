@@ -29,12 +29,15 @@ namespace Empire_Earth_Launcher
         /// <param name="lobbyProfiles">Reads the lobby profiles of the game folder.</param>
         /// <param name="gameSettings">The game settings of the selected installation (L-WP5).</param>
         /// <param name="play">The Play page: game choice, versions, start (L-WP6).</param>
+        /// <param name="integrity">The integrity check of the selected installation (L-WP7).</param>
+        /// <param name="updates">The update API: version check and the download of the repair advice (L-WP7).</param>
         /// <param name="setupWatcher">Watches the setup mutexes; the window ticks it every half second (contract 4.2).</param>
         /// <param name="uiOperation">Runs the asynchronous work of the pages (ADR 0004).</param>
         /// <param name="playerList">Polls the online player list; null if the server settings are invalid.</param>
         internal MainForm(ILogger logger, IThemeService themeService, SettingsStore settings,
             InstallationService installations, LobbyProfileRepository lobbyProfiles, GameSettingsModel gameSettings,
-            PlayModel play, SetupWatcher setupWatcher, UiOperation uiOperation, PlayerListPoller playerList)
+            PlayModel play, IntegrityModel integrity, UpdateModel updates, SetupWatcher setupWatcher, UiOperation uiOperation,
+            PlayerListPoller playerList)
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.OptimizedDoubleBuffer, true);
@@ -45,21 +48,33 @@ namespace Empire_Earth_Launcher
             // The pages are created by InitializeComponent (designer), which needs parameterless constructors,
             // so they receive their services here.
             generalUserControl.Initialize(logger, themeService, installations, lobbyProfiles, playerList, gameSettings, play,
-                uiOperation);
+                integrity, updates, uiOperation);
             settingsUserControl.Initialize(themeService, gameSettings, installations, setupWatcher, uiOperation);
+            toolsUserControl.Initialize(themeService, integrity, updates, setupWatcher, uiOperation);
             launcherSettingsUserControl.Initialize(themeService, settings, installations, uiOperation);
 
             // A page cannot be assigned to Tag in the designer, so the navigation is wired up here.
             playKryptonCheckButton.Tag = generalUserControl;
             settingsKryptonCheckButton.Tag = settingsUserControl;
+            toolsKryptonCheckButton.Tag = toolsUserControl;
             launcherKryptonCheckButton.Tag = launcherSettingsUserControl;
-            navigationButtons = new[] { playKryptonCheckButton, settingsKryptonCheckButton, launcherKryptonCheckButton };
+            navigationButtons = new[]
+                { playKryptonCheckButton, settingsKryptonCheckButton, toolsKryptonCheckButton, launcherKryptonCheckButton };
             generalUserControl.GameSettingsRequested += (sender, e) =>
                 navigationKryptonCheckButton_Click(settingsKryptonCheckButton, EventArgs.Empty);
+            generalUserControl.ToolsRequested += (sender, e) =>
+                navigationKryptonCheckButton_Click(toolsKryptonCheckButton, EventArgs.Empty);
 
             this.setupWatcher = setupWatcher ?? throw new ArgumentNullException(nameof(setupWatcher));
             setupWatcherTimer.Tick += (sender, e) => this.setupWatcher.Tick();
-            FormClosed += (sender, e) => setupWatcherTimer.Dispose();
+            if (integrity == null)
+                throw new ArgumentNullException(nameof(integrity));
+            // Closing the window ends a running check (ADR 0004: closing cancels the operations of the window).
+            FormClosed += (sender, e) =>
+            {
+                setupWatcherTimer.Dispose();
+                integrity.CancelCheck();
+            };
         }
 
         /// <summary>
@@ -71,6 +86,7 @@ namespace Empire_Earth_Launcher
             Text = Resources.LauncherTitle;
             playKryptonCheckButton.Values.Text = Resources.NavigationPlay;
             settingsKryptonCheckButton.Values.Text = Resources.NavigationSettings;
+            toolsKryptonCheckButton.Values.Text = Resources.NavigationTools;
             launcherKryptonCheckButton.Values.Text = Resources.NavigationLauncher;
         }
 

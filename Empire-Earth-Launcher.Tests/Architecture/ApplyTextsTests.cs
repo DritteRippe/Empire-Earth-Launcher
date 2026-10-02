@@ -27,6 +27,7 @@ namespace Empire_Earth_Launcher.Tests.Architecture
         private static readonly string[] ExpectedForms =
         {
             "GeneralUserControl", "LauncherDialog", "LauncherSettingsUserControl", "MainForm", "SettingsUserControl",
+            "ToolsUserControl",
         };
 
         /// <summary>

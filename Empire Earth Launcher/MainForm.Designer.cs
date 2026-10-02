@@ -35,10 +35,12 @@ namespace Empire_Earth_Launcher
             this.launcherKryptonPalette = new Krypton.Toolkit.KryptonPalette(this.components);
             this.playKryptonCheckButton = new Krypton.Toolkit.KryptonCheckButton();
             this.settingsKryptonCheckButton = new Krypton.Toolkit.KryptonCheckButton();
+            this.toolsKryptonCheckButton = new Krypton.Toolkit.KryptonCheckButton();
             this.launcherKryptonCheckButton = new Krypton.Toolkit.KryptonCheckButton();
             this.generalUserControl = new Empire_Earth_Launcher.GeneralUserControl();
             this.launcherSettingsUserControl = new Empire_Earth_Launcher.LauncherSettingsUserControl();
             this.settingsUserControl = new Empire_Earth_Launcher.SettingsUserControl();
+            this.toolsUserControl = new Empire_Earth_Launcher.ToolsUserControl();
             this.SuspendLayout();
             // 
             // launcherKryptonPalette
@@ -137,6 +139,19 @@ namespace Empire_Earth_Launcher
             this.settingsKryptonCheckButton.Values.Text = resources.GetString("settingsKryptonCheckButton.Values.Text");
             this.settingsKryptonCheckButton.Click += new System.EventHandler(this.navigationKryptonCheckButton_Click);
             // 
+            // toolsKryptonCheckButton
+            // 
+            resources.ApplyResources(this.toolsKryptonCheckButton, "toolsKryptonCheckButton");
+            this.toolsKryptonCheckButton.Name = "toolsKryptonCheckButton";
+            this.toolsKryptonCheckButton.Palette = this.launcherKryptonPalette;
+            this.toolsKryptonCheckButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.toolsKryptonCheckButton.StateCommon.Border.DrawBorders = ((Krypton.Toolkit.PaletteDrawBorders)((((Krypton.Toolkit.PaletteDrawBorders.Top | Krypton.Toolkit.PaletteDrawBorders.Bottom) 
+            | Krypton.Toolkit.PaletteDrawBorders.Left) 
+            | Krypton.Toolkit.PaletteDrawBorders.Right)));
+            this.toolsKryptonCheckButton.StateCommon.Border.Rounding = 0F;
+            this.toolsKryptonCheckButton.Values.Text = resources.GetString("toolsKryptonCheckButton.Values.Text");
+            this.toolsKryptonCheckButton.Click += new System.EventHandler(this.navigationKryptonCheckButton_Click);
+            // 
             // launcherKryptonCheckButton
             // 
             resources.ApplyResources(this.launcherKryptonCheckButton, "launcherKryptonCheckButton");
@@ -167,6 +182,11 @@ namespace Empire_Earth_Launcher
             resources.ApplyResources(this.settingsUserControl, "settingsUserControl");
             this.settingsUserControl.Name = "settingsUserControl";
             // 
+            // toolsUserControl
+            // 
+            resources.ApplyResources(this.toolsUserControl, "toolsUserControl");
+            this.toolsUserControl.Name = "toolsUserControl";
+            // 
             // MainForm
             // 
             resources.ApplyResources(this, "$this");
@@ -174,8 +194,10 @@ namespace Empire_Earth_Launcher
             this.BackColor = System.Drawing.Color.White;
             this.Controls.Add(this.generalUserControl);
             this.Controls.Add(this.settingsUserControl);
+            this.Controls.Add(this.toolsUserControl);
             this.Controls.Add(this.launcherSettingsUserControl);
             this.Controls.Add(this.launcherKryptonCheckButton);
+            this.Controls.Add(this.toolsKryptonCheckButton);
             this.Controls.Add(this.settingsKryptonCheckButton);
             this.Controls.Add(this.playKryptonCheckButton);
             this.Name = "MainForm";
@@ -191,11 +213,13 @@ namespace Empire_Earth_Launcher
         #endregion
         private Krypton.Toolkit.KryptonCheckButton playKryptonCheckButton;
         private Krypton.Toolkit.KryptonCheckButton settingsKryptonCheckButton;
+        private Krypton.Toolkit.KryptonCheckButton toolsKryptonCheckButton;
         private Krypton.Toolkit.KryptonCheckButton launcherKryptonCheckButton;
         private Krypton.Toolkit.KryptonPalette launcherKryptonPalette;
         private LauncherSettingsUserControl launcherSettingsUserControl;
         private GeneralUserControl generalUserControl;
         private SettingsUserControl settingsUserControl;
+        private ToolsUserControl toolsUserControl;
     }
 }
 

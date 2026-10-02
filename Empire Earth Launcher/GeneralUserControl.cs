@@ -6,9 +6,11 @@ using System.Windows.Forms;
 using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Installations;
+using Empire_Earth_Launcher.Core.Integrity;
 using Empire_Earth_Launcher.Core.Lobby;
 using Empire_Earth_Launcher.Core.Logging;
 using Empire_Earth_Launcher.Core.Play;
+using Empire_Earth_Launcher.Core.Repair;
 using Empire_Earth_Launcher.Properties;
 using Empire_Earth_WON;
 
@@ -16,8 +18,9 @@ namespace Empire_Earth_Launcher
 {
     /// <summary>
     /// The Play page: the game choice (The Art of Conquest only if the installation has it), the file versions of the
-    /// programs, Play (L-WP6, ADR 0010) with its refusals, the repair advice and the "setup is running" state, the info bar
-    /// of the game settings (L-WP5), and the lobby profiles with the online player list.
+    /// programs with the version check on request (L-WP7, contract 4.5), the integrity state of the installation (L-WP7,
+    /// contract 2.5), Play (L-WP6, ADR 0010) with its refusals, the repair advice and the "setup is running" state, the info
+    /// bar of the game settings (L-WP5), and the lobby profiles with the online player list.
     /// </summary>
     public partial class GeneralUserControl : UserControl
     {
@@ -26,6 +29,8 @@ namespace Empire_Earth_Launcher
         private InstallationService installations;
         private GameSettingsModel gameSettings;
         private PlayModel play;
+        private IntegrityModel integrity;
+        private UpdateModel updates;
         private UiOperation uiOperation;
 
         /// <summary>True while the game choice is set by code, so that nothing is saved then.</summary>
@@ -65,6 +70,8 @@ namespace Empire_Earth_Launcher
             empireEarthKryptonRadioButton.Values.Text = Resources.GameEmpireEarth;
             artOfConquestKryptonRadioButton.Values.Text = Resources.GameArtOfConquest;
             playKryptonButton.Values.Text = Resources.PlayButton;
+            versionCheckKryptonButton.Values.Text = Resources.VersionCheckPlayButton;
+            integrityKryptonButton.Values.Text = Resources.IntegrityDetailsButton;
             neoOnlineKryptonGroupBox.Values.Heading = Resources.OnlinePlayersLoading;
             lobbyUserKryptonLabel.Values.Text = Resources.LobbyProfileLabel;
             usernameColumn.HeaderText = Resources.PlayerListNameColumn;
@@ -84,10 +91,12 @@ namespace Empire_Earth_Launcher
         /// disables the list (invalid server settings).</param>
         /// <param name="gameSettings">The game settings: the display question and the hints of the info bar (L-WP5).</param>
         /// <param name="play">The game choice, the versions and the start (L-WP6).</param>
+        /// <param name="integrity">The integrity state of the selected installation (L-WP7).</param>
+        /// <param name="updates">The version check and the download of the repair advice (L-WP7).</param>
         /// <param name="uiOperation">Runs the start, the versions and the answer to the display question (ADR 0004).</param>
         internal void Initialize(ILogger logger, IThemeService themeService, InstallationService installations,
             LobbyProfileRepository lobbyProfiles, PlayerListPoller playerList, GameSettingsModel gameSettings, PlayModel play,
-            UiOperation uiOperation)
+            IntegrityModel integrity, UpdateModel updates, UiOperation uiOperation)
         {
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
@@ -121,8 +130,68 @@ namespace Empire_Earth_Launcher
             };
             play.Changed += showPlay;
             Disposed += (sender, e) => play.Changed -= showPlay;
+
+            this.integrity = integrity ?? throw new ArgumentNullException(nameof(integrity));
+            this.updates = updates ?? throw new ArgumentNullException(nameof(updates));
+            EventHandler showChecks = (sender, e) => ShowChecks();
+            integrity.Changed += showChecks;
+            updates.Changed += showChecks;
+            Disposed += (sender, e) =>
+            {
+                integrity.Changed -= showChecks;
+                updates.Changed -= showChecks;
+            };
             ShowGameSettingsHint();
             ShowPlayState();
+            ShowChecks();
+        }
+
+        // --- Version check and integrity (L-WP7) -------------------------------------------------------------------------
+
+        /// <summary>Raised when the player wants to see the Tools page (button "Details" next to the integrity state).</summary>
+        internal event EventHandler ToolsRequested;
+
+        /// <summary>
+        /// The result of the version check below the versions, and the integrity state with "Repair..." when the report
+        /// offers the repair (contract 2.5), else "Details" (the Tools page). A foreign installation shows no state, a legacy
+        /// one only its badge, never the advice (contract 2.5).
+        /// </summary>
+        private void ShowChecks()
+        {
+            if (integrity == null || updates == null)
+                return;
+            versionResultKryptonWrapLabel.Text = updates.IsChecking
+                ? Resources.VersionChecking
+                : updates.GameResult == null ? string.Empty : Texts.VersionResult(updates.GameResult);
+            versionCheckKryptonButton.Enabled = updates.CanCheck;
+
+            IntegrityReport report = integrity.Report;
+            string badge = Texts.IntegrityBadge(report, integrity.IsChecking);
+            integrityKryptonWrapLabel.Text = badge;
+            bool offersRepair = !integrity.IsChecking && report != null && report.OffersRepair;
+            integrityKryptonButton.Values.Text = offersRepair ? Resources.IntegrityRepairButton : Resources.IntegrityDetailsButton;
+            integrityKryptonButton.Visible = badge.Length > 0;
+        }
+
+        /// <summary>The version check of the game on request (contract 4.5, ADR 0008 plan review); an update opens the hand-off.</summary>
+        private void versionCheckKryptonButton_Click(object sender, EventArgs e)
+        {
+            uiOperation.Run(versionCheckKryptonButton,
+                () => ToolsUserControl.CheckVersionsAsync(this, false, updates, themeService, uiOperation));
+        }
+
+        /// <summary>"Repair..." opens the repair advice with the files of the report; "Details" the Tools page.</summary>
+        private void integrityKryptonButton_Click(object sender, EventArgs e)
+        {
+            IntegrityReport report = integrity.Report;
+            if (integrity.IsChecking || report == null || !report.OffersRepair)
+            {
+                ToolsRequested?.Invoke(this, EventArgs.Empty);
+                return;
+            }
+            RepairAdvice advice = integrity.CreateRepairAdvice();
+            RepairAdviceDialog.ShowAdvice(FindForm(), themeService, advice, Texts.RepairReasonText(advice, report), updates,
+                uiOperation);
         }
 
         // --- Play (L-WP6) ----------------------------------------------------------------------------------------------
@@ -220,11 +289,8 @@ namespace Empire_Earth_Launcher
                     return; // the state line says it
                 case StartOutcome.Damaged:
                 case StartOutcome.BlockedByAntivirus:
-                    using (var dialog = new RepairAdviceDialog(themeService, result.RepairAdvice, Texts.StartMessage(result),
-                               play.OpenDownloadPage))
-                    {
-                        dialog.ShowDialog(FindForm());
-                    }
+                    RepairAdviceDialog.ShowAdvice(FindForm(), themeService, result.RepairAdvice, Texts.StartMessage(result),
+                        updates, uiOperation);
                     return;
                 case StartOutcome.ElevationCancelled:
                 case StartOutcome.SetupRunning:

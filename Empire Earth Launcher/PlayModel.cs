@@ -7,7 +7,6 @@ using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Logging;
 using Empire_Earth_Launcher.Core.Platform;
 using Empire_Earth_Launcher.Core.Play;
-using Empire_Earth_Launcher.Core.Repair;
 using Empire_Earth_Launcher.Core.Settings;
 
 namespace Empire_Earth_Launcher
@@ -15,7 +14,8 @@ namespace Empire_Earth_Launcher
     /// <summary>
     /// The state and the actions of the Play page (L-WP6, ADR 0010, ARCHITECTURE 4.2): the game chosen (saved as
     /// <see cref="LauncherSettings.LastGame"/>), the file versions of the programs, whether Play is possible (an
-    /// installation, no running setup), the start and its result, and the download page of the repair advice.
+    /// installation, no running setup), and the start and its result. The repair advice of a start opens the download page
+    /// through <see cref="UpdateModel"/> (L-WP7).
     /// </summary>
     /// <remarks>
     /// Created once by <see cref="Program"/>; use it on the UI thread. The work runs on the thread pool through the core
@@ -30,7 +30,6 @@ namespace Empire_Earth_Launcher
         private readonly InstallationService installations;
         private readonly SettingsStore settings;
         private readonly GameSettingsModel gameSettings;
-        private readonly IProcessStarter shell;
         private readonly ILogger logger;
 
         /// <summary>Counts the reads of the versions, so that only the latest one is shown.</summary>
@@ -42,11 +41,9 @@ namespace Empire_Earth_Launcher
         /// <param name="installations">The selected installation.</param>
         /// <param name="settings">settings.json, for the last game.</param>
         /// <param name="gameSettings">Takes the display question of a first run before Play and shows the new defaults state.</param>
-        /// <param name="shell">Opens the download page of the repair advice.</param>
         /// <param name="logger">Log of the launcher.</param>
         public PlayModel(GameStarter starter, ProgramVersions programVersions, SetupWatcher setupWatcher,
-            InstallationService installations, SettingsStore settings, GameSettingsModel gameSettings, IProcessStarter shell,
-            ILogger logger)
+            InstallationService installations, SettingsStore settings, GameSettingsModel gameSettings, ILogger logger)
         {
             this.starter = starter ?? throw new ArgumentNullException(nameof(starter));
             this.programVersions = programVersions ?? throw new ArgumentNullException(nameof(programVersions));
@@ -54,7 +51,6 @@ namespace Empire_Earth_Launcher
             this.installations = installations ?? throw new ArgumentNullException(nameof(installations));
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             this.gameSettings = gameSettings ?? throw new ArgumentNullException(nameof(gameSettings));
-            this.shell = shell ?? throw new ArgumentNullException(nameof(shell));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             Versions = new ProgramVersion[0];
             installations.Changed += (sender, e) => RaiseChanged();
@@ -185,14 +181,6 @@ namespace Empire_Earth_Launcher
                 await RefreshVersionsAsync();
             RaiseChanged();
             return result;
-        }
-
-        /// <summary>Opens the download page of the repair advice in the browser (contract 4.3 step 4).</summary>
-        public DownloadPageResult OpenDownloadPage(RepairAdvice advice)
-        {
-            if (advice == null)
-                throw new ArgumentNullException(nameof(advice));
-            return advice.OpenDownloadPage(shell, logger);
         }
 
         private void RaiseChanged()

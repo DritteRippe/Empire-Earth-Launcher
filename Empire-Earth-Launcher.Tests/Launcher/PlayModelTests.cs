@@ -17,7 +17,8 @@ namespace Empire_Earth_Launcher.Tests.Launcher
 {
     /// <summary>
     /// <see cref="PlayModel"/>, the state of the Play page (L-WP6): the game choice in settings.json, AoC only with an AoC
-    /// folder, the versions, Play blocked while a setup runs, the start and its display question, the download page.
+    /// folder, the versions, Play blocked while a setup runs, the start and its display question (the download page of the
+    /// repair advice is opened by <see cref="UpdateModel"/>, <c>UpdateModelTests</c>).
     /// With the fake registry, file system, mutexes and shell.
     /// </summary>
     [TestFixture]
@@ -51,7 +52,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             var starter = new GameStarter(new RunningGameDetector(w.Mutexes, new FakeProcessList()), w.FileSystem,
                 w.CreateDefaultsService(), shell, w.Logger);
             var versions = new ProgramVersions(w.FileSystem, new FakeFileVersionReader().With(EeFolder + @"\Empire Earth.exe", "2.0.0.2949"));
-            model = new PlayModel(starter, versions, watcher, installations, settings, gameSettings, shell, w.Logger);
+            model = new PlayModel(starter, versions, watcher, installations, settings, gameSettings, w.Logger);
             model.Changed += (sender, e) => changed++;
         }
 
@@ -180,16 +181,6 @@ namespace Empire_Earth_Launcher.Tests.Launcher
 
             Assert.That(result.Outcome, Is.EqualTo(StartOutcome.Damaged));
             Assert.That(model.Versions.First().ToString(), Is.EqualTo("Empire Earth.exe missing"));
-        }
-
-        [Test]
-        public async Task TheDownloadPage_OpensThroughTheShell()
-        {
-            await installations.RefreshAsync();
-            RepairAdvice advice = RepairAdvice.For(model.Selected, RepairReason.Requested);
-
-            Assert.That(model.OpenDownloadPage(advice), Is.EqualTo(DownloadPageResult.Opened));
-            Assert.That(shell.OpenedUrls, Is.EqualTo(new[] { "https://empireearth.eu/download" }));
         }
 
         [Test]

@@ -97,6 +97,12 @@
     <Compile Include="KryptonThemeService.cs" />
     <Compile Include="RepairAdviceDialog.cs" />
     <Compile Include="Texts.cs" />
+    <Compile Include="ToolsUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ToolsUserControl.Designer.cs">
+      <DependentUpon>ToolsUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="UiOperation.cs" />
     <Compile Include="UnexpectedError.cs" />
     <Compile Include="UpdateModel.cs" />
@@ -132,6 +138,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SettingsUserControl.resx">
       <DependentUpon>SettingsUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ToolsUserControl.resx">
+      <DependentUpon>ToolsUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="App.config" />
     <None Include="app.manifest" />

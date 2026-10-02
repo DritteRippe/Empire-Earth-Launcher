@@ -9,10 +9,12 @@ using System.Windows.Forms;
 using Empire_Earth_Launcher.Core.Backup;
 using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Installations;
+using Empire_Earth_Launcher.Core.Integrity;
 using Empire_Earth_Launcher.Core.Lobby;
 using Empire_Earth_Launcher.Core.Logging;
 using Empire_Earth_Launcher.Core.Platform;
 using Empire_Earth_Launcher.Core.Play;
+using Empire_Earth_Launcher.Core.Repair;
 using Empire_Earth_Launcher.Core.Settings;
 using Empire_Earth_Launcher.Properties;
 using Empire_Earth_WON;
@@ -108,7 +110,12 @@ namespace Empire_Earth_Launcher
             var gameStarter = new GameStarter(new RunningGameDetector(mutexProbe, new WindowsProcessList(logger)), fileSystem,
                 defaults, shell, logger);
             var play = new PlayModel(gameStarter, new ProgramVersions(fileSystem, new WindowsFileVersionReader()), setupWatcher,
-                installations, settingsStore, gameSettings, shell, logger);
+                installations, settingsStore, gameSettings, logger);
+
+            // Integrity (L-WP7, contract 2): the quick check after every search, in the background, read-only, never while a
+            // setup runs; the full check on request. Files are opened so that a setup can still delete and rename them.
+            var integrity = new IntegrityModel(new IntegrityChecker(fileSystem, registry, mutexProbe, logger), installations,
+                setupWatcher, logger);
 
             // Server settings stay application settings in "Empire Earth Launcher.exe.config" (ADR 0005). The poller sends no
             // request before the Play page starts it (ADR 0004).
@@ -119,9 +126,17 @@ namespace Empire_Earth_Launcher
                 : new PlayerListPoller(new NeoPlayerListSource(neoClient),
                     TimeSpan.FromMilliseconds(playerListPollIntervalMilliseconds), logger);
 
-            logger.Info("Starting Empire Earth Launcher Form");
-            Application.Run(new MainForm(logger, themeService, settingsStore, installations, lobbyProfiles, gameSettings, play,
-                setupWatcher, uiOperation, playerList));
+            // The update API (contract 4.3, 4.5, ADR 0008): only on request, HTTPS with the certificate check of Windows, no
+            // redirects, 10 s, at most 4 KiB; the fixed download page for every failure.
+            using (var https = new HttpsClient())
+            {
+                var updates = new UpdateModel(new SetupDownloadLocator(https, logger), new UpdateChecker(https, logger),
+                    installations, shell, logger);
+
+                logger.Info("Starting Empire Earth Launcher Form");
+                Application.Run(new MainForm(logger, themeService, settingsStore, installations, lobbyProfiles, gameSettings,
+                    play, integrity, updates, setupWatcher, uiOperation, playerList));
+            }
         }
 
         /// <summary>
