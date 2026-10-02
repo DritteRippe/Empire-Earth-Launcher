@@ -1,7 +1,7 @@
 # 0007 Registry write scope, protected keys and .reg backups
 
 Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; implementation in L-WP2; plan review;
-implementation in L-WP5), see the Amendment sections
+implementation in L-WP5 and L-WP8), see the Amendment sections
 
 ## Context
 
@@ -214,3 +214,55 @@ Evidence: `Core/Backup/RegFileWriterTests` (23 tests with the golden files), `Re
 import, a failed backup changes nothing), `CompatibilityOptionsTests`; `Architecture/RegistryAliasPolicyTests`
 (936 cases) now runs against `LauncherWritePolicy.Default`. Allowing `WINXPSP3` in `CompatibilityLayers` locally made
 12 tests fail; ignoring the task `compatibility_legacy` made 2 fail (both not committed).
+
+## Amendment 2026-10-02 (implementation, L-WP8)
+
+The maintenance package implements the cleanup list, the deletes of the allow-list and the file backups. Refinements
+made while implementing, all keeping the decision and the amendments above:
+
+- **The list is code** (`Maintenance.CleanupCandidates`, 17 entries, the table of ARCHITECTURE 4.6): eight HKCU keys
+  the launcher may delete (the four game settings keys of contract 3.1 and the four registry VirtualStore copies of the
+  SSSI and Mad Doc keys, with and without `WOW6432Node`), four HKLM keys with advice only, and five `Software\Sierra`
+  keys (HKLM32, HKLM64, HKCU and both VirtualStore copies) that are protected. An entry cannot be built with a hive
+  root, a wildcard, evidence that does not match `t=\d+|p=\d+|setup:`, a delete or advice target that the policy
+  protects, an HKLM key the launcher would delete, an HKCU key with advice only, or a protected entry that is not an
+  ancestor of `CDKeys`. The Mad Doc entries are narrowed to `Mad Doc Software\EE-AOC`, the vendor root stays off the
+  list (p=4756: "only ones for ee and aoc if you have other Mad Doc games").
+- **Stale means both conditions** of the design review: no installation of the entry's product was found, and the
+  folder of its own `Installed From Volume`/`Installed From Directory` is missing on a present, fixed, local drive.
+  This replaces the "or" of the decision ("points to no existing folder, or belongs to no discovered installation"):
+  a key whose folder exists, lies on a missing, removable or network drive, or is not named at all is kept and shown
+  with that reason, because nothing proves that it is a leftover. HKLM entries get the advice "export, then delete with
+  the Registry Editor as administrator" under the same conditions, the Sierra entries always "do not delete: contains
+  the NeoEE CD keys" with only whether `CDKeys` exists. `CleanupAdvice` names a deletion target only for those two
+  codes and throws if `RegistryWritePolicy.ProtectionOf` (the protection check on the canonical form, now public)
+  protects it.
+- **Deletes of the allow-list**: `LauncherWritePolicy` takes `DeleteSubKeyTree` rules for exactly the eight HKCU keys
+  from `CleanupCandidates.WriteRules`, matched as written; the protected keys are refused first, so no list entry and
+  no alias of one reaches the CD keys, an install record or an uninstall key. These rules allow nothing but the tree
+  deletion; the game settings keys keep their value rules of L-WP5, and nothing else below the keys is opened.
+- **Order of a cleanup** (`RegistryCleanup.Delete`): only offered items of the scan -> mutation guard -> every
+  selected key checked again (one that is no longer stale, for example because a drive came back, stops everything)
+  -> one `.reg` file of all selected keys with their subkeys in `Backups\<time>_registry-cleanup\` -> `DeleteSubKeyTree`
+  in the order of the list. If the backup cannot be written and read back completely, nothing is deleted. Whether each
+  `CDKeys` key exists is logged before and after, never a value; one that existed before and is missing afterwards
+  would be logged as an error. On 32-bit Windows both HKLM views are one key; the HKLM64 entry is then listed once, as
+  its HKLM32 twin (compared through their `.reg` bytes).
+- **File backups** (`Backup.FileBackup`): the WON login reset moves files, as the decision says, by copying each into
+  `Backups\<time>_won-login-reset\`, reading the copy back and writing `moved-files.txt` (UTF-8 with BOM, CRLF, one
+  line `<copy> <- <original>` per file); only when every copy is confirmed are the originals removed. A file Windows
+  does not let the launcher remove stays and is reported (`Partial`); a failed copy removes nothing. Files listed in
+  the manifest are never moved; when the manifest exists but cannot be read, nothing is moved. The import of saved
+  games uses the same class to copy the files it is about to replace into `Backups\<time>_import-saved-games\`
+  (`CopyIntoBackup`); a file whose old version could not be backed up is not written. The limit per file is 64 MiB,
+  the limit of an imported saved game.
+
+Evidence: `Core/Maintenance/CleanupCandidatesTests` (42, among them `TheCodeTable_EqualsTheTableOfArchitecture_4_6`,
+`EveryEntry_HasEvidence_OfTheForumOrTheSetup` and `AManipulatedEntry_CannotBeBuilt`), `CleanupAdviceTests` (11,
+`NoAdvice_NamesAProtectedKeyOrAnAncestorOfTheCdKeys_ForDeletion` through the canonical form),
+`RegistryCleanupTests` (40: backup before delete, a failed backup deletes nothing, the CD keys unchanged after a
+cleanup, blocked by setup and game), `LauncherWritePolicyTests` (71), `RegistryWritePolicyTests` (36, `ProtectionOf`),
+`Architecture/RegistryAliasPolicyTests` (939 cases, with `AliasesOfTheCleanupKeys_AreNotDeleted`), `FileBackupTests`
+(11, also with real files), `WonLoginResetTests` (15), `Launcher/CleanupViewTests` (the UI mapping without
+candidates). Letting the cleanup go on after a failed backup file, moving a manifest file in the WON reset, or
+enabling the delete button without an offered key made one test fail each (locally, not committed).

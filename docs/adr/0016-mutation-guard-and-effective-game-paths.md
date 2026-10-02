@@ -1,7 +1,7 @@
 # 0016 Mutation guard and effective game paths
 
 Status: **Accepted** (2026-10-02), amended 2026-10-02 (implementation in L-WP2 and L-WP4; plan review;
-implementation in L-WP5, L-WP6 and L-WP7), see the Amendment sections
+implementation in L-WP5, L-WP6, L-WP7 and L-WP8), see the Amendment sections
 
 ## Context
 
@@ -160,3 +160,26 @@ Evidence: `Core/Platform/LocalFileSystemTests` (`OpenRead_LetsOthersRenameAndDel
 `TheCheck_NeverWritesDeletesOrMovesAFile`), `Launcher/IntegrityModelTests`
 (`Contract_4_2_ASetupThatStartsDuringTheCheck_CancelsIt_AndTheCheckRunsAgainAfterIt`,
 `Contract_4_2_WhileASetupRuns_NoCheckStarts`); test plan WP7-04.
+
+## Amendment 2026-10-02 (implementation, L-WP8)
+
+- **The three writing maintenance actions ask the guard first**: the registry cleanup ("delete stale registry keys"),
+  the WON login reset ("reset the WON login") and the import of saved games ("import saved games"). Blocked, they
+  change nothing and write no backup; the page shows "Not possible while ... is running". While the setup watcher knows
+  that a setup runs, their buttons are disabled and the sections name the setup (as on the other pages since L-WP6).
+  The scans, the export and "Open backup folder" are read-only for the game and not guarded.
+- **Effective paths**: the WON reset finds the files in the EE and AoC folders and in their VirtualStore copies and
+  moves both. The list and the export of saved games merge the game folder and its VirtualStore copy; on a name
+  conflict the copy wins and the other is listed. The name check reads the lobby profiles through the effective path and
+  the `Users` folders of both places. The import writes to the effective file (the VirtualStore copy when it exists);
+  "not writable for the user" is not guessed from the rights but found by writing: when Windows denies the write into
+  a virtualizable game folder, the file goes to its VirtualStore folder, where the game reads it, and the log says so.
+  Outside the virtualizable folders nothing is redirected.
+- **The VirtualStore check** uses the same resolver: only the VirtualStore copies of the game folders are listed, and
+  only for game folders below the virtualizable folders.
+
+Evidence: `Core/Maintenance/RegistryCleanupTests`, `WonLoginResetTests` and `SavedGamesTests` (`..._IsBlockedBySetupAndGame`
+with the two setup and the two game mutexes, `Export_IsNotBlocked`), `WonLoginResetTests.Find_ListsTheFilesOfBothGameFoldersAndTheirVirtualStoreCopies`,
+`SavedGamesTests.List_MergesTheGameFolderAndTheVirtualStore_TheCopyWins`, `Import_ReplacesTheVirtualStoreCopyTheGameUses`,
+`Import_IntoAGameFolderThatRefuses_GoesToTheVirtualStore`, `VirtualStoreScannerTests.AFolderOutsideTheVirtualizedFolders_IsNotLookedUp`,
+`Launcher/MaintenanceModelTests.WhileASetupRuns_NothingCanBeChanged`; test plan WP8-07, WP8-08, WP8-11 and WP8-13.

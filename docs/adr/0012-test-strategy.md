@@ -1,7 +1,7 @@
 # 0012 Test strategy
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review; implementation in L-WP5, L-WP6
-and L-WP7), see the Amendment sections
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review; implementation in L-WP5, L-WP6,
+L-WP7 and L-WP8), see the Amendment sections
 
 ## Context
 
@@ -185,3 +185,27 @@ UI (briefing D6, contract 7).
   are tested on the objects it creates, without a request.
 - The UI pages (*Tools*, the state and version check of *Play*, the repair window asking the update API) are covered by
   the test plan cases WP7-01 to WP7-15.
+
+## Amendment 2026-10-02 (implementation, L-WP8)
+
+- **Real files in a temporary folder.** The maintenance tools move, copy, export and import files, so besides the
+  in-memory tests a test of each runs against real files: `TestSupport/MappedFileSystem` puts the real file system
+  (`LocalFileSystem`) behind a drive letter, `T:\...` standing for a `TemporaryDirectory` that the test deletes at its
+  end, so the core keeps its Windows paths under Windows and Mono alike (`FileBackupTests.MovesRealFiles`,
+  `WonLoginResetTests.Reset_MovesRealFiles`, `SavedGamesTests.ExportAndImport_RealFiles` with a saved game whose name
+  has an umlaut). No test touches a file outside its temporary folder; `TestIsolationTests` still passes. There is no
+  zip test because the zip export and import were dropped.
+- **Both blocked cases for every writing action** (ADR 0016): `RegistryCleanupTests.Delete_IsBlockedBySetupAndGame`,
+  `WonLoginResetTests.Reset_IsBlockedBySetupAndGame` and `SavedGamesTests.Import_IsBlockedBySetupAndGame` run with each
+  setup mutex and each game mutex and check that nothing changed, no backup either; `Export_IsNotBlocked` checks that
+  the read-only export is not guarded.
+- **Documents checked by tests**: `CleanupCandidatesTests.TheCodeTable_EqualsTheTableOfArchitecture_4_6` (category
+  `SourceTree`) parses the table of ARCHITECTURE 4.6 and compares it with the code table row by row (id, key, scope,
+  evidence); `TestPlanTests` now requires the cases WP8-xx and accepts no "offen (L-WP8)".
+- **UI mapping without a window**: what the registry cleanup shows (`Launcher/CleanupViewTests`: "nothing to clean up",
+  the read-only list, the delete button), the model of the maintenance tools (`MaintenanceModelTests`: scans after every
+  search and action, no change while a setup runs, "Open backup folder" through the fake shell) and the texts of real
+  core results (`MaintenanceTextsTests`, English) are tested with fakes. The page itself, the real VirtualStore of a
+  standard user, drive kinds and the Explorer are test plan cases WP8-01 to WP8-16.
+- Local negative tests (not committed): letting the cleanup go on after a failed backup file, moving a manifest file in
+  the WON reset and enabling the delete button without an offered key made one test fail each.

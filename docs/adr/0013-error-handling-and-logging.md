@@ -1,6 +1,7 @@
 # 0013 Error handling and logging
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (plan review, see the Amendment section)
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (plan review; implementation in L-WP8), see the Amendment
+sections
 
 ## Context
 
@@ -58,3 +59,23 @@ diagnostics:
   `D:\Users\<name>` or VirtualStore paths), a computer name in a UNC path by `<computer>`.
 - A golden-file test runs with fakes full of such values, and a negative test checks that none of them appears in
   the text.
+
+## Amendment 2026-10-02 (implementation, L-WP8)
+
+- **Results of the maintenance tools**: `CleanupOutcome`, `WonResetOutcome`, `FileBackupOutcome`, `ExportOutcome`,
+  `ImportCheck` and `ImportFileOutcome` carry every environment problem (a key or folder that cannot be read, access
+  denied, a drive that is not there, a backup that cannot be written, a file that is too large) with its reason for
+  the log; `Texts` turns them into the localized line of the page. Only programming errors throw: a selection that is
+  not an offered item of the scan, two files with the same backup target, a cleanup entry that breaks the rules of the
+  list, advice that would name a protected key.
+- **Narrow catches at the UI boundary**: "Open backup folder" catches only the exceptions of a shell start
+  (`Win32Exception`, `FileNotFoundException`, `InvalidOperationException`) and shows the message; a scan that fails in
+  the background is logged once (`The scan of the maintenance tools failed.`).
+- **Never logged, in addition**: the player and profile names of the name check (only their number and game, the rule
+  of the plan review applied to the log; the page shows them to the player); the contents of the moved WON files and of
+  backed-up saved games (only paths); the values of the cleaned keys (they are in the `.reg` backup) and of `CDKeys`
+  (only whether it exists, before and after a cleanup).
+
+Evidence: `Core/Maintenance/NameChecksTests` ("names are never logged"), `Core/Backup/FileBackupTests`
+(`TheContents_AreNeverLogged`), `Launcher/CleanupViewTests` (no CD-key value in the read-only list),
+`Launcher/MaintenanceModelTests` (`OpenBackupFolder_ReportsAnError`).

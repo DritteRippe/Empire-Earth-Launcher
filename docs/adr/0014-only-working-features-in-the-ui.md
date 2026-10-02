@@ -1,7 +1,7 @@
 # 0014 Only working features in the UI
 
 Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review and implementation in L-WP3; implementation in
-L-WP6 and L-WP7), see the Amendment sections
+L-WP6, L-WP7 and L-WP8), see the Amendment sections
 
 ## Context
 
@@ -117,3 +117,20 @@ group shows the file versions and a state line. No control without function is l
 - **Play page**: the game group grew by 20 pixels for the integrity state, its "Details"/"Repair..." button, the result
   line and "Check version"; the info bar below it is 20 pixels lower (90 instead of 110 pixels of text). Test plan
   WP7-14 checks with screenshots that its texts stay readable.
+
+## Amendment 2026-10-02 (implementation, L-WP8)
+
+- The *Tools* page gets the maintenance tools below "Updates", each section with its explanation, state and result
+  line: "Old registry entries", "WON login", "VirtualStore", "Saved games and scenarios", "Player names" and
+  "Backups" with "Open backup folder". New controls have new names (`cleanupKryptonCheckedListBox`,
+  `cleanupDeleteKryptonButton`, `wonResetKryptonButton`, `virtualStoreFilesKryptonTextBox`, `exportSavesKryptonButton`,
+  `importEeSavesKryptonButton`, `importAocSavesKryptonButton`, `openBackupFolderKryptonButton`, ...); none is a name of
+  the list above, and every text is set in `ApplyTexts()`.
+- **No button without an action**: "Delete selected..." works only when the launcher offers a key, one is selected and
+  no setup runs; without an offered key the section says "nothing to clean up", shows the read-only list with its
+  advice and no enabled delete button (`CleanupView`, tested). The WON reset and the imports need an installation and
+  no running setup, the AoC import an installation with AoC; the export needs an installation. HKLM keys have no check
+  box at all. The zip export and import were dropped, so there are no buttons for them; the network diagnostics and
+  the report come with their functions in L-WP9.
+- **Confirmation before every change**: the cleanup asks with the keys and the backup folder, an import that would
+  replace a file asks with the files; the default button of both questions is "No".

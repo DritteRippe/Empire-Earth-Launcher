@@ -57,8 +57,9 @@ Empire-Earth.sln
 │  │                   classes, contract version; CompatibilityLayers (entries of 3.7, old values)
 │  ├─ Platform/        abstractions + Windows implementations (ADR 0006):
 │  │                   IRegistry / WindowsRegistry (hive + view always explicit), IFileSystem /
-│  │                   LocalFileSystem, WinPath (Windows path rules as pure string logic), IProcessStarter /
-│  │                   ShellProcessStarter (L-WP6), IProcessList, IFileVersionReader, IMutexProbe, IMutexOwner
+│  │                   LocalFileSystem (drive kinds since L-WP8), WinPath (Windows path rules as pure string
+│  │                   logic), IProcessStarter / ShellProcessStarter (L-WP6; opens a folder in the Explorer
+│  │                   since L-WP8), IProcessList, IFileVersionReader, IMutexProbe, IMutexOwner
 │  │                   (single instance), ISystemInfo (Windows version, Wine, primary screen in physical and in
 │  │                   DPI-unaware pixels, ANSI code page),
 │  │                   IClock, IHttpsClient (ADR 0008), INetworkInfo; RegistryPath (canonical form:
@@ -83,8 +84,9 @@ Empire-Earth.sln
 │  │                   MutationGuard (contract 4.2, 3.7, ADR 0010, ADR 0016; L-WP6)
 │  ├─ Repair/          UpdateUrlPolicy (port of the setup's IsAllowedUpdateUrl), SetupDownloadLocator,
 │  │                   UpdateChecker, RepairAdvice (contract 4; RepairAdvice since L-WP6, the rest L-WP7)
-│  ├─ Maintenance/     RegistryCleanup, WonLoginReset, VirtualStoreScanner, SavedGames (export, import,
-│  │                   name checks)
+│  ├─ Maintenance/     CleanupCandidates (the list of 4.6), CleanupAdvice, RegistryCleanup, ManifestFiles,
+│  │                   WonLoginReset, VirtualStoreScanner, SavedGames (folder export, import), NameChecks
+│  │                   (L-WP8)
 │  ├─ Diagnostics/     NetworkDiagnostics (adapters, DNS, NeoEE status, upnp_info.txt, NeoEE.cfg),
 │  │                   WONLobby.cfg reader (CDKeyCheck, read-only), DiagnosticsReport
 │  └─ Lobby/           LobbyProfileRepository (moved), PlayerListPoller (async replacement of the
@@ -100,12 +102,15 @@ Empire-Earth.sln
 │                                         event handler helper), InstallationService, GameSettingsModel
 │                                         (state of the game settings for two pages), PlayModel (the Play
 │                                         page), IntegrityModel (the integrity check of the selected
-│                                         installation), UpdateModel (the update API), ToolsUserControl (the
-│                                         Tools page), RepairAdviceDialog, KryptonThemeService, app.manifest
+│                                         installation), UpdateModel (the update API), MaintenanceModel (the
+│                                         maintenance tools, L-WP8), CleanupView (what the registry cleanup
+│                                         shows), ToolsUserControl (the Tools page), RepairAdviceDialog,
+│                                         KryptonThemeService, app.manifest
 └─ Empire-Earth-Launcher.Tests/           one NUnitLite program: Core/, Launcher/, Won/, Mod/,
                                           Architecture/ (dependency, project and resource rules),
                                           Fakes/ (in-memory registry and file system, fake HTTP, process,
-                                          mutex, clock), TestSupport/
+                                          mutex, clock), TestSupport/ (worlds of installations,
+                                          MappedFileSystem for real files in a temporary folder)
 ```
 
 The core is one assembly with namespaces per area (`Empire_Earth_Launcher.Core.Installations`, ...),
@@ -122,7 +127,7 @@ The navigation keeps the existing look (MainForm, Krypton palette, gold buttons)
 |---|---|---|
 | **Play** | selected installation (product, folder, kind, integrity badge), file versions of `Empire Earth.exe` / `EE-AOC.exe`, choice EE / AoC (AoC only if installed), Play, "setup is running" and "game is running" states (with the hanging-process hint), non-modal warnings that can be hidden per value, lobby profiles and online player list (existing) | R2, R3 |
 | **Game settings** (the *Settings* navigation button) | defaults state, consistency warnings, apply recommended display settings, reset (with backup), compatibility options (HKCU only, HKLM read-only; Windows 8 and later only, on Windows 7 only removing `~ RUNASADMIN` and the old values shown, ADR 0007 plan review), screen warning below 768 pixels | R1, R4 |
-| **Tools** | integrity details and full check, repair advice, registry cleanup, WON login reset, VirtualStore check, saved games and scenarios, network diagnostics, "copy diagnostics report", open backup folder | R2, R5 to R10 |
+| **Tools** | integrity details and full check, repair advice, registry cleanup (HKCU keys to select, HKLM keys read-only with advice), WON login reset, VirtualStore check, saved games and scenarios (folder export, import), player names, network diagnostics, "copy diagnostics report", open backup folder | R2, R5 to R10 |
 | **Launcher** | installations found and the user's choice, hint when several installations share one game settings key, theme, language (system, English, German, French) | R1, R17 |
 
 The placeholders of the old designer were removed from the UI in L-WP3, as the first step of the localization
@@ -143,7 +148,13 @@ page and the repair window, which names the files and puts the antivirus excepti
 page is the
 Game settings page (one scrolling panel; the compatibility warning stands in place of the compatibility options until
 it is confirmed), and the Play page shows the display question or the first visible hint in an info bar with "Hide"
-and "Details".
+and "Details". Since L-WP8 the *Tools* page continues below "Updates" with the maintenance tools, one section each:
+old registry entries (the offered HKCU keys as check boxes with "Delete selected...", or "nothing to clean up"; below
+them the kept and read-only keys with the reason or the advice), WON login, VirtualStore, saved games and scenarios
+(export, import into EE or AoC), player names, and backups with "Open backup folder". Their read-only scans run in the
+background after every search and every action (`MaintenanceModel`); while a setup runs the writing buttons are
+disabled and the sections say why, while a game runs the mutation guard refuses the action with a message (ADR 0014
+and 0016 amendments of L-WP8).
 
 ## 3. Dependency rules
 
@@ -166,8 +177,9 @@ Empire_Earth_Mod.exe ──> Empire_Earth_Mod_Lib.dll ──> BCL only
 - Every HKLM read names its view; the launcher's own bitness (AnyCPU, `Prefer32Bit` false) never matters.
 - Writes are limited to the allow-list of [ADR 0007](adr/0007-registry-write-scope-and-reg-backups.md):
   HKCU game settings values, the defaults marker, the GPU preference and the HKCU compatibility layer
-  values, plus the launcher's own folder below `%LOCALAPPDATA%`, files the player imports into the game
-  folders and the WON login files it moves into a backup. `Program` wraps the Windows registry in
+  values, the deletion of the eight HKCU keys of the cleanup list (4.6, since L-WP8), plus the launcher's own folder
+  below `%LOCALAPPDATA%`, the folder the player chooses for an export, files the player imports into the game folders
+  (or their VirtualStore folders) and the WON login files it moves into a backup. `Program` wraps the Windows registry in
   `PolicyCheckedRegistry` (since L-WP4, the first package that uses the registry), so no code path can write
   around the policy; the protected keys are refused on the canonical form first, then the allow-list is matched
   on the key as it is written (ADR 0007, implementation amendment).
@@ -361,28 +373,58 @@ date" (the setup's `CheckUpdate` reads it as "no update").
   tested through the canonical form of the policy). Not on the list, with the reason: the vendor roots
   (`Software\Mad Doc Software`, `Software\SSSI`; p=4756 "make sure to only get ones for ee and aoc if you have other Mad
   Doc games"), subkeys of `Software\Sierra` other than `CDKeys` (no sample names them yet), Stainless Steel Studios keys
-  (p=4756 names only the vendor, no path), InstallShield leftovers (no sample); test case WP8-02 collects samples. The four game settings keys of contract 3.1
-  (`hkcu-ee-*`, `hkcu-neoee-*`) are the player's settings while an installation uses them, so they are not shown then.
+  (p=4756 names only the vendor, no path), InstallShield leftovers (no sample); test case WP8-02 collects samples. The
+  four game settings keys of contract 3.1 (`hkcu-ee-*`, `hkcu-neoee-*`) are the player's settings while an installation
+  uses them, so they are not shown then.
 
   An empty HKCU part on a computer is a valid result: the page then says "nothing to clean up" and shows the
   read-only list, without an enabled delete button; README and CHANGELOG call R5 "cleanup of HKCU entries; HKLM
   entries are only shown, with advice" (ADR 0007 plan review).
+
+  Implementation (L-WP8): `RegistryCleanup.Scan` gives each entry a state (missing, protected, installation found,
+  folder exists, drive not fixed, no folder named, unreadable, stale) and `CleanupAdvice` turns it into a code with
+  parameters; only the two delete codes name a deletion target, and `CleanupAdvice` refuses one that the write policy
+  protects. On 32-bit Windows the HKLM64 twin of an HKLM32 entry is the same key and is listed once. `Delete` takes only
+  offered items of the scan, then: mutation guard ("delete stale registry keys") -> the state of every selected key again
+  (one that is no longer stale stops everything) -> one `.reg` file with all of them
+  (`Backups\<time>_registry-cleanup\<time>_registry-cleanup.reg`) -> `DeleteSubKeyTree` in the order of the list. If
+  the backup fails, nothing is deleted. The write policy allows `DeleteSubKeyTree` exactly for the eight HKCU keys of
+  the list (`LauncherWritePolicy` takes them from `CleanupCandidates.WriteRules`), after the protected keys were refused
+  on the canonical form. Whether each `CDKeys` key exists is logged before and after the cleanup, never a value.
 - **WON login reset** (R6): `_wonkver.pub` and `_wonlogin.ks` of the EE and AoC folders and of their
   VirtualStore copies (effective paths, ADR 0016) are moved into a dated backup folder (forum p=83519); files
   listed in the manifest are never touched; mutation guard. The UI says that the backup folder contains login
-  data; if the online login still fails afterwards, the hint points to the repair with the setup.
+  data; if the online login still fails afterwards, the hint points to the repair with the setup. Implementation
+  (L-WP8): `WonLoginReset` asks the guard first ("reset the WON login"); when the manifest exists but cannot be read it
+  moves nothing (it could not tell the setup's files). `FileBackup.MoveIntoBackup` copies every file into
+  `Backups\<time>_won-login-reset\` (`EE\`, `EE-VirtualStore\`, `AoC\`, `AoC-VirtualStore\`), reads each copy back,
+  writes `moved-files.txt` with the original paths, and only then removes the originals; a file Windows does not let it
+  remove stays and is named with "access denied" (outcome `Partial`). The contents are never logged.
 - **VirtualStore** (R8): for installations below `Program Files`, `Program Files (x86)`, `ProgramData` or
   the Windows folder, `%LOCALAPPDATA%\VirtualStore\<path without drive>` is listed; manifest files shadowed
   there are reported as serious (the game uses the virtual copy), runtime files as information. Lobby
   profiles, saves and the WON reset use the effective file (`EffectivePathResolver`, VirtualStore copy first),
-  as the game does (ADR 0016).
+  as the game does (ADR 0016). Implementation (L-WP8): `VirtualStoreScanner` lists only the VirtualStore copies of the
+  EE and AoC folders (at most 2000 files, 16 levels); serious are files of the manifest and program files (`code`
+  class), everything else is information. The registry VirtualStore (`HKCU\Software\Classes\VirtualStore\MACHINE\...`)
+  is shown through the `vs-*` rows of the cleanup list.
 - **Saved games and scenarios** (R10): export of `.ees` (saves, `Data\Saved Games`) and `.scn` (scenarios,
-  `Data\Scenarios`) files of EE or AoC into a zip or a folder, from both the game folder and its VirtualStore
-  copy (the VirtualStore copy wins a name conflict, the other is listed); import of such files or zips with
-  checks (allowed extensions, plain file names, no path in zip entries, size limit, no overwrite without
-  confirmation) into the folder the game reads (ADR 0016), behind the mutation guard; warning for player and
-  profile names with characters outside printable ASCII (t=3563 p=23879, t=2126 p=14281) and the hint that
-  the host needs ports 33334 to 33336 (forum 4.9).
+  `Data\Scenarios`) files of EE and AoC into a new folder `Empire Earth saves <yyyy-MM-dd_HHmmss>` (subfolders
+  `EE\Saved Games`, `EE\Scenarios`, `AoC\...`) of a folder the player chooses, from both the game folder and its
+  VirtualStore copy (the VirtualStore copy wins a name conflict, the other is listed); a target inside a game folder,
+  its VirtualStore copy or the install root is refused. The export only reads the game folders, so it is not guarded.
+  Import of single files into EE or AoC with checks (`.ees`/`.scn` only, plain file names of at most 200 characters,
+  only characters of the ANSI code page of Windows because the game is an ANSI program, at most 64 MiB, never onto a
+  file of the manifest, no two files of the same name, no overwrite without confirmation) into the folder the game
+  reads (ADR 0016), behind the mutation guard ("import saved games"); the files it replaces are copied into
+  `Backups\<time>_import-saved-games\` first (`FileBackup.CopyIntoBackup`; a file whose old version could not be
+  backed up is not written), and
+  when Windows denies writing into a game folder below `Program Files` the file goes to its VirtualStore folder, where
+  the game reads it. The zip export and the zip import were dropped in L-WP8 (CHANGELOG): the folder export is the way
+  the forum shares saves (t=9004 p=44629), and a zip reader would be new attack surface for files from other players.
+  `NameChecks` warns for player names (`Users\<Name>` of both games and their VirtualStore copies) and lobby profile
+  names with characters outside printable ASCII (t=3563 p=23879, t=2126 p=14281) and the page gives the hint that the
+  host needs ports 33334 to 33336 (forum 4.9); the names are shown, never logged (only their number).
 - **Network diagnostics** (R7, on request only): local adapters with IPv4 and gateway, virtual/VPN
   adapters flagged (forum 4.10), DNS resolution and status request of the NeoEE server, evaluation of
   `upnp_info.txt` when it exists (tolerant parser, "unknown format" otherwise), hints for private/CGNAT
@@ -452,10 +494,12 @@ Decided in [ADR 0013](adr/0013-error-handling-and-logging.md):
   trimmed to the last 500 lines above 1 MiB with `log.txt.old` kept (existing behaviour).
 - Logged: start with version, Windows version and culture; every discovery candidate and why it was taken
   or dropped; integrity findings with path, class, expected and actual hash; every registry value the
-  launcher writes or deletes with old and new value; every backup file; game starts; HTTP requests with
-  URL, status and duration (no bodies beyond the trimmed answer); fallbacks.
+  launcher writes or deletes with old and new value (a deleted key of the cleanup with its id, the missing folder and
+  the evidence; its values are in the `.reg` backup); every backup file and every moved, exported or imported file;
+  game starts; HTTP requests with URL, status and duration (no bodies beyond the trimmed answer); fallbacks.
 - **Never logged**: values below `Software\Sierra\CDKeys` (only "exists" / "missing"), contents of
-  `_wonlogin.ks` or other WON key files, passwords, anything typed into the lobby.
+  `_wonlogin.ks` or other WON key files, passwords, anything typed into the lobby, the player and profile names
+  of the name check (only how many have characters outside printable ASCII).
 - Log messages are English (support language of the forum and of the developers); UI texts are
   localized.
 
@@ -468,8 +512,8 @@ Decided in [ADR 0005](adr/0005-own-settings-file-instead-of-user-config.md):
 | user settings: chosen folder, theme, custom theme file, UI language, last game (`LastGame`, L-WP6), hidden hints (`HiddenHints`: finding and game settings key, values or folder; L-WP5) | `%LOCALAPPDATA%\Empire Earth Launcher\settings.json` | JSON (`DataContractJsonSerializer`), `SchemaVersion`, unknown members kept, written as `.tmp` then replaced; damaged file renamed to `settings.json.damaged` and defaults used; a file that cannot be read or has a higher `SchemaVersion` is never overwritten (ADR 0005 amendment) |
 | server settings: NeoEE host, port, timeout, poll interval | `Empire Earth Launcher.exe.config` next to the program | `applicationSettings` (read-only, admin-editable, as today) |
 | log | `%LOCALAPPDATA%\Empire Earth Launcher\log.txt` | text |
-| backups (`.reg`, moved WON files) | `%LOCALAPPDATA%\Empire Earth Launcher\Backups\<yyyy-MM-dd_HHmmss>_<what>\` (L-WP5: `display-settings`, `reset-game-settings`, `remove-runasadmin`) | `.reg` (Windows Registry Editor 5.00, UTF-16 LE with BOM, CRLF) per game `<time>_<Product>_<EE|AoC>.reg` or `<time>_Layers.reg`, and original files |
-| exports of saved games | chosen by the user | zip or folder |
+| backups (`.reg`, moved WON files, replaced saved games) | `%LOCALAPPDATA%\Empire Earth Launcher\Backups\<yyyy-MM-dd_HHmmss>_<what>\` (L-WP5: `display-settings`, `reset-game-settings`, `remove-runasadmin`; L-WP8: `registry-cleanup`, `won-login-reset`, `import-saved-games`) | `.reg` (Windows Registry Editor 5.00, UTF-16 LE with BOM, CRLF) per game `<time>_<Product>_<EE|AoC>.reg`, `<time>_Layers.reg` or `<time>_registry-cleanup.reg`, and original files in `EE\`, `AoC\`, `EE-VirtualStore\`, `AoC-VirtualStore\` with `moved-files.txt` (UTF-8 with BOM, CRLF, one line `<copy> <- <original path>` per file) |
+| exports of saved games | a new folder `Empire Earth saves <yyyy-MM-dd_HHmmss>` in the folder the user chooses (not in a game folder, its VirtualStore copy or the install root) | folder with `EE\Saved Games`, `EE\Scenarios`, `AoC\Saved Games`, `AoC\Scenarios`; no zip (dropped in L-WP8) |
 | mod creator working data | `%LOCALAPPDATA%\Empire Earth Launcher\...` (existing) | unchanged |
 
 `%LOCALAPPDATA%` falls back to the temporary folder when it is empty (existing fix). The launcher never
@@ -491,9 +535,9 @@ Decided in [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md):
   (comments removed, entries with `type` or `mimetype` skipped): the same keys in `en`, `de`, `fr`; no empty
   value; the same `{n}` placeholders. A second test checks that image and file entries exist only in the
   neutral resx; further tests check the generated `Resources` class, the project items and the built satellite
-  assemblies. Since L-WP7 the three languages have the same 213 string keys (L-WP6: 154; L-WP5: 125; L-WP4: 74; L-WP3: 53; before: `en` and
-  `fr` 30 each and about 50 designer-only texts, [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md), corrected
-  evidence).
+  assemblies. Since L-WP8 the three languages have the same 293 string keys (L-WP7: 213; L-WP6: 154; L-WP5: 125;
+  L-WP4: 74; L-WP3: 53; before: `en` and `fr` 30 each and about 50 designer-only texts,
+  [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md), corrected evidence).
 - German is proof-read by the user in the laptop test; French texts are marked "review open" in
   `docs/TRANSLATING.md` until a French speaker has read them.
 - The UI language follows Windows unless the setting `UiCulture` (Launcher page) chooses one; it is applied at
@@ -511,7 +555,10 @@ Decided in [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md):
   `HKCU\Software\Classes\VirtualStore\MACHINE\...` mapped to the HKLM key they stand for), unit-tested with a
   table of every alias and every operation; the diagnostics only say whether the key exists. Repairing CD
   keys = running the setup. The same rule protects the install records and the uninstall keys; an allow-list
-  entry can never open a protected key, also not one that names it exactly.
+  entry can never open a protected key, also not one that names it exactly. The registry cleanup (L-WP8) can delete
+  only the eight HKCU keys of its list; no entry and no advice names `Software`, `Software\Sierra` or `CDKeys` as a
+  target (tested on the canonical form, for every hive, view and alias), and `Software\Sierra` is shown as "do not
+  delete: contains the CD keys".
 - **No changes while a setup or game runs**: every write goes through the mutation guard
   ([ADR 0016](adr/0016-mutation-guard-and-effective-game-paths.md)).
 - **No elevation**: the manifest requests `asInvoker`; the launcher never restarts itself elevated and
@@ -524,13 +571,14 @@ Decided in [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md):
   forbids every certificate-validation override (`ServerCertificateValidationCallback`,
   `ServerCertificateCustomValidationCallback`, `RemoteCertificateValidationCallback`, ...). No telemetry; the
   old "collect diagnostic data" checkbox is removed.
-- **Backups contain login data** (moved WON files); the UI and the README say so, the diagnostics report
-  never includes them.
+- **Backups contain login data** (moved WON files); the UI (the result of the reset and the "Backups" section next
+  to "Open backup folder") and the README say so, the diagnostics report never includes them.
 - **URLs opened in the browser**: only the fixed download page or a URL that passed `UpdateUrlPolicy` (same
   rules and test cases as the setup's `IsAllowedUpdateUrl`).
-- **Files from outside**: imported saves and zips are untrusted (no paths, allowed extensions only, size
-  limits); the manifest never makes the launcher open a file outside the install root; mod archives keep
-  their existing limits.
+- **Files from outside**: imported saves are untrusted (plain file names only, `.ees`/`.scn` only, characters of the
+  ANSI code page, 64 MiB at most, never onto a file of the manifest, no overwrite without confirmation and a copy of
+  the old file); there is no zip import (dropped in L-WP8); the manifest never makes the launcher open a file outside
+  the install root; mod archives keep their existing limits.
 
 ## 11. Testing
 
@@ -575,7 +623,13 @@ Decided in [ADR 0012](adr/0012-test-strategy.md):
   Implemented in L-WP7: `docs/contract-samples/` with the readers tested against it, `FixtureProvenanceTests` (every
   64-hex token of the fixtures and samples is a synthetic hash), `NoCertificateOverrideTests` and `TlsSettingTests`, the
   integrity and update models with fakes (`FakeHttpsClient`), and the counted cost of the checks (ADR 0012 amendment of
-  L-WP7).
+  L-WP7). Implemented in L-WP8: tests against real files in a temporary folder (`TemporaryDirectory`) through
+  `MappedFileSystem`, which maps the drive `T:` of Windows paths onto that folder over `LocalFileSystem` (file backup,
+  WON reset, export and import); a `Blocked(SetupRunning)` and a `Blocked(GameRunning)` test for every writing action;
+  `CleanupCandidatesTests` compares the code table with the table of 4.6 and checks the evidence of every entry; the
+  policy and advice tests run every list entry and every alias of the protected keys through the canonical form; the UI
+  mapping of the cleanup (`CleanupView`), `MaintenanceModel` and the texts are tested with fakes (ADR 0012 amendment of
+  L-WP8).
 
 ## 12. Build and CI
 
@@ -651,9 +705,13 @@ Further points to settle in the work packages, on real Windows (test plan):
 
 - the game's own network adapter setting (where EE stores it, t=32479) and the format of `upnp_info.txt` -
   the diagnostics show "unknown" until a sample confirms the format;
-- the stale keys of retail, GOG and old patch installations for the cleanup: the starting table in 4.6 holds
-  only entries with evidence (forum t=1036 p=4756, t=12082 p=49553 name Sierra, SSSI, Mad Doc, Stainless Steel
-  Studios); further entries need a sample from a real computer;
+- the stale keys of retail, GOG and old patch installations for the cleanup: the table in 4.6 holds only entries
+  with evidence (forum t=1036 p=4756, t=12082 p=49553 name Sierra, SSSI, Mad Doc, Stainless Steel Studios); further
+  entries (subkeys of `Software\Sierra` other than `CDKeys`, Stainless Steel Studios, InstallShield) need a sample from
+  a real computer, which test case WP8-02 collects;
+- the real behaviour of the maintenance tools on Windows: the VirtualStore of a standard user below `Program Files`,
+  drive kinds of USB and network drives, the Explorer opening the backup folder, and multiplayer saved games with
+  umlaut names (WP8-08, WP8-04, WP8-14, WP8-10);
 - Krypton's net48 build on Windows 7 SP1 and on scaled screens.
 
 Proposed clarifications of the contract text, to be made in both repositories at once at the next contract
@@ -733,12 +791,14 @@ of L-WP9 need the results of every tool, and L-WP8 holds the WON login reset, a 
 | L-WP8 | Maintenance tools | registry cleanup by the table of 4.6 (HKCU only, advice never names `Software\Sierra`), WON login reset, VirtualStore, saves and scenarios, name checks, all behind the mutation guard |
 | L-WP9 | Network diagnostics, report, laptop package | adapters, DNS, `NeoEE.cfg`, `upnp_info.txt`, `CDKeyCheck`, outage hint, report with the privacy rules of ADR 0013, final docs, test plan without "offen", Release zip with `Tests\` and SHA-256 |
 
-Done so far: L-WP1 to L-WP7 (see the CHANGELOG). Implementation details of L-WP2 that refine ADR 0004, 0005, 0007
+Done so far: L-WP1 to L-WP8 (see the CHANGELOG). Implementation details of L-WP2 that refine ADR 0004, 0005, 0007
 and 0016, of L-WP3 that refine ADR 0009 and 0014, of L-WP4 that refine ADR 0004, 0006, 0015 and 0016, of L-WP5
-that refine ADR 0007, 0011, 0012, 0015 and 0016, of L-WP6 that refine ADR 0004, 0005, 0010, 0012, 0014 and 0016, and of
-L-WP7 that refine ADR 0004, 0008, 0012, 0014 and 0016 are recorded in their amendments. From L-WP6 on the laptop package
-can be built with `Tests\`. The MVP for the laptop test (L-WP1 to L-WP7) is complete; nothing of L-WP7 was dropped (the
-setup version check is implemented).
+that refine ADR 0007, 0011, 0012, 0015 and 0016, of L-WP6 that refine ADR 0004, 0005, 0010, 0012, 0014 and 0016, of
+L-WP7 that refine ADR 0004, 0008, 0012, 0014 and 0016, and of L-WP8 that refine ADR 0007, 0012, 0013, 0014 and 0016 are
+recorded in their amendments. From L-WP6 on the laptop package can be built with `Tests\`. The MVP for the laptop test
+(L-WP1 to L-WP7) is complete; nothing of L-WP7 was dropped (the setup version check is implemented). L-WP8 dropped the
+zip export and the zip import (the folder export and the import of single files stay, CHANGELOG); the registry
+VirtualStore display is implemented (the `vs-*` rows of 4.6).
 
 ## 16. Not in v2
 
