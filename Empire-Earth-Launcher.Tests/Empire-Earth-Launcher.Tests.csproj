@@ -162,6 +162,7 @@
     <Compile Include="Fakes\FakeProcessList.cs" />
     <Compile Include="Fakes\FakeProcessStarter.cs" />
     <Compile Include="Fakes\FakeSystemInfo.cs" />
+    <Compile Include="Fakes\FakeThemeService.cs" />
     <Compile Include="Fakes\InMemoryFileSystem.cs" />
     <Compile Include="Fakes\InMemoryFileSystemTests.cs" />
     <Compile Include="Fakes\InMemoryRegistry.cs" />
@@ -181,6 +182,7 @@
     <Compile Include="Launcher\PlayModelTests.cs" />
     <Compile Include="Launcher\SingleInstanceStartupTests.cs" />
     <Compile Include="Launcher\TextsTests.cs" />
+    <Compile Include="Launcher\ThemeChoiceTests.cs" />
     <Compile Include="Launcher\UiLanguageStartupTests.cs" />
     <Compile Include="Launcher\UiOperationTests.cs" />
     <Compile Include="Launcher\UnexpectedErrorTests.cs" />

@@ -3156,6 +3156,24 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Built-in colors.
+        /// </summary>
+        internal static string ThemeBuiltIn {
+            get {
+                return ResourceManager.GetString("ThemeBuiltIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The built-in colors are used when the launcher starts the next time..
+        /// </summary>
+        internal static string ThemeBuiltInNextStart {
+            get {
+                return ResourceManager.GetString("ThemeBuiltInNextStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Custom file....
         /// </summary>
         internal static string ThemeCustom {

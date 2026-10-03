@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
 using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.Installations;
+using Empire_Earth_Launcher.Core.Platform;
 using Empire_Earth_Launcher.Core.Settings;
 using Empire_Earth_Launcher.Properties;
 
@@ -12,10 +14,19 @@ namespace Empire_Earth_Launcher
     public partial class LauncherSettingsUserControl : UserControl
     {
         /// <summary>
-        /// Index of the "Custom" item that the designer puts first into the theme list: it opens a theme file
+        /// Index of the "Built-in colors" item that the designer puts first into the theme list: the colors of the
+        /// designer, shown while no theme file is applied (before, the list then showed nothing).
+        /// </summary>
+        internal const int BuiltInThemeIndex = 0;
+
+        /// <summary>
+        /// Index of the "Custom" item that the designer puts second into the theme list: it opens a theme file
         /// instead of selecting a theme of the launcher's themes folder.
         /// </summary>
-        private const int CustomThemeIndex = 0;
+        internal const int CustomThemeIndex = 1;
+
+        /// <summary>Index of the first theme of the themes folder in the theme list.</summary>
+        internal const int FirstThemeIndex = 2;
 
         private IThemeService themeService;
         private SettingsStore settings;
@@ -30,6 +41,15 @@ namespace Empire_Earth_Launcher
 
         /// <summary>True while the theme list is changed by code, so that no theme is applied then.</summary>
         private bool updatingThemeSelection;
+
+        /// <summary>The themes of the themes folder in the list, after the two fixed items.</summary>
+        private IList<string> themeNames = new List<string>();
+
+        /// <summary>
+        /// True after the player chose the built-in colors while a theme file was applied: they are used from the next
+        /// start on, the list shows them already.
+        /// </summary>
+        private bool builtInColorsChosen;
 
         /// <summary>True while the language list is filled by code, so that nothing is saved then.</summary>
         private bool updatingLanguageSelection;
@@ -55,6 +75,7 @@ namespace Empire_Earth_Launcher
         {
             launcherSettingsKryptonGroupBox.Values.Heading = Resources.LauncherSettingsHeading;
             themeKryptonLabel.Values.Text = Resources.ThemeLabel;
+            themeKryptonComboBox.Items[BuiltInThemeIndex] = Resources.ThemeBuiltIn;
             themeKryptonComboBox.Items[CustomThemeIndex] = Resources.ThemeCustom;
             gameDirectoryKryptonLabel.Values.Text = Resources.GameDirectoryLabel;
             detectGameDirectoryKryptonButton.Values.Text = Resources.DetectGameDirectoryButton;
@@ -114,21 +135,16 @@ namespace Empire_Earth_Launcher
 
         private void LoadAvailableThemes()
         {
-            foreach (string themeName in themeService.GetAvailableThemeNames())
+            themeNames = themeService.GetAvailableThemeNames();
+            foreach (string themeName in themeNames)
                 themeKryptonComboBox.Items.Add(themeName);
         }
 
         /// <summary>Shows the applied theme in the list, without applying anything.</summary>
         private void SelectCurrentTheme()
         {
-            int index = -1;
-            string currentThemeFile = themeService.CurrentThemeFile;
-            if (currentThemeFile != null)
-            {
-                index = IsInThemesDirectory(currentThemeFile)
-                    ? themeKryptonComboBox.Items.IndexOf(Path.GetFileNameWithoutExtension(currentThemeFile))
-                    : CustomThemeIndex;
-            }
+            int index = ThemeListIndex(themeService.CurrentThemeFile, builtInColorsChosen, LauncherPaths.ThemesDirectory,
+                themeNames);
 
             updatingThemeSelection = true;
             try
@@ -179,12 +195,43 @@ namespace Empire_Earth_Launcher
             uiLanguageHintKryptonLabel.Visible = language != languageAtStart;
         }
 
-        private static bool IsInThemesDirectory(string themeFile)
+        /// <summary>
+        /// The item of the theme list that shows the colors in use: the built-in colors while no theme file is applied or
+        /// after the player chose them for the next start, else the theme of the themes folder, else "Custom file..." (also
+        /// for a file of the themes folder that is not in the list). Never -1, so the list never shows nothing.
+        /// </summary>
+        /// <param name="appliedThemeFile"><see cref="IThemeService.CurrentThemeFile"/>.</param>
+        /// <param name="builtInColorsChosen">The player chose the built-in colors while a theme file was applied.</param>
+        /// <param name="themesDirectory">The launcher's themes folder.</param>
+        /// <param name="themeNames">The themes of the themes folder in the list, from <see cref="FirstThemeIndex"/> on.</param>
+        internal static int ThemeListIndex(string appliedThemeFile, bool builtInColorsChosen, string themesDirectory,
+            IList<string> themeNames)
         {
-            string directory = Path.GetDirectoryName(themeFile);
-            return directory != null && string.Equals(Path.GetFullPath(directory).TrimEnd(Path.DirectorySeparatorChar),
-                Path.GetFullPath(LauncherPaths.ThemesDirectory).TrimEnd(Path.DirectorySeparatorChar),
-                StringComparison.OrdinalIgnoreCase);
+            if (appliedThemeFile == null || builtInColorsChosen)
+                return BuiltInThemeIndex;
+            string folder = WinPath.GetParent(appliedThemeFile);
+            if (folder == null || !WinPath.IsSamePath(folder, themesDirectory))
+                return CustomThemeIndex;
+            string name = Path.GetFileNameWithoutExtension(WinPath.GetFileName(appliedThemeFile));
+            for (int i = 0; i < themeNames.Count; i++)
+            {
+                if (string.Equals(themeNames[i], name, StringComparison.OrdinalIgnoreCase))
+                    return FirstThemeIndex + i;
+            }
+            return CustomThemeIndex;
+        }
+
+        /// <summary>
+        /// Saves the built-in colors as the theme of the next start (<see cref="LauncherSettings.BuiltInThemeName"/>,
+        /// no custom file).
+        /// </summary>
+        /// <returns>True if a theme file is applied now: its colors stay until the next start, because the colors of the
+        /// designer cannot be restored in the open windows.</returns>
+        internal static bool ChooseBuiltInColors(LauncherSettings settings, string appliedThemeFile)
+        {
+            settings.ThemeName = LauncherSettings.BuiltInThemeName;
+            settings.CustomThemeFile = string.Empty;
+            return appliedThemeFile != null;
         }
 
         private void themeKryptonComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -192,7 +239,9 @@ namespace Empire_Earth_Launcher
             if (updatingThemeSelection || themeService == null || themeKryptonComboBox.SelectedIndex < 0)
                 return;
 
-            if (themeKryptonComboBox.SelectedIndex == CustomThemeIndex)
+            if (themeKryptonComboBox.SelectedIndex == BuiltInThemeIndex)
+                UseBuiltInColors();
+            else if (themeKryptonComboBox.SelectedIndex == CustomThemeIndex)
                 SelectCustomThemeFile();
             else
                 ApplyTheme((string)themeKryptonComboBox.SelectedItem);
@@ -211,9 +260,23 @@ namespace Empire_Earth_Launcher
             }
 
             // A failure to save is logged by the store; the theme stays applied for this session.
+            builtInColorsChosen = false;
             settings.Current.ThemeName = themeName;
             settings.Current.CustomThemeFile = string.Empty;
             settings.Save();
+        }
+
+        /// <summary>The built-in colors: used from the next start on if a theme file is applied now (the message says so).</summary>
+        private void UseBuiltInColors()
+        {
+            bool nextStart = ChooseBuiltInColors(settings.Current, themeService.CurrentThemeFile);
+            // A failure to save is logged by the store.
+            settings.Save();
+            if (!nextStart)
+                return;
+            builtInColorsChosen = true;
+            MessageBox.Show(this, Resources.ThemeBuiltInNextStart, Resources.LauncherTitle, MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
         }
 
         private void SelectCustomThemeFile()
@@ -233,6 +296,7 @@ namespace Empire_Earth_Launcher
                 return;
             }
 
+            builtInColorsChosen = false;
             settings.Current.CustomThemeFile = themeService.CurrentThemeFile;
             settings.Save();
         }

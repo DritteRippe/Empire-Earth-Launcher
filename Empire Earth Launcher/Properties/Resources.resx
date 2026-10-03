@@ -340,9 +340,17 @@ However you should be able to solve many problems with these options, but findin
     <value>Theme</value>
     <comment>Label of the theme list; at most about 8 characters.</comment>
   </data>
+  <data name="ThemeBuiltIn" xml:space="preserve">
+    <value>Built-in colors</value>
+    <comment>First item of the theme list: the colors built into the launcher, used while no theme file is applied; at most about 25 characters.</comment>
+  </data>
+  <data name="ThemeBuiltInNextStart" xml:space="preserve">
+    <value>The built-in colors are used when the launcher starts the next time.</value>
+    <comment>Message after the player chose the built-in colors while a theme file is applied (the colors of the open windows stay until then).</comment>
+  </data>
   <data name="ThemeCustom" xml:space="preserve">
     <value>Custom file...</value>
-    <comment>First item of the theme list: opens a theme file.</comment>
+    <comment>Second item of the theme list (after the built-in colors): opens a theme file.</comment>
   </data>
   <data name="GameDirectoryLabel" xml:space="preserve">
     <value>Empire Earth folder:</value>

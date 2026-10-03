@@ -216,6 +216,7 @@ namespace Empire_Earth_Launcher
             this.themeKryptonComboBox.DropDownWidth = 200;
             this.themeKryptonComboBox.IntegralHeight = false;
             this.themeKryptonComboBox.Items.AddRange(new object[] {
+            "Built-in colors",
             "Custom file..."});
             this.themeKryptonComboBox.Location = new System.Drawing.Point(168, 13);
             this.themeKryptonComboBox.Name = "themeKryptonComboBox";

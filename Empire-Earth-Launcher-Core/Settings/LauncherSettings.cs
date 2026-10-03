@@ -23,6 +23,13 @@ namespace Empire_Earth_Launcher.Core.Settings
         /// <summary>Theme used when none was chosen.</summary>
         public const string DefaultThemeName = "Light";
 
+        /// <summary>
+        /// <see cref="ThemeName"/> of the built-in colors chosen on the Launcher page: no theme file is applied, not even
+        /// <see cref="DefaultThemeName"/>. The angle brackets cannot be part of a file name on Windows, so no theme file of
+        /// the themes folder has this name.
+        /// </summary>
+        public const string BuiltInThemeName = "<built-in>";
+
         public LauncherSettings()
         {
             SetDefaults();
@@ -40,7 +47,7 @@ namespace Empire_Earth_Launcher.Core.Settings
         [DataMember(Order = 1)]
         public string GameDirectory { get; set; }
 
-        /// <summary>Theme of the launcher's themes folder.</summary>
+        /// <summary>Theme of the launcher's themes folder, or <see cref="BuiltInThemeName"/>.</summary>
         [DataMember(Order = 2)]
         public string ThemeName { get; set; }
 

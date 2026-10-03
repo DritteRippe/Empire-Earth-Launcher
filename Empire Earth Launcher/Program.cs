@@ -79,7 +79,7 @@ namespace Empire_Earth_Launcher
         private static void Run(LocalFileSystem fileSystem, SettingsStore settingsStore)
         {
             var themeService = new KryptonThemeService(logger, LauncherPaths.ThemesDirectory);
-            ApplySavedTheme(themeService, settingsStore.Current);
+            ApplySavedTheme(themeService, settingsStore.Current, logger);
 
             // Every change of the registry passes the write policy (ADR 0007): the values of the contract tables, the
             // program paths and, from Windows 8 on and outside Wine, the compatibility entries of contract 3.7. The
@@ -288,9 +288,10 @@ namespace Empire_Earth_Launcher
 
         /// <summary>
         /// Applies the theme the user selected last time (a custom theme file or a theme of the themes
-        /// folder); if it cannot be loaded, the default theme. Problems are logged, never fatal.
+        /// folder); if it cannot be loaded, the default theme. The built-in colors chosen on the Launcher page
+        /// (<see cref="LauncherSettings.BuiltInThemeName"/>) apply nothing. Problems are logged, never fatal.
         /// </summary>
-        private static void ApplySavedTheme(IThemeService themeService, LauncherSettings settings)
+        internal static void ApplySavedTheme(IThemeService themeService, LauncherSettings settings, ILogger log)
         {
             const string DefaultThemeName = LauncherSettings.DefaultThemeName;
             string themeName = settings.ThemeName;
@@ -299,13 +300,19 @@ namespace Empire_Earth_Launcher
             if (!string.IsNullOrEmpty(customThemeFile) && themeService.ApplyThemeFile(customThemeFile))
                 return;
 
+            if (themeName == LauncherSettings.BuiltInThemeName)
+            {
+                log.Info("The built-in colors are used (launcher setting).");
+                return;
+            }
+
             // No theme files are shipped yet (see README). A missing default theme is the normal case then, not
             // a problem worth a warning on every start: the designer colors are used.
             bool defaultThemeInstalled = themeService.GetAvailableThemeNames()
                 .Contains(DefaultThemeName, StringComparer.OrdinalIgnoreCase);
             if (string.Equals(themeName, DefaultThemeName, StringComparison.OrdinalIgnoreCase) && !defaultThemeInstalled)
             {
-                logger.Info("The default theme \"" + DefaultThemeName + "\" is not installed, the built-in colors are used.");
+                log.Info("The default theme \"" + DefaultThemeName + "\" is not installed, the built-in colors are used.");
                 return;
             }
 

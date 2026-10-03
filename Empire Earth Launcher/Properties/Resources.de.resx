@@ -257,6 +257,12 @@ Mit diesen Optionen lassen sich viele Probleme lösen, die richtige Kombination 
   <data name="ThemeLabel" xml:space="preserve">
     <value>Design</value>
   </data>
+  <data name="ThemeBuiltIn" xml:space="preserve">
+    <value>Eingebaute Farben</value>
+  </data>
+  <data name="ThemeBuiltInNextStart" xml:space="preserve">
+    <value>Die eingebauten Farben gelten ab dem nächsten Start des Launchers.</value>
+  </data>
   <data name="ThemeCustom" xml:space="preserve">
     <value>Eigene Datei...</value>
   </data>

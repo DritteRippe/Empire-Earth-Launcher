@@ -257,6 +257,12 @@ Ces options permettent de résoudre de nombreux problèmes, mais trouver la bonn
   <data name="ThemeLabel" xml:space="preserve">
     <value>Thème</value>
   </data>
+  <data name="ThemeBuiltIn" xml:space="preserve">
+    <value>Couleurs intégrées</value>
+  </data>
+  <data name="ThemeBuiltInNextStart" xml:space="preserve">
+    <value>Les couleurs intégrées seront utilisées au prochain démarrage du launcher.</value>
+  </data>
   <data name="ThemeCustom" xml:space="preserve">
     <value>Fichier personnalisé...</value>
   </data>

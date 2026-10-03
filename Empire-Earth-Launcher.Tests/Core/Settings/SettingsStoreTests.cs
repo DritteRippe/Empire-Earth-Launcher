@@ -95,6 +95,16 @@ namespace Empire_Earth_Launcher.Tests.Core.Settings
         }
 
         [Test]
+        public void TheBuiltInColors_AreSavedAndLoaded()
+        {
+            store.Current.ThemeName = LauncherSettings.BuiltInThemeName;
+            Assert.That(store.Save(), Is.EqualTo(SettingsSaveStatus.Saved));
+
+            Assert.That(new SettingsStore(fileSystem, File, logger).LoadAndGet().ThemeName,
+                Is.EqualTo(LauncherSettings.BuiltInThemeName));
+        }
+
+        [Test]
         public void OlderDamagedCopy_IsReplaced()
         {
             fileSystem.AddFile(DamagedFile, "old copy");

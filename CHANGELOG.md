@@ -594,6 +594,15 @@ section 15); all of them are done, newest first below. It has not been released;
   category `WinForms` (controls painted into a bitmap, never shown; under Mono with `xvfb-run`): `LauncherWrapLabelTests`,
   `WrapLabelPaintTests` (every page; under Mono only the *Game settings* page, the others need Windows) and
   `WrapLabelRulesTests`; test plan WP6-16 and WP6-17.
+- The list "Theme" of the *Launcher* page no longer shows nothing while no theme file is applied, which is the normal
+  case because no theme files are shipped yet (bug report of 2026-10-03: an empty "Design" list next to the log line
+  `The default theme "Light" is not installed, the built-in colors are used.`). Its first item is now "Built-in colors"
+  (en/de/fr, `ThemeBuiltIn`), selected while no theme file is applied; "Custom file..." moved to the second place. Chosen
+  while a theme file is applied, the built-in colors are saved as `"ThemeName": "<built-in>"` and used from the next
+  start on (`ThemeBuiltInNextStart` says so; the colors of the designer cannot be restored in open windows); the start
+  then applies no theme, not even the default theme, unless a custom theme file was chosen later. A theme file that is
+  applied but not in the list shows as "Custom file..." instead of nothing. Tests: `ThemeChoiceTests`,
+  `SettingsStoreTests`.
 - Buttons and check boxes that the page disabled while their action ran stay disabled afterwards (build/UI review):
   `UiOperation.Run` takes the page's state logic as `restore` and applies it after enabling the trigger again, so the
   delete button of the registry cleanup is no longer enabled next to "Nothing to clean up" after the last key was

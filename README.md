@@ -604,8 +604,9 @@ packages/                         NuGet packages, restored on build (not committ
   `en`, `de` or `fr`), used from the next start on. Only the texts change; numbers and dates keep the Windows
   format. The log names the language in use.
 - **Themes**: Krypton palette files (`*.xml`) in the `themes` folder next to the executable, or any file chosen
-  with *Custom*. No theme files are shipped yet; without them the designer colors are used (a missing default
-  theme `Light` is only logged as information).
+  with *Custom file...*. No theme files are shipped yet; without them the designer colors are used, shown as *Built-in
+  colors*, the first item of the list (a missing default theme `Light` is only logged as information). Choosing
+  *Built-in colors* while a theme file is applied saves `"ThemeName": "<built-in>"` and takes effect at the next start.
 - **Log**: `%LOCALAPPDATA%\Empire Earth Launcher\log.txt` (the installation folder may be read-only). English
   messages with ISO time stamps; it never contains CD-key values, WON login data or the names the name check finds
   (ADR 0013), and the lines of the network check follow the privacy rules of the report (no MAC address, adapter
