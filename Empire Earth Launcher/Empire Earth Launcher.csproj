@@ -98,6 +98,9 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="KryptonThemeService.cs" />
+    <Compile Include="LauncherWrapLabel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="RepairAdviceDialog.cs" />
     <Compile Include="Texts.cs" />
     <Compile Include="ToolsUserControl.cs">

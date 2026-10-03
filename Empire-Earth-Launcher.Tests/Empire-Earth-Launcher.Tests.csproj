@@ -41,6 +41,9 @@
     <StartupObject>Empire_Earth_Launcher.Tests.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Krypton.Toolkit, Version=5.550.2108.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Krypton.Toolkit.5.550.2108.1\lib\net48\Krypton.Toolkit.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework, Version=3.14.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.14.0\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
@@ -53,6 +56,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
@@ -73,6 +77,7 @@
     <Compile Include="Architecture\TestPlanTests.cs" />
     <Compile Include="Architecture\TlsSettingTests.cs" />
     <Compile Include="Architecture\UiOperationRestoreTests.cs" />
+    <Compile Include="Architecture\WrapLabelRulesTests.cs" />
     <Compile Include="Core\Backup\BackupLocationsTests.cs" />
     <Compile Include="Core\Backup\FileBackupTests.cs" />
     <Compile Include="Core\Backup\RegFileWriterTests.cs" />
@@ -168,6 +173,7 @@
     <Compile Include="Launcher\DiagnosticsModelTests.cs" />
     <Compile Include="Launcher\GameSettingsModelTests.cs" />
     <Compile Include="Launcher\InstallationServiceTests.cs" />
+    <Compile Include="Launcher\LauncherWrapLabelTests.cs" />
     <Compile Include="Launcher\IntegrityModelTests.cs" />
     <Compile Include="Launcher\MaintenanceModelTests.cs" />
     <Compile Include="Launcher\MaintenanceTextsTests.cs" />
@@ -179,6 +185,7 @@
     <Compile Include="Launcher\UiOperationTests.cs" />
     <Compile Include="Launcher\UnexpectedErrorTests.cs" />
     <Compile Include="Launcher\UpdateModelTests.cs" />
+    <Compile Include="Launcher\WrapLabelPaintTests.cs" />
     <Compile Include="Mod\ModArchiveTests.cs" />
     <Compile Include="Mod\ModAssetsTests.cs" />
     <Compile Include="Mod\ModDataTests.cs" />
@@ -200,6 +207,7 @@
     <Compile Include="TestSupport\SampleHashes.cs" />
     <Compile Include="TestSupport\TemporaryDirectory.cs" />
     <Compile Include="TestSupport\TestCategories.cs" />
+    <Compile Include="TestSupport\WinForms.cs" />
     <Compile Include="Won\DeadlineStreamTests.cs" />
     <Compile Include="Won\LobbyFileBuilder.cs" />
     <Compile Include="Won\LobbyPersistentDataTests.cs" />

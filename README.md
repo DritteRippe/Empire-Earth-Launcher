@@ -286,8 +286,11 @@ page, process starter, process list, file versions, an HTTPS client that answers
 name lookups from a table; `TestSupport/` also has `MappedFileSystem`, the real file system behind a drive letter that
 stands for a temporary folder) and
 only write below the temporary folder; they never contact a server, never touch the real registry or
-`%LOCALAPPDATA%` and never show UI. Path logic is `WinPath` string logic, so every
-test also runs under Mono; no test is skipped. The core, the launcher and the WON library make their internal helpers
+`%LOCALAPPDATA%` and never show UI. Path logic is `WinPath` string logic, so the tests also run under Mono. The tests
+of the category `WinForms` create controls and pages without showing them and paint them into a bitmap (the wrapping
+labels after the palette disposed its fonts); under Mono they need a display (`xvfb-run -a mono ...`, without one they
+are ignored), and the pages whose Krypton controls call Windows libraries, as well as the check of `KryptonWrapLabel`
+on .NET Framework, run only on Windows (CI, `Tests\` of the laptop package). The core, the launcher and the WON library make their internal helpers
 visible to the test assembly (`InternalsVisibleTo`).
 
 **Real machine**: `Empire-Earth-Launcher.RealMachineTests` is a second NUnitLite program, for the end-to-end workflow of
@@ -484,6 +487,7 @@ Empire Earth Launcher/            The launcher (WinForms + Krypton UI)
 ├─ ToolsUserControl.cs            The Tools page (integrity, repair advice, version check, maintenance tools, network,
 │                                 report)
 ├─ RepairAdviceDialog.cs          The repair advice window (built in code, wraps every language)
+├─ LauncherWrapLabel.cs           Every wrapping text: palette font as a copy no palette can dispose, never a red X
 └─ Resources/                     Images and icon used by the UI
 Empire-Earth-WON/                 WON/NeoEE library, no UI (used by the launcher)
 ├─ NeoApiClient.cs                Client for the NeoEE lobby server

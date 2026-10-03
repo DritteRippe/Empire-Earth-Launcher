@@ -37,7 +37,7 @@ namespace Empire_Earth_Launcher
         private readonly Dictionary<Control, bool> shown = new Dictionary<Control, bool>();
 
         /// <summary>The check box and text of each hint, created for the findings shown.</summary>
-        private readonly List<Tuple<KryptonCheckBox, KryptonWrapLabel>> hintRows = new List<Tuple<KryptonCheckBox, KryptonWrapLabel>>();
+        private readonly List<Tuple<KryptonCheckBox, LauncherWrapLabel>> hintRows = new List<Tuple<KryptonCheckBox, LauncherWrapLabel>>();
 
         private IThemeService themeService;
         private GameSettingsModel model;
@@ -238,10 +238,9 @@ namespace Empire_Earth_Launcher
                     bool hidden = !((KryptonCheckBox)sender).Checked;
                     BeginInvoke(new Action(() => model.SetHidden(current, hidden)));
                 };
-                var label = new KryptonWrapLabel
+                var label = new LauncherWrapLabel
                 {
                     AutoSize = false,
-                    Font = defaultsStatusKryptonWrapLabel.Font,
                     LabelStyle = LabelStyle.NormalControl,
                     Palette = launcherKryptonPalette,
                     PaletteMode = PaletteMode.Custom,
@@ -320,8 +319,8 @@ namespace Empire_Earth_Launcher
             {
                 if (!IsShown(control))
                     return;
-                if (control is KryptonWrapLabel label)
-                    label.Height = TextHeight(label, label.Width);
+                if (control is LauncherWrapLabel label)
+                    label.Height = TextHeight(label);
                 control.Top = y + scroll;
                 y += control.Height + Gap;
             }
@@ -357,7 +356,7 @@ namespace Empire_Earth_Launcher
             Place(hintsNoneKryptonLabel);
             foreach (var row in hintRows)
             {
-                row.Item2.Height = TextHeight(row.Item2, row.Item2.Width);
+                row.Item2.Height = TextHeight(row.Item2);
                 row.Item1.Top = y + scroll;
                 row.Item2.Top = y + scroll;
                 y += Math.Max(row.Item1.Height, row.Item2.Height) + Gap;
@@ -381,17 +380,10 @@ namespace Empire_Earth_Launcher
             gameSettingsScrollPanel.ResumeLayout(true);
         }
 
-        /// <summary>
-        /// The height of a wrapping label for its text at <paramref name="width"/>: GDI+ text, as the launcher draws it
-        /// (compatible text rendering), measured at 96 DPI like the DPI-unaware launcher, without creating a window handle.
-        /// </summary>
-        private static int TextHeight(Control label, int width)
+        /// <summary>The height of a wrapping label for its text at its width (<see cref="LauncherWrapLabel.TextHeight"/>), at least 20.</summary>
+        private static int TextHeight(LauncherWrapLabel label)
         {
-            if (string.IsNullOrEmpty(label.Text))
-                return 20;
-            using (var bitmap = new Bitmap(1, 1))
-            using (Graphics graphics = Graphics.FromImage(bitmap))
-                return (int)Math.Ceiling(graphics.MeasureString(label.Text, label.Font, width).Height) + 6;
+            return Math.Max(20, label.TextHeight(label.Width));
         }
 
         // --- Actions ------------------------------------------------------------------------------------------------

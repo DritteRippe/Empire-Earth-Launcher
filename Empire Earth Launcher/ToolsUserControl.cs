@@ -328,8 +328,8 @@ namespace Empire_Earth_Launcher
             {
                 if (!IsShown(control))
                     return;
-                if (control is KryptonWrapLabel label)
-                    label.Height = TextHeight(label, label.Width);
+                if (control is LauncherWrapLabel label)
+                    label.Height = label.TextHeight(label.Width);
                 control.Top = y + scroll;
                 y += control.Height + Gap;
             }
@@ -414,19 +414,6 @@ namespace Empire_Earth_Launcher
             Place(reportResultKryptonWrapLabel);
             Place(reportKryptonTextBox);
             toolsScrollPanel.ResumeLayout(true);
-        }
-
-        /// <summary>
-        /// The height of a wrapping label for its text at <paramref name="width"/>: GDI+ text, as the launcher draws it
-        /// (compatible text rendering), measured at 96 DPI like the DPI-unaware launcher, without creating a window handle.
-        /// </summary>
-        private static int TextHeight(Control label, int width)
-        {
-            if (string.IsNullOrEmpty(label.Text))
-                return 0;
-            using (var bitmap = new Bitmap(1, 1))
-            using (Graphics graphics = Graphics.FromImage(bitmap))
-                return (int)Math.Ceiling(graphics.MeasureString(label.Text, label.Font, width).Height) + 6;
         }
 
         // --- Actions ------------------------------------------------------------------------------------------------

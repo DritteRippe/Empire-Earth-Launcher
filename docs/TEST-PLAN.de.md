@@ -350,6 +350,8 @@ Texte.
 | WP6-13 | Launcher starten und offen lassen; noch einmal `Empire Earth Launcher.exe` starten (auch aus einer Kopie des Ordners). | Meldung „Der Empire Earth Launcher läuft bereits. Bitte verwenden Sie das geöffnete Fenster …“, danach endet der zweite Start; es bleibt ein Launcher-Fenster. `log.txt`: `Another Empire Earth Launcher is already running (mutex EmpireEarthCommunityLauncher); this one ends.` |
 | WP6-14 | Seite *Spielen* (mit Versionen, Statuszeile, Rückfrage aus WP6-08) und das Fenster aus WP6-10 auf Deutsch, Englisch und Französisch, je bei 100 % und 150 %; Screenshots. | Texte vollständig lesbar, nichts abgeschnitten; das Reparaturfenster wächst mit dem Text. Deutsche Texte gegenlesen wie in WP3-03. |
 | WP6-15 | Nach allen Fällen `log.txt` durchsehen. | Keine `Unhandled exception`, keine `A background task failed`, keine `A handler of the online player list failed`; jeder Start hat eine Zeile `Game started:` oder `Game start refused:`. |
+| WP6-16 | Fehlerbericht vom 03.10.2026 (rote X auf der Seite *Spielen*), ohne Spiel nachgestellt: Launcher auf der Seite *Spielen* offen lassen; in Windows eine Einstellung ändern und wieder zurückstellen, z. B. Einstellungen → Personalisierung → Taskleiste → „Taskleiste automatisch ausblenden“ an und aus (oder die Akzentfarbe, oder Hell/Dunkel). Danach die Seiten *Spielen*, *Einstellungen*, *Werkzeuge* und *Launcher* ansehen; auf *Einstellungen* „Bestätigen“ klicken. | Kein Fehlerdialog „Ein unerwarteter Fehler ist aufgetreten …“, nirgends ein rotes Kreuz (rotes X auf weißem Grund); die Zeilen der Gruppe „Spiel“ (Versionen, Versionsprüfung, Integrität, Statuszeile) und alle Texte der anderen Seiten sind lesbar und so groß wie vorher. `log.txt`: keine `Unhandled exception` und keine Warnung `The text … could not be drawn with its font …` (erscheint sie doch, die Zeile mit der Ausnahme notieren: der Text wurde dann mit der Standardschrift gezeichnet, kein Absturz, aber ein anderer Grund als der bekannte). |
+| WP6-17 | Fehlerbericht vom 03.10.2026 wie beschrieben: Empire Earth über den Launcher im Vollbild starten (am besten mit einer Spielauflösung, die von der des Bildschirms abweicht, z. B. 1920×1080 auf 2560×1440), im Hauptmenü mit Alt+Tab zum Launcher zurück, eine Minute warten, zurück ins Spiel, das Spiel beenden. | Die Seite *Spielen* zeigt ihre vier Statuszeilen, kein Fehlerdialog, kein rotes Kreuz – während das Spiel läuft und nach dem Beenden. `log.txt` wie in WP6-16. |
 
 ### L-WP7 – Integrität und Reparatur (Vertrag 2 und 4)
 
@@ -520,7 +522,7 @@ existiert, kein „offen“ mehr, und jede Zeile „Setup:“ oder „entfällt:
 |---|---|---|
 | R1 | Standardwerte pro Benutzer, auch für andere Konten | WP5-01, WP5-02, WP5-03, WP5-04 |
 | R2 | Integritätsmanifest | WP7-01, WP7-02, WP7-03, WP7-04, WP7-05, WP7-06, WP7-07, WP7-08, WP7-09, WP7-13; Setup: TP-50 (das Setup schreibt das Manifest) |
-| R3 | Spielen, laufende Instanzen, Kompatibilitätsoptionen | WP5-12, WP5-13, WP5-14, WP6-01, WP6-03, WP6-07, WP6-08, WP6-09, WP6-15 |
+| R3 | Spielen, laufende Instanzen, Kompatibilitätsoptionen | WP5-12, WP5-13, WP5-14, WP6-01, WP6-03, WP6-07, WP6-08, WP6-09, WP6-15, WP6-16, WP6-17 |
 | R4 | Spieleinstellungen zurücksetzen mit `.reg`-Sicherung | WP5-08, WP5-09, WP5-10, WP5-11 |
 | R5 | Registry-Bereinigung | WP8-01, WP8-02, WP8-03, WP8-04, WP8-05, WP8-13, WP8-17, WP8-18 |
 | R6 | WON-Login zurücksetzen | WP8-06, WP8-07, WP8-14 |

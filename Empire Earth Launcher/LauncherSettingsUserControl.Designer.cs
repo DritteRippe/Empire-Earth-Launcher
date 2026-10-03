@@ -50,7 +50,7 @@ namespace Empire_Earth_Launcher
             this.installationGameFolderColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.installationKindColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.installationStateColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.installationsHintKryptonWrapLabel = new Krypton.Toolkit.KryptonWrapLabel();
+            this.installationsHintKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             ((System.ComponentModel.ISupportInitialize)(this.launcherSettingsKryptonGroupBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.launcherSettingsKryptonGroupBox.Panel)).BeginInit();
             this.launcherSettingsKryptonGroupBox.Panel.SuspendLayout();
@@ -386,6 +386,6 @@ namespace Empire_Earth_Launcher
         private System.Windows.Forms.DataGridViewTextBoxColumn installationGameFolderColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn installationKindColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn installationStateColumn;
-        private Krypton.Toolkit.KryptonWrapLabel installationsHintKryptonWrapLabel;
+        private Empire_Earth_Launcher.LauncherWrapLabel installationsHintKryptonWrapLabel;
     }
 }

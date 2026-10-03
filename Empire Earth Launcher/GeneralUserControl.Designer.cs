@@ -40,17 +40,17 @@ namespace Empire_Earth_Launcher
             this.gameSettingsKryptonGroupBox = new Krypton.Toolkit.KryptonGroupBox();
             this.artOfConquestKryptonRadioButton = new Krypton.Toolkit.KryptonRadioButton();
             this.empireEarthKryptonRadioButton = new Krypton.Toolkit.KryptonRadioButton();
-            this.programVersionsKryptonWrapLabel = new Krypton.Toolkit.KryptonWrapLabel();
-            this.playStatusKryptonWrapLabel = new Krypton.Toolkit.KryptonWrapLabel();
-            this.versionResultKryptonWrapLabel = new Krypton.Toolkit.KryptonWrapLabel();
-            this.integrityKryptonWrapLabel = new Krypton.Toolkit.KryptonWrapLabel();
+            this.programVersionsKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
+            this.playStatusKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
+            this.versionResultKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
+            this.integrityKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             this.versionCheckKryptonButton = new Krypton.Toolkit.KryptonButton();
             this.integrityKryptonButton = new Krypton.Toolkit.KryptonButton();
             this.onlinePlayersKryptonDataGridView = new Krypton.Toolkit.KryptonDataGridView();
             this.usernameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.stateColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.gameSettingsHintKryptonPanel = new Krypton.Toolkit.KryptonPanel();
-            this.gameSettingsHintKryptonWrapLabel = new Krypton.Toolkit.KryptonWrapLabel();
+            this.gameSettingsHintKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             this.gameSettingsHintFirstKryptonButton = new Krypton.Toolkit.KryptonButton();
             this.gameSettingsHintSecondKryptonButton = new Krypton.Toolkit.KryptonButton();
             ((System.ComponentModel.ISupportInitialize)(this.neoOnlineKryptonGroupBox)).BeginInit();
@@ -477,10 +477,10 @@ namespace Empire_Earth_Launcher
         private Krypton.Toolkit.KryptonGroupBox gameSettingsKryptonGroupBox;
         private Krypton.Toolkit.KryptonRadioButton artOfConquestKryptonRadioButton;
         private Krypton.Toolkit.KryptonRadioButton empireEarthKryptonRadioButton;
-        private Krypton.Toolkit.KryptonWrapLabel programVersionsKryptonWrapLabel;
-        private Krypton.Toolkit.KryptonWrapLabel playStatusKryptonWrapLabel;
-        private Krypton.Toolkit.KryptonWrapLabel versionResultKryptonWrapLabel;
-        private Krypton.Toolkit.KryptonWrapLabel integrityKryptonWrapLabel;
+        private Empire_Earth_Launcher.LauncherWrapLabel programVersionsKryptonWrapLabel;
+        private Empire_Earth_Launcher.LauncherWrapLabel playStatusKryptonWrapLabel;
+        private Empire_Earth_Launcher.LauncherWrapLabel versionResultKryptonWrapLabel;
+        private Empire_Earth_Launcher.LauncherWrapLabel integrityKryptonWrapLabel;
         private Krypton.Toolkit.KryptonButton versionCheckKryptonButton;
         private Krypton.Toolkit.KryptonButton integrityKryptonButton;
         private Krypton.Toolkit.KryptonLinkLabel networkCheckKryptonLinkLabel;
@@ -490,7 +490,7 @@ namespace Empire_Earth_Launcher
         private System.Windows.Forms.DataGridViewTextBoxColumn usernameColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn stateColumn;
         private Krypton.Toolkit.KryptonPanel gameSettingsHintKryptonPanel;
-        private Krypton.Toolkit.KryptonWrapLabel gameSettingsHintKryptonWrapLabel;
+        private Empire_Earth_Launcher.LauncherWrapLabel gameSettingsHintKryptonWrapLabel;
         private Krypton.Toolkit.KryptonButton gameSettingsHintFirstKryptonButton;
         private Krypton.Toolkit.KryptonButton gameSettingsHintSecondKryptonButton;
     }

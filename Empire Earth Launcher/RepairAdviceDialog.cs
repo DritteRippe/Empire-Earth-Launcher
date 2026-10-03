@@ -35,11 +35,11 @@ namespace Empire_Earth_Launcher
 
         private readonly KryptonPalette launcherKryptonPalette = new KryptonPalette();
         private readonly TableLayoutPanel layoutPanel = new TableLayoutPanel();
-        private readonly KryptonWrapLabel adviceKryptonWrapLabel = new KryptonWrapLabel();
-        private readonly KryptonWrapLabel pageKryptonWrapLabel = new KryptonWrapLabel();
+        private readonly LauncherWrapLabel adviceKryptonWrapLabel = new LauncherWrapLabel();
+        private readonly LauncherWrapLabel pageKryptonWrapLabel = new LauncherWrapLabel();
         private readonly KryptonTextBox pageKryptonTextBox = new KryptonTextBox();
-        private readonly KryptonWrapLabel fallbackKryptonWrapLabel = new KryptonWrapLabel();
-        private readonly KryptonWrapLabel resultKryptonWrapLabel = new KryptonWrapLabel();
+        private readonly LauncherWrapLabel fallbackKryptonWrapLabel = new LauncherWrapLabel();
+        private readonly LauncherWrapLabel resultKryptonWrapLabel = new LauncherWrapLabel();
         private readonly FlowLayoutPanel buttonsPanel = new FlowLayoutPanel();
         private readonly KryptonButton openPageKryptonButton = new KryptonButton();
         private readonly KryptonButton closeKryptonButton = new KryptonButton();
@@ -96,7 +96,7 @@ namespace Empire_Earth_Launcher
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
             Padding = new Padding(12);
 
-            foreach (KryptonWrapLabel label in new[]
+            foreach (LauncherWrapLabel label in new[]
                      { adviceKryptonWrapLabel, pageKryptonWrapLabel, fallbackKryptonWrapLabel, resultKryptonWrapLabel })
             {
                 label.AutoSize = true;

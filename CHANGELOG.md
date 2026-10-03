@@ -579,6 +579,21 @@ section 15); all of them are done, newest first below. It has not been released;
 
 ### Fixed
 
+- Wrapping texts no longer turn into a red X after a setting of Windows changed (bug report of 2026-10-03: the four
+  status lines of the *Play* page and the error dialog "Ungültiger Parameter" while Empire Earth ran in full screen). On
+  every setting change (`WM_SETTINGCHANGE`, which Windows also sends when a full-screen game changes the display mode)
+  Krypton's palettes dispose the fonts they handed out and create new ones with the same values. `KryptonWrapLabel` kept
+  the disposed font, because `Control.Font` ignores a font that is equal in value; its paint threw `ArgumentException` in
+  `Graphics.DrawString`, and WinForms drew a red X instead of the label until the launcher was restarted. Every wrapping
+  text (the *Play*, *Game settings*, *Tools* and *Launcher* pages and the repair advice) is now a `LauncherWrapLabel`,
+  which draws with a copy of the palette font that it owns, so that neither the paint nor the page layouts (which
+  measured the texts with the label's font) can meet a disposed font. Should drawing fail anyway, the label draws its
+  text with the default font of WinForms and logs the first failure (`The text … could not be drawn with its font …`)
+  instead of showing a red X. The labels now use the label style the designer gives them (`NormalControl`;
+  `KryptonWrapLabel` ignored it and used `NormalPanel`, which looks the same with the launcher's colors). Tests: the new
+  category `WinForms` (controls painted into a bitmap, never shown; under Mono with `xvfb-run`): `LauncherWrapLabelTests`,
+  `WrapLabelPaintTests` (every page; under Mono only the *Game settings* page, the others need Windows) and
+  `WrapLabelRulesTests`; test plan WP6-16 and WP6-17.
 - Buttons and check boxes that the page disabled while their action ran stay disabled afterwards (build/UI review):
   `UiOperation.Run` takes the page's state logic as `restore` and applies it after enabling the trigger again, so the
   delete button of the registry cleanup is no longer enabled next to "Nothing to clean up" after the last key was

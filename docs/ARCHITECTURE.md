@@ -108,7 +108,8 @@ Empire-Earth.sln
 │                                         maintenance tools, L-WP8), CleanupView (what the registry cleanup
 │                                         shows), DiagnosticsModel (network check and report, L-WP9),
 │                                         ToolsUserControl (the Tools page), RepairAdviceDialog,
-│                                         KryptonThemeService, app.manifest
+│                                         LauncherWrapLabel (wrapping text with a copy of the palette
+│                                         font, never a red X), KryptonThemeService, app.manifest
 ├─ Empire-Earth-Launcher.Tests/           one NUnitLite program: Core/, Launcher/, Won/, Mod/,
 │                                         Architecture/ (dependency, project and resource rules),
 │                                         Fakes/ (in-memory registry and file system, fake HTTP, network
@@ -695,9 +696,11 @@ Decided in [ADR 0012](adr/0012-test-strategy.md):
 - **Windows adapters** (registry, mutex, shell execute, display, HTTP) are thin and checked on real Windows
   by the German test plan `docs/TEST-PLAN.de.md`; the UI is tested manually with it. The test plan is created
   in the first work package and every package adds its cases in the same commit.
-- Tests never use the network, the real registry, the real `%LOCALAPPDATA%` or UI (the real-machine checks read the
+- Tests never use the network, the real registry, the real `%LOCALAPPDATA%` or show UI (the real-machine checks read the
   real registry and the installation, and write HKCU game settings, only on a GitHub-hosted runner of the setup
-  repository's end-to-end workflow).
+  repository's end-to-end workflow). The tests of the category `WinForms` create controls and pages without showing them
+  and paint them into a bitmap; under Mono they need a display (`xvfb-run`), and pages whose Krypton controls call
+  Windows libraries run only on Windows ([ADR 0012](adr/0012-test-strategy.md) amendment of 2026-10-03).
 - **Plan review additions** ([ADR 0012](adr/0012-test-strategy.md) amendment): fixtures are synthetic only
   (`FixtureProvenanceTests`); `docs/contract-samples/` holds byte samples of `install.ini`, `files.sha256` and the
   record, shared with the setup repository; the tests run on the laptop too (`Tests\` in the laptop package,

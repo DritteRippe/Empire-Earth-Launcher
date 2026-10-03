@@ -281,3 +281,23 @@ The launcher's part of that job is to run its core against the real installation
   rewritten.
 - **Not covered** and still for a real Windows client (the test plan): the UI, a second Windows account, game starts,
   Windows 7 to 11 clients, scaling and the network; the runner is Windows Server without a GPU.
+
+## Amendment 2026-10-03 (WinForms tests, bug report of the red X)
+
+- **Category `WinForms`.** The bug report of 2026-10-03 (red X instead of the status lines of the *Play* page after a
+  Windows setting change) was a failure of a control's paint, which no test reached. Tests of the new category create
+  WinForms and Krypton controls and pages without showing them and call their `OnPaint` with the graphics of a bitmap, as
+  WinForms does for `WM_PAINT` (`TestSupport/WinForms`); an exception there is what makes WinForms draw the red X. No
+  window is shown and no message loop runs, so "the tests show no UI" still holds.
+- **Where they run.** In CI (Windows), from the `Tests\` folder of the laptop package (they are not `SourceTree`) and with
+  the local verify and release scripts, which run the test programs under `xvfb-run` because WinForms on Mono needs a
+  display; without one the tests are ignored. Under Mono the pages whose Krypton controls call Windows libraries
+  (`uxtheme.dll`, GDI, `user32.dll`) cannot be created, so their cases are ignored there and run on Windows; the *Game
+  settings* page and the tests of the label itself run everywhere. The case that documents the cause on .NET Framework
+  (`KryptonWrapLabel` keeps the font the palette disposed) is excluded on Mono, whose `Control.Font` takes every new font.
+- **What they check.** `LauncherWrapLabelTests` (a private palette instance whose fonts are renewed through the public
+  `BaseFontSize`, a palette font disposed later or already disposed, a disposed font set from outside, a failing paint
+  with its fallback and its one report, the measuring of the page layouts), `WrapLabelPaintTests` (every wrapping label
+  of every page after the global palette renewed its fonts and after the page palette's font was disposed; each must
+  draw with its own font, not with the fallback) and `WrapLabelRulesTests` (no `KryptonWrapLabel` and no text measured
+  with another control's font in the sources).

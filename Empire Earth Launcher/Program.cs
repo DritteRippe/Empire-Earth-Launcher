@@ -51,6 +51,10 @@ namespace Empire_Earth_Launcher
             logger.Info("Starting Empire Earth Launcher v" + Application.ProductVersion);
             // A failed task whose exception nobody awaited would otherwise vanish silently (ADR 0004).
             TaskScheduler.UnobservedTaskException += (sender, e) => LogUnobservedTaskException(logger, e);
+            // A wrapping text that could not be drawn with its font is drawn with the default font instead of a red X; the first
+            // failure of each label is logged, so that a cause other than a disposed font shows up (bug report of 2026-10-03).
+            LauncherWrapLabel.PaintFailureReporter = (name, exception) => logger.Warning(
+                "The text " + name + " could not be drawn with its font and was drawn with the default font.", exception);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(true);
 
