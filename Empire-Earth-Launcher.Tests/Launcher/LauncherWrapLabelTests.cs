@@ -123,7 +123,8 @@ namespace Empire_Earth_Launcher.Tests.Launcher
         [Test]
         public void ThePaletteFontIsDisposedLater_TheLabelStillPaints()
         {
-            var font = new Font(FontFamily.GenericSansSerif, 11f);
+            // A size no palette of Windows or Mono uses, so that the label really takes this font's values.
+            var font = new Font(FontFamily.GenericSansSerif, 13f);
             palette.LabelStyles.LabelNormalControl.StateCommon.ShortText.Font = font;
             LauncherWrapLabel label = CreateLabel();
             AssertPaints(label);
@@ -131,7 +132,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             font.Dispose();
 
             AssertPaints(label);
-            Assert.That(label.Font.Size, Is.EqualTo(11f));
+            Assert.That(label.Font.Size, Is.EqualTo(13f));
         }
 
         [Test]
