@@ -22,6 +22,12 @@ namespace Empire_Earth_Launcher.Tests.Architecture
     {
         private const string TestProjectFolder = "Empire-Earth-Launcher.Tests";
 
+        /// <summary>
+        /// The reason of the rule for <c>new WindowsRegistry(</c>: the one rule <c>RealMachineTestRulesTests</c> lifts for the one
+        /// composition file of the real-machine harness, which is a program of its own, not part of this test program.
+        /// </summary>
+        internal const string RealRegistryAdapter = "the real registry adapter";
+
         /// <summary>A forbidden use, with the reason shown when a source line matches it.</summary>
         private sealed class Rule
         {
@@ -43,7 +49,7 @@ namespace Empire_Earth_Launcher.Tests.Architecture
 
         private static readonly Rule[] Rules =
         {
-            new Rule("the real registry adapter", @"\bnew\s+WindowsRegistry\s*\("),
+            new Rule(RealRegistryAdapter, @"\bnew\s+WindowsRegistry\s*\("),
             new Rule("Microsoft.Win32.Registry directly",
                 @"(?<![\w.])(Microsoft\.Win32\.)?Registry\s*\.\s*(CurrentUser|LocalMachine|ClassesRoot|Users|CurrentConfig|PerformanceData|GetValue|SetValue)\b"),
             new Rule("a real registry key", @"\b(RegistryKey|OpenBaseKey|OpenRemoteBaseKey|RegLoadAppKey)\b"),
@@ -57,8 +63,11 @@ namespace Empire_Earth_Launcher.Tests.Architecture
             new Rule("a file of the launcher's real folder", @"\bnew\s+\w+\s*\([^;]*\bLauncherPaths\s*\.\s*(LogFile|SettingsFile|BackupsDirectory|ThemesDirectory|UserDataDirectory)\b"),
         };
 
-        /// <summary>The files whose samples are forbidden uses on purpose: this test and the test of the network destinations.</summary>
-        private static readonly string[] RuleSamples = { "TestIsolationTests.cs", "NetworkDestinationTests.cs" };
+        /// <summary>
+        /// The files whose samples are forbidden uses on purpose: this test, the test of the network destinations and the rules of
+        /// the real-machine harness.
+        /// </summary>
+        private static readonly string[] RuleSamples = { "TestIsolationTests.cs", "NetworkDestinationTests.cs", "RealMachineTestRulesTests.cs" };
 
         private static IEnumerable<string> TestSources()
         {
@@ -69,8 +78,11 @@ namespace Empire_Earth_Launcher.Tests.Architecture
                             .OrderBy(file => file, StringComparer.Ordinal);
         }
 
-        /// <summary>Every line of <paramref name="lines"/> (comments skipped) that matches a rule, as "line: reason: text".</summary>
-        private static IEnumerable<string> Offenders(string name, IReadOnlyList<string> lines)
+        /// <summary>
+        /// Every line of <paramref name="lines"/> (comments skipped) that matches a rule, as "name:line: reason: text"; also used by
+        /// <c>RealMachineTestRulesTests</c> for the sources of the real-machine harness.
+        /// </summary>
+        internal static IEnumerable<string> Offenders(string name, IReadOnlyList<string> lines)
         {
             for (int i = 0; i < lines.Count; i++)
             {

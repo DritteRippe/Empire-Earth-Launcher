@@ -66,6 +66,7 @@
     <Compile Include="Architecture\PlaceholderControlsTests.cs" />
     <Compile Include="Architecture\ProcessRulesTests.cs" />
     <Compile Include="Architecture\ProjectConventionsTests.cs" />
+    <Compile Include="Architecture\RealMachineTestRulesTests.cs" />
     <Compile Include="Architecture\RegistryAliasPolicyTests.cs" />
     <Compile Include="Architecture\ResourceParityTests.cs" />
     <Compile Include="Architecture\TestIsolationTests.cs" />
