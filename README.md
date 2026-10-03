@@ -301,7 +301,11 @@ script) runs only its self-tests (category `SelfTest`, the same checks on the in
 skipped. Selected with `--where "cat == RealMachine"` they are still ignored unless `EE_LAUNCHER_REAL_MACHINE_TESTS=1`,
 and they fail with that switch on a computer that is not Windows or not a GitHub-hosted runner (`RUNNER_ENVIRONMENT` is
 not `github-hosted`), because the defaults checks write the game settings of the current Windows account. No project
-references the program, so the `Tests\` folder of the laptop package never contains it.
+references the program, so the `Tests\` folder of the laptop package never contains it. The setup workflow runs a fixed
+commit of this repository (`LAUNCHER_COMMIT` in its `e2e-realdata.yml`), never the tip of a branch, and refuses a commit
+that is not on the branch it names (`LAUNCHER_BRANCH`, today `v2`): the program runs as administrator next to the game
+data. A change of the checks therefore reaches that workflow only when the setup repository moves the pin, and that branch
+must never be rewritten (no rebase, no force push), or the pinned commit stops being on it.
 
 ```powershell
 $env:EE_LAUNCHER_REAL_MACHINE_TESTS = '1'

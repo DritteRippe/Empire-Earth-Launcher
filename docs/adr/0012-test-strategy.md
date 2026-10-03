@@ -273,5 +273,11 @@ The launcher's part of that job is to run its core against the real installation
   `Program.cs` use the real adapters; every fixture there is explicit, in the category and opens the gate first; no
   source starts a program, asks a server, uses the CD-key registration or a maintenance action, reads a hash out or
   writes to the console outside `Program.cs`; the README example is the one the self-test reads.
+- **A pinned commit, not a branch.** The setup workflow checks out a full commit of this repository (`LAUNCHER_COMMIT`,
+  or a full commit given by hand) and refuses one that is not on its `LAUNCHER_BRANCH`. The program runs as administrator
+  on the runner next to the game data and the built installers, so what runs there must be reviewed code, and a run must
+  be reproducible: with a branch, a push here would change every later run of the setup repository without its review.
+  A change of the checks takes effect there only when the setup repository updates the pin; the branch is never
+  rewritten.
 - **Not covered** and still for a real Windows client (the test plan): the UI, a second Windows account, game starts,
   Windows 7 to 11 clients, scaling and the network; the runner is Windows Server without a GPU.

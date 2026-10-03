@@ -26,6 +26,8 @@ section 15); all of them are done, newest first below. It has not been released;
   only the 93 self-tests run, on the in-memory fakes of the unit tests. The core log stays in the work folder and no output
   holds a hash. `RealMachineTestRulesTests` checks that the program keeps the rules of `TestIsolationTests` except the
   one registry adapter, and that nothing references it, so the laptop package's `Tests\` folder never contains it.
+  The setup workflow runs a pinned commit of the program that must be on the launcher branch it names (README, Tests,
+  "Real machine").
 - Network check (R7, `Empire-Earth-Launcher-Core/Diagnostics/NetworkDiagnostics`, `DiagnosticsModel`), only when the
   player clicks "Check network" on the *Tools* page or the link below an unavailable player list: the network adapters
   (type, driver name, state, IPv4 with prefix and gateway, IPv6 only as none, link-local only or available; VPN, Hamachi
