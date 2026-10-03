@@ -52,10 +52,17 @@ namespace Empire_Earth_Launcher
         private IList<LobbyPersistentData.LobbyGlobalData.PlayerInfoGlobalData> profiles =
             new LobbyPersistentData.LobbyGlobalData.PlayerInfoGlobalData[0];
 
+        /// <summary>The most the lobby state line takes from the player list (about four lines of text).</summary>
+        internal const int MaxLobbyStatusHeight = 70;
+
+        /// <summary>The height of the player list without a lobby state line (from the designer).</summary>
+        private readonly int playerListHeight;
+
         public GeneralUserControl()
         {
             InitializeComponent();
             ApplyTexts();
+            playerListHeight = onlinePlayersKryptonDataGridView.Height;
 
             // No file or network I/O here: the constructor also runs inside the Visual Studio designer and
             // during MainForm.InitializeComponent, where an exception would prevent the launcher from starting.
@@ -414,7 +421,7 @@ namespace Empire_Earth_Launcher
         {
             usersLobbyKryptonComboBox.Items.Clear();
             usersLobbyKryptonComboBox.Enabled = true;
-            neoOnlineKryptonGroupBox.Values.Description = string.Empty;
+            ShowLobbyStatus(null);
             profiles = new LobbyPersistentData.LobbyGlobalData.PlayerInfoGlobalData[0];
             if (installations.Result == null)
             {
@@ -441,7 +448,32 @@ namespace Empire_Earth_Launcher
         private void ShowLobbyProfilesUnavailable(string reason)
         {
             usersLobbyKryptonComboBox.Enabled = false;
-            neoOnlineKryptonGroupBox.Values.Description = reason;
+            ShowLobbyStatus(reason);
+        }
+
+        /// <summary>
+        /// Shows <paramref name="text"/> (why the lobby profiles are missing, or the friends of the profile) in the line above
+        /// "Profile:", as high as the text needs (at most <see cref="MaxLobbyStatusHeight"/>); the player list gets shorter by
+        /// as much. Null or empty hides the line. The text used to be the description in the heading of the group, where the
+        /// 210 pixels of the group left only its first letters after "Online Players (unavailable)" (bug report of
+        /// 2026-10-03: "Kei").
+        /// </summary>
+        internal void ShowLobbyStatus(string text)
+        {
+            ShowLobbyStatus(lobbyStatusLauncherWrapLabel, onlinePlayersKryptonDataGridView, playerListHeight, text);
+        }
+
+        /// <summary>
+        /// Puts <paramref name="text"/> into <paramref name="status"/> at the bottom of the room of <paramref name="playerList"/>
+        /// (<paramref name="playerListHeight"/> from its top at 0) and shortens the list by the height of the text.
+        /// </summary>
+        internal static void ShowLobbyStatus(LauncherWrapLabel status, Control playerList, int playerListHeight, string text)
+        {
+            status.Text = text ?? string.Empty;
+            int height = Math.Min(status.TextHeight(status.Width), MaxLobbyStatusHeight);
+            playerList.Height = playerListHeight - height;
+            status.SetBounds(status.Left, playerListHeight - height, status.Width, Math.Max(height, 1));
+            status.Visible = height > 0;
         }
 
         /// <summary>
@@ -512,7 +544,7 @@ namespace Empire_Earth_Launcher
 
             IDictionary<string, uint> friends;
             LobbyFriendsStatus status = lobbyProfiles.LoadFriends(gameFolder, profiles[index], out friends);
-            neoOnlineKryptonGroupBox.Values.Description = Texts.LobbyFriends(status, friends?.Count ?? 0);
+            ShowLobbyStatus(Texts.LobbyFriends(status, friends?.Count ?? 0));
         }
     }
 }

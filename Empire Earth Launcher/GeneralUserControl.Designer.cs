@@ -36,6 +36,7 @@ namespace Empire_Earth_Launcher
             this.neoOnlineKryptonGroupBox = new Krypton.Toolkit.KryptonGroupBox();
             this.networkCheckKryptonLinkLabel = new Krypton.Toolkit.KryptonLinkLabel();
             this.lobbyUserKryptonLabel = new Krypton.Toolkit.KryptonLabel();
+            this.lobbyStatusLauncherWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             this.usersLobbyKryptonComboBox = new Krypton.Toolkit.KryptonComboBox();
             this.gameSettingsKryptonGroupBox = new Krypton.Toolkit.KryptonGroupBox();
             this.artOfConquestKryptonRadioButton = new Krypton.Toolkit.KryptonRadioButton();
@@ -185,6 +186,7 @@ namespace Empire_Earth_Launcher
             // 
             this.neoOnlineKryptonGroupBox.Panel.Controls.Add(this.networkCheckKryptonLinkLabel);
             this.neoOnlineKryptonGroupBox.Panel.Controls.Add(this.onlinePlayersKryptonDataGridView);
+            this.neoOnlineKryptonGroupBox.Panel.Controls.Add(this.lobbyStatusLauncherWrapLabel);
             this.neoOnlineKryptonGroupBox.Panel.Controls.Add(this.lobbyUserKryptonLabel);
             this.neoOnlineKryptonGroupBox.Panel.Controls.Add(this.usersLobbyKryptonComboBox);
             this.neoOnlineKryptonGroupBox.Size = new System.Drawing.Size(210, 267);
@@ -216,6 +218,18 @@ namespace Empire_Earth_Launcher
             this.lobbyUserKryptonLabel.StateCommon.ShortText.TextH = Krypton.Toolkit.PaletteRelativeAlign.Center;
             this.lobbyUserKryptonLabel.TabIndex = 14;
             this.lobbyUserKryptonLabel.Values.Text = "Profile:";
+            // 
+            // lobbyStatusLauncherWrapLabel
+            // 
+            this.lobbyStatusLauncherWrapLabel.AutoSize = false;
+            this.lobbyStatusLauncherWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
+            this.lobbyStatusLauncherWrapLabel.Location = new System.Drawing.Point(6, 186);
+            this.lobbyStatusLauncherWrapLabel.Name = "lobbyStatusLauncherWrapLabel";
+            this.lobbyStatusLauncherWrapLabel.Palette = this.launcherKryptonPalette;
+            this.lobbyStatusLauncherWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.lobbyStatusLauncherWrapLabel.Size = new System.Drawing.Size(194, 22);
+            this.lobbyStatusLauncherWrapLabel.Text = "";
+            this.lobbyStatusLauncherWrapLabel.Visible = false;
             // 
             // usersLobbyKryptonComboBox
             // 
@@ -485,6 +499,7 @@ namespace Empire_Earth_Launcher
         private Krypton.Toolkit.KryptonButton integrityKryptonButton;
         private Krypton.Toolkit.KryptonLinkLabel networkCheckKryptonLinkLabel;
         private Krypton.Toolkit.KryptonLabel lobbyUserKryptonLabel;
+        private Empire_Earth_Launcher.LauncherWrapLabel lobbyStatusLauncherWrapLabel;
         private Krypton.Toolkit.KryptonComboBox usersLobbyKryptonComboBox;
         private Krypton.Toolkit.KryptonDataGridView onlinePlayersKryptonDataGridView;
         private System.Windows.Forms.DataGridViewTextBoxColumn usernameColumn;

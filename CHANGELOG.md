@@ -603,6 +603,13 @@ section 15); all of them are done, newest first below. It has not been released;
   then applies no theme, not even the default theme, unless a custom theme file was chosen later. A theme file that is
   applied but not in the list shows as "Custom file..." instead of nothing. Tests: `ThemeChoiceTests`,
   `SettingsStoreTests`.
+- The heading of the player group of the *Play* page no longer ends in a cut-off text (bug report of 2026-10-03:
+  "Spieler online (nicht verfügbar)" followed by "Kei"). Why the lobby profiles are missing ("Kein Lobby-Profil
+  gefunden", a running setup, no installation, unreadable profiles) and the number of friends of the profile were the
+  description of the group's heading, which Krypton draws in the same line to the right of the heading, and the group is
+  only 210 pixels wide. They are now a line of their own above "Profile:" (`lobbyStatusLauncherWrapLabel`), as high as the
+  text (at most about four lines), and the player list above it gets shorter by as much. Tests: `LobbyStatusTests`
+  (the layout under Mono; the page itself on Windows), `LobbyStatusSourceTests`; test plan WP3-02.
 - Buttons and check boxes that the page disabled while their action ran stay disabled afterwards (build/UI review):
   `UiOperation.Run` takes the page's state logic as `restore` and applies it after enabling the trigger again, so the
   delete button of the registry cleanup is no longer enabled next to "Nothing to clean up" after the last key was

@@ -175,6 +175,7 @@
     <Compile Include="Launcher\GameSettingsModelTests.cs" />
     <Compile Include="Launcher\InstallationServiceTests.cs" />
     <Compile Include="Launcher\LauncherWrapLabelTests.cs" />
+    <Compile Include="Launcher\LobbyStatusTests.cs" />
     <Compile Include="Launcher\IntegrityModelTests.cs" />
     <Compile Include="Launcher\MaintenanceModelTests.cs" />
     <Compile Include="Launcher\MaintenanceTextsTests.cs" />
