@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using Krypton.Toolkit;
@@ -171,9 +170,9 @@ namespace Empire_Earth_Launcher
                 using (Graphics graphics = Graphics.FromImage(bitmap))
                     return (int)Math.Ceiling(graphics.MeasureString(Text, Font, width).Height) + 6;
             }
-            catch (Exception ex) when (IsDrawingFailure(ex))
+            catch (Exception ex) when (!IsCritical(ex))
             {
-                // The same measure as the fallback of OnPaint draws with.
+                // The same measure as the fallback of OnPaint draws with; GDI+ also reports failures as OutOfMemoryException.
                 return TextRenderer.MeasureText(Text, DefaultFont, new Size(width, 0), FallbackFormat).Height + 6;
             }
         }
@@ -237,13 +236,12 @@ namespace Empire_Earth_Launcher
         private const TextFormatFlags FallbackFormat =
             TextFormatFlags.WordBreak | TextFormatFlags.NoPrefix | TextFormatFlags.TextBoxControl;
 
-        /// <summary>The failures of GDI+ and GDI: invalid parameter (a disposed font), generic error, object busy.</summary>
-        private static bool IsDrawingFailure(Exception ex)
-        {
-            return ex is ArgumentException || ex is ExternalException || ex is InvalidOperationException;
-        }
-
-        /// <summary>Exceptions after which the process must not go on as if nothing happened.</summary>
+        /// <summary>
+        /// Exceptions after which the process must not go on as if nothing happened. Every other failure of drawing, measuring
+        /// or copying a font is caught: GDI+ and GDI report theirs as <see cref="ArgumentException"/>,
+        /// <see cref="System.Runtime.InteropServices.ExternalException"/>, <see cref="InvalidOperationException"/> and also
+        /// <see cref="OutOfMemoryException"/>, and one that left the paint would show a red X.
+        /// </summary>
         private static bool IsCritical(Exception ex)
         {
             return ex is StackOverflowException || ex is ThreadAbortException || ex is AccessViolationException;
@@ -297,7 +295,7 @@ namespace Empire_Earth_Launcher
                 return new Font(source.FontFamily, source.Size, source.Style, source.Unit, source.GdiCharSet,
                     source.GdiVerticalFont);
             }
-            catch (Exception ex) when (IsDrawingFailure(ex))
+            catch (Exception ex) when (!IsCritical(ex))
             {
                 return null;
             }
@@ -328,9 +326,10 @@ namespace Empire_Earth_Launcher
             {
                 TextRenderer.DrawText(e.Graphics, Text, DefaultFont, ClientRectangle, ForeColor, FallbackFormat);
             }
-            catch (Exception ex) when (IsDrawingFailure(ex))
+            catch (Exception ex) when (!IsCritical(ex))
             {
-                // Nothing can be drawn now; the next paint tries again.
+                // Nothing can be drawn now; the next paint tries again. Any failure, as in OnPaint: one that left the fallback
+                // would show the red X after all.
             }
         }
 
