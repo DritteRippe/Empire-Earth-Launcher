@@ -173,7 +173,20 @@ namespace Empire_Earth_Launcher
             catch (Exception ex) when (!IsCritical(ex))
             {
                 // The same measure as the fallback of OnPaint draws with; GDI+ also reports failures as OutOfMemoryException.
+                return FallbackTextHeight(width);
+            }
+        }
+
+        /// <summary>The height of the text in <see cref="Control.DefaultFont"/>; the current height if that fails too.</summary>
+        private int FallbackTextHeight(int width)
+        {
+            try
+            {
                 return TextRenderer.MeasureText(Text, DefaultFont, new Size(width, 0), FallbackFormat).Height + 6;
+            }
+            catch (Exception ex) when (!IsCritical(ex))
+            {
+                return Height;
             }
         }
 
@@ -255,7 +268,7 @@ namespace Empire_Earth_Launcher
                 font.GetHeight(96f);
                 return true;
             }
-            catch (ArgumentException)
+            catch (Exception ex) when (!IsCritical(ex))
             {
                 return false;
             }
@@ -316,7 +329,14 @@ namespace Empire_Earth_Launcher
             if (paintFailureReported)
                 return;
             paintFailureReported = true;
-            PaintFailureReporter?.Invoke(Name, ex);
+            try
+            {
+                PaintFailureReporter?.Invoke(Name, ex);
+            }
+            catch (Exception reportFailure) when (!IsCritical(reportFailure))
+            {
+                // The report runs inside the catch of OnPaint: a failure of the log must not leave the paint either.
+            }
         }
 
         /// <summary>The text with GDI and the default font of WinForms; draws nothing if that fails too.</summary>
