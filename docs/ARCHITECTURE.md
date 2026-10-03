@@ -109,11 +109,15 @@ Empire-Earth.sln
 │                                         shows), DiagnosticsModel (network check and report, L-WP9),
 │                                         ToolsUserControl (the Tools page), RepairAdviceDialog,
 │                                         KryptonThemeService, app.manifest
-└─ Empire-Earth-Launcher.Tests/           one NUnitLite program: Core/, Launcher/, Won/, Mod/,
-                                          Architecture/ (dependency, project and resource rules),
-                                          Fakes/ (in-memory registry and file system, fake HTTP, network
-                                          information, process, mutex, clock), TestSupport/ (worlds of
-                                          installations, MappedFileSystem for real files in a temporary folder)
+├─ Empire-Earth-Launcher.Tests/           one NUnitLite program: Core/, Launcher/, Won/, Mod/,
+│                                         Architecture/ (dependency, project and resource rules),
+│                                         Fakes/ (in-memory registry and file system, fake HTTP, network
+│                                         information, process, mutex, clock), TestSupport/ (worlds of
+│                                         installations, MappedFileSystem for real files in a temporary folder)
+└─ Empire-Earth-Launcher.RealMachineTests/ NUnitLite program for the CI end-to-end test of the setup
+                                          repository: the core against a real installation on a GitHub-hosted
+                                          runner (category RealMachine, explicit and switched off elsewhere),
+                                          its self-tests on the fakes of the unit tests (section 11)
 ```
 
 The core is one assembly with namespaces per area (`Empire_Earth_Launcher.Core.Installations`, ...),
@@ -655,6 +659,18 @@ Decided in [ADR 0012](adr/0012-test-strategy.md):
 
 - **One test program**, `Empire-Earth-Launcher.Tests` (NUnit 3.14 + NUnitLite, console, exit code = failed
   tests), run by the local verify script under Mono and by CI on Windows.
+- **Real-machine checks** (ADR 0012 amendment of the CI end-to-end test): a second program,
+  `Empire-Earth-Launcher.RealMachineTests`, for the end-to-end workflow of the setup repository, which installs the real
+  setups on a throwaway GitHub-hosted Windows runner. After each step it runs the core against the real installation as
+  the launcher composes it: discovery, quick and full integrity check, status of the defaults and consistency findings,
+  on request the defaults of the launcher start, a second start and the reset, and last a comparison of everything the
+  launcher must leave alone (CD keys of every view, records, Inno uninstall keys, compatibility layers, HKLM settings,
+  the files of the installation) with its state before. A JSON expectation file per step names what to check. The
+  fixtures (category `RealMachine`) are explicit and need `EE_LAUNCHER_REAL_MACHINE_TESTS=1` on Windows on a
+  GitHub-hosted runner; elsewhere the program runs only its self-tests on the fakes of the unit tests. Reading checks get
+  read-only wrappers, the defaults write through the launcher's write policy and are compared with the values of
+  contract 3, the core log stays in the work folder, and no output holds a hash. `RealMachineTestRulesTests` keeps the
+  exception narrow (README, Tests, "Real machine").
 - **Unit tests for the whole core** with fakes: `InMemoryRegistry` (hives, views, value kinds),
   `InMemoryFileSystem` (Windows path semantics, case-insensitive, attributes, read errors), fake HTTPS
   client, process starter, mutex probe, clock, system info. Because path logic is `WinPath` string logic,
@@ -679,7 +695,9 @@ Decided in [ADR 0012](adr/0012-test-strategy.md):
 - **Windows adapters** (registry, mutex, shell execute, display, HTTP) are thin and checked on real Windows
   by the German test plan `docs/TEST-PLAN.de.md`; the UI is tested manually with it. The test plan is created
   in the first work package and every package adds its cases in the same commit.
-- Tests never use the network, the real registry, the real `%LOCALAPPDATA%` or UI.
+- Tests never use the network, the real registry, the real `%LOCALAPPDATA%` or UI (the real-machine checks read the
+  real registry and the installation, and write HKCU game settings, only on a GitHub-hosted runner of the setup
+  repository's end-to-end workflow).
 - **Plan review additions** ([ADR 0012](adr/0012-test-strategy.md) amendment): fixtures are synthetic only
   (`FixtureProvenanceTests`); `docs/contract-samples/` holds byte samples of `install.ini`, `files.sha256` and the
   record, shared with the setup repository; the tests run on the laptop too (`Tests\` in the laptop package,
@@ -733,7 +751,8 @@ Decided in [ADR 0001](adr/0001-target-dotnet-framework-4-8.md) and
   and of the test program in `Tests\`, plus a `.sha256` file) is made in the scratch folder, never committed.
 - **CI** (`windows-latest`): NuGet restore, MSBuild Release against
   `Microsoft.NETFramework.ReferenceAssemblies.net48` 1.0.3 (independent of the image's targeting packs),
-  all `*Tests.exe`, then the test builds of launcher and mod creator as artifacts with `LICENSE`,
+  all `*Tests.exe` (the unit tests and the self-tests of the real-machine checks, whose `RealMachine` fixtures stay
+  skipped; the setup repository's end-to-end workflow builds the program and runs them), then the test builds of launcher and mod creator as artifacts with `LICENSE`,
   `THIRD-PARTY-NOTICES.md` and `licenses/THIRD-PARTY-LICENSES.txt`.
 - Runtime requirement: .NET Framework 4.8 (built into Windows 10 1903 and later and Windows 11; an
   installer for Windows 7 SP1, 8.1 and older 10; **not available for Windows 8.0**). `App.config`:

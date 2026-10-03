@@ -54,9 +54,12 @@ jobs:
           "/p:TargetFrameworkRootPath=$env:REFASM_ROOT"
           "/p:FrameworkPathOverride=$env:REFASM_ROOT\.NETFramework\v4.8"
 
-      # Test projects are console programs named *Tests.exe (currently
-      # Empire-Earth-Launcher.Tests, NUnitLite) that return a non-zero exit
-      # code on failure. Finding none means the test project was not built,
+      # Test projects are console programs named *Tests.exe (the unit tests
+      # Empire-Earth-Launcher.Tests and the self-tests of
+      # Empire-Earth-Launcher.RealMachineTests, NUnitLite) that return a
+      # non-zero exit code on failure. The RealMachine fixtures are explicit
+      # and stay skipped here: they need EE_LAUNCHER_REAL_MACHINE_TESTS=1 and
+      # run only in the setup repository's end-to-end workflow. Finding none means the test project was not built,
       # which fails the job. Each program writes an NUnit 3 result file that
       # is kept as the test-results artifact.
       - name: Run tests

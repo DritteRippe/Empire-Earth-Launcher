@@ -1,7 +1,7 @@
 # 0012 Test strategy
 
 Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review; implementation in L-WP5, L-WP6,
-L-WP7, L-WP8 and L-WP9), see the Amendment sections
+L-WP7, L-WP8 and L-WP9) and 2026-10-03 (CI end-to-end test), see the Amendment sections
 
 ## Context
 
@@ -238,3 +238,40 @@ UI (briefing D6, contract 7).
   the local Release build like CI, never committed) was checked with `sha256sum -c`, unpacked outside the repository,
   and its `Tests\` ran with `--where "cat != SourceTree"`: 2893 passed, none failed (3071 tests in the repository;
   the 178 others read the source tree). After the package was built, `git status` showed no file in the repository.
+
+## Amendment 2026-10-03 (CI end-to-end test)
+
+The setup repository gets a GitHub Actions workflow that builds the real-data setups on a `windows-latest` runner,
+installs, checks and uninstalls them silently in several scenarios and reports green or red in the pull request; the
+runner is thrown away after the job, and nothing with game data leaves it. The user tests on GitHub instead of a laptop.
+The launcher's part of that job is to run its core against the real installation after each step.
+
+- **A second test program, `Empire-Earth-Launcher.RealMachineTests`.** "A second test project for the core" was rejected
+  above because it doubles the work for no gain; this program has another purpose and another safety class: it reads the
+  real registry and the real installation, and in some steps writes the game settings of the current Windows account.
+  Inside `Empire-Earth-Launcher.Tests` that would break `TestIsolationTests` (the unit tests touch nothing of the
+  computer), put code that writes HKCU into the `Tests\` folder of the laptop package (WP1-11), and show the fixtures as
+  skipped where the plan expects `Skipped: 0`. As its own program it references only the core, nothing references it,
+  and its name ends with `Tests`, so CI and the verify script run it without a filter.
+- **Two locks.** The fixtures of the category `RealMachine` are explicit (a run without a filter skips them) and open a
+  gate first: ignored unless `EE_LAUNCHER_REAL_MACHINE_TESTS=1`, failed when the switch is set outside Windows or outside a
+  GitHub-hosted runner (`RUNNER_ENVIRONMENT` is not `github-hosted`). The self-tests (category `SelfTest`) run the same
+  checks on the in-memory fakes of the unit tests, which the program compiles in as links.
+- **What it checks, per step, from an expectation file** (strict JSON, schema 1, no hash and no game data in it; README,
+  Tests, "Real machine"): the discovery (contract 1.4), the quick and full integrity check (2.5), the status of the
+  defaults and the consistency findings (3.3, 3.5, 3.7), on request the defaults of the launcher start, a second start
+  and the reset (3.4 to 3.6; R1, R4), and last that the CD keys of every view, the install records, the Inno uninstall
+  keys, the compatibility layers, the HKLM game settings and every file of the watched roots are as before the first
+  check. Reading checks get read-only wrappers; the defaults write through the launcher's write policy over a recording
+  registry and may only change the values of contract 3 of the installations' games in HKCU; files change only in the
+  work folder of the step.
+- **No hash in the report.** The integrity checker logs every finding with its hashes (contract 2.5), so the core log goes
+  to `core.log` in the work folder (never uploaded) and not to the console, findings are printed as `path|class|kind`,
+  and every message is redacted; the program contains no 64-hex token. `RealMachineTestRulesTests` (category
+  `SourceTree`) keeps the exception narrow: the rules of `TestIsolationTests` hold for every source of the program
+  except one line in `Harness/RealAdapters.cs` that creates the real registry adapter; only `RealMachine/` and
+  `Program.cs` use the real adapters; every fixture there is explicit, in the category and opens the gate first; no
+  source starts a program, asks a server, uses the CD-key registration or a maintenance action, reads a hash out or
+  writes to the console outside `Program.cs`; the README example is the one the self-test reads.
+- **Not covered** and still for a real Windows client (the test plan): the UI, a second Windows account, game starts,
+  Windows 7 to 11 clients, scaling and the network; the runner is Windows Server without a GPU.

@@ -290,10 +290,98 @@ only write below the temporary folder; they never contact a server, never touch 
 test also runs under Mono; no test is skipped. The core, the launcher and the WON library make their internal helpers
 visible to the test assembly (`InternalsVisibleTo`).
 
+**Real machine**: `Empire-Earth-Launcher.RealMachineTests` is a second NUnitLite program, for the end-to-end workflow of
+the setup repository, which installs the real setups on a GitHub-hosted Windows runner and throws the runner away
+afterwards ([ADR 0012](docs/adr/0012-test-strategy.md), amendment of the CI end-to-end test). After each step of a
+scenario it runs the launcher core against the real installation: the discovery (contract 1.4), the quick and the full
+integrity check (2.5), the status of the defaults and the consistency findings (3.3, 3.5, 3.7), on request the defaults
+of the launcher start, a second start and the reset for the runner's account (3.4 to 3.6), and last the machine state.
+Its fixtures are in the category `RealMachine` and explicit: a run without a filter (CI of this repository, the verify
+script) runs only its self-tests (category `SelfTest`, the same checks on the in-memory fakes) and counts the fixtures as
+skipped. Selected with `--where "cat == RealMachine"` they are still ignored unless `EE_LAUNCHER_REAL_MACHINE_TESTS=1`,
+and they fail with that switch on a computer that is not Windows or not a GitHub-hosted runner (`RUNNER_ENVIRONMENT` is
+not `github-hosted`), because the defaults checks write the game settings of the current Windows account. No project
+references the program, so the `Tests\` folder of the laptop package never contains it.
+
+```powershell
+$env:EE_LAUNCHER_REAL_MACHINE_TESTS = '1'
+$step = "$env:RUNNER_TEMP\e2e\A\installed"      # the work folder of the step; no ';' in the paths
+Empire-Earth-Launcher.RealMachineTests\bin\Release\Empire-Earth-Launcher.RealMachineTests.exe --where "cat == RealMachine" `
+  "--params=expect=$step\expect.json" "--params=work=$step" "--result=$env:RUNNER_TEMP\e2e-report\A-installed.xml"
+Empire-Earth-Launcher.RealMachineTests\bin\Release\Empire-Earth-Launcher.RealMachineTests.exe pick-targets `
+  --root "C:\Program Files (x86)\Empire Earth" --product EE
+```
+
+The exit code is the number of failed tests (0: all passed); `pick-targets` only reads the manifest of an installation
+and prints one `code`, `data` and `mutable` file of its EE folder as JSON, for the damage tests of the workflow. The
+expectation file (UTF-8 JSON, schema 1) says what one step expects; only what it names is checked, and an unknown member
+or name is an error. An example (after a setup v2 for all users, by the account that runs the checks):
+
+```json
+{
+  "schema": 1,
+  "scenario": "A",
+  "step": "installed",
+  "selectedRoot": "C:\\Program Files (x86)\\Empire Earth",
+  "installations": [
+    {
+      "product": "EE",
+      "root": "C:\\Program Files (x86)\\Empire Earth",
+      "kind": "Community",
+      "mode": "Admin",
+      "appId": "4C0B46D8-E7EB-4B95-97D4-A578D9B914C6",
+      "contractVersion": 1,
+      "hasArtOfConquest": true,
+      "state": "Ok",
+      "missingPrograms": [],
+      "sources": ["RegistryRecord", "UninstallKey", "InstalledFrom"],
+      "integrity": {
+        "quick": { "state": "Ok", "findings": [], "offersRepair": false },
+        "full": { "state": "Ok", "findings": [] }
+      },
+      "defaultsStatus": { "EE": "Applied", "AoC": "Applied" },
+      "consistency": { "expected": [], "allowed": ["ScreenTooLow", "WindowLargerThanScreen", "WindowFitsOnlyWithHighDpiAware"] },
+      "defaultsAtStart": { "EE": "None", "AoC": "None" },
+      "installedFromAtStart": { "EE": "Present", "AoC": "Present" }
+    }
+  ],
+  "defaults": {
+    "recordSetupValuesTo": "D:\\a\\_temp\\e2e\\A\\installed\\setup-values-EE.json",
+    "expectNoWrites": true
+  }
+}
+```
+
+- File: `schema` (1, required), `scenario` and `step` (free text), `userChoice` (the folder chosen in the launcher),
+  `exactInstallations` (default `true`: no other installation is found), `selectedRoot`, `watchRoots` (further folders
+  whose files must stay as they are, e.g. the root of an installation that was just uninstalled), `installations`
+  (required, may be empty) and `defaults`.
+- Installation: `product` (`EE`, `NeoEE`) and `root` (required); `kind`, `mode`, `appId` (without braces),
+  `contractVersion`, `hasArtOfConquest`, `state`, `missingPrograms` (`EE`, `AoC`), `sources` (exactly) or
+  `sourcesInclude` (at least), `otherProductInRoot`, `gameVersion`, `setupVersion`; `integrity` with `quick` and `full`,
+  each with `state` (required), `unknownReason`, `cancelReason`, `findings` (exactly these `path` of the manifest and
+  `kind`) and `offersRepair`; `defaultsStatus` per game (before anything is applied); `consistency` with the codes that
+  must appear (`expected`) and may appear (`allowed`, the screen of the runner is not known); with `defaults` also
+  `defaultsAtStart` and `installedFromAtStart` per game. Names are those of the core (`Community`, `RegistryRecord`,
+  `HashDiffers`, `FirstRun`, ...).
+- `defaults` (only in a step that applies the defaults of the launcher start): `recordSetupValuesTo` (saves the values
+  the setup wrote, a file below the work folder), `expectNoWrites`, `expectRecommendedValues`,
+  `compareWithSetupValuesFrom` (a file an earlier step saved) with `allowedDifferences` (setting names, `Marker`,
+  `GpuPreference`), `secondStartChangesNothing` (default `true`) and `reset`.
+
+Every reading check gets read-only wrappers of the real registry and file system; the defaults write through the
+launcher's write policy, and only the values of contract 3 of the installations' games in HKCU are accepted; backups and
+saved values go below the work folder only. The last check compares the CD keys of every view (`Software\Sierra\CDKeys`,
+reported without any name or value), the install records, the uninstall keys of Inno Setup, the compatibility layers,
+the game settings keys in HKLM and every file below the roots with their state before the first check. The log of the
+core goes to `core.log` in the work folder, never to the console, because it holds the hashes of the findings; the
+console output and the result file hold no hash (every message is redacted) and no game data.
+
 **Continuous integration**: `.github/workflows/build.yml` restores and builds the solution in Release on
 `windows-latest` for every push to `main` and every pull request, then runs every `*Tests.exe` it finds in
 the `bin/Release` folders (a test program reports failure through a non-zero exit code; finding no test
-program fails the build). The NUnit result files are kept as the `test-results` artifact.
+program fails the build): the unit tests and the self-tests of the real-machine checks, whose `RealMachine` fixtures
+stay skipped there. The NUnit result files are kept as the `test-results` artifact.
 
 **Test builds**: when all tests pass, the CI run also keeps the Release output of both applications for 30 days,
 as the artifacts `Empire-Earth-Launcher-testbuild` and `Empire-Earth-Mod-Creator-testbuild` (open the run under
@@ -416,6 +504,14 @@ Empire-Earth-Launcher.Tests/      Unit tests (NUnitLite console program), one fo
 │                                 process list, file versions, HTTPS client, network information (with tests)
 └─ TestSupport/                   Temporary folders, chunked streams, repository root, project files, worlds of
                                   installations, MappedFileSystem (real files behind a drive letter)
+Empire-Earth-Launcher.RealMachineTests/  Checks of the core against a real installation on a GitHub-hosted runner
+├─ RealMachine/                   The fixtures of the category RealMachine (explicit, switched on by
+│                                 EE_LAUNCHER_REAL_MACHINE_TESTS=1) and the gate
+├─ Checks/                        Discovery, integrity, game settings and defaults against the expectation
+├─ Expectations/, Json/           The expectation file (strict JSON reader)
+├─ Harness/                       Session, read-only and recording wrappers, snapshot, gate, pick-targets;
+│                                 RealAdapters, the only file that creates the real adapters
+└─ SelfTest/                      The same checks on the in-memory fakes of the unit tests
 packages/                         NuGet packages, restored on build (not committed)
 .github/workflows/build.yml       CI build and test run
 ```

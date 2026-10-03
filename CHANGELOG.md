@@ -15,6 +15,17 @@ section 15); all of them are done, newest first below. It has not been released;
 
 ### Added
 
+- Real-machine checks for the CI end-to-end test of the setup repository (`Empire-Earth-Launcher.RealMachineTests`,
+  ADR 0012 amendment of 2026-10-03): a second NUnitLite program that runs the launcher core against a real installation
+  on a GitHub-hosted Windows runner after each step of a scenario: discovery, quick and full integrity check, status of
+  the defaults and consistency findings, on request the defaults of the launcher start, a second start and the reset, and
+  a final comparison of the CD keys, records, Inno uninstall keys, compatibility layers, HKLM game settings and the files
+  of the installation with their state before. A strict JSON expectation file per step says what to check;
+  `pick-targets` names one code, data and mutable file of the EE folder for the damage tests. The fixtures (category
+  `RealMachine`) are explicit and need `EE_LAUNCHER_REAL_MACHINE_TESTS=1` on Windows on a GitHub-hosted runner; elsewhere
+  only the 93 self-tests run, on the in-memory fakes of the unit tests. The core log stays in the work folder and no output
+  holds a hash. `RealMachineTestRulesTests` checks that the program keeps the rules of `TestIsolationTests` except the
+  one registry adapter, and that nothing references it, so the laptop package's `Tests\` folder never contains it.
 - Network check (R7, `Empire-Earth-Launcher-Core/Diagnostics/NetworkDiagnostics`, `DiagnosticsModel`), only when the
   player clicks "Check network" on the *Tools* page or the link below an unavailable player list: the network adapters
   (type, driver name, state, IPv4 with prefix and gateway, IPv6 only as none, link-local only or available; VPN, Hamachi

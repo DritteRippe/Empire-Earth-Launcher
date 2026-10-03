@@ -111,6 +111,18 @@ Danach:
 - Ergebnis: `Empire Earth Launcher\bin\Release\` und `Empire-Earth-Mod\Empire-Earth-Mod\bin\Release\`. Diese
   Ordner an einen eigenen Ort kopieren und von dort testen.
 
+### 2.3 Automatischer Teil auf GitHub (keine Fälle dieses Plans)
+
+Der End-to-End-Workflow des Setup-Repositorys installiert die echten Setups auf einem GitHub-Runner (Windows Server,
+wird nach dem Lauf verworfen) und prüft dort nach jedem Schritt mit dem eigenen Testprogramm
+`Empire-Earth-Launcher.RealMachineTests` den Kern des Launchers gegen die echte Installation: Erkennung, schnelle und
+vollständige Prüfung, Stand der Standardwerte, Hinweise, auf Wunsch die Standardwerte beim Start, einen zweiten Start und
+das Zurücksetzen, und zuletzt, dass CD-Keys, Einträge, Deinstallationsschlüssel und Spieldateien unverändert sind
+(README, Abschnitt Tests, „Real machine“). Das deckt Teile von WP4-05, WP4-13, WP5-01, WP5-08, WP7-01, WP7-02, WP7-07 und
+WP7-09 ohne Oberfläche ab; diese Fälle bleiben trotzdem Fälle dieses Plans. Nicht abgedeckt sind die Oberfläche, ein
+zweites Windows-Konto, der Spielstart, Windows-Client-Versionen, Skalierung und das Netz. Das Programm gehört nicht zum
+Laptop-Paket und wird hier nicht ausgeführt; WP1-11 betrifft nur `Empire-Earth-Launcher.Tests.exe`.
+
 ## 3. Wo der Launcher Dateien ablegt
 
 Alle Dateien des Launchers liegen pro Benutzer unter `%LOCALAPPDATA%\Empire Earth Launcher\` (öffnen mit

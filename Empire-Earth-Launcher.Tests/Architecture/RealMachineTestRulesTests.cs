@@ -15,8 +15,9 @@ namespace Empire_Earth_Launcher.Tests.Architecture
     /// harness, except that exactly one file, <c>Harness/RealAdapters.cs</c>, creates the real registry adapter; only
     /// <c>RealMachine/</c> and <c>Program.cs</c> use those adapters; every fixture there is explicit, in the category
     /// <c>RealMachine</c> and opens the gate first; the harness starts no program, asks no server, prints nothing to the
-    /// console outside <c>Program.cs</c> and reads no hash out; and neither this test program nor the launcher references it,
-    /// so the <c>Tests\</c> folder of the laptop package never contains it.
+    /// console outside <c>Program.cs</c> and reads no hash out; neither this test program nor the launcher references it, so
+    /// the <c>Tests\</c> folder of the laptop package never contains it; and the example of the README is the one its
+    /// self-test reads.
     /// </summary>
     [TestFixture]
     [Category(TestCategories.SourceTree)]
@@ -162,6 +163,19 @@ namespace Empire_Earth_Launcher.Tests.Architecture
                 "only the fakes of the unit tests are compiled in");
             foreach (string project in ProjectConventionsTests.SolutionProjects().Where(path => path != ProjectPath))
                 Assert.That(ProjectFile.Load(project).Items("ProjectReference"), Has.None.Contains("RealMachineTests"), project);
+        }
+
+        [Test]
+        public void TheReadmeExample_IsTheOneTheSelfTestReads()
+        {
+            string readme = File.ReadAllText(RepositoryRoot.GetFullPath("README.md")).Replace("\r\n", "\n");
+            Match block = Regex.Match(readme, @"\*\*Real machine\*\*.*?```json\n(?<json>.*?)\n```", RegexOptions.Singleline);
+            string selfTest = File.ReadAllText(RepositoryRoot.GetFullPath(SelfTestFolder + "ExpectationFileTests.cs")).Replace("\r\n", "\n");
+            Match constant = Regex.Match(selfTest, "ReadmeExample = @\"(?<json>(?:[^\"]|\"\")*)\";");
+
+            Assert.That(block.Success, Is.True, "README, Tests, \"Real machine\" has a json block");
+            Assert.That(constant.Success, Is.True, "ExpectationFileTests has ReadmeExample");
+            Assert.That(block.Groups["json"].Value, Is.EqualTo(constant.Groups["json"].Value.Replace("\"\"", "\"")));
         }
 
         [TestCase("Empire-Earth-Launcher.RealMachineTests/Harness/HarnessSession.cs", "var registry = new WindowsRegistry();", "a real adapter outside")]
