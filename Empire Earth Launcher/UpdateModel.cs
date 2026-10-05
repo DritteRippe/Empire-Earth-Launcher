@@ -24,6 +24,7 @@ namespace Empire_Earth_Launcher
         private readonly UpdateChecker checker;
         private readonly InstallationService installations;
         private readonly IProcessStarter shell;
+        private readonly SuiteRepairLocator suiteRepair;
         private readonly ILogger logger;
 
         /// <param name="locator">Asks the update API for the setup download (contract 4.3).</param>
@@ -31,9 +32,12 @@ namespace Empire_Earth_Launcher
         /// <param name="installations">The selected installation.</param>
         /// <param name="shell">Opens the download page in the default browser, not elevated (contract 4.3 step 4).</param>
         /// <param name="logger">Log of the launcher.</param>
+        /// <param name="suiteRepair">Where the suite can be run again for the repair advice (contract 4.4, revision 4); null
+        /// for the download advice only.</param>
         public UpdateModel(SetupDownloadLocator locator, UpdateChecker checker, InstallationService installations,
-            IProcessStarter shell, ILogger logger)
+            IProcessStarter shell, ILogger logger, SuiteRepairLocator suiteRepair = null)
         {
+            this.suiteRepair = suiteRepair;
             this.locator = locator ?? throw new ArgumentNullException(nameof(locator));
             this.checker = checker ?? throw new ArgumentNullException(nameof(checker));
             this.installations = installations ?? throw new ArgumentNullException(nameof(installations));
@@ -72,9 +76,9 @@ namespace Empire_Earth_Launcher
             get
             {
                 if (GameResult?.Outcome == VersionCheckOutcome.UpdateAvailable)
-                    return RepairAdvice.ForUpdate(GameResult);
+                    return RepairAdvice.ForUpdate(GameResult, suiteRepair?.FolderFor(GameResult.Installation));
                 if (SetupResult?.Outcome == VersionCheckOutcome.UpdateAvailable)
-                    return RepairAdvice.ForUpdate(SetupResult);
+                    return RepairAdvice.ForUpdate(SetupResult, suiteRepair?.FolderFor(SetupResult.Installation));
                 return null;
             }
         }
@@ -133,6 +137,14 @@ namespace Empire_Earth_Launcher
             if (advice == null)
                 throw new ArgumentNullException(nameof(advice));
             return advice.OpenDownloadPage(shell, logger);
+        }
+
+        /// <summary>Opens the folder of the suite setup of the advice in the Explorer (contract 4.4); false if it could not.</summary>
+        public bool OpenSuiteFolder(RepairAdvice advice)
+        {
+            if (advice == null)
+                throw new ArgumentNullException(nameof(advice));
+            return advice.OpenSuiteFolder(shell, logger);
         }
 
         /// <summary>The results belong to one installation: another selection drops them.</summary>

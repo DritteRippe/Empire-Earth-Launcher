@@ -111,6 +111,7 @@
     <Compile Include="Core\Installations\InstalledFromReaderTests.cs" />
     <Compile Include="Core\Installations\InstallInfoFileTests.cs" />
     <Compile Include="Core\Installations\InstallRecordReaderTests.cs" />
+    <Compile Include="Core\Installations\SuiteRecordReaderTests.cs" />
     <Compile Include="Core\Installations\UninstallKeyScannerTests.cs" />
     <Compile Include="Core\Integrity\FileClassifierTests.cs" />
     <Compile Include="Core\Integrity\IntegrityCheckerTests.cs" />
@@ -152,6 +153,7 @@
     <Compile Include="Core\Play\SingleInstanceTests.cs" />
     <Compile Include="Core\Repair\RepairAdviceTests.cs" />
     <Compile Include="Core\Repair\SetupDownloadLocatorTests.cs" />
+    <Compile Include="Core\Repair\SuiteRepairTests.cs" />
     <Compile Include="Core\Repair\UpdateCheckerTests.cs" />
     <Compile Include="Core\Repair\UpdateUrlPolicyTests.cs" />
     <Compile Include="Core\Settings\LauncherPathsTests.cs" />

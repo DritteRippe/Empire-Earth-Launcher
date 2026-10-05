@@ -111,6 +111,8 @@ namespace Empire_Earth_Launcher
             // --product=EE|NeoEE (contract 1.4, revision 4): this session starts with that product; nothing is saved.
             if (arguments.SessionProduct != null)
                 installations.SelectProductForSession(arguments.SessionProduct);
+            // The suite record (contract 1.6, read-only): where the suite can be run again for the repair advice (contract 4.4).
+            var suiteRepair = new SuiteRepairLocator(new SuiteRecordReader(registry, logger), fileSystem, logger);
             // The files the game really uses (VirtualStore copy first, ADR 0016): lobby profiles, saves, WON files.
             EffectivePathResolver effectivePaths = CreateEffectivePathResolver(fileSystem);
             var lobbyProfiles = new LobbyProfileRepository(logger, fileSystem, effectivePaths);
@@ -130,14 +132,14 @@ namespace Empire_Earth_Launcher
             // the shell in the real game folder (contract 3.6, 3.7, 4.2); the repair advice opens the download page.
             var shell = new ShellProcessStarter();
             var gameStarter = new GameStarter(new RunningGameDetector(mutexProbe, new WindowsProcessList(logger)), fileSystem,
-                defaults, shell, logger);
+                defaults, shell, logger, suiteRepair);
             var play = new PlayModel(gameStarter, new ProgramVersions(fileSystem, new WindowsFileVersionReader()), setupWatcher,
                 installations, settingsStore, gameSettings, logger);
 
             // Integrity (L-WP7, contract 2): the quick check after every search, in the background, read-only, never while a
             // setup runs; the full check on request. Files are opened so that a setup can still delete and rename them.
             var integrity = new IntegrityModel(new IntegrityChecker(fileSystem, registry, mutexProbe, logger), installations,
-                setupWatcher, logger);
+                setupWatcher, logger, suiteRepair);
 
             // Maintenance tools (L-WP8): read-only scans after every search; the registry cleanup, the WON login reset and the
             // import of saved games ask the mutation guard and back up first (ADR 0007, ADR 0016); the export only reads.
@@ -163,7 +165,7 @@ namespace Empire_Earth_Launcher
             using (var https = new HttpsClient())
             {
                 var updates = new UpdateModel(new SetupDownloadLocator(https, logger), new UpdateChecker(https, logger),
-                    installations, shell, logger);
+                    installations, shell, logger, suiteRepair);
 
                 // Network diagnostics and the diagnostics report (L-WP9, R7): only on request; DNS, the update API with the
                 // AppId and the status server, nothing else (ADR 0008). The report and the log lines of the check follow the

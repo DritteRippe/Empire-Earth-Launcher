@@ -42,6 +42,7 @@ namespace Empire_Earth_Launcher
         private readonly LauncherWrapLabel resultKryptonWrapLabel = new LauncherWrapLabel();
         private readonly FlowLayoutPanel buttonsPanel = new FlowLayoutPanel();
         private readonly KryptonButton openPageKryptonButton = new KryptonButton();
+        private readonly KryptonButton openSuiteFolderKryptonButton = new KryptonButton();
         private readonly KryptonButton closeKryptonButton = new KryptonButton();
 
         /// <summary>Cancels the request to the update API when the window closes.</summary>
@@ -112,7 +113,7 @@ namespace Empire_Earth_Launcher
             pageKryptonTextBox.Width = ContentWidth;
             pageKryptonTextBox.Margin = new Padding(0, 0, 0, 12);
 
-            foreach (KryptonButton button in new[] { closeKryptonButton, openPageKryptonButton })
+            foreach (KryptonButton button in new[] { closeKryptonButton, openPageKryptonButton, openSuiteFolderKryptonButton })
             {
                 button.AutoSize = true;
                 button.MinimumSize = new Size(150, 30);
@@ -121,6 +122,8 @@ namespace Empire_Earth_Launcher
             openPageKryptonButton.Name = nameof(openPageKryptonButton);
             closeKryptonButton.DialogResult = DialogResult.Cancel;
             openPageKryptonButton.Click += openPageKryptonButton_Click;
+            openSuiteFolderKryptonButton.Name = nameof(openSuiteFolderKryptonButton);
+            openSuiteFolderKryptonButton.Click += openSuiteFolderKryptonButton_Click;
             AcceptButton = openPageKryptonButton;
             CancelButton = closeKryptonButton;
 
@@ -156,6 +159,12 @@ namespace Empire_Earth_Launcher
             pageKryptonWrapLabel.Text = Resources.RepairLocating;
             pageKryptonTextBox.Text = string.Empty;
             openPageKryptonButton.Values.Text = Resources.RepairOpenPageButton;
+            // The suite step (contract 4.4, revision 4): the button opens the folder of the suite setup in the Explorer and
+            // starts nothing; the download page below stays the second option.
+            openSuiteFolderKryptonButton.Values.Text = Resources.RepairOpenSuiteFolderButton;
+            openSuiteFolderKryptonButton.Visible = advice.SuiteFolder != null;
+            if (advice.SuiteFolder != null)
+                AcceptButton = openSuiteFolderKryptonButton;
             closeKryptonButton.Values.Text = Resources.RepairCloseButton;
         }
 
@@ -169,11 +178,23 @@ namespace Empire_Earth_Launcher
             if (IsDisposed)
                 return;
             advice = located;
-            pageKryptonWrapLabel.Text = Resources.RepairDownloadPageLabel;
+            pageKryptonWrapLabel.Text = advice.SuiteFolder != null
+                ? Resources.RepairDownloadPageSuiteLabel
+                : Resources.RepairDownloadPageLabel;
             pageKryptonTextBox.Text = advice.DownloadUrl;
             string fallback = Texts.DownloadFallback(advice.Location);
             fallbackKryptonWrapLabel.Text = fallback ?? string.Empty;
             fallbackKryptonWrapLabel.Visible = fallback != null;
+        }
+
+        /// <summary>Opens the folder of the suite setup in the Explorer; the window stays open (contract 4.4: never a program).</summary>
+        private void openSuiteFolderKryptonButton_Click(object sender, EventArgs e)
+        {
+            bool opened = updates.OpenSuiteFolder(advice);
+            resultKryptonWrapLabel.Text = opened
+                ? string.Empty
+                : string.Format(CultureInfo.CurrentCulture, Resources.RepairSuiteFolderNotOpenedFormat, advice.SuiteFolder);
+            resultKryptonWrapLabel.Visible = !opened;
         }
 
         /// <summary>

@@ -38,6 +38,7 @@ namespace Empire_Earth_Launcher
         private readonly IntegrityChecker checker;
         private readonly InstallationService installations;
         private readonly SetupWatcher setupWatcher;
+        private readonly SuiteRepairLocator suiteRepair;
         private readonly ILogger logger;
 
         /// <summary>The search result whose selected installation the last quick check was started for.</summary>
@@ -53,9 +54,12 @@ namespace Empire_Earth_Launcher
         /// <param name="installations">The selected installation; every new search result starts a quick check.</param>
         /// <param name="setupWatcher">A setup that starts cancels the running check (contract 4.2).</param>
         /// <param name="logger">Log of the launcher.</param>
+        /// <param name="suiteRepair">Where the suite can be run again for the repair advice (contract 4.4, revision 4); null
+        /// for the download advice only.</param>
         public IntegrityModel(IntegrityChecker checker, InstallationService installations, SetupWatcher setupWatcher,
-            ILogger logger)
+            ILogger logger, SuiteRepairLocator suiteRepair = null)
         {
+            this.suiteRepair = suiteRepair;
             this.checker = checker ?? throw new ArgumentNullException(nameof(checker));
             this.installations = installations ?? throw new ArgumentNullException(nameof(installations));
             this.setupWatcher = setupWatcher ?? throw new ArgumentNullException(nameof(setupWatcher));
@@ -133,9 +137,10 @@ namespace Empire_Earth_Launcher
                 return null;
             IntegrityReport report = Report;
             if (report != null && report.Installation == selected && report.OffersRepair)
-                return RepairAdvice.ForIntegrity(report);
+                return RepairAdvice.ForIntegrity(report, suiteRepair?.FolderFor(selected));
             return RepairAdvice.For(selected,
-                selected.State == InstallationState.Damaged ? RepairReason.ProgramMissing : RepairReason.Requested);
+                selected.State == InstallationState.Damaged ? RepairReason.ProgramMissing : RepairReason.Requested,
+                suiteFolder: suiteRepair?.FolderFor(selected));
         }
 
         /// <summary>Starts the full check of the selected installation (contract 2.5: on request of the user).</summary>

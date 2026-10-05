@@ -565,6 +565,9 @@ Ihre jetzigen Einstellungen werden vorher als .reg-Dateien in {1} gesichert; ein
   <data name="RepairStepRunSetup" xml:space="preserve">
     <value>Schließen Sie das Spiel. Laden Sie das aktuelle Community-Setup herunter und führen Sie es aus: Es erkennt die Installation und bietet an, sie zu aktualisieren oder zu reparieren.</value>
   </data>
+  <data name="RepairStepRunSuiteFormat" xml:space="preserve">
+    <value>Schließen Sie das Spiel. Starten Sie „Empire Earth Community Setup“ erneut aus dem Ordner, in den Sie es entpackt haben ({0}): Es repariert oder aktualisiert die Spiele, die es installiert hat.</value>
+  </data>
   <data name="RepairStepKeepFolderAllUsersFormat" xml:space="preserve">
     <value>Behalten Sie den Ordner {0} bei und wählen Sie wieder „Installation für alle Benutzer“.</value>
   </data>
@@ -586,14 +589,23 @@ Ihre jetzigen Einstellungen werden vorher als .reg-Dateien in {1} gesichert; ein
   <data name="RepairDownloadPageLabel" xml:space="preserve">
     <value>Downloadseite des Community-Setups:</value>
   </data>
+  <data name="RepairDownloadPageSuiteLabel" xml:space="preserve">
+    <value>Falls dieser Ordner nicht mehr da ist, laden Sie stattdessen das Community-Setup herunter:</value>
+  </data>
   <data name="RepairOpenPageButton" xml:space="preserve">
     <value>Downloadseite öffnen</value>
+  </data>
+  <data name="RepairOpenSuiteFolderButton" xml:space="preserve">
+    <value>Setup-Ordner öffnen</value>
   </data>
   <data name="RepairCloseButton" xml:space="preserve">
     <value>Schließen</value>
   </data>
   <data name="RepairPageNotOpenedFormat" xml:space="preserve">
     <value>Die Seite konnte nicht geöffnet werden. Kopieren Sie die Adresse in Ihren Browser: {0}</value>
+  </data>
+  <data name="RepairSuiteFolderNotOpenedFormat" xml:space="preserve">
+    <value>Der Ordner konnte nicht geöffnet werden: {0}</value>
   </data>
   <data name="NavigationTools" xml:space="preserve">
     <value>Werkzeuge</value>

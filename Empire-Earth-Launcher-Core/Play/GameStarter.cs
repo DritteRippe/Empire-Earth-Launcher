@@ -151,15 +151,19 @@ namespace Empire_Earth_Launcher.Core.Play
         private readonly IGameStartPreparation preparation;
         private readonly IProcessStarter starter;
         private readonly ILogger logger;
+        private readonly SuiteRepairLocator suiteRepair;
 
         /// <param name="detector">The running setups, games and processes.</param>
         /// <param name="fileSystem">To check that the program exists.</param>
         /// <param name="preparation">Class S and the first run (<see cref="GameDefaultsService"/>).</param>
         /// <param name="starter">Starts the program through the shell.</param>
         /// <param name="logger">Log of the launcher.</param>
+        /// <param name="suiteRepair">Where the suite can be run again for the repair advice (contract 4.4, revision 4); null
+        /// if the launcher gives the download advice only.</param>
         public GameStarter(RunningGameDetector detector, IFileSystem fileSystem, IGameStartPreparation preparation,
-            IProcessStarter starter, ILogger logger)
+            IProcessStarter starter, ILogger logger, SuiteRepairLocator suiteRepair = null)
         {
+            this.suiteRepair = suiteRepair;
             this.detector = detector ?? throw new ArgumentNullException(nameof(detector));
             this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
             this.preparation = preparation ?? throw new ArgumentNullException(nameof(preparation));
@@ -266,7 +270,8 @@ namespace Empire_Earth_Launcher.Core.Play
 
         private StartResult Damaged(StartResult result, string why)
         {
-            result.RepairAdvice = RepairAdvice.For(result.Installation, RepairReason.ProgramMissing, new[] { result.Game });
+            result.RepairAdvice = RepairAdvice.For(result.Installation, RepairReason.ProgramMissing, new[] { result.Game },
+                suiteRepair?.FolderFor(result.Installation));
             logger.Warning("Game start refused: the program " + result.ProgramPath + " is missing (" + why + "); repair advice: " +
                            result.RepairAdvice + ".");
             return result;
@@ -310,7 +315,8 @@ namespace Empire_Earth_Launcher.Core.Play
             if (outcome == StartOutcome.Damaged)
                 return Damaged(result, "Windows error " + errorCode.ToString(CultureInfo.InvariantCulture) + " at the start");
             if (outcome == StartOutcome.BlockedByAntivirus)
-                result.RepairAdvice = RepairAdvice.For(result.Installation, RepairReason.ProgramMissing, new[] { result.Game });
+                result.RepairAdvice = RepairAdvice.For(result.Installation, RepairReason.ProgramMissing, new[] { result.Game },
+                suiteRepair?.FolderFor(result.Installation));
 
             if (outcome == StartOutcome.ElevationCancelled)
                 logger.Info("Game start of " + result.ProgramPath + " cancelled: the elevation prompt was not confirmed (error 1223).");

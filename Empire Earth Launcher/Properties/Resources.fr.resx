@@ -565,6 +565,9 @@ Vos paramètres actuels sont d'abord enregistrés dans des fichiers .reg dans {1
   <data name="RepairStepRunSetup" xml:space="preserve">
     <value>Fermez le jeu. Téléchargez le setup communautaire actuel et exécutez-le : il trouve l'installation et propose de la mettre à jour ou de la réparer.</value>
   </data>
+  <data name="RepairStepRunSuiteFormat" xml:space="preserve">
+    <value>Fermez le jeu. Relancez « Empire Earth Community Setup » depuis le dossier où vous l'avez décompressé ({0}) : il répare ou met à jour les jeux qu'il a installés.</value>
+  </data>
   <data name="RepairStepKeepFolderAllUsersFormat" xml:space="preserve">
     <value>Conservez le dossier {0} et choisissez de nouveau « Installer pour tous les utilisateurs ».</value>
   </data>
@@ -586,14 +589,23 @@ Vos paramètres actuels sont d'abord enregistrés dans des fichiers .reg dans {1
   <data name="RepairDownloadPageLabel" xml:space="preserve">
     <value>Page de téléchargement du setup communautaire :</value>
   </data>
+  <data name="RepairDownloadPageSuiteLabel" xml:space="preserve">
+    <value>Si ce dossier n'existe plus, téléchargez plutôt le setup communautaire :</value>
+  </data>
   <data name="RepairOpenPageButton" xml:space="preserve">
     <value>Ouvrir la page</value>
+  </data>
+  <data name="RepairOpenSuiteFolderButton" xml:space="preserve">
+    <value>Ouvrir le dossier</value>
   </data>
   <data name="RepairCloseButton" xml:space="preserve">
     <value>Fermer</value>
   </data>
   <data name="RepairPageNotOpenedFormat" xml:space="preserve">
     <value>Impossible d'ouvrir la page. Copiez l'adresse dans votre navigateur : {0}</value>
+  </data>
+  <data name="RepairSuiteFolderNotOpenedFormat" xml:space="preserve">
+    <value>Le dossier n'a pas pu être ouvert : {0}</value>
   </data>
   <data name="NavigationTools" xml:space="preserve">
     <value>Outils</value>

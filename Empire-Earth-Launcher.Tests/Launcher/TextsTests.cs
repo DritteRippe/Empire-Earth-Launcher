@@ -415,6 +415,24 @@ namespace Empire_Earth_Launcher.Tests.Launcher
         }
 
         [Test]
+        public void RepairSteps_Contract_4_4_WithTheSuiteFolder_TheSuiteStepComesFirst()
+        {
+            const string Folder = @"C:\Users\Anna\Downloads\Empire Earth Community";
+            RepairAdvice advice = RepairAdvice.For(PlayInstallation(), RepairReason.ProgramMissing, new[] { Game.EmpireEarth }, Folder);
+
+            Assert.That(Texts.RepairSteps(advice).Split(new[] { Environment.NewLine }, StringSplitOptions.None), Is.EqualTo(new[]
+            {
+                "1. First add an exception for the folder " + PlayRoot + " in your antivirus program; otherwise it removes the files again.",
+                "2. Close the game. Run \"Empire Earth Community Setup\" again from the folder you unpacked it to (" + Folder +
+                "): it repairs or updates the games it installed.",
+                "3. Keep the folder " + PlayRoot + " and choose \"Install for all users\" again.",
+                "4. Keep the task \"Register NeoEE CDKeys\" selected: it also repairs the CD keys."
+            }));
+            Assert.That(Texts.RepairSteps(advice), Does.Not.Contain("Download the current community setup"),
+                "the download is the second option below the steps, not a step");
+        }
+
+        [Test]
         public void StartMessage_HasATextForEveryOutcome()
         {
             foreach (StartOutcome outcome in Enum.GetValues(typeof(StartOutcome)))

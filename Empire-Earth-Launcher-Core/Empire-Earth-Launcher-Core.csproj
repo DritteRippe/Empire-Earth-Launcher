@@ -79,6 +79,7 @@
     <Compile Include="Installations\InstalledFromReader.cs" />
     <Compile Include="Installations\InstallInfoFile.cs" />
     <Compile Include="Installations\InstallRecordReader.cs" />
+    <Compile Include="Installations\SuiteRecordReader.cs" />
     <Compile Include="Installations\RegistryReads.cs" />
     <Compile Include="Installations\SetupNameList.cs" />
     <Compile Include="Installations\UninstallKeyScanner.cs" />
@@ -139,6 +140,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repair\RepairAdvice.cs" />
     <Compile Include="Repair\SetupDownloadLocator.cs" />
+    <Compile Include="Repair\SuiteRepairLocator.cs" />
     <Compile Include="Repair\UpdateChecker.cs" />
     <Compile Include="Repair\UpdateUrlPolicy.cs" />
     <Compile Include="Settings\LauncherPaths.cs" />

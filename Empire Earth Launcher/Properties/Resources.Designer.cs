@@ -2751,6 +2751,15 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to If that folder is gone, download the community setup instead:.
+        /// </summary>
+        internal static string RepairDownloadPageSuiteLabel {
+            get {
+                return ResourceManager.GetString("RepairDownloadPageSuiteLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to No address from the update server ({0}); this is the general download page..
         /// </summary>
         internal static string RepairFallbackFormat {
@@ -2777,6 +2786,15 @@ namespace Empire_Earth_Launcher.Properties {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to Open setup folder.
+        /// </summary>
+        internal static string RepairOpenSuiteFolderButton {
+            get {
+                return ResourceManager.GetString("RepairOpenSuiteFolderButton", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to The page could not be opened. Copy the address into your browser: {0}.
         /// </summary>
@@ -2858,6 +2876,24 @@ namespace Empire_Earth_Launcher.Properties {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to Close the game. Run "Empire Earth Community Setup" again from the folder you unpacked it to ({0}): it repairs or updates the games it installed..
+        /// </summary>
+        internal static string RepairStepRunSuiteFormat {
+            get {
+                return ResourceManager.GetString("RepairStepRunSuiteFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The folder could not be opened: {0}.
+        /// </summary>
+        internal static string RepairSuiteFolderNotOpenedFormat {
+            get {
+                return ResourceManager.GetString("RepairSuiteFolderNotOpenedFormat", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to The report was copied to the clipboard; it is shown below..
         /// </summary>

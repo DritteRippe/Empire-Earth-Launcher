@@ -750,6 +750,10 @@ Your current settings are saved first as .reg files in {1}; double-click such a 
     <value>Close the game. Download the current community setup and run it: it finds the installation and offers to update or repair it.</value>
     <comment>Step of the repair advice (contract 4.4).</comment>
   </data>
+  <data name="RepairStepRunSuiteFormat" xml:space="preserve">
+    <value>Close the game. Run "Empire Earth Community Setup" again from the folder you unpacked it to ({0}): it repairs or updates the games it installed.</value>
+    <comment>Step of the repair advice when the suite record lists the product and its folder exists (contract 4.4, revision 4). {0}: the folder the suite was started from (SourceDir). The quoted text is the name of the suite setup file.</comment>
+  </data>
   <data name="RepairStepKeepFolderAllUsersFormat" xml:space="preserve">
     <value>Keep the folder {0} and choose "Install for all users" again.</value>
     <comment>Step of the repair advice for an installation in the mode admin (contract 4.4). {0}: the install root. The quoted text is the option of Inno Setup in this language (PrivilegesRequiredOverrideAllUsers without the &amp;).</comment>
@@ -778,9 +782,17 @@ Your current settings are saved first as .reg files in {1}; double-click such a 
     <value>Download page of the community setup:</value>
     <comment>Repair advice, above the address of the download page (contract 4.3).</comment>
   </data>
+  <data name="RepairDownloadPageSuiteLabel" xml:space="preserve">
+    <value>If that folder is gone, download the community setup instead:</value>
+    <comment>Repair advice with the suite step, above the address of the download page, which stays the second option (contract 4.4, revision 4).</comment>
+  </data>
   <data name="RepairOpenPageButton" xml:space="preserve">
     <value>Open download page</value>
     <comment>Button of the repair advice; opens the download page in the browser; at most about 24 characters.</comment>
+  </data>
+  <data name="RepairOpenSuiteFolderButton" xml:space="preserve">
+    <value>Open setup folder</value>
+    <comment>Button of the repair advice with the suite step; opens the folder of the suite setup in the Explorer (never starts a program); at most about 24 characters.</comment>
   </data>
   <data name="RepairCloseButton" xml:space="preserve">
     <value>Close</value>
@@ -789,6 +801,10 @@ Your current settings are saved first as .reg files in {1}; double-click such a 
   <data name="RepairPageNotOpenedFormat" xml:space="preserve">
     <value>The page could not be opened. Copy the address into your browser: {0}</value>
     <comment>Repair advice when the browser could not be opened. {0}: the address of the download page.</comment>
+  </data>
+  <data name="RepairSuiteFolderNotOpenedFormat" xml:space="preserve">
+    <value>The folder could not be opened: {0}</value>
+    <comment>Repair advice when the Explorer could not be opened. {0}: the folder of the suite setup.</comment>
   </data>
   <data name="NavigationTools" xml:space="preserve">
     <value>Tools</value>

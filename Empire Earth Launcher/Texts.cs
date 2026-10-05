@@ -485,6 +485,8 @@ namespace Empire_Earth_Launcher
                     return string.Format(CultureInfo.CurrentCulture, Resources.RepairStepAntivirusFormat, advice.Folder);
                 case Core.Repair.RepairStep.CloseGameAndRunSetup:
                     return Resources.RepairStepRunSetup;
+                case Core.Repair.RepairStep.RunSuiteSetupAgain:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.RepairStepRunSuiteFormat, advice.SuiteFolder);
                 case Core.Repair.RepairStep.KeepFolderAndMode:
                     string format;
                     switch (advice.Installation.Mode)
