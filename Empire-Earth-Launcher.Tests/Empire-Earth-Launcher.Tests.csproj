@@ -103,6 +103,7 @@
     <Compile Include="Core\GameSettings\HintVisibilityTests.cs" />
     <Compile Include="Core\GameSettings\LauncherWritePolicyTests.cs" />
     <Compile Include="Core\Installations\DiscoveryContractTests.cs" />
+    <Compile Include="Core\Installations\DiscoveryResultSessionProductTests.cs" />
     <Compile Include="Core\Installations\EffectivePathResolverTests.cs" />
     <Compile Include="Core\Installations\GameDirectoryLocatorPortTests.cs" />
     <Compile Include="Core\Installations\GameFoldersTests.cs" />
@@ -142,6 +143,8 @@
     <Compile Include="Core\Platform\WindowsProcessListTests.cs" />
     <Compile Include="Core\Platform\WinPathTests.cs" />
     <Compile Include="Core\Play\GameStarterTests.cs" />
+    <Compile Include="Core\Play\InstanceForwardingTests.cs" />
+    <Compile Include="Core\Play\LauncherArgumentsTests.cs" />
     <Compile Include="Core\Play\MutationGuardTests.cs" />
     <Compile Include="Core\Play\ProgramVersionsTests.cs" />
     <Compile Include="Core\Play\RunningGameDetectorTests.cs" />
@@ -175,6 +178,7 @@
     <Compile Include="Launcher\DiagnosticsModelTests.cs" />
     <Compile Include="Launcher\GameSettingsModelTests.cs" />
     <Compile Include="Launcher\InstallationServiceTests.cs" />
+    <Compile Include="Launcher\LauncherInstanceTargetTests.cs" />
     <Compile Include="Launcher\LauncherWrapLabelTests.cs" />
     <Compile Include="Launcher\LobbyStatusTests.cs" />
     <Compile Include="Launcher\IntegrityModelTests.cs" />

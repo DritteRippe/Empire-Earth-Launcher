@@ -41,6 +41,9 @@ namespace Empire_Earth_Launcher
 
         private int running;
 
+        /// <summary>The product of <c>--product=</c> for this session (contract 1.4); null if none. Never saved.</summary>
+        private Product sessionProduct;
+
         /// <summary>True while <see cref="RefreshAsync"/> probes the setup mutexes, so that the end it sees does not start a second refresh.</summary>
         private bool probingSetup;
 
@@ -91,6 +94,36 @@ namespace Empire_Earth_Launcher
         }
 
         /// <summary>
+        /// The product the session was started or switched to with <c>--product=</c> (contract 1.4, revision 4); null if none, or
+        /// after the user chose an installation (the user's choice wins over the argument).
+        /// </summary>
+        public Product SessionProduct
+        {
+            get { return sessionProduct; }
+        }
+
+        /// <summary>
+        /// Selects the first installation of <paramref name="product"/> for this session only (contract 1.4, "Default
+        /// selection"): the saved choice and the settings stay as they are, and every later search applies the same selection.
+        /// Without an installation of that product the argument is ignored (logged) and the normal selection stays. Before the
+        /// first search has finished it only remembers the product, which the search then applies.
+        /// </summary>
+        /// <returns>True if the selected installation is of that product afterwards.</returns>
+        public bool SelectProductForSession(Product product)
+        {
+            if (product == null)
+                throw new ArgumentNullException(nameof(product));
+            sessionProduct = product;
+            if (Result == null)
+                return false;
+            DiscoveryResult before = Result;
+            Result = ApplySessionProduct(Result);
+            if (Result != before)
+                Changed?.Invoke(this, EventArgs.Empty);
+            return Selected?.Product == product;
+        }
+
+        /// <summary>
         /// Runs the discovery again with the folder chosen in the settings; while a setup runs, it only marks the refresh as
         /// waiting (<see cref="IsWaitingForSetup"/>) and keeps the previous result.
         /// </summary>
@@ -128,8 +161,8 @@ namespace Empire_Earth_Launcher
                     cancellationToken);
                 if (current != generation)
                     return; // a later refresh (another choice) has started; its result counts
-                Result = result;
-                LogSelection(result);
+                Result = ApplySessionProduct(result);
+                LogSelection(Result);
             }
             finally
             {
@@ -157,6 +190,9 @@ namespace Empire_Earth_Launcher
         /// </summary>
         public Task ChooseFolderAsync(string folder)
         {
+            if (sessionProduct != null)
+                logger.Info("The choice of the user replaces the product of the command line (" + sessionProduct.Id + ").");
+            sessionProduct = null;
             settings.Current.GameDirectory = string.IsNullOrWhiteSpace(folder) ? string.Empty : folder.Trim();
             // If saving fails (logged by the store), the choice is still used for this session.
             settings.Save();
@@ -185,6 +221,21 @@ namespace Empire_Earth_Launcher
         public GameFolderKind ClassifyFolder(string folder)
         {
             return GameFolders.Classify(fileSystem, folder);
+        }
+
+        /// <summary>The result with the selection of the session product (contract 1.4); the result itself without one.</summary>
+        private DiscoveryResult ApplySessionProduct(DiscoveryResult result)
+        {
+            if (sessionProduct == null)
+                return result;
+            DiscoveryResult applied = result.ForSessionProduct(sessionProduct);
+            if (applied.Selected?.Product != sessionProduct)
+                logger.Warning("No " + sessionProduct.Id + " installation was found; " + ContractNames.ProductArgumentName + "=" +
+                               sessionProduct.Id + " is ignored and the usual selection applies.");
+            else if (applied != result)
+                logger.Info("Selected the " + sessionProduct.Id + " installation " + applied.Selected.Root + " for this session (" +
+                            ContractNames.ProductArgumentName + "=" + sessionProduct.Id + "; nothing is saved).");
+            return applied;
         }
 
         private void LogSelection(DiscoveryResult result)

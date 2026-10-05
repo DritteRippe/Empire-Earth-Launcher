@@ -85,11 +85,14 @@
       <DependentUpon>GeneralUserControl.cs</DependentUpon>
     </Compile>
     <Compile Include="CleanupView.cs" />
+    <Compile Include="ForegroundWindow.cs" />
     <Compile Include="DiagnosticsModel.cs" />
     <Compile Include="GameSettingsModel.cs" />
     <Compile Include="InstallationService.cs" />
+    <Compile Include="InstanceMessageWindow.cs" />
     <Compile Include="IntegrityModel.cs" />
     <Compile Include="IThemeService.cs" />
+    <Compile Include="LauncherInstanceTarget.cs" />
     <Compile Include="MaintenanceModel.cs" />
     <Compile Include="PlayModel.cs" />
     <Compile Include="Program.cs" />

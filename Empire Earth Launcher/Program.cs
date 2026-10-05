@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -36,8 +37,12 @@ namespace Empire_Earth_Launcher
         /// The main entry point of the application and its composition root: the services (logger, settings,
         /// theme, registry, installations, Neo client) are created here, once, and passed to the windows that need them.
         /// </summary>
+        /// <param name="args">
+        /// <c>--product=EE</c> or <c>--product=NeoEE</c> (the shortcuts of the suite, contract 1.4): selects that product for this
+        /// session; another value is ignored and logged.
+        /// </param>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
             // Install the global handlers before anything else: SetUnhandledExceptionMode must be called
             // before the first window is created. Exceptions on the UI thread are reported and the launcher
@@ -64,19 +69,24 @@ namespace Empire_Earth_Launcher
             var settingsStore = new SettingsStore(fileSystem, LauncherPaths.SettingsFile, logger);
             settingsStore.Load();
             ApplyUiLanguage(logger, settingsStore.Current.UiCulture);
+            LauncherArguments arguments = LauncherArguments.Parse(args, logger);
+            int sessionId = Process.GetCurrentProcess().SessionId;
 
-            // One launcher per Windows session (ADR 0010); a second one says so in the UI language and ends. The handle is
-            // kept until the launcher ends.
-            using (IDisposable singleInstance = ClaimSingleInstance(new WindowsMutexOwner(logger), logger, ShowAlreadyRunning))
+            // One launcher per Windows session (ADR 0010). A second one that was started with --product hands the product to the
+            // running one and ends silently; otherwise it says so in the UI language and ends. The handle is kept until the
+            // launcher ends.
+            Func<bool> handOver = () => new InstanceForwarder(new WindowsInstanceChannel(logger), delay => Thread.Sleep(delay), logger)
+                .TryForward(arguments, sessionId);
+            using (IDisposable singleInstance = ClaimSingleInstance(new WindowsMutexOwner(logger), logger, ShowAlreadyRunning, handOver))
             {
                 if (singleInstance == null)
                     return;
-                Run(fileSystem, settingsStore);
+                Run(fileSystem, settingsStore, arguments, sessionId);
             }
         }
 
         /// <summary>Creates the services of the launcher and runs the main window (the composition root).</summary>
-        private static void Run(LocalFileSystem fileSystem, SettingsStore settingsStore)
+        private static void Run(LocalFileSystem fileSystem, SettingsStore settingsStore, LauncherArguments arguments, int sessionId)
         {
             var themeService = new KryptonThemeService(logger, LauncherPaths.ThemesDirectory);
             ApplySavedTheme(themeService, settingsStore.Current, logger);
@@ -98,6 +108,9 @@ namespace Empire_Earth_Launcher
             var installations = new InstallationService(logger, settingsStore,
                 new InstallationDiscovery(registry, fileSystem, logger), fileSystem, LauncherPaths.ApplicationDirectory,
                 setupWatcher);
+            // --product=EE|NeoEE (contract 1.4, revision 4): this session starts with that product; nothing is saved.
+            if (arguments.SessionProduct != null)
+                installations.SelectProductForSession(arguments.SessionProduct);
             // The files the game really uses (VirtualStore copy first, ADR 0016): lobby profiles, saves, WON files.
             EffectivePathResolver effectivePaths = CreateEffectivePathResolver(fileSystem);
             var lobbyProfiles = new LobbyProfileRepository(logger, fileSystem, effectivePaths);
@@ -165,8 +178,18 @@ namespace Empire_Earth_Launcher
                     anonymizer, fileSystem, logger);
 
                 logger.Info("Starting Empire Earth Launcher Form");
-                Application.Run(new MainForm(logger, themeService, settingsStore, installations, lobbyProfiles, gameSettings,
-                    play, integrity, updates, maintenance, diagnostics, setupWatcher, uiOperation, playerList));
+                var mainForm = new MainForm(logger, themeService, settingsStore, installations, lobbyProfiles, gameSettings,
+                    play, integrity, updates, maintenance, diagnostics, setupWatcher, uiOperation, playerList);
+
+                // The hidden window that a second launcher with --product sends the product to (contract 1.4); it is created here,
+                // on the UI thread, so that the message loop below delivers its messages, and lives as long as the launcher.
+                var target = new LauncherInstanceTarget(installations, () => play.IsStarting,
+                    () => ForegroundWindow.BringToFront(mainForm), logger);
+                using (InstanceMessageWindow instanceWindow = InstanceMessageWindow.TryCreate(InstanceMessage.WindowName(sessionId),
+                           new InstanceReceiver(target, logger), logger))
+                {
+                    Application.Run(mainForm);
+                }
             }
         }
 
@@ -201,14 +224,18 @@ namespace Empire_Earth_Launcher
 
         /// <summary>
         /// Claims the single-instance mutex <see cref="SingleInstance.MutexName"/> (ADR 0010); if another launcher holds it,
-        /// shows <see cref="Resources.LauncherAlreadyRunning"/> and returns null, and the launcher ends.
+        /// first tries <paramref name="handOver"/> (the product of <c>--product=</c> goes to the running launcher, which comes to
+        /// the front) and, if that did not work or there is none, shows <see cref="Resources.LauncherAlreadyRunning"/>; returns
+        /// null then, and the launcher ends.
         /// </summary>
-        internal static IDisposable ClaimSingleInstance(IMutexOwner owner, ILogger log, Action<string> showMessage)
+        /// <param name="handOver">Hands the command line to the running launcher; true if it took it. Null for none.</param>
+        internal static IDisposable ClaimSingleInstance(IMutexOwner owner, ILogger log, Action<string> showMessage,
+            Func<bool> handOver = null)
         {
             if (showMessage == null)
                 throw new ArgumentNullException(nameof(showMessage));
             IDisposable handle = SingleInstance.TryClaim(owner, log);
-            if (handle == null)
+            if (handle == null && !(handOver?.Invoke() ?? false))
                 showMessage(Resources.LauncherAlreadyRunning);
             return handle;
         }

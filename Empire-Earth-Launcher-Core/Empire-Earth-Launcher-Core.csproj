@@ -119,6 +119,7 @@
     <Compile Include="Platform\RegistryWritePolicy.cs" />
     <Compile Include="Platform\ShellProcessStarter.cs" />
     <Compile Include="Platform\WindowsFileVersionReader.cs" />
+    <Compile Include="Platform\WindowsInstanceChannel.cs" />
     <Compile Include="Platform\WindowsMutexOwner.cs" />
     <Compile Include="Platform\WindowsMutexProbe.cs" />
     <Compile Include="Platform\WindowsNetworkInfo.cs" />
@@ -127,7 +128,9 @@
     <Compile Include="Platform\WindowsSystemInfo.cs" />
     <Compile Include="Platform\WinPath.cs" />
     <Compile Include="Play\GameStarter.cs" />
+    <Compile Include="Play\InstanceForwarding.cs" />
     <Compile Include="Play\IGameStartPreparation.cs" />
+    <Compile Include="Play\LauncherArguments.cs" />
     <Compile Include="Play\MutationGuard.cs" />
     <Compile Include="Play\ProgramVersions.cs" />
     <Compile Include="Play\RunningGameDetector.cs" />

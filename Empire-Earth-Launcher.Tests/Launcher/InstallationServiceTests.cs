@@ -221,6 +221,133 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(service.Selected.EeFolder, Is.EqualTo(RetailFolder).IgnoreCase);
         }
 
+        // --- --product=EE|NeoEE for one session (contract 1.4, revision 4) ---------------------------------------------
+
+        [Test]
+        public async Task SessionProduct_EE_SelectsTheFirstEEInstallation_AndSavesNothing()
+        {
+            Assert.That(service.SelectProductForSession(Product.EE), Is.False, "no result yet: remembered for the search");
+            Assert.That(service.SessionProduct, Is.SameAs(Product.EE));
+
+            await service.RefreshAsync();
+
+            Assert.That(service.Selected.Product, Is.SameAs(Product.EE));
+            Assert.That(service.Selected.EeFolder, Is.EqualTo(RetailFolder).IgnoreCase);
+            Assert.That(service.Result.IsSelectedByUser, Is.False);
+            Assert.That(service.Result.Installations, Has.Count.EqualTo(2), "the list and its order stay");
+            Assert.That(service.Result.Installations[0].Root, Is.EqualTo(NeoRoot));
+            Assert.That(world.FileSystem.FileExists(SettingsFolder + @"\settings.json"), Is.False, "nothing is saved");
+            Assert.That(settings.Current.GameDirectory, Is.Empty.Or.Null);
+            Assert.That(world.LogLinesAbout("for this session (--product=EE; nothing is saved)"), Has.Length.EqualTo(1));
+        }
+
+        [Test]
+        public async Task SessionProduct_OfTheSelectedProduct_ChangesNothing()
+        {
+            service.SelectProductForSession(Product.NeoEE);
+
+            await service.RefreshAsync();
+
+            Assert.That(service.Selected.Root, Is.EqualTo(NeoRoot));
+            Assert.That(world.LogLinesAbout("for this session"), Is.Empty);
+            Assert.That(world.Logger.MessagesOf(LogLevel.Warning), Is.Empty);
+        }
+
+        [Test]
+        public async Task SessionProduct_WithoutAnInstallationOfIt_IsIgnored_AndLogged()
+        {
+            world = new InstallationWorld();
+            world.AddCommunityInstallation(NeoRoot, Product.NeoEE);
+            world.FileSystem.AddDirectory(SettingsFolder);
+            settings = new SettingsStore(world.FileSystem, SettingsFolder + @"\settings.json", world.Logger);
+            service = new InstallationService(world.Logger, settings, world.CreateDiscovery(), world.FileSystem, null);
+            service.SelectProductForSession(Product.EE);
+
+            await service.RefreshAsync();
+
+            Assert.That(service.Selected.Root, Is.EqualTo(NeoRoot), "the usual selection applies");
+            Assert.That(world.Logger.MessagesOf(LogLevel.Warning),
+                Does.Contain("No EE installation was found; --product=EE is ignored and the usual selection applies."));
+        }
+
+        [Test]
+        public async Task SessionProduct_ComesBeforeTheUsersSavedChoiceOfAnotherProduct()
+        {
+            settings.Current.GameDirectory = RetailFolder;
+            service.SelectProductForSession(Product.NeoEE);
+
+            await service.RefreshAsync();
+
+            Assert.That(service.Selected.Root, Is.EqualTo(NeoRoot));
+            Assert.That(service.Result.IsSelectedByUser, Is.False);
+            Assert.That(settings.Current.GameDirectory, Is.EqualTo(RetailFolder), "the saved choice stays as it was");
+        }
+
+        [Test]
+        public async Task SessionProduct_TheUsersChoiceOfThatProduct_StaysTheUsersChoice()
+        {
+            settings.Current.GameDirectory = RetailFolder;
+            service.SelectProductForSession(Product.EE);
+
+            await service.RefreshAsync();
+
+            Assert.That(service.Selected.EeFolder, Is.EqualTo(RetailFolder).IgnoreCase);
+            Assert.That(service.Result.IsSelectedByUser, Is.True);
+        }
+
+        [Test]
+        public async Task SessionProduct_SwitchedWhileRunning_RaisesChanged_AndIsAppliedByEveryLaterSearch()
+        {
+            await service.RefreshAsync();
+            Assert.That(service.Selected.Product, Is.SameAs(Product.NeoEE));
+            events.Clear();
+
+            bool selected = service.SelectProductForSession(Product.EE);
+
+            Assert.That(selected, Is.True);
+            Assert.That(service.Selected.Product, Is.SameAs(Product.EE));
+            Assert.That(events, Is.EqualTo(new[] { "done" }), "the pages hear of it");
+            Assert.That(world.FileSystem.FileExists(SettingsFolder + @"\settings.json"), Is.False, "nothing is saved");
+
+            await service.RefreshAsync();
+
+            Assert.That(service.Selected.Product, Is.SameAs(Product.EE), "also after the next search, e.g. when a setup has ended");
+        }
+
+        [Test]
+        public async Task SessionProduct_TheSameProductAgain_RaisesNoChange()
+        {
+            await service.RefreshAsync();
+            service.SelectProductForSession(Product.NeoEE);
+            events.Clear();
+
+            Assert.That(service.SelectProductForSession(Product.NeoEE), Is.True);
+
+            Assert.That(events, Is.Empty);
+        }
+
+        [Test]
+        public async Task SessionProduct_TheUsersOwnChoice_Wins_AndEndsIt()
+        {
+            await service.RefreshAsync();
+            service.SelectProductForSession(Product.EE);
+            Installation neo = service.Result.Installations.Single(installation => installation.Product == Product.NeoEE);
+
+            await service.SelectAsync(neo);
+
+            Assert.That(service.SessionProduct, Is.Null);
+            Assert.That(service.Selected.Root, Is.EqualTo(NeoRoot));
+            Assert.That(world.LogLinesAbout("The choice of the user replaces the product of the command line (EE)"), Has.Length.EqualTo(1));
+            await service.RefreshAsync();
+            Assert.That(service.Selected.Root, Is.EqualTo(NeoRoot), "the session product does not come back");
+        }
+
+        [Test]
+        public void SessionProduct_ChecksItsArgument()
+        {
+            Assert.That(() => service.SelectProductForSession(null), Throws.ArgumentNullException);
+        }
+
         // --- The suite is a setup (contract 4.2, revision 4) -------------------------------------------------------------
 
         [Test]

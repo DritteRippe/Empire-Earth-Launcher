@@ -45,6 +45,26 @@ namespace Empire_Earth_Launcher.Core.Installations
         public string UserChoice { get; }
 
         /// <summary>
+        /// The result for a session that was started with <c>--product=&lt;product&gt;</c> (contract 1.4, "Default selection"):
+        /// the selected installation is the first installation of that product in the order of the sources, the user's
+        /// choice first if it is of that product. Nothing else changes: the order, the user choice and the sources stay, and
+        /// nothing is saved.
+        /// </summary>
+        /// <returns>
+        /// This result if the selected installation is of that product already or there is none of that product (the rule of
+        /// "Default selection" applies then); otherwise a result with the other selection, which is not the user's choice.
+        /// </returns>
+        public DiscoveryResult ForSessionProduct(Product product)
+        {
+            if (product == null)
+                throw new ArgumentNullException(nameof(product));
+            if (Selected != null && Selected.Product == product)
+                return this;
+            Installation first = installations.FirstOrDefault(installation => installation.Product == product);
+            return first == null ? this : new DiscoveryResult(installations, first, false, UserChoice);
+        }
+
+        /// <summary>
         /// The other installations that use the same game settings keys as <paramref name="installation"/>: those of the
         /// same product (contract 3.1). Retail, GOG and older installations use the SSSI key of EE (contract 1.4).
         /// </summary>

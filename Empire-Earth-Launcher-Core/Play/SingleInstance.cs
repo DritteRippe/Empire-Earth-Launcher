@@ -9,8 +9,10 @@ namespace Empire_Earth_Launcher.Core.Play
     /// <see cref="MutexName"/>; a second one shows a message and ends.
     /// </summary>
     /// <remarks>
-    /// The name is reserved for a future <c>AppMutex</c> of the setup (contract O10: a setup that installs the launcher
-    /// closes it before a repair). It is no setup or game mutex, so it never blocks Play or a change.
+    /// The suite "Empire Earth Community" (contract revision 4, O10) names it in its <c>AppMutex</c>, so that the suite and
+    /// its uninstaller do not run while a launcher runs. It is no setup or game mutex, so it never blocks Play or a change.
+    /// A second launcher that was started with <c>--product=</c> first hands the product to this one
+    /// (<see cref="InstanceForwarder"/>) and says nothing.
     /// </remarks>
     public static class SingleInstance
     {
