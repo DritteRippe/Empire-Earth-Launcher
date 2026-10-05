@@ -118,6 +118,7 @@
     <Compile Include="Core\Integrity\ManifestReaderTests.cs" />
     <Compile Include="Core\Lobby\LobbyProfileRepositoryTests.cs" />
     <Compile Include="Core\Lobby\PlayerListPollerTests.cs" />
+    <Compile Include="Core\Lobby\PlayerListPollingTests.cs" />
     <Compile Include="Core\Logging\LogTrimmingTests.cs" />
     <Compile Include="Core\Maintenance\CleanupAdviceTests.cs" />
     <Compile Include="Core\Maintenance\CleanupCandidatesTests.cs" />

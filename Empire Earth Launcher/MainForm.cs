@@ -39,7 +39,7 @@ namespace Empire_Earth_Launcher
         internal MainForm(ILogger logger, IThemeService themeService, SettingsStore settings,
             InstallationService installations, LobbyProfileRepository lobbyProfiles, GameSettingsModel gameSettings,
             PlayModel play, IntegrityModel integrity, UpdateModel updates, MaintenanceModel maintenance, DiagnosticsModel diagnostics,
-            SetupWatcher setupWatcher, UiOperation uiOperation, PlayerListPoller playerList)
+            SetupWatcher setupWatcher, UiOperation uiOperation, PlayerListPolling playerList)
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.OptimizedDoubleBuffer, true);

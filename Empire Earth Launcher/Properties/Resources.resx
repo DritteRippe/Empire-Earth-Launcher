@@ -203,6 +203,10 @@
   <data name="OnlinePlayersUnavailableSeeLog" xml:space="preserve">
     <value>Online Players (unavailable, see the log)</value>
   </data>
+  <data name="OnlinePlayersNeoOnly" xml:space="preserve">
+    <value>Online Players (NeoEE only)</value>
+    <comment>Heading of the player list when the selected installation is not NeoEE: the list belongs to the NeoEE lobby and is not polled.</comment>
+  </data>
   <data name="OnlinePlayersInvalidSettings" xml:space="preserve">
     <value>Online Players (invalid server settings, see the log)</value>
   </data>

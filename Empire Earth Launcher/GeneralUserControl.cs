@@ -45,7 +45,10 @@ namespace Empire_Earth_Launcher
         private ConsistencyFinding shownFinding;
 
         /// <summary>Polls the online player list (ADR 0004); null if the server settings are invalid.</summary>
-        private PlayerListPoller playerList;
+        private PlayerListPolling playerList;
+
+        /// <summary>True once the page has loaded: no request goes out before (ADR 0004).</summary>
+        private bool loaded;
         private LobbyProfileRepository lobbyProfiles;
 
         /// <summary>Profiles shown in the user list, in the same order.</summary>
@@ -97,15 +100,15 @@ namespace Empire_Earth_Launcher
         /// <param name="installations">The installations; the lobby files are read from the EE folder of the selected one,
         /// again when it changes.</param>
         /// <param name="lobbyProfiles">Reads the lobby profiles of the game folder (VirtualStore copy first).</param>
-        /// <param name="playerList">Polls the online player list, started when the page loads and ended with it; null
-        /// disables the list (invalid server settings).</param>
+        /// <param name="playerList">Polls the online player list while the selected installation is NeoEE, started when the
+        /// page has loaded and ended with it; null disables the list (invalid server settings).</param>
         /// <param name="gameSettings">The game settings: the display question and the hints of the info bar (L-WP5).</param>
         /// <param name="play">The game choice, the versions and the start (L-WP6).</param>
         /// <param name="integrity">The integrity state of the selected installation (L-WP7).</param>
         /// <param name="updates">The version check and the download of the repair advice (L-WP7).</param>
         /// <param name="uiOperation">Runs the start, the versions and the answer to the display question (ADR 0004).</param>
         internal void Initialize(ILogger logger, IThemeService themeService, InstallationService installations,
-            LobbyProfileRepository lobbyProfiles, PlayerListPoller playerList, GameSettingsModel gameSettings, PlayModel play,
+            LobbyProfileRepository lobbyProfiles, PlayerListPolling playerList, GameSettingsModel gameSettings, PlayModel play,
             IntegrityModel integrity, UpdateModel updates, UiOperation uiOperation)
         {
             if (logger == null)
@@ -380,12 +383,14 @@ namespace Empire_Earth_Launcher
                 return;
 
             LoadLobbyProfiles();
+            loaded = true;
             StartPlayerListPolling();
         }
 
         /// <summary>
-        /// Starts the polling of the online player list (no request before the page loads); it ends with the page. The poller
-        /// logs an outage once and the return of the list once (ADR 0004).
+        /// Hooks the online player list (no request before the page loads); it ends with the page. The poller logs an
+        /// outage once and the return of the list once (ADR 0004). Whether it polls follows the selected installation
+        /// (<see cref="ApplyPlayerListPolling"/>).
         /// </summary>
         private void StartPlayerListPolling()
         {
@@ -397,7 +402,28 @@ namespace Empire_Earth_Launcher
             neoOnlineKryptonGroupBox.Values.Heading = Resources.OnlinePlayersLoading;
             playerList.Updated += OnPlayerListUpdated;
             Disposed += (sender, e) => playerList.Dispose();
-            playerList.Start();
+            ApplyPlayerListPolling();
+        }
+
+        /// <summary>
+        /// The player list belongs to the NeoEE lobby (v1.0.0): it is polled while the selected installation is NeoEE, and
+        /// not for EE or without an installation. Until the first search has finished the selection is unknown and the list
+        /// says "loading". Called when the page has loaded and whenever the installations changed.
+        /// </summary>
+        private void ApplyPlayerListPolling()
+        {
+            if (playerList == null || !loaded || installations.Result == null)
+                return;
+            bool wasPolling = playerList.IsPolling;
+            if (playerList.Apply(installations.Selected))
+            {
+                if (!wasPolling)
+                    neoOnlineKryptonGroupBox.Values.Heading = Resources.OnlinePlayersLoading;
+                return;
+            }
+            onlinePlayersKryptonDataGridView.Rows.Clear();
+            networkCheckKryptonLinkLabel.Visible = false;
+            neoOnlineKryptonGroupBox.Values.Heading = Resources.OnlinePlayersNeoOnly;
         }
 
         /// <summary>
@@ -410,6 +436,7 @@ namespace Empire_Earth_Launcher
             if (installations.IsSearching && installations.Result != null)
                 return;
             LoadLobbyProfiles();
+            ApplyPlayerListPolling();
         }
 
         /// <summary>

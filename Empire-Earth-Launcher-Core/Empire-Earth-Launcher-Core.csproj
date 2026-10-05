@@ -97,6 +97,7 @@
     <Compile Include="Maintenance\VirtualStoreScanner.cs" />
     <Compile Include="Maintenance\WonLoginReset.cs" />
     <Compile Include="Lobby\PlayerListPoller.cs" />
+    <Compile Include="Lobby\PlayerListPolling.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Logging\TraceFileLogger.cs" />
     <Compile Include="Platform\FileSystemExtensions.cs" />

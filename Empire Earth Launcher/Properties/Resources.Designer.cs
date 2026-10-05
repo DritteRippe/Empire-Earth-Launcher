@@ -2522,6 +2522,15 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Online Players (NeoEE only).
+        /// </summary>
+        internal static string OnlinePlayersNeoOnly {
+            get {
+                return ResourceManager.GetString("OnlinePlayersNeoOnly", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Online Players (unavailable).
         /// </summary>
         internal static string OnlinePlayersUnavailable {

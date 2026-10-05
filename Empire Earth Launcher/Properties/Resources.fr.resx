@@ -144,6 +144,9 @@
   <data name="OnlinePlayersUnavailableSeeLog" xml:space="preserve">
     <value>Joueurs en ligne (indisponible, voir le journal)</value>
   </data>
+  <data name="OnlinePlayersNeoOnly" xml:space="preserve">
+    <value>Joueurs en ligne (NeoEE uniquement)</value>
+  </data>
   <data name="OnlinePlayersInvalidSettings" xml:space="preserve">
     <value>Joueurs en ligne (paramètres du serveur invalides, voir le journal)</value>
   </data>

@@ -152,13 +152,14 @@ namespace Empire_Earth_Launcher
                 backups.Directory, logger);
 
             // Server settings stay application settings in "Empire Earth Launcher.exe.config" (ADR 0005). The poller sends no
-            // request before the Play page starts it (ADR 0004).
+            // request before the Play page starts it (ADR 0004), and the page starts it only while the selected installation
+            // is NeoEE (v1.0.0).
             int playerListPollIntervalMilliseconds;
             NeoApiClient neoClient = CreateNeoClient(Settings.Default, out playerListPollIntervalMilliseconds);
-            PlayerListPoller playerList = neoClient == null
+            PlayerListPolling playerList = neoClient == null
                 ? null
-                : new PlayerListPoller(new NeoPlayerListSource(neoClient),
-                    TimeSpan.FromMilliseconds(playerListPollIntervalMilliseconds), logger);
+                : new PlayerListPolling(() => new PlayerListPoller(new NeoPlayerListSource(neoClient),
+                    TimeSpan.FromMilliseconds(playerListPollIntervalMilliseconds), logger));
 
             // The update API (contract 4.3, 4.5, ADR 0008): only on request, HTTPS with the certificate check of Windows, no
             // redirects, 10 s, at most 4 KiB; the fixed download page for every failure.
