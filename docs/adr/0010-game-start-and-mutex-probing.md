@@ -1,7 +1,7 @@
 # 0010 Game start, mutex probing and single instance
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; implementation in L-WP6), see the Amendment
-sections
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; implementation in L-WP6) and 2026-10-05 (launcher
+1.0.0, the suite of contract revision 4), see the Amendment sections
 
 ## Context
 
@@ -115,3 +115,31 @@ Evidence: `Core/Play/GameStarterTests`, `RunningGameDetectorTests`, `SetupWatche
 `ProgramVersionsTests`, `Core/Platform/ShellProcessStarterTests`, `WindowsMutexOwnerTests`,
 `WindowsFileVersionReaderTests`, `WindowsProcessListTests`, `Launcher/PlayModelTests`, `SingleInstanceStartupTests`,
 `InstallationServiceTests` (a running setup), `Architecture/ProcessRulesTests`; test plan WP6-01 to WP6-15.
+
+## Amendment 2026-10-05 (launcher 1.0.0, contract revision 4)
+
+The suite installer "Empire Earth Community" (setup decision record 0013) runs the EE and NeoEE setups one after the other
+and installs the launcher. Contract revision 4 adds optional parts that touch this decision:
+
+- **The suite mutex is a setup mutex** (contract 4.2): `EmpireEarthCommunity_Suite`, held by the suite and its uninstaller for
+  their whole run, also between the two product setups, where neither `EE_Setup` nor `NeoEE_Setup` exists. The running setup
+  is therefore not a `Product` any more but a `SetupKind` (NeoEE, EE, Suite; `Core/Contract/SetupKind`), looked at in that
+  order by `RunningGameDetector.FindRunningSetup`, `MutationGuard`, `SetupWatcher`, `GameStarter` and, through the watcher,
+  `InstallationService` and the integrity checker. Nothing else changes: no game start, no search, no read of `install.ini`
+  and `files.sha256`, no integrity check and no guarded change while any of the three exists; the watcher raises one "setup
+  finished" for the whole run of the suite, because the suite mutex bridges the gap. The launcher mutex
+  `EmpireEarthCommunityLauncher` stays no setup mutex.
+- **Second launcher with `--product`**: the single-instance check (above) stays. A launcher that does not get the mutex and was
+  started with `--product=EE|NeoEE` first tries to hand the product to the running one: `InstanceForwarder` sends
+  `WM_COPYDATA` (`dwData` "EEL1", UTF-8 `product=EE` or `product=NeoEE`, at most 64 bytes) to the message-only window
+  `EmpireEarthCommunityLauncher.<Windows session id>` (`WindowsInstanceChannel`, `AllowSetForegroundWindow` first), five times
+  200 ms apart because the running launcher creates the window a moment after the mutex. If that works the second launcher ends
+  without a message; if not (no window, an old launcher, an elevated launcher that drops the message of a non-elevated one),
+  it shows the usual message. The running launcher (`InstanceMessageWindow`, `InstanceReceiver`, `LauncherInstanceTarget`)
+  accepts exactly that text, brings its window to the front and selects the product unless a game start is in progress.
+  Rejected: a named pipe or a file in `%LOCALAPPDATA%` (more code and rights questions for the same effect), and starting the
+  game from the second launcher (the first one owns the window and the start).
+- **Evidence**: `Core/Play/InstanceForwardingTests` (round trip in one process through a fake channel), `LauncherArgumentsTests`,
+  `SetupKindTests`, `SetupWatcherTests`, `MutationGuardTests`, `GameStarterTests`, `RunningGameDetectorTests`,
+  `Launcher/InstallationServiceTests`, `LauncherInstanceTargetTests`, `SingleInstanceStartupTests`; the window and the foreground
+  right are checked on Windows by the test plan (WP10-03, WP10-04).

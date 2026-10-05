@@ -150,11 +150,14 @@ Changing the English text of an existing key means checking the German and Frenc
   CGNAT, DS-Lite, Hamachi and the address ranges (`100.64.0.0/10`, `0.0.0.0`). The verdict `NetworkVerdictOutage`
   ("Probably a server outage, not your computer") must say clearly that the player's computer is not the cause.
   `log.txt` names the language in use (`UI language: de (launcher setting)`).
-  The German test plan has these cases (sections L-WP3 to L-WP9, WP4-17, WP5-17, WP6-14, WP7-14, WP8-15 and WP9-14).
+  The German test plan has these cases (sections L-WP3 to L-WP10, WP4-17, WP5-17, WP6-14, WP7-14, WP8-15, WP9-14 and WP10-05;
+  the repair window with the suite step and its button "Open setup folder" is WP10-05, the player list heading "NeoEE only" WP10-07).
 
 ## Status
 
-373 texts (state of the fixes of the laptop test: `ThemeBuiltIn` and `ThemeBuiltInNextStart` of the theme list; the review
+378 texts (launcher 1.0.0, the suite additions of contract revision 4, added 5: `RepairStepRunSuiteFormat`,
+`RepairDownloadPageSuiteLabel`, `RepairOpenSuiteFolderButton`, `RepairSuiteFolderNotOpenedFormat` of the repair advice that names the
+folder of the suite setup, and `OnlinePlayersNeoOnly` of the player list; state before that, of the fixes of the laptop test: `ThemeBuiltIn` and `ThemeBuiltInNextStart` of the theme list; the review
 fixes after L-WP9 added `ImportCheckManifestUnusable` and `CleanupKeepFolderUnknownFormat` of the
 maintenance tools, and changed `SavesInfo` to the port table of the network check; L-WP9, the last work package of v2: 76 texts of the network check and the diagnostics report on the
 *Tools* page and the link of the *Play* page were added; L-WP8 added 80 for the maintenance tools, L-WP7 59 for the
@@ -163,13 +166,13 @@ advice, a running setup and a second launcher, L-WP5 51 for the game settings, L
 
 | Language | Translated | Review |
 |---|---|---|
-| English | 373 | source |
-| German `de` | 373 | proof-reading by a native speaker in the laptop test ([TEST-PLAN.de.md](TEST-PLAN.de.md), cases WP3-*, WP4-17, WP5-17, WP6-14, WP7-14, WP8-15 and WP9-14); open until that test |
-| French `fr` | 373 | **open**: only `NavigationPlay` ("Jouer") and `NavigationSettings` ("Paramètres") come from the original French authors; all other French texts were written during the review fixes and v2 without a native speaker |
+| English | 378 | source |
+| German `de` | 378 | proof-reading by a native speaker in the laptop test ([TEST-PLAN.de.md](TEST-PLAN.de.md), cases WP3-*, WP4-17, WP5-17, WP6-14, WP7-14, WP8-15, WP9-14 and WP10-05); open until that test |
+| French `fr` | 378 | **open**: only `NavigationPlay` ("Jouer") and `NavigationSettings` ("Paramètres") come from the original French authors; all other French texts were written during the review fixes and v2 without a native speaker |
 
 ### Help wanted
 
-- **French**: a native speaker who reads the 371 French texts other than the two navigation texts in
+- **French**: a native speaker who reads the 376 French texts other than the two navigation texts in
   `Resources.fr.resx`, ideally while looking at each page. The two texts of the theme list (`ThemeBuiltIn`,
   `ThemeBuiltInNextStart`, next to `ThemeCustom`) are the newest; then the 76 texts of the network check and the diagnostics
   report (keys from `ToolsNetworkHeading` to `PlayerListCheckNetworkLink`) and the two texts of the review fixes after them

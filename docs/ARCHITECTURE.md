@@ -7,7 +7,7 @@ contract shared with the Empire Earth Setup.
 
 | | |
 |---|---|
-| Status | **Built**: describes v2 as built on branch `v2` in the work packages L-WP1 to L-WP9 (section 15, all done; the launcher items of the contract checklist are ticked there); what is still open is in section 14 and in the test plan for real Windows. The README describes the launcher as it is |
+| Status | **Built**: describes v2 as built on branch `v2` in the work packages L-WP1 to L-WP9 (section 15, all done; the launcher items of the contract checklist are ticked there) and, as launcher 1.0.0, the optional additions of contract revision 4 for the suite installer (4.7 and the second table of section 15); what is still open is in section 14 and in the test plan for real Windows. The README describes the launcher as it is |
 | Based on | branch `v2` at `2dc6c43` (refactor/quality-fixes plus the contract), contract version 1 (draft); revised after the design review (ADR amendments of 2026-10-02, ADR 0015, 0016) and after the plan review before L-WP5 (amendments "plan review" of ADR 0007, 0008, 0011, 0012, 0013, 0015, 0016); implementation notes of L-WP2 to L-WP9 in the sections and the ADR amendments |
 | Scope | the launcher, its UI-free core library, the WON library, the mod library and mod creator, the tests, the build |
 
@@ -82,9 +82,12 @@ Empire-Earth.sln
 │  ├─ Backup/          RegFileWriter (.reg export), RegistryExport, BackupLocations (ADR 0007, L-WP5);
 │  │                   FileBackup (move files into a dated backup folder, L-WP8)
 │  ├─ Play/            GameStarter, RunningGameDetector, SetupWatcher, ProgramVersions, SingleInstance,
-│  │                   MutationGuard (contract 4.2, 3.7, ADR 0010, ADR 0016; L-WP6)
+│  │                   MutationGuard (contract 4.2, 3.7, ADR 0010, ADR 0016; L-WP6); since 1.0.0
+│  │                   LauncherArguments (--product) and InstanceForwarding (InstanceMessage, InstanceForwarder,
+│  │                   InstanceReceiver: the hand-over to a running launcher, contract 1.4 revision 4)
 │  ├─ Repair/          UpdateUrlPolicy (port of the setup's IsAllowedUpdateUrl), SetupDownloadLocator,
-│  │                   UpdateChecker, RepairAdvice (contract 4; RepairAdvice since L-WP6, the rest L-WP7)
+│  │                   UpdateChecker, RepairAdvice (contract 4; RepairAdvice since L-WP6, the rest L-WP7);
+│  │                   since 1.0.0 SuiteRepairLocator (the folder of the suite for the advice, contract 4.4)
 │  ├─ Maintenance/     CleanupCandidates (the list of 4.6), CleanupAdvice, RegistryCleanup, ManifestFiles,
 │  │                   WonLoginReset, VirtualStoreScanner, SavedGames (folder export, import), NameChecks
 │  │                   (L-WP8)
@@ -92,7 +95,8 @@ Empire-Earth.sln
 │  │                   AddressClassifier, NeoEeConfigReader, WonLobbyConfigReader (CDKeyCheck, read-only),
 │  │                   UpnpInfoParser, ReportAnonymizer (privacy rules), DiagnosticsReport (L-WP9)
 │  └─ Lobby/           LobbyProfileRepository (moved), PlayerListPoller (async replacement of the
-│                      worker loop of the Play page, L-WP6)
+│                      worker loop of the Play page, L-WP6), PlayerListPolling (1.0.0: polls only while the
+│                      selected installation is NeoEE)
 ├─ Empire-Earth-WON/                      Empire_Earth_WON.dll - unchanged role: NeoEE status protocol
 │                                         (NeoApiClient, DeadlineStream), WON lobby files
 ├─ Empire-Earth-Mod/
@@ -199,10 +203,12 @@ Empire_Earth_Mod.exe ──> Empire_Earth_Mod_Lib.dll ──> BCL only
 
 ### 4.1 Start-up
 
-1. `Program.Main`: global exception handlers, logger (trimmed `log.txt`), settings (`settings.json`,
-   damaged file moved aside), UI culture (setting or Windows), single-instance check
+1. `Program.Main(string[] args)`: global exception handlers, logger (trimmed `log.txt`), settings (`settings.json`,
+   damaged file moved aside), UI culture (setting or Windows), the command line (`LauncherArguments`: since 1.0.0
+   `--product=EE|NeoEE`, an invalid value or another argument is ignored and logged), single-instance check
    ([ADR 0010](adr/0010-game-start-and-mutex-probing.md); since L-WP6 before the theme and every other service, so a
-   second launcher ends at once after its localized message), theme.
+   second launcher ends at once after its localized message; since 1.0.0 a second launcher with `--product` first hands
+   the product to the running one, see 4.7), theme.
 2. MainForm opens at once; the pages show "searching" states. Nothing blocks the window. `MainForm.OnShown` starts the
    discovery through `UiOperation` (`InstallationService.RefreshAsync` -> `InstallationDiscovery.DiscoverAsync`, thread
    pool).
@@ -257,8 +263,10 @@ Empire_Earth_Mod.exe ──> Empire_Earth_Mod_Lib.dll ──> BCL only
    window against the screen as the game sees it (ADR 0011), screen below 768 pixels, game folder without drive letter
    or outside the ANSI code page. Hidden hints are `HiddenHints` entries of `settings.json` (finding and game
    settings key, plus the values or the folder); the checkbox "Play page" on the Settings page hides or shows them.
-8. Online player list polling starts (existing behaviour, now `PlayerListPoller`, L-WP6: started when the Play page
-   loads, ended with it).
+8. Online player list polling (existing behaviour, now `PlayerListPoller`, L-WP6: started when the Play page
+   loads, ended with it). Since 1.0.0 `PlayerListPolling` starts it only while the selected installation is NeoEE: with
+   EE (also retail, GOG) or without an installation the launcher sends no request to the status server and the group
+   says "Online Players (NeoEE only)"; a new selection (the user's, or `--product`) starts or ends it.
 9. The setup-mutex watcher starts (every 2 s while the launcher runs). Since L-WP6 the main window ticks it every 500 ms
    and it probes when two seconds have passed by its `IClock`; the first probe is part of the first search
    (`InstallationService.RefreshAsync`), which waits while a setup runs (4.3).
@@ -267,7 +275,8 @@ Empire_Earth_Mod.exe ──> Empire_Earth_Mod_Lib.dll ──> BCL only
 
 Click Play -> button disabled -> `GameStarter.StartAsync(installation, game)`:
 
-1. Setup mutex `EE_Setup` or `NeoEE_Setup` exists -> refused, "a setup is running".
+1. Setup mutex `EE_Setup`, `NeoEE_Setup` or (since 1.0.0, contract 4.2 revision 4) `EmpireEarthCommunity_Suite` exists ->
+   refused, "a setup is running".
 2. Game mutex of that game exists -> refused, "already running" (forum table 8 #14), with the program name and,
    if a process of that name exists, the hint that it may hang and how to end it in the Task Manager (the
    launcher never kills a process). The other game running -> warning with "start anyway".
@@ -303,6 +312,12 @@ A refresh that itself sees the end goes on alone. Implemented in L-WP7: `Integri
 "setup started" (the checker also probes the mutexes before every file and after every MiB; the result is "check
 cancelled" without findings, the file closed) and runs the quick check after the search that follows "setup finished"
 (ADR 0016 amendment of L-WP7).
+
+Since 1.0.0 the suite is a setup like the other two (`SetupKind`: NeoEE, EE, Suite, in the order the mutexes are looked at;
+`RunningGameDetector`, `MutationGuard`, `SetupWatcher` and so `InstallationService`, `GameStarter` and the pages use it).
+The suite holds `EmpireEarthCommunity_Suite` for its whole run, also in the moment between the two product setups where
+neither product mutex exists: the watcher then sees the suite and not "no setup", so the search does not start in the gap
+and `SetupFinished` is raised once, when the suite ends.
 
 ### 4.4 Reset game settings
 
@@ -344,6 +359,15 @@ Damaged and Incomplete it shows the files (at most ten, the damaged ones first) 
 Play page asks the game version, "Check for updates" on the *Tools* page also the setup version (both implemented); an
 outdated version opens the repair window with the hand-off. A missing answer is "could not be asked", never "up to
 date" (the setup's `CheckUpdate` reads it as "no update").
+
+Since 1.0.0 (contract 4.4 revision 4): if the suite record ([1.6](CONTRACT.md#16-suite-record-optional), read by
+`SuiteRecordReader`, HKLM 64-bit view, read-only, tolerant of a missing key or value) lists the product of the installation
+and its `SourceDir` exists, `SuiteRepairLocator` gives that folder to `RepairAdvice`. The first step is then
+`RunSuiteSetupAgain` ("Close the game. Run "Empire Earth Community Setup" again from the folder you unpacked it to ...")
+instead of `CloseGameAndRunSetup`; the dialog gets a button "Open setup folder", which opens the folder in the Explorer
+through `IProcessStarter.OpenFolder` and never starts a program from it (contract 4.1), and the download page stays below as
+the second option ("If that folder is gone, ..."). A foreign installation never gets the suite step; without a record, a
+product in `Products` or the folder the advice is the download as before.
 
 ### 4.6 Tools
 
@@ -503,6 +527,31 @@ date" (the setup's `CheckUpdate` reads it as "no update").
   their class. The report is shown in the text box after "Copy report" (clipboard) or "Save report..." (UTF-8 with
   BOM, the file the player chooses, `Documents` suggested; refused inside an installation); the log records only that it
   was copied (with the number of lines) or the anonymized path it was saved to.
+
+### 4.7 Second launcher with `--product` (1.0.0)
+
+The shortcuts of the suite start `Empire Earth Launcher.exe --product=EE` or `--product=NeoEE` (contract 1.4, 1.7).
+
+- **First launcher**: `InstallationService.SelectProductForSession` remembers the product; every search then selects the
+  first installation of that product in the order of the sources, the user's choice first if it is of that product
+  (`DiscoveryResult.ForSessionProduct`). Nothing is saved: `settings.json` and the saved choice stay; choosing an
+  installation in the list ends the session product (the user's choice wins). Without an installation of the product the
+  argument is ignored and logged as a warning. An invalid value is ignored and logged by `LauncherArguments`.
+- **Second launcher** (the mutex of ADR 0010 exists): `InstanceForwarder` sends the product to the hidden window of the
+  running launcher, five attempts 200 ms apart because that window appears a moment after the mutex; on success it ends
+  silently, otherwise it shows the usual "already running" message. Without `--product` nothing is sent.
+- **Transport** (the only Windows-specific part): `WindowsInstanceChannel` finds the message-only window
+  `EmpireEarthCommunityLauncher.<Windows session id>` (`InstanceMessage.WindowName`), calls `AllowSetForegroundWindow` for
+  its process and sends `WM_COPYDATA` (`dwData` "EEL1", UTF-8 text `product=EE` or `product=NeoEE`, at most 64 bytes) with
+  `SendMessageTimeout`. The running launcher creates the window (`InstanceMessageWindow`, a `NativeWindow`) on the UI thread
+  right before `Application.Run`; its `WndProc` passes the bytes to `InstanceReceiver`, which accepts exactly that text,
+  brings the main window to the front (`ForegroundWindow`: restore if minimized, `SetForegroundWindow`) and, if no game
+  start is in progress (`PlayModel.IsStarting`), selects the product through `LauncherInstanceTarget`. During a start the
+  selection stays. Anything else changes nothing. An elevated running launcher drops the message of a non-elevated
+  one (UIPI): the second launcher shows its usual message.
+- **Tests**: `LauncherArgumentsTests`, `InstanceForwardingTests` (the round trip in one process through a fake channel),
+  `LauncherInstanceTargetTests`, `InstallationServiceTests`, `DiscoveryResultSessionProductTests`; the Windows window and the
+  foreground right are checked on real Windows (test plan WP10-03).
 
 ## 5. Threading
 
@@ -800,7 +849,7 @@ Launcher stance on the open questions of the contract (6):
   suite "Empire Earth Community" of the setup repository does, outside every product root, and uses the single-instance
   mutex `EmpireEarthCommunityLauncher` in its `AppMutex`. The optional launcher additions of revision 4 (`--product`,
   the suite mutex as a setup mutex, the suite record and the advice with `SourceDir`) are listed in contract 7
-  "Additions of revision 4" and belong to launcher 1.0.0; the table of section 15 lists them once they are built.
+  "Additions of revision 4" and are built in launcher 1.0.0 (the table at the end of section 15).
 - **O11 Two products in one folder**: warning and integrity state "unreliable".
 
 Further points to settle in the work packages, on real Windows (test plan):
@@ -930,6 +979,19 @@ real-Windows cases (table "Vertrag 7", checked by `TestPlanTests`).
 | [x] | defaults, marker, consistency checks and reset with backup (3) (L-WP5) | `GameSettingsTableContractTests`, `ComputedValuesTests`, `GameDefaultsServiceTests`, `DisplayQuestionTests`, `ConsistencyChecksTests`, `RegFileWriterTests`, `RegistryExportTests` | Launcher 3 |
 | [x] | repair hand-off and update check (4) with the URL cases of the setup's unit tests (L-WP6, L-WP7) | `RepairAdviceTests`, `UpdateUrlPolicyTests`, `SetupDownloadLocatorTests`, `UpdateCheckerTests`, `UpdateModelTests` | Launcher 4 |
 | [x] | setup and game mutexes (4.2): no game start, no reading of `install.ini` and `files.sha256` and no integrity check while a setup mutex exists (also not by the maintenance tools, review fixes), a running check cancelled, the share modes; starting the games with shell execute (L-WP6, L-WP7) | `GameStarterTests`, `SetupWatcherTests`, `InstallationServiceTests`, `IntegrityCheckerTests`, `IntegrityModelTests`, `MaintenanceModelTests`, `VirtualStoreScannerTests`, `LocalFileSystemTests`, `ShellProcessStarterTests`, `ProcessRulesTests` | Launcher 5 |
+
+### Launcher checklist of CONTRACT 7, revision 4 additions
+
+The launcher items of "Additions of revision 4 (suite)" in section 7 of [CONTRACT.md](CONTRACT.md), built in launcher 1.0.0.
+The launcher works without the suite; each addition is optional. `ContractChecklistTests` checks this table like the
+one above (ticked, and the test classes exist); the real-Windows cases are WP10-01 to WP10-07 of the test plan.
+
+| Done | Contract 7, additions of revision 4 | Unit tests | Test plan |
+|---|---|---|---|
+| [x] | `--product=EE` and `--product=NeoEE` for one session, not saved, an invalid value ignored and logged, handed to a running launcher (1.4) (4.7) | `LauncherArgumentsTests`, `InstanceForwardingTests`, `LauncherInstanceTargetTests`, `DiscoveryResultSessionProductTests`, `InstallationServiceTests` | WP10-01, WP10-02, WP10-03 |
+| [x] | `EmpireEarthCommunity_Suite` as a setup mutex (4.2): no game start, no search, no change, no integrity check, also between two product setups | `SetupKindTests`, `RunningGameDetectorTests`, `MutationGuardTests`, `SetupWatcherTests`, `GameStarterTests`, `InstallationServiceTests` | WP10-04 |
+| [x] | the suite record read-only (1.6) and the advice with `SourceDir`, the official download as the second option (4.4) | `SuiteRecordReaderTests`, `SuiteRepairTests`, `TextsTests` | WP10-05, WP10-06 |
+| [x] | the player list is polled for NeoEE only (launcher 1.0.0) | `PlayerListPollingTests` | WP10-07 |
 
 ## 16. Not in v2
 

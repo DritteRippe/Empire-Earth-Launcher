@@ -8,8 +8,9 @@ Coded in C# with the .NET Framework 4.8 and Krypton UI
 ## 🧾 Features
 
 Launcher v2 was built in nine work packages on branch `v2` ([docs/ARCHITECTURE.md](docs/ARCHITECTURE.md),
-section 15; what each one did is in the [CHANGELOG](CHANGELOG.md)). All of them are done; nothing has been released
-yet, and the next step is the test on real Windows computers ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md)). The UI
+section 15; what each one did is in the [CHANGELOG](CHANGELOG.md)). All of them are done; the launcher is version 1.0.0,
+which adds the optional parts for the suite installer "Empire Earth Community" (below). The next step is the test on
+real Windows computers ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md)). The UI
 shows only controls that work ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md)): the placeholder
 controls of the old mock-up were removed and the features behind them are listed below as planned.
 
@@ -67,9 +68,27 @@ controls of the old mock-up were removed and the features behind them are listed
     integrity, game defaults and hints, VirtualStore, whether the CD keys exist, the network check) for a forum post.
     It contains no CD keys, login data, player names, MAC or public IP address and no user or computer name, and the
     launcher never sends it
-- One launcher at a time (a second start says so and ends)
+- One launcher at a time (a second start says so and ends; started with `--product`, see below, it hands the product to
+  the running launcher and ends without a message)
 - NeoEE online player list, with the lobby profiles and friends of the game folder (also when the game keeps them
-  in the VirtualStore)
+  in the VirtualStore). It is asked only while the selected installation is NeoEE: with Empire Earth, a retail or GOG
+  installation, or none, the launcher sends nothing to the status server
+- Parts for the suite installer "Empire Earth Community" (launcher 1.0.0; the setup repository's suite installs the
+  launcher and runs the EE and NeoEE setups in one go; all of it is optional, the launcher works as before without it;
+  `docs/CONTRACT.md` revision 4):
+  - `Empire Earth Launcher.exe --product=EE` or `--product=NeoEE` (the argument of the suite's shortcuts "Empire Earth"
+    and "Neo Empire Earth") selects the first installation of that product for this session only; nothing is saved,
+    your own choice on the *Launcher* page wins, and anything else (another value, a product that is not installed,
+    another argument) is ignored and written to `log.txt`
+  - If the launcher is already running, a second start with `--product` brings its window to the front and selects
+    the product there (not while a game is starting); without the argument the second start says that the launcher
+    is running, as before
+  - The suite counts as a running setup like the EE and NeoEE setups: while it runs, even in the moment between the two
+    product setups, the launcher starts no game and changes nothing
+  - If the suite installed a product and the folder you unpacked it to is still there, the repair advice says to run
+    "Empire Earth Community Setup" again from that folder (with a button that opens the folder, never the program) and
+    keeps the download page of the product setup as the second option. The launcher only reads the suite's record
+    (`HKLM\SOFTWARE\Empire Earth Community\Suite`) for this
 - Detection of every Empire Earth installation: community setups (current and up to 1.7.2, admin, user and
   portable), retail, GOG and copies with their real folders; the *Launcher* page lists them with their state
   (a missing `Empire Earth.exe` shows as damaged) and lets the player choose one or another folder
@@ -442,7 +461,8 @@ Empire-Earth-Launcher-Core/       UI-free core library of the launcher (Empire_E
 ├─ Installations/                 Discovery of the installations (contract 1.4): install records, install.ini,
 │                                 uninstall keys, "Installed From" values, launcher folder -> InstallationDiscovery
 │                                 -> Installation with real EE/AoC folders (ADR 0015); EffectivePathResolver
-│                                 (VirtualStore copies of game files, ADR 0016)
+│                                 (VirtualStore copies of game files, ADR 0016); SuiteRecordReader (the optional
+│                                 record of the suite installer, contract 1.6, read-only)
 ├─ Platform/                      Windows behind interfaces (ADR 0006): IRegistry/WindowsRegistry (explicit views),
 │                                 RegistryLocation, RegistryValue, RegistryPath (canonical form), RegistryWritePolicy
 │                                 and PolicyCheckedRegistry (protected keys, allow-list, ADR 0007), IFileSystem/
@@ -463,12 +483,15 @@ Empire-Earth-Launcher-Core/       UI-free core library of the launcher (Empire_E
 ├─ Settings/                      LauncherSettings, SettingsStore (settings.json, ADR 0005), LauncherPaths,
 │                                 UiLanguage (the language setting, ADR 0009)
 ├─ Lobby/                         LobbyProfileRepository: lobby profiles and friends of the game folder (effective paths);
-│                                 PlayerListPoller: the online player list (async loop, ADR 0004)
+│                                 PlayerListPoller: the online player list (async loop, ADR 0004);
+│                                 PlayerListPolling: polls it only while the selected installation is NeoEE
 ├─ Play/                          GameStarter (ADR 0010: setup, game, program, Installed From, first run, shell start),
 │                                 RunningGameDetector, SetupWatcher (setup mutexes every 2 s), ProgramVersions,
-│                                 SingleInstance, MutationGuard (no change while a setup or a game runs, ADR 0016)
+│                                 SingleInstance, MutationGuard (no change while a setup or a game runs, ADR 0016),
+│                                 LauncherArguments (--product), InstanceForwarding (the hand-over to a running launcher)
 └─ Repair/                        RepairAdvice (the steps of contract 4.4), UpdateUrlPolicy (the setup's
-                                  IsAllowedUpdateUrl), SetupDownloadLocator (contract 4.3), UpdateChecker (4.5)
+                                  IsAllowedUpdateUrl), SetupDownloadLocator (contract 4.3), UpdateChecker (4.5),
+                                  SuiteRepairLocator (the folder of the suite for the advice, 4.4)
 Empire Earth Launcher/            The launcher (WinForms + Krypton UI)
 ├─ Program.cs                     Entry point and composition root: creates and passes on the services
 ├─ app.manifest                   Application manifest: asInvoker, Windows 7 to 11, not DPI-aware

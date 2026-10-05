@@ -22,19 +22,27 @@ namespace Empire_Earth_Launcher.Tests.Architecture
         private const string Architecture = "docs/ARCHITECTURE.md";
         private const string Heading = "### Launcher checklist of CONTRACT 7";
         private const string Header = "| Done | Contract 7, launcher v2 | Unit tests | Test plan |";
+        private const string Revision4Heading = "### Launcher checklist of CONTRACT 7, revision 4 additions";
+        private const string Revision4Header = "| Done | Contract 7, additions of revision 4 | Unit tests | Test plan |";
 
         private static readonly Regex ClassName = new Regex("`([A-Za-z_][A-Za-z0-9_]*)`", RegexOptions.CultureInvariant);
 
         /// <summary>The rows of the checklist: (cells, line).</summary>
         private static List<Tuple<string[], int>> ChecklistRows()
         {
+            return ChecklistRows(Heading, Header);
+        }
+
+        /// <summary>The rows of the table <paramref name="header"/> below <paramref name="heading"/>: (cells, line).</summary>
+        private static List<Tuple<string[], int>> ChecklistRows(string heading, string header)
+        {
             string[] lines = File.ReadAllLines(RepositoryRoot.GetFullPath(Architecture));
-            int heading = Array.FindIndex(lines, line => line == Heading);
-            Assert.That(heading, Is.GreaterThanOrEqualTo(0), Architecture + " has no section \"" + Heading + "\"");
-            int header = Array.FindIndex(lines, heading, line => line.StartsWith(Header, StringComparison.Ordinal));
-            Assert.That(header, Is.GreaterThan(heading), "the checklist has no table " + Header);
+            int headingLine = Array.FindIndex(lines, line => line == heading);
+            Assert.That(headingLine, Is.GreaterThanOrEqualTo(0), Architecture + " has no section \"" + heading + "\"");
+            int headerLine = Array.FindIndex(lines, headingLine, line => line.StartsWith(header, StringComparison.Ordinal));
+            Assert.That(headerLine, Is.GreaterThan(headingLine), "the checklist has no table " + header);
             var rows = new List<Tuple<string[], int>>();
-            for (int i = header + 2; i < lines.Length && lines[i].StartsWith("|", StringComparison.Ordinal); i++)
+            for (int i = headerLine + 2; i < lines.Length && lines[i].StartsWith("|", StringComparison.Ordinal); i++)
             {
                 string[] cells = lines[i].Trim().Trim('|').Split('|').Select(cell => cell.Trim()).ToArray();
                 Assert.That(cells, Has.Length.EqualTo(4), Architecture + ":" + (i + 1));
@@ -85,6 +93,38 @@ namespace Empire_Earth_Launcher.Tests.Architecture
             }
 
             Assert.That(missing, Is.Empty, "test classes that this test program does not have");
+        }
+
+        /// <summary>
+        /// The additions of revision 4 (launcher 1.0.0, CONTRACT.md section 7 "Launcher 1.0.0"): every one has a ticked row with
+        /// existing test classes and cases of the test plan; there are at least as many rows as list items of the contract.
+        /// </summary>
+        [Test]
+        public void EveryRevision4Addition_IsTicked_WithTestsAndTestPlanCases()
+        {
+            List<Tuple<string[], int>> rows = ChecklistRows(Revision4Heading, Revision4Header);
+            string[] contract = File.ReadAllLines(RepositoryRoot.GetFullPath("docs/CONTRACT.md"));
+            int launcher = Array.FindIndex(contract, line => line.StartsWith("Launcher 1.0.0 (optional additions", StringComparison.Ordinal));
+            Assert.That(launcher, Is.GreaterThanOrEqualTo(0), "CONTRACT.md section 7 has no list \"Launcher 1.0.0\"");
+            int items = 0;
+            for (int i = launcher + 1; i < contract.Length && !contract[i].StartsWith("#", StringComparison.Ordinal); i++)
+            {
+                if (contract[i].StartsWith("- ", StringComparison.Ordinal))
+                    items++;
+            }
+
+            Assert.That(rows.Count, Is.GreaterThanOrEqualTo(items), "one row per launcher item of CONTRACT.md \"Launcher 1.0.0\"");
+            Assert.That(rows.Where(row => row.Item1[0] != "[x]").Select(row => Architecture + ":" + row.Item2), Is.Empty);
+            string plan = File.ReadAllText(RepositoryRoot.GetFullPath("docs/TEST-PLAN.de.md"));
+            foreach (var row in rows)
+            {
+                MatchCollection names = ClassName.Matches(row.Item1[2]);
+                Assert.That(names.Count, Is.GreaterThan(0), Architecture + ":" + row.Item2 + ": no test class named");
+                foreach (Match name in names)
+                    Assert.That(IsTestClass(name.Groups[1].Value), Is.True, Architecture + ":" + row.Item2 + ": " + name.Groups[1].Value);
+                foreach (string id in row.Item1[3].Split(',').Select(id => id.Trim()))
+                    Assert.That(plan, Does.Contain("| " + id + " |"), Architecture + ":" + row.Item2 + ": the test plan has no case " + id);
+            }
         }
 
         /// <summary>The rules above also find what they are meant to find (a check of the check).</summary>

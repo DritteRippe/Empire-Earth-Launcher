@@ -3,17 +3,63 @@
 All notable changes to Empire Earth Launcher, its libraries and the mod creator are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
-[Semantic Versioning](https://semver.org/spec/v2.0.0.html). Nothing has been released yet (all assemblies carry
-`0.1.0-alpha`, see `SharedAssemblyInfo.cs`). The fixes of the code review that preceded v2 (branch
-`refactor/quality-fixes`) are described in the git history.
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html). All assemblies carry the version of
+`SharedAssemblyInfo.cs`: 1.0.0 since the optional additions for the suite installer, `0.1.0-alpha` before. The fixes of
+the code review that preceded v2 (branch `refactor/quality-fixes`) are described in the git history.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-05
+
 Launcher v2 was built on branch `v2` in the work packages L-WP1 to L-WP9 ([docs/ARCHITECTURE.md](docs/ARCHITECTURE.md),
-section 15); all of them are done, newest first below. It has not been released; the test on real Windows follows
-([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md)).
+section 15); all of them are done, newest first below. Version 1.0.0 adds the optional additions of contract revision 4
+for the suite installer "Empire Earth Community" of the setup repository (setup ADR 0013), which installs the launcher
+and the games in one run; the launcher works as before without it. The test on real Windows follows
+([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), L-WP10 for the suite additions).
 
 ### Added
+
+- Launcher 1.0.0, the optional additions of contract revision 4 (`docs/CONTRACT.md` 0, 1.4, 1.6, 4.2, 4.4; checklist at
+  the end of ARCHITECTURE section 15, test plan WP10-01 to WP10-07):
+  - `Main(string[] args)` with `--product=EE` and `--product=NeoEE` (the argument of the suite's game shortcuts,
+    `LauncherArguments`): the first installation of that product is selected for this session only, in the order of the
+    sources and with the user's choice first if it is of that product (`DiscoveryResult.ForSessionProduct`,
+    `InstallationService.SelectProductForSession`). Nothing is saved, the choice of an installation in the list ends
+    it, an invalid value or an unknown argument is ignored and logged (the value must be exactly `EE` or `NeoEE`), and
+    so is a product without an installation.
+  - Second launcher: a launcher that finds the single-instance mutex taken and was started with `--product` hands the
+    product to the running one and ends without a message (`InstanceForwarder`; `WM_COPYDATA` to the message-only window
+    `EmpireEarthCommunityLauncher.<Windows session id>`, `WindowsInstanceChannel`, `InstanceMessageWindow`; five attempts
+    200 ms apart because the window appears a moment after the mutex). The running launcher
+    (`InstanceReceiver`, `LauncherInstanceTarget`) brings its window to the front (`AllowSetForegroundWindow` of the
+    second process, `SetForegroundWindow`, restore if minimized) and selects the product unless a game start is in
+    progress. A message that is not exactly `product=EE` or `product=NeoEE` changes nothing; without `--product`, or if the
+    hand-over does not work (for example an elevated running launcher, UIPI), the usual "already running" message
+    follows.
+  - The suite mutex `EmpireEarthCommunity_Suite` is a setup mutex like `EE_Setup` and `NeoEE_Setup` (contract 4.2):
+    `SetupKind` (NeoEE, EE, Suite) replaces the product in `RunningGameDetector`, `MutationGuard`, `SetupWatcher`,
+    `GameStarter`, `InstallationService`, `IntegrityModel`, the models and the texts. The suite holds it for its whole
+    run, so the launcher does not search, start or change anything in the gap between the two product setups where
+    neither product mutex exists, and the watcher raises one "setup finished" for the whole run.
+  - `SuiteRecordReader` / `SuiteRecord` (contract 1.6): the suite record `HKLM64\Software\Empire Earth
+    Community\Suite`, read-only and tolerant (a missing key is no record and is not logged, a value of another type or an
+    invalid path is left out), no discovery source. `SuiteRepairLocator` gives the folder `SourceDir` to the repair advice
+    when the record lists the product of the installation, the folder exists and the installation is not foreign.
+  - Repair advice with the suite (contract 4.4): the first step is "Run "Empire Earth Community Setup" again from the
+    folder you unpacked it to (...)" (`RepairStep.RunSuiteSetupAgain`) instead of the download of the product setup; the
+    window has a button "Open setup folder" that opens the folder in the Explorer and never starts a program from it
+    (contract 4.1), and the official download page stays below as the second option ("If that folder is gone, ..."). The
+    steps for folder, mode and the NeoEE CD-key task stay; all new texts exist in English, German and French
+    (`RepairStepRunSuiteFormat`, `RepairDownloadPageSuiteLabel`, `RepairOpenSuiteFolderButton`,
+    `RepairSuiteFolderNotOpenedFormat`, `OnlinePlayersNeoOnly`; `SetupRunningFormat` and `BlockedBySetupFormat` also name
+    "Empire Earth Community").
+  - The online player list is polled only while the selected installation is NeoEE (`PlayerListPolling`): with EE, a retail
+    or GOG installation or none the launcher sends no request to the status server ("Online Players (NeoEE only)"), and a
+    new selection starts or ends the polling.
+  - Tests without GUI and network on the existing fakes: `LauncherArgumentsTests`, `InstanceForwardingTests` (round trip in
+    one process through a fake channel), `LauncherInstanceTargetTests`, `DiscoveryResultSessionProductTests`,
+    `SuiteRecordReaderTests`, `SuiteRepairTests`, `SetupKindTests`, `PlayerListPollingTests`, and the suite cases in
+    `SetupWatcherTests`, `MutationGuardTests`, `GameStarterTests`, `RunningGameDetectorTests`, `InstallationServiceTests`.
 
 - Real-machine checks for the CI end-to-end test of the setup repository (`Empire-Earth-Launcher.RealMachineTests`,
   ADR 0012 amendment of 2026-10-03): a second NUnitLite program that runs the launcher core against a real installation
@@ -418,7 +464,7 @@ section 15); all of them are done, newest first below. It has not been released;
   suite's `AppMutex` (0), the argument `--product=EE|NeoEE` that selects for one session (1.4), the optional suite record
   (1.6), how the suite runs the product setups and its shortcuts (1.7, O10 answered: the launcher lives outside the
   product roots), `EmpireEarthCommunity_Suite` as a setup mutex (4.2), the repair advice with the package folder (4.4).
-  The launcher does not implement these optional additions yet (launcher 1.0.0, contract 7 "Additions of revision 4").
+  The launcher implements these optional additions in 1.0.0 (see "Added" of 1.0.0 above; contract 7 "Additions of revision 4").
   `DiscoveryContractTests` now counts the rows of the table of 1.5 up to the next heading, because 1.6 and 1.7 have
   tables of their own.
 - `docs/CONTRACT.md`, revision 3 (identical to the copy in the setup repository; contract version still 1, draft: only
