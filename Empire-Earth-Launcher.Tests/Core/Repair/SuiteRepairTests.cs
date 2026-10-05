@@ -40,13 +40,17 @@ namespace Empire_Earth_Launcher.Tests.Core.Repair
                 new[] { InstallationSource.RegistryRecord });
         }
 
-        private void SeedRecord(string products, string source = Source)
+        private void SeedRecord(string products, string source = Source, string eeAppId = null, string neoEeAppId = null)
         {
             RegistryLocation key = InstallationWorld.Hklm64(@"Software\Empire Earth Community\Suite");
             world.Registry.SeedKey(key);
             world.Registry.Seed(key, "Products", RegistryValue.FromString(products));
             if (source != null)
                 world.Registry.Seed(key, "SourceDir", RegistryValue.FromString(source));
+            if (eeAppId != null)
+                world.Registry.Seed(key, "EEAppId", RegistryValue.FromString(eeAppId));
+            if (neoEeAppId != null)
+                world.Registry.Seed(key, "NeoEEAppId", RegistryValue.FromString(neoEeAppId));
         }
 
         private SuiteRepairLocator Locator()
@@ -99,6 +103,43 @@ namespace Empire_Earth_Launcher.Tests.Core.Repair
             world.FileSystem.AddDirectory(Source);
 
             Assert.That(Locator().FolderFor(Community(Product.EE, EERoot, InstallationKind.Foreign, InstallMode.Unknown)), Is.Null);
+        }
+
+        [TestCase(InstallMode.User)]
+        [TestCase(InstallMode.Portable)]
+        [TestCase(InstallMode.Unknown)]
+        public void AnInstallationThatIsNotInAdminMode_GivesNothing_TheSuiteRepairsOnlyTheHklmInstallation(InstallMode mode)
+        {
+            SeedRecord("EE,NeoEE");
+            world.FileSystem.AddDirectory(Source);
+
+            Assert.That(Locator().FolderFor(Community(Product.EE, EERoot, InstallationKind.Community, mode)), Is.Null);
+        }
+
+        [Test]
+        public void AnotherAppIdThanTheSuiteEmbeds_GivesNothing_AMatchingOrUnknownOneGivesTheFolder()
+        {
+            SeedRecord("EE,NeoEE", eeAppId: "AAAAAAAA-0000-0000-0000-000000000001", neoEeAppId: "AAAAAAAA-0000-0000-0000-000000000002");
+            world.FileSystem.AddDirectory(Source);
+            Installation other = Community(Product.EE, @"D:\Games\Empire Earth");
+            other.AppId = "BBBBBBBB-0000-0000-0000-000000000001";
+            Installation same = Community(Product.EE, EERoot);
+            same.AppId = "{aaaaaaaa-0000-0000-0000-000000000001}";
+            Installation unknown = Community(Product.NeoEE, NeoRoot);
+
+            Assert.That(Locator().FolderFor(other), Is.Null, "a second installation in another folder");
+            Assert.That(Locator().FolderFor(same), Is.EqualTo(Source), "case and braces do not matter");
+            Assert.That(Locator().FolderFor(unknown), Is.EqualTo(Source), "without an AppId only the mode counts");
+        }
+
+        [Test]
+        public void ANetworkSourceFolder_GivesNothing_ItIsNotProbedOnTheUiThread()
+        {
+            const string unc = @"\\server\share\Empire Earth Community";
+            SeedRecord("EE,NeoEE", unc);
+            world.FileSystem.AddDirectory(unc);
+
+            Assert.That(Locator().FolderFor(Community(Product.EE, EERoot)), Is.Null);
         }
 
         [Test]

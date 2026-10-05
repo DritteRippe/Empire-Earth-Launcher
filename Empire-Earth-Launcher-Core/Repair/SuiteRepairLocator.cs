@@ -28,8 +28,10 @@ namespace Empire_Earth_Launcher.Core.Repair
 
         /// <summary>
         /// The folder to run <c>Empire Earth Community Setup.exe</c> from again for <paramref name="installation"/>; null if
-        /// there is no suite record, it does not list the product, the folder is gone, or the installation is foreign (the
-        /// community setups do not repair those, contract 4.4).
+        /// there is no suite record, it does not list the product, the folder is gone (or is a network path, which is not
+        /// probed on the UI thread), the installation is foreign (the community setups do not repair those, contract 4.4), or
+        /// the suite would not repair this installation: it always runs as administrator for all users (contract 1.6, 1.7),
+        /// so only an installation in administrator mode, and one with the AppId the record embeds, if both are known.
         /// </summary>
         public string FolderFor(Installation installation)
         {
@@ -37,8 +39,14 @@ namespace Empire_Earth_Launcher.Core.Repair
                 throw new ArgumentNullException(nameof(installation));
             if (installation.Kind == InstallationKind.Foreign)
                 return null;
+            if (installation.Mode != InstallMode.Admin)
+                return null;
             SuiteRecord record = reader.Read();
             if (record == null)
+                return null;
+            string embedded = record.AppIdFor(installation.Product);
+            if (embedded != null && installation.AppId != null &&
+                !string.Equals(installation.AppId.Trim('{', '}'), embedded, StringComparison.OrdinalIgnoreCase))
                 return null;
             string folder = record.RepairFolderFor(installation.Product, fileSystem);
             string line = "Suite record: " + record + "; " + (folder == null

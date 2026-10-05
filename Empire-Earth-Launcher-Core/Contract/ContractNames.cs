@@ -83,6 +83,12 @@
         /// <summary>Suite record: <c>AppVersion</c> of the suite (contract 1.6), REG_SZ.</summary>
         public const string SuiteVersionName = "SuiteVersion";
 
+        /// <summary>Suite record: <c>AppId</c> of the EE setup the suite embeds, without braces (contract 1.6), REG_SZ.</summary>
+        public const string SuiteEeAppIdName = "EEAppId";
+
+        /// <summary>Suite record: <c>AppId</c> of the NeoEE setup the suite embeds, without braces (contract 1.6), REG_SZ.</summary>
+        public const string SuiteNeoEeAppIdName = "NeoEEAppId";
+
         /// <summary>Command-line argument of the suite shortcuts that selects a product for one session (contract 1.4).</summary>
         public const string ProductArgumentName = "--product";
 

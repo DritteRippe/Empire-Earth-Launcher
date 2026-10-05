@@ -17,7 +17,7 @@ namespace Empire_Earth_Launcher.Core.Installations
     public sealed class SuiteRecord
     {
         internal SuiteRecord(RegistryLocation key, int contractVersion, string suiteVersion, string installPath,
-            IEnumerable<Product> products, string sourceDir)
+            IEnumerable<Product> products, string sourceDir, string eeAppId = null, string neoEeAppId = null)
         {
             Key = key;
             ContractVersion = contractVersion;
@@ -25,6 +25,8 @@ namespace Empire_Earth_Launcher.Core.Installations
             InstallPath = installPath;
             Products = new ReadOnlyCollection<Product>(products.ToList());
             SourceDir = sourceDir;
+            EeAppId = eeAppId;
+            NeoEeAppId = neoEeAppId;
         }
 
         /// <summary>The key of the record: HKLM, 64-bit view.</summary>
@@ -48,6 +50,20 @@ namespace Empire_Earth_Launcher.Core.Installations
         /// </summary>
         public string SourceDir { get; }
 
+        /// <summary><c>EEAppId</c>, without braces; null if missing.</summary>
+        public string EeAppId { get; }
+
+        /// <summary><c>NeoEEAppId</c>, without braces; null if missing.</summary>
+        public string NeoEeAppId { get; }
+
+        /// <summary>The AppId the suite embeds for <paramref name="product"/>; null if the record has none.</summary>
+        public string AppIdFor(Product product)
+        {
+            if (product == null)
+                throw new ArgumentNullException(nameof(product));
+            return product == Product.NeoEE ? NeoEeAppId : EeAppId;
+        }
+
         /// <summary>True if the setup run of the suite succeeded for <paramref name="product"/> (contract 1.6, <c>Products</c>).</summary>
         public bool Lists(Product product)
         {
@@ -66,6 +82,9 @@ namespace Empire_Earth_Launcher.Core.Installations
             if (fileSystem == null)
                 throw new ArgumentNullException(nameof(fileSystem));
             if (!Lists(product) || SourceDir == null)
+                return null;
+            // A network share may not answer for seconds, and the check runs on the UI thread: it gives no suite step.
+            if (SourceDir.StartsWith(@"\\", StringComparison.Ordinal))
                 return null;
             return fileSystem.DirectoryExists(SourceDir) ? SourceDir : null;
         }
@@ -122,7 +141,16 @@ namespace Empire_Earth_Launcher.Core.Installations
                 RegistryReads.GetStringOrNull(registry, key, ContractNames.SuiteVersionName),
                 RegistryReads.ToRoot(RegistryReads.GetStringOrNull(registry, key, ContractNames.InstallPathName)),
                 ParseProducts(RegistryReads.GetStringOrNull(registry, key, ContractNames.SuiteProductsName)),
-                RegistryReads.ToRoot(RegistryReads.GetStringOrNull(registry, key, ContractNames.SuiteSourceDirName)));
+                RegistryReads.ToRoot(RegistryReads.GetStringOrNull(registry, key, ContractNames.SuiteSourceDirName)),
+                CleanAppId(RegistryReads.GetStringOrNull(registry, key, ContractNames.SuiteEeAppIdName)),
+                CleanAppId(RegistryReads.GetStringOrNull(registry, key, ContractNames.SuiteNeoEeAppIdName)));
+        }
+
+        /// <summary>An AppId without braces and blanks; null if the value is missing or empty.</summary>
+        private static string CleanAppId(string value)
+        {
+            string cleaned = value?.Trim().Trim('{', '}').Trim();
+            return string.IsNullOrEmpty(cleaned) ? null : cleaned;
         }
 
         /// <summary>
