@@ -29,11 +29,13 @@ and the games in one run; the launcher works as before without it. The test on r
     so is a product without an installation.
   - Second launcher: a launcher that finds the single-instance mutex taken and was started with `--product` hands the
     product to the running one and ends without a message (`InstanceForwarder`; `WM_COPYDATA` to the message-only window
-    `EmpireEarthCommunityLauncher.<Windows session id>`, `WindowsInstanceChannel`, `InstanceMessageWindow`; five attempts
-    200 ms apart because the window appears a moment after the mutex). The running launcher
+    `EmpireEarthCommunityLauncher.<Windows session id>`, `WindowsInstanceChannel`, `InstanceMessageWindow`; up to 50
+    attempts 200 ms apart while there is no window, because it appears a moment after the mutex; a timeout is not
+    retried and not reported, the message is queued). The running launcher
     (`InstanceReceiver`, `LauncherInstanceTarget`) brings its window to the front (`AllowSetForegroundWindow` of the
-    second process, `SetForegroundWindow`, restore if minimized) and selects the product unless a game start is in
-    progress. A message that is not exactly `product=EE` or `product=NeoEE` changes nothing; without `--product`, or if the
+    second process, `SetForegroundWindow`, restore if minimized) and selects the product unless a game start, an
+    operation or an open dialog holds it (then the product is applied when it is idle again; the window accepts
+    `WM_COPYDATA` from a non-elevated launcher). A message that is not exactly `product=EE` or `product=NeoEE` changes nothing; without `--product`, or if the
     hand-over does not work (for example an elevated running launcher, UIPI), the usual "already running" message
     follows.
   - The suite mutex `EmpireEarthCommunity_Suite` is a setup mutex like `EE_Setup` and `NeoEE_Setup` (contract 4.2):

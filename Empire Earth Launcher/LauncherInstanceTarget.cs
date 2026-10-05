@@ -7,7 +7,7 @@ namespace Empire_Earth_Launcher
 {
     /// <summary>
     /// What the running launcher does when a second launcher hands it a product (contract 1.4, revision 4): the window comes to
-    /// the front and, while no game start is in progress, <see cref="InstallationService.SelectProductForSession"/> selects
+    /// the front and, while the launcher is idle (no game start, no running operation, no open dialog), <see cref="InstallationService.SelectProductForSession"/> selects
     /// the first installation of that product for this session. Nothing is saved.
     /// </summary>
     /// <remarks>Used on the UI thread (the message window lives there). No window is touched here, so it is tested without one.</remarks>
@@ -15,25 +15,31 @@ namespace Empire_Earth_Launcher
     {
         private readonly InstallationService installations;
         private readonly Func<bool> isStarting;
+        private readonly Func<bool> isBusy;
         private readonly Action bringToFront;
         private readonly ILogger logger;
 
         /// <param name="installations">Selects the product for the session.</param>
         /// <param name="isStarting">True while a game start is in progress (<see cref="PlayModel.IsStarting"/>).</param>
+        /// <param name="isBusy">
+        /// True while something else holds the launcher: a running operation or an open modal dialog, whose answer would
+        /// otherwise act on another selection than the one it asked about; null if nothing else is checked.
+        /// </param>
         /// <param name="bringToFront">Brings the main window to the front (<see cref="ForegroundWindow.BringToFront"/>).</param>
         /// <param name="logger">Log of the launcher.</param>
         public LauncherInstanceTarget(InstallationService installations, Func<bool> isStarting, Action bringToFront,
-            ILogger logger)
+            ILogger logger, Func<bool> isBusy = null)
         {
             this.installations = installations ?? throw new ArgumentNullException(nameof(installations));
             this.isStarting = isStarting ?? throw new ArgumentNullException(nameof(isStarting));
             this.bringToFront = bringToFront ?? throw new ArgumentNullException(nameof(bringToFront));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.isBusy = isBusy ?? (() => false);
         }
 
         public bool IsIdle
         {
-            get { return !isStarting(); }
+            get { return !isStarting() && !isBusy(); }
         }
 
         public void SelectProduct(Product product)

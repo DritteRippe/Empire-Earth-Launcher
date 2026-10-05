@@ -25,6 +25,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
         private InstallationWorld world;
         private InstallationService installations;
         private bool starting;
+        private bool busy;
         private List<string> calls;
         private InstanceReceiver receiver;
 
@@ -32,6 +33,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
         public async Task SetUp()
         {
             starting = false;
+            busy = false;
             world = new InstallationWorld();
             world.AddCommunityInstallation(NeoRoot, Product.NeoEE);
             world.AddForeignInstallation(RetailFolder, RegistryHive.LocalMachine, RegistryView.Registry32);
@@ -41,7 +43,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             installations = new InstallationService(world.Logger, settings, world.CreateDiscovery(), world.FileSystem, null);
             await installations.RefreshAsync();
             calls = new List<string>();
-            var target = new LauncherInstanceTarget(installations, () => starting, () => calls.Add("front"), world.Logger);
+            var target = new LauncherInstanceTarget(installations, () => starting, () => calls.Add("front"), world.Logger, () => busy);
             receiver = new InstanceReceiver(target, world.Logger);
         }
 
@@ -75,6 +77,42 @@ namespace Empire_Earth_Launcher.Tests.Launcher
         }
 
         [Test]
+        public void WhileADialogOrAnOperationHoldsTheLauncher_TheSelectionStays_AndIsAppliedWhenItIsFree()
+        {
+            busy = true;
+
+            Assert.That(Handle(Product.EE), Is.True);
+
+            Assert.That(installations.Selected.Product, Is.SameAs(Product.NeoEE), "a question that is open is about this installation");
+            receiver.ApplyPending();
+            Assert.That(installations.Selected.Product, Is.SameAs(Product.NeoEE), "still busy");
+
+            busy = false;
+            receiver.ApplyPending();
+
+            Assert.That(installations.Selected.Product, Is.SameAs(Product.EE));
+            Assert.That(installations.SessionProduct, Is.SameAs(Product.EE));
+        }
+
+        [Test]
+        public async Task AProductWithoutAnInstallation_KeepsTheEarlierSessionProduct_AlsoAfterTheNextSearch()
+        {
+            var settings = new SettingsStore(world.FileSystem, SettingsFolder + @"\settings.json", world.Logger);
+            world = new InstallationWorld();
+            world.AddCommunityInstallation(NeoRoot, Product.NeoEE);
+            world.FileSystem.AddDirectory(SettingsFolder);
+            installations = new InstallationService(world.Logger, settings, world.CreateDiscovery(), world.FileSystem, null);
+            await installations.RefreshAsync();
+            Assert.That(installations.SelectProductForSession(Product.NeoEE), Is.True);
+
+            Assert.That(installations.SelectProductForSession(Product.EE), Is.False, "there is no EE installation");
+            await installations.RefreshAsync();
+
+            Assert.That(installations.SessionProduct, Is.SameAs(Product.NeoEE), "contract 1.4: ignored, the earlier one stays");
+            Assert.That(installations.Selected.Product, Is.SameAs(Product.NeoEE));
+        }
+
+        [Test]
         public void AProductWithoutAnInstallation_ChangesNothing()
         {
             var settings = new SettingsStore(world.FileSystem, SettingsFolder + @"\settings.json", world.Logger);
@@ -88,6 +126,16 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(new InstanceReceiver(target, world.Logger).Handle(InstanceMessage.ToBytes("product=EE")), Is.True);
 
             Assert.That(installations.Selected.Product, Is.SameAs(Product.NeoEE));
+        }
+
+        [Test]
+        public void IsIdle_IsFalseWhileTheLauncherIsBusy()
+        {
+            var target = new LauncherInstanceTarget(installations, () => false, () => { }, world.Logger, () => busy);
+
+            Assert.That(target.IsIdle, Is.True);
+            busy = true;
+            Assert.That(target.IsIdle, Is.False, "a modal dialog is open or an operation runs");
         }
 
         [Test]

@@ -351,7 +351,13 @@ namespace Empire_Earth_Launcher
 
                 installationsKryptonDataGridView.ClearSelection();
                 foreach (DataGridViewRow row in installationsKryptonDataGridView.Rows)
+                {
                     row.Selected = row.Tag == selected;
+                    // The current cell too: without one the grid makes the first row current when it is shown, which would
+                    // look like a choice of the user (with --product the selection is not always the first row).
+                    if (row.Tag == selected && row.Cells.Count > 0 && row.Cells[0].Visible)
+                        installationsKryptonDataGridView.CurrentCell = row.Cells[0];
+                }
             }
             finally
             {
@@ -364,7 +370,10 @@ namespace Empire_Earth_Launcher
         {
             if (updatingInstallationList || installations == null || installationsKryptonDataGridView.SelectedRows.Count != 1)
                 return;
-            // The grid also selects its first row by itself when it is shown; the selected installation is the first row.
+            // Only a click or a key of the user chooses (the grid also changes its selection by itself when it is shown, and
+            // with --product the selected installation is not always the first row): that needs the focus.
+            if (!installationsKryptonDataGridView.ContainsFocus)
+                return;
             if (!(installationsKryptonDataGridView.SelectedRows[0].Tag is Installation installation) ||
                 installation == installations.Selected)
                 return;

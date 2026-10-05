@@ -66,6 +66,22 @@ namespace Empire_Earth_Launcher.Core.Play
         }
     }
 
+    /// <summary>The outcome of <see cref="IInstanceChannel.TrySend"/>.</summary>
+    public enum SendResult
+    {
+        /// <summary>There is no window of that name (yet): the running launcher may not have created it.</summary>
+        NotFound,
+
+        /// <summary>The window took the message.</summary>
+        Delivered,
+
+        /// <summary>The window refused the message (for example UIPI between an elevated and a normal process).</summary>
+        Refused,
+
+        /// <summary>The window did not answer in time. The message is sent and is not taken back: it may still be handled.</summary>
+        TimedOut
+    }
+
     /// <summary>
     /// Delivers a message to the hidden window of a running launcher (the client side of the forwarding). The Windows
     /// implementation finds the window by its name, allows it to take the foreground and sends <c>WM_COPYDATA</c>; the tests
@@ -76,8 +92,8 @@ namespace Empire_Earth_Launcher.Core.Play
         /// <summary>
         /// Sends <paramref name="message"/> to the window <paramref name="windowName"/> and waits for its answer.
         /// </summary>
-        /// <returns>True if a window of that name took the message; false if there is none, it did not answer in time or it refused.</returns>
-        bool TrySend(string windowName, byte[] message);
+        /// <returns>See <see cref="SendResult"/>.</returns>
+        SendResult TrySend(string windowName, byte[] message);
     }
 
     /// <summary>
@@ -103,10 +119,10 @@ namespace Empire_Earth_Launcher.Core.Play
     public sealed class InstanceForwarder
     {
         /// <summary>
-        /// How often the window of the running launcher is looked for: it is created a moment after the mutex, so a launcher
-        /// that was started just before this one is waited for.
+        /// How often the window of the running launcher is looked for (only while there is none): it is created a moment after
+        /// the mutex, so a launcher that was started just before this one is waited for (about 10 s, a cold start).
         /// </summary>
-        public const int Attempts = 5;
+        public const int Attempts = 50;
 
         /// <summary>The wait between two attempts.</summary>
         public static readonly TimeSpan RetryDelay = TimeSpan.FromMilliseconds(200);
@@ -129,7 +145,8 @@ namespace Empire_Earth_Launcher.Core.Play
         /// Hands <paramref name="arguments"/> to the running launcher of Windows session <paramref name="sessionId"/>.
         /// Without <c>--product</c> there is nothing to hand over and nothing is sent.
         /// </summary>
-        /// <returns>True if the running launcher took the product; false if nothing was sent or nobody answered.</returns>
+        /// <returns>True if the running launcher took the product (or has it queued after a timeout); false if nothing was sent,
+        /// there is no window or the window refused.</returns>
         public bool TryForward(LauncherArguments arguments, int sessionId)
         {
             if (arguments == null)
@@ -141,12 +158,23 @@ namespace Empire_Earth_Launcher.Core.Play
             byte[] message = InstanceMessage.ToBytes(InstanceMessage.Encode(arguments.SessionProduct));
             for (int attempt = 1; attempt <= Attempts; attempt++)
             {
-                if (channel.TrySend(window, message))
+                SendResult result = channel.TrySend(window, message);
+                if (result == SendResult.Delivered)
                 {
                     logger.Info("The running launcher took " + ContractNames.ProductArgumentName + "=" + arguments.SessionProduct.Id +
                                 "; this one ends.");
                     return true;
                 }
+                if (result == SendResult.TimedOut)
+                {
+                    // The message is sent and stays in the queue of the busy launcher: no second one, no message to the user.
+                    logger.Warning("The running launcher (window " + window + ") did not answer in time; the " +
+                                   ContractNames.ProductArgumentName + "=" + arguments.SessionProduct.Id +
+                                   " it was sent stays queued, and this one ends.");
+                    return true;
+                }
+                if (result == SendResult.Refused)
+                    break;
                 if (attempt < Attempts)
                     sleep(RetryDelay);
             }
@@ -164,6 +192,7 @@ namespace Empire_Earth_Launcher.Core.Play
     {
         private readonly IInstanceTarget target;
         private readonly ILogger logger;
+        private Product pending;
 
         public InstanceReceiver(IInstanceTarget target, ILogger logger)
         {
@@ -173,7 +202,8 @@ namespace Empire_Earth_Launcher.Core.Play
 
         /// <summary>
         /// Handles a message: the window comes to the front, and the product is selected if the launcher is idle. During a
-        /// game start the selection stays (the start would otherwise run for another installation than the one shown).
+        /// game start (or while a dialog is open) the selection stays (the start would otherwise run for another installation
+        /// than the one asked for); the product is kept and applied by <see cref="ApplyPending"/> when the launcher is idle.
         /// </summary>
         /// <returns>True if the message was ours (the answer of <c>WM_COPYDATA</c>), also if the selection stayed.</returns>
         public bool Handle(byte[] message)
@@ -189,11 +219,27 @@ namespace Empire_Earth_Launcher.Core.Play
             target.BringToFront();
             if (!target.IsIdle)
             {
+                pending = product;
                 logger.Info("A game start is in progress; the selection stays.");
                 return true;
             }
+            pending = null;
             target.SelectProduct(product);
             return true;
+        }
+
+        /// <summary>
+        /// Applies the product that came while the launcher was busy, as soon as it is idle; the newest product wins. Called
+        /// on the UI thread when its message queue is empty. Cheap without a pending product.
+        /// </summary>
+        public void ApplyPending()
+        {
+            Product product = pending;
+            if (product == null || !target.IsIdle)
+                return;
+            pending = null;
+            logger.Info("The launcher is idle again; selecting the " + product.Id + " handed over earlier.");
+            target.SelectProduct(product);
         }
     }
 }

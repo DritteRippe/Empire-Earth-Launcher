@@ -546,9 +546,14 @@ The shortcuts of the suite start `Empire Earth Launcher.exe --product=EE` or `--
   `SendMessageTimeout`. The running launcher creates the window (`InstanceMessageWindow`, a `NativeWindow`) on the UI thread
   right before `Application.Run`; its `WndProc` passes the bytes to `InstanceReceiver`, which accepts exactly that text,
   brings the main window to the front (`ForegroundWindow`: restore if minimized, `SetForegroundWindow`) and, if no game
-  start is in progress (`PlayModel.IsStarting`), selects the product through `LauncherInstanceTarget`. During a start the
-  selection stays. Anything else changes nothing. An elevated running launcher drops the message of a non-elevated
-  one (UIPI): the second launcher shows its usual message.
+  start is in progress (`PlayModel.IsStarting`), no operation runs (`UiOperation.IsRunning`) and no modal dialog is open
+  (`ForegroundWindow.IsBlockedByDialog`, the main window is disabled), selects the product through
+  `LauncherInstanceTarget`. Otherwise the product is kept (`InstanceReceiver`) and applied by `ApplyPending` on
+  `Application.Idle` once the launcher is idle, so an open question ("start anyway?") stays about its installation.
+  Anything else changes nothing. The window lets `WM_COPYDATA` through UIPI (`ChangeWindowMessageFilterEx`), so a
+  non-elevated second launcher reaches an elevated one. The client distinguishes `SendResult.NotFound` (retried, 50 x 200
+  ms, a cold start), `Delivered`, `Refused` (the usual message) and `TimedOut` (the message is queued in the busy
+  launcher: no second send, no message).
 - **Tests**: `LauncherArgumentsTests`, `InstanceForwardingTests` (the round trip in one process through a fake channel),
   `LauncherInstanceTargetTests`, `InstallationServiceTests`, `DiscoveryResultSessionProductTests`; the Windows window and the
   foreground right are checked on real Windows (test plan WP10-03).

@@ -187,11 +187,23 @@ namespace Empire_Earth_Launcher
                 // The hidden window that a second launcher with --product sends the product to (contract 1.4); it is created here,
                 // on the UI thread, so that the message loop below delivers its messages, and lives as long as the launcher.
                 var target = new LauncherInstanceTarget(installations, () => play.IsStarting,
-                    () => ForegroundWindow.BringToFront(mainForm), logger);
-                using (InstanceMessageWindow instanceWindow = InstanceMessageWindow.TryCreate(InstanceMessage.WindowName(sessionId),
-                           new InstanceReceiver(target, logger), logger))
+                    () => ForegroundWindow.BringToFront(mainForm), logger,
+                    () => uiOperation.IsRunning || ForegroundWindow.IsBlockedByDialog(mainForm));
+                var receiver = new InstanceReceiver(target, logger);
+                // A product that came while the launcher was busy is applied when its message queue is empty and it is idle again.
+                EventHandler applyPending = (sender, e) => receiver.ApplyPending();
+                Application.Idle += applyPending;
+                try
                 {
-                    Application.Run(mainForm);
+                    using (InstanceMessageWindow instanceWindow = InstanceMessageWindow.TryCreate(
+                               InstanceMessage.WindowName(sessionId), receiver, logger))
+                    {
+                        Application.Run(mainForm);
+                    }
+                }
+                finally
+                {
+                    Application.Idle -= applyPending;
                 }
             }
         }

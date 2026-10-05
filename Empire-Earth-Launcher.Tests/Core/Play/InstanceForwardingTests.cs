@@ -32,12 +32,17 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
                 windows[name] = window;
             }
 
-            public bool TrySend(string windowName, byte[] message)
+            /// <summary>The answer instead of the window's, once the window exists (for example a timeout).</summary>
+            public SendResult? Forced { get; set; }
+
+            public SendResult TrySend(string windowName, byte[] message)
             {
                 Sends++;
                 if (Sends <= MissingFor || !windows.TryGetValue(windowName, out Func<byte[], bool> window))
-                    return false;
-                return window(message);
+                    return SendResult.NotFound;
+                if (Forced.HasValue)
+                    return Forced.Value;
+                return window(message) ? SendResult.Delivered : SendResult.Refused;
             }
         }
 
@@ -193,8 +198,66 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             Assert.That(channel.Sends, Is.EqualTo(InstanceForwarder.Attempts));
             Assert.That(sleeps, Has.Count.EqualTo(InstanceForwarder.Attempts - 1));
             Assert.That(sleeps, Is.All.EqualTo(InstanceForwarder.RetryDelay));
-            Assert.That(InstanceForwarder.Attempts * InstanceForwarder.RetryDelay.TotalMilliseconds, Is.LessThanOrEqualTo(1500), "a short wait");
+            Assert.That(InstanceForwarder.Attempts * InstanceForwarder.RetryDelay.TotalMilliseconds, Is.InRange(5000, 12000),
+                "long enough for a cold start of the running launcher");
             Assert.That(logger.MessagesOf(LogLevel.Warning).Single(), Does.Contain("did not take --product=EE"));
+        }
+
+        [Test]
+        public void ATimeout_IsNotRetried_TheMessageIsSent_AndNoMessageFollows()
+        {
+            RunningLauncher(1);
+            channel.Forced = SendResult.TimedOut;
+
+            bool forwarded = forwarder.TryForward(Args("--product=EE"), 1);
+
+            Assert.That(forwarded, Is.True, "the message is queued in the busy launcher; the user gets no error");
+            Assert.That(channel.Sends, Is.EqualTo(1));
+            Assert.That(sleeps, Is.Empty);
+        }
+
+        [Test]
+        public void ARefusal_IsNotRetried_TheUsualMessageFollows()
+        {
+            RunningLauncher(1);
+            channel.Forced = SendResult.Refused;
+
+            bool forwarded = forwarder.TryForward(Args("--product=EE"), 1);
+
+            Assert.That(forwarded, Is.False);
+            Assert.That(channel.Sends, Is.EqualTo(1));
+            Assert.That(sleeps, Is.Empty);
+        }
+
+        [Test]
+        public void AProductThatCameWhileBusy_IsSelectedWhenTheLauncherIsIdleAgain_TheNewestWins()
+        {
+            var receiver = new InstanceReceiver(target, logger);
+            target.IsIdle = false;
+            receiver.Handle(InstanceMessage.ToBytes("product=EE"));
+            receiver.Handle(InstanceMessage.ToBytes("product=NeoEE"));
+
+            receiver.ApplyPending();
+            Assert.That(target.Calls, Is.EqualTo(new[] { "front", "front" }), "still busy: nothing selected");
+
+            target.IsIdle = true;
+            receiver.ApplyPending();
+            receiver.ApplyPending();
+
+            Assert.That(target.Calls, Is.EqualTo(new[] { "front", "front", "select NeoEE" }), "once, the newest");
+        }
+
+        [Test]
+        public void AProductHandledWhileIdle_ClearsAnOlderPendingOne()
+        {
+            var receiver = new InstanceReceiver(target, logger);
+            target.IsIdle = false;
+            receiver.Handle(InstanceMessage.ToBytes("product=EE"));
+            target.IsIdle = true;
+            receiver.Handle(InstanceMessage.ToBytes("product=NeoEE"));
+            receiver.ApplyPending();
+
+            Assert.That(target.Calls.Where(c => c.StartsWith("select", StringComparison.Ordinal)), Is.EqualTo(new[] { "select NeoEE" }));
         }
 
         [Test]

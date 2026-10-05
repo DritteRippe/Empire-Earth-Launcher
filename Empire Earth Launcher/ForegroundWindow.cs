@@ -26,6 +26,19 @@ namespace Empire_Earth_Launcher
             SetForegroundWindow(handle);
         }
 
+        /// <summary>
+        /// True if <paramref name="form"/> cannot take input because a modal dialog (message box, file dialog) of the launcher
+        /// is open: Windows disables the owner while its dialog runs, but still delivers <c>WM_COPYDATA</c> to the thread.
+        /// </summary>
+        public static bool IsBlockedByDialog(Form form)
+        {
+            return form != null && !form.IsDisposed && form.IsHandleCreated && !IsWindowEnabled(form.Handle);
+        }
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool IsWindowEnabled(IntPtr window);
+
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool SetForegroundWindow(IntPtr window);

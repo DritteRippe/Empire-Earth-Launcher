@@ -15,11 +15,14 @@ namespace Empire_Earth_Launcher.Core.Platform
     /// <remarks>
     /// The window is a message-only window (parent <c>HWND_MESSAGE</c>), so it is found below that parent and not by
     /// <c>FindWindow</c>. If the running launcher is elevated and this one is not, Windows drops the message (UIPI): the
-    /// answer is false and the second launcher shows its usual message.
+    /// answer is <see cref="SendResult.Refused"/> and the second launcher shows its usual message (the running launcher lifts the
+    /// filter for its own window, so that this only happens with an old Windows). A timeout is <see cref="SendResult.TimedOut"/>:
+    /// the message is not taken back and is not sent again.
     /// </remarks>
     public sealed class WindowsInstanceChannel : IInstanceChannel
     {
         private const int WmCopyData = 0x004A;
+        private const int ErrorInvalidWindowHandle = 1400;
         private const uint SmtoAbortIfHung = 0x0002;
         private const uint TimeoutMilliseconds = 3000;
         private static readonly IntPtr MessageOnlyParent = new IntPtr(-3);
@@ -31,7 +34,7 @@ namespace Empire_Earth_Launcher.Core.Platform
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public bool TrySend(string windowName, byte[] message)
+        public SendResult TrySend(string windowName, byte[] message)
         {
             if (string.IsNullOrEmpty(windowName))
                 throw new ArgumentException("A window name is required.", nameof(windowName));
@@ -41,7 +44,7 @@ namespace Empire_Earth_Launcher.Core.Platform
             {
                 IntPtr window = FindWindowEx(MessageOnlyParent, IntPtr.Zero, null, windowName);
                 if (window == IntPtr.Zero)
-                    return false;
+                    return SendResult.NotFound;
 
                 GetWindowThreadProcessId(window, out int processId);
                 if (processId != 0 && !AllowSetForegroundWindow(processId))
@@ -62,11 +65,12 @@ namespace Empire_Earth_Launcher.Core.Platform
                         TimeoutMilliseconds, out result);
                     if (sent == IntPtr.Zero)
                     {
-                        logger.Info("The launcher window " + windowName + " did not answer: " +
-                                    new Win32Exception(Marshal.GetLastWin32Error()).Message);
-                        return false;
+                        int error = Marshal.GetLastWin32Error();
+                        logger.Info("The launcher window " + windowName + " did not answer: " + new Win32Exception(error).Message);
+                        // No window any more (it ended meanwhile) is no timeout; 0 with the error 0 or 1460 is one.
+                        return error == ErrorInvalidWindowHandle ? SendResult.NotFound : SendResult.TimedOut;
                     }
-                    return result != IntPtr.Zero;
+                    return result != IntPtr.Zero ? SendResult.Delivered : SendResult.Refused;
                 }
                 finally
                 {
@@ -77,7 +81,7 @@ namespace Empire_Earth_Launcher.Core.Platform
             {
                 // Not Windows (the tests under Mono) or a damaged user32: no forwarding, the usual message follows.
                 logger.Warning("The message to the running launcher could not be sent.", ex);
-                return false;
+                return SendResult.Refused;
             }
         }
 

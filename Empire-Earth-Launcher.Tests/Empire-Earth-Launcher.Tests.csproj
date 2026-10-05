@@ -183,6 +183,7 @@
     <Compile Include="Launcher\GameSettingsModelTests.cs" />
     <Compile Include="Launcher\InstallationServiceTests.cs" />
     <Compile Include="Launcher\LauncherInstanceTargetTests.cs" />
+    <Compile Include="Launcher\LauncherSettingsInstallationsTests.cs" />
     <Compile Include="Launcher\LauncherWrapLabelTests.cs" />
     <Compile Include="Launcher\LobbyStatusTests.cs" />
     <Compile Include="Launcher\IntegrityModelTests.cs" />

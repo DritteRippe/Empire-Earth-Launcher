@@ -15,6 +15,7 @@ namespace Empire_Earth_Launcher
     internal sealed class InstanceMessageWindow : NativeWindow, IDisposable
     {
         private const int WmCopyData = 0x004A;
+        private const uint MsgFltAllow = 1;
         private static readonly IntPtr MessageOnlyParent = new IntPtr(-3);
 
         private readonly InstanceReceiver receiver;
@@ -25,6 +26,7 @@ namespace Empire_Earth_Launcher
             this.receiver = receiver;
             this.logger = logger;
             CreateHandle(new CreateParams { Caption = name, Parent = MessageOnlyParent });
+            AllowCopyDataFromLowerIntegrity();
         }
 
         /// <summary>
@@ -45,6 +47,26 @@ namespace Empire_Earth_Launcher
             {
                 logger.Warning("The window for the product of a second launcher could not be created.", ex);
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Lets <c>WM_COPYDATA</c> through UIPI, so that a second launcher that is not elevated reaches a launcher that is (the
+        /// compatibility option "Run as administrator"). The content is validated strictly (id, at most
+        /// <see cref="InstanceMessage.MaxBytes"/> bytes, exactly <c>product=EE</c> or <c>product=NeoEE</c>). A failure is only
+        /// logged: the second launcher then shows its usual message.
+        /// </summary>
+        private void AllowCopyDataFromLowerIntegrity()
+        {
+            try
+            {
+                if (!ChangeWindowMessageFilterEx(Handle, WmCopyData, MsgFltAllow, IntPtr.Zero))
+                    logger.Info("ChangeWindowMessageFilterEx failed: " +
+                                new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error()).Message);
+            }
+            catch (Exception ex) when (ex is DllNotFoundException || ex is EntryPointNotFoundException)
+            {
+                logger.Info("ChangeWindowMessageFilterEx is not available: " + ex.Message);
             }
         }
 
@@ -88,6 +110,10 @@ namespace Empire_Earth_Launcher
             if (Handle != IntPtr.Zero)
                 DestroyHandle();
         }
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool ChangeWindowMessageFilterEx(IntPtr window, uint message, uint action, IntPtr filterStruct);
 
         [StructLayout(LayoutKind.Sequential)]
         private struct CopyDataStruct

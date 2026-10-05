@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Empire_Earth_Launcher.Core.Contract;
@@ -113,6 +114,13 @@ namespace Empire_Earth_Launcher
         {
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
+            if (Result != null && !Result.Installations.Any(installation => installation.Product == product))
+            {
+                // Contract 1.4: without an installation of the product the argument is ignored; the earlier one stays.
+                logger.Warning("No " + product.Id + " installation was found; " + ContractNames.ProductArgumentName + "=" +
+                               product.Id + " is ignored and the selection stays.");
+                return false;
+            }
             sessionProduct = product;
             if (Result == null)
                 return false;

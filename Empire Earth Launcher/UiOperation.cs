@@ -38,6 +38,12 @@ namespace Empire_Earth_Launcher
         private readonly ILogger logger;
         private readonly HashSet<object> runningTriggers = new HashSet<object>();
 
+        /// <summary>True while an operation started with <see cref="Run"/> has not finished (any trigger).</summary>
+        public bool IsRunning
+        {
+            get { return runningTriggers.Count > 0; }
+        }
+
         public UiOperation(ILogger logger)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
