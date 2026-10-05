@@ -73,6 +73,7 @@
     <Compile Include="Architecture\RealMachineTestRulesTests.cs" />
     <Compile Include="Architecture\RegistryAliasPolicyTests.cs" />
     <Compile Include="Architecture\ResourceParityTests.cs" />
+    <Compile Include="Architecture\SuiteRulesTests.cs" />
     <Compile Include="Architecture\TestIsolationTests.cs" />
     <Compile Include="Architecture\TestPlanTests.cs" />
     <Compile Include="Architecture\TlsSettingTests.cs" />

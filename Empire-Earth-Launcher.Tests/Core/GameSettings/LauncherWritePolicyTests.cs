@@ -5,6 +5,7 @@ using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Maintenance;
 using Empire_Earth_Launcher.Core.Platform;
 using Empire_Earth_Launcher.Tests.Fakes;
+using Microsoft.Win32;
 using NUnit.Framework;
 
 namespace Empire_Earth_Launcher.Tests.Core.GameSettings
@@ -76,6 +77,29 @@ namespace Empire_Earth_Launcher.Tests.Core.GameSettings
             {
                 RegistryWriteDecision decision = LauncherWritePolicy.Default.Check(operation, RegistryLocation.CurrentUser(key), valueName);
                 Assert.That(decision.Denial, Is.EqualTo(RegistryWriteDenial.ValueNotAllowed), decision.ToString());
+            }
+        }
+
+        /// <summary>
+        /// The suite record of contract 1.6 (revision 4) is read-only for the launcher: HKLM in either view and, were it in HKCU,
+        /// a key that is in no allow-list; no operation on it is allowed.
+        /// </summary>
+        [TestCase("Products")]
+        [TestCase("SourceDir")]
+        [TestCase("")]
+        public void TheSuiteRecord_IsNeverWritten(string valueName)
+        {
+            RegistryLocation[] keys =
+            {
+                new RegistryLocation(RegistryHive.LocalMachine, RegistryView.Registry64, ContractNames.SuiteRecordKey),
+                new RegistryLocation(RegistryHive.LocalMachine, RegistryView.Registry32, ContractNames.SuiteRecordKey),
+                RegistryLocation.CurrentUser(ContractNames.SuiteRecordKey)
+            };
+            foreach (RegistryLocation key in keys)
+            {
+                foreach (RegistryOperation operation in new[]
+                         { RegistryOperation.SetValue, RegistryOperation.DeleteValue, RegistryOperation.CreateSubKey, RegistryOperation.DeleteSubKeyTree })
+                    Assert.That(LauncherWritePolicy.Default.Check(operation, key, valueName).IsAllowed, Is.False, key + " " + operation);
             }
         }
 
