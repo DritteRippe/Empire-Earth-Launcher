@@ -16,7 +16,7 @@ namespace Empire_Earth_Launcher.Core.Diagnostics
     /// <summary>Everything the diagnostics report shows: the latest results of the launcher's checks (each may be missing).</summary>
     public sealed class DiagnosticsInput
     {
-        /// <summary>The version of the launcher (<c>0.1.0-alpha</c>).</summary>
+        /// <summary>The version of the launcher (<c>1.0.0</c>).</summary>
         public string LauncherVersion { get; set; }
 
         /// <summary>When the report is made (local time).</summary>

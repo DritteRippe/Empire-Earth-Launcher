@@ -10,7 +10,7 @@ namespace Empire_Earth_Mod_Lib
     public static class BuildInfo
     {
         /// <summary>
-        /// Full product version including the pre-release tag (e.g. "0.1.0-alpha"),
+        /// Full product version including a pre-release tag, if any (e.g. "1.0.0"),
         /// taken from <see cref="AssemblyInformationalVersionAttribute"/>. Falls back
         /// to the assembly version if the attribute is missing.
         /// </summary>

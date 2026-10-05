@@ -6,19 +6,21 @@
 // carry one version number. Change it here and only here; every project
 // links this file as Properties\SharedAssemblyInfo.cs.
 //
-// Nothing has been released yet ("Empire Earth Launcher v3" in the git
-// history means the third rewrite of the launcher, not a release), so the
-// version stays below 1.0 and carries a SemVer pre-release tag.
+// 1.0.0 is the launcher that the suite installer "Empire Earth Community"
+// (setup repository, folder suite/) packages and that implements the optional
+// additions of contract revision 4 (--product, suite mutex, suite record).
+// "Empire Earth Launcher v3" in the git history means the third rewrite of
+// the launcher, not a release number.
 //
 //   AssemblyVersion               Major.Minor.0.0 - identity used by the CLR
 //                                 for binding; change it only with Major/Minor.
 //   AssemblyFileVersion           Major.Minor.Patch.0 - Windows file properties.
-//   AssemblyInformationalVersion  Full SemVer incl. pre-release tag. Shown as
+//   AssemblyInformationalVersion  Full SemVer (a pre-release tag if any). Shown as
 //                                 Application.ProductVersion (launcher log)
 //                                 and written into .eem packages.
 
 using System.Reflection;
 
-[assembly: AssemblyVersion("0.1.0.0")]
-[assembly: AssemblyFileVersion("0.1.0.0")]
-[assembly: AssemblyInformationalVersion("0.1.0-alpha")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyInformationalVersion("1.0.0")]

@@ -400,7 +400,7 @@ testing, not releases. The manual test on a real Windows computer is described i
 [docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md).
 
 **Versioning**: the version of all assemblies is maintained in one place, `SharedAssemblyInfo.cs`
-(currently `0.1.0-alpha`, nothing has been released yet).
+(currently `1.0.0`, the version the suite installer packages).
 
 **Line endings**: `.gitattributes` stores text files with LF and checks C#, `.resx` and other Visual Studio
 files out with CRLF, so no extra `core.autocrlf` configuration is needed.
