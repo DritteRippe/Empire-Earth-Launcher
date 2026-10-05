@@ -181,7 +181,7 @@ namespace Empire_Earth_Launcher
         }
 
         /// <summary>A setup started: the running check is cancelled (contract 4.2) and gets the reason from the checker.</summary>
-        private void OnSetupStarted(Product setup)
+        private void OnSetupStarted(SetupKind setup)
         {
             if (running != null)
             {

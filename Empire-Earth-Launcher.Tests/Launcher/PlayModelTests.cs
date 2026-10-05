@@ -120,7 +120,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
 
             watcher.Tick();
 
-            Assert.That(model.RunningSetup, Is.SameAs(Product.NeoEE));
+            Assert.That(model.RunningSetup, Is.SameAs(SetupKind.NeoEE));
             Assert.That(model.CanPlay, Is.False);
             Assert.That(changed, Is.GreaterThan(before), "the page shows the setup at once");
 

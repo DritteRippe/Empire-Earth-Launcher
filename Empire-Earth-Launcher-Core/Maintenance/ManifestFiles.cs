@@ -65,10 +65,10 @@ namespace Empire_Earth_Launcher.Core.Maintenance
             var paths = new HashSet<string>(WinPath.Comparer);
             string manifest = WinPath.Combine(installation.Root,
                 installation.Product.SetupDataFolderName + WinPath.Separator + ContractNames.ManifestFileName);
-            Product setup = guard.FindRunningSetup();
+            SetupKind setup = guard.FindRunningSetup();
             if (setup != null)
                 return new ManifestFiles(ManifestFilesStatus.Unusable, paths, manifest + " is not read while the " + setup.Id +
-                                                                              " setup is running (mutex " + setup.SetupMutexName + ")");
+                                                                              " setup is running (mutex " + setup.MutexName + ")");
             if (!fileSystem.FileExists(manifest))
                 return new ManifestFiles(ManifestFilesStatus.None, paths, null);
             FileSystemResult<byte[]> bytes = fileSystem.ReadAllBytes(manifest, ManifestReader.MaxFileBytes);

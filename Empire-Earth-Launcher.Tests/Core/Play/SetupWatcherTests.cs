@@ -45,7 +45,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
 
             Assert.That(watcher.IsSetupRunning, Is.False);
             Assert.That(watcher.RunningSetup, Is.Null);
-            Assert.That(mutexes.Probed, Is.EqualTo(new[] { "NeoEE_Setup", "EE_Setup" }));
+            Assert.That(mutexes.Probed, Is.EqualTo(new[] { "NeoEE_Setup", "EE_Setup", "EmpireEarthCommunity_Suite" }));
             Assert.That(hooks, Is.Empty);
             Assert.That(logger.Entries, Is.Empty);
         }
@@ -81,7 +81,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             watcher.Tick();
             mutexes.With("EE_Setup");
 
-            Assert.That(watcher.ProbeNow(), Is.SameAs(Product.EE));
+            Assert.That(watcher.ProbeNow(), Is.SameAs(SetupKind.EE));
             Assert.That(Probes, Is.EqualTo(2));
             Assert.That(hooks, Is.EqualTo(new[] { "started EE" }));
         }
@@ -93,7 +93,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             mutexes.With("NeoEE_Setup");
             clock.Advance(SetupWatcher.Interval);
             watcher.Tick();
-            Assert.That(watcher.RunningSetup, Is.SameAs(Product.NeoEE));
+            Assert.That(watcher.RunningSetup, Is.SameAs(SetupKind.NeoEE));
             for (int i = 0; i < 5; i++)
             {
                 clock.Advance(SetupWatcher.Interval);
@@ -135,14 +135,14 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
 
             watcher.Tick();
 
-            Assert.That(watcher.RunningSetup, Is.SameAs(Product.EE));
+            Assert.That(watcher.RunningSetup, Is.SameAs(SetupKind.EE));
             Assert.That(hooks, Is.EqualTo(new[] { "started NeoEE", "started EE" }), "no discovery while a setup runs");
         }
 
         [Test]
         public void EveryRegisteredHook_IsCalled()
         {
-            var second = new List<Product>();
+            var second = new List<SetupKind>();
             watcher.SetupFinished += (sender, e) => second.Add(e.Setup);
             mutexes.With("EE_Setup");
             watcher.Tick();
@@ -151,7 +151,49 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             watcher.ProbeNow();
 
             Assert.That(hooks.Last(), Does.StartWith("finished EE"));
-            Assert.That(second, Is.EqualTo(new[] { Product.EE }));
+            Assert.That(second, Is.EqualTo(new[] { SetupKind.EE }));
+        }
+
+        [Test]
+        public void TheSuite_IsASetupLikeTheProductSetups()
+        {
+            mutexes.With("EmpireEarthCommunity_Suite");
+
+            watcher.Tick();
+
+            Assert.That(watcher.IsSetupRunning, Is.True);
+            Assert.That(watcher.RunningSetup, Is.SameAs(SetupKind.Suite));
+            Assert.That(hooks, Is.EqualTo(new[] { "started Suite" }));
+            Assert.That(logger.Messages.Single(), Does.Contain("The Suite setup is running (mutex EmpireEarthCommunity_Suite)"));
+        }
+
+        [Test]
+        public void BetweenTwoProductSetups_TheSuiteMutexKeepsTheSetupRunning()
+        {
+            // The suite holds its mutex for its whole run, also in the moment where neither product mutex exists
+            // (contract 4.2): the launcher never sees "no setup" there, so the search does not start in the gap.
+            mutexes.With("EmpireEarthCommunity_Suite", "EE_Setup");
+            watcher.Tick();
+            mutexes.Remove("EE_Setup");
+            clock.Advance(SetupWatcher.Interval);
+            watcher.Tick();
+            mutexes.With("NeoEE_Setup");
+            clock.Advance(SetupWatcher.Interval);
+            watcher.Tick();
+            mutexes.Remove("NeoEE_Setup");
+            clock.Advance(SetupWatcher.Interval);
+            watcher.Tick();
+
+            Assert.That(watcher.RunningSetup, Is.SameAs(SetupKind.Suite));
+            Assert.That(hooks.Any(hook => hook.StartsWith("finished", StringComparison.Ordinal)), Is.False, "no end before the suite ends");
+
+            mutexes.Remove("EmpireEarthCommunity_Suite");
+            clock.Advance(SetupWatcher.Interval);
+            watcher.Tick();
+
+            Assert.That(watcher.IsSetupRunning, Is.False);
+            Assert.That(hooks.Last(), Does.StartWith("finished Suite"));
+            Assert.That(hooks.Count(hook => hook.StartsWith("finished", StringComparison.Ordinal)), Is.EqualTo(1), "one end, for the whole run");
         }
 
         [TestCase("StainlessSteelStudiosPresentsEmpireEarth")]

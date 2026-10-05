@@ -51,6 +51,7 @@
     <Compile Include="Contract\ContractNames.cs" />
     <Compile Include="Contract\Game.cs" />
     <Compile Include="Contract\Product.cs" />
+    <Compile Include="Contract\SetupKind.cs" />
     <Compile Include="Diagnostics\AddressClassifier.cs" />
     <Compile Include="Diagnostics\DiagnosticsReport.cs" />
     <Compile Include="Diagnostics\KeyValueFile.cs" />

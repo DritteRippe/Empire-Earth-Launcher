@@ -25,13 +25,24 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
         {
             var probe = new FakeMutexProbe().With("EE_Setup", "NeoEE_Setup");
 
-            Assert.That(new RunningGameDetector(probe, new FakeProcessList()).FindRunningSetup(), Is.SameAs(Product.NeoEE));
+            Assert.That(new RunningGameDetector(probe, new FakeProcessList()).FindRunningSetup(), Is.SameAs(SetupKind.NeoEE));
             probe.Remove("NeoEE_Setup");
-            Assert.That(RunningGameDetector.FindRunningSetup(probe), Is.SameAs(Product.EE));
+            Assert.That(RunningGameDetector.FindRunningSetup(probe), Is.SameAs(SetupKind.EE));
+        }
+
+        [Test]
+        public void Contract_4_2_TheSuite_IsASetup_AfterTheProductSetups()
+        {
+            var probe = new FakeMutexProbe().With("EmpireEarthCommunity_Suite");
+
+            Assert.That(RunningGameDetector.FindRunningSetup(probe), Is.SameAs(SetupKind.Suite), "between two product setups");
+            probe.With("EE_Setup");
+            Assert.That(RunningGameDetector.FindRunningSetup(probe), Is.SameAs(SetupKind.EE), "a running product setup is named first");
         }
 
         [TestCase("ee_setup")]
         [TestCase("EmpireEarthCommunityLauncher")]
+        [TestCase("empireearthcommunity_suite")]
         [TestCase("StainlessSteelStudiosPresentsEmpireEarth")]
         public void OtherMutexes_AreNoSetup(string name)
         {

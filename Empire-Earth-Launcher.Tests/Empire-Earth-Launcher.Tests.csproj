@@ -86,6 +86,7 @@
     <Compile Include="Core\Contract\ContractSampleTests.cs" />
     <Compile Include="Core\Contract\ContractNamesTests.cs" />
     <Compile Include="Core\Contract\GameTests.cs" />
+    <Compile Include="Core\Contract\SetupKindTests.cs" />
     <Compile Include="Core\Diagnostics\AddressClassifierTests.cs" />
     <Compile Include="Core\Diagnostics\DiagnosticsReportTests.cs" />
     <Compile Include="Core\Diagnostics\GameConfigReadersTests.cs" />

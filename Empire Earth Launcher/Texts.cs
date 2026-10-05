@@ -423,7 +423,7 @@ namespace Empire_Earth_Launcher
         }
 
         /// <summary>That a setup runs and what that blocks (contract 4.2); null if none runs.</summary>
-        internal static string SetupRunning(Product setup)
+        internal static string SetupRunning(SetupKind setup)
         {
             return setup == null ? null : string.Format(CultureInfo.CurrentCulture, Resources.SetupRunningFormat, setup.AppName);
         }

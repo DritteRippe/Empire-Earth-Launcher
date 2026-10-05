@@ -143,7 +143,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             watcher.Tick();
 
             Assert.That(model.CanChange, Is.False);
-            Assert.That(model.RunningSetup, Is.SameAs(Product.NeoEE));
+            Assert.That(model.RunningSetup, Is.SameAs(SetupKind.NeoEE));
         }
 
         /// <summary>

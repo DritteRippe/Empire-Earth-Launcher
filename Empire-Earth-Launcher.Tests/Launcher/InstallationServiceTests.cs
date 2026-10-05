@@ -221,6 +221,35 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(service.Selected.EeFolder, Is.EqualTo(RetailFolder).IgnoreCase);
         }
 
+        // --- The suite is a setup (contract 4.2, revision 4) -------------------------------------------------------------
+
+        [Test]
+        public async Task Contract_4_2_WhileTheSuiteRuns_TheSearchWaits_EvenBetweenTwoProductSetups()
+        {
+            UseSetupWatcher("EmpireEarthCommunity_Suite", "NeoEE_Setup");
+
+            await service.RefreshAsync();
+
+            Assert.That(service.Result, Is.Null);
+            Assert.That(service.IsWaitingForSetup, Is.True);
+
+            EndSetup("NeoEE_Setup");
+            await service.RefreshAsync();
+
+            Assert.That(service.IsWaitingForSetup, Is.True, "no product mutex, but the suite still runs");
+            Assert.That(service.Result, Is.Null);
+            Assert.That(world.FileSystem.OpenCount(InstallationWorld.InstallInfoPath(NeoRoot, Product.NeoEE)), Is.Zero,
+                "install.ini is not read in the gap between the two product setups");
+            Assert.That(service.RefreshAfterSetup, Is.Null, "the setup did not end");
+
+            EndSetup("EmpireEarthCommunity_Suite");
+            Assert.That(service.RefreshAfterSetup, Is.Not.Null, "the end of the suite starts the search");
+            await service.RefreshAfterSetup;
+
+            Assert.That(service.IsWaitingForSetup, Is.False);
+            Assert.That(service.Selected.Root, Is.EqualTo(NeoRoot));
+        }
+
         [Test]
         public async Task ASetupThatEndedBetweenTwoTicks_IsSearchedOnce()
         {

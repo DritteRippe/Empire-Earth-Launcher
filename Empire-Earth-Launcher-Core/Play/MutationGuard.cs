@@ -10,7 +10,10 @@ namespace Empire_Earth_Launcher.Core.Play
     {
         /// <summary>No setup and no game runs: the change may go ahead.</summary>
         None,
-        /// <summary>A setup runs (<c>EE_Setup</c> or <c>NeoEE_Setup</c>); it writes the same values and files.</summary>
+        /// <summary>
+        /// A setup runs (<c>EE_Setup</c>, <c>NeoEE_Setup</c> or the suite's <c>EmpireEarthCommunity_Suite</c>); it writes the
+        /// same values and files.
+        /// </summary>
         SetupRunning,
         /// <summary>A game runs; it writes its settings on exit and holds its files.</summary>
         GameRunning
@@ -19,7 +22,7 @@ namespace Empire_Earth_Launcher.Core.Play
     /// <summary>The answer of <see cref="MutationGuard.Check"/>: allowed, or blocked with the reason.</summary>
     public sealed class MutationCheck
     {
-        private MutationCheck(MutationBlock block, Product setup, Game game, string mutexName)
+        private MutationCheck(MutationBlock block, SetupKind setup, Game game, string mutexName)
         {
             Block = block;
             Setup = setup;
@@ -37,8 +40,8 @@ namespace Empire_Earth_Launcher.Core.Play
             get { return Block == MutationBlock.None; }
         }
 
-        /// <summary>The product whose setup runs (<see cref="MutationBlock.SetupRunning"/>), else null.</summary>
-        public Product Setup { get; }
+        /// <summary>The setup that runs (<see cref="MutationBlock.SetupRunning"/>), else null.</summary>
+        public SetupKind Setup { get; }
 
         /// <summary>The game that runs (<see cref="MutationBlock.GameRunning"/>), else null.</summary>
         public Game Game { get; }
@@ -46,9 +49,9 @@ namespace Empire_Earth_Launcher.Core.Play
         /// <summary>The mutex that was found, else null.</summary>
         public string MutexName { get; }
 
-        internal static MutationCheck SetupRunning(Product product)
+        internal static MutationCheck SetupRunning(SetupKind setup)
         {
-            return new MutationCheck(MutationBlock.SetupRunning, product, null, product.SetupMutexName);
+            return new MutationCheck(MutationBlock.SetupRunning, setup, null, setup.MutexName);
         }
 
         internal static MutationCheck GameRunning(Game game)
@@ -70,8 +73,9 @@ namespace Empire_Earth_Launcher.Core.Play
     /// </summary>
     /// <remarks>
     /// The mutex names are fixed per product and game, not per installation (contract 0), so a running game of any
-    /// installation blocks: it may write the shared settings keys or compatibility values on exit. Both setups block,
-    /// because both write the GPU preference and the compatibility values of the programs they install. The setups
+    /// installation blocks: it may write the shared settings keys or compatibility values on exit. Every setup blocks,
+    /// because the product setups write the GPU preference and the compatibility values of the programs they install, and
+    /// the suite (revision 4) holds its mutex around both of them, also between the two runs. The setups
     /// are checked first, so a setup that starts a game is reported as the setup.
     /// </remarks>
     public sealed class MutationGuard
@@ -89,7 +93,7 @@ namespace Empire_Earth_Launcher.Core.Play
         /// The setup that runs now (its <c>SetupMutex</c> exists), or null; not logged. For readers that must not read the
         /// files of an installation while a setup writes them (contract 4.2), e.g. <see cref="Maintenance.ManifestFiles"/>.
         /// </summary>
-        public Product FindRunningSetup()
+        public SetupKind FindRunningSetup()
         {
             return RunningGameDetector.FindRunningSetup(probe);
         }
@@ -101,13 +105,13 @@ namespace Empire_Earth_Launcher.Core.Play
             if (string.IsNullOrEmpty(action))
                 throw new ArgumentException("The action is required for the log.", nameof(action));
 
-            foreach (Product product in Product.All)
+            foreach (SetupKind setup in SetupKind.All)
             {
-                if (probe.Exists(product.SetupMutexName))
+                if (probe.Exists(setup.MutexName))
                 {
-                    logger.Info("Not allowed to " + action + " now: the " + product.Id + " setup is running (mutex " +
-                                product.SetupMutexName + ").");
-                    return MutationCheck.SetupRunning(product);
+                    logger.Info("Not allowed to " + action + " now: the " + setup.Id + " setup is running (mutex " +
+                                setup.MutexName + ").");
+                    return MutationCheck.SetupRunning(setup);
                 }
             }
 

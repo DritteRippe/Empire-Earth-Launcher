@@ -122,7 +122,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             Assert.That(result.Outcome, Is.EqualTo(StartOutcome.Started));
             Assert.That(journal, Is.EqualTo(new[]
             {
-                "mutex NeoEE_Setup", "mutex EE_Setup",
+                "mutex NeoEE_Setup", "mutex EE_Setup", "mutex EmpireEarthCommunity_Suite",
                 "mutex StainlessSteelStudiosPresentsEmpireEarth", "mutex MadDocSoftwarePresentsEmpireEarthExpansion",
                 "exists " + EeProgram,
                 "sync EE", "defaults EE",
@@ -177,6 +177,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
 
         [TestCase("NeoEE_Setup", "NeoEE")]
         [TestCase("EE_Setup", "EE")]
+        [TestCase("EmpireEarthCommunity_Suite", "Suite")]
         public void Contract_4_2_ARunningSetup_RefusesTheStartBeforeAnythingElse(string mutex, string product)
         {
             mutexes.With(mutex);
@@ -186,7 +187,9 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             Assert.That(result.Outcome, Is.EqualTo(StartOutcome.SetupRunning));
             Assert.That(result.RunningSetup.Id, Is.EqualTo(product));
             Assert.That(journal.Where(line => !line.StartsWith("log ", StringComparison.Ordinal)),
-                Is.All.StartsWith("mutex ").And.All.EndsWith("_Setup"), "no game probe, no file, no registry, no start");
+                Is.All.Matches<string>(line => line.StartsWith("mutex ", StringComparison.Ordinal) &&
+                                                (line.EndsWith("_Setup", StringComparison.Ordinal) || line.EndsWith("_Suite", StringComparison.Ordinal))),
+                "no game probe, no file, no registry, no start");
             Assert.That(starter.Started, Is.Empty);
             Assert.That(logger.Messages.Last(), Does.Contain("the " + product + " setup is running (mutex " + mutex + ")"));
         }

@@ -49,20 +49,21 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
 
             Assert.That(probe.Probed, Is.EqualTo(new[]
             {
-                "NeoEE_Setup", "EE_Setup",
+                "NeoEE_Setup", "EE_Setup", "EmpireEarthCommunity_Suite",
                 "StainlessSteelStudiosPresentsEmpireEarth", "MadDocSoftwarePresentsEmpireEarthExpansion"
             }));
         }
 
         [TestCase("NeoEE_Setup", "NeoEE")]
         [TestCase("EE_Setup", "EE")]
+        [TestCase("EmpireEarthCommunity_Suite", "Suite")]
         public void SetupRuns_BlockedSetupRunning(string mutex, string product)
         {
             MutationCheck check = Check(new FakeMutexProbe().With(mutex));
 
             Assert.That(check.IsAllowed, Is.False);
             Assert.That(check.Block, Is.EqualTo(MutationBlock.SetupRunning));
-            Assert.That(check.Setup, Is.SameAs(Product.FromId(product)));
+            Assert.That(check.Setup, Is.SameAs(SetupKind.All.Single(kind => kind.Id == product)));
             Assert.That(check.Game, Is.Null);
             Assert.That(check.MutexName, Is.EqualTo(mutex));
             Assert.That(check.ToString(), Is.EqualTo("Blocked(SetupRunning, " + mutex + ")"));
@@ -90,7 +91,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             MutationCheck check = Check(new FakeMutexProbe().With("StainlessSteelStudiosPresentsEmpireEarth", "EE_Setup"));
 
             Assert.That(check.Block, Is.EqualTo(MutationBlock.SetupRunning));
-            Assert.That(check.Setup, Is.SameAs(Product.EE));
+            Assert.That(check.Setup, Is.SameAs(SetupKind.EE));
         }
 
         [Test]

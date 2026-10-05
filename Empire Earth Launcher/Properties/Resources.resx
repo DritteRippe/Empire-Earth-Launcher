@@ -498,7 +498,7 @@ However you should be able to solve many problems with these options, but findin
   </data>
   <data name="BlockedBySetupFormat" xml:space="preserve">
     <value>Not possible while the {0} setup is running.</value>
-    <comment>A change was refused because a setup runs. {0}: Empire Earth or NeoEE.</comment>
+    <comment>A change was refused because a setup runs. {0}: Empire Earth, NeoEE or Empire Earth Community.</comment>
   </data>
   <data name="BlockedByGameFormat" xml:space="preserve">
     <value>Not possible while {0} is running.</value>
@@ -696,7 +696,7 @@ Your current settings are saved first as .reg files in {1}; double-click such a 
   </data>
   <data name="SetupRunningFormat" xml:space="preserve">
     <value>The {0} setup is running. Until it has ended, the launcher starts no game and changes no game settings.</value>
-    <comment>Play and Settings pages while EE_Setup or NeoEE_Setup exists (contract 4.2). {0}: Empire Earth or NeoEE.</comment>
+    <comment>Play and Settings pages while EE_Setup, NeoEE_Setup or EmpireEarthCommunity_Suite exists (contract 4.2). {0}: Empire Earth, NeoEE or Empire Earth Community.</comment>
   </data>
   <data name="InstallationsWaitingForSetup" xml:space="preserve">
     <value>A setup is running. The installations are searched when it has ended.</value>

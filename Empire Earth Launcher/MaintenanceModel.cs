@@ -120,7 +120,7 @@ namespace Empire_Earth_Launcher
         public bool IsBusy { get; private set; }
 
         /// <summary>The setup that runs (the page offers no change then, contract 4.2); null if none.</summary>
-        public Product RunningSetup
+        public SetupKind RunningSetup
         {
             get { return setupWatcher.RunningSetup; }
         }

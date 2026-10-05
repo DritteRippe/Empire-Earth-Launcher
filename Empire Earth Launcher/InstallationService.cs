@@ -99,7 +99,7 @@ namespace Empire_Earth_Launcher
             int current = ++generation;
             if (setupWatcher != null)
             {
-                Product setup;
+                SetupKind setup;
                 probingSetup = true;
                 try
                 {

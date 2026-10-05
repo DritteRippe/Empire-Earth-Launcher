@@ -60,6 +60,32 @@
         /// <summary>Key of the compatibility layers per program path (contract 3.7).</summary>
         public const string CompatibilityLayersKey = @"Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers";
 
+        // The suite "Empire Earth Community" (contract revision 4, "Suite and launcher", 1.6, 4.2). All optional.
+
+        /// <summary><c>AppName</c> of the suite setup (contract 0, "Suite and launcher").</summary>
+        public const string SuiteAppName = "Empire Earth Community";
+
+        /// <summary>
+        /// The <c>SetupMutex</c> of the suite and of its uninstaller, held for the whole run, also between two product setups
+        /// (contract 0, 4.2); for the launcher a setup mutex like <c>EE_Setup</c> and <c>NeoEE_Setup</c>.
+        /// </summary>
+        public const string SuiteSetupMutexName = "EmpireEarthCommunity_Suite";
+
+        /// <summary>The suite record, HKLM 64-bit view (contract 1.6). Read-only; no discovery source.</summary>
+        public const string SuiteRecordKey = CommunityKey + @"\Suite";
+
+        /// <summary>Suite record: the product ids whose setup succeeded, <c>EE,NeoEE</c> (contract 1.6), REG_SZ.</summary>
+        public const string SuiteProductsName = "Products";
+
+        /// <summary>Suite record: the folder the suite was started from in its last run (contract 1.6), REG_SZ.</summary>
+        public const string SuiteSourceDirName = "SourceDir";
+
+        /// <summary>Suite record: <c>AppVersion</c> of the suite (contract 1.6), REG_SZ.</summary>
+        public const string SuiteVersionName = "SuiteVersion";
+
+        /// <summary>Command-line argument of the suite shortcuts that selects a product for one session (contract 1.4).</summary>
+        public const string ProductArgumentName = "--product";
+
         /// <summary>Install info file in the setup data folder (contract 1.2). Read-only.</summary>
         public const string InstallInfoFileName = "install.ini";
 

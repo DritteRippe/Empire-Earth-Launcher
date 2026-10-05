@@ -79,8 +79,8 @@ namespace Empire_Earth_Launcher.Core.Play
         /// <summary>The process id of the started game; null if it is not known or the game was not started.</summary>
         public int? ProcessId { get; internal set; }
 
-        /// <summary>The product whose setup runs (<see cref="StartOutcome.SetupRunning"/>), else null.</summary>
-        public Product RunningSetup { get; internal set; }
+        /// <summary>The setup that runs (<see cref="StartOutcome.SetupRunning"/>), else null.</summary>
+        public SetupKind RunningSetup { get; internal set; }
 
         /// <summary>With <see cref="StartOutcome.AlreadyRunning"/>: a process of the program exists.</summary>
         public bool ProcessFound { get; internal set; }
@@ -190,10 +190,10 @@ namespace Empire_Earth_Launcher.Core.Play
             StartResult Result(StartOutcome outcome) => new StartResult(outcome, installation, game, program);
 
             // 1. A running setup (contract 4.2): it may replace the program right now.
-            Product setup = detector.FindRunningSetup();
+            SetupKind setup = detector.FindRunningSetup();
             if (setup != null)
             {
-                logger.Info("Game start refused: the " + setup.Id + " setup is running (mutex " + setup.SetupMutexName + ").");
+                logger.Info("Game start refused: the " + setup.Id + " setup is running (mutex " + setup.MutexName + ").");
                 StartResult refused = Result(StartOutcome.SetupRunning);
                 refused.RunningSetup = setup;
                 return refused;

@@ -6,7 +6,7 @@ using Empire_Earth_Launcher.Core.Platform;
 namespace Empire_Earth_Launcher.Core.Play
 {
     /// <summary>
-    /// What runs right now (ADR 0010): a setup (its <c>SetupMutex</c>, contract 4.2), a game (its mutex, contract 0) and,
+    /// What runs right now (ADR 0010): a setup (its <c>SetupMutex</c>, contract 4.2; the suite's too, revision 4), a game (its mutex, contract 0) and,
     /// as extra information for the hint about a hanging game, a process of a game's program.
     /// </summary>
     /// <remarks>
@@ -25,18 +25,21 @@ namespace Empire_Earth_Launcher.Core.Play
             this.processes = processes ?? throw new ArgumentNullException(nameof(processes));
         }
 
-        /// <summary>The product whose setup runs (<c>NeoEE_Setup</c> before <c>EE_Setup</c>, as the mutation guard); null if none.</summary>
-        public Product FindRunningSetup()
+        /// <summary>
+        /// The setup that runs (<c>NeoEE_Setup</c>, <c>EE_Setup</c>, then <c>EmpireEarthCommunity_Suite</c>, as the mutation
+        /// guard); null if none.
+        /// </summary>
+        public SetupKind FindRunningSetup()
         {
             return FindRunningSetup(probe);
         }
 
-        /// <summary>The product whose setup runs, by <paramref name="mutexProbe"/>; null if none.</summary>
-        public static Product FindRunningSetup(IMutexProbe mutexProbe)
+        /// <summary>The setup that runs, by <paramref name="mutexProbe"/>; null if none.</summary>
+        public static SetupKind FindRunningSetup(IMutexProbe mutexProbe)
         {
             if (mutexProbe == null)
                 throw new ArgumentNullException(nameof(mutexProbe));
-            return Product.All.FirstOrDefault(product => mutexProbe.Exists(product.SetupMutexName));
+            return SetupKind.All.FirstOrDefault(setup => mutexProbe.Exists(setup.MutexName));
         }
 
         /// <summary>True if the mutex of <paramref name="game"/> exists: the game runs (or hangs while it holds the mutex).</summary>

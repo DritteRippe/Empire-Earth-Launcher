@@ -7,7 +7,7 @@ namespace Empire_Earth_Launcher.Core.Platform
 {
     /// <summary>
     /// <see cref="IMutexOwner"/> with <c>new Mutex(false, name, out createdNew)</c>: the mutex is created but never acquired,
-    /// because only its existence matters (another launcher, a future <c>AppMutex</c> of the setup, contract O10).
+    /// because only its existence matters (another launcher, the <c>AppMutex</c> of the suite, contract revision 4).
     /// </summary>
     /// <remarks>
     /// <see cref="UnauthorizedAccessException"/> means the mutex exists with an access list that excludes this process (an

@@ -9,22 +9,22 @@ namespace Empire_Earth_Launcher.Core.Play
     /// <summary>A setup that started or ended, for the hooks of <see cref="SetupWatcher"/>.</summary>
     public sealed class SetupStateEventArgs : EventArgs
     {
-        internal SetupStateEventArgs(Product setup, TimeSpan? duration)
+        internal SetupStateEventArgs(SetupKind setup, TimeSpan? duration)
         {
             Setup = setup;
             Duration = duration;
         }
 
-        /// <summary>The product of the setup that started or ended.</summary>
-        public Product Setup { get; }
+        /// <summary>The setup that started or ended.</summary>
+        public SetupKind Setup { get; }
 
         /// <summary>When a setup ended: how long the launcher saw it running; null when a setup started.</summary>
         public TimeSpan? Duration { get; }
     }
 
     /// <summary>
-    /// Watches the setup mutexes <c>EE_Setup</c> and <c>NeoEE_Setup</c> while the launcher runs (contract 4.2, ADR 0010,
-    /// ARCHITECTURE 4.3). While one exists, Play and every guarded change are blocked and the pages say so; when it is
+    /// Watches the setup mutexes <c>EE_Setup</c>, <c>NeoEE_Setup</c> and, since contract revision 4, the suite's
+    /// <c>EmpireEarthCommunity_Suite</c> while the launcher runs (contract 4.2, ADR 0010, ARCHITECTURE 4.3). While one exists, Play and every guarded change are blocked and the pages say so; when it is
     /// gone, the installations are searched again.
     /// </summary>
     /// <remarks>
@@ -69,8 +69,8 @@ namespace Empire_Earth_Launcher.Core.Play
         /// </summary>
         public event EventHandler<SetupStateEventArgs> SetupFinished;
 
-        /// <summary>The product whose setup was seen running at the last probe; null if none (or not probed yet).</summary>
-        public Product RunningSetup { get; private set; }
+        /// <summary>The setup that was seen running at the last probe; null if none (or not probed yet).</summary>
+        public SetupKind RunningSetup { get; private set; }
 
         /// <summary>True if a setup was seen running at the last probe.</summary>
         public bool IsSetupRunning
@@ -93,13 +93,13 @@ namespace Empire_Earth_Launcher.Core.Play
         }
 
         /// <summary>Probes now (at the start, before a refresh of the installations) and raises the hooks on a change.</summary>
-        /// <returns>The product whose setup runs, or null.</returns>
-        public Product ProbeNow()
+        /// <returns>The setup that runs, or null.</returns>
+        public SetupKind ProbeNow()
         {
             DateTime now = clock.UtcNow;
             lastProbeUtc = now;
-            Product before = RunningSetup;
-            Product running = RunningGameDetector.FindRunningSetup(probe);
+            SetupKind before = RunningSetup;
+            SetupKind running = RunningGameDetector.FindRunningSetup(probe);
             if (running == before)
                 return running;
 
@@ -107,7 +107,7 @@ namespace Empire_Earth_Launcher.Core.Play
             if (running != null)
             {
                 setupSeenUtc = now;
-                logger.Info("The " + running.Id + " setup is running (mutex " + running.SetupMutexName +
+                logger.Info("The " + running.Id + " setup is running (mutex " + running.MutexName +
                             "): games are not started and nothing is changed until it has ended.");
                 SetupStarted?.Invoke(this, new SetupStateEventArgs(running, null));
             }

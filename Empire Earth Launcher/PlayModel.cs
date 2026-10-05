@@ -73,8 +73,8 @@ namespace Empire_Earth_Launcher
             get { return installations.Result == null; }
         }
 
-        /// <summary>The setup that runs (contract 4.2), else null.</summary>
-        public Product RunningSetup
+        /// <summary>The setup that runs (contract 4.2, the suite's too), else null.</summary>
+        public SetupKind RunningSetup
         {
             get { return setupWatcher.RunningSetup; }
         }

@@ -395,8 +395,23 @@ namespace Empire_Earth_Launcher.Tests.Launcher
         public void SetupRunning_NamesTheProduct()
         {
             Assert.That(Texts.SetupRunning(null), Is.Null);
-            Assert.That(Texts.SetupRunning(Product.NeoEE), Is.EqualTo(
+            Assert.That(Texts.SetupRunning(SetupKind.NeoEE), Is.EqualTo(
                 "The NeoEE setup is running. Until it has ended, the launcher starts no game and changes no game settings."));
+        }
+
+        [Test]
+        public void SetupRunning_TheSuite_NamesEmpireEarthCommunity()
+        {
+            Assert.That(Texts.SetupRunning(SetupKind.Suite), Is.EqualTo(
+                "The Empire Earth Community setup is running. Until it has ended, the launcher starts no game and changes no game settings."));
+            Assert.That(Texts.SetupRunning(SetupKind.EE), Does.StartWith("The Empire Earth setup is running."));
+        }
+
+        [Test]
+        public void Block_TheSuite_NamesEmpireEarthCommunity()
+        {
+            Assert.That(Texts.Block(MutationCheck.SetupRunning(SetupKind.Suite)),
+                Is.EqualTo("Not possible while the Empire Earth Community setup is running."));
         }
 
         [Test]
@@ -405,7 +420,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             foreach (StartOutcome outcome in Enum.GetValues(typeof(StartOutcome)))
             {
                 StartResult result = Result(outcome);
-                result.RunningSetup = Product.EE;
+                result.RunningSetup = SetupKind.EE;
                 result.OtherGame = Game.ArtOfConquest;
                 result.ErrorCode = 5;
                 result.ErrorMessage = "Access is denied";
