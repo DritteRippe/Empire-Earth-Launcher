@@ -348,8 +348,9 @@ run, the products the user selects and the launcher:
    `/TYPE=full` for the first installation of a product. A repair or an update passes neither `/TYPE`
    nor `/DIR`, so the product setup keeps its folder (`UsePreviousAppDir`) and the components and tasks
    of its previous run, `neoee_cdkeys` included ([4.1](#41-principle)). In the suite's advanced mode only
-   `/LANG`, `/NOICONS`, `/MERGETASKS="!desktopicon"` and `/LOG` are passed, and the product setup shows
-   its full wizard. A silent run of the suite (`/VERYSILENT`) needs the list of products and, with NeoEE,
+   `/ALLUSERS`, `/LANG`, `/NOICONS`, `/MERGETASKS="!desktopicon"` and `/LOG` are passed (`/ALLUSERS` only
+   hides the product setup's dialog "for all users / only for me": the suite is admin-only), and the
+   product setup shows its full wizard. A silent run of the suite (`/VERYSILENT`) needs the list of products and, with NeoEE,
    an explicit decision about `neoee_cdkeys` in the arguments for the NeoEE setup; without them it ends
    with an error before any product setup runs.
 4. **Legal texts**: a product setup that runs silently skips its legal question (its `ConfirmLegalCopy`
