@@ -578,12 +578,17 @@ namespace Empire_Earth_Launcher.Tests.Core.Installations
                         .ToList();
         }
 
-        /// <summary>The number of rows of the table of contract 1.5.</summary>
+        /// <summary>
+        /// The number of rows of the table of contract 1.5. The section ends at the next heading (contract revision 4 added
+        /// 1.6 and 1.7 with tables of their own before section 2).
+        /// </summary>
         private static int ContractTable15Rows()
         {
             string contract = File.ReadAllText(RepositoryRoot.GetFullPath("docs/CONTRACT.md")).Replace("\r\n", "\n");
             int start = contract.IndexOf("### 1.5 ", StringComparison.Ordinal);
-            int end = contract.IndexOf("## 2. ", start, StringComparison.Ordinal);
+            Assert.That(start, Is.GreaterThan(0), "CONTRACT.md has no section 1.5");
+            int end = contract.IndexOf("\n#", start + 1, StringComparison.Ordinal);
+            Assert.That(end, Is.GreaterThan(start), "CONTRACT.md has no heading after section 1.5");
             return contract.Substring(start, end - start).Split('\n')
                            .Count(line => line.StartsWith("| ", StringComparison.Ordinal) &&
                                           !line.StartsWith("| What exists", StringComparison.Ordinal));

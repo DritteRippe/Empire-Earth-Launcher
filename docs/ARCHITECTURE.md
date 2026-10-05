@@ -796,8 +796,11 @@ Launcher stance on the open questions of the contract (6):
 - **O6 Mutable files**: classes as in the contract; the laptop test runs a full check after playing.
 - **O8 CD keys**: existence check only.
 - **O9 Launcher mods**: v2 installs no mods (the mods page stays hidden), so no attribution is needed yet.
-- **O10 Launcher in the setup**: not in v2; the single-instance mutex name is chosen so that the setup can
-  use it as `AppMutex` later.
+- **O10 Launcher in the setup**: answered by contract revision 4: the product setups do not install the launcher; the
+  suite "Empire Earth Community" of the setup repository does, outside every product root, and uses the single-instance
+  mutex `EmpireEarthCommunityLauncher` in its `AppMutex`. The optional launcher additions of revision 4 (`--product`,
+  the suite mutex as a setup mutex, the suite record and the advice with `SourceDir`) are listed in contract 7
+  "Additions of revision 4" and belong to launcher 1.0.0; the table of section 15 lists them once they are built.
 - **O11 Two products in one folder**: warning and integrity state "unreliable".
 
 Further points to settle in the work packages, on real Windows (test plan):

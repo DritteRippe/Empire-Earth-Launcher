@@ -412,6 +412,15 @@ section 15); all of them are done, newest first below. It has not been released;
 
 ### Changed
 
+- `docs/CONTRACT.md`, revision 4 (identical to the copy in the setup repository; contract version still 1, draft:
+  optional additions only, 4.1 and 4.3 unchanged) for the suite installer "Empire Earth Community" of the setup
+  repository (its ADR 0013): the suite's names and mutexes and the launcher mutex `EmpireEarthCommunityLauncher` as the
+  suite's `AppMutex` (0), the argument `--product=EE|NeoEE` that selects for one session (1.4), the optional suite record
+  (1.6), how the suite runs the product setups and its shortcuts (1.7, O10 answered: the launcher lives outside the
+  product roots), `EmpireEarthCommunity_Suite` as a setup mutex (4.2), the repair advice with the package folder (4.4).
+  The launcher does not implement these optional additions yet (launcher 1.0.0, contract 7 "Additions of revision 4").
+  `DiscoveryContractTests` now counts the rows of the table of 1.5 up to the next heading, because 1.6 and 1.7 have
+  tables of their own.
 - `docs/CONTRACT.md`, revision 3 (identical to the copy in the setup repository; contract version still 1, draft: only
   compatible clarifications by its section 5). It now says what launcher v2 already does, so the code does not change
   (one comment of `InstalledFromReader` names the contract): "Installed From" key before hive, the real EE and AoC
