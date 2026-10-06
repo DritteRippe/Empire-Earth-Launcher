@@ -35,7 +35,7 @@ namespace Empire_Earth_Launcher
             this.toolsScrollPanel = new System.Windows.Forms.Panel();
             this.filesHeadingKryptonLabel = new Krypton.Toolkit.KryptonLabel();
             this.integrityInfoKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
-            this.integrityInstallationKryptonLabel = new Krypton.Toolkit.KryptonLabel();
+            this.integrityInstallationKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             this.integrityStateKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             this.integrityProgressBar = new System.Windows.Forms.ProgressBar();
             this.integrityFilesKryptonTextBox = new Krypton.Toolkit.KryptonTextBox();
@@ -158,7 +158,7 @@ namespace Empire_Earth_Launcher
             this.toolsScrollPanel.BackColor = System.Drawing.Color.White;
             this.toolsScrollPanel.Controls.Add(this.filesHeadingKryptonLabel);
             this.toolsScrollPanel.Controls.Add(this.integrityInfoKryptonWrapLabel);
-            this.toolsScrollPanel.Controls.Add(this.integrityInstallationKryptonLabel);
+            this.toolsScrollPanel.Controls.Add(this.integrityInstallationKryptonWrapLabel);
             this.toolsScrollPanel.Controls.Add(this.integrityStateKryptonWrapLabel);
             this.toolsScrollPanel.Controls.Add(this.integrityProgressBar);
             this.toolsScrollPanel.Controls.Add(this.integrityFilesKryptonTextBox);
@@ -219,6 +219,7 @@ namespace Empire_Earth_Launcher
             // 
             // filesHeadingKryptonLabel
             // 
+            this.filesHeadingKryptonLabel.AutoSize = false;
             this.filesHeadingKryptonLabel.LabelStyle = Krypton.Toolkit.LabelStyle.BoldControl;
             this.filesHeadingKryptonLabel.Location = new System.Drawing.Point(12, 8);
             this.filesHeadingKryptonLabel.Name = "filesHeadingKryptonLabel";
@@ -241,15 +242,18 @@ namespace Empire_Earth_Launcher
             this.integrityInfoKryptonWrapLabel.Size = new System.Drawing.Size(505, 50);
             this.integrityInfoKryptonWrapLabel.Text = "";
             // 
-            // integrityInstallationKryptonLabel
+            // integrityInstallationKryptonWrapLabel
             // 
-            this.integrityInstallationKryptonLabel.Location = new System.Drawing.Point(12, 90);
-            this.integrityInstallationKryptonLabel.Name = "integrityInstallationKryptonLabel";
-            this.integrityInstallationKryptonLabel.Palette = this.launcherKryptonPalette;
-            this.integrityInstallationKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.integrityInstallationKryptonLabel.Size = new System.Drawing.Size(505, 20);
-            this.integrityInstallationKryptonLabel.TabIndex = 1;
-            this.integrityInstallationKryptonLabel.Values.Text = "";
+            this.integrityInstallationKryptonWrapLabel.AutoSize = false;
+            this.integrityInstallationKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.integrityInstallationKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.integrityInstallationKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
+            this.integrityInstallationKryptonWrapLabel.Location = new System.Drawing.Point(12, 90);
+            this.integrityInstallationKryptonWrapLabel.Name = "integrityInstallationKryptonWrapLabel";
+            this.integrityInstallationKryptonWrapLabel.Palette = this.launcherKryptonPalette;
+            this.integrityInstallationKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.integrityInstallationKryptonWrapLabel.Size = new System.Drawing.Size(505, 20);
+            this.integrityInstallationKryptonWrapLabel.Text = "";
             // 
             // integrityStateKryptonWrapLabel
             // 
@@ -322,6 +326,7 @@ namespace Empire_Earth_Launcher
             // 
             // updatesHeadingKryptonLabel
             // 
+            this.updatesHeadingKryptonLabel.AutoSize = false;
             this.updatesHeadingKryptonLabel.LabelStyle = Krypton.Toolkit.LabelStyle.BoldControl;
             this.updatesHeadingKryptonLabel.Location = new System.Drawing.Point(12, 330);
             this.updatesHeadingKryptonLabel.Name = "updatesHeadingKryptonLabel";
@@ -370,6 +375,7 @@ namespace Empire_Earth_Launcher
             // 
             // cleanupHeadingKryptonLabel
             // 
+            this.cleanupHeadingKryptonLabel.AutoSize = false;
             this.cleanupHeadingKryptonLabel.LabelStyle = Krypton.Toolkit.LabelStyle.BoldControl;
             this.cleanupHeadingKryptonLabel.Location = new System.Drawing.Point(12, 480);
             this.cleanupHeadingKryptonLabel.Name = "cleanupHeadingKryptonLabel";
@@ -458,6 +464,7 @@ namespace Empire_Earth_Launcher
             // 
             // wonHeadingKryptonLabel
             // 
+            this.wonHeadingKryptonLabel.AutoSize = false;
             this.wonHeadingKryptonLabel.LabelStyle = Krypton.Toolkit.LabelStyle.BoldControl;
             this.wonHeadingKryptonLabel.Location = new System.Drawing.Point(12, 876);
             this.wonHeadingKryptonLabel.Name = "wonHeadingKryptonLabel";
@@ -519,6 +526,7 @@ namespace Empire_Earth_Launcher
             // 
             // virtualStoreHeadingKryptonLabel
             // 
+            this.virtualStoreHeadingKryptonLabel.AutoSize = false;
             this.virtualStoreHeadingKryptonLabel.LabelStyle = Krypton.Toolkit.LabelStyle.BoldControl;
             this.virtualStoreHeadingKryptonLabel.Location = new System.Drawing.Point(12, 1094);
             this.virtualStoreHeadingKryptonLabel.Name = "virtualStoreHeadingKryptonLabel";
@@ -583,6 +591,7 @@ namespace Empire_Earth_Launcher
             // 
             // savesHeadingKryptonLabel
             // 
+            this.savesHeadingKryptonLabel.AutoSize = false;
             this.savesHeadingKryptonLabel.LabelStyle = Krypton.Toolkit.LabelStyle.BoldControl;
             this.savesHeadingKryptonLabel.Location = new System.Drawing.Point(12, 1318);
             this.savesHeadingKryptonLabel.Name = "savesHeadingKryptonLabel";
@@ -666,6 +675,7 @@ namespace Empire_Earth_Launcher
             // 
             // namesHeadingKryptonLabel
             // 
+            this.namesHeadingKryptonLabel.AutoSize = false;
             this.namesHeadingKryptonLabel.LabelStyle = Krypton.Toolkit.LabelStyle.BoldControl;
             this.namesHeadingKryptonLabel.Location = new System.Drawing.Point(12, 1570);
             this.namesHeadingKryptonLabel.Name = "namesHeadingKryptonLabel";
@@ -703,6 +713,7 @@ namespace Empire_Earth_Launcher
             // 
             // backupsHeadingKryptonLabel
             // 
+            this.backupsHeadingKryptonLabel.AutoSize = false;
             this.backupsHeadingKryptonLabel.LabelStyle = Krypton.Toolkit.LabelStyle.BoldControl;
             this.backupsHeadingKryptonLabel.Location = new System.Drawing.Point(12, 1698);
             this.backupsHeadingKryptonLabel.Name = "backupsHeadingKryptonLabel";
@@ -738,6 +749,7 @@ namespace Empire_Earth_Launcher
             // 
             // networkHeadingKryptonLabel
             // 
+            this.networkHeadingKryptonLabel.AutoSize = false;
             this.networkHeadingKryptonLabel.LabelStyle = Krypton.Toolkit.LabelStyle.BoldControl;
             this.networkHeadingKryptonLabel.Location = new System.Drawing.Point(12, 1820);
             this.networkHeadingKryptonLabel.Name = "networkHeadingKryptonLabel";
@@ -814,6 +826,7 @@ namespace Empire_Earth_Launcher
             // 
             // reportHeadingKryptonLabel
             // 
+            this.reportHeadingKryptonLabel.AutoSize = false;
             this.reportHeadingKryptonLabel.LabelStyle = Krypton.Toolkit.LabelStyle.BoldControl;
             this.reportHeadingKryptonLabel.Location = new System.Drawing.Point(12, 2182);
             this.reportHeadingKryptonLabel.Name = "reportHeadingKryptonLabel";
@@ -904,7 +917,7 @@ namespace Empire_Earth_Launcher
         private System.Windows.Forms.Panel toolsScrollPanel;
         private Krypton.Toolkit.KryptonLabel filesHeadingKryptonLabel;
         private Empire_Earth_Launcher.LauncherWrapLabel integrityInfoKryptonWrapLabel;
-        private Krypton.Toolkit.KryptonLabel integrityInstallationKryptonLabel;
+        private Empire_Earth_Launcher.LauncherWrapLabel integrityInstallationKryptonWrapLabel;
         private Empire_Earth_Launcher.LauncherWrapLabel integrityStateKryptonWrapLabel;
         private System.Windows.Forms.ProgressBar integrityProgressBar;
         private Krypton.Toolkit.KryptonTextBox integrityFilesKryptonTextBox;

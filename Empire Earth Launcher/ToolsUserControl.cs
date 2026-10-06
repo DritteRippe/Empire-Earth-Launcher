@@ -28,17 +28,21 @@ namespace Empire_Earth_Launcher
     /// network diagnostics with the outage hint (R7) and the diagnostics report, copied or saved, never sent (L-WP9).
     /// </summary>
     /// <remarks>
-    /// The controls are stacked in <see cref="LayoutPage"/> from the texts they show, so longer translations push the
-    /// following controls down; the page scrolls. The work runs through <see cref="UiOperation"/>,
+    /// The controls are stacked in <see cref="LayoutPage"/> by <see cref="ScrollPageLayout"/> from the texts they show and the
+    /// width of the page, so longer translations push the following controls down and a wider window gives the texts more room
+    /// (ADR 0017); the page scrolls. The work runs through <see cref="UiOperation"/>,
     /// <see cref="IntegrityModel"/>, <see cref="UpdateModel"/> and <see cref="MaintenanceModel"/>; this class only shows
     /// their state and asks the player (folders, files, confirmations).
     /// </remarks>
     public partial class ToolsUserControl : UserControl
     {
-        private const int Gap = 6;
+        private const int Gap = ScrollPageLayout.Gap;
 
         /// <summary>The visibility of the controls that come and go (Visible reads false while the page is hidden).</summary>
         private readonly Dictionary<Control, bool> shown = new Dictionary<Control, bool>();
+
+        /// <summary>Stacks the controls of the page for its width (ADR 0017).</summary>
+        private readonly ScrollPageLayout stack;
 
         private IThemeService themeService;
         private IntegrityModel integrity;
@@ -66,6 +70,13 @@ namespace Empire_Earth_Launcher
         {
             InitializeComponent();
             ApplyTexts();
+            stack = new ScrollPageLayout(toolsScrollPanel, IsShown);
+            // The window was resized (or the page is shown for the first time after it was): the texts get the new width.
+            toolsScrollPanel.SizeChanged += (sender, e) =>
+            {
+                if (stack.NeedsLayout)
+                    LayoutPage();
+            };
         }
 
         /// <summary>
@@ -168,7 +179,7 @@ namespace Empire_Earth_Launcher
             Installation selected = integrity.Selected;
             IntegrityReport report = integrity.Report;
 
-            integrityInstallationKryptonLabel.Values.Text = Texts.GameSettingsInstallation(selected);
+            integrityInstallationKryptonWrapLabel.Text = Texts.GameSettingsInstallation(selected);
             integrityStateKryptonWrapLabel.Text = StateText(selected, report);
             bool fullCheck = integrity.RunningCheck == IntegrityCheckKind.Full;
             SetShown(integrityProgressBar, fullCheck);
@@ -319,104 +330,86 @@ namespace Empire_Earth_Launcher
             return !shown.TryGetValue(control, out bool visible) || visible;
         }
 
-        /// <summary>Stacks the controls from their texts; hidden controls take no room.</summary>
+        /// <summary>
+        /// Stacks the controls from their texts for the width of the page (<see cref="ScrollPageLayout"/>); hidden controls
+        /// take no room. Runs again when the width of the page changes.
+        /// </summary>
         private void LayoutPage()
         {
-            toolsScrollPanel.SuspendLayout();
-            int scroll = toolsScrollPanel.AutoScrollPosition.Y;
-            int y = 8;
+            stack.Run(PlaceControls);
+        }
 
-            void Place(Control control)
-            {
-                if (!IsShown(control))
-                    return;
-                if (control is LauncherWrapLabel label)
-                    label.Height = label.TextHeight(label.Width);
-                control.Top = y + scroll;
-                y += control.Height + Gap;
-            }
+        private void PlaceControls()
+        {
+            stack.Place(filesHeadingKryptonLabel);
+            stack.Place(integrityInfoKryptonWrapLabel);
+            stack.Place(integrityInstallationKryptonWrapLabel);
+            stack.Place(integrityStateKryptonWrapLabel);
+            stack.Place(integrityProgressBar);
+            stack.Place(integrityFilesKryptonTextBox);
+            stack.PlaceRow(fullCheckKryptonButton, cancelCheckKryptonButton, repairAdviceKryptonButton);
 
-            void PlaceRow(params Control[] controls)
-            {
-                int height = 0;
-                foreach (Control control in controls)
-                {
-                    control.Top = y + scroll;
-                    height = Math.Max(height, control.Height);
-                }
-                y += height + Gap;
-            }
+            stack.Space(Gap);
+            stack.Place(updatesHeadingKryptonLabel);
+            stack.Place(versionInfoKryptonWrapLabel);
+            stack.Place(versionResultKryptonWrapLabel);
+            stack.Place(versionCheckKryptonButton);
 
-            Place(filesHeadingKryptonLabel);
-            Place(integrityInfoKryptonWrapLabel);
-            Place(integrityInstallationKryptonLabel);
-            Place(integrityStateKryptonWrapLabel);
-            Place(integrityProgressBar);
-            Place(integrityFilesKryptonTextBox);
-            PlaceRow(fullCheckKryptonButton, cancelCheckKryptonButton, repairAdviceKryptonButton);
+            stack.Space(Gap);
+            stack.Place(cleanupHeadingKryptonLabel);
+            stack.Place(cleanupInfoKryptonWrapLabel);
+            stack.Place(cleanupStateKryptonWrapLabel);
+            stack.Place(cleanupKryptonCheckedListBox);
+            stack.Place(cleanupReadOnlyKryptonTextBox);
+            stack.Place(cleanupDeleteKryptonButton);
+            stack.Place(cleanupResultKryptonWrapLabel);
 
-            y += Gap;
-            Place(updatesHeadingKryptonLabel);
-            Place(versionInfoKryptonWrapLabel);
-            Place(versionResultKryptonWrapLabel);
-            Place(versionCheckKryptonButton);
+            stack.Space(Gap);
+            stack.Place(wonHeadingKryptonLabel);
+            stack.Place(wonInfoKryptonWrapLabel);
+            stack.Place(wonStateKryptonWrapLabel);
+            stack.Place(wonResetKryptonButton);
+            stack.Place(wonResultKryptonWrapLabel);
 
-            y += Gap;
-            Place(cleanupHeadingKryptonLabel);
-            Place(cleanupInfoKryptonWrapLabel);
-            Place(cleanupStateKryptonWrapLabel);
-            Place(cleanupKryptonCheckedListBox);
-            Place(cleanupReadOnlyKryptonTextBox);
-            Place(cleanupDeleteKryptonButton);
-            Place(cleanupResultKryptonWrapLabel);
+            stack.Space(Gap);
+            stack.Place(virtualStoreHeadingKryptonLabel);
+            stack.Place(virtualStoreInfoKryptonWrapLabel);
+            stack.Place(virtualStoreStateKryptonWrapLabel);
+            stack.Place(virtualStoreFilesKryptonTextBox);
+            stack.Place(openVirtualStoreFolderKryptonButton);
 
-            y += Gap;
-            Place(wonHeadingKryptonLabel);
-            Place(wonInfoKryptonWrapLabel);
-            Place(wonStateKryptonWrapLabel);
-            Place(wonResetKryptonButton);
-            Place(wonResultKryptonWrapLabel);
+            stack.Space(Gap);
+            stack.Place(savesHeadingKryptonLabel);
+            stack.Place(savesInfoKryptonWrapLabel);
+            stack.Place(savesStateKryptonWrapLabel);
+            stack.Place(exportSavesKryptonButton);
+            stack.PlaceRow(importEeSavesKryptonButton, importAocSavesKryptonButton);
+            stack.Place(savesResultKryptonWrapLabel);
 
-            y += Gap;
-            Place(virtualStoreHeadingKryptonLabel);
-            Place(virtualStoreInfoKryptonWrapLabel);
-            Place(virtualStoreStateKryptonWrapLabel);
-            Place(virtualStoreFilesKryptonTextBox);
-            Place(openVirtualStoreFolderKryptonButton);
+            stack.Space(Gap);
+            stack.Place(namesHeadingKryptonLabel);
+            stack.Place(namesInfoKryptonWrapLabel);
+            stack.Place(namesStateKryptonWrapLabel);
 
-            y += Gap;
-            Place(savesHeadingKryptonLabel);
-            Place(savesInfoKryptonWrapLabel);
-            Place(savesStateKryptonWrapLabel);
-            Place(exportSavesKryptonButton);
-            PlaceRow(importEeSavesKryptonButton, importAocSavesKryptonButton);
-            Place(savesResultKryptonWrapLabel);
+            stack.Space(Gap);
+            stack.Place(backupsHeadingKryptonLabel);
+            stack.Place(backupsInfoKryptonWrapLabel);
+            stack.Place(openBackupFolderKryptonButton);
 
-            y += Gap;
-            Place(namesHeadingKryptonLabel);
-            Place(namesInfoKryptonWrapLabel);
-            Place(namesStateKryptonWrapLabel);
+            stack.Space(Gap);
+            stack.Place(networkHeadingKryptonLabel);
+            stack.Place(networkInfoKryptonWrapLabel);
+            stack.Place(networkCheckKryptonButton);
+            stack.Place(networkVerdictKryptonWrapLabel);
+            stack.Place(networkHintsKryptonWrapLabel);
+            stack.Place(networkDetailsKryptonTextBox);
 
-            y += Gap;
-            Place(backupsHeadingKryptonLabel);
-            Place(backupsInfoKryptonWrapLabel);
-            Place(openBackupFolderKryptonButton);
-
-            y += Gap;
-            Place(networkHeadingKryptonLabel);
-            Place(networkInfoKryptonWrapLabel);
-            Place(networkCheckKryptonButton);
-            Place(networkVerdictKryptonWrapLabel);
-            Place(networkHintsKryptonWrapLabel);
-            Place(networkDetailsKryptonTextBox);
-
-            y += Gap;
-            Place(reportHeadingKryptonLabel);
-            Place(reportInfoKryptonWrapLabel);
-            PlaceRow(copyReportKryptonButton, saveReportKryptonButton);
-            Place(reportResultKryptonWrapLabel);
-            Place(reportKryptonTextBox);
-            toolsScrollPanel.ResumeLayout(true);
+            stack.Space(Gap);
+            stack.Place(reportHeadingKryptonLabel);
+            stack.Place(reportInfoKryptonWrapLabel);
+            stack.PlaceRow(copyReportKryptonButton, saveReportKryptonButton);
+            stack.Place(reportResultKryptonWrapLabel);
+            stack.Place(reportKryptonTextBox);
         }
 
         // --- Actions ------------------------------------------------------------------------------------------------

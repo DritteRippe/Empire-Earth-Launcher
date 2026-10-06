@@ -105,6 +105,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="RepairAdviceDialog.cs" />
+    <Compile Include="ScrollPageLayout.cs" />
     <Compile Include="Texts.cs" />
     <Compile Include="ToolsUserControl.cs">
       <SubType>UserControl</SubType>

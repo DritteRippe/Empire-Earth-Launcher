@@ -34,7 +34,7 @@ namespace Empire_Earth_Launcher
             this.launcherKryptonPalette = new Krypton.Toolkit.KryptonPalette(this.components);
             this.gameSettingsScrollPanel = new System.Windows.Forms.Panel();
             this.defaultsHeadingKryptonLabel = new Krypton.Toolkit.KryptonLabel();
-            this.installationKryptonLabel = new Krypton.Toolkit.KryptonLabel();
+            this.installationKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             this.defaultsStatusKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             this.displayQuestionKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             this.displayQuestionApplyKryptonButton = new Krypton.Toolkit.KryptonButton();
@@ -46,7 +46,7 @@ namespace Empire_Earth_Launcher
             this.confirmNoKryptonButton = new Krypton.Toolkit.KryptonButton();
             this.resultKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             this.hintsHeadingKryptonLabel = new Krypton.Toolkit.KryptonLabel();
-            this.hintsNoneKryptonLabel = new Krypton.Toolkit.KryptonLabel();
+            this.hintsNoneKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             this.compatibilityHeadingKryptonLabel = new Krypton.Toolkit.KryptonLabel();
             this.dwm8And16BitMitigationKryptonCheckBox = new Krypton.Toolkit.KryptonCheckBox();
             this.highDpiAwareKryptonCheckBox = new Krypton.Toolkit.KryptonCheckBox();
@@ -131,7 +131,7 @@ namespace Empire_Earth_Launcher
             this.gameSettingsScrollPanel.AutoScroll = true;
             this.gameSettingsScrollPanel.BackColor = System.Drawing.Color.White;
             this.gameSettingsScrollPanel.Controls.Add(this.defaultsHeadingKryptonLabel);
-            this.gameSettingsScrollPanel.Controls.Add(this.installationKryptonLabel);
+            this.gameSettingsScrollPanel.Controls.Add(this.installationKryptonWrapLabel);
             this.gameSettingsScrollPanel.Controls.Add(this.defaultsStatusKryptonWrapLabel);
             this.gameSettingsScrollPanel.Controls.Add(this.displayQuestionKryptonWrapLabel);
             this.gameSettingsScrollPanel.Controls.Add(this.displayQuestionApplyKryptonButton);
@@ -143,7 +143,7 @@ namespace Empire_Earth_Launcher
             this.gameSettingsScrollPanel.Controls.Add(this.confirmNoKryptonButton);
             this.gameSettingsScrollPanel.Controls.Add(this.resultKryptonWrapLabel);
             this.gameSettingsScrollPanel.Controls.Add(this.hintsHeadingKryptonLabel);
-            this.gameSettingsScrollPanel.Controls.Add(this.hintsNoneKryptonLabel);
+            this.gameSettingsScrollPanel.Controls.Add(this.hintsNoneKryptonWrapLabel);
             this.gameSettingsScrollPanel.Controls.Add(this.compatibilityHeadingKryptonLabel);
             this.gameSettingsScrollPanel.Controls.Add(this.compatibilityWarningKryptonPanel);
             this.gameSettingsScrollPanel.Controls.Add(this.dwm8And16BitMitigationKryptonCheckBox);
@@ -161,6 +161,7 @@ namespace Empire_Earth_Launcher
             // 
             // defaultsHeadingKryptonLabel
             // 
+            this.defaultsHeadingKryptonLabel.AutoSize = false;
             this.defaultsHeadingKryptonLabel.Location = new System.Drawing.Point(12, 8);
             this.defaultsHeadingKryptonLabel.Name = "defaultsHeadingKryptonLabel";
             this.defaultsHeadingKryptonLabel.Palette = this.launcherKryptonPalette;
@@ -171,15 +172,18 @@ namespace Empire_Earth_Launcher
             this.defaultsHeadingKryptonLabel.Values.Text = "Game defaults";
 
             // 
-            // installationKryptonLabel
+            // installationKryptonWrapLabel
             // 
-            this.installationKryptonLabel.Location = new System.Drawing.Point(12, 30);
-            this.installationKryptonLabel.Name = "installationKryptonLabel";
-            this.installationKryptonLabel.Palette = this.launcherKryptonPalette;
-            this.installationKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.installationKryptonLabel.Size = new System.Drawing.Size(505, 20);
-            this.installationKryptonLabel.TabIndex = 0;
-            this.installationKryptonLabel.Values.Text = "";
+            this.installationKryptonWrapLabel.AutoSize = false;
+            this.installationKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.installationKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.installationKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
+            this.installationKryptonWrapLabel.Location = new System.Drawing.Point(12, 30);
+            this.installationKryptonWrapLabel.Name = "installationKryptonWrapLabel";
+            this.installationKryptonWrapLabel.Palette = this.launcherKryptonPalette;
+            this.installationKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.installationKryptonWrapLabel.Size = new System.Drawing.Size(505, 20);
+            this.installationKryptonWrapLabel.Text = "";
 
             // 
             // defaultsStatusKryptonWrapLabel
@@ -319,6 +323,7 @@ namespace Empire_Earth_Launcher
             // 
             // hintsHeadingKryptonLabel
             // 
+            this.hintsHeadingKryptonLabel.AutoSize = false;
             this.hintsHeadingKryptonLabel.Location = new System.Drawing.Point(12, 322);
             this.hintsHeadingKryptonLabel.Name = "hintsHeadingKryptonLabel";
             this.hintsHeadingKryptonLabel.Palette = this.launcherKryptonPalette;
@@ -329,19 +334,23 @@ namespace Empire_Earth_Launcher
             this.hintsHeadingKryptonLabel.Values.Text = "Hints";
 
             // 
-            // hintsNoneKryptonLabel
+            // hintsNoneKryptonWrapLabel
             // 
-            this.hintsNoneKryptonLabel.Location = new System.Drawing.Point(12, 344);
-            this.hintsNoneKryptonLabel.Name = "hintsNoneKryptonLabel";
-            this.hintsNoneKryptonLabel.Palette = this.launcherKryptonPalette;
-            this.hintsNoneKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.hintsNoneKryptonLabel.Size = new System.Drawing.Size(505, 20);
-            this.hintsNoneKryptonLabel.TabIndex = 0;
-            this.hintsNoneKryptonLabel.Values.Text = "No hints";
+            this.hintsNoneKryptonWrapLabel.AutoSize = false;
+            this.hintsNoneKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.hintsNoneKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.hintsNoneKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
+            this.hintsNoneKryptonWrapLabel.Location = new System.Drawing.Point(12, 344);
+            this.hintsNoneKryptonWrapLabel.Name = "hintsNoneKryptonWrapLabel";
+            this.hintsNoneKryptonWrapLabel.Palette = this.launcherKryptonPalette;
+            this.hintsNoneKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.hintsNoneKryptonWrapLabel.Size = new System.Drawing.Size(505, 20);
+            this.hintsNoneKryptonWrapLabel.Text = "No hints";
 
             // 
             // compatibilityHeadingKryptonLabel
             // 
+            this.compatibilityHeadingKryptonLabel.AutoSize = false;
             this.compatibilityHeadingKryptonLabel.Location = new System.Drawing.Point(12, 370);
             this.compatibilityHeadingKryptonLabel.Name = "compatibilityHeadingKryptonLabel";
             this.compatibilityHeadingKryptonLabel.Palette = this.launcherKryptonPalette;
@@ -399,13 +408,14 @@ namespace Empire_Earth_Launcher
             this.compatibilityWarningPictureBox.Image = global::Empire_Earth_Launcher.Properties.Resources.ee_book;
             this.compatibilityWarningPictureBox.Location = new System.Drawing.Point(10, 8);
             this.compatibilityWarningPictureBox.Name = "compatibilityWarningPictureBox";
-            this.compatibilityWarningPictureBox.Size = new System.Drawing.Size(310, 66);
+            this.compatibilityWarningPictureBox.Size = new System.Drawing.Size(66, 66);
             this.compatibilityWarningPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.compatibilityWarningPictureBox.TabIndex = 13;
             this.compatibilityWarningPictureBox.TabStop = false;
             // 
             // dwm8And16BitMitigationKryptonCheckBox
             // 
+            this.dwm8And16BitMitigationKryptonCheckBox.AutoSize = false;
             this.dwm8And16BitMitigationKryptonCheckBox.Location = new System.Drawing.Point(12, 392);
             this.dwm8And16BitMitigationKryptonCheckBox.Name = "dwm8And16BitMitigationKryptonCheckBox";
             this.dwm8And16BitMitigationKryptonCheckBox.Palette = this.launcherKryptonPalette;
@@ -419,6 +429,7 @@ namespace Empire_Earth_Launcher
             // 
             // highDpiAwareKryptonCheckBox
             // 
+            this.highDpiAwareKryptonCheckBox.AutoSize = false;
             this.highDpiAwareKryptonCheckBox.Location = new System.Drawing.Point(12, 416);
             this.highDpiAwareKryptonCheckBox.Name = "highDpiAwareKryptonCheckBox";
             this.highDpiAwareKryptonCheckBox.Palette = this.launcherKryptonPalette;
@@ -432,6 +443,7 @@ namespace Empire_Earth_Launcher
             // 
             // heapClearAllocationKryptonCheckBox
             // 
+            this.heapClearAllocationKryptonCheckBox.AutoSize = false;
             this.heapClearAllocationKryptonCheckBox.Location = new System.Drawing.Point(12, 440);
             this.heapClearAllocationKryptonCheckBox.Name = "heapClearAllocationKryptonCheckBox";
             this.heapClearAllocationKryptonCheckBox.Palette = this.launcherKryptonPalette;
@@ -445,6 +457,7 @@ namespace Empire_Earth_Launcher
             // 
             // windows7ModeKryptonCheckBox
             // 
+            this.windows7ModeKryptonCheckBox.AutoSize = false;
             this.windows7ModeKryptonCheckBox.Location = new System.Drawing.Point(12, 464);
             this.windows7ModeKryptonCheckBox.Name = "windows7ModeKryptonCheckBox";
             this.windows7ModeKryptonCheckBox.Palette = this.launcherKryptonPalette;
@@ -517,7 +530,7 @@ namespace Empire_Earth_Launcher
         private Krypton.Toolkit.KryptonPalette launcherKryptonPalette;
         private System.Windows.Forms.Panel gameSettingsScrollPanel;
         private Krypton.Toolkit.KryptonLabel defaultsHeadingKryptonLabel;
-        private Krypton.Toolkit.KryptonLabel installationKryptonLabel;
+        private Empire_Earth_Launcher.LauncherWrapLabel installationKryptonWrapLabel;
         private Empire_Earth_Launcher.LauncherWrapLabel defaultsStatusKryptonWrapLabel;
         private Empire_Earth_Launcher.LauncherWrapLabel displayQuestionKryptonWrapLabel;
         private Krypton.Toolkit.KryptonButton displayQuestionApplyKryptonButton;
@@ -529,7 +542,7 @@ namespace Empire_Earth_Launcher
         private Krypton.Toolkit.KryptonButton confirmNoKryptonButton;
         private Empire_Earth_Launcher.LauncherWrapLabel resultKryptonWrapLabel;
         private Krypton.Toolkit.KryptonLabel hintsHeadingKryptonLabel;
-        private Krypton.Toolkit.KryptonLabel hintsNoneKryptonLabel;
+        private Empire_Earth_Launcher.LauncherWrapLabel hintsNoneKryptonWrapLabel;
         private Krypton.Toolkit.KryptonLabel compatibilityHeadingKryptonLabel;
         private Krypton.Toolkit.KryptonCheckBox dwm8And16BitMitigationKryptonCheckBox;
         private Krypton.Toolkit.KryptonCheckBox highDpiAwareKryptonCheckBox;

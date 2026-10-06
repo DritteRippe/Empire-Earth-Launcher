@@ -20,18 +20,25 @@ namespace Empire_Earth_Launcher
     /// warning (HKCU switches from Windows 8 on, HKLM read-only, Windows 7 only the old values and RUNASADMIN).
     /// </summary>
     /// <remarks>
-    /// The controls are stacked in <see cref="LayoutPage"/> from the texts they show, so longer translations push the
-    /// following controls down; the page scrolls. The work runs through <see cref="UiOperation"/> and
+    /// The controls are stacked in <see cref="LayoutPage"/> by <see cref="ScrollPageLayout"/> from the texts they show and the
+    /// width of the page, so longer translations push the following controls down and a wider window gives the texts more room
+    /// (ADR 0017); the page scrolls. The work runs through <see cref="UiOperation"/> and
     /// <see cref="GameSettingsModel"/>; this class only shows the state.
     /// </remarks>
     public partial class SettingsUserControl : UserControl
     {
-        private const int ContentLeft = 12;
-        private const int ContentWidth = 505;
-        private const int Gap = 6;
+        private const int Gap = ScrollPageLayout.Gap;
+
+        /// <summary>The smallest width of the check box of a hint (the page gives it the width its text needs, if more).</summary>
         private const int HintCheckBoxWidth = 116;
 
+        /// <summary>The space between the edge of the block of the compatibility warning and its picture, text and button.</summary>
+        private const int WarningPadding = 10;
+
         private readonly Dictionary<KryptonCheckBox, string> entryOfCheckBox;
+
+        /// <summary>Stacks the controls of the page for its width (ADR 0017).</summary>
+        private readonly ScrollPageLayout stack;
 
         /// <summary>
         /// The visibility each control should have (Visible reads false while the page is hidden). A control that is not in
@@ -67,6 +74,13 @@ namespace Empire_Earth_Launcher
         {
             InitializeComponent();
             ApplyTexts();
+            stack = new ScrollPageLayout(gameSettingsScrollPanel, IsShown);
+            // The window was resized (or the page is shown for the first time after it was): the texts get the new width.
+            gameSettingsScrollPanel.SizeChanged += (sender, e) =>
+            {
+                if (stack.NeedsLayout)
+                    LayoutPage();
+            };
             entryOfCheckBox = new Dictionary<KryptonCheckBox, string>
             {
                 { dwm8And16BitMitigationKryptonCheckBox, CompatibilityLayers.Dwm8And16BitMitigation },
@@ -89,7 +103,7 @@ namespace Empire_Earth_Launcher
             resetGameSettingsKryptonButton.Values.Text = Resources.ResetGameSettingsButton;
             confirmNoKryptonButton.Values.Text = Resources.ConfirmCancel;
             hintsHeadingKryptonLabel.Values.Text = Resources.HintsHeading;
-            hintsNoneKryptonLabel.Values.Text = Resources.HintsNone;
+            hintsNoneKryptonWrapLabel.Text = Resources.HintsNone;
             compatibilityHeadingKryptonLabel.Values.Text = Resources.CompatibilityHintTitle;
             dwm8And16BitMitigationKryptonCheckBox.Values.Text = Texts.CompatibilityOption(CompatibilityLayers.Dwm8And16BitMitigation);
             highDpiAwareKryptonCheckBox.Values.Text = Texts.CompatibilityOption(CompatibilityLayers.HighDpiAware);
@@ -183,7 +197,7 @@ namespace Empire_Earth_Launcher
             bool usable = selected != null && selected.State != InstallationState.FolderMissing && !selected.HasNewerContract &&
                           !setupRunning;
 
-            installationKryptonLabel.Values.Text = model.Result == null
+            installationKryptonWrapLabel.Text = model.Result == null
                 ? installations.IsWaitingForSetup ? Resources.InstallationsWaitingForSetup : Resources.InstallationsSearching
                 : Texts.GameSettingsInstallation(selected);
             var status = model.Lines.Select(line => Texts.DefaultsStatus(line.Game, line.Status)).ToList();
@@ -232,7 +246,8 @@ namespace Empire_Earth_Launcher
                 {
                     Palette = launcherKryptonPalette,
                     PaletteMode = PaletteMode.Custom,
-                    Location = new Point(ContentLeft, 0),
+                    AutoSize = false,
+                    Location = new Point(ScrollPageLayout.Margin, 0),
                     Size = new Size(HintCheckBoxWidth, 22),
                     Checked = !model.IsHidden(finding)
                 };
@@ -250,15 +265,15 @@ namespace Empire_Earth_Launcher
                     LabelStyle = LabelStyle.NormalControl,
                     Palette = launcherKryptonPalette,
                     PaletteMode = PaletteMode.Custom,
-                    Location = new Point(ContentLeft + HintCheckBoxWidth + Gap, 0),
-                    Size = new Size(ContentWidth - HintCheckBoxWidth - Gap, 20),
+                    Location = new Point(ScrollPageLayout.Margin + HintCheckBoxWidth + Gap, 0),
+                    Size = new Size(100, 20),
                     Text = Texts.Finding(finding)
                 };
                 gameSettingsScrollPanel.Controls.Add(checkBox);
                 gameSettingsScrollPanel.Controls.Add(label);
                 hintRows.Add(Tuple.Create(checkBox, label));
             }
-            SetShown(hintsNoneKryptonLabel, model.Selected != null && model.Findings.Count == 0);
+            SetShown(hintsNoneKryptonWrapLabel, model.Selected != null && model.Findings.Count == 0);
             SetShown(hintsHeadingKryptonLabel, model.Selected != null);
         }
 
@@ -312,84 +327,74 @@ namespace Empire_Earth_Launcher
         }
 
         /// <summary>
-        /// Stacks the controls that are shown from top to bottom, each wrapping label as high as its text, so that every
-        /// translation fits; the panel scrolls when the page is longer than the window.
+        /// Stacks the controls that are shown from top to bottom for the width of the page (<see cref="ScrollPageLayout"/>),
+        /// each wrapping label as high as its text, so that every translation fits at every window size; the panel scrolls
+        /// when the page is longer than the window. Runs again when the width of the page changes.
         /// </summary>
         private void LayoutPage()
         {
-            gameSettingsScrollPanel.SuspendLayout();
-            int scroll = gameSettingsScrollPanel.AutoScrollPosition.Y;
-            int y = 8;
-
-            void Place(Control control)
-            {
-                if (!IsShown(control))
-                    return;
-                if (control is LauncherWrapLabel label)
-                    label.Height = TextHeight(label);
-                control.Top = y + scroll;
-                y += control.Height + Gap;
-            }
-
-            void PlaceRow(params Control[] controls)
-            {
-                Control[] visible = controls.Where(IsShown).ToArray();
-                if (visible.Length == 0)
-                    return;
-                foreach (Control control in visible)
-                    control.Top = y + scroll;
-                y += visible.Max(control => control.Height) + Gap;
-            }
-
-            void PlaceConfirmation()
-            {
-                Place(confirmKryptonWrapLabel);
-                PlaceRow(confirmYesKryptonButton, confirmNoKryptonButton);
-            }
-
-            Place(defaultsHeadingKryptonLabel);
-            Place(installationKryptonLabel);
-            Place(defaultsStatusKryptonWrapLabel);
-            Place(displayQuestionKryptonWrapLabel);
-            PlaceRow(displayQuestionApplyKryptonButton, displayQuestionKeepKryptonButton);
-            PlaceRow(applyDisplayKryptonButton, resetGameSettingsKryptonButton);
-            if (!confirmationBelowCompatibility)
-                PlaceConfirmation();
-            Place(resultKryptonWrapLabel);
-
-            y += Gap;
-            Place(hintsHeadingKryptonLabel);
-            Place(hintsNoneKryptonLabel);
-            foreach (var row in hintRows)
-            {
-                row.Item2.Height = TextHeight(row.Item2);
-                row.Item1.Top = y + scroll;
-                row.Item2.Top = y + scroll;
-                y += Math.Max(row.Item1.Height, row.Item2.Height) + Gap;
-            }
-
-            y += Gap;
-            Place(compatibilityHeadingKryptonLabel);
-            if (IsShown(compatibilityWarningKryptonPanel))
-            {
-                compatibilityWarningKryptonPanel.Left = (gameSettingsScrollPanel.ClientSize.Width - compatibilityWarningKryptonPanel.Width) / 2;
-                Place(compatibilityWarningKryptonPanel);
-            }
-            foreach (KryptonCheckBox checkBox in entryOfCheckBox.Keys)
-                Place(checkBox);
-            if (confirmationBelowCompatibility)
-                PlaceConfirmation();
-            Place(compatibilityInfoKryptonWrapLabel);
-            Place(removeRunAsAdminKryptonButton);
-            Place(compatibilityResultKryptonWrapLabel);
-
-            gameSettingsScrollPanel.ResumeLayout(true);
+            stack.Run(PlaceControls);
         }
 
-        /// <summary>The height of a wrapping label for its text at its width (<see cref="LauncherWrapLabel.TextHeight"/>), at least 20.</summary>
-        private static int TextHeight(LauncherWrapLabel label)
+        private void PlaceControls()
         {
-            return Math.Max(20, label.TextHeight(label.Width));
+            stack.Place(defaultsHeadingKryptonLabel);
+            stack.Place(installationKryptonWrapLabel);
+            stack.Place(defaultsStatusKryptonWrapLabel);
+            stack.Place(displayQuestionKryptonWrapLabel);
+            stack.PlaceRow(displayQuestionApplyKryptonButton, displayQuestionKeepKryptonButton);
+            stack.PlaceRow(applyDisplayKryptonButton, resetGameSettingsKryptonButton);
+            if (!confirmationBelowCompatibility)
+                PlaceConfirmation();
+            stack.Place(resultKryptonWrapLabel);
+
+            stack.Space(Gap);
+            stack.Place(hintsHeadingKryptonLabel);
+            stack.Place(hintsNoneKryptonWrapLabel);
+            foreach (var row in hintRows)
+                stack.PlaceBeside(row.Item1, row.Item2);
+
+            stack.Space(Gap);
+            stack.Place(compatibilityHeadingKryptonLabel);
+            if (IsShown(compatibilityWarningKryptonPanel))
+            {
+                LayoutWarning();
+                stack.Place(compatibilityWarningKryptonPanel);
+            }
+            foreach (KryptonCheckBox checkBox in entryOfCheckBox.Keys)
+                stack.Place(checkBox);
+            if (confirmationBelowCompatibility)
+                PlaceConfirmation();
+            stack.Place(compatibilityInfoKryptonWrapLabel);
+            stack.Place(removeRunAsAdminKryptonButton);
+            stack.Place(compatibilityResultKryptonWrapLabel);
+        }
+
+        private void PlaceConfirmation()
+        {
+            stack.Place(confirmKryptonWrapLabel);
+            stack.PlaceRow(confirmYesKryptonButton, confirmNoKryptonButton);
+        }
+
+        /// <summary>
+        /// The block of the compatibility warning has the width of the content and the height of what it holds: the picture
+        /// of the book centered at the top, the text below it as high as it needs at that width, the button centered under
+        /// the text. Nothing in it has a fixed height, so a long translation or a large font cannot push a part out of it.
+        /// </summary>
+        private void LayoutWarning()
+        {
+            KryptonPanel block = compatibilityWarningKryptonPanel;
+            block.Width = stack.ContentWidth;
+            int y = WarningPadding;
+            compatibilityWarningPictureBox.Location = new Point((block.Width - compatibilityWarningPictureBox.Width) / 2, y);
+            y += compatibilityWarningPictureBox.Height + Gap;
+            int textWidth = block.Width - 2 * WarningPadding;
+            compatibilityWarningKryptonWrapLabel.SetBounds(WarningPadding, y, textWidth, 0);
+            compatibilityWarningKryptonWrapLabel.Height = compatibilityWarningKryptonWrapLabel.TextHeight(textWidth);
+            y += compatibilityWarningKryptonWrapLabel.Height + Gap;
+            Size button = stack.NaturalSize(compatibilityWarningConfirmationKryptonButton);
+            compatibilityWarningConfirmationKryptonButton.SetBounds((block.Width - button.Width) / 2, y, button.Width, button.Height);
+            block.Height = y + button.Height + WarningPadding;
         }
 
         // --- Actions ------------------------------------------------------------------------------------------------

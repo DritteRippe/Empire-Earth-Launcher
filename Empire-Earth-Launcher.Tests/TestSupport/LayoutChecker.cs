@@ -152,8 +152,10 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
 
         /// <summary>
         /// Rule 2: no visible child is wider than its parent, or starts left of it; below a parent that does not scroll no
-        /// child ends below it either. A parent that scrolls vertically keeps the width of its scroll bar free (a page never
-        /// scrolls sideways).
+        /// child ends below it either. A parent that scrolls vertically keeps the width of its scroll bar free. A page does not
+        /// scroll sideways, except where a text of one line (a check box, a label) is wider than the page: it cannot wrap, so
+        /// the content gets its width (<c>ScrollPageLayout</c>); a parent that scrolls may then be as wide as such a control
+        /// whose width is just what its text needs.
         /// </summary>
         public static IEnumerable<string> OutsideParent(Control root)
         {
@@ -166,6 +168,8 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
                 int height = container.ClientSize.Height;
                 if (scrolls && children.Count > 0 && children.Max(child => child.Bottom) > height)
                     width -= SystemInformation.VerticalScrollBarWidth;
+                if (scrolls)
+                    width = Math.Max(width, children.Where(IsAsWideAsItsText).Select(child => child.Right).DefaultIfEmpty(0).Max());
                 foreach (Control child in children)
                 {
                     if (child.Right > width)
@@ -214,6 +218,13 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
             }
         }
 
+        /// <summary>True for a Krypton text control that is not wider than its text needs (it could not be narrower).</summary>
+        private static bool IsAsWideAsItsText(Control control)
+        {
+            int preferred;
+            return IsKryptonTextControl(control) && TryPreferredWidth(control, out preferred) && control.Width <= preferred;
+        }
+
         private static bool IsKryptonTextControl(Control control)
         {
             return control is KryptonButton || control is KryptonCheckBox || control is KryptonLabel || control is KryptonCheckButton;
@@ -245,6 +256,9 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
             internal Dictionary<Control, Rectangle> Bounds { get; } = new Dictionary<Control, Rectangle>();
 
             internal Dictionary<Control, int> ParentWidth { get; } = new Dictionary<Control, int>();
+
+            /// <summary>The parents whose content is as wide as a text of one line needs (<see cref="IsAsWideAsItsText"/>).</summary>
+            internal HashSet<Control> TextBoundParents { get; } = new HashSet<Control>();
         }
 
         /// <summary>Records the bounds of the visible controls of <paramref name="root"/>.</summary>
@@ -255,6 +269,8 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
             {
                 snapshot.Bounds[control] = control.Bounds;
                 snapshot.ParentWidth[control] = control.Parent.ClientSize.Width;
+                if (IsAsWideAsItsText(control))
+                    snapshot.TextBoundParents.Add(control.Parent);
             }
             return snapshot;
         }
@@ -263,13 +279,18 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
         /// Rule 5: every control that fills at least half of its parent's width keeps doing so when the page gets wider: it
         /// grows with the parent, or (a picture, a block of fixed width) moves to stay centered. "The content does not
         /// grow when the window is maximized" is this rule failing for the whole page. Controls that are not visible in
-        /// both snapshots are ignored.
+        /// both snapshots are ignored, and so are the controls of a parent whose width a text of one line dictates (it cannot
+        /// wrap, so the page scrolls sideways instead of growing) and buttons: a button has the width its text needs and is
+        /// not stretched over a wide page (a button as wide as half of a small page, as with a large font, is no content that
+        /// has to grow).
         /// </summary>
         public static IEnumerable<string> NotGrowing(Control root, Snapshot narrow, Snapshot wide)
         {
             foreach (KeyValuePair<Control, Rectangle> pair in narrow.Bounds)
             {
                 Control control = pair.Key;
+                if (control is KryptonButton || narrow.TextBoundParents.Contains(control.Parent))
+                    continue;
                 Rectangle before = pair.Value;
                 Rectangle after;
                 if (!wide.Bounds.TryGetValue(control, out after))
