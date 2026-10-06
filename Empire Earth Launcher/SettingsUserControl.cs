@@ -33,7 +33,10 @@ namespace Empire_Earth_Launcher
 
         private readonly Dictionary<KryptonCheckBox, string> entryOfCheckBox;
 
-        /// <summary>The visibility each control should have (Visible reads false while the page is hidden).</summary>
+        /// <summary>
+        /// The visibility each control should have (Visible reads false while the page is hidden). A control that is not in
+        /// it is always shown.
+        /// </summary>
         private readonly Dictionary<Control, bool> shown = new Dictionary<Control, bool>();
 
         /// <summary>The check box and text of each hint, created for the findings shown.</summary>
@@ -162,7 +165,10 @@ namespace Empire_Earth_Launcher
 
         private bool IsShown(Control control)
         {
-            return shown.TryGetValue(control, out bool visible) ? visible : control.Visible;
+            // Not control.Visible: the page is created hidden and the state is shown before the page is, so Visible reads
+            // false for every control then, and the heading, the installation line and the two buttons stayed at the
+            // places of the designer, below the stacked texts (bug report of 2026-10-06).
+            return !shown.TryGetValue(control, out bool visible) || visible;
         }
 
         /// <summary>Shows the state of <see cref="model"/>: texts, enabled buttons, the hints and the options.</summary>

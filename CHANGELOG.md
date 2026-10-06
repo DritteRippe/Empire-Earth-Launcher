@@ -9,6 +9,14 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
 
 ## [Unreleased]
 
+### Fixed
+
+- Game settings page: the header, the description and the "NeoEE in ..." line lay on top of each other, and the book picture
+  of the compatibility warning lay over the buttons "Apply recommended display" and "Reset game settings". The page is
+  created hidden and filled before the window is shown, and its layout skipped the header, the installation line and
+  the two buttons because `Control.Visible` reads false then (`SettingsUserControl.IsShown`); they kept the places of the
+  designer.
+
 ## [1.0.0] - 2026-10-05
 
 Launcher v2 was built on branch `v2` in the work packages L-WP1 to L-WP9 ([docs/ARCHITECTURE.md](docs/ARCHITECTURE.md),
