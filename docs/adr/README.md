@@ -27,7 +27,7 @@ Rules:
 | [0009](0009-localization-with-resx-en-de-fr.md) | Localization with resx: English, German, French | Accepted, amended 2026-10-02 (twice) |
 | [0010](0010-game-start-and-mutex-probing.md) | Game start, mutex probing and single instance | Accepted, amended 2026-10-02 (twice) |
 | [0011](0011-screen-size-in-physical-pixels.md) | Screen size in physical pixels | Accepted, amended 2026-10-02 (twice) |
-| [0012](0012-test-strategy.md) | Test strategy | Accepted, amended 2026-10-02 (seven times) and 2026-10-03 |
+| [0012](0012-test-strategy.md) | Test strategy | Accepted, amended 2026-10-02 (seven times), 2026-10-03 and 2026-10-06 |
 | [0013](0013-error-handling-and-logging.md) | Error handling and logging | Accepted, amended 2026-10-02 (three times) |
 | [0014](0014-only-working-features-in-the-ui.md) | Only working features in the UI | Accepted, amended 2026-10-02 (six times) |
 | [0015](0015-game-settings-target-folders-and-write-timing.md) | Game settings: target folders and when the launcher writes | Accepted, amended 2026-10-02 (four times) |

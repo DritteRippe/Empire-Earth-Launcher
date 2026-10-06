@@ -755,7 +755,9 @@ Decided in [ADR 0012](adr/0012-test-strategy.md):
   real registry and the installation, and write HKCU game settings, only on a GitHub-hosted runner of the setup
   repository's end-to-end workflow). The tests of the category `WinForms` create controls and pages without showing them
   and paint them into a bitmap; under Mono they need a display (`xvfb-run`), and pages whose Krypton controls call
-  Windows libraries run only on Windows ([ADR 0012](adr/0012-test-strategy.md) amendment of 2026-10-03).
+  Windows libraries run only on Windows ([ADR 0012](adr/0012-test-strategy.md) amendment of 2026-10-03). The geometry
+  tests of the pages (`PageLayoutTests`, `LayoutChecker`) and the page pictures of the CI run (`PageScreenshotTests`, only
+  with `EE_LAUNCHER_PAGE_PNG_DIR`) are described in the amendment of 2026-10-06; they are no UI automation.
 - **Plan review additions** ([ADR 0012](adr/0012-test-strategy.md) amendment): fixtures are synthetic only
   (`FixtureProvenanceTests`); `docs/contract-samples/` holds byte samples of `install.ini`, `files.sha256` and the
   record, shared with the setup repository; the tests run on the laptop too (`Tests\` in the laptop package,

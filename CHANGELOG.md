@@ -17,6 +17,16 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
   the two buttons because `Control.Visible` reads false then (`SettingsUserControl.IsShown`); they kept the places of the
   designer.
 
+### Added
+
+- Geometry tests of the four pages (`PageLayoutTests`, `LayoutChecker`, ADR 0012 amendment of 2026-10-06): no overlap,
+  nothing outside its page, no cut-off text and content that grows with the page, at four window sizes, in English, German
+  and French, with the system font and one 50 % larger; the *Game settings* page is driven through its real model in
+  every state (`SettingsPageWorld`). Rules the page still breaks under Mono are listed (`KnownDefects`) until the layout
+  work of 1.1.0; Windows excuses none.
+- CI: the step "Render page pictures" saves PNG files of the pages (`PageScreenshotTests`) and uploads them as the artifact
+  `page-pictures`.
+
 ## [1.0.0] - 2026-10-05
 
 Launcher v2 was built on branch `v2` in the work packages L-WP1 to L-WP9 ([docs/ARCHITECTURE.md](docs/ARCHITECTURE.md),

@@ -33,10 +33,11 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
         }
 
         /// <summary>
-        /// Creates a page or window of the launcher. Outside Windows a page whose Krypton controls call Windows libraries
-        /// (<c>uxtheme.dll</c>, GDI) cannot be created; the test is ignored there and runs on Windows (CI, laptop).
+        /// Creates a page or window of the launcher (or an object that holds one). Outside Windows a page whose Krypton controls
+        /// call Windows libraries (<c>uxtheme.dll</c>, GDI) cannot be created; the test is ignored there and runs on Windows (CI,
+        /// laptop).
         /// </summary>
-        public static T CreateOrIgnore<T>(Func<T> create) where T : Control
+        public static T CreateOrIgnore<T>(Func<T> create) where T : class
         {
             try
             {

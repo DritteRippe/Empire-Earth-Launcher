@@ -372,7 +372,12 @@ only write below the temporary folder; they never contact a server, never touch 
 of the category `WinForms` create controls and pages without showing them and paint them into a bitmap (the wrapping
 labels after the palette disposed its fonts); under Mono they need a display (`xvfb-run -a mono ...`, without one they
 are ignored), and the pages whose Krypton controls call Windows libraries, as well as the check of `KryptonWrapLabel`
-on .NET Framework, run only on Windows (CI, `Tests\` of the laptop package). The core, the launcher and the WON library make their internal helpers
+on .NET Framework, run only on Windows (CI, `Tests\` of the laptop package). `PageLayoutTests` check the geometry of the
+four pages (no overlap, nothing outside its page, no cut-off text, content that grows with the page) at four window sizes,
+in English, German and French, with the system font and a 50 % larger one; the *Game settings* page is driven through its
+real model in every state ([ADR 0012](docs/adr/0012-test-strategy.md), amendment of 2026-10-06). `PageScreenshotTests`
+write PNG files of the pages when `EE_LAUNCHER_PAGE_PNG_DIR` names a folder (the CI build uploads them as the artifact
+`page-pictures`). The core, the launcher and the WON library make their internal helpers
 visible to the test assembly (`InternalsVisibleTo`).
 
 **Real machine**: `Empire-Earth-Launcher.RealMachineTests` is a second NUnitLite program, for the end-to-end workflow of

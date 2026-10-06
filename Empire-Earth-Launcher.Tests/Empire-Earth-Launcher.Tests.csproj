@@ -185,11 +185,13 @@
     <Compile Include="Launcher\LauncherInstanceTargetTests.cs" />
     <Compile Include="Launcher\LauncherSettingsInstallationsTests.cs" />
     <Compile Include="Launcher\LauncherWrapLabelTests.cs" />
+    <Compile Include="Launcher\LayoutCheckerTests.cs" />
     <Compile Include="Launcher\LobbyStatusTests.cs" />
     <Compile Include="Launcher\IntegrityModelTests.cs" />
     <Compile Include="Launcher\MaintenanceModelTests.cs" />
     <Compile Include="Launcher\MaintenanceTextsTests.cs" />
     <Compile Include="Launcher\NetworkTextsTests.cs" />
+    <Compile Include="Launcher\PageLayoutTests.cs" />
     <Compile Include="Launcher\PlayModelTests.cs" />
     <Compile Include="Launcher\SingleInstanceStartupTests.cs" />
     <Compile Include="Launcher\TextsTests.cs" />
@@ -211,6 +213,8 @@
     </Compile>
     <Compile Include="TestSupport\ChunkedReadStream.cs" />
     <Compile Include="TestSupport\GameSettingsWorld.cs" />
+    <Compile Include="TestSupport\LauncherPages.cs" />
+    <Compile Include="TestSupport\LayoutChecker.cs" />
     <Compile Include="TestSupport\ProductionSources.cs" />
     <Compile Include="TestSupport\InstallationWorld.cs" />
     <Compile Include="TestSupport\MappedFileSystem.cs" />
@@ -218,8 +222,11 @@
     <Compile Include="TestSupport\RegFileImporter.cs" />
     <Compile Include="TestSupport\RepositoryRoot.cs" />
     <Compile Include="TestSupport\SampleHashes.cs" />
+    <Compile Include="TestSupport\SettingsPageWorld.cs" />
     <Compile Include="TestSupport\TemporaryDirectory.cs" />
     <Compile Include="TestSupport\TestCategories.cs" />
+    <Compile Include="TestSupport\TestUiLanguage.cs" />
+    <Compile Include="TestSupport\UiThread.cs" />
     <Compile Include="TestSupport\WinForms.cs" />
     <Compile Include="Won\DeadlineStreamTests.cs" />
     <Compile Include="Won\LobbyFileBuilder.cs" />

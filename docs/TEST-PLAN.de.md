@@ -123,6 +123,13 @@ WP7-09 ohne Oberfläche ab; diese Fälle bleiben trotzdem Fälle dieses Plans. N
 zweites Windows-Konto, der Spielstart, Windows-Client-Versionen, Skalierung und das Netz. Das Programm gehört nicht zum
 Laptop-Paket und wird hier nicht ausgeführt; WP1-11 betrifft nur `Empire-Earth-Launcher.Tests.exe`.
 
+Ebenfalls automatisch, ohne Fälle dieses Plans: Der Build-Workflow dieses Repositorys führt die Geometrietests der Seiten
+(`PageLayoutTests`) auf Windows aus und legt Bilder aller vier Seiten (Spieleinstellungen in jedem Zustand, Deutsch und
+Englisch, kleinstes Fenster und 1024 × 640, einmal mit 50 % größerer Schrift) als Artefakt `page-pictures` ab. Sie ersetzen
+einen Screenshot, wenn eine Anordnung nach Augenmaß beurteilt werden muss; die Fälle WP1-07, WP1-08, WP3-03 und WP5-17
+(keine abgeschnittenen oder überlappenden Texte) bleiben Fälle dieses Plans, weil nur ein echter Rechner die Schrift und die Skalierung des Spielers
+zeigt.
+
 ## 3. Wo der Launcher Dateien ablegt
 
 Alle Dateien des Launchers liegen pro Benutzer unter `%LOCALAPPDATA%\Empire Earth Launcher\` (öffnen mit
@@ -187,7 +194,7 @@ WP1-01 | OK |
 | WP1-08 | Skalierung auf 125 % oder 150 % stellen (Einstellungen → System → Bildschirm), Launcher neu starten, Screenshot. | Fenster von Windows vergrößert (darf etwas unscharf sein), Anordnung wie bei 100 %, keine überlappenden oder abgeschnittenen Elemente. Danach Skalierung zurückstellen. |
 | WP1-09 | Mod-Creator `Empire_Earth_Mod.exe` starten. | Startet ohne UAC-Rückfrage; oben steht „You are using: “ mit der **richtigen** Windows-Version (Windows 10 bzw. Windows 11, nicht „Windows 8“). |
 | WP1-10 | Launcher und Mod-Creator schließen. | Beide Prozesse sind im Task-Manager verschwunden. |
-| WP1-11 | Nur mit einem Paket, das den Ordner `Tests\` enthält (sonst „nicht geprüft“): PowerShell im entpackten Ordner `Tests\` öffnen und `.\Empire-Earth-Launcher.Tests.exe --where "cat != SourceTree" --result=tests-windows.xml` ausführen, danach `$LASTEXITCODE` anzeigen. Die Datei `tests-windows.xml` dem Protokoll beifügen. | `Failed: 0`, Exit-Code 0. Die Tests legen nur Dateien im Temp-Ordner und Mutexe mit Zufallsnamen an; Registry, Netz und die Launcher-Dateien unter `%LOCALAPPDATA%` bleiben unberührt. Die Tests der Kategorie `WinForms` erzeugen die Seiten des Launchers unsichtbar und zeichnen sie in ein Bild; es öffnet sich kein Fenster (unter Windows laufen hier auch ihre Fälle, die unter Mono übersprungen werden). Die Tests der Kategorie `SourceTree` brauchen die Quelltexte und laufen hier nicht. |
+| WP1-11 | Nur mit einem Paket, das den Ordner `Tests\` enthält (sonst „nicht geprüft“): PowerShell im entpackten Ordner `Tests\` öffnen und `.\Empire-Earth-Launcher.Tests.exe --where "cat != SourceTree" --result=tests-windows.xml` ausführen, danach `$LASTEXITCODE` anzeigen. Die Datei `tests-windows.xml` dem Protokoll beifügen. | `Failed: 0`, Exit-Code 0. Die Tests legen nur Dateien im Temp-Ordner und Mutexe mit Zufallsnamen an; Registry, Netz und die Launcher-Dateien unter `%LOCALAPPDATA%` bleiben unberührt. Die Tests der Kategorie `WinForms` erzeugen die Seiten des Launchers unsichtbar, messen ihre Anordnung (`PageLayoutTests`: nichts überlappt, nichts ragt heraus, kein Text ist abgeschnitten, der Inhalt wächst mit der Seite) und zeichnen sie in ein Bild; es öffnet sich kein Fenster (unter Windows laufen hier auch ihre Fälle, die unter Mono übersprungen werden; die Bildtests `PageScreenshotTests` öffnen nur mit der Umgebungsvariable `EE_LAUNCHER_PAGE_PNG_DIR` ein Fenster und bleiben hier übersprungen). Die Tests der Kategorie `SourceTree` brauchen die Quelltexte und laufen hier nicht. |
 
 ### L-WP2 – Core-Grundlage (settings.json, Protokoll, Mutation Guard)
 

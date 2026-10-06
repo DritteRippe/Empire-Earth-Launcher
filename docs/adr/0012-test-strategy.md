@@ -1,7 +1,8 @@
 # 0012 Test strategy
 
 Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review; implementation in L-WP5, L-WP6,
-L-WP7, L-WP8 and L-WP9) and 2026-10-03 (CI end-to-end test), see the Amendment sections
+L-WP7, L-WP8 and L-WP9), 2026-10-03 (CI end-to-end test; WinForms tests) and 2026-10-06 (geometry tests), see the
+Amendment sections
 
 ## Context
 
@@ -301,3 +302,47 @@ The launcher's part of that job is to run its core against the real installation
   of every page after the global palette renewed its fonts and after the page palette's font was disposed; each must
   draw with its own font, not with the fallback) and `WrapLabelRulesTests` (no `KryptonWrapLabel` and no text measured
   with another control's font in the sources).
+
+## Amendment 2026-10-06 (geometry tests of the pages, bug report with screenshots)
+
+- **Why.** The report of 2026-10-06 (screenshots of the normal and the maximized window) showed the header, the description
+  and the "NeoEE in ..." line of the *Game settings* page on top of each other, the book picture of the compatibility
+  warning over the two buttons, and content that stays at the left when the window is maximized. No test measured a
+  layout, and the stacking arithmetic of the page is correct on its own. The cause was found by driving the page the way
+  the launcher does: the main window creates its pages hidden and fills them before it is shown, and `SettingsUserControl`
+  skipped every control it had not set visible itself, because `Control.Visible` reads false then. The header, the
+  installation line and the two buttons kept the places of the designer, the rest was stacked from the top (the buttons ended
+  up under the book picture). The fix is one line (`IsShown`); the tests below fail on all states of the page without it.
+- **Geometry tests are not UI automation.** "UI automation tests" stay rejected: nothing is clicked, no window is shown, no
+  message loop runs. `PageLayoutTests` creates each of the four pages hidden in a window that is not shown
+  (`LauncherPages.Host`, as `MainForm` holds them), gives it the page sizes of the window sizes minimum (554 x 380), 800 x 500,
+  1024 x 640 and 1920 x 1080, in English, German and French (`TestUiLanguage`) with the Krypton fonts of the system and 50 %
+  larger (`LauncherPages.ScaleFonts`, as Windows "Text size"), and checks the rules of `LayoutChecker` on the bounds of the
+  controls after `PerformLayout`: (1) no two visible siblings intersect (a named list of intentional overlays, today the
+  link over the empty player list), (2) no child sticks out of its parent (a scrolling parent keeps the scroll bar free),
+  (3) every `LauncherWrapLabel` is as high as `TextHeight(Width)`, (4) Krypton buttons, check boxes and labels are as wide as
+  their preferred width, (5) every control that fills half of its parent grows with the page, or stays centered. The rules
+  compare the page with itself (its own text heights and preferred sizes), never with pixel values of a font, and use the flag
+  the control itself carries (`LayoutChecker.IsSelfVisible`), never `Control.Visible`.
+- **The Game settings page is driven through its real model.** `SettingsPageWorld` builds `GameSettingsModel`,
+  `InstallationService` and `SetupWatcher` on the fake computer of the other tests (`GameSettingsWorld`) and puts the page into
+  the states searching, warning shown, question and hint, options (warning confirmed), confirmation (reset clicked) and setup
+  running; asynchronous work runs on the test thread (`UiThread`). `GameSettingsPage_HiddenOrVisibleWhileFilled_HasTheSameLayout`
+  states the cause of the report directly. The other three pages are created as the designer made them; their states
+  follow with the layout work.
+- **Self-tests of the rules.** `LayoutCheckerTests` runs every rule against small layouts that break it, so that a rule cannot
+  silently find nothing.
+- **Mono is a logic check, Windows is the truth.** Only the *Game settings* page can be created under Mono (the other pages
+  need `uxtheme.dll` and GDI), with the fonts of Mono and a designer scaling of 7 x 14 instead of 6 x 13, so a page is never made
+  smaller than it is after construction there. For that run `PageLayoutTests.KnownDefects` lists the rules the page breaks
+  until the layout work of 1.1.0 (resizable main window, pages that stack by text height) has fixed it, each with its reason; a
+  listed rule must still be broken in some scenario (`KnownDefects_AreStillBroken`), so the entry is removed with the fix.
+  **On Windows no rule is excused**: the first run there is expected to be red for the pages not yet reworked, and shows which
+  of the listed defects are real on the fonts of Windows.
+- **Page pictures in CI.** `PageScreenshotTests` shows each page for a moment in a borderless window and saves PNG files
+  (`DrawToBitmap` and a copy from the screen) of the *Game settings* page in every state, English and German, at the smallest
+  size and at 1024 x 640 and once with larger fonts, and of the other pages as designed. The tests do nothing unless the
+  environment variable `EE_LAUNCHER_PAGE_PNG_DIR` names a folder and the program runs on Windows, so the laptop package and the
+  local run show no window; the build workflow sets it in the step "Render page pictures" (before the tests, never failing
+  the build) and uploads the folder as the artifact `page-pictures`. The pictures replace a player's screenshot when a layout
+  has to be judged by eye.
