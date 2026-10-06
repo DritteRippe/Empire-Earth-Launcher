@@ -10,7 +10,7 @@ repositories at once (same text, same commit subject), see [5. Versioning](#5-ve
 |---|---|
 | Contract version | **1** |
 | Status | **Draft**: specified for setup v2 and launcher v2, not implemented by a release yet |
-| Based on | setup `setup_is6.iss`, `config_ee.iss`, `config_neoee.iss`, `utils.iss` (branch `v2` at 2ce68ee, plus the task `compatibility_legacy` that revision 2 adds) and the setup's decision records 0004, 0005, 0007, 0008 and 0010 (`docs/adr`, branch `v2` at 2ce68ee), launcher `GameDirectoryLocator.cs` (branch `v2` at 79464d4) and the launcher's decision record 0016 (branch `v2` at ec02afa), the official setups 1.7.2; revision 3 also on setup `environment.iss` (branch `v2` at 3a9498d) and the launcher v2 core library with its decision records 0015 and 0016 (branch `v2` at 1b49410); revision 4 also on the setup's decision record 0013 (suite installer) and `setup_is6.iss` (branch `v2` at 332d877) and launcher `SingleInstance.cs` (branch `v2` at 19386bb) |
+| Based on | setup `setup_is6.iss`, `config_ee.iss`, `config_neoee.iss`, `utils.iss` (branch `v2` at 2ce68ee, plus the task `compatibility_legacy` that revision 2 adds) and the setup's decision records 0004, 0005, 0007, 0008 and 0010 (`docs/adr`, branch `v2` at 2ce68ee), launcher `GameDirectoryLocator.cs` (branch `v2` at 79464d4) and the launcher's decision record 0016 (branch `v2` at ec02afa), the official setups 1.7.2; revision 3 also on setup `environment.iss` (branch `v2` at 3a9498d) and the launcher v2 core library with its decision records 0015 and 0016 (branch `v2` at 1b49410); revision 4 also on the setup's decision record 0013 (suite installer) and `setup_is6.iss` (branch `v2` at 332d877) and launcher `SingleInstance.cs` (branch `v2` at 19386bb); revision 5 also on the suite `suite/suite.iss` (branch `v2` at b5436db), launcher `UninstallKeyScanner.cs` (branch `v2` at a7461b9) and the laptop test TP-93 of the setup's test plan |
 
 The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. "Setup" means the EE and the
 NeoEE setup of every build variant, including their uninstallers; "launcher" means the Empire Earth
@@ -83,6 +83,7 @@ is its `{app}`; it is no install root of a product.
 | Suite `AppMutex` | `StainlessSteelStudiosPresentsEmpireEarth`, `MadDocSoftwarePresentsEmpireEarthExpansion`, `EmpireEarthCommunityLauncher` |
 | Launcher program | `{app}\Empire Earth Launcher.exe` |
 | Suite record key | `Software\Empire Earth Community\Suite` |
+| Suite uninstall key marker | `Empire Earth Community: Suite`, REG_DWORD `1` ([1.3](#13-uninstall-key-informative)) |
 
 - The **launcher mutex** is created by the running launcher, one per Windows session (session
   namespace, without `Global\`). It is neither a setup mutex nor a game mutex, so it never blocks a game
@@ -90,9 +91,13 @@ is its `{app}`; it is no install root of a product.
   suite and its uninstaller do not run while a launcher or a game runs.
 - The **suite setup mutex** is held by the suite and by its uninstaller for their whole run, also
   between two product setups ([4.2](#42-running-setup)).
-- The suite record ([1.6](#16-suite-record-optional)) and the suite shortcuts
-  ([1.7](#17-how-the-suite-runs-a-product-setup-informative)) are the only other things of the suite
-  that this contract describes.
+- The suite's own uninstall key `{<suite AppId>}_is1` ([1.3](#13-uninstall-key-informative), HKLM64) has
+  the `Publisher` of EE, `Empire Earth Community`, which Windows "Apps" shows for the suite. Since
+  revision 5 the suite marks it with the value of the row "Suite uninstall key marker", so that the
+  launcher never takes it for an installation of EE ([1.4](#14-discovery-by-the-launcher), source 3).
+- The suite record ([1.6](#16-suite-record-optional)), the marker of its uninstall key and the suite
+  shortcuts ([1.7](#17-how-the-suite-runs-a-product-setup-informative)) are the only other things of the
+  suite that this contract describes.
 
 ### Registry views
 
@@ -197,6 +202,7 @@ Written by Inno Setup itself in the Regular variants, by every community setup v
 | `DisplayVersion` | game version |
 | `Inno Setup: Selected Components`, `Inno Setup: Selected Tasks` | as `Components` and `Tasks` in `install.ini` |
 | `Empire Earth Community: ContractVersion` | REG_DWORD, the contract version; written by setups since v2 (Regular variants), not by Inno Setup |
+| `Empire Earth Community: Suite` | REG_DWORD `1`, only in the uninstall key of the suite ([Suite and launcher](#suite-and-launcher)); written by the suite since revision 5, not by Inno Setup and never by the EE or the NeoEE setup |
 
 Inno Setup deletes this key and writes it again on every run of a setup. Setups since v2 therefore
 write `Empire Earth Community: ContractVersion` at the end of `ssPostInstall`, after the manifest
@@ -204,6 +210,14 @@ write `Empire Earth Community: ContractVersion` at the end of `ssPostInstall`, a
 value is missing if a setup up to 1.7.2 ran over the installation afterwards, or if the last run could
 not replace the two files ([2.5](#25-verification-by-the-launcher)). Portable setups have no uninstall
 key, so there neither case can be detected.
+
+For the same reason the suite ([Suite and launcher](#suite-and-launcher)) writes
+`Empire Earth Community: Suite` in every run at `ssPostInstall` into its own key `{<suite AppId>}_is1`
+in HKLM64, only if that key exists; its uninstaller removes the value with the key. The key keeps the
+`Publisher` of EE, `Empire Earth Community`, which Windows "Apps" shows for the suite and by which
+the EE and NeoEE setups do not report it as a foreign installation (setup decision record 0007); the
+value is what tells it apart from a key of EE. A suite built before revision 5 has no such value
+([1.4](#14-discovery-by-the-launcher), source 3).
 
 Other readers of this key: the setup itself (previous installation, certificate) and Empire Earth
 Diagnostic (its shortcut passes `{<AppId>}_is1`). The launcher MUST NOT write it.
@@ -226,7 +240,13 @@ Sources, in the order of default preference:
    `Software\Microsoft\Windows\CurrentVersion\Uninstall` in HKCU, HKLM64 and HKLM32 whose name has the
    form `{<GUID>}_is1` and whose `Publisher` is exactly one of the two publishers of
    [Products](#products) (which also gives the product); NeoEE before EE. Root: `Inno Setup: App Path`,
-   else `InstallLocation`. AppId: the GUID of the key name.
+   else `InstallLocation`. AppId: the GUID of the key name. Since revision 5 the uninstall key of the
+   suite is no candidate, although its `Publisher` is that of EE ([Suite and launcher](#suite-and-launcher)):
+   a key with the value `Empire Earth Community: Suite` (any type and data,
+   [1.3](#13-uninstall-key-informative)) is skipped, and so is, for a suite built before revision 5, a key
+   in HKLM whose root is the `InstallPath` of the suite record ([1.6](#16-suite-record-optional)) and
+   whose AppId is neither its `EEAppId` nor its `NeoEEAppId`. A skipped key is logged; without the value
+   and without the record a key counts as before.
 4. **"Installed From" values** ([3.3](#33-computed-values)) of the Empire Earth settings key, key before
    hive like the product order of sources 2 and 3: `Software\Neo\Empire Earth` (NeoEE) in HKCU, then
    HKLM32, then HKLM64, then `Software\SSSI\Empire Earth` (EE) in the same order. They name the EE
@@ -321,12 +341,14 @@ products).
   Community` with `uninsdeletekeyifempty`).
 - The record is no discovery source. The products keep their own registry records, `install.ini` files
   and uninstall keys ([1.1](#11-registry-record) to [1.3](#13-uninstall-key-informative)), and the
-  launcher finds them as before ([1.4](#14-discovery-by-the-launcher), sources and order unchanged). A
-  product in `Products` may have been removed since through its own entry in Windows "Apps", and the
-  folder `SourceDir` may be gone.
+  launcher finds them as before ([1.4](#14-discovery-by-the-launcher), sources and order unchanged;
+  since revision 5 `InstallPath`, `EEAppId` and `NeoEEAppId` only help source 3 to recognise the
+  uninstall key of a suite built before revision 5). A product in `Products` may have been removed since
+  through its own entry in Windows "Apps", and the folder `SourceDir` may be gone.
 - The launcher MAY read the record, read-only and with an explicit view
-  ([Registry views](#registry-views)), for the repair advice ([4.4](#44-what-the-launcher-tells-the-user)).
-  It MUST work without it, also if a value is missing or invalid, and MUST NOT write or delete it.
+  ([Registry views](#registry-views)), for the repair advice ([4.4](#44-what-the-launcher-tells-the-user))
+  and, since revision 5, for source 3 of [1.4](#14-discovery-by-the-launcher). It MUST work without it,
+  also if a value is missing or invalid, and MUST NOT write or delete it.
 
 ### 1.7 How the suite runs a product setup (informative)
 
@@ -913,6 +935,7 @@ hand-off of [4.3](#43-where-the-user-gets-the-setup).
 | 1 (draft) | 2026-10-02 | revision 2 (second review of the setup v2 plan): tables of the window size limits (3.3) and of the GPU preference values (3.4), checked against the script like 3.2 and 3.7; opt-in row `compatibility_legacy` (Windows 7 only, the flags without a Windows version layer) and its exception from the cleanup of the old values, `(opt-in)` in the table, such a value is no leftover for the launcher (3.7, O4, O7, setup ADR 0010); while a setup runs the launcher reads neither `install.ini` nor `files.sha256` and runs no check, and opens them with `FILE_SHARE_READ` and `FILE_SHARE_DELETE` (4.2, 2.5); `Empire Earth Community: ContractVersion` only if the run replaced `install.ini` and the manifest, Unknown otherwise, not detectable for portable installations (1.3, 2.1, 2.5) | v2 (planned) | v2 (planned) |
 | 1 (draft) | 2026-10-02 | revision 3 (compatible clarifications after the reviews of setup v2 and launcher v2, which already behave so): source 4 reads key before hive, the EE and AoC folders of `foreign` installations are the real folders (the AoC folder from the same hive and view), the user choice may be the AoC folder, a registry record without `install.ini` also means `community` (1.4); Modified gets no message and no repair offer, the state may be shown (2.5); at the launcher start class S is only created, and the first run only for an installation that is unambiguous for its game settings key; class S before every game start while no other game runs; the display question until the user answers (3.2, 3.5, 3.6); a request without an answer of HTTP 200 is no statement about the version (4.5); O11 also names the `<AppId>` setup data folder of setups up to 1.7.2 | v2 (planned) | v2 (planned) |
 | 1 (draft) | 2026-10-05 | revision 4 (suite installer "Empire Earth Community", setup decision record 0013; optional additions only, no MUST or MUST NOT relaxed, 4.1 and 4.3 unchanged): names and mutexes of the suite and the launcher (0); `--product=EE` or `--product=NeoEE` selects for one session (1.4); suite record (1.6); how the suite runs a product setup, the log line `CD Keys generation result: <n>` as an interface, the guard for products installed for one user only, the removal of old product shortcuts before the suite shortcuts `Empire Earth` and `Neo Empire Earth`, the launcher outside the product roots (1.7, O10 answered); the suite mutex is a setup mutex (4.2); advice with `SourceDir` (4.4); checklist of the additions (7) | suite 1.0.0 (planned) | 1.0.0 (planned) |
+| 1 (draft) | 2026-10-06 | revision 5 (laptop test TP-93: the launcher listed the suite's own uninstall key, whose `Publisher` is that of EE, as a damaged installation of EE; optional additions only, no MUST or MUST NOT relaxed): the marker `Empire Earth Community: Suite` in the suite's uninstall key (0, 1.3); source 3 skips a key with that value, and for a suite built before revision 5 a key in HKLM with the root `InstallPath` of the suite record and no AppId the record embeds (1.4, 1.6); checklist of the additions (7) | suite 1.0.0 (planned) | 1.0.0 (planned) |
 
 ## 6. Open questions
 
@@ -1028,3 +1051,19 @@ Launcher 1.0.0 (optional additions; the launcher works without the suite):
 - `EmpireEarthCommunity_Suite` as a setup mutex ([4.2](#42-running-setup));
 - the suite record read-only and the advice with `SourceDir` ([1.6](#16-suite-record-optional),
   [4.4](#44-what-the-launcher-tells-the-user)).
+
+### Additions of revision 5 (suite uninstall key)
+
+Suite 1.0.0 (revision 5):
+
+- the value `Empire Earth Community: Suite` (REG_DWORD `1`) in its own uninstall key, written at
+  `ssPostInstall` of every run and only if the key exists ([1.3](#13-uninstall-key-informative));
+- `ci/check_contract.py` reads the name from the row "Suite uninstall key marker" of
+  [Suite and launcher](#suite-and-launcher) and checks the call in `suite/suite.iss`.
+
+Launcher 1.0.0 (revision 5):
+
+- source 3 skips the uninstall key of the suite: a key with the value `Empire Earth Community: Suite`,
+  and a key in HKLM with the root `InstallPath` of the suite record and an AppId that is neither
+  `EEAppId` nor `NeoEEAppId` ([1.4](#14-discovery-by-the-launcher), [1.6](#16-suite-record-optional));
+  every other key counts as before.

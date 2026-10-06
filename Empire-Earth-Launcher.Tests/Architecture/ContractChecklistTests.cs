@@ -24,6 +24,8 @@ namespace Empire_Earth_Launcher.Tests.Architecture
         private const string Header = "| Done | Contract 7, launcher v2 | Unit tests | Test plan |";
         private const string Revision4Heading = "### Launcher checklist of CONTRACT 7, revision 4 additions";
         private const string Revision4Header = "| Done | Contract 7, additions of revision 4 | Unit tests | Test plan |";
+        private const string Revision5Heading = "### Launcher checklist of CONTRACT 7, revision 5 additions";
+        private const string Revision5Header = "| Done | Contract 7, additions of revision 5 | Unit tests | Test plan |";
 
         private static readonly Regex ClassName = new Regex("`([A-Za-z_][A-Za-z0-9_]*)`", RegexOptions.CultureInvariant);
 
@@ -96,16 +98,18 @@ namespace Empire_Earth_Launcher.Tests.Architecture
         }
 
         /// <summary>
-        /// The additions of revision 4 (launcher 1.0.0, CONTRACT.md section 7 "Launcher 1.0.0"): every one has a ticked row with
-        /// existing test classes and cases of the test plan; there are at least as many rows as list items of the contract.
+        /// The additions of revision 4 and 5 (launcher 1.0.0, CONTRACT.md section 7 "Launcher 1.0.0"): every one has a ticked
+        /// row with existing test classes and cases of the test plan; there are at least as many rows as list items of the
+        /// contract.
         /// </summary>
-        [Test]
-        public void EveryRevision4Addition_IsTicked_WithTestsAndTestPlanCases()
+        [TestCase("Launcher 1.0.0 (optional additions", Revision4Heading, Revision4Header)]
+        [TestCase("Launcher 1.0.0 (revision 5)", Revision5Heading, Revision5Header)]
+        public void EveryRevisionAddition_IsTicked_WithTestsAndTestPlanCases(string listStart, string heading, string header)
         {
-            List<Tuple<string[], int>> rows = ChecklistRows(Revision4Heading, Revision4Header);
+            List<Tuple<string[], int>> rows = ChecklistRows(heading, header);
             string[] contract = File.ReadAllLines(RepositoryRoot.GetFullPath("docs/CONTRACT.md"));
-            int launcher = Array.FindIndex(contract, line => line.StartsWith("Launcher 1.0.0 (optional additions", StringComparison.Ordinal));
-            Assert.That(launcher, Is.GreaterThanOrEqualTo(0), "CONTRACT.md section 7 has no list \"Launcher 1.0.0\"");
+            int launcher = Array.FindIndex(contract, line => line.StartsWith(listStart, StringComparison.Ordinal));
+            Assert.That(launcher, Is.GreaterThanOrEqualTo(0), "CONTRACT.md section 7 has no list \"" + listStart + "\"");
             int items = 0;
             for (int i = launcher + 1; i < contract.Length && !contract[i].StartsWith("#", StringComparison.Ordinal); i++)
             {

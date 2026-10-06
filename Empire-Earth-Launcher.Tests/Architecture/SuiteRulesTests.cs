@@ -60,7 +60,11 @@ namespace Empire_Earth_Launcher.Tests.Architecture
         [Test]
         public void Contract_1_6_TheSuiteRecord_IsOnlyRead()
         {
-            foreach (string file in new[] { Core + "Installations/SuiteRecordReader.cs", Core + "Repair/SuiteRepairLocator.cs" })
+            foreach (string file in new[]
+                     {
+                         Core + "Installations/SuiteRecordReader.cs", Core + "Repair/SuiteRepairLocator.cs",
+                         Core + "Installations/UninstallKeyScanner.cs", Core + "Installations/InstallationDiscovery.cs"
+                     })
             {
                 string code = Code(file);
                 foreach (string call in WritingCalls)
@@ -120,6 +124,8 @@ namespace Empire_Earth_Launcher.Tests.Architecture
             Assert.That(contract, Does.Contain("| Launcher mutex | `" + SingleInstance.MutexName + "` |"));
             Assert.That(contract, Does.Contain("| Suite `AppName` | `" + ContractNames.SuiteAppName + "` |"));
             Assert.That(contract, Does.Contain("| Suite record key | `" + ContractNames.SuiteRecordKey + "` |"));
+            Assert.That(contract, Does.Contain("| Suite uninstall key marker | `" + ContractNames.UninstallSuiteMarkerName + "`"));
+            Assert.That(ContractNames.UninstallSuiteMarkerName, Is.EqualTo("Empire Earth Community: Suite"));
             Assert.That(contract, Does.Contain("`" + ContractNames.ProductArgumentName + "=EE`"));
             Assert.That(contract, Does.Contain("`" + ContractNames.ProductArgumentName + "=NeoEE`"));
             foreach (string value in new[] { "ContractVersion", "SuiteVersion", "InstallPath", "Products", "SourceDir" })

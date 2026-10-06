@@ -213,7 +213,7 @@ Empire_Earth_Mod.exe ──> Empire_Earth_Mod_Lib.dll ──> BCL only
    discovery through `UiOperation` (`InstallationService.RefreshAsync` -> `InstallationDiscovery.DiscoverAsync`, thread
    pool).
 3. **Discovery** (background, contract 1.4): user choice, registry records (NeoEE before EE; HKCU, HKLM64,
-   HKLM32), uninstall keys by `Publisher`, "Installed From" values, launcher folder. For "Installed From" the
+   HKLM32), uninstall keys by `Publisher` (not the suite's own key: marker or suite root of the record, contract revision 5), "Installed From" values, launcher folder. For "Installed From" the
    **key goes before the hive** (Neo in HKCU, HKLM32, HKLM64, then SSSI in the same order), as for sources 2
    and 3 ("NeoEE before EE; per product ..."); the old locator let the hive win (forum report section 8,
    test case 8). Candidates are merged by normalized root (`WinPath`), classified (`community`,
@@ -997,6 +997,16 @@ one above (ticked, and the test classes exist); the real-Windows cases are WP10-
 | [x] | `EmpireEarthCommunity_Suite` as a setup mutex (4.2): no game start, no search, no change, no integrity check, also between two product setups | `SetupKindTests`, `RunningGameDetectorTests`, `MutationGuardTests`, `SetupWatcherTests`, `GameStarterTests`, `InstallationServiceTests` | WP10-04 |
 | [x] | the suite record read-only (1.6) and the advice with `SourceDir`, the official download as the second option (4.4) | `SuiteRecordReaderTests`, `SuiteRepairTests`, `TextsTests` | WP10-05, WP10-06 |
 | [x] | the player list is polled for NeoEE only (launcher 1.0.0) | `PlayerListPollingTests` | WP10-07 |
+
+### Launcher checklist of CONTRACT 7, revision 5 additions
+
+The launcher item of "Additions of revision 5 (suite uninstall key)" in section 7 of [CONTRACT.md](CONTRACT.md), built in
+launcher 1.0.0 (laptop test TP-93: the suite's own uninstall key has the `Publisher` of EE and was listed as a damaged EE
+installation). `ContractChecklistTests` checks this table like the ones above; the real-Windows case is WP10-10.
+
+| Done | Contract 7, additions of revision 5 | Unit tests | Test plan |
+|---|---|---|---|
+| [x] | the uninstall key of the suite is no installation: the value `Empire Earth Community: Suite`, else in HKLM the root `InstallPath` of the suite record with no AppId it embeds (1.4 source 3, 1.6) | `UninstallKeyScannerTests`, `DiscoveryContractTests`, `InstallationDiscoveryTests`, `GameDefaultsServiceTests`, `SuiteRulesTests` | WP10-10 |
 
 ## 16. Not in v2
 

@@ -63,6 +63,11 @@ and the games in one run; the launcher works as before without it. The test on r
     `SuiteRecordReaderTests`, `SuiteRepairTests`, `SetupKindTests`, `PlayerListPollingTests`, and the suite cases in
     `SetupWatcherTests`, `MutationGuardTests`, `GameStarterTests`, `RunningGameDetectorTests`, `InstallationServiceTests`.
 
+- Contract revision 5 (`docs/CONTRACT.md` 0, 1.3, 1.4, 1.6; checklist at the end of ARCHITECTURE section 15, test plan
+  WP10-10): `UninstallKeyScanner` skips the suite's own uninstall key, recognised by `Empire Earth Community: Suite` or,
+  for a suite built before revision 5, by the suite root `InstallPath` of the suite record (with an AppId the record
+  does not embed). `InstallationDiscovery` reads the suite record for it; the record is still no source.
+
 - Real-machine checks for the CI end-to-end test of the setup repository (`Empire-Earth-Launcher.RealMachineTests`,
   ADR 0012 amendment of 2026-10-03): a second NUnitLite program that runs the launcher core against a real installation
   on a GitHub-hosted Windows runner after each step of a scenario: discovery, quick and full integrity check, status of
@@ -636,6 +641,9 @@ and the games in one run; the launcher works as before without it. The test on r
 
 ### Fixed
 
+- The suite's uninstall key (`Publisher` `Empire Earth Community`, the publisher of EE) was listed as a damaged
+  `community-legacy` EE installation of the suite folder. This made the EE game settings ambiguous, so the defaults were
+  not written at the start, and gave the update check the suite's AppId (laptop test TP-93).
 - Wrapping texts no longer turn into a red X after a setting of Windows changed (bug report of 2026-10-03: the four
   status lines of the *Play* page and the error dialog "Ungültiger Parameter" while Empire Earth ran in full screen). On
   every setting change (`WM_SETTINGCHANGE`, which Windows also sends when a full-screen game changes the display mode)

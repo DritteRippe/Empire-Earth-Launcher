@@ -115,7 +115,8 @@ namespace Empire_Earth_Launcher.Tests.Core.Contract
                          ContractNames.UninstallInstallLocationName, ContractNames.UninstallPublisherName,
                          ContractNames.UninstallDisplayNameName, ContractNames.UninstallDisplayVersionName,
                          ContractNames.UninstallComponentsName, ContractNames.UninstallTasksName,
-                         ContractNames.UninstallContractVersionName, ContractNames.InstalledFromVolumeName,
+                         ContractNames.UninstallContractVersionName, ContractNames.UninstallSuiteMarkerName,
+                         ContractNames.InstalledFromVolumeName,
                          ContractNames.InstalledFromDirectoryName
                      })
             {

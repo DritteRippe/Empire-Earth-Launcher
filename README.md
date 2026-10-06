@@ -617,7 +617,7 @@ packages/                         NuGet packages, restored on build (not committ
   the *Launcher* page; the install records of community setups since v2
   (`Software\Empire Earth Community\Installations\<NeoEE|EE>`, HKCU, then HKLM 64-bit, then 32-bit view); the
   uninstall keys `{<GUID>}_is1` whose publisher is exactly `Empire Earth Community` or
-  `Empire Earth Community & NeoEE` (every community setup, also 1.7.2); the `Installed From Volume` and
+  `Empire Earth Community & NeoEE` (every community setup, also 1.7.2, except the suite's own uninstall key, contract revision 5); the `Installed From Volume` and
   `Installed From Directory` values of `Software\Neo\Empire Earth`, then `Software\SSSI\Empire Earth` (retail, GOG
   and older installations use the SSSI key), each in HKCU, HKLM 32-bit, HKLM 64-bit view (the key comes before
   the hive); and the folder of the launcher or its parent. Entries for the same install folder are one
