@@ -28,6 +28,12 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
 
 ### Added
 
+- VirtualStore check: a copy of `dgVoodoo.conf` in `%LOCALAPPDATA%\VirtualStore\<game folder>` that differs from the file
+  in the game folder is reported (A5). The game reads the copy, so a hand edit of the real file has no effect. The *Tools*
+  page shows a hint with the copy, the button "Open VirtualStore folder" opens its folder, `log.txt` and the diagnostics
+  report name it (`VirtualStoreFinding.DiffersFromOriginal`, `VirtualStoreReport.ShadowingWrapperConfigs`). Only that
+  file is compared (by length, then by content); an identical copy gives no hint. The launcher offers only to open the
+  folder and never deletes the copy (contract 2.5). Test plan WP8-19.
 - Geometry tests of the four pages (`PageLayoutTests`, `LayoutChecker`, ADR 0012 amendment of 2026-10-06): no overlap,
   nothing outside its page, no cut-off text and content that grows with the page, at four window sizes, in English, German
   and French, with the system font and one 50 % larger; the *Game settings* page is driven through its real model in

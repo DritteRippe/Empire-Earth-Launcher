@@ -109,7 +109,10 @@ controls of the old mock-up were removed and the features behind them are listed
     `WS_GetCert_InvalidPubKeyBlock`); files of the setup's list are never moved
   - VirtualStore check: for a game below `Program Files` it lists the copies Windows keeps in
     `%LOCALAPPDATA%\VirtualStore`, and warns when installed or program files are used from there instead of the
-    game folder (forum: another version with and without administrator rights)
+    game folder (forum: another version with and without administrator rights). A copy of `dgVoodoo.conf` that differs
+    from the file in the game folder gets its own hint: the game reads the copy, so a hand edit of the real file has
+    no effect (a possible reason why edits "do nothing"). The page then offers "Open VirtualStore folder"; the launcher
+    never deletes or changes the copy, close the game and rename or delete it yourself
   - Saved games and scenarios: export of every `.ees` and `.scn` file of both games (also those in the VirtualStore)
     into a new folder you choose; import of single files into Empire Earth or The Art of Conquest where the game
     reads them, with checks (only `.ees` and `.scn`, plain names the game can read, at most 64 MiB) and a question

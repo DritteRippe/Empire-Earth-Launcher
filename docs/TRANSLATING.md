@@ -155,6 +155,9 @@ Changing the English text of an existing key means checking the German and Frenc
 
 ## Status
 
+After 1.0.0 the hint about a differing VirtualStore copy of `dgVoodoo.conf` added three texts (`VirtualStoreWrapperConfigFormat`,
+`OpenVirtualStoreFolderButton`, `OpenVirtualStoreFolderFailedFormat`, A5; test plan WP8-19); they are not in the counts below.
+
 378 texts (launcher 1.0.0, the suite additions of contract revision 4, added 5: `RepairStepRunSuiteFormat`,
 `RepairDownloadPageSuiteLabel`, `RepairOpenSuiteFolderButton`, `RepairSuiteFolderNotOpenedFormat` of the repair advice that names the
 folder of the suite setup, and `OnlinePlayersNeoOnly` of the player list; state before that, of the fixes of the laptop test: `ThemeBuiltIn` and `ThemeBuiltInNextStart` of the theme list; the review
