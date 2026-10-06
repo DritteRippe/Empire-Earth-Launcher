@@ -91,6 +91,7 @@ namespace Empire_Earth_Launcher
             wonResetKryptonButton.Values.Text = Resources.WonResetButton;
             virtualStoreHeadingKryptonLabel.Values.Text = Resources.ToolsVirtualStoreHeading;
             virtualStoreInfoKryptonWrapLabel.Text = Resources.VirtualStoreInfo;
+            openVirtualStoreFolderKryptonButton.Values.Text = Resources.OpenVirtualStoreFolderButton;
             savesHeadingKryptonLabel.Values.Text = Resources.ToolsSavesHeading;
             savesInfoKryptonWrapLabel.Text = Resources.SavesInfo;
             exportSavesKryptonButton.Values.Text = Resources.ExportSavesButton;
@@ -230,6 +231,7 @@ namespace Empire_Earth_Launcher
             string copies = Texts.VirtualStoreFiles(scan?.VirtualStore);
             virtualStoreFilesKryptonTextBox.Text = copies;
             SetShown(virtualStoreFilesKryptonTextBox, copies.Length > 0);
+            SetShown(openVirtualStoreFolderKryptonButton, scan?.VirtualStore?.ShadowingWrapperConfigs.Count > 0);
 
             savesStateKryptonWrapLabel.Text = selected == null ? Texts.GameSettingsInstallation(null)
                 : Texts.SavedGamesState(scan?.SavedGames);
@@ -380,6 +382,7 @@ namespace Empire_Earth_Launcher
             Place(virtualStoreInfoKryptonWrapLabel);
             Place(virtualStoreStateKryptonWrapLabel);
             Place(virtualStoreFilesKryptonTextBox);
+            Place(openVirtualStoreFolderKryptonButton);
 
             y += Gap;
             Place(savesHeadingKryptonLabel);
@@ -563,6 +566,15 @@ namespace Empire_Earth_Launcher
             string problem = maintenance.OpenBackupFolder();
             if (problem != null)
                 MessageBox.Show(FindForm(), string.Format(CultureInfo.CurrentCulture, Resources.OpenBackupFolderFailedFormat, problem),
+                    Resources.LauncherTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+
+        /// <summary>"Open VirtualStore folder" (A5): the folder of a copy of dgVoodoo.conf that shadows the real file.</summary>
+        private void openVirtualStoreFolderKryptonButton_Click(object sender, EventArgs e)
+        {
+            string problem = maintenance.OpenVirtualStoreFolder();
+            if (problem != null)
+                MessageBox.Show(FindForm(), string.Format(CultureInfo.CurrentCulture, Resources.OpenVirtualStoreFolderFailedFormat, problem),
                     Resources.LauncherTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 

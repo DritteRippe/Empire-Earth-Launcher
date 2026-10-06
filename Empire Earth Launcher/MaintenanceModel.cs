@@ -255,6 +255,30 @@ namespace Empire_Earth_Launcher
             }
         }
 
+        /// <summary>
+        /// Opens the folder of the VirtualStore copy of <c>dgVoodoo.conf</c> that shadows the file of the game folder (A5) in
+        /// the Explorer, so that the player can rename or delete the copy; the launcher never deletes it (contract 2.5).
+        /// Returns null, or the error to show.
+        /// </summary>
+        public string OpenVirtualStoreFolder()
+        {
+            VirtualStoreFinding copy = Scan?.VirtualStore?.ShadowingWrapperConfigs.FirstOrDefault();
+            string folder = copy == null ? null : WinPath.GetParent(copy.VirtualStorePath);
+            if (folder == null)
+                return "There is no VirtualStore copy of " + VirtualStoreScanner.WrapperConfigFile + " to show.";
+            try
+            {
+                shell.OpenFolder(folder);
+                logger.Info("The VirtualStore folder " + folder + " was opened.");
+                return null;
+            }
+            catch (Exception ex) when (ex is Win32Exception || ex is FileNotFoundException || ex is InvalidOperationException)
+            {
+                logger.Warning("The VirtualStore folder " + folder + " could not be opened: " + ex.Message);
+                return ex.Message;
+            }
+        }
+
         private async Task<T> RunActionAsync<T>(Func<T> action)
         {
             if (IsBusy)

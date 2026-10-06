@@ -213,6 +213,27 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(shell.OpenedFolders, Is.EqualTo(new[] { GameSettingsWorld.BackupsFolder }));
         }
 
+        /// <summary>A5: "Open VirtualStore folder" opens the folder of the copy of dgVoodoo.conf that shadows the real file.</summary>
+        [Test]
+        public async Task OpenVirtualStoreFolder_OpensTheFolderOfTheShadowingCopy()
+        {
+            w.World.AddCommunityInstallation(Root, Product.NeoEE);
+            string folder = VirtualStore + @"\Program Files (x86)\Neo Empire Earth\Empire Earth";
+            w.FileSystem.AddFile(Root + @"\Empire Earth\dgVoodoo.conf", "real");
+            await Search();
+            Assert.That(model.OpenVirtualStoreFolder(), Does.Contain("no VirtualStore copy"), "nothing to show");
+            Assert.That(shell.OpenedFolders, Is.Empty);
+
+            w.FileSystem.AddFile(folder + @"\dgVoodoo.conf", "copy");
+            await installations.RefreshAsync();
+            await model.LastScan;
+
+            Assert.That(model.OpenVirtualStoreFolder(), Is.Null);
+            Assert.That(shell.OpenedFolders, Is.EqualTo(new[] { folder }));
+            shell.OpenException = new Win32Exception(2, "The system cannot find the file specified");
+            Assert.That(model.OpenVirtualStoreFolder(), Is.EqualTo("The system cannot find the file specified"));
+        }
+
         [Test]
         public void OpenBackupFolder_ReportsAnError()
         {

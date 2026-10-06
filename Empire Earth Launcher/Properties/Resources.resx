@@ -1687,4 +1687,16 @@ The old files are copied to the backup folder first. Replace them?</value>
     <value>{0}: kept, the launcher may not look into the folder {1} or its parent folder, so it cannot tell whether the folder still exists.</value>
     <comment>Read-only entry of the registry cleanup when Windows denies access to the folder or its parent (security review: such a folder is no proof of a removed installation). {0}: the key; {1}: the folder.</comment>
   </data>
+  <data name="VirtualStoreWrapperConfigFormat" xml:space="preserve">
+    <value>The VirtualStore holds its own copy of dgVoodoo.conf that differs from the file in the game folder: {0}. The game reads the copy, so edits to the file in the game folder have no effect. Close the game, then rename or delete the copy yourself; the launcher does not delete it.</value>
+    <comment>VirtualStore check when dgVoodoo.conf of a game folder is shadowed by a different copy (A5). {0}: the copies, separated by commas.</comment>
+  </data>
+  <data name="OpenVirtualStoreFolderButton" xml:space="preserve">
+    <value>Open VirtualStore folder</value>
+    <comment>Button of the VirtualStore check, shown with a shadowed dgVoodoo.conf; at most about 34 characters.</comment>
+  </data>
+  <data name="OpenVirtualStoreFolderFailedFormat" xml:space="preserve">
+    <value>The VirtualStore folder could not be opened: {0}</value>
+    <comment>Message when the Explorer cannot open it. {0}: the error.</comment>
+  </data>
 </root>

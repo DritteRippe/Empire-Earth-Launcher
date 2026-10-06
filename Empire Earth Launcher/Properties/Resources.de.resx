@@ -1270,4 +1270,13 @@ Die alten Dateien werden vorher in den Sicherungsordner kopiert. Ersetzen?</valu
   <data name="CleanupKeepFolderUnknownFormat" xml:space="preserve">
     <value>{0}: bleibt erhalten, der Launcher darf den Ordner {1} oder seinen übergeordneten Ordner nicht ansehen und kann daher nicht feststellen, ob der Ordner noch existiert.</value>
   </data>
+  <data name="VirtualStoreWrapperConfigFormat" xml:space="preserve">
+    <value>Der VirtualStore enthält eine eigene Kopie von dgVoodoo.conf, die sich von der Datei im Spielordner unterscheidet: {0}. Das Spiel liest die Kopie, daher haben Änderungen an der Datei im Spielordner keine Wirkung. Beenden Sie das Spiel und benennen Sie die Kopie dann selbst um oder löschen Sie sie; der Launcher löscht sie nicht.</value>
+  </data>
+  <data name="OpenVirtualStoreFolderButton" xml:space="preserve">
+    <value>VirtualStore-Ordner öffnen</value>
+  </data>
+  <data name="OpenVirtualStoreFolderFailedFormat" xml:space="preserve">
+    <value>Der VirtualStore-Ordner konnte nicht geöffnet werden: {0}</value>
+  </data>
 </root>

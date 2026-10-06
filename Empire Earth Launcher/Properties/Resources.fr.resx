@@ -1270,4 +1270,13 @@ Les anciens fichiers sont d'abord copiés dans le dossier de sauvegarde. Les rem
   <data name="CleanupKeepFolderUnknownFormat" xml:space="preserve">
     <value>{0} : conservée, le launcher n'a pas le droit de regarder dans le dossier {1} ou dans son dossier parent, il ne peut donc pas savoir si le dossier existe encore.</value>
   </data>
+  <data name="VirtualStoreWrapperConfigFormat" xml:space="preserve">
+    <value>Le VirtualStore contient sa propre copie de dgVoodoo.conf, qui diffère du fichier du dossier du jeu : {0}. Le jeu lit la copie, les modifications du fichier du dossier du jeu n'ont donc aucun effet. Fermez le jeu, puis renommez ou supprimez vous-même la copie ; le launcher ne la supprime pas.</value>
+  </data>
+  <data name="OpenVirtualStoreFolderButton" xml:space="preserve">
+    <value>Ouvrir le dossier VirtualStore</value>
+  </data>
+  <data name="OpenVirtualStoreFolderFailedFormat" xml:space="preserve">
+    <value>Le dossier VirtualStore n'a pas pu être ouvert : {0}</value>
+  </data>
 </root>

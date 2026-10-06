@@ -923,6 +923,9 @@ namespace Empire_Earth_Launcher
                 lines.Add(string.Format(CultureInfo.CurrentCulture, Resources.VirtualStoreSeriousFormat, serious));
             if (serious < report.Findings.Count)
                 lines.Add(string.Format(CultureInfo.CurrentCulture, Resources.VirtualStoreRuntimeFormat, report.Findings.Count - serious));
+            if (report.ShadowingWrapperConfigs.Count > 0)
+                lines.Add(string.Format(CultureInfo.CurrentCulture, Resources.VirtualStoreWrapperConfigFormat,
+                    string.Join(", ", report.ShadowingWrapperConfigs.Select(finding => finding.VirtualStorePath))));
             if (report.Truncated)
                 lines.Add(string.Format(CultureInfo.CurrentCulture, Resources.VirtualStoreTruncatedFormat, VirtualStoreScanner.MaxFiles));
             return string.Join(Environment.NewLine, lines);

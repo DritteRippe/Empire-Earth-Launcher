@@ -189,5 +189,23 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(Texts.VirtualStoreFiles(report).Split('\n')[0].TrimEnd('\r'), Is.EqualTo(
                 VirtualStore + @"\Program Files (x86)\Neo Empire Earth\Empire Earth\neoee.dll (used instead of " + Root + @"\Empire Earth\neoee.dll)"));
         }
+
+        /// <summary>A5: the hint names the shadowing copy of dgVoodoo.conf only when it differs from the file of the game folder.</summary>
+        [Test]
+        public void VirtualStore_HintsAtADifferentCopyOfTheWrapperConfig()
+        {
+            string copy = VirtualStore + @"\Program Files (x86)\Neo Empire Earth\Empire Earth\dgVoodoo.conf";
+            w.FileSystem.AddFile(Root + @"\Empire Earth\dgVoodoo.conf", "OutputAPI = bestavailable");
+            w.FileSystem.AddFile(copy, "OutputAPI = d3d11_fl10_1");
+            var scanner = new VirtualStoreScanner(w.FileSystem, paths, w.Guard, w.Logger);
+
+            string hint = Texts.VirtualStoreState(scanner.Scan(Installation()));
+
+            Assert.That(hint, Does.Contain("own copy of dgVoodoo.conf that differs from the file in the game folder: " + copy));
+            Assert.That(hint, Does.Contain("the launcher does not delete it"));
+
+            w.FileSystem.AddFile(copy, "OutputAPI = bestavailable");
+            Assert.That(Texts.VirtualStoreState(scanner.Scan(Installation())), Does.Not.Contain("dgVoodoo.conf"), "an identical copy");
+        }
     }
 }

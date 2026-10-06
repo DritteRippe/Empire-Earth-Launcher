@@ -2567,6 +2567,24 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Open VirtualStore folder.
+        /// </summary>
+        internal static string OpenVirtualStoreFolderButton {
+            get {
+                return ResourceManager.GetString("OpenVirtualStoreFolderButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The VirtualStore folder could not be opened: {0}.
+        /// </summary>
+        internal static string OpenVirtualStoreFolderFailedFormat {
+            get {
+                return ResourceManager.GetString("OpenVirtualStoreFolderFailedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Play.
         /// </summary>
         internal static string PlayButton {
@@ -3567,6 +3585,15 @@ namespace Empire_Earth_Launcher.Properties {
         internal static string VirtualStoreTruncatedFormat {
             get {
                 return ResourceManager.GetString("VirtualStoreTruncatedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The VirtualStore holds its own copy of dgVoodoo.conf that differs from the file in the game folder: [rest of string was truncated].
+        /// </summary>
+        internal static string VirtualStoreWrapperConfigFormat {
+            get {
+                return ResourceManager.GetString("VirtualStoreWrapperConfigFormat", resourceCulture);
             }
         }
         
