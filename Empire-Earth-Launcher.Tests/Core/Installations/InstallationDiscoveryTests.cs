@@ -470,7 +470,8 @@ namespace Empire_Earth_Launcher.Tests.Core.Installations
             world.AddSuiteUninstallKey(marker: false);
             world.AddSuiteRecord();
 
-            DiscoveryResult result = world.Discover();
+            // the launcher runs from the suite root, so source 5 looks at that folder and its parent too
+            DiscoveryResult result = world.Discover(launcherFolder: InstallationWorld.SuiteRoot);
 
             AssertExactlyTheTwoGames(result);
             Assert.That(world.LogLinesAbout("names the suite root"), Has.Length.EqualTo(1));
@@ -478,7 +479,22 @@ namespace Empire_Earth_Launcher.Tests.Core.Installations
             var without = new InstallationWorld();
             without.AddCommunityInstallation(NeoRoot, Product.NeoEE);
             without.AddCommunityInstallation(EERoot, Product.EE);
-            Assert.That(result.Selected.Root, Is.EqualTo(without.Discover().Selected.Root), "the selection as without the suite");
+            Assert.That(result.Selected.Root, Is.EqualTo(without.Discover(launcherFolder: InstallationWorld.SuiteRoot).Selected.Root),
+                "the selection as without the suite");
+        }
+
+        /// <summary>As in the laptop log: launcher in the suite root, the player's choice is the EE folder of NeoEE.</summary>
+        [Test]
+        public void Tp93_SuiteWithBothGames_NeoEEChosen_FindsExactlyTheTwoGamesAndSelectsNeoEE()
+        {
+            AddSuiteWithBothGames();
+            world.AddSuiteUninstallKey(marker: false);
+            world.AddSuiteRecord();
+
+            DiscoveryResult result = world.Discover(NeoRoot + @"\Empire Earth", InstallationWorld.SuiteRoot);
+
+            AssertExactlyTheTwoGames(result);
+            Assert.That(result.Selected.Root, Is.EqualTo(NeoRoot).IgnoreCase);
         }
 
         [Test]
@@ -487,7 +503,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Installations
             AddSuiteWithBothGames();
             world.AddSuiteUninstallKey();
 
-            AssertExactlyTheTwoGames(world.Discover());
+            AssertExactlyTheTwoGames(world.Discover(launcherFolder: InstallationWorld.SuiteRoot));
             Assert.That(world.LogLinesAbout("is the one of the suite"), Has.Length.EqualTo(1));
         }
 
