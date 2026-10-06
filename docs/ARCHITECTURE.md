@@ -213,12 +213,13 @@ Empire_Earth_Mod.exe ──> Empire_Earth_Mod_Lib.dll ──> BCL only
    discovery through `UiOperation` (`InstallationService.RefreshAsync` -> `InstallationDiscovery.DiscoverAsync`, thread
    pool).
 3. **Discovery** (background, contract 1.4): user choice, registry records (NeoEE before EE; HKCU, HKLM64,
-   HKLM32), uninstall keys by `Publisher` (not the suite's own key: marker or suite root of the record, contract revision 5), "Installed From" values, launcher folder. For "Installed From" the
-   **key goes before the hive** (Neo in HKCU, HKLM32, HKLM64, then SSSI in the same order), as for sources 2
-   and 3 ("NeoEE before EE; per product ..."); the old locator let the hive win (forum report section 8,
-   test case 8). Candidates are merged by normalized root (`WinPath`), classified (`community`,
-   `community-legacy`, `foreign`), damaged ones kept; each keeps its real EE and AoC folder (ADR 0015). Every
-   dropped candidate is logged with the reason (exactly one line). Refinements of L-WP4, all within the contract:
+   HKLM32), uninstall keys by `Publisher` (not the suite's own key: marker or suite root of the record, contract
+   revision 5), "Installed From" values, launcher folder. For "Installed From" the **key goes before the hive** (Neo in
+   HKCU, HKLM32, HKLM64, then SSSI in the same order), as for sources 2 and 3 ("NeoEE before EE; per product ..."); the
+   old locator let the hive win (forum report section 8, test case 8). Candidates are merged by normalized root
+   (`WinPath`), classified (`community`, `community-legacy`, `foreign`), damaged ones kept; each keeps its real EE and
+   AoC folder (ADR 0015). Every dropped candidate is logged with the reason (exactly one line). Refinements of L-WP4,
+   all within the contract:
    - **Kind**: without `install.ini`, a registry record with `ContractVersion` 1 or higher also means `community`
      (the setup deletes `install.ini` at the start of a run that may break off; the integrity check then gives the
      repair advice, contract 2.5). `install.ini` wins over the record when both exist (contract 1.1).

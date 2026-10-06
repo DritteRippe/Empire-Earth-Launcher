@@ -617,19 +617,19 @@ packages/                         NuGet packages, restored on build (not committ
   the *Launcher* page; the install records of community setups since v2
   (`Software\Empire Earth Community\Installations\<NeoEE|EE>`, HKCU, then HKLM 64-bit, then 32-bit view); the
   uninstall keys `{<GUID>}_is1` whose publisher is exactly `Empire Earth Community` or
-  `Empire Earth Community & NeoEE` (every community setup, also 1.7.2, except the suite's own uninstall key, contract revision 5); the `Installed From Volume` and
-  `Installed From Directory` values of `Software\Neo\Empire Earth`, then `Software\SSSI\Empire Earth` (retail, GOG
-  and older installations use the SSSI key), each in HKCU, HKLM 32-bit, HKLM 64-bit view (the key comes before
-  the hive); and the folder of the launcher or its parent. Entries for the same install folder are one
-  installation; `_setupdata_<Product>\install.ini` tells community setups since v2 (also portable ones) apart from
-  setups up to 1.7.2 and from other installations. Each installation keeps its real game folders, e.g. `C:\Games\EE`
-  of a copy or `D:\Empire Earth` directly below a drive. The *Launcher* page lists them (product, install folder,
-  Empire Earth folder, type, state) and uses the chosen one, else the first one found. An installation whose
-  `Empire Earth.exe` (or `EE-AOC.exe`) is missing is listed as damaged, never as "not found" (antivirus programs
-  often delete or quarantine game files). A hint says when several installations share one set of game settings
-  (all EE installations, also retail and GOG, use `Software\SSSI\Empire Earth`), when EE and NeoEE are installed in
-  the same folder, and when a setup is newer than the launcher. The search only reads; the log names every
-  candidate and why it was used or left out.
+  `Empire Earth Community & NeoEE` (every community setup, also 1.7.2, except the suite's own uninstall key, contract
+  revision 5); the `Installed From Volume` and `Installed From Directory` values of `Software\Neo\Empire Earth`, then
+  `Software\SSSI\Empire Earth` (retail, GOG and older installations use the SSSI key), each in HKCU, HKLM 32-bit, HKLM
+  64-bit view (the key comes before the hive); and the folder of the launcher or its parent. Entries for the same
+  install folder are one installation; `_setupdata_<Product>\install.ini` tells community setups since v2 (also
+  portable ones) apart from setups up to 1.7.2 and from other installations. Each installation keeps its real game
+  folders, e.g. `C:\Games\EE` of a copy or `D:\Empire Earth` directly below a drive. The *Launcher* page lists them
+  (product, install folder, Empire Earth folder, type, state) and uses the chosen one, else the first one found. An
+  installation whose `Empire Earth.exe` (or `EE-AOC.exe`) is missing is listed as damaged, never as "not found"
+  (antivirus programs often delete or quarantine game files). A hint says when several installations share one set of
+  game settings (all EE installations, also retail and GOG, use `Software\SSSI\Empire Earth`), when EE and NeoEE are
+  installed in the same folder, and when a setup is newer than the launcher. The search only reads; the log names
+  every candidate and why it was used or left out.
 - **Game folder**: the folder chosen with "..." on the *Launcher* page (or by picking an installation of the list)
   is saved in `settings.json` (`GameDirectory`, the Empire Earth folder of the installation); it may be the install
   folder, the Empire Earth folder or the Art of Conquest folder, and it stays chosen even if it no longer exists, so

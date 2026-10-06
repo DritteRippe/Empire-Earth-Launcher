@@ -10,7 +10,7 @@ repositories at once (same text, same commit subject), see [5. Versioning](#5-ve
 |---|---|
 | Contract version | **1** |
 | Status | **Draft**: specified for setup v2 and launcher v2, not implemented by a release yet |
-| Based on | setup `setup_is6.iss`, `config_ee.iss`, `config_neoee.iss`, `utils.iss` (branch `v2` at 2ce68ee, plus the task `compatibility_legacy` that revision 2 adds) and the setup's decision records 0004, 0005, 0007, 0008 and 0010 (`docs/adr`, branch `v2` at 2ce68ee), launcher `GameDirectoryLocator.cs` (branch `v2` at 79464d4) and the launcher's decision record 0016 (branch `v2` at ec02afa), the official setups 1.7.2; revision 3 also on setup `environment.iss` (branch `v2` at 3a9498d) and the launcher v2 core library with its decision records 0015 and 0016 (branch `v2` at 1b49410); revision 4 also on the setup's decision record 0013 (suite installer) and `setup_is6.iss` (branch `v2` at 332d877) and launcher `SingleInstance.cs` (branch `v2` at 19386bb); revision 5 also on the suite `suite/suite.iss` (branch `v2` at b5436db), launcher `UninstallKeyScanner.cs` (branch `v2` at a7461b9) and the laptop test TP-93 of the setup's test plan |
+| Based on | setup `setup_is6.iss`, `config_ee.iss`, `config_neoee.iss`, `utils.iss` (branch `v2` at 2ce68ee, plus the task `compatibility_legacy` that revision 2 adds) and the setup's decision records 0004, 0005, 0007, 0008 and 0010 (`docs/adr`, branch `v2` at 2ce68ee), launcher `GameDirectoryLocator.cs` (branch `v2` at 79464d4) and the launcher's decision record 0016 (branch `v2` at ec02afa), the official setups 1.7.2; revision 3 also on setup `environment.iss` (branch `v2` at 3a9498d) and the launcher v2 core library with its decision records 0015 and 0016 (branch `v2` at 1b49410); revision 4 also on the setup's decision record 0013 (suite installer) and `setup_is6.iss` (branch `v2` at 332d877) and launcher `SingleInstance.cs` (branch `v2` at 19386bb); revision 5 also on the suite `suite/suite_record.iss` (branch `v2` at 85736cf), launcher `UninstallKeyScanner.cs` (branch `v2` at d454079) and the laptop test TP-93 of the setup's test plan |
 
 The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. "Setup" means the EE and the
 NeoEE setup of every build variant, including their uninstallers; "launcher" means the Empire Earth
@@ -1059,7 +1059,8 @@ Suite 1.0.0 (revision 5):
 - the value `Empire Earth Community: Suite` (REG_DWORD `1`) in its own uninstall key, written at
   `ssPostInstall` of every run and only if the key exists ([1.3](#13-uninstall-key-informative));
 - `ci/check_contract.py` reads the name from the row "Suite uninstall key marker" of
-  [Suite and launcher](#suite-and-launcher) and checks the call in `suite/suite.iss`.
+  [Suite and launcher](#suite-and-launcher), checks the write in `suite/suite_record.iss` and that no
+  product script names the value.
 
 Launcher 1.0.0 (revision 5):
 
