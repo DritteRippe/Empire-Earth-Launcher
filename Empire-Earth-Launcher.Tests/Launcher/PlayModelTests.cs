@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.GameSettings;
@@ -27,6 +28,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
         private const string SettingsFile = @"C:\Users\Player\AppData\Local\Empire Earth Launcher\settings.json";
         private const string EeFolder = GameSettingsWorld.NeoRoot + @"\Empire Earth";
         private const string AocFolder = GameSettingsWorld.NeoRoot + @"\Empire Earth - The Art of Conquest";
+        private const int LauncherPid = 100;
 
         private GameSettingsWorld w;
         private SettingsStore settings;
@@ -34,6 +36,8 @@ namespace Empire_Earth_Launcher.Tests.Launcher
         private InstallationService installations;
         private GameSettingsModel gameSettings;
         private FakeProcessStarter shell;
+        private FakeWindowSystem windows;
+        private Func<TimeSpan, CancellationToken, Task> handOverDelay;
         private PlayModel model;
         private int changed;
 
@@ -49,16 +53,25 @@ namespace Empire_Earth_Launcher.Tests.Launcher
                 new CompatibilityOptions(w.Registry, w.SystemInfo, w.Guard, w.Backups, w.Logger), settings, w.SystemInfo,
                 GameSettingsWorld.BackupsFolder, w.Logger);
             shell = new FakeProcessStarter();
+            windows = new FakeWindowSystem(shell.ProcessId.Value) { Foreground = LauncherPid };
             var starter = new GameStarter(new RunningGameDetector(w.Mutexes, new FakeProcessList()), w.FileSystem,
-                w.CreateDefaultsService(), shell, w.Logger);
+                w.CreateDefaultsService(), shell, w.Logger, null, windows);
+            var activator = new GameWindowActivator(windows, w.World.Clock, w.Logger, LauncherPid,
+                (time, token) => handOverDelay(time, token));
             var versions = new ProgramVersions(w.FileSystem, new FakeFileVersionReader().With(EeFolder + @"\Empire Earth.exe", "2.0.0.2949"));
-            model = new PlayModel(starter, versions, watcher, installations, settings, gameSettings, w.Logger);
+            model = new PlayModel(starter, versions, watcher, installations, settings, gameSettings, w.Logger, activator);
             model.Changed += (sender, e) => changed++;
         }
 
         [SetUp]
         public void SetUp()
         {
+            // The hand-over of the foreground does not wait for real: the fake clock moves instead.
+            handOverDelay = (time, token) =>
+            {
+                w.World.Clock.Advance(time);
+                return Task.CompletedTask;
+            };
             Create(world => world.AddAdminInstallationOfAnotherAccount(GameSettingsWorld.NeoRoot, Product.NeoEE));
         }
 
@@ -145,6 +158,60 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(model.LastResult, Is.SameAs(result));
             Assert.That(model.IsStarting, Is.False);
             Assert.That(shell.Started, Is.EqualTo(new[] { Tuple.Create(AocFolder + @"\EE-AOC.exe", AocFolder) }));
+        }
+
+        [Test]
+        public async Task AfterTheStart_TheForegroundGoesToTheWindowOfTheGame()
+        {
+            await installations.RefreshAsync();
+
+            StartResult result = await model.StartAsync(false);
+
+            Assert.That(result.IsStarted, Is.True);
+            Assert.That(await model.WindowHandOver, Is.EqualTo(ActivationOutcome.GameInForeground));
+            Assert.That(windows.AllowCalls, Is.EqualTo(new[] { ForegroundRight.AnyProcess }), "allowed right before the start");
+            Assert.That(windows.SetForegroundCalls, Is.EqualTo(new[] { windows.Window }));
+            Assert.That(w.Logger.Messages, Has.Some.Contains("Game window 0x1234 of Empire Earth.exe (pid 4242) brought to the foreground after"));
+        }
+
+        [Test]
+        public async Task AStartThatDoesNotHappen_HandsNothingOver()
+        {
+            await installations.RefreshAsync();
+            w.FileSystem.DeleteFile(EeFolder + @"\Empire Earth.exe");
+
+            StartResult result = await model.StartAsync(false);
+
+            Assert.That(result.Outcome, Is.EqualTo(StartOutcome.Damaged));
+            Assert.That(model.WindowHandOver, Is.Null);
+            Assert.That(windows.FindCalls, Is.EqualTo(0));
+            Assert.That(windows.AllowCalls, Is.Empty);
+        }
+
+        [Test]
+        public async Task AStartWithoutAProcessId_PollsNothing()
+        {
+            await installations.RefreshAsync();
+            shell.ProcessId = null;
+
+            await model.StartAsync(false);
+
+            Assert.That(await model.WindowHandOver, Is.EqualTo(ActivationOutcome.ProcessIdUnknown));
+            Assert.That(windows.FindCalls, Is.EqualTo(0));
+        }
+
+        [Test]
+        public async Task ClosingTheLauncher_EndsTheHandOverOfTheForeground()
+        {
+            await installations.RefreshAsync();
+            handOverDelay = Task.Delay;
+            windows.LooksWithoutWindow = int.MaxValue;
+            await model.StartAsync(false);
+
+            model.CancelWindowHandOver();
+
+            Assert.That(await model.WindowHandOver, Is.EqualTo(ActivationOutcome.Cancelled));
+            Assert.That(windows.SetForegroundCalls, Is.Empty);
         }
 
         [Test]

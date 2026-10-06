@@ -130,11 +130,16 @@ namespace Empire_Earth_Launcher
 
             // Play (L-WP6, ADR 0010): setup and game mutexes, the program, class S and the first run, then the start through
             // the shell in the real game folder (contract 3.6, 3.7, 4.2); the repair advice opens the download page.
+            // After the start the foreground goes to the window of the game (ADR 0010 amendment of 1.1.0): the game needs it for
+            // its mouse; the launcher allows it before the start and hands it over when the window is there.
             var shell = new ShellProcessStarter();
+            var windowSystem = new WindowsWindowSystem(logger);
             var gameStarter = new GameStarter(new RunningGameDetector(mutexProbe, new WindowsProcessList(logger)), fileSystem,
-                defaults, shell, logger, suiteRepair);
+                defaults, shell, logger, suiteRepair, windowSystem);
+            var windowActivator = new GameWindowActivator(windowSystem, SystemClock.Instance, logger,
+                Process.GetCurrentProcess().Id);
             var play = new PlayModel(gameStarter, new ProgramVersions(fileSystem, new WindowsFileVersionReader()), setupWatcher,
-                installations, settingsStore, gameSettings, logger);
+                installations, settingsStore, gameSettings, logger, windowActivator);
 
             // Integrity (L-WP7, contract 2): the quick check after every search, in the background, read-only, never while a
             // setup runs; the full check on request. Files are opened so that a setup can still delete and rename them.

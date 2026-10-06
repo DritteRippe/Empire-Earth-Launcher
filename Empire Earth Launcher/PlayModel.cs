@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.GameSettings;
@@ -31,6 +32,10 @@ namespace Empire_Earth_Launcher
         private readonly SettingsStore settings;
         private readonly GameSettingsModel gameSettings;
         private readonly ILogger logger;
+        private readonly GameWindowActivator windowActivator;
+
+        /// <summary>Cancelled when the launcher closes: ends the hand-over of the foreground to a game (A1).</summary>
+        private readonly CancellationTokenSource windowHandOverCancellation = new CancellationTokenSource();
 
         /// <summary>Counts the reads of the versions, so that only the latest one is shown.</summary>
         private int versionsGeneration;
@@ -42,9 +47,12 @@ namespace Empire_Earth_Launcher
         /// <param name="settings">settings.json, for the last game.</param>
         /// <param name="gameSettings">Takes the display question of a first run before Play and shows the new defaults state.</param>
         /// <param name="logger">Log of the launcher.</param>
+        /// <param name="windowActivator">Hands the foreground to the window of a started game; null in tests that do not look at it.</param>
         public PlayModel(GameStarter starter, ProgramVersions programVersions, SetupWatcher setupWatcher,
-            InstallationService installations, SettingsStore settings, GameSettingsModel gameSettings, ILogger logger)
+            InstallationService installations, SettingsStore settings, GameSettingsModel gameSettings, ILogger logger,
+            GameWindowActivator windowActivator = null)
         {
+            this.windowActivator = windowActivator;
             this.starter = starter ?? throw new ArgumentNullException(nameof(starter));
             this.programVersions = programVersions ?? throw new ArgumentNullException(nameof(programVersions));
             this.setupWatcher = setupWatcher ?? throw new ArgumentNullException(nameof(setupWatcher));
@@ -87,6 +95,15 @@ namespace Empire_Earth_Launcher
 
         /// <summary>The result of the last start, else null.</summary>
         public StartResult LastResult { get; private set; }
+
+        /// <summary>The hand-over of the foreground to the game of the last start (it runs in the background); null before one.</summary>
+        internal Task<ActivationOutcome> WindowHandOver { get; private set; }
+
+        /// <summary>Ends a running hand-over of the foreground: the launcher is closing.</summary>
+        public void CancelWindowHandOver()
+        {
+            windowHandOverCancellation.Cancel();
+        }
 
         /// <summary>
         /// The game Play starts: the last game of settings.json; The Art of Conquest only if the selected installation has
@@ -173,6 +190,9 @@ namespace Empire_Earth_Launcher
             }
 
             LastResult = result;
+            // The game gets the foreground as soon as it shows its window; the page does not wait for it.
+            if (result.IsStarted && windowActivator != null)
+                WindowHandOver = windowActivator.ActivateAsync(result.ProcessId, result.Game, windowHandOverCancellation.Token);
             if (result.Question != null)
                 gameSettings.AddQuestion(result.Question);
             if (result.Defaults.HasValue && result.Defaults.Value != DefaultsAtStart.None)

@@ -76,11 +76,13 @@ namespace Empire_Earth_Launcher
             setupWatcherTimer.Tick += (sender, e) => this.setupWatcher.Tick();
             if (integrity == null)
                 throw new ArgumentNullException(nameof(integrity));
-            // Closing the window ends a running check (ADR 0004: closing cancels the operations of the window).
+            // Closing the window ends a running check and the hand-over of the foreground to a game just started (ADR 0004:
+            // closing cancels the operations of the window).
             FormClosed += (sender, e) =>
             {
                 setupWatcherTimer.Dispose();
                 integrity.CancelCheck();
+                play.CancelWindowHandOver();
             };
         }
 
