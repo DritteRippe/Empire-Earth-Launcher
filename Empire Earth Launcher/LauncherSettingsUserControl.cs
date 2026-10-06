@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.Installations;
@@ -11,6 +12,12 @@ using Empire_Earth_Launcher.Properties;
 
 namespace Empire_Earth_Launcher
 {
+    /// <summary>
+    /// The Launcher page: the theme, the language, the game folder and the list of the installations found. The group of the
+    /// settings grows with the window (ADR 0017): its controls are stacked from the heights of their texts by
+    /// <see cref="ScrollPageLayout"/> in <see cref="LayoutPage"/>, the text boxes and the list take the width of the group, and
+    /// the list takes the height that is left; the page scrolls where the window is too small for the texts.
+    /// </summary>
     public partial class LauncherSettingsUserControl : UserControl
     {
         /// <summary>
@@ -27,6 +34,33 @@ namespace Empire_Earth_Launcher
 
         /// <summary>Index of the first theme of the themes folder in the theme list.</summary>
         internal const int FirstThemeIndex = 2;
+
+        /// <summary>The space left, right and above the group of the settings.</summary>
+        private const int PageMargin = 8;
+
+        /// <summary>The space left and right of the controls in the group (the designer left 13 pixels).</summary>
+        private const int GroupMargin = 13;
+
+        /// <summary>The width of the theme list and the language list (from the designer).</summary>
+        private readonly int comboWidth;
+
+        /// <summary>The height of the list of the installations (from the designer): it is never lower than that.</summary>
+        private readonly int listMinimumHeight;
+
+        /// <summary>Stacks the group of the settings in the panel that scrolls.</summary>
+        private readonly ScrollPageLayout page;
+
+        /// <summary>Stacks the controls inside the group; the group is as high as they are, or as the window leaves.</summary>
+        private readonly ScrollPageLayout group;
+
+        /// <summary>
+        /// The visibility each control should have (Visible reads false while the page is hidden, and the launcher fills the
+        /// page before its window is shown). A control that is not in it is always shown.
+        /// </summary>
+        private readonly Dictionary<Control, bool> shown = new Dictionary<Control, bool>();
+
+        /// <summary>True while <see cref="LayoutPage"/> runs, so that nothing it sets starts it again.</summary>
+        private bool layingOut;
 
         private IThemeService themeService;
         private SettingsStore settings;
@@ -64,6 +98,13 @@ namespace Empire_Earth_Launcher
         {
             InitializeComponent();
             ApplyTexts();
+            comboWidth = themeKryptonComboBox.Width;
+            listMinimumHeight = installationsKryptonDataGridView.Height;
+            shown[uiLanguageHintKryptonWrapLabel] = uiLanguageHintKryptonWrapLabel.Visible;
+            page = new ScrollPageLayout(launcherScrollPanel, IsShown, PageMargin);
+            group = new ScrollPageLayout(launcherSettingsKryptonGroupBox.Panel, IsShown, GroupMargin, false);
+            // Krypton sizes the panel of the group when the group is laid out, also when its heading gets another font (a theme).
+            launcherSettingsKryptonGroupBox.Panel.SizeChanged += (sender, e) => LayoutPage();
         }
 
         /// <summary>
@@ -80,7 +121,7 @@ namespace Empire_Earth_Launcher
             gameDirectoryKryptonLabel.Values.Text = Resources.GameDirectoryLabel;
             detectGameDirectoryKryptonButton.Values.Text = Resources.DetectGameDirectoryButton;
             uiLanguageKryptonLabel.Values.Text = Resources.UiLanguageLabel;
-            uiLanguageHintKryptonLabel.Values.Text = Resources.UiLanguageRestartHint;
+            uiLanguageHintKryptonWrapLabel.Text = Resources.UiLanguageRestartHint;
             installationsKryptonLabel.Values.Text = Resources.InstallationsLabel;
             installationProductColumn.HeaderText = Resources.InstallationProductColumn;
             installationRootColumn.HeaderText = Resources.InstallationRootColumn;
@@ -122,6 +163,92 @@ namespace Empire_Earth_Launcher
             installations.Changed += showInstallations;
             Disposed += (sender, e) => installations.Changed -= showInstallations;
             ShowInstallations();
+        }
+
+        // --- Layout (ADR 0017) -------------------------------------------------------------------------------------------
+
+        private void SetShown(Control control, bool visible)
+        {
+            shown[control] = visible;
+            control.Visible = visible;
+        }
+
+        private bool IsShown(Control control)
+        {
+            // Not control.Visible: it reads false for every control of a page that is hidden, as the launcher fills its pages
+            // before its window is shown (see SettingsUserControl).
+            return !shown.TryGetValue(control, out bool visible) || visible;
+        }
+
+        /// <summary>
+        /// The window was resized, or the page is laid out for the first time: the group gets the width of the page. (The
+        /// layout of the page itself cannot wait for a change of its size, which the first layout does not need.)
+        /// </summary>
+        protected override void OnLayout(LayoutEventArgs e)
+        {
+            base.OnLayout(e);
+            LayoutPage();
+        }
+
+        /// <summary>
+        /// Lays the page out for its size: the group takes the width of the page and the height of what it holds, or the
+        /// height the window leaves if that is more (the list of the installations takes the difference). Runs when the page is
+        /// laid out and when a text that changes a height changes.
+        /// </summary>
+        private void LayoutPage()
+        {
+            // The first layouts run inside InitializeComponent and the Visual Studio designer lays the page out as well.
+            if (layingOut || DesignMode || group == null)
+                return;
+            layingOut = true;
+            try
+            {
+                page.Run(PlaceGroup);
+            }
+            finally
+            {
+                layingOut = false;
+            }
+        }
+
+        private void PlaceGroup()
+        {
+            Krypton.Toolkit.KryptonGroupBox box = launcherSettingsKryptonGroupBox;
+            box.Width = page.ContentWidth;
+            box.PerformLayout();
+            // What the group takes besides its content (heading, borders) does not depend on the content.
+            int chrome = box.Height - box.Panel.Height;
+
+            installationsKryptonDataGridView.Height = listMinimumHeight;
+            group.Run(PlaceGroupContent);
+            int spare = launcherScrollPanel.ClientSize.Height - 2 * PageMargin - (group.ContentHeight + chrome);
+            if (spare > 0)
+            {
+                installationsKryptonDataGridView.Height = listMinimumHeight + spare;
+                group.Run(PlaceGroupContent);
+            }
+            box.Height = group.ContentHeight + chrome;
+            page.Place(box);
+        }
+
+        /// <summary>
+        /// The rows of the group: a label and its field each (the labels share one column, so that the fields start at the same
+        /// place), the folder with its two buttons, the list of the installations and the hints below it.
+        /// </summary>
+        private void PlaceGroupContent()
+        {
+            int labelWidth = new Control[] { themeKryptonLabel, uiLanguageKryptonLabel, gameDirectoryKryptonLabel }
+                .Max(label => group.NaturalSize(label).Width);
+            group.PlaceField(themeKryptonLabel, labelWidth, themeKryptonComboBox, comboWidth);
+            group.PlaceField(uiLanguageKryptonLabel, labelWidth, uiLanguageKryptonComboBox, comboWidth);
+            group.Place(uiLanguageHintKryptonWrapLabel);
+            group.PlaceField(gameDirectoryKryptonLabel, labelWidth, gameDirectoryKryptonTextBox, 0,
+                browseGameDirectoryKryptonButton, detectGameDirectoryKryptonButton);
+            group.Place(gameDirectorySourceKryptonWrapLabel, labelWidth + ScrollPageLayout.Gap);
+            group.Space(ScrollPageLayout.Gap);
+            group.Place(installationsKryptonLabel);
+            group.Place(installationsKryptonDataGridView);
+            group.Place(installationsHintKryptonWrapLabel);
         }
 
         /// <summary>
@@ -192,7 +319,8 @@ namespace Empire_Earth_Launcher
             settings.Current.UiCulture = language;
             // A failure to save is logged by the store; the launcher then starts in the previous language.
             settings.Save();
-            uiLanguageHintKryptonLabel.Visible = language != languageAtStart;
+            SetShown(uiLanguageHintKryptonWrapLabel, language != languageAtStart);
+            LayoutPage();
         }
 
         /// <summary>
@@ -319,17 +447,19 @@ namespace Empire_Earth_Launcher
             if (result == null)
             {
                 gameDirectoryKryptonTextBox.Text = string.Empty;
-                gameDirectorySourceKryptonLabel.Values.Text = installations.IsWaitingForSetup
+                gameDirectorySourceKryptonWrapLabel.Text = installations.IsWaitingForSetup
                     ? Resources.InstallationsWaitingForSetup
                     : Resources.InstallationsSearching;
                 installationsHintKryptonWrapLabel.Text = string.Empty;
+                LayoutPage();
                 return;
             }
 
             Installation selected = result.Selected;
             gameDirectoryKryptonTextBox.Text = selected?.EeFolder ?? string.Empty;
-            gameDirectorySourceKryptonLabel.Values.Text = Texts.InstallationOrigin(selected, result.IsSelectedByUser);
+            gameDirectorySourceKryptonWrapLabel.Text = Texts.InstallationOrigin(selected, result.IsSelectedByUser);
             installationsHintKryptonWrapLabel.Text = Texts.InstallationHints(result);
+            LayoutPage();
             if (result == shownResult)
                 return;
 
