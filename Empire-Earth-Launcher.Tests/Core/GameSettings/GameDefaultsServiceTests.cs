@@ -168,6 +168,28 @@ namespace Empire_Earth_Launcher.Tests.Core.GameSettings
             Assert.That(w.Logger.MessagesOf(LogLevel.Info), Has.Some.Contains("share its game settings"));
         }
 
+        /// <summary>
+        /// Laptop test TP-93: the uninstall key of the suite has the publisher of EE and was taken for a second EE
+        /// installation, which made the EE settings ambiguous. Marked, or found by the record of an older suite, it is none.
+        /// </summary>
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Start_TheSuiteUninstallKey_LeavesTheEeSettingsUnambiguous(bool marker)
+        {
+            w.AddAdminInstallationOfAnotherAccount(GameSettingsWorld.EERoot, Product.EE);
+            w.FileSystem.AddFile(InstallationWorld.SuiteRoot + @"\Empire Earth Launcher.exe", "exe");
+            w.World.AddSuiteUninstallKey(marker: marker);
+            if (!marker)
+                w.World.AddSuiteRecord();
+
+            DefaultsStartup startup = Start();
+
+            Assert.That(startup.Games, Is.Not.Empty);
+            Assert.That(startup.Games.Select(g => g.Defaults), Is.All.EqualTo(DefaultsAtStart.FirstRun));
+            Assert.That(startup.Games.Select(g => g.InstalledFrom), Is.All.EqualTo(InstalledFromAtStart.Created));
+            Assert.That(w.Logger.MessagesOf(LogLevel.Info), Has.None.Contains("share its game settings"));
+        }
+
         /// <summary>The user's choice makes its installation unambiguous; the other one stays untouched.</summary>
         [Test]
         public void Start_UserChoice_IsUnambiguous()

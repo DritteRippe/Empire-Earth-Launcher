@@ -1,6 +1,8 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.Installations;
+using Empire_Earth_Launcher.Core.Logging;
 using Empire_Earth_Launcher.Core.Platform;
 using Empire_Earth_Launcher.Tests.Fakes;
 using Empire_Earth_Launcher.Tests.TestSupport;
@@ -24,6 +26,51 @@ namespace Empire_Earth_Launcher.Tests.Core.Installations
         private UninstallKeyScanner Scanner()
         {
             return new UninstallKeyScanner(new WriteForbiddingRegistry(world.Registry), world.Logger);
+        }
+
+        /// <summary>A scanner that has the suite record the way the discovery reads it (null if there is none).</summary>
+        private UninstallKeyScanner ScannerWithSuiteRecord()
+        {
+            var registry = new WriteForbiddingRegistry(world.Registry);
+            return new UninstallKeyScanner(registry, world.Logger, new SuiteRecordReader(registry, world.Logger).Read());
+        }
+
+        /// <summary>A registry that cannot read one value of one key; the rest comes from the inner registry.</summary>
+        private sealed class UnreadableValueRegistry : IRegistry
+        {
+            private readonly IRegistry inner;
+            private readonly RegistryLocation unreadableKey;
+            private readonly string valueName;
+
+            public UnreadableValueRegistry(IRegistry inner, RegistryLocation unreadableKey, string valueName)
+            {
+                this.inner = inner;
+                this.unreadableKey = unreadableKey;
+                this.valueName = valueName;
+            }
+
+            public RegistryResult ProbeKey(RegistryLocation key) { return inner.ProbeKey(key); }
+
+            public RegistryResult<bool> IsLink(RegistryLocation key) { return inner.IsLink(key); }
+
+            public RegistryResult<RegistryValue> GetValue(RegistryLocation key, string name)
+            {
+                return name == valueName && key.ToString() == unreadableKey.ToString()
+                    ? RegistryResult<RegistryValue>.Failure(RegistryStatus.AccessDenied, "Access to " + key + " is denied.")
+                    : inner.GetValue(key, name);
+            }
+
+            public RegistryResult<IReadOnlyList<string>> GetValueNames(RegistryLocation key) { return inner.GetValueNames(key); }
+
+            public RegistryResult<IReadOnlyList<string>> GetSubKeyNames(RegistryLocation key) { return inner.GetSubKeyNames(key); }
+
+            public RegistryResult CreateSubKey(RegistryLocation key) { return inner.CreateSubKey(key); }
+
+            public RegistryResult SetValue(RegistryLocation key, string name, RegistryValue value) { return inner.SetValue(key, name, value); }
+
+            public RegistryResult DeleteValue(RegistryLocation key, string name) { return inner.DeleteValue(key, name); }
+
+            public RegistryResult DeleteSubKeyTree(RegistryLocation key) { return inner.DeleteSubKeyTree(key); }
         }
 
         [Test]
@@ -160,6 +207,176 @@ namespace Empire_Earth_Launcher.Tests.Core.Installations
 
             Assert.That(Scanner().Scan().Select(entry => entry.Root), Is.EqualTo(new[] { @"C:\EE" }));
             Assert.That(world.LogLinesAbout(folder.ToString()), Has.Length.EqualTo(1));
+        }
+
+        // --- The uninstall key of the suite (contract 0 "Suite and launcher", 1.4 source 3, revision 5) -------------------
+
+        [Test]
+        public void SuiteKeyWithMarker_IsNoEntry_AndLoggedOnce()
+        {
+            RegistryLocation key = world.AddSuiteUninstallKey();
+
+            Assert.That(Scanner().Scan(), Is.Empty);
+
+            Assert.That(world.Logger.Entries, Has.Count.EqualTo(1));
+            Assert.That(world.Logger.Entries[0].Level, Is.EqualTo(LogLevel.Info));
+            Assert.That(world.Logger.Entries[0].Message, Does.Contain(key.ToString()).And.Contain("is the one of the suite"));
+            Assert.That(world.Logger.Entries.Any(entry => entry.Level == LogLevel.Warning), Is.False);
+        }
+
+        [TestCase(0, null)]
+        [TestCase(null, "1")]
+        [TestCase(null, "")]
+        public void SuiteMarker_OfAnyTypeOrData_Counts(int? dword, string text)
+        {
+            world.AddSuiteUninstallKey(markerValue: dword != null ? RegistryValue.FromDWord(dword.Value) : RegistryValue.FromString(text));
+
+            Assert.That(Scanner().Scan(), Is.Empty);
+        }
+
+        [Test]
+        public void SuiteKeyWithoutMarker_WhoseRootIsTheRecordInstallPath_IsNoEntry()
+        {
+            RegistryLocation key = world.AddSuiteUninstallKey(marker: false);
+            RegistryLocation record = world.AddSuiteRecord();
+
+            Assert.That(ScannerWithSuiteRecord().Scan(), Is.Empty);
+
+            Assert.That(world.Logger.Entries, Has.Count.EqualTo(1));
+            Assert.That(world.Logger.Entries[0].Level, Is.EqualTo(LogLevel.Info));
+            Assert.That(world.Logger.Entries[0].Message,
+                Does.Contain(key.ToString()).And.Contain("names the suite root").And.Contain(record.ToString()));
+        }
+
+        [TestCase(InstallationWorld.SuiteRoot + @"\")]
+        [TestCase(@"c:\program files\EMPIRE EARTH COMMUNITY")]
+        public void SuiteKeyWithoutMarker_TheRecordInstallPath_MayBeWrittenInAnotherForm(string installPath)
+        {
+            world.AddSuiteUninstallKey(marker: false);
+            world.AddSuiteRecord(installPath);
+
+            Assert.That(ScannerWithSuiteRecord().Scan(), Is.Empty);
+            Assert.That(world.LogLinesAbout("names the suite root"), Has.Length.EqualTo(1));
+        }
+
+        [Test]
+        public void SuiteKeyWithoutMarker_WithOnlyInstallLocation_IsNoEntry()
+        {
+            RegistryLocation key = world.AddSuiteUninstallKey(marker: false);
+            world.Registry.DeleteValue(key, ContractNames.UninstallAppPathName);
+            world.AddSuiteRecord();
+
+            Assert.That(ScannerWithSuiteRecord().Scan(), Is.Empty);
+            Assert.That(world.LogLinesAbout("names the suite root"), Has.Length.EqualTo(1));
+        }
+
+        /// <summary>The limit of the fallback (documented in contract 1.4): no marker and no record, the key counts as before.</summary>
+        [Test]
+        public void SuiteKeyWithoutMarkerAndWithoutRecord_CountsAsBefore()
+        {
+            world.AddSuiteUninstallKey(marker: false);
+
+            UninstallEntry entry = ScannerWithSuiteRecord().Scan().Single();
+
+            Assert.That(entry.Product, Is.SameAs(Product.EE));
+            Assert.That(entry.AppId, Is.EqualTo(InstallationWorld.SuiteAppId));
+            Assert.That(entry.Root, Is.EqualTo(InstallationWorld.SuiteRoot));
+            Assert.That(world.Logger.Messages, Is.Empty);
+        }
+
+        [Test]
+        public void SuiteKeyWithoutMarker_AndARecordForAnotherFolder_CountsAsBefore()
+        {
+            world.AddSuiteUninstallKey(marker: false);
+            world.AddSuiteRecord(@"D:\Elsewhere");
+
+            Assert.That(ScannerWithSuiteRecord().Scan().Single().Root, Is.EqualTo(InstallationWorld.SuiteRoot));
+        }
+
+        [Test]
+        public void ProductKeyInTheSuiteRoot_WithAnEmbeddedAppId_StaysAnEntry()
+        {
+            world.AddUninstallKey(RegistryHive.LocalMachine, RegistryView.Registry64, Product.EE, InstallationWorld.SuiteRoot);
+            world.AddSuiteRecord();
+
+            UninstallEntry entry = ScannerWithSuiteRecord().Scan().Single();
+
+            Assert.That(entry.AppId, Is.EqualTo(InstallationWorld.EEAppId));
+            Assert.That(world.Logger.Messages, Is.Empty);
+        }
+
+        [Test]
+        public void ProductKeyInTheSuiteRoot_WithTheNeoEeAppIdInOtherCase_StaysAnEntry()
+        {
+            world.AddUninstallKey(RegistryHive.LocalMachine, RegistryView.Registry64, Product.NeoEE, InstallationWorld.SuiteRoot,
+                appId: InstallationWorld.NeoEEAppId.ToLowerInvariant());
+            world.AddSuiteRecord(neoEeAppId: InstallationWorld.NeoEEAppId.ToUpperInvariant());
+
+            Assert.That(ScannerWithSuiteRecord().Scan(), Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void RecordFallback_OnlyInHklm()
+        {
+            world.AddUninstallKey(RegistryHive.CurrentUser, RegistryView.Default, Product.EE, InstallationWorld.SuiteRoot,
+                appId: "11111111-0000-0000-0000-000000000009");
+            world.AddSuiteRecord();
+
+            Assert.That(ScannerWithSuiteRecord().Scan().Single().InstallMode, Is.EqualTo(InstallMode.User));
+        }
+
+        [Test]
+        public void RecordFallback_WithoutInstallPath_SkipsNothing()
+        {
+            world.AddSuiteUninstallKey(marker: false);
+            RegistryLocation record = world.AddSuiteRecord();
+            world.Registry.DeleteValue(record, ContractNames.InstallPathName);
+
+            Assert.That(ScannerWithSuiteRecord().Scan(), Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void RealKeysNextToTheSuiteKey_AreReadExactlyAsBefore()
+        {
+            world.AddUninstallKey(RegistryHive.LocalMachine, RegistryView.Registry64, Product.EE, @"C:\Program Files (x86)\Empire Earth");
+            world.AddUninstallKey(RegistryHive.LocalMachine, RegistryView.Registry64, Product.NeoEE,
+                @"C:\Program Files (x86)\Neo Empire Earth", components: @"game,GAMEAOC,language\fr", tasks: "neoee_cdkeys",
+                contractVersion: 1);
+            world.AddSuiteUninstallKey();
+
+            IReadOnlyList<UninstallEntry> entries = Scanner().Scan();
+
+            Assert.That(entries.Select(entry => entry.Product.Id), Is.EqualTo(new[] { "NeoEE", "EE" }));
+            UninstallEntry neo = entries[0];
+            Assert.That(neo.AppId, Is.EqualTo(InstallationWorld.NeoEEAppId));
+            Assert.That(neo.Root, Is.EqualTo(@"C:\Program Files (x86)\Neo Empire Earth"));
+            Assert.That(neo.InstallMode, Is.EqualTo(InstallMode.Admin));
+            Assert.That(neo.GameVersion, Is.EqualTo("1.7.2"));
+            Assert.That(neo.SetupVersion, Is.EqualTo("1.7.2"));
+            Assert.That(neo.Components.GameLanguage, Is.EqualTo("fr"));
+            Assert.That(neo.Tasks.Contains("NEOEE_CDKEYS"), Is.True);
+            Assert.That(neo.ContractVersion, Is.EqualTo(1));
+            UninstallEntry ee = entries[1];
+            Assert.That(ee.AppId, Is.EqualTo(InstallationWorld.EEAppId));
+            Assert.That(ee.Root, Is.EqualTo(@"C:\Program Files (x86)\Empire Earth"));
+            Assert.That(ee.ContractVersion, Is.Null, "a key of a setup up to 1.7.2 has no contract version");
+            Assert.That(world.Logger.Messages, Has.Count.EqualTo(1), "only the line of the suite key");
+            Assert.That(world.Logger.Messages[0], Does.Contain("is the one of the suite"));
+        }
+
+        [Test]
+        public void TheMarkerUnreadable_DropsTheKeyWithOneWarning()
+        {
+            RegistryLocation key = world.AddSuiteUninstallKey();
+            world.AddUninstallKey(RegistryHive.LocalMachine, RegistryView.Registry64, Product.EE, @"C:\EE");
+            var registry = new UnreadableValueRegistry(world.Registry, key, ContractNames.UninstallSuiteMarkerName);
+
+            var entries = new UninstallKeyScanner(registry, world.Logger).Scan();
+
+            Assert.That(entries.Select(entry => entry.Root), Is.EqualTo(new[] { @"C:\EE" }), "only the key with the unreadable marker is dropped");
+            Assert.That(world.Logger.Entries, Has.Count.EqualTo(1));
+            Assert.That(world.Logger.Entries[0].Level, Is.EqualTo(LogLevel.Warning));
+            Assert.That(world.Logger.Entries[0].Message, Does.Contain(key.ToString()));
         }
 
         [Test]

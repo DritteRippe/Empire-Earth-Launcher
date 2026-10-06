@@ -442,6 +442,65 @@ namespace Empire_Earth_Launcher.Tests.Core.Installations
             }
         }
 
+        // --- The suite next to the two games (laptop test TP-93, contract revision 5) -------------------------------------
+
+        /// <summary>EE and NeoEE as the setups of the suite leave them, plus the suite folder.</summary>
+        private void AddSuiteWithBothGames()
+        {
+            world.AddCommunityInstallation(NeoRoot, Product.NeoEE);
+            world.AddCommunityInstallation(EERoot, Product.EE);
+            world.FileSystem.AddFile(InstallationWorld.SuiteRoot + @"\Empire Earth Launcher.exe", "exe");
+        }
+
+        private void AssertExactlyTheTwoGames(DiscoveryResult result)
+        {
+            Assert.That(result.Installations, Has.Count.EqualTo(2), string.Join(" | ", result.Installations));
+            Assert.That(result.Installations.Select(i => i.Root), Is.EquivalentTo(new[] { NeoRoot, EERoot }).IgnoreCase);
+            Assert.That(result.Installations.All(i => i.Kind == InstallationKind.Community), Is.True);
+            Assert.That(result.Installations.All(i => i.State == InstallationState.Ok), Is.True);
+            Assert.That(InstallationWorld.ByRoot(result, InstallationWorld.SuiteRoot), Is.Null);
+            Assert.That(result.Installations.Any(i => i.State == InstallationState.Damaged), Is.False);
+        }
+
+        /// <summary>The laptop: a suite 1.0.0 built before revision 5 has no marker, its record names the suite root.</summary>
+        [Test]
+        public void Tp93_SuiteWithBothGames_FindsExactlyTheTwoGames()
+        {
+            AddSuiteWithBothGames();
+            world.AddSuiteUninstallKey(marker: false);
+            world.AddSuiteRecord();
+
+            DiscoveryResult result = world.Discover();
+
+            AssertExactlyTheTwoGames(result);
+            Assert.That(world.LogLinesAbout("names the suite root"), Has.Length.EqualTo(1));
+
+            var without = new InstallationWorld();
+            without.AddCommunityInstallation(NeoRoot, Product.NeoEE);
+            without.AddCommunityInstallation(EERoot, Product.EE);
+            Assert.That(result.Selected.Root, Is.EqualTo(without.Discover().Selected.Root), "the selection as without the suite");
+        }
+
+        [Test]
+        public void Tp93_SuiteWithBothGames_WithTheMarkerAndNoRecord_FindsExactlyTheTwoGames()
+        {
+            AddSuiteWithBothGames();
+            world.AddSuiteUninstallKey();
+
+            AssertExactlyTheTwoGames(world.Discover());
+            Assert.That(world.LogLinesAbout("is the one of the suite"), Has.Length.EqualTo(1));
+        }
+
+        [Test]
+        public void SuiteRecord_IsNoSource_ItNeverAddsACandidate()
+        {
+            world.AddSuiteRecord();
+            world.FileSystem.AddFile(InstallationWorld.SuiteRoot + @"\Empire Earth Launcher.exe", "exe");
+
+            Assert.That(world.Discover().Installations, Is.Empty);
+            Assert.That(world.Logger.Messages, Is.Empty);
+        }
+
         [Test]
         public void Arguments_AreChecked()
         {

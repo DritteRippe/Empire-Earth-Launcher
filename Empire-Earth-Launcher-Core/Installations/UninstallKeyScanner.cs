@@ -80,6 +80,10 @@ namespace Empire_Earth_Launcher.Core.Installations
     /// <remarks>
     /// Keys of other programs are skipped without a log line. A community key without a usable root, a key whose
     /// <c>Publisher</c> cannot be read, and an uninstall folder that cannot be listed each give exactly one log line.
+    /// The uninstall key of the suite has the <c>Publisher</c> of EE but is no installation (contract 0 "Suite and
+    /// launcher", revision 5): a key with the value <see cref="ContractNames.UninstallSuiteMarkerName"/> is skipped, and so
+    /// is, for a suite built before revision 5, a key in HKLM whose root is the <c>InstallPath</c> of the suite record and
+    /// whose AppId the record does not embed. Each skipped suite key gives one Info line.
     /// On 32-bit Windows both HKLM views are one; a key with the name and root of an earlier one is left out.
     /// </remarks>
     public sealed class UninstallKeyScanner
@@ -95,11 +99,17 @@ namespace Empire_Earth_Launcher.Core.Installations
 
         private readonly IRegistry registry;
         private readonly ILogger logger;
+        private readonly SuiteRecord suiteRecord;
 
-        public UninstallKeyScanner(IRegistry registry, ILogger logger)
+        /// <param name="registry">The registry to read.</param>
+        /// <param name="logger">The log.</param>
+        /// <param name="suiteRecord">The suite record (contract 1.6), or null; it is only used to recognise the uninstall key
+        /// of a suite built before contract revision 5, which has no marker.</param>
+        public UninstallKeyScanner(IRegistry registry, ILogger logger, SuiteRecord suiteRecord = null)
         {
             this.registry = registry ?? throw new ArgumentNullException(nameof(registry));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.suiteRecord = suiteRecord;
         }
 
         /// <summary>The folders of uninstall keys in the order of the contract: HKCU, HKLM64, HKLM32.</summary>
@@ -171,6 +181,9 @@ namespace Empire_Earth_Launcher.Core.Installations
             if (product == null)
                 return null; // another program
 
+            if (IsMarkedSuiteKey(key))
+                return null;
+
             string appPath = RegistryReads.GetStringOrNull(registry, key, ContractNames.UninstallAppPathName);
             string installLocation = RegistryReads.GetStringOrNull(registry, key, ContractNames.UninstallInstallLocationName);
             string written = !string.IsNullOrWhiteSpace(appPath) ? appPath : installLocation;
@@ -183,6 +196,9 @@ namespace Empire_Earth_Launcher.Core.Installations
                 return null;
             }
 
+            if (IsSuiteRootWithoutMarker(key, appId, root))
+                return null;
+
             string displayName = RegistryReads.GetStringOrNull(registry, key, ContractNames.UninstallDisplayNameName);
             Match setupVersion = SetupVersionInDisplayName.Match(displayName ?? string.Empty);
             return new UninstallEntry(product, key, appId, root,
@@ -191,6 +207,45 @@ namespace Empire_Earth_Launcher.Core.Installations
                 SetupNameList.Parse(RegistryReads.GetStringOrNull(registry, key, ContractNames.UninstallComponentsName)),
                 SetupNameList.Parse(RegistryReads.GetStringOrNull(registry, key, ContractNames.UninstallTasksName)),
                 RegistryReads.GetDWordOrNull(registry, key, ContractNames.UninstallContractVersionName));
+        }
+
+        /// <summary>
+        /// True if the key has the marker of the suite (any type and data): it is no installation. A marker that cannot be
+        /// read drops the key with one warning, as an unreadable <c>Publisher</c> does.
+        /// </summary>
+        private bool IsMarkedSuiteKey(RegistryLocation key)
+        {
+            RegistryResult<RegistryValue> marker = registry.GetValue(key, ContractNames.UninstallSuiteMarkerName);
+            if (marker.Status == RegistryStatus.Missing)
+                return false;
+            if (marker.IsOk)
+            {
+                logger.Info("Discovery: the uninstall key " + key + " is the one of the suite \"" + ContractNames.SuiteAppName +
+                            "\" (" + ContractNames.UninstallSuiteMarkerName + "); it is no installation and is ignored.");
+                return true;
+            }
+
+            logger.Warning("Discovery: the uninstall key " + key + " cannot be read and is ignored: " + marker + ".");
+            return true;
+        }
+
+        /// <summary>
+        /// True for the key of a suite built before revision 5 (no marker): in HKLM, with the suite root of the record as
+        /// root and an AppId that is neither of the two the record embeds (contract 1.4, source 3).
+        /// </summary>
+        private bool IsSuiteRootWithoutMarker(RegistryLocation key, string appId, string root)
+        {
+            if (suiteRecord?.InstallPath == null || RegistryReads.IsCurrentUser(key))
+                return false;
+            if (!WinPath.IsSamePath(root, suiteRecord.InstallPath))
+                return false;
+            if (string.Equals(appId, suiteRecord.EeAppId, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(appId, suiteRecord.NeoEeAppId, StringComparison.OrdinalIgnoreCase))
+                return false;
+            logger.Info("Discovery: the uninstall key " + key + " names the suite root " + root + " of the suite record " +
+                        suiteRecord.Key + " and no AppId the record embeds; it is the key of the suite \"" +
+                        ContractNames.SuiteAppName + "\" without " + ContractNames.UninstallSuiteMarkerName + " and is ignored.");
+            return true;
         }
 
         private static string Quote(string value)

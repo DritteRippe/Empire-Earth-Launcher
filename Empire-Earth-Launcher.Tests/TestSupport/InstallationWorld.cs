@@ -21,6 +21,12 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
         /// <summary>A second AppId, for EE.</summary>
         public const string EEAppId = "11111111-2222-3333-4444-555555555555";
 
+        /// <summary>The AppId of the suite as the setup CI uses it (a dummy; never the real one).</summary>
+        public const string SuiteAppId = "00000000-0000-0000-0000-0000000005EE";
+
+        /// <summary>The root of the suite "Empire Earth Community" (contract 0, "Suite and launcher").</summary>
+        public const string SuiteRoot = @"C:\Program Files\Empire Earth Community";
+
         public InstallationWorld(bool is32BitWindows = false)
         {
             Clock = new FakeClock();
@@ -174,6 +180,43 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
                 Registry.Seed(key, ContractNames.UninstallTasksName, RegistryValue.FromString(tasks));
             if (contractVersion != null)
                 Registry.Seed(key, ContractNames.UninstallContractVersionName, RegistryValue.FromDWord(contractVersion.Value));
+            return key;
+        }
+
+        /// <summary>
+        /// The uninstall key of the suite itself (HKLM64, contract 0 "Suite and launcher", 1.3): <c>Publisher</c> of EE,
+        /// the suite root as <c>Inno Setup: App Path</c> and <c>InstallLocation</c>, and since revision 5 the marker (DWORD 1,
+        /// or <paramref name="markerValue"/>; none with <paramref name="marker"/> false, as before revision 5).
+        /// </summary>
+        public RegistryLocation AddSuiteUninstallKey(string root = SuiteRoot, bool marker = true, RegistryValue markerValue = null)
+        {
+            RegistryLocation key = Hklm64(ContractNames.UninstallKey + @"\{" + SuiteAppId + "}_is1");
+            Registry.SeedKey(key);
+            Registry.Seed(key, ContractNames.UninstallPublisherName, RegistryValue.FromString(Product.EE.Publisher));
+            Registry.Seed(key, ContractNames.UninstallAppPathName, RegistryValue.FromString(root));
+            Registry.Seed(key, ContractNames.UninstallInstallLocationName, RegistryValue.FromString(root.TrimEnd('\\') + @"\"));
+            Registry.Seed(key, ContractNames.UninstallDisplayNameName,
+                RegistryValue.FromString("Empire Earth Community (Launcher, EE, NeoEE)"));
+            Registry.Seed(key, ContractNames.UninstallDisplayVersionName, RegistryValue.FromString("1.0.0"));
+            if (marker)
+                Registry.Seed(key, ContractNames.UninstallSuiteMarkerName, markerValue ?? RegistryValue.FromDWord(1));
+            return key;
+        }
+
+        /// <summary>
+        /// The suite record (HKLM64, contract 1.6) as the suite writes it, with the AppIds of the two products it embeds.
+        /// </summary>
+        public RegistryLocation AddSuiteRecord(string installPath = SuiteRoot, string eeAppId = EEAppId,
+            string neoEeAppId = NeoEEAppId)
+        {
+            RegistryLocation key = SuiteRecordReader.RecordKey;
+            Registry.SeedKey(key);
+            Registry.Seed(key, ContractNames.ContractVersionName, RegistryValue.FromDWord(1));
+            Registry.Seed(key, ContractNames.SuiteVersionName, RegistryValue.FromString("1.0.0"));
+            Registry.Seed(key, ContractNames.InstallPathName, RegistryValue.FromString(installPath));
+            Registry.Seed(key, ContractNames.SuiteProductsName, RegistryValue.FromString("EE,NeoEE"));
+            Registry.Seed(key, ContractNames.SuiteEeAppIdName, RegistryValue.FromString(eeAppId));
+            Registry.Seed(key, ContractNames.SuiteNeoEeAppIdName, RegistryValue.FromString(neoEeAppId));
             return key;
         }
 

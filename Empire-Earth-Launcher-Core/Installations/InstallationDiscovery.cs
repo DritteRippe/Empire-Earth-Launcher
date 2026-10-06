@@ -17,7 +17,8 @@ namespace Empire_Earth_Launcher.Core.Installations
     /// <remarks>
     /// <para>
     /// Sources: 1 the user choice (it only selects), 2 the registry records (<see cref="InstallRecordReader"/>), 3 the
-    /// uninstall keys (<see cref="UninstallKeyScanner"/>), 4 the "Installed From" values, key before hive
+    /// uninstall keys (<see cref="UninstallKeyScanner"/>; not the suite's own key: marker, or the suite root of the suite
+    /// record, contract revision 5), 4 the "Installed From" values, key before hive
     /// (<see cref="InstalledFromReader"/>), 5 the launcher folder or its parent.
     /// </para>
     /// <para>
@@ -132,7 +133,10 @@ namespace Empire_Earth_Launcher.Core.Installations
                     }, record.Root, "the install record " + record.Key);
                 }
 
-                foreach (UninstallEntry entry in new UninstallKeyScanner(owner.registry, Logger).Scan(cancellationToken))
+                // The suite record is no source: it only lets source 3 skip the uninstall key of a suite built before
+                // contract revision 5 (no marker).
+                SuiteRecord suite = new SuiteRecordReader(owner.registry, Logger).Read();
+                foreach (UninstallEntry entry in new UninstallKeyScanner(owner.registry, Logger, suite).Scan(cancellationToken))
                 {
                     AddIfFolderExists(new Candidate
                     {

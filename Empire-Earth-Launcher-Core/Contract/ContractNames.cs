@@ -188,6 +188,12 @@
         /// <summary>REG_DWORD written by setups since v2 after the manifest (contract 1.3, 2.5).</summary>
         public const string UninstallContractVersionName = "Empire Earth Community: ContractVersion";
 
+        /// <summary>
+        /// The value the suite writes into its own uninstall key since contract revision 5 (contract 0 "Suite and launcher",
+        /// 1.3). A key that has it is no installation (contract 1.4, source 3), whatever its type and data. Read-only.
+        /// </summary>
+        public const string UninstallSuiteMarkerName = "Empire Earth Community: Suite";
+
         // "Installed From" values of the game settings keys (contract 3.2, 3.3; source 4 of contract 1.4).
 
         /// <summary>Drive of the game folder, e.g. <c>C:</c>.</summary>

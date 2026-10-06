@@ -83,6 +83,22 @@ namespace Empire_Earth_Launcher.RealMachineTests.SelfTest
             Assert.That(problems, Has.Count.EqualTo(expected.Length));
         }
 
+        /// <summary>Laptop test TP-93: the uninstall key of the suite must not be an installation in an exact list.</summary>
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TheSuiteUninstallKey_IsNoInstallation_InAnExactList(bool marker)
+        {
+            world.InstallCommunity();
+            world.World.FileSystem.AddFile(InstallationWorld.SuiteRoot + @"\Empire Earth Launcher.exe", "exe");
+            world.World.AddSuiteUninstallKey(marker: marker);
+            if (!marker)
+                world.World.AddSuiteRecord();
+
+            HarnessSession session = world.Session(HarnessWorld.Expected(top: ", 'exactInstallations': true"));
+
+            Assert.That(session.CheckDiscovery(session.Discover()), Is.Empty);
+        }
+
         [Test]
         public void AnotherInstallation_IsAProblem_OnlyWhenTheListIsExact()
         {

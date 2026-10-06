@@ -192,6 +192,40 @@ namespace Empire_Earth_Launcher.Tests.Core.Installations
                 },
                 (w, r) => Assert.That(Roots(r), Is.EqualTo(new[] { NeoRoot, EERoot })));
 
+            yield return new ContractCase(uninstall, "the uninstall key of the suite (marker) is no candidate",
+                w =>
+                {
+                    w.AddLegacyInstallation(EERoot, Product.EE);
+                    w.FileSystem.AddDirectory(InstallationWorld.SuiteRoot);
+                    w.AddSuiteUninstallKey();
+                },
+                (w, r) => Assert.That(Roots(r), Is.EqualTo(new[] { EERoot })));
+            yield return new ContractCase(uninstall, "the suite key without marker is skipped by the suite root of the record",
+                w =>
+                {
+                    w.AddLegacyInstallation(EERoot, Product.EE);
+                    w.FileSystem.AddDirectory(InstallationWorld.SuiteRoot);
+                    w.AddSuiteUninstallKey(marker: false);
+                    w.AddSuiteRecord();
+                },
+                (w, r) => Assert.That(Roots(r), Is.EqualTo(new[] { EERoot })));
+            yield return new ContractCase(uninstall, "without marker and record the suite key counts as before",
+                w =>
+                {
+                    w.AddLegacyInstallation(EERoot, Product.EE);
+                    w.FileSystem.AddDirectory(InstallationWorld.SuiteRoot);
+                    w.AddSuiteUninstallKey(marker: false);
+                },
+                (w, r) => Assert.That(Roots(r), Is.EqualTo(new[] { InstallationWorld.SuiteRoot, EERoot }).IgnoreCase));
+            yield return new ContractCase(uninstall, "a product key with an AppId of the record stays",
+                w =>
+                {
+                    w.AddCommunityFiles(InstallationWorld.SuiteRoot, Product.EE);
+                    w.AddUninstallKey(RegistryHive.LocalMachine, RegistryView.Registry64, Product.EE, InstallationWorld.SuiteRoot);
+                    w.AddSuiteRecord();
+                },
+                (w, r) => Assert.That(Roots(r), Is.EqualTo(new[] { InstallationWorld.SuiteRoot }).IgnoreCase));
+
             // --- 4. "Installed From" values ----------------------------------------------------------------------------
             const string installedFrom = "\"Installed From\" values";
             yield return new ContractCase(installedFrom, "they name the EE folder, the root is its parent",

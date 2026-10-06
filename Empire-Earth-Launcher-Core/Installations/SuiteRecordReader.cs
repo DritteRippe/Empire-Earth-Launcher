@@ -11,8 +11,9 @@ namespace Empire_Earth_Launcher.Core.Installations
 {
     /// <summary>
     /// The record of the suite "Empire Earth Community" (contract 1.6, since revision 4): which products its setup runs
-    /// installed and from which folder it was started. Only used for the repair advice (contract 4.4); it is no source of
-    /// the discovery, and every value may be missing.
+    /// installed and from which folder it was started. Used for the repair advice (contract 4.4) and, since revision 5, to
+    /// recognise the uninstall key of a suite built before revision 5 (contract 1.4, source 3); it is no source of the
+    /// discovery, and every value may be missing.
     /// </summary>
     public sealed class SuiteRecord
     {
