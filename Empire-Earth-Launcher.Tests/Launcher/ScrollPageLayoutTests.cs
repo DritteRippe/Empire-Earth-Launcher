@@ -240,6 +240,162 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(text.Height, Is.EqualTo(text.TextHeight(text.Width)));
         }
 
+        // --- A block that does not scroll (the content of a group box, the info bar) --------------------------------
+
+        [Test]
+        public void ABlockWithItsOwnMargin_UsesItAndKeepsNoRoomForAScrollBar()
+        {
+            var block = new ScrollPageLayout(panel, control => !hidden.Contains(control), 6, false);
+            LauncherWrapLabel label = WrapLabel("A text");
+
+            block.Run(() => block.Place(label));
+
+            Assert.That(label.Left, Is.EqualTo(6));
+            Assert.That(label.Width, Is.EqualTo(554 - 2 * 6));
+            Assert.That(block.ContentWidth, Is.EqualTo(554 - 2 * 6));
+        }
+
+        [Test]
+        public void ContentHeight_IsWhatThePassPlaced_WithTheSpaceBelowTheLastControl()
+        {
+            LauncherWrapLabel label = WrapLabel(LongText);
+            KryptonButton button = Button("A button");
+
+            stack.Run(() =>
+            {
+                stack.Place(label);
+                stack.PlaceRow(button);
+            });
+
+            Assert.That(stack.ContentHeight, Is.EqualTo(button.Bottom + ScrollPageLayout.Gap));
+        }
+
+        [Test]
+        public void ContentHeight_OfAnEmptyPass_IsTheSpaceAboveTheFirstControl()
+        {
+            LauncherWrapLabel skipped = WrapLabel("hidden text");
+            hidden.Add(skipped);
+
+            stack.Run(() => stack.Place(skipped));
+
+            Assert.That(stack.ContentHeight, Is.EqualTo(8));
+        }
+
+        [Test]
+        public void Place_WithAnIndent_StartsFurtherRightAndIsNarrowerByIt()
+        {
+            LauncherWrapLabel label = WrapLabel("A line under the field of a row");
+
+            stack.Run(() => stack.Place(label, 100));
+
+            Assert.That(label.Left, Is.EqualTo(ScrollPageLayout.Margin + 100));
+            Assert.That(label.Right, Is.EqualTo(ScrollPageLayout.Margin + stack.ContentWidth), "the right edge of the content");
+        }
+
+        [Test]
+        public void Place_ARadioButton_IsAsHighAsItsTextNeeds()
+        {
+            var radioButton = new KryptonRadioButton();
+            radioButton.Values.Text = "A choice";
+            Add(radioButton, 100, 2);
+
+            stack.Run(() => stack.PlaceRow(radioButton));
+
+            Assert.That(radioButton.Height, Is.GreaterThanOrEqualTo(radioButton.GetPreferredSize(Size.Empty).Height));
+        }
+
+        // --- Rows of a form ------------------------------------------------------------------------------------------
+
+        [Test]
+        public void PlaceField_PutsTheLabelAndTheFieldOnOneLine_WithTheFieldAfterTheLabelColumn()
+        {
+            KryptonLabel label = Add(new KryptonLabel { AutoSize = false }, 60, 20);
+            TextBox field = Add(new TextBox(), 40, 23);
+
+            stack.Run(() => stack.PlaceField(label, 120, field, 200));
+
+            Assert.That(label.Left, Is.EqualTo(ScrollPageLayout.Margin));
+            Assert.That(label.Width, Is.EqualTo(120), "the column of the labels");
+            Assert.That(field.Left, Is.EqualTo(ScrollPageLayout.Margin + 120 + ScrollPageLayout.Gap));
+            Assert.That(field.Width, Is.EqualTo(200));
+            Assert.That(label.Top + label.Height / 2, Is.EqualTo(field.Top + field.Height / 2).Within(1), "centered on one line");
+        }
+
+        [Test]
+        public void PlaceField_AFieldWithoutAWidth_TakesWhatTheButtonsLeave()
+        {
+            KryptonLabel label = Add(new KryptonLabel { AutoSize = false }, 60, 20);
+            TextBox field = Add(new TextBox(), 40, 23);
+            KryptonButton browse = Button("...", 40);
+            KryptonButton detect = Button("Detect", 100);
+
+            stack.Run(() => stack.PlaceField(label, 100, field, 0, browse, detect));
+
+            Assert.That(browse.Left, Is.EqualTo(field.Right + ScrollPageLayout.Gap));
+            Assert.That(detect.Left, Is.EqualTo(browse.Right + ScrollPageLayout.Gap));
+            Assert.That(detect.Right, Is.EqualTo(ScrollPageLayout.Margin + stack.ContentWidth), "the buttons end at the right edge");
+            Assert.That(field.Width, Is.GreaterThan(120));
+            Assert.That(detect.Top + detect.Height / 2, Is.EqualTo(field.Top + field.Height / 2).Within(1));
+        }
+
+        [Test]
+        public void PlaceField_AWiderPage_GivesTheFieldMoreWidthAndKeepsTheButtonsAtTheirWidth()
+        {
+            KryptonLabel label = Add(new KryptonLabel { AutoSize = false }, 60, 20);
+            TextBox field = Add(new TextBox(), 40, 23);
+            KryptonButton detect = Button("Detect", 100);
+            Action place = () => stack.PlaceField(label, 100, field, 0, detect);
+            stack.Run(place);
+            int narrow = field.Width;
+            int buttonWidth = detect.Width;
+
+            panel.Width = 1200;
+            stack.Run(place);
+
+            Assert.That(field.Width, Is.EqualTo(narrow + 1200 - 554));
+            Assert.That(detect.Width, Is.EqualTo(buttonWidth));
+        }
+
+        [Test]
+        public void PlaceField_WhereTheFieldWouldBeTooNarrow_PutsTheButtonsBelowIt()
+        {
+            panel.Width = 330;
+            KryptonLabel label = Add(new KryptonLabel { AutoSize = false }, 60, 20);
+            TextBox field = Add(new TextBox(), 40, 23);
+            KryptonButton browse = Button("...", 60);
+            KryptonButton detect = Button("Auto-detect", 140);
+            KryptonCheckBox below = CheckBox("An option");
+
+            stack.Run(() =>
+            {
+                stack.PlaceField(label, 100, field, 0, browse, detect);
+                stack.Place(below);
+            });
+
+            Assert.That(field.Width, Is.EqualTo(stack.ContentWidth - 100 - ScrollPageLayout.Gap), "the whole width of the column");
+            Assert.That(browse.Top, Is.GreaterThanOrEqualTo(field.Bottom + ScrollPageLayout.Gap));
+            Assert.That(browse.Left, Is.EqualTo(field.Left), "below the field");
+            Assert.That(detect.Top, Is.EqualTo(browse.Top));
+            Assert.That(below.Top, Is.EqualTo(browse.Bottom + ScrollPageLayout.Gap));
+        }
+
+        [Test]
+        public void PlaceField_AHiddenField_HidesTheRow()
+        {
+            KryptonLabel label = Add(new KryptonLabel { AutoSize = false }, 60, 20);
+            TextBox field = Add(new TextBox(), 40, 23);
+            KryptonCheckBox below = CheckBox("An option");
+            hidden.Add(field);
+
+            stack.Run(() =>
+            {
+                stack.PlaceField(label, 100, field, 200);
+                stack.Place(below);
+            });
+
+            Assert.That(below.Top, Is.EqualTo(8), "the row took no room");
+        }
+
         // --- A text that cannot wrap -------------------------------------------------------------------------------
 
         [Test]

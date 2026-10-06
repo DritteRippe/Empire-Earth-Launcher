@@ -10,7 +10,8 @@ namespace Empire_Earth_Launcher
     /// <summary>
     /// Stacks the controls of a scrolling page from top to bottom for the width of the page, so that the page grows with the
     /// window (ADR 0017): used by the Game settings page and the Tools page, which show a long column of texts, buttons and
-    /// lists that scrolls when it is longer than the window.
+    /// lists that scrolls when it is longer than the window, and, with its own margin and without the scroll bar, for the blocks
+    /// of the Play page and the Launcher page (the content of a group box, the info bar).
     /// </summary>
     /// <remarks>
     /// <para>
@@ -35,10 +36,14 @@ namespace Empire_Earth_Launcher
     /// The caller decides what is shown with <c>isShown</c> and not with <see cref="Control.Visible"/>, which reads false for
     /// every control of a page that is not shown yet, and the launcher fills its pages before its window is shown.
     /// </para>
+    /// <para>
+    /// A block that never scrolls (the content of a group box) has no scroll bar to reserve room for and takes its margin from
+    /// the caller; <see cref="ContentHeight"/> then tells how high the block has to be.
+    /// </para>
     /// </remarks>
     internal sealed class ScrollPageLayout
     {
-        /// <summary>The space left and right of the content.</summary>
+        /// <summary>The space left and right of the content of a page (the default of the constructor).</summary>
         public const int Margin = 12;
 
         /// <summary>The space between two controls.</summary>
@@ -50,8 +55,13 @@ namespace Empire_Earth_Launcher
         /// <summary>The narrowest content the layout works with (a page is never narrower than its window allows).</summary>
         private const int MinimumContentWidth = 200;
 
+        /// <summary>The narrowest a field gets in a row of a form before its buttons go to the next line.</summary>
+        private const int MinimumFieldWidth = 120;
+
         private readonly ScrollableControl panel;
         private readonly Func<Control, bool> isShown;
+        private readonly int margin;
+        private readonly bool reservesScrollBar;
 
         /// <summary>
         /// The size each button and Krypton control had when the layout first saw it: the designer size. The page replaces
@@ -70,16 +80,29 @@ namespace Empire_Earth_Launcher
         /// <summary>The widest natural width of a control of the pass that can neither wrap nor be narrower than its text.</summary>
         private int rigidWidth;
 
-        /// <param name="panel">The panel that scrolls (AutoScroll) and holds the controls.</param>
+        /// <param name="panel">The panel that holds the controls; it scrolls (AutoScroll) unless the block is as high as its
+        /// content.</param>
         /// <param name="isShown">True for a control that takes room; a hidden one is skipped.</param>
-        public ScrollPageLayout(ScrollableControl panel, Func<Control, bool> isShown)
+        /// <param name="margin">The space left and right of the content.</param>
+        /// <param name="reservesScrollBar">True (a panel that scrolls) to keep the width of the scroll bar free whether it is
+        /// shown or not; false for a block that never scrolls.</param>
+        public ScrollPageLayout(ScrollableControl panel, Func<Control, bool> isShown, int margin = Margin,
+            bool reservesScrollBar = true)
         {
             this.panel = panel ?? throw new ArgumentNullException(nameof(panel));
             this.isShown = isShown ?? throw new ArgumentNullException(nameof(isShown));
+            this.margin = margin;
+            this.reservesScrollBar = reservesScrollBar;
         }
 
         /// <summary>The width of the controls of the pass that runs.</summary>
         public int ContentWidth { get; private set; }
+
+        /// <summary>
+        /// The height of what the last pass placed, with the space below the last control: the height a block needs that does
+        /// not scroll.
+        /// </summary>
+        public int ContentHeight { get; private set; }
 
         /// <summary>True if the width of the panel is not the one the last pass used: the page has to be laid out again.</summary>
         public bool NeedsLayout
@@ -116,7 +139,7 @@ namespace Empire_Earth_Launcher
             y = TopMargin;
             laidOutWidth = panel.Width;
             ContentWidth = Math.Max(Math.Max(MinimumContentWidth, minimumContentWidth),
-                panel.Width - SystemInformation.VerticalScrollBarWidth - 2 * Margin);
+                panel.Width - (reservesScrollBar ? SystemInformation.VerticalScrollBarWidth : 0) - 2 * margin);
             rigidWidth = 0;
         }
 
@@ -126,6 +149,7 @@ namespace Empire_Earth_Launcher
         /// </summary>
         private void End()
         {
+            ContentHeight = y;
             panel.ResumeLayout(true);
         }
 
@@ -136,10 +160,11 @@ namespace Empire_Earth_Launcher
         }
 
         /// <summary>
-        /// Places <paramref name="control"/> below the previous one over the content width; a button keeps its natural width
+        /// Places <paramref name="control"/> below the previous one over the content width, <paramref name="indent"/> pixels
+        /// from its left edge on (a line under the field of a row of a form); a button keeps its natural width
         /// (<see cref="PlaceRow"/>). A hidden control takes no room.
         /// </summary>
-        public void Place(Control control)
+        public void Place(Control control, int indent = 0)
         {
             if (!isShown(control))
                 return;
@@ -149,9 +174,9 @@ namespace Empire_Earth_Launcher
                 return;
             }
             if (control is KryptonLabel || control is KryptonCheckBox)
-                rigidWidth = Math.Max(rigidWidth, control.GetPreferredSize(Size.Empty).Width);
-            control.Left = Margin + scrollX;
-            control.Width = ContentWidth;
+                rigidWidth = Math.Max(rigidWidth, indent + control.GetPreferredSize(Size.Empty).Width);
+            control.Left = margin + indent + scrollX;
+            control.Width = ContentWidth - indent;
             FitHeight(control);
             control.Top = y + scroll;
             y += control.Height + Gap;
@@ -163,16 +188,16 @@ namespace Empire_Earth_Launcher
         /// </summary>
         public void PlaceRow(params Control[] controls)
         {
-            int x = Margin;
+            int x = margin;
             int lineHeight = 0;
             foreach (Control control in controls.Where(isShown))
             {
                 FitHeight(control);
                 int width = Math.Min(ContentWidth, NaturalWidth(control));
-                if (x > Margin && x + width > Margin + ContentWidth)
+                if (x > margin && x + width > margin + ContentWidth)
                 {
                     y += lineHeight + Gap;
-                    x = Margin;
+                    x = margin;
                     lineHeight = 0;
                 }
                 control.SetBounds(x + scrollX, y + scroll, width, control.Height);
@@ -192,13 +217,59 @@ namespace Empire_Earth_Launcher
         {
             FitHeight(control);
             int width = Math.Min(ContentWidth / 2, NaturalWidth(control));
-            control.SetBounds(Margin + scrollX, y + scroll, width, control.Height);
+            control.SetBounds(margin + scrollX, y + scroll, width, control.Height);
             int textWidth = ContentWidth - width - Gap;
-            text.SetBounds(Margin + scrollX + width + Gap, y + scroll, textWidth, text.Height);
+            text.SetBounds(margin + scrollX + width + Gap, y + scroll, textWidth, text.Height);
             if (text is LauncherWrapLabel label)
                 label.Height = label.TextHeight(textWidth);
             y += Math.Max(control.Height, text.Height) + Gap;
             return textWidth;
+        }
+
+        /// <summary>
+        /// Places one row of a form: <paramref name="label"/> in a column of <paramref name="labelWidth"/> (the rows of a form
+        /// share one width, so that the fields start at the same place), next to it <paramref name="field"/>, after it the
+        /// <paramref name="buttons"/> at their natural width, each centered on the line. The field is
+        /// <paramref name="fieldWidth"/> wide (a combo box), or, with 0, takes the rest of the content width; where that is less
+        /// than <see cref="MinimumFieldWidth"/> the buttons go below the field. A hidden field hides the row.
+        /// </summary>
+        public void PlaceField(Control label, int labelWidth, Control field, int fieldWidth, params Control[] buttons)
+        {
+            if (!isShown(field))
+                return;
+            Control[] shownButtons = buttons.Where(isShown).ToArray();
+            FitHeight(label);
+            FitHeight(field);
+            foreach (Control button in shownButtons)
+                FitHeight(button);
+
+            int fieldLeft = margin + labelWidth + Gap;
+            int rest = ContentWidth - labelWidth - Gap;
+            int buttonsWidth = shownButtons.Sum(button => Gap + Math.Min(rest, NaturalWidth(button)));
+            int width = fieldWidth > 0 ? Math.Min(fieldWidth, rest) : rest - buttonsWidth;
+            bool wrapButtons = fieldWidth <= 0 && shownButtons.Length > 0 && width < MinimumFieldWidth;
+            if (wrapButtons)
+                width = rest;
+
+            int lineHeight = Math.Max(label.Height, field.Height);
+            if (!wrapButtons && shownButtons.Length > 0)
+                lineHeight = Math.Max(lineHeight, shownButtons.Max(button => button.Height));
+            label.SetBounds(margin + scrollX, y + scroll + (lineHeight - label.Height) / 2, labelWidth, label.Height);
+            field.SetBounds(fieldLeft + scrollX, y + scroll + (lineHeight - field.Height) / 2, width, field.Height);
+            y += lineHeight + Gap;
+
+            int x = fieldLeft + (wrapButtons ? 0 : width + Gap);
+            int buttonLine = 0;
+            foreach (Control button in shownButtons)
+            {
+                int buttonWidth = Math.Min(rest, NaturalWidth(button));
+                int top = wrapButtons ? y : y - Gap - lineHeight + (lineHeight - button.Height) / 2;
+                button.SetBounds(x + scrollX, top + scroll, buttonWidth, button.Height);
+                x += buttonWidth + Gap;
+                buttonLine = Math.Max(buttonLine, button.Height);
+            }
+            if (wrapButtons)
+                y += buttonLine + Gap;
         }
 
         /// <summary>
@@ -219,8 +290,8 @@ namespace Empire_Earth_Launcher
         }
 
         /// <summary>
-        /// Makes a wrapping label as high as its text needs at its width, and a Krypton label, check box or button as high as
-        /// its text and font need (at least the designer height); other controls keep their height.
+        /// Makes a wrapping label as high as its text needs at its width, and a Krypton label, check box, radio button or button
+        /// as high as its text and font need (at least the designer height); other controls keep their height.
         /// </summary>
         private void FitHeight(Control control)
         {
@@ -228,7 +299,8 @@ namespace Empire_Earth_Launcher
             {
                 label.Height = label.TextHeight(label.Width);
             }
-            else if (control is KryptonLabel || control is KryptonCheckBox || control is KryptonButton)
+            else if (control is KryptonLabel || control is KryptonCheckBox || control is KryptonRadioButton ||
+                     control is KryptonButton)
             {
                 control.Height = Math.Max(DesignSize(control).Height, control.GetPreferredSize(Size.Empty).Height);
             }
