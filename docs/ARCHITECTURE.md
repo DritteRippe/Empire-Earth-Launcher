@@ -63,7 +63,8 @@ Empire-Earth.sln
 │  │                   (single instance), ISystemInfo (Windows version, Wine, primary screen in physical and in
 │  │                   DPI-unaware pixels, ANSI code page, display adapter since L-WP9),
 │  │                   IClock, IHttpsClient (ADR 0008), INetworkInfo / WindowsNetworkInfo (adapters and DNS
-│  │                   lookups, L-WP9); RegistryPath (canonical form:
+│  │                   lookups, L-WP9), IWindowSystem / WindowsWindowSystem (foreground process, the window of
+│  │                   a process, the foreground right; 1.1.0, ADR 0010); RegistryPath (canonical form:
 │  │                   WOW6432Node, registry VirtualStore), RegistryWritePolicy and PolicyCheckedRegistry
 │  │                   (the IRegistry wrapper every change passes, ADR 0007)
 │  ├─ Logging/         ILogger, LogLevel, TraceFileLogger, log trimming (moved from the launcher)
@@ -84,7 +85,8 @@ Empire-Earth.sln
 │  ├─ Play/            GameStarter, RunningGameDetector, SetupWatcher, ProgramVersions, SingleInstance,
 │  │                   MutationGuard (contract 4.2, 3.7, ADR 0010, ADR 0016; L-WP6); since 1.0.0
 │  │                   LauncherArguments (--product) and InstanceForwarding (InstanceMessage, InstanceForwarder,
-│  │                   InstanceReceiver: the hand-over to a running launcher, contract 1.4 revision 4)
+│  │                   InstanceReceiver: the hand-over to a running launcher, contract 1.4 revision 4); since 1.1.0
+│  │                   GameWindowActivator (the foreground goes to the window of the game just started, ADR 0010)
 │  ├─ Repair/          UpdateUrlPolicy (port of the setup's IsAllowedUpdateUrl), SetupDownloadLocator,
 │  │                   UpdateChecker, RepairAdvice (contract 4; RepairAdvice since L-WP6, the rest L-WP7);
 │  │                   since 1.0.0 SuiteRepairLocator (the folder of the suite for the advice, contract 4.4)
@@ -287,9 +289,17 @@ Click Play -> button disabled -> `GameStarter.StartAsync(installation, game)`:
    written only if different after normalization; changed values are logged with old and new value. Then the
    first run of the defaults if the marker is missing.
 5. `ShellExecute` of the program with the game folder as working folder (contract 3.7: compatibility
-   layers and a chosen elevation apply).
+   layers and a chosen elevation apply). Since 1.1.0 `AllowSetForegroundWindow(ASFW_ANY)` goes first, so that the
+   game may take the foreground when it shows its window.
 6. Logged: installation, game, program, process id (`pid unknown` if `Process.Start` returns none). Findings
    of the quick check never block (contract 2.5).
+7. Since 1.1.0, in the background (`PlayModel` starts `GameWindowActivator`, the closing window cancels it): with a
+   process id, the first visible top-level window of the game is looked for every 100 ms, for 60 s at most; if the
+   launcher (or the game) owns the foreground it gets `SetForegroundWindow`; after 2 s the foreground is looked at again
+   and handed over again at most 3 times while the launcher owns it. If another process owns the foreground (the player
+   switched) nothing is changed: the launcher never steals the foreground. One log line says when the window appeared
+   and what was done (ADR 0010 amendment of 2026-10-06; report 1: the mouse stayed dead until minimize and restore, the
+   game did not get activation while the launcher was in front).
 
 Implemented in L-WP6 (`GameStarter`, `PlayModel`, [ADR 0010](adr/0010-game-start-and-mutex-probing.md) amendment):
 every refusal and start error is a `StartResult` (setup running, same game running with `ProcessFound`, other game

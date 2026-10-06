@@ -1,7 +1,8 @@
 # 0010 Game start, mutex probing and single instance
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; implementation in L-WP6) and 2026-10-05 (launcher
-1.0.0, the suite of contract revision 4), see the Amendment sections
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; implementation in L-WP6), 2026-10-05 (launcher
+1.0.0, the suite of contract revision 4) and 2026-10-06 (launcher 1.1.0, the foreground goes to the game), see the
+Amendment sections
 
 ## Context
 
@@ -143,3 +144,40 @@ and installs the launcher. Contract revision 4 adds optional parts that touch th
   `SetupKindTests`, `SetupWatcherTests`, `MutationGuardTests`, `GameStarterTests`, `RunningGameDetectorTests`,
   `Launcher/InstallationServiceTests`, `LauncherInstanceTargetTests`, `SingleInstanceStartupTests`; the window and the foreground
   right are checked on Windows by the test plan (WP10-03, WP10-04).
+
+## Amendment 2026-10-06 (launcher 1.1.0, the foreground goes to the game)
+
+Report 1: after a start from the launcher the mouse is dead in the game until the player minimizes and restores its window.
+The probable cause is activation: Empire Earth acquires its DirectInput mouse with the foreground cooperative level while it
+creates its window, and the launcher is still the foreground application then, so the game is never activated (a minimize
+and restore activates it). The tests T0/T1 on the laptop decide whether this is the cause; the hand-over is harmless if it
+is not. The start itself does not change (shell execute, no arguments, no verb):
+
+- **Before the start**: `GameStarter` calls `IWindowSystem.AllowSetForegroundWindow(ASFW_ANY)` right before
+  `IProcessStarter.StartProgram` (after class S and the first run), while the launcher still owns the foreground right,
+  so that the game may take the foreground when it shows its window. A refusal is logged by the adapter; the start goes on.
+- **After the start**: if the start returned a process id, `GameWindowActivator` (core, `Play`) runs on the thread pool
+  (started by `PlayModel`, cancelled when the main window closes). It polls every 100 ms, for at most 60 s, for the first
+  visible top-level window without an owner of that process. If the launcher (or the game) owns the foreground it calls
+  `SetForegroundWindow` on it. About 2 s later it looks again (a wrapper such as dgVoodoo switches the display mode
+  late, and Windows may give the foreground back to the launcher): while the launcher owns the foreground it hands the
+  window over again, at most 3 times; if the game owns it, it stops; if another process owns it (the player switched)
+  it stops at once and changes nothing. The launcher never steals the foreground, never minimizes, hides, closes or moves a
+  window and never ends a process. Without a process id ("pid unknown") nothing is polled; no window within 60 s is logged.
+- **One log line** says what happened, for example `Game window 0x1234 of Empire Earth.exe (pid 4242) brought to the
+  foreground after 800 ms (the foreground was pid 100 (the launcher)).`, `... found after 300 ms, not brought to the
+  foreground: skipped, user switched to pid 777.` or `... SetForegroundWindow was refused ...`; a repeated hand-over and the
+  end (`giving up`) are logged too.
+- **Platform**: `Platform.IWindowSystem` (`GetForegroundProcessId`, `FindVisibleTopLevelWindow`, `SetForegroundWindow`,
+  `AllowSetForegroundWindow`) with the adapter `WindowsWindowSystem` (`user32.dll`; a missing `user32.dll` under Mono gives
+  neutral answers and one warning). `ForegroundRulesTests` keeps the imports of the foreground functions in this adapter,
+  in `WindowsInstanceChannel` (the right for the running launcher, 1.0.0) and in `ForegroundWindow` (the launcher's own
+  window); `ProcessRulesTests` still finds no code that ends a process.
+- **Limits**: a game that runs elevated (a `RUNASADMIN` layer) may refuse the foreground from the non-elevated launcher
+  (logged, three more tries, then `giving up`); NeoEE may create its window late or in another process (then the log says
+  "no window"). Both are test plan cases (WP6-18); no other way of focusing (`AttachThreadInput`, simulated key presses) is
+  used.
+- **Evidence**: `Core/Play/GameWindowActivatorTests` (fake window system and clock: the window after N polls, the player
+  switched, no window within 60 s, no process id, three hand-overs at most, a background thread, cancellation),
+  `GameStarterTests` (the right before the start), `Launcher/PlayModelTests`, `Core/Platform/WindowsWindowSystemTests`,
+  `Architecture/ForegroundRulesTests`; test plan WP6-18.

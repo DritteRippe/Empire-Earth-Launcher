@@ -11,6 +11,15 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
 
 ### Fixed
 
+- Game start: after the start the launcher hands the foreground to the window of the game (report 1: the mouse was dead
+  until the window was minimized and restored, probably because the game was never activated while the launcher stayed in
+  front). `GameStarter` allows the foreground (`AllowSetForegroundWindow`) right before the shell start; `GameWindowActivator`
+  then looks every 100 ms (60 s at most) for the first visible window of the game process, calls `SetForegroundWindow` on it
+  while the launcher or the game owns the foreground, looks again after 2 s and hands it over again at most three times.
+  If another program is in front the launcher changes nothing; it never minimizes, hides or closes a window and never ends
+  a process; the start stays a shell start (ADR 0010 amendment of 2026-10-06, `IWindowSystem` / `WindowsWindowSystem`,
+  `ForegroundRulesTests`, test plan WP6-18). One log line says after how many milliseconds the window was brought to the
+  foreground. Whether this is the cause is decided by the test on real Windows (WP6-18).
 - Game settings page: the header, the description and the "NeoEE in ..." line lay on top of each other, and the book picture
   of the compatibility warning lay over the buttons "Apply recommended display" and "Reset game settings". The page is
   created hidden and filled before the window is shown, and its layout skipped the header, the installation line and
