@@ -54,6 +54,32 @@ jobs:
           "/p:TargetFrameworkRootPath=$env:REFASM_ROOT"
           "/p:FrameworkPathOverride=$env:REFASM_ROOT\.NETFramework\v4.8"
 
+      # Pictures of the four launcher pages (PageScreenshotTests, ADR 0012 amendment): each page, as the launcher fills
+      # it, is shown for a moment in a borderless window and saved as PNG, the pages of the Game settings in each of their
+      # states, in English and German. They are the visual evidence for the geometry tests that follow and replace a
+      # player's screenshot when a layout has to be judged by eye. The step runs before the tests, so that the pictures
+      # exist when a geometry test fails, and it never fails the build: without a desktop the pictures are missing, which
+      # the warning says.
+      - name: Render page pictures
+        continue-on-error: true
+        env:
+          EE_LAUNCHER_PAGE_PNG_DIR: ${{ runner.temp }}\page-pictures
+        run: |
+          $test = Get-ChildItem -Path . -Recurse -File -Filter 'Empire-Earth-Launcher.Tests.exe' |
+            Where-Object { $_.FullName -like "*\bin\$env:CONFIGURATION\*" } | Select-Object -First 1
+          if (-not $test) { throw "Empire-Earth-Launcher.Tests.exe not found below bin\$env:CONFIGURATION." }
+          Push-Location -LiteralPath $test.DirectoryName
+          try {
+            & $test.FullName --where "class =~ PageScreenshotTests" --noresult
+            $code = $LASTEXITCODE
+          } finally {
+            Pop-Location
+          }
+          if ($code -ne 0) {
+            Write-Host "::warning title=Page pictures::The picture tests exited with code $code."
+          }
+          exit 0
+
       # Test projects are console programs named *Tests.exe (the unit tests
       # Empire-Earth-Launcher.Tests and the self-tests of
       # Empire-Earth-Launcher.RealMachineTests, NUnitLite) that return a
@@ -137,3 +163,12 @@ jobs:
           name: test-results
           path: ${{ runner.temp }}/test-results/
           if-no-files-found: ignore
+
+      - name: Upload page pictures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: page-pictures
+          path: ${{ runner.temp }}/page-pictures/
+          if-no-files-found: warn
+          retention-days: 14

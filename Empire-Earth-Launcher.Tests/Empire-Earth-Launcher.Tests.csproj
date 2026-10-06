@@ -192,6 +192,7 @@
     <Compile Include="Launcher\MaintenanceTextsTests.cs" />
     <Compile Include="Launcher\NetworkTextsTests.cs" />
     <Compile Include="Launcher\PageLayoutTests.cs" />
+    <Compile Include="Launcher\PageScreenshotTests.cs" />
     <Compile Include="Launcher\PlayModelTests.cs" />
     <Compile Include="Launcher\SingleInstanceStartupTests.cs" />
     <Compile Include="Launcher\TextsTests.cs" />
