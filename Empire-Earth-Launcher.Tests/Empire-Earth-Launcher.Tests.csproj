@@ -65,6 +65,7 @@
     <Compile Include="Architecture\ContractChecklistTests.cs" />
     <Compile Include="Architecture\CoreDependencyTests.cs" />
     <Compile Include="Architecture\FixtureProvenanceTests.cs" />
+    <Compile Include="Architecture\ForegroundRulesTests.cs" />
     <Compile Include="Architecture\NetworkDestinationTests.cs" />
     <Compile Include="Architecture\NoCertificateOverrideTests.cs" />
     <Compile Include="Architecture\PlaceholderControlsTests.cs" />
@@ -144,8 +145,10 @@
     <Compile Include="Core\Platform\WindowsMutexOwnerTests.cs" />
     <Compile Include="Core\Platform\WindowsMutexProbeTests.cs" />
     <Compile Include="Core\Platform\WindowsProcessListTests.cs" />
+    <Compile Include="Core\Platform\WindowsWindowSystemTests.cs" />
     <Compile Include="Core\Platform\WinPathTests.cs" />
     <Compile Include="Core\Play\GameStarterTests.cs" />
+    <Compile Include="Core\Play\GameWindowActivatorTests.cs" />
     <Compile Include="Core\Play\InstanceForwardingTests.cs" />
     <Compile Include="Core\Play\LauncherArgumentsTests.cs" />
     <Compile Include="Core\Play\MutationGuardTests.cs" />
@@ -171,6 +174,7 @@
     <Compile Include="Fakes\FakeProcessStarter.cs" />
     <Compile Include="Fakes\FakeSystemInfo.cs" />
     <Compile Include="Fakes\FakeThemeService.cs" />
+    <Compile Include="Fakes\FakeWindowSystem.cs" />
     <Compile Include="Fakes\InMemoryFileSystem.cs" />
     <Compile Include="Fakes\InMemoryFileSystemTests.cs" />
     <Compile Include="Fakes\InMemoryRegistry.cs" />

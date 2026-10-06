@@ -140,6 +140,36 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
         }
 
         [Test]
+        public void TheForegroundIsAllowedForAnyProcess_RightBeforeTheShellStart()
+        {
+            var windows = new FakeWindowSystem(4242) { OnCall = journal.Add };
+            gameStarter = new GameStarter(new RunningGameDetector(mutexes, processes), fileSystem, preparation, starter,
+                new JournalLogger(journal, logger), null, windows);
+
+            StartResult result = gameStarter.Start(installation, Game.EmpireEarth, false);
+
+            Assert.That(result.IsStarted, Is.True);
+            Assert.That(journal.SkipWhile(entry => entry != "defaults EE").Take(3),
+                Is.EqualTo(new[] { "defaults EE", "allow -1", "start " + EeProgram }), "after class S, directly before the shell");
+            Assert.That(windows.AllowCalls, Is.EqualTo(new[] { ForegroundRight.AnyProcess }));
+            Assert.That(windows.SetForegroundCalls, Is.Empty, "the window is handed the foreground later, by GameWindowActivator");
+        }
+
+        [Test]
+        public void ARefusedStart_AllowsNoForeground()
+        {
+            var windows = new FakeWindowSystem(4242);
+            gameStarter = new GameStarter(new RunningGameDetector(mutexes, processes), fileSystem, preparation, starter, logger, null,
+                windows);
+            fileSystem.DeleteFile(EeProgram);
+
+            StartResult result = gameStarter.Start(installation, Game.EmpireEarth, false);
+
+            Assert.That(result.Outcome, Is.EqualTo(StartOutcome.Damaged));
+            Assert.That(windows.AllowCalls, Is.Empty);
+        }
+
+        [Test]
         public void Contract_3_7_AForeignInstallationStartsInTheFolderOfItsInstalledFromValues()
         {
             fileSystem.AddFile(@"D:\Games\EE\Empire Earth.exe", "program");

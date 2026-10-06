@@ -121,8 +121,9 @@ namespace Empire_Earth_Launcher.Core.Play
     /// <summary>
     /// Starts Empire Earth or The Art of Conquest of an installation (R3, ADR 0010, ARCHITECTURE 4.2) in a fixed order:
     /// setup mutex -> game mutex (the same game refused, the other one a warning) -> folder and program -> class S
-    /// synchronized (contract 3.6) -> first run if the marker is missing -> start through the shell in the real game
-    /// folder (contract 3.7) -> log with installation, game, program and process id.
+    /// synchronized (contract 3.6) -> first run if the marker is missing -> foreground allowed for the game (ADR 0010
+    /// amendment of 1.1.0; the window gets it later from <see cref="GameWindowActivator"/>) -> start through the shell in
+    /// the real game folder (contract 3.7) -> log with installation, game, program and process id.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -152,6 +153,7 @@ namespace Empire_Earth_Launcher.Core.Play
         private readonly IProcessStarter starter;
         private readonly ILogger logger;
         private readonly SuiteRepairLocator suiteRepair;
+        private readonly IWindowSystem windowSystem;
 
         /// <param name="detector">The running setups, games and processes.</param>
         /// <param name="fileSystem">To check that the program exists.</param>
@@ -160,10 +162,13 @@ namespace Empire_Earth_Launcher.Core.Play
         /// <param name="logger">Log of the launcher.</param>
         /// <param name="suiteRepair">Where the suite can be run again for the repair advice (contract 4.4, revision 4); null
         /// if the launcher gives the download advice only.</param>
+        /// <param name="windowSystem">Lets the game take the foreground right before the start (ADR 0010 amendment of 1.1.0);
+        /// null if the launcher does not hand the foreground over (the tests that do not look at it).</param>
         public GameStarter(RunningGameDetector detector, IFileSystem fileSystem, IGameStartPreparation preparation,
-            IProcessStarter starter, ILogger logger, SuiteRepairLocator suiteRepair = null)
+            IProcessStarter starter, ILogger logger, SuiteRepairLocator suiteRepair = null, IWindowSystem windowSystem = null)
         {
             this.suiteRepair = suiteRepair;
+            this.windowSystem = windowSystem;
             this.detector = detector ?? throw new ArgumentNullException(nameof(detector));
             this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
             this.preparation = preparation ?? throw new ArgumentNullException(nameof(preparation));
@@ -242,9 +247,12 @@ namespace Empire_Earth_Launcher.Core.Play
             result.Defaults = preparation.ApplyDefaultsIfNeeded(installation, game, out DisplayQuestion question);
             result.Question = question;
 
-            // 5. The start through the shell (contract 3.7), 6. the log.
+            // 5. The start through the shell (contract 3.7), 6. the log. The game takes the foreground when it shows its
+            // window (it needs it for its DirectInput devices): the launcher allows that while it still owns the foreground
+            // right, i.e. before the start (the hand-over to the window follows in GameWindowActivator).
             try
             {
+                windowSystem?.AllowSetForegroundWindow(ForegroundRight.AnyProcess);
                 result.ProcessId = starter.StartProgram(program, folder);
             }
             catch (Win32Exception ex)

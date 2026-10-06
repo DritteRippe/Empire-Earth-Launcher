@@ -113,6 +113,7 @@
     <Compile Include="Platform\IProcessStarter.cs" />
     <Compile Include="Platform\IRegistry.cs" />
     <Compile Include="Platform\ISystemInfo.cs" />
+    <Compile Include="Platform\IWindowSystem.cs" />
     <Compile Include="Platform\LocalFileSystem.cs" />
     <Compile Include="Platform\PolicyCheckedRegistry.cs" />
     <Compile Include="Platform\RegistryLocation.cs" />
@@ -128,8 +129,10 @@
     <Compile Include="Platform\WindowsProcessList.cs" />
     <Compile Include="Platform\WindowsRegistry.cs" />
     <Compile Include="Platform\WindowsSystemInfo.cs" />
+    <Compile Include="Platform\WindowsWindowSystem.cs" />
     <Compile Include="Platform\WinPath.cs" />
     <Compile Include="Play\GameStarter.cs" />
+    <Compile Include="Play\GameWindowActivator.cs" />
     <Compile Include="Play\InstanceForwarding.cs" />
     <Compile Include="Play\IGameStartPreparation.cs" />
     <Compile Include="Play\LauncherArguments.cs" />
