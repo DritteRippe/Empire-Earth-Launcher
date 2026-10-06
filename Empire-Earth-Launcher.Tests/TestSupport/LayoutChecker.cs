@@ -35,6 +35,21 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
             { "networkCheckKryptonLinkLabel", "lies over the empty player list" },
         };
 
+        /// <summary>
+        /// Controls that the rule "wide enough for the text" does not apply to, by field name; each entry says why.
+        /// </summary>
+        public static readonly IReadOnlyDictionary<string, string> NarrowByDesign = new Dictionary<string, string>
+        {
+            // The gold picture is the face of the button (Back.Image, stretched to its size). Krypton adds the same picture
+            // (Values.ImageStates, 251 x 84) to the preferred width, which is then wider than the whole column of the Play
+            // page; the word on the face needs a fraction of it.
+            { "playKryptonButton", "its picture is its face; the preferred width of Krypton counts the picture once more" },
+
+            // One line in the narrow column of the online players: Krypton shortens it with an ellipsis where a larger font
+            // makes it wider than the column, which keeps its width so that the game column keeps its room.
+            { "networkCheckKryptonLinkLabel", "one line, shortened with an ellipsis in a large font" },
+        };
+
         private static readonly FieldInfo MonoVisibleField =
             typeof(Control).GetField("is_visible", BindingFlags.Instance | BindingFlags.NonPublic);
 
@@ -203,13 +218,16 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
         }
 
         /// <summary>
-        /// Rule 4: a Krypton button, check box or label is at least as wide as its text and its glyph need
-        /// (<see cref="Control.GetPreferredSize"/>), so that no translation is cut off.
+        /// Rule 4: a Krypton button, check box, radio button or label is at least as wide as its text and its glyph need
+        /// (<see cref="Control.GetPreferredSize"/>), so that no translation is cut off. A control of
+        /// <see cref="NarrowByDesign"/> is excused.
         /// </summary>
         public static IEnumerable<string> TooNarrow(Control root)
         {
-            foreach (Control control in VisibleDescendants(root).Where(IsKryptonTextControl))
+            foreach (Control control in VisibleDescendants(root).Where(control => IsKryptonTextControl(control) || control is KryptonRadioButton))
             {
+                if (NarrowByDesign.ContainsKey(control.Name))
+                    continue;
                 int preferred;
                 if (!TryPreferredWidth(control, out preferred))
                     continue;
@@ -280,16 +298,16 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
         /// grows with the parent, or (a picture, a block of fixed width) moves to stay centered. "The content does not
         /// grow when the window is maximized" is this rule failing for the whole page. Controls that are not visible in
         /// both snapshots are ignored, and so are the controls of a parent whose width a text of one line dictates (it cannot
-        /// wrap, so the page scrolls sideways instead of growing) and buttons: a button has the width its text needs and is
-        /// not stretched over a wide page (a button as wide as half of a small page, as with a large font, is no content that
-        /// has to grow).
+        /// wrap, so the page scrolls sideways instead of growing) and buttons and radio buttons: such a control has the width its
+        /// text needs and is not stretched over a wide page (one as wide as half of a small page, as with a large font, is no
+        /// content that has to grow).
         /// </summary>
         public static IEnumerable<string> NotGrowing(Control root, Snapshot narrow, Snapshot wide)
         {
             foreach (KeyValuePair<Control, Rectangle> pair in narrow.Bounds)
             {
                 Control control = pair.Key;
-                if (control is KryptonButton || narrow.TextBoundParents.Contains(control.Parent))
+                if (control is KryptonButton || control is KryptonRadioButton || narrow.TextBoundParents.Contains(control.Parent))
                     continue;
                 Rectangle before = pair.Value;
                 Rectangle after;

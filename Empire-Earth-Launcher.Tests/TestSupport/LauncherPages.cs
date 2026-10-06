@@ -82,12 +82,17 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
         /// <summary>
         /// Gives the page the size <paramref name="size"/> and lays it out. Outside Windows the designer sizes of the pages are
         /// scaled by the font of Mono (7 x 14 per character instead of 6 x 13) while the constants of the layout code are not,
-        /// so a page is never made smaller than it is after construction there.
+        /// so a page is never made smaller than it is after construction there. A page lays itself out when its size changes,
+        /// and the size it was constructed with has no change to report: it goes through another size first, as a window that is
+        /// resized does.
         /// </summary>
         public static void Resize(Control page, Size size, Size constructedSize)
         {
             bool windows = Environment.OSVersion.Platform == PlatformID.Win32NT;
-            page.Size = windows ? size : new Size(Math.Max(size.Width, constructedSize.Width), Math.Max(size.Height, constructedSize.Height));
+            Size target = windows ? size : new Size(Math.Max(size.Width, constructedSize.Width), Math.Max(size.Height, constructedSize.Height));
+            if (page.Size == target)
+                page.Size = new Size(target.Width + 1, target.Height + 1);
+            page.Size = target;
             LayoutAll(page);
         }
 

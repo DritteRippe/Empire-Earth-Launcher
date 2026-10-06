@@ -155,6 +155,35 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(found.Single(), Does.Contain("button"));
         }
 
+        [Test]
+        public void TooNarrow_FindsARadioButtonThatIsTooNarrowForItsText()
+        {
+            var radioButton = new KryptonRadioButton { AutoSize = false };
+            radioButton.Values.Text = "A text that needs much more than ten pixels";
+            Add(radioButton, "radioButton", 10, 10, 10, 30);
+            string[] found = null;
+            WinForms.RunOrIgnoreWithoutWindows(() => found = LayoutChecker.TooNarrow(page).ToArray());
+
+            Assert.That(found.Single(), Does.Contain("radioButton"));
+        }
+
+        [Test]
+        public void TooNarrow_ExcusesTheControlsOfNarrowByDesign_AndOnlyThose()
+        {
+            var face = new KryptonButton();
+            face.Values.Text = "A text that needs much more than ten pixels";
+            Add(face, "playKryptonButton", 10, 10, 10, 30);
+            var other = new KryptonButton();
+            other.Values.Text = "A text that needs much more than ten pixels";
+            Add(other, "otherButton", 10, 50, 10, 30);
+            string[] found = null;
+            WinForms.RunOrIgnoreWithoutWindows(() => found = LayoutChecker.TooNarrow(page).ToArray());
+
+            Assert.That(found.Single(), Does.Contain("otherButton"));
+            Assert.That(LayoutChecker.NarrowByDesign.Keys, Is.EquivalentTo(new[] { "playKryptonButton", "networkCheckKryptonLinkLabel" }),
+                "every excuse is named here, with its reason in LayoutChecker");
+        }
+
         // --- Growth -----------------------------------------------------------------------------------------------
 
         [Test]
@@ -173,6 +202,21 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             string[] found = LayoutChecker.NotGrowing(page, narrow, LayoutChecker.Take(page)).ToArray();
 
             Assert.That(found.Single(), Does.Contain("fixed").And.Contain("250 px wide"), string.Join("; ", found));
+        }
+
+        [Test]
+        public void NotGrowing_AcceptsARadioButton_ThatKeepsTheWidthOfItsText()
+        {
+            // As wide as more than half of the page, as with a large font in the smallest window.
+            var radioButton = new KryptonRadioButton { AutoSize = false };
+            radioButton.Values.Text = "The Art of Conquest";
+            Add(radioButton, "radioButton", 10, 10, 250, 20);
+            LayoutChecker.Snapshot narrow = LayoutChecker.Take(page);
+
+            page.Width = 600;
+            page.PerformLayout();
+
+            Assert.That(LayoutChecker.NotGrowing(page, narrow, LayoutChecker.Take(page)), Is.Empty);
         }
 
         [Test]
