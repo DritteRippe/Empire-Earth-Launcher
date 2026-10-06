@@ -33,6 +33,7 @@ namespace Empire_Earth_Launcher
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.launcherKryptonPalette = new Krypton.Toolkit.KryptonPalette(this.components);
+            this.navigationPanel = new System.Windows.Forms.Panel();
             this.playKryptonCheckButton = new Krypton.Toolkit.KryptonCheckButton();
             this.settingsKryptonCheckButton = new Krypton.Toolkit.KryptonCheckButton();
             this.toolsKryptonCheckButton = new Krypton.Toolkit.KryptonCheckButton();
@@ -41,6 +42,7 @@ namespace Empire_Earth_Launcher
             this.launcherSettingsUserControl = new Empire_Earth_Launcher.LauncherSettingsUserControl();
             this.settingsUserControl = new Empire_Earth_Launcher.SettingsUserControl();
             this.toolsUserControl = new Empire_Earth_Launcher.ToolsUserControl();
+            this.navigationPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // launcherKryptonPalette
@@ -104,6 +106,19 @@ namespace Empire_Earth_Launcher
             this.launcherKryptonPalette.LabelStyles.LabelCommon.StateCommon.ShortText.Color1 = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.launcherKryptonPalette.PanelStyles.PanelCommon.StateCommon.Color1 = System.Drawing.Color.White;
             this.launcherKryptonPalette.PanelStyles.PanelCommon.StateCommon.ColorStyle = Krypton.Toolkit.PaletteColorStyle.Solid;
+            // 
+            // navigationPanel
+            // 
+            this.navigationPanel.BackColor = System.Drawing.Color.White;
+            this.navigationPanel.Controls.Add(this.launcherKryptonCheckButton);
+            this.navigationPanel.Controls.Add(this.toolsKryptonCheckButton);
+            this.navigationPanel.Controls.Add(this.settingsKryptonCheckButton);
+            this.navigationPanel.Controls.Add(this.playKryptonCheckButton);
+            this.navigationPanel.Dock = System.Windows.Forms.DockStyle.Left;
+            this.navigationPanel.Location = new System.Drawing.Point(0, 0);
+            this.navigationPanel.Name = "navigationPanel";
+            this.navigationPanel.Size = new System.Drawing.Size(126, 381);
+            this.navigationPanel.TabIndex = 1;
             // 
             // playKryptonCheckButton
             // 
@@ -169,22 +184,26 @@ namespace Empire_Earth_Launcher
             // 
             this.generalUserControl.BackColor = System.Drawing.Color.Transparent;
             resources.ApplyResources(this.generalUserControl, "generalUserControl");
+            this.generalUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.generalUserControl.Name = "generalUserControl";
             // 
             // launcherSettingsUserControl
             // 
             this.launcherSettingsUserControl.BackColor = System.Drawing.Color.Transparent;
             resources.ApplyResources(this.launcherSettingsUserControl, "launcherSettingsUserControl");
+            this.launcherSettingsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.launcherSettingsUserControl.Name = "launcherSettingsUserControl";
             // 
             // settingsUserControl
             // 
             resources.ApplyResources(this.settingsUserControl, "settingsUserControl");
+            this.settingsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.settingsUserControl.Name = "settingsUserControl";
             // 
             // toolsUserControl
             // 
             resources.ApplyResources(this.toolsUserControl, "toolsUserControl");
+            this.toolsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.toolsUserControl.Name = "toolsUserControl";
             // 
             // MainForm
@@ -196,21 +215,20 @@ namespace Empire_Earth_Launcher
             this.Controls.Add(this.settingsUserControl);
             this.Controls.Add(this.toolsUserControl);
             this.Controls.Add(this.launcherSettingsUserControl);
-            this.Controls.Add(this.launcherKryptonCheckButton);
-            this.Controls.Add(this.toolsKryptonCheckButton);
-            this.Controls.Add(this.settingsKryptonCheckButton);
-            this.Controls.Add(this.playKryptonCheckButton);
+            this.Controls.Add(this.navigationPanel);
             this.Name = "MainForm";
             this.Palette = this.launcherKryptonPalette;
             this.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.StateCommon.Border.DrawBorders = ((Krypton.Toolkit.PaletteDrawBorders)((((Krypton.Toolkit.PaletteDrawBorders.Top | Krypton.Toolkit.PaletteDrawBorders.Bottom) 
             | Krypton.Toolkit.PaletteDrawBorders.Left) 
             | Krypton.Toolkit.PaletteDrawBorders.Right)));
+            this.navigationPanel.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
+        private System.Windows.Forms.Panel navigationPanel;
         private Krypton.Toolkit.KryptonCheckButton playKryptonCheckButton;
         private Krypton.Toolkit.KryptonCheckButton settingsKryptonCheckButton;
         private Krypton.Toolkit.KryptonCheckButton toolsKryptonCheckButton;

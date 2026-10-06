@@ -100,6 +100,16 @@ namespace Empire_Earth_Launcher
         }
 
         /// <summary>
+        /// The window can be resized freely but never below the size it opens with (ADR 0017): the pages are laid out for the
+        /// width they get and need that much room at least.
+        /// </summary>
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            MinimumSize = Size;
+        }
+
+        /// <summary>
         /// Starts the discovery of the installations once the window is on the screen: it runs in the background and the
         /// pages show "searching" until it has finished, so nothing delays the window (ADR 0004).
         /// </summary>

@@ -66,6 +66,7 @@
     <Compile Include="Architecture\CoreDependencyTests.cs" />
     <Compile Include="Architecture\FixtureProvenanceTests.cs" />
     <Compile Include="Architecture\ForegroundRulesTests.cs" />
+    <Compile Include="Architecture\MainWindowLayoutTests.cs" />
     <Compile Include="Architecture\NetworkDestinationTests.cs" />
     <Compile Include="Architecture\NoCertificateOverrideTests.cs" />
     <Compile Include="Architecture\PlaceholderControlsTests.cs" />
