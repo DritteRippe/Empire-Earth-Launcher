@@ -582,6 +582,7 @@ Empire Earth Launcher/            The launcher (WinForms + Krypton UI)
 │                                 report)
 ├─ RepairAdviceDialog.cs          The repair advice window (built in code, wraps every language)
 ├─ LauncherWrapLabel.cs           Every wrapping text: palette font as a copy no palette can dispose, never a red X
+├─ ScrollPageLayout.cs            Stacks the controls of the Game settings and Tools pages for the width of the window
 └─ Resources/                     Images and icon used by the UI
 Empire-Earth-WON/                 WON/NeoEE library, no UI (used by the launcher)
 ├─ NeoApiClient.cs                Client for the NeoEE lobby server

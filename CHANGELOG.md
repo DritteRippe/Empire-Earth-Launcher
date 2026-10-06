@@ -9,6 +9,20 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
 
 ## [Unreleased]
 
+### Changed
+
+- The launcher window can be resized freely; its smallest size is the size it opens with, and the content grows with the
+  window (report 4c: a maximized window showed the same content in the upper left corner). The navigation buttons sit in a
+  panel at the left edge and the four pages fill the rest (`MainForm`). The *Game settings* and *Tools* pages stack their
+  controls for the width of the window (`ScrollPageLayout`): texts, lists and boxes take the whole width, a wrapping label is as
+  high as its text needs at that width, buttons keep the width their text needs and wrap into a second line where they do not
+  fit, and the page keeps its scroll position. A check box or label whose one-line text is wider than the window (a long
+  translation in a large font) makes the page scroll sideways instead of cutting the text off. The block of the compatibility
+  warning (book picture, text, button) has the width of the page and the height of its parts, so the picture stays inside it
+  below the heading. The installation line ("NeoEE in C:\...", any path length) of both pages and the line "no hints" wrap
+  (they were labels of one line). The *Play* and *Launcher* pages keep their fixed layout and fill the page area at the top
+  left until the next work package ([ADR 0017](docs/adr/0017-resizable-layout.md); test plan WP1-07, WP5-17).
+
 ### Fixed
 
 - Game start: after the start the launcher hands the foreground to the window of the game (report 1: the mouse was dead
@@ -37,8 +51,9 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
 - Geometry tests of the four pages (`PageLayoutTests`, `LayoutChecker`, ADR 0012 amendment of 2026-10-06): no overlap,
   nothing outside its page, no cut-off text and content that grows with the page, at four window sizes, in English, German
   and French, with the system font and one 50 % larger; the *Game settings* page is driven through its real model in
-  every state (`SettingsPageWorld`). Rules the page still breaks under Mono are listed (`KnownDefects`) until the layout
-  work of 1.1.0; Windows excuses none.
+  every state (`SettingsPageWorld`). The list of rules the page broke under Mono (`KnownDefects`) is gone with the layout
+  work of 1.1.0 (ADR 0012 amendment of 2026-10-06 and ADR 0017); `ScrollPageLayoutTests` and `MainWindowLayoutTests` test the
+  layout class and the docking of the main window.
 - CI: the step "Render page pictures" saves PNG files of the pages (`PageScreenshotTests`) and uploads them as the artifact
   `page-pictures`.
 

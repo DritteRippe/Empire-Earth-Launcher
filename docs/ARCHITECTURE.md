@@ -115,7 +115,9 @@ Empire-Earth.sln
 │                                         shows), DiagnosticsModel (network check and report, L-WP9),
 │                                         ToolsUserControl (the Tools page), RepairAdviceDialog,
 │                                         LauncherWrapLabel (wrapping text with a copy of the palette
-│                                         font, never a red X), KryptonThemeService, app.manifest
+│                                         font, never a red X), ScrollPageLayout (stacks the controls of the
+│                                         Game settings and Tools pages for the width of the window,
+│                                         ADR 0017), KryptonThemeService, app.manifest
 ├─ Empire-Earth-Launcher.Tests/           one NUnitLite program: Core/, Launcher/, Won/, Mod/,
 │                                         Architecture/ (dependency, project and resource rules),
 │                                         Fakes/ (in-memory registry and file system, fake HTTP, network
@@ -135,7 +137,9 @@ library is the reverse-engineered protocol with its own history.
 
 ### UI pages
 
-The navigation keeps the existing look (MainForm, Krypton palette, gold buttons). Pages:
+The navigation keeps the existing look (MainForm, Krypton palette, gold buttons). The window can be resized freely down to
+the size it opens with; the navigation buttons sit in a panel docked at the left edge and the four pages fill the rest
+([ADR 0017](adr/0017-resizable-layout.md)). Pages:
 
 | Page | Content | Requirements |
 |---|---|---|

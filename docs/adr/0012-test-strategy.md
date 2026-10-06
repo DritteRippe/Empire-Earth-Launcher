@@ -1,7 +1,7 @@
 # 0012 Test strategy
 
 Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review; implementation in L-WP5, L-WP6,
-L-WP7, L-WP8 and L-WP9), 2026-10-03 (CI end-to-end test; WinForms tests) and 2026-10-06 (geometry tests), see the
+L-WP7, L-WP8 and L-WP9), 2026-10-03 (CI end-to-end test; WinForms tests) and 2026-10-06 (geometry tests; resizable layout), see the
 Amendment sections
 
 ## Context
@@ -346,3 +346,22 @@ The launcher's part of that job is to run its core against the real installation
   local run show no window; the build workflow sets it in the step "Render page pictures" (before the tests, never failing
   the build) and uploads the folder as the artifact `page-pictures`. The pictures replace a player's screenshot when a layout
   has to be judged by eye.
+
+## Amendment 2026-10-06 (resizable layout, [ADR 0017](0017-resizable-layout.md))
+
+- **The list of known defects is gone.** With the layout work of 1.1.0 the *Game settings* page keeps every rule of
+  `LayoutChecker` at every size, state, language and font under Mono, so `PageLayoutTests.KnownDefects` and
+  `KnownDefects_AreStillBroken` were removed; the rules hold without exception. The other pages that can be created on Windows
+  only (Tools, Play, Launcher) are measured there; Play and Launcher are made to keep the rules with the next work package,
+  so their cases are red on Windows until then.
+- **Two refinements of the rules**, both for controls that must not grow with the window: rule 5 (grows with the page) ignores
+  buttons, which have the width their text needs, and ignores the controls of a parent whose width a text of one line dictates
+  (a check box or label cannot wrap; then the page scrolls sideways, which rule 2 allows for exactly that case, where the
+  widest such control is as wide as its text needs).
+- **`ScrollPageLayoutTests`** runs the layout class of the two scrolling pages on a small panel with the kinds of controls the
+  pages hold (widths, heights, hidden controls, rows of buttons that wrap, the second pass for a text that cannot wrap, the
+  same bounds when it runs twice, the scroll position), because the Tools page cannot be created under Mono. Mutation check: the
+  tests for the row wrap and the second pass fail if either is switched off.
+- **`MainWindowLayoutTests`** (category `SourceTree`) checks on the sources of `MainForm` what Mono cannot create: the
+  navigation buttons are in the panel docked at the left, the four pages are `Dock = Fill` and added before the panel, the
+  minimum size is set from the opening size and nothing fixes the window size.
