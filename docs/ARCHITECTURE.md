@@ -116,7 +116,7 @@ Empire-Earth.sln
 │                                         ToolsUserControl (the Tools page), RepairAdviceDialog,
 │                                         LauncherWrapLabel (wrapping text with a copy of the palette
 │                                         font, never a red X), ScrollPageLayout (stacks the controls of the
-│                                         Game settings and Tools pages for the width of the window,
+│                                         pages and of their group boxes for the width of the window,
 │                                         ADR 0017), KryptonThemeService, app.manifest
 ├─ Empire-Earth-Launcher.Tests/           one NUnitLite program: Core/, Launcher/, Won/, Mod/,
 │                                         Architecture/ (dependency, project and resource rules),

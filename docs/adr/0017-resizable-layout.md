@@ -1,6 +1,6 @@
 # 0017 Resizable layout
 
-Status: **Accepted** (2026-10-06)
+Status: **Accepted** (2026-10-06), amended 2026-10-06 (Play and Launcher pages)
 
 ## Context
 
@@ -39,8 +39,7 @@ minimum size stays as it is today, and the content grows with the window; the la
   and of the Tools page and the line "no hints" were Krypton labels of one line; they are `LauncherWrapLabel` now
   (`installationKryptonWrapLabel`, `integrityInstallationKryptonWrapLabel`, `hintsNoneKryptonWrapLabel`) and wrap. The
   headings stay Krypton labels with `AutoSize = false`, so that Krypton does not resize them against the layout.
-- The Play page and the Launcher page keep their fixed geometry in this decision; they fill the page area at the top left until
-  they are reworked (work package L3).
+- The Play page and the Launcher page are reworked in the amendment below (work package L3).
 
 ## Evidence
 
@@ -72,9 +71,82 @@ minimum size stays as it is today, and the content grows with the window; the la
 
 - **Rebuild all pages on `TableLayoutPanel` / `FlowLayoutPanel`.** Designer-friendly, but a wrapped label in such a panel needs
   its maximum width kept in sync with the column, and the change touches every page and its resx at once, with regressions that
-  only show on Windows. Rejected for 1.1.0; the Play and Launcher pages may use it (L3).
+  only show on Windows. Rejected for 1.1.0, for the Play and Launcher pages as well (see the amendment).
 - **Anchor the controls left and right and keep the fixed heights.** A label that grows with the width keeps its height, so a
   German text is cut off when the window is narrow. Rejected: the heights must come from the text.
 - **Fix the window size** (no maximize box). Hides the report instead of fixing it and takes a feature from the user.
   Rejected (user decision for 1.1.0).
 - **Cap the content width** (a centered column). Rejected for 1.1.0; the user asked for content that grows.
+
+## Amendment 2026-10-06 (Play and Launcher pages, work package L3)
+
+The Play page and the Launcher page used fixed slots for their texts (a label of 30 pixels for the program versions, 28 for the
+result of the version check, 18 for the integrity state, 40 for the state line; a group box of 540 x 364 pixels) and stayed
+at the upper left of a larger window. They use the same layout class now, which got three small additions for them
+(`ScrollPageLayout` constructor: the margin and whether the width of the scroll bar is reserved; `ContentHeight`;
+`Place(control, indent)`; `PlaceField`; radio buttons get their height from their text like the other Krypton controls).
+
+- **A block that does not scroll.** The content of a group box (`gameSettingsKryptonGroupBox.Panel`,
+  `launcherSettingsKryptonGroupBox.Panel`) and the info bar are laid out by a `ScrollPageLayout` with its own margin and
+  without room for a scroll bar; `ContentHeight` is the height the block needs, and the group is made that high plus what it
+  takes besides its content (heading, borders: `Height - Panel.Height`, which does not depend on the content). Krypton sizes
+  the panel of a group itself when the group is laid out, so the pages also lay themselves out when the size of such a panel
+  changes (a theme with another heading font).
+- **Play page, two columns.** The online players (the group with the player list, the state line and the profile line) and
+  the Play button keep the width of the designer at the right edge and have the height of the page: the group runs from the
+  top down to the Play button, the player list takes the room between the heading and the profile line, and the state line
+  above the profile line takes the height of its text (`MaxLobbyStatusHeight` for a small list, more where the column is
+  taller; the list keeps 60 pixels at least). The rest of the width is the game column: a plain panel that scrolls
+  (`gameColumnPanel`, white like the page, as the scroll panels of the other pages) with the group of the game choice and, below
+  it, the info bar. The four texts of the group are wrapping labels as high as their text needs; one without text is hidden and
+  takes no room, so the group has no empty lines. The info bar is a block as wide as the group and as high as its text and its
+  two buttons need (the buttons wrap into a second line in a narrow window). The info bar is in the column, not docked at the
+  bottom of the page: where the texts of a large font or a small window do not fit it scrolls with the group, and nothing
+  sticks out of the page.
+- **Launcher page, one group.** A plain panel that scrolls (`launcherScrollPanel`, `Dock = Fill`) holds the group of the
+  settings, which has the width of the panel and the height of its content, or the height the window leaves if that is more:
+  the list of the installations takes the difference (at least the height of the designer), so a maximized window shows a
+  large list and the hints below it. The rows of the form are placed by `PlaceField`: the three labels share one column (as wide
+  as the widest label needs), so that the fields start at the same place; the lists of theme and language keep their width, the
+  text box of the game folder takes what the two buttons leave and, where that is less than 120 pixels, the buttons go below it;
+  the line with the origin of the choice is indented to the fields.
+- **Sentences are wrapping labels** (as in the amendment above for the installation line): the line with the origin of the game
+  folder and the note that a new language is used from the next start on were Krypton labels of one line; they are
+  `LauncherWrapLabel` now and wrap (`gameDirectorySourceKryptonWrapLabel`, `uiLanguageHintKryptonWrapLabel`).
+  The headings and the labels of the rows stay Krypton labels with `AutoSize = false`.
+- **A page is laid out when it is laid out.** The two pages run their layout in `OnLayout` (and when a text that changes a
+  height changes), not when their size changes: a page that is created at the size it will have gets no `SizeChanged`, and its
+  first layout would never happen. `PageLayoutTests` found this on the Tools page too, which is laid out by its state in the
+  launcher and was not laid out at its first size in the test (under Mono with stubs); the test now goes through another size first
+  (`LauncherPages.Resize`), as a window that is resized does.
+- **Hidden controls.** The Play page and the Launcher page keep the visibility they want in a dictionary (as the Game settings
+  page does: `Control.Visible` reads false while a page is hidden), seeded from the designer (info bar, integrity button and
+  restart hint are hidden there). The designer sizes of the buttons next to each other are 120 pixels (they were 144 and 150),
+  so that two of them fit next to each other in the smallest window.
+- **The Play button** keeps the size of the designer. Krypton adds the golden picture (251 x 84 pixels, also its face) to the
+  preferred width of the button, which is then wider than the whole column; the rule "wide enough for the text" of the
+  geometry tests excuses the button by name (`LayoutChecker.NarrowByDesign`), with that reason. The link of the player list
+  is a line of one text in a column of 210 pixels: in a font 50 % larger Krypton shortens it with an ellipsis, which the rule
+  excuses by name as well. Both are to be looked at on the page pictures of the build.
+
+### Evidence
+
+- `PageLayoutTests` measures the Play page in five states (designer, long texts of the game group, info bar with the display
+  question, both together, state line of the player list) and the Launcher page in two (designer, long texts and hints), at the
+  four window sizes, in English, German and French, with the system font and one 50 % larger: no overlap, nothing outside, no
+  cut-off text, the content grows. The cases create the Krypton combo box and the lists, so they run on Windows (CI, laptop) and
+  are ignored under Mono; the author ran them under Mono with the Windows libraries that Krypton asks for replaced by stubs
+  (all measures are Mono's) and with a picture of the bounds of every control; the first real run is the one of the build.
+- `ScrollPageLayoutTests` tests what the pages need from the layout class on a small panel (own margin, no reserved scroll bar,
+  `ContentHeight`, indent, radio buttons, rows of a form with the field taking the rest, the buttons wrapping below a field that
+  would be too narrow, a hidden row); `LayoutCheckerTests` the rules for radio buttons and the named excuses.
+- `LobbyStatusTests` covers the state line taking more than the default where its caller allows it.
+
+### Consequences
+
+- The Play page shows the info bar below the group and scrolls with it. In the smallest window with a long German question
+  the bar may be below the fold; the Play button and the player list stay where they are.
+- The state line of the player list may take more than four lines in a tall column (a large window, a large font), and the list
+  keeps 60 pixels.
+- A control added to one of these pages is placed by `PlaceGameGroup`, `PlaceColumn`, `PlaceHint` or `PlaceGroupContent`; the
+  designer coordinates are the starting values only.

@@ -1,7 +1,8 @@
 # 0012 Test strategy
 
 Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review; implementation in L-WP5, L-WP6,
-L-WP7, L-WP8 and L-WP9), 2026-10-03 (CI end-to-end test; WinForms tests) and 2026-10-06 (geometry tests; resizable layout), see the
+L-WP7, L-WP8 and L-WP9), 2026-10-03 (CI end-to-end test; WinForms tests) and 2026-10-06 (geometry tests; resizable layout;
+Play and Launcher pages), see the
 Amendment sections
 
 ## Context
@@ -352,8 +353,7 @@ The launcher's part of that job is to run its core against the real installation
 - **The list of known defects is gone.** With the layout work of 1.1.0 the *Game settings* page keeps every rule of
   `LayoutChecker` at every size, state, language and font under Mono, so `PageLayoutTests.KnownDefects` and
   `KnownDefects_AreStillBroken` were removed; the rules hold without exception. The other pages that can be created on Windows
-  only (Tools, Play, Launcher) are measured there; Play and Launcher are made to keep the rules with the next work package,
-  so their cases are red on Windows until then.
+  only (Tools, Play, Launcher) are measured there; Play and Launcher keep the rules with the amendment below.
 - **Two refinements of the rules**, both for controls that must not grow with the window: rule 5 (grows with the page) ignores
   buttons, which have the width their text needs, and ignores the controls of a parent whose width a text of one line dictates
   (a check box or label cannot wrap; then the page scrolls sideways, which rule 2 allows for exactly that case, where the
@@ -365,3 +365,24 @@ The launcher's part of that job is to run its core against the real installation
 - **`MainWindowLayoutTests`** (category `SourceTree`) checks on the sources of `MainForm` what Mono cannot create: the
   navigation buttons are in the panel docked at the left, the four pages are `Dock = Fill` and added before the panel, the
   minimum size is set from the opening size and nothing fixes the window size.
+
+## Amendment 2026-10-06 (Play and Launcher pages in the geometry tests, [ADR 0017](0017-resizable-layout.md))
+
+- **States for the two pages.** `PlayPageWorld` and `LauncherPageWorld` fill a page the way the launcher fills it (created hidden
+  in a window that is not shown, then given the texts of a state) with the real texts of the language of the test, so that a
+  German translation is as long as the player sees it. `PlayPageState`: designer, long texts of the game group, info bar with
+  the display question, both together, state line of the player list; `LauncherPageState`: designer, long game folder, origin,
+  hints and restart note. The worlds drive the page through its own methods (`SetText`, `SetShown`, `LayoutPage`) by name, as
+  `SettingsPageWorld` does, and fail loudly where a name changed; the models behind the pages are not needed for the geometry.
+  `PageScreenshotTests` saves a picture of every state (`page-pictures`).
+- **Rules.** Rule 4 (wide enough for the text) covers radio buttons; rule 5 (grows with the page) ignores radio buttons like
+  buttons. `LayoutChecker.NarrowByDesign` names the two controls the rule does not apply to, each with its reason (the Play
+  button, whose picture Krypton counts twice; the link of the player list, one line in a narrow column), as
+  `IntentionalOverlays` names the one overlay; `LayoutCheckerTests` pins both lists.
+- **The first layout.** `LauncherPages.Resize` goes through another size when the page already has the requested one: a page
+  lays itself out when its size changes, and a page that is created at its size has no change to report. Without this the
+  Tools page, which the launcher lays out through its state, was never laid out in the test.
+- **Mono.** The Play and Launcher cases need the Krypton combo box, text box and lists and are ignored under Mono (they run
+  on Windows: build and laptop). They can be run under Mono with the Windows libraries that Krypton asks for (`uxtheme`, `gdi32`,
+  `user32`, `dwmapi`) mapped to a library of stubs that return 0 (`<dllmap>` in `Krypton.Toolkit.dll.config`); every measure is then
+  Mono's, so that run proves the logic of the layout and nothing about the fonts of Windows.

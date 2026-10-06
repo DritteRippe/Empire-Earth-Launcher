@@ -20,8 +20,17 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
   translation in a large font) makes the page scroll sideways instead of cutting the text off. The block of the compatibility
   warning (book picture, text, button) has the width of the page and the height of its parts, so the picture stays inside it
   below the heading. The installation line ("NeoEE in C:\...", any path length) of both pages and the line "no hints" wrap
-  (they were labels of one line). The *Play* and *Launcher* pages keep their fixed layout and fill the page area at the top
-  left until the next work package ([ADR 0017](docs/adr/0017-resizable-layout.md); test plan WP1-07, WP5-17).
+  (they were labels of one line) ([ADR 0017](docs/adr/0017-resizable-layout.md); test plan WP1-07, WP5-17).
+- The *Play* and *Launcher* pages grow with the window and stack by text height as well (ADR 0017, amendment). *Play*: the
+  online players and the Play button keep their width at the right edge and the height of the page (the player list takes the
+  room between the heading and the profile line, the state line above it takes the height of its text); the group of the game
+  choice, whose texts (program versions, result of the version check, integrity state, state line) were labels of a fixed
+  height that cut a long German translation off, is as wide as the game column and as high as its texts need, a text that is
+  empty takes no room, and the info bar sits below the group; the column scrolls where the window is too small. *Launcher*: the
+  group of the settings takes the width of the window, the text box of the game folder and the list of the installations grow
+  with it, the list takes the height the window leaves, the labels of the rows share one column, the line with the origin of
+  the game folder and the note about the new language wrap (they were labels of one line), and the page scrolls where the
+  window is too small (test plan WP1-07, WP3-06, WP5-17, WP6-14).
 
 ### Fixed
 
@@ -56,6 +65,11 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
   layout class and the docking of the main window.
 - CI: the step "Render page pictures" saves PNG files of the pages (`PageScreenshotTests`) and uploads them as the artifact
   `page-pictures`.
+- Geometry tests of the *Play* and *Launcher* pages in states (`PlayPageWorld`, `LauncherPageWorld`: long texts of the language,
+  info bar, state line of the player list, long folder and hints), the rules for radio buttons and the named excuses of
+  `LayoutChecker.NarrowByDesign`, and the first layout of a page created at its size (`LauncherPages.Resize`); the cases
+  need the Krypton combo box and lists and run on Windows only (ADR 0012 amendment of 2026-10-06). `ScrollPageLayoutTests`
+  covers the additions to the layout class.
 
 ## [1.0.0] - 2026-10-05
 

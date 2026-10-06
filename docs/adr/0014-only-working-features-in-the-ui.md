@@ -92,8 +92,8 @@ Details:
 - **Navigation**: the Launcher button moved up to the position of the removed Mods button (its location is in
   `MainForm.resx`), so the navigation has no gap. This is the only layout change.
 - **New controls get new names**: the language setting of ADR 0009 uses `uiLanguageKryptonLabel`,
-  `uiLanguageKryptonComboBox` and `uiLanguageHintKryptonLabel`, placed where the removed "When starting the game"
-  row was.
+  `uiLanguageKryptonComboBox` and `uiLanguageHintKryptonLabel` (a wrapping label since the layout work of 1.1.0, ADR 0017:
+  `uiLanguageHintKryptonWrapLabel`), placed where the removed "When starting the game" row was.
 - **Still without function until their work packages**, because they are not placeholders of a feature outside
   v2: the Play button and the game choice of the Play page (L-WP6) and the compatibility warning of the Settings
   page, whose options come with L-WP5 (after confirming it the page is empty). The test plan names these gaps.
