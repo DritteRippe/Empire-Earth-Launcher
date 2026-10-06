@@ -100,6 +100,56 @@ namespace Empire_Earth_Launcher.Tests.Core.Maintenance
             Assert.That(world.LogLinesAbout("VirtualStore: the game uses"), Has.Length.EqualTo(2));
         }
 
+        /// <summary>A5: a copy of dgVoodoo.conf that differs from the file of the game folder is what the game reads.</summary>
+        [Test]
+        public void ADifferentCopyOfTheWrapperConfig_IsReportedAndLogged()
+        {
+            world.AddCommunityInstallation(Root, Product.NeoEE);
+            world.FileSystem.AddFile(Root + @"\Empire Earth\dgVoodoo.conf", "[General]\nOutputAPI = bestavailable\n");
+            world.FileSystem.AddFile(EeCopy + @"\dgVoodoo.conf", "[General]\nOutputAPI = d3d11_fl10_1\n");
+            world.FileSystem.AddFile(Root + @"\Empire Earth - The Art of Conquest\dgVoodoo.conf", "same");
+            world.FileSystem.AddFile(AocCopy + @"\dgVoodoo.conf", "same");
+
+            VirtualStoreReport report = Scan(Root);
+
+            Assert.That(report.ShadowingWrapperConfigs.Select(finding => finding.VirtualStorePath), Is.EqualTo(new[] { EeCopy + @"\dgVoodoo.conf" }));
+            VirtualStoreFinding shadow = report.ShadowingWrapperConfigs[0];
+            Assert.That(shadow.GamePath, Is.EqualTo(Root + @"\Empire Earth\dgVoodoo.conf"));
+            Assert.That(shadow.DiffersFromOriginal, Is.True);
+            Assert.That(report.Findings.Single(finding => finding.Game == Game.ArtOfConquest).DiffersFromOriginal, Is.False,
+                "an identical copy is no hint");
+            Assert.That(world.LogLinesAbout("differs from"), Has.Length.EqualTo(1));
+        }
+
+        [Test]
+        public void ACopyOfTheWrapperConfigWithTheSameLength_IsComparedByContent()
+        {
+            world.AddCommunityInstallation(Root, Product.NeoEE);
+            world.FileSystem.AddFile(Root + @"\Empire Earth\dgVoodoo.conf", "VRAM = 256");
+            world.FileSystem.AddFile(EeCopy + @"\DGVOODOO.CONF", "VRAM = 512");
+
+            VirtualStoreReport report = Scan(Root);
+
+            Assert.That(report.ShadowingWrapperConfigs, Has.Count.EqualTo(1), "same length, other content; the name is not case sensitive");
+        }
+
+        [Test]
+        public void NoCopyOfTheWrapperConfig_NoCopyWithoutOriginal_AndOtherFiles_GiveNoHint()
+        {
+            world.AddCommunityInstallation(Root, Product.NeoEE);
+            world.FileSystem.AddFile(Root + @"\Empire Earth\dgVoodoo.conf", "real");
+            world.FileSystem.AddFile(Root + @"\Empire Earth\other.conf", "real");
+            world.FileSystem.AddFile(EeCopy + @"\other.conf", "changed");
+            world.FileSystem.AddFile(EeCopy + @"\Data\dgVoodoo.conf", "changed");
+            world.FileSystem.AddFile(AocCopy + @"\dgVoodoo.conf", "copy without a file in the game folder");
+
+            VirtualStoreReport report = Scan(Root);
+
+            Assert.That(report.Findings, Has.Count.EqualTo(3));
+            Assert.That(report.ShadowingWrapperConfigs, Is.Empty);
+            Assert.That(world.LogLinesAbout("differs from"), Is.Empty);
+        }
+
         /// <summary>Outside Program Files, ProgramData and Windows the game is never virtualized (ADR 0016 amendment of L-WP4).</summary>
         [Test]
         public void AFolderOutsideTheVirtualizedFolders_IsNotLookedUp()

@@ -259,7 +259,8 @@ namespace Empire_Earth_Launcher.Core.Diagnostics
                       (report.ManifestUnusable ? ", manifest unreadable" : string.Empty));
             foreach (VirtualStoreFinding finding in report.Findings.Take(MaxListed))
                 lines.Add(Indent + Indent + "- " + (finding.IsSerious ? "serious " : string.Empty) + finding.Reason + ": " +
-                          anonymizer.Path(finding.VirtualStorePath) + (finding.OriginalExists ? " (shadows the file of the game folder)" : string.Empty));
+                          anonymizer.Path(finding.VirtualStorePath) + (finding.OriginalExists ? " (shadows the file of the game folder)" : string.Empty) +
+                          (finding.DiffersFromOriginal ? ", differs from it" : string.Empty));
             AddMore(lines, report.Findings.Count);
         }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.Installations;
@@ -35,13 +36,14 @@ namespace Empire_Earth_Launcher.Core.Maintenance
     public sealed class VirtualStoreFinding
     {
         internal VirtualStoreFinding(Game game, string gamePath, string virtualStorePath, VirtualStoreReason reason,
-            bool originalExists)
+            bool originalExists, bool differsFromOriginal = false)
         {
             Game = game;
             GamePath = gamePath;
             VirtualStorePath = virtualStorePath;
             Reason = reason;
             OriginalExists = originalExists;
+            DiffersFromOriginal = differsFromOriginal;
         }
 
         public Game Game { get; }
@@ -62,6 +64,13 @@ namespace Empire_Earth_Launcher.Core.Maintenance
 
         /// <summary>True if the file also exists in the game folder (the copy shadows it).</summary>
         public bool OriginalExists { get; }
+
+        /// <summary>
+        /// True if the copy is the <c>dgVoodoo.conf</c> of the game folder and its content differs from the file in the game
+        /// folder: the game reads the copy, so a hand edit of the real file has no effect. Only that file is compared; false
+        /// for every other file and for a file that could not be read.
+        /// </summary>
+        public bool DiffersFromOriginal { get; }
 
         public override string ToString()
         {
@@ -103,6 +112,15 @@ namespace Empire_Earth_Launcher.Core.Maintenance
             get { return Findings.Any(finding => finding.IsSerious); }
         }
 
+        /// <summary>
+        /// The copies of <c>dgVoodoo.conf</c> that differ from the file of the game folder (A5): the game uses them instead of
+        /// the file the player edits. The launcher only points to them, it never deletes a copy (contract 2.5).
+        /// </summary>
+        public IReadOnlyList<VirtualStoreFinding> ShadowingWrapperConfigs
+        {
+            get { return Findings.Where(finding => finding.DiffersFromOriginal).ToList(); }
+        }
+
         /// <summary>True if there were more files than <see cref="VirtualStoreScanner.MaxFiles"/>; the rest is not listed.</summary>
         public bool Truncated { get; }
 
@@ -128,6 +146,12 @@ namespace Empire_Earth_Launcher.Core.Maintenance
 
         /// <summary>Folders deeper than this below a game folder are not entered.</summary>
         public const int MaxDepth = 16;
+
+        /// <summary>The configuration of the dgVoodoo wrapper in a game folder; its VirtualStore copy is compared with it.</summary>
+        public const string WrapperConfigFile = "dgVoodoo.conf";
+
+        /// <summary>A wrapper configuration is a few kilobytes; a larger file is not compared and counts as different.</summary>
+        private const long MaxCompareBytes = 1024 * 1024;
 
         private readonly IFileSystem fileSystem;
         private readonly EffectivePathResolver effectivePaths;
@@ -172,7 +196,10 @@ namespace Empire_Earth_Launcher.Core.Maintenance
                     VirtualStoreReason reason = manifest.Contains(gamePath) ? VirtualStoreReason.ManifestFile
                         : FileClassifier.Classify(gamePath) == FileClass.Code ? VirtualStoreReason.ProgramFile
                         : VirtualStoreReason.RuntimeFile;
-                    findings.Add(new VirtualStoreFinding(game, gamePath, file, reason, fileSystem.FileExists(gamePath)));
+                    bool originalExists = fileSystem.FileExists(gamePath);
+                    bool differs = originalExists && WinPath.IsSamePath(gamePath, WinPath.Combine(gameFolder, WrapperConfigFile)) &&
+                                   DiffersFromOriginal(file, gamePath);
+                    findings.Add(new VirtualStoreFinding(game, gamePath, file, reason, originalExists, differs));
                     if (findings.Count >= MaxFiles)
                         break;
                 }
@@ -193,8 +220,58 @@ namespace Empire_Earth_Launcher.Core.Maintenance
                             (truncated ? " (list cut at " + MaxFiles.ToString(CultureInfo.InvariantCulture) + ")" : string.Empty) + ".");
                 foreach (VirtualStoreFinding finding in ordered.Where(finding => finding.IsSerious))
                     logger.Warning("VirtualStore: the game uses " + finding + ".");
+                foreach (VirtualStoreFinding finding in report.ShadowingWrapperConfigs)
+                    logger.Warning("VirtualStore: " + finding.VirtualStorePath + " differs from " + finding.GamePath +
+                                   "; the game reads the copy, so edits of the file in the game folder have no effect.");
             }
             return report;
+        }
+
+        /// <summary>
+        /// True if the two files differ in length or content; a file that cannot be read is logged and counts as not different
+        /// (the hint is shown only for a difference that was seen).
+        /// </summary>
+        private bool DiffersFromOriginal(string copy, string original)
+        {
+            FileSystemResult<FileEntry> copyInfo = fileSystem.GetFileInfo(copy);
+            FileSystemResult<FileEntry> originalInfo = fileSystem.GetFileInfo(original);
+            if (!copyInfo.IsOk || !originalInfo.IsOk)
+            {
+                logger.Warning("VirtualStore: " + copy + " cannot be compared with " + original + ": " +
+                               (copyInfo.IsOk ? originalInfo : copyInfo) + ".");
+                return false;
+            }
+            if (copyInfo.Value.Length != originalInfo.Value.Length)
+                return true;
+            if (copyInfo.Value.Length > MaxCompareBytes)
+                return true;
+            byte[] copyBytes = ReadAll(copy);
+            byte[] originalBytes = ReadAll(original);
+            return copyBytes != null && originalBytes != null && !copyBytes.SequenceEqual(originalBytes);
+        }
+
+        private byte[] ReadAll(string path)
+        {
+            FileSystemResult<Stream> opened = fileSystem.OpenRead(path);
+            if (!opened.IsOk)
+            {
+                logger.Warning("VirtualStore: " + path + " cannot be read: " + opened + ".");
+                return null;
+            }
+            try
+            {
+                using (Stream stream = opened.Value)
+                using (var buffer = new MemoryStream())
+                {
+                    stream.CopyTo(buffer);
+                    return buffer.ToArray();
+                }
+            }
+            catch (IOException ex)
+            {
+                logger.Warning("VirtualStore: " + path + " cannot be read: " + ex.Message);
+                return null;
+            }
         }
 
         /// <summary>The files below <paramref name="folder"/>, depth first; folders that cannot be listed are logged and skipped.</summary>
