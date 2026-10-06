@@ -222,6 +222,7 @@
     <Compile Include="TestSupport\GameSettingsWorld.cs" />
     <Compile Include="TestSupport\LauncherPages.cs" />
     <Compile Include="TestSupport\LayoutChecker.cs" />
+    <Compile Include="TestSupport\PlayPageWorld.cs" />
     <Compile Include="TestSupport\ProductionSources.cs" />
     <Compile Include="TestSupport\InstallationWorld.cs" />
     <Compile Include="TestSupport\MappedFileSystem.cs" />

@@ -33,6 +33,7 @@ namespace Empire_Earth_Launcher
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GeneralUserControl));
             this.launcherKryptonPalette = new Krypton.Toolkit.KryptonPalette(this.components);
             this.playKryptonButton = new Krypton.Toolkit.KryptonButton();
+            this.gameColumnPanel = new System.Windows.Forms.Panel();
             this.neoOnlineKryptonGroupBox = new Krypton.Toolkit.KryptonGroupBox();
             this.networkCheckKryptonLinkLabel = new Krypton.Toolkit.KryptonLinkLabel();
             this.lobbyUserKryptonLabel = new Krypton.Toolkit.KryptonLabel();
@@ -66,6 +67,7 @@ namespace Empire_Earth_Launcher
             ((System.ComponentModel.ISupportInitialize)(this.onlinePlayersKryptonDataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gameSettingsHintKryptonPanel)).BeginInit();
             this.gameSettingsHintKryptonPanel.SuspendLayout();
+            this.gameColumnPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // launcherKryptonPalette
@@ -174,6 +176,17 @@ namespace Empire_Earth_Launcher
             this.playKryptonButton.Values.ImageStates.ImagePressed = global::Empire_Earth_Launcher.Properties.Resources.eegenericbutton_gold_pressed;
             this.playKryptonButton.Values.Text = "Play";
             this.playKryptonButton.Click += new System.EventHandler(this.playKryptonButton_Click);
+            // 
+            // gameColumnPanel
+            // 
+            this.gameColumnPanel.AutoScroll = true;
+            this.gameColumnPanel.BackColor = System.Drawing.Color.White;
+            this.gameColumnPanel.Controls.Add(this.gameSettingsHintKryptonPanel);
+            this.gameColumnPanel.Controls.Add(this.gameSettingsKryptonGroupBox);
+            this.gameColumnPanel.Location = new System.Drawing.Point(0, 0);
+            this.gameColumnPanel.Name = "gameColumnPanel";
+            this.gameColumnPanel.Size = new System.Drawing.Size(330, 380);
+            this.gameColumnPanel.TabIndex = 17;
             // 
             // neoOnlineKryptonGroupBox
             // 
@@ -346,7 +359,7 @@ namespace Empire_Earth_Launcher
             this.versionCheckKryptonButton.Name = "versionCheckKryptonButton";
             this.versionCheckKryptonButton.Palette = this.launcherKryptonPalette;
             this.versionCheckKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.versionCheckKryptonButton.Size = new System.Drawing.Size(144, 25);
+            this.versionCheckKryptonButton.Size = new System.Drawing.Size(120, 25);
             this.versionCheckKryptonButton.TabIndex = 8;
             this.versionCheckKryptonButton.Values.Text = "Check version";
             this.versionCheckKryptonButton.Click += new System.EventHandler(this.versionCheckKryptonButton_Click);
@@ -357,7 +370,7 @@ namespace Empire_Earth_Launcher
             this.integrityKryptonButton.Name = "integrityKryptonButton";
             this.integrityKryptonButton.Palette = this.launcherKryptonPalette;
             this.integrityKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.integrityKryptonButton.Size = new System.Drawing.Size(144, 25);
+            this.integrityKryptonButton.Size = new System.Drawing.Size(120, 25);
             this.integrityKryptonButton.TabIndex = 9;
             this.integrityKryptonButton.Values.Text = "Details";
             this.integrityKryptonButton.Visible = false;
@@ -439,7 +452,7 @@ namespace Empire_Earth_Launcher
             this.gameSettingsHintFirstKryptonButton.Name = "gameSettingsHintFirstKryptonButton";
             this.gameSettingsHintFirstKryptonButton.Palette = this.launcherKryptonPalette;
             this.gameSettingsHintFirstKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.gameSettingsHintFirstKryptonButton.Size = new System.Drawing.Size(150, 30);
+            this.gameSettingsHintFirstKryptonButton.Size = new System.Drawing.Size(120, 30);
             this.gameSettingsHintFirstKryptonButton.TabIndex = 0;
             this.gameSettingsHintFirstKryptonButton.Values.Text = "";
             this.gameSettingsHintFirstKryptonButton.Click += new System.EventHandler(this.gameSettingsHintFirstKryptonButton_Click);
@@ -450,7 +463,7 @@ namespace Empire_Earth_Launcher
             this.gameSettingsHintSecondKryptonButton.Name = "gameSettingsHintSecondKryptonButton";
             this.gameSettingsHintSecondKryptonButton.Palette = this.launcherKryptonPalette;
             this.gameSettingsHintSecondKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.gameSettingsHintSecondKryptonButton.Size = new System.Drawing.Size(150, 30);
+            this.gameSettingsHintSecondKryptonButton.Size = new System.Drawing.Size(120, 30);
             this.gameSettingsHintSecondKryptonButton.TabIndex = 1;
             this.gameSettingsHintSecondKryptonButton.Values.Text = "";
             this.gameSettingsHintSecondKryptonButton.Click += new System.EventHandler(this.gameSettingsHintSecondKryptonButton_Click);
@@ -462,8 +475,7 @@ namespace Empire_Earth_Launcher
             this.BackColor = System.Drawing.Color.White;
             this.Controls.Add(this.neoOnlineKryptonGroupBox);
             this.Controls.Add(this.playKryptonButton);
-            this.Controls.Add(this.gameSettingsKryptonGroupBox);
-            this.Controls.Add(this.gameSettingsHintKryptonPanel);
+            this.Controls.Add(this.gameColumnPanel);
             this.Name = "GeneralUserControl";
             this.Size = new System.Drawing.Size(554, 380);
             ((System.ComponentModel.ISupportInitialize)(this.neoOnlineKryptonGroupBox.Panel)).EndInit();
@@ -479,6 +491,7 @@ namespace Empire_Earth_Launcher
             ((System.ComponentModel.ISupportInitialize)(this.onlinePlayersKryptonDataGridView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gameSettingsHintKryptonPanel)).EndInit();
             this.gameSettingsHintKryptonPanel.ResumeLayout(false);
+            this.gameColumnPanel.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -487,6 +500,7 @@ namespace Empire_Earth_Launcher
 
         private Krypton.Toolkit.KryptonPalette launcherKryptonPalette;
         private Krypton.Toolkit.KryptonButton playKryptonButton;
+        private System.Windows.Forms.Panel gameColumnPanel;
         private Krypton.Toolkit.KryptonGroupBox neoOnlineKryptonGroupBox;
         private Krypton.Toolkit.KryptonGroupBox gameSettingsKryptonGroupBox;
         private Krypton.Toolkit.KryptonRadioButton artOfConquestKryptonRadioButton;

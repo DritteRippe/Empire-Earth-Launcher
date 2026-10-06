@@ -61,6 +61,27 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             }
         }
 
+        /// <summary>A taller column (a larger window, a larger font) lets the state line take more than the default.</summary>
+        [Test]
+        public void TheStateLine_MayTakeMoreThanTheDefault_WhereTheCallerAllows()
+        {
+            using (var list = new Panel { Height = 208 })
+            using (var status = new LauncherWrapLabel { AutoSize = false, Left = 6, Width = 194, LabelStyle = LabelStyle.NormalControl })
+            {
+                string longReason = new string('x', 2000);
+
+                GeneralUserControl.ShowLobbyStatus(status, list, 208, longReason, 150);
+
+                Assert.That(status.Height, Is.EqualTo(150));
+                Assert.That(list.Height, Is.EqualTo(208 - 150));
+                Assert.That(status.Bottom, Is.EqualTo(208));
+
+                GeneralUserControl.ShowLobbyStatus(status, list, 208, Resources.InstallationsWaitingForSetup, 150);
+
+                Assert.That(status.Height, Is.EqualTo(status.TextHeight(status.Width)).And.LessThan(150), "only as high as its text");
+            }
+        }
+
         [Test]
         public void TheReason_IsShownAboveTheProfile_AndNotInTheHeading()
         {

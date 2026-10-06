@@ -34,9 +34,13 @@ namespace Empire_Earth_Launcher.Tests.Launcher
     /// <see cref="PageScreenshotTests"/>.
     /// </para>
     /// <para>
-    /// The Game settings page and the Tools page keep every rule at every size (the layout work of 1.1.0, ADR 0017: the pages
-    /// stack by text height for the width of the window); no rule is excused for them. The Play page and the Launcher page
-    /// still have fixed geometry and are made to keep the rules with the next package; their cases run on Windows only.
+    /// The Game settings page, the Tools page and the Play page keep every rule at every size (the layout work of 1.1.0, ADR 0017:
+    /// the pages stack by text height for the width of the window); no rule is excused for a page, except the few controls that
+    /// <see cref="LayoutChecker"/> names with their reason. The Play page is driven through the states of
+    /// <see cref="PlayPageState"/>, filled with the real texts of the language (<see cref="PlayPageWorld"/>). The Launcher page
+    /// still has fixed geometry and is made to keep the rules with the next commit; its cases run on Windows only. A page is
+    /// laid out when its size changes and when it is laid out the first time, so <see cref="LauncherPages.Resize"/> goes through
+    /// another size first.
     /// </para>
     /// </remarks>
     [TestFixture]
@@ -77,9 +81,17 @@ namespace Empire_Earth_Launcher.Tests.Launcher
                         yield return new TestCaseData(lang, scale, state).SetArgDisplayNames(lang, Fonts(scale), state.ToString());
         }
 
+        public static IEnumerable<TestCaseData> PlayScenarios()
+        {
+            foreach (string lang in Languages)
+                foreach (float scale in FontScales)
+                    foreach (PlayPageState state in Enum.GetValues(typeof(PlayPageState)))
+                        yield return new TestCaseData(lang, scale, state).SetArgDisplayNames(lang, Fonts(scale), state.ToString());
+        }
+
         public static IEnumerable<TestCaseData> OtherPageScenarios()
         {
-            foreach (string page in new[] { LauncherPages.Play, LauncherPages.Tools, LauncherPages.Launcher })
+            foreach (string page in new[] { LauncherPages.Tools, LauncherPages.Launcher })
                 foreach (string lang in Languages)
                     foreach (float scale in FontScales)
                         yield return new TestCaseData(page, lang, scale).SetArgDisplayNames(page, lang, Fonts(scale));
@@ -135,6 +147,18 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             language = TestUiLanguage.Use(lang);
             using (SettingsPageWorld world = WinForms.CreateOrIgnore(() => SettingsPageWorld.In(state, true, fontScale)))
                 AssertKeepsTheRules(LauncherPages.GameSettings, Evaluate(world.Page, world.ConstructedSize));
+        }
+
+        /// <summary>
+        /// The Play page in the states of <see cref="PlayPageState"/>, filled with the real texts of the language: on Windows
+        /// only, because its Krypton combo box and list need Windows libraries to be created.
+        /// </summary>
+        [TestCaseSource(nameof(PlayScenarios))]
+        public void PlayPage_FilledBeforeItIsShown_NothingOverlapsOrIsCutOff(string lang, float fontScale, PlayPageState state)
+        {
+            language = TestUiLanguage.Use(lang);
+            using (PlayPageWorld world = WinForms.CreateOrIgnore(() => PlayPageWorld.In(state, true, fontScale)))
+                AssertKeepsTheRules(LauncherPages.Play, Evaluate(world.Page, world.ConstructedSize));
         }
 
         /// <summary>

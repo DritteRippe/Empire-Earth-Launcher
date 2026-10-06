@@ -25,10 +25,10 @@ namespace Empire_Earth_Launcher.Tests.Launcher
     /// copied from the screen (the first has no window frame, the second is the real paint; whichever the runner supports).
     /// </para>
     /// <para>
-    /// The pages are filled as the launcher fills them (<see cref="SettingsPageWorld"/>: hidden first, shown afterwards);
-    /// the Game settings page in each of its states, English and German, the smallest size and 1024 x 640, and once with
-    /// fonts 50 % larger; the other pages as the designer made them. Mono cannot create a window handle for these pages, so
-    /// the pictures exist on Windows only.
+    /// The pages are filled as the launcher fills them (<see cref="SettingsPageWorld"/> and <see cref="PlayPageWorld"/>:
+    /// hidden first, shown afterwards); the Game settings and Play pages in each of their states, English and German, the
+    /// smallest size and 1024 x 640, and once with fonts 50 % larger; the other pages as the designer made them. Mono cannot
+    /// create a window handle for these pages, so the pictures exist on Windows only.
     /// </para>
     /// </remarks>
     [TestFixture]
@@ -76,7 +76,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
 
         public static IEnumerable<TestCaseData> OtherPages()
         {
-            foreach (string page in new[] { LauncherPages.Play, LauncherPages.Tools, LauncherPages.Launcher })
+            foreach (string page in new[] { LauncherPages.Tools, LauncherPages.Launcher })
                 foreach (string lang in PictureLanguages)
                     yield return new TestCaseData(page, lang).SetArgDisplayNames(page, lang);
         }
@@ -97,6 +97,29 @@ namespace Empire_Earth_Launcher.Tests.Launcher
                         foreach (Size size in PictureSizes())
                         {
                             string name = Name(LauncherPages.GameSettings, state.ToString(), lang, size, scale);
+                            SavePictures(world.Window, world.Page, size, world.ConstructedSize, folder, name);
+                        }
+                    }
+                }
+            }
+        }
+
+        [TestCaseSource(nameof(Languages))]
+        public void PlayPage_EveryState_IsSavedAsPicture(string lang)
+        {
+            string folder = PictureFolder();
+            language = TestUiLanguage.Use(lang);
+            foreach (PlayPageState state in Enum.GetValues(typeof(PlayPageState)))
+            {
+                foreach (float scale in new[] { 1f, 1.5f })
+                {
+                    if (scale > 1f && state != PlayPageState.LongTextsAndInfoBar)
+                        continue;
+                    using (PlayPageWorld world = PlayPageWorld.In(state, true, scale))
+                    {
+                        foreach (Size size in PictureSizes())
+                        {
+                            string name = Name(LauncherPages.Play, state.ToString(), lang, size, scale);
                             SavePictures(world.Window, world.Page, size, world.ConstructedSize, folder, name);
                         }
                     }
