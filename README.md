@@ -1,9 +1,72 @@
 # Empire Earth Launcher
 
-A launcher for Empire Earth 1, everything inside, no more strange setup, update, patch, manual zip manipulation.\
+A launcher for Empire Earth and The Art of Conquest: it finds your installations, starts the game, checks the game files and helps with settings, repair advice and support; setups and updates stay with the community setup.\
 Coded in C# with the .NET Framework 4.8 and Krypton UI
 
 ![image](https://github.com/EE-modders/Empire-Earth-Launcher/blob/main/EEL_MainScreen.png)
+
+*Screenshot of the original mock-up; the v2 pages differ (see [Why this fork?](#why-this-fork)).*
+
+## Why this fork?
+
+This fork builds on the Empire Earth Launcher by [EE-modders](https://github.com/EE-modders/Empire-Earth-Launcher) and
+its contributors: their Krypton UI, their WON/NeoEE protocol code and their mod creator are the starting point.
+Upstream `main` is early work in progress (last change in June 2022; its README says it is not available for download):
+most controls are placeholders and the *Play* button has no function yet. Branch `v2` is a rebuild on the .NET
+Framework 4.8 that keeps the Krypton UI and the idea, moves the logic into a tested core library and shows only
+features that work.
+
+| | Upstream `main` | This fork (`v2`) |
+|---|---|---|
+| *Play* button | No click handler yet | Starts Empire Earth or The Art of Conquest through Windows (compatibility settings and "Run as administrator" apply); blocked while a setup runs, refuses to start a game twice |
+| Finding the game | Fixed paths (lobby file in the working directory, friends in `C:\Program Files (x86)\Neo Empire Earth\...`) | Finds community setups (since v2 and up to 1.7.2; admin, user, portable) by their records, and other installations (CD, GOG, copies) through the game's "Installed From" values, the launcher's own folder or a folder you pick; choose one on the *Launcher* page |
+| Visible controls | Many placeholders (Repair CD-Keys, Clear Registry, DirectX wrapper, resolution, ...) | Only controls that work; a test keeps placeholders out ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md)) |
+| Damaged game files | Not implemented yet | For installations of the community setup since v2: read-only integrity check against the setup's file list, naming the missing or changed files |
+| Repair and updates | Listed as planned | Repair advice and a version check on request; the launcher never downloads or starts a setup itself |
+| Maintenance | Not implemented yet | *Tools* page: registry cleanup with `.reg` backup, WON login reset, VirtualStore check, saved games export/import, player name check |
+| Support | Not implemented yet | Network check and a diagnostics report for forum posts, anonymized and never sent by the launcher |
+| Game settings | Placeholder page | Recommended defaults, consistency hints, reset with `.reg` backup, compatibility options (Windows 8 and later) |
+| Privacy | Unwired "collect diagnostic data" checkbox; the *Play* page polls the NeoEE server every 5 s | No telemetry; the player list only while a NeoEE installation is selected; everything else only on click: HTTPS to the update API, plus name lookups and one status request to the NeoEE server in the network check |
+| Suite installer | None | Optional integration with "Empire Earth Community": its desktop icons open the launcher for one game (`--product=EE` or `NeoEE`), a second start hands over to the running launcher, repair advice points to the suite |
+| Languages | English only | English, German and French, with automated checks that all three have the same texts |
+| Runtime | .NET Framework 4.0 | .NET Framework 4.8 for launcher and mod creator, one solution; Windows 7 SP1, 8.1, 10 (1607 or later) and 11 ([Requirements](#requirements)) |
+| Log and settings | `log.txt` in the working directory; theme choice not saved; no handler for unexpected errors | Log and `settings.json` in `%LOCALAPPDATA%\Empire Earth Launcher`, damaged settings recovered, unexpected errors logged and shown |
+| Tests and CI | None | More than 1,200 automated test methods (NUnit); a Windows workflow builds every pull request and push to `main` and runs all tests |
+| Documentation | README | [Architecture](docs/ARCHITECTURE.md), [decision records](docs/adr/), [setup/launcher contract](docs/CONTRACT.md), [CHANGELOG](CHANGELOG.md), manual [test plan](docs/TEST-PLAN.de.md) (German) with more than 150 cases |
+
+**For maintainers and security**
+
+- UI-free core library (`Empire-Earth-Launcher-Core`): registry, files, processes, network and mutexes behind
+  interfaces, tested with in-memory fakes; an architecture test keeps WinForms and Krypton out of the core.
+- Registry writes only through an allow-list: the current user's hive only, exact keys, and for game settings exact
+  value names; CD keys, install records and uninstall keys are protected under every alias. The launcher never asks
+  for administrator rights.
+- Web requests are HTTPS only, with certificate validation that tests forbid switching off, no redirects, a 10 s
+  timeout and 4 KiB answers; download links are opened only for the project's own addresses. The NeoEE status server
+  speaks plain TCP (a property of the server); its replies are treated as untrusted, checked and time-limited.
+- The WON/NeoEE code lives in its own library; the lobby file and the server replies are parsed with strict bounds.
+- In the launcher only one component starts programs, always through the Windows shell and never with a request for
+  elevation (a game set to "Run as administrator" still shows the Windows prompt), and nothing ends a process.
+- One written contract with the community setup ([docs/CONTRACT.md](docs/CONTRACT.md)), with byte samples the
+  launcher's readers are tested against.
+
+**What changed or was dropped**
+
+- Not implemented: DirectX wrapper switch, resolution chooser, Discord presence, dreXmod, HD textures, auto-update,
+  auto-compatibility detector and the *Mods* page. They are listed under "Planned, not in v2" in the
+  [Features](#-features).
+- The mod creator remains a separate program; there is no mod system inside the launcher.
+- "Repair CD-Keys" is not a launcher function: re-running the community setup (with its NeoEE CD-key task) repairs CD
+  keys, and the launcher never touches them.
+- The "collect diagnostic data" checkbox is gone because the launcher collects none.
+- Windows XP, Vista, 8.0 and Windows 10 1507/1511 are not supported (.NET 4.8); Windows 7 SP1 is supported but not
+  tested yet. Upstream's goal was "Windows 98 to 11".
+- Settings of earlier test builds (`user.config`) are not taken over. Saved games are exported into a folder; there is
+  no zip export or import.
+
+**Status**: version 1.0.0 (`SharedAssemblyInfo.cs`, CHANGELOG 2026-10-05); not available as a release yet, only test
+builds. The next step is the test on real Windows computers ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md)); the French
+translation review and the German proof-reading are still open.
 
 ## 🧾 Features
 
