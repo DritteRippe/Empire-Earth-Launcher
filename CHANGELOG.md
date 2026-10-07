@@ -93,6 +93,11 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
   `.txt`, `.ini`, `.log`) instead of a list of what Windows runs (test plan WP12-04).
 - The size chosen in the list of the *Graphics* page is kept only for the installation it was chosen for; every click on the
   Play list can switch the product, and the other installation starts from its own sizes (`GraphicsView.KeepChoice`).
+- The text of the network check says that the update server also gets the question for the latest game version (`&type=game`)
+  next to the AppId (English, German, French; README privacy paragraph); the README says that a `PeakMB` below 1200 MB makes
+  the 2 GB limit an unlikely cause, not that it is irrelevant; the test plan expects no message at the second start of the
+  launcher (WP6-13, WP10-03) and the product page for the copy of a v2 folder (WP6-10); WP13-03 exports the registry before and
+  after five switches and WP13-08 walks the Play list with the keyboard.
 - Game settings page: the header, the description and the "NeoEE in ..." line lay on top of each other, and the book picture
   of the compatibility warning lay over the buttons "Apply recommended display" and "Reset game settings". The page is
   created hidden and filled before the window is shown, and its layout skipped the header, the installation line and
@@ -161,7 +166,7 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
   report name it (`VirtualStoreFinding.DiffersFromOriginal`, `VirtualStoreReport.ShadowingWrapperConfigs`). Only that
   file is compared (by length, then by content); an identical copy gives no hint. The launcher offers only to open the
   folder and never deletes the copy (contract 2.5). Test plan WP8-19.
-- Geometry tests of the four pages (`PageLayoutTests`, `LayoutChecker`, ADR 0012 amendment of 2026-10-06): no overlap,
+- Geometry tests of the six pages (`PageLayoutTests`, `LayoutChecker`, ADR 0012 amendment of 2026-10-06): no overlap,
   nothing outside its page, no cut-off text and content that grows with the page, at four window sizes, in English, German
   and French, with the system font and one 50 % larger; the *Game settings* page is driven through its real model in
   every state (`SettingsPageWorld`). The list of rules the page broke under Mono (`KnownDefects`) is gone with the layout

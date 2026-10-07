@@ -1031,7 +1031,7 @@ Les anciens fichiers sont d'abord copiés dans le dossier de sauvegarde. Les rem
     <value>Réseau</value>
   </data>
   <data name="NetworkInfo" xml:space="preserve">
-    <value>À la demande, le launcher vérifie ce que le forum d'assistance demandait sans cesse : les cartes réseau de cet ordinateur, la résolution de noms (DNS) des serveurs NeoEE, le serveur de mises à jour, le serveur d'état NeoEE, NeoEE.cfg et WONLobby.cfg des dossiers de jeu (en lecture seule) et upnp_info.txt. Il n'envoie au serveur de mises à jour que l'AppId de l'installation et ne demande votre adresse publique à aucun service.</value>
+    <value>À la demande, le launcher vérifie ce que le forum d'assistance demandait sans cesse : les cartes réseau de cet ordinateur, la résolution de noms (DNS) des serveurs NeoEE, le serveur de mises à jour, le serveur d'état NeoEE, NeoEE.cfg et WONLobby.cfg des dossiers de jeu (en lecture seule) et upnp_info.txt. Il n'envoie au serveur de mises à jour que l'AppId de l'installation et la question de la dernière version du jeu, et ne demande votre adresse publique à aucun service.</value>
   </data>
   <data name="NetworkCheckButton" xml:space="preserve">
     <value>Vérifier le réseau</value>

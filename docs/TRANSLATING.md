@@ -160,7 +160,9 @@ Launcher 1.1.0 (contract revision 6, one launcher for four games) removed three 
 the four entries of the list of games (`PlayEntryEmpireEarth`, `PlayEntryEmpireEarthAoc`, `PlayEntryNeoEE`, `PlayEntryNeoEEAoc`:
 the names of the games, not translated, joined by an en dash with "The Art of Conquest") and the hint below the list
 (`PlayEntriesNotInstalledHint`, about 200 characters: it explains greyed out games and where another installation is chosen).
-The radio buttons of the list wrap onto a second line when a name is longer than the page is wide.
+The radio buttons of the list wrap onto a second line when a name is longer than the page is wide. The text `NetworkInfo` (the
+intro of the network check on the *Tools* page) changed in all three languages: besides the AppId, the update server gets the
+question for the latest game version (`&type=game`).
 
 After 1.0.0 the hint about a differing VirtualStore copy of `dgVoodoo.conf` added three texts (`VirtualStoreWrapperConfigFormat`,
 `OpenVirtualStoreFolderButton`, `OpenVirtualStoreFolderFailedFormat`, A5; test plan WP8-19); they are not in the counts below.

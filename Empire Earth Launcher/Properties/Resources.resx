@@ -1368,7 +1368,7 @@ The old files are copied to the backup folder first. Replace them?</value>
     <comment>Heading of the network diagnostics on the Tools page.</comment>
   </data>
   <data name="NetworkInfo" xml:space="preserve">
-    <value>On request the launcher checks what the support forum asked again and again: the network adapters of this computer, the name lookup (DNS) of the NeoEE servers, the update server, the NeoEE status server, NeoEE.cfg and WONLobby.cfg of the game folders (only read) and upnp_info.txt. It sends nothing but the AppId of the installation to the update server and asks no service for your public address.</value>
+    <value>On request the launcher checks what the support forum asked again and again: the network adapters of this computer, the name lookup (DNS) of the NeoEE servers, the update server, the NeoEE status server, NeoEE.cfg and WONLobby.cfg of the game folders (only read) and upnp_info.txt. It sends nothing but the AppId of the installation and the question for the latest game version to the update server and asks no service for your public address.</value>
     <comment>Below the heading of the network diagnostics (R7, ARCHITECTURE 4.6). Keep the file names untranslated.</comment>
   </data>
   <data name="NetworkCheckButton" xml:space="preserve">

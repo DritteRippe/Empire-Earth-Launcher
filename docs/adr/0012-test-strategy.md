@@ -315,7 +315,7 @@ The launcher's part of that job is to run its core against the real installation
   installation line and the two buttons kept the places of the designer, the rest was stacked from the top (the buttons ended
   up under the book picture). The fix is one line (`IsShown`); the tests below fail on all states of the page without it.
 - **Geometry tests are not UI automation.** "UI automation tests" stay rejected: nothing is clicked, no window is shown, no
-  message loop runs. `PageLayoutTests` creates each of the four pages hidden in a window that is not shown
+  message loop runs. `PageLayoutTests` creates each of the six pages hidden in a window that is not shown
   (`LauncherPages.Host`, as `MainForm` holds them), gives it the page sizes of the window sizes minimum (554 x 380), 800 x 500,
   1024 x 640 and 1920 x 1080, in English, German and French (`TestUiLanguage`) with the Krypton fonts of the system and 50 %
   larger (`LauncherPages.ScaleFonts`, as Windows "Text size"), and checks the rules of `LayoutChecker` on the bounds of the
@@ -363,7 +363,7 @@ The launcher's part of that job is to run its core against the real installation
   same bounds when it runs twice, the scroll position), because the Tools page cannot be created under Mono. Mutation check: the
   tests for the row wrap and the second pass fail if either is switched off.
 - **`MainWindowLayoutTests`** (category `SourceTree`) checks on the sources of `MainForm` what Mono cannot create: the
-  navigation buttons are in the panel docked at the left, the four pages are `Dock = Fill` and added before the panel, the
+  navigation buttons are in the panel docked at the left, the six pages are `Dock = Fill` and added before the panel, the
   minimum size is set from the opening size and nothing fixes the window size.
 
 ## Amendment 2026-10-06 (Play and Launcher pages in the geometry tests, [ADR 0017](0017-resizable-layout.md))

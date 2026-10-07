@@ -8,7 +8,8 @@ namespace Empire_Earth_Launcher.Core.Play
 {
     /// <summary>
     /// The command line of the launcher (contract 1.4, "Default selection", revision 4): the only argument is
-    /// <c>--product=EE</c> or <c>--product=NeoEE</c>, as the shortcuts of the suite pass it. It selects a product for this
+    /// <c>--product=EE</c> or <c>--product=NeoEE</c>, as the shortcuts of suite 1.0.0 and the players' own shortcuts pass it (the
+    /// one shortcut of suite 1.1.0 passes none), and the second launcher of the hand-over. It selects a product for this
     /// session only, nothing is saved. Anything else is ignored and logged; the launcher never fails on its command line.
     /// </summary>
     public sealed class LauncherArguments

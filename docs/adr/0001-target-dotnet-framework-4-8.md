@@ -69,7 +69,8 @@ to the user's test laptop.
   Windows 7 SP1 has prerequisites that the README lists from Microsoft's installation page (checked when the
   README is written, not assumed here). TLS: Windows 7 SChannel offers TLS 1.2 only on request (ADR 0008) and
   a smaller set of cipher suites than current Windows; whether `api.empireearth.eu` accepts one of them is
-  unknown. Because every HTTPS failure ends in the fixed download page (ADR 0008), the launcher stays usable.
+  unknown. Because the repair advice opens the download page of the product without any request (contract 4.3, ADR 0008
+  amendment of 2026-10-07), a failing HTTPS connection cannot keep the player from the setup, and the launcher stays usable.
   The test plan has an optional Windows 7 VM case (start, Krypton rendering, API request or fallback).
 - **The CI path is reproduced locally.** Commits are never pushed in this work (briefing D8), so
   `build.yml` cannot produce the test builds. The first work package therefore adds a local Release build

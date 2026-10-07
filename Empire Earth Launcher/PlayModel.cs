@@ -35,6 +35,8 @@ namespace Empire_Earth_Launcher
         private readonly GameWindowActivator windowActivator;
 
         /// <summary>Cancelled when the launcher closes: ends the hand-over of the foreground to a game (A1).</summary>
+        // Never disposed: no timer is attached and nothing waits on it, so it holds nothing to release, and a late Cancel on a
+        // disposed source (the window closes while the hand-over still runs) would throw.
         private readonly CancellationTokenSource windowHandOverCancellation = new CancellationTokenSource();
 
         /// <summary>Counts the reads of the versions, so that only the latest one is shown.</summary>

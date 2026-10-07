@@ -216,7 +216,7 @@ controls of the old mock-up were removed and the features behind them are listed
 **Privacy, no telemetry**: the old checkbox "Allow us to collect diagnostic data" is gone. The launcher collects no
 usage or diagnostic data. Its connections are the request for the NeoEE player list and, only when you ask for it
 (version check, network check), an HTTPS request to `api.empireearth.eu` that sends nothing but the AppId of the
-installation and, for the version check, the version, and the name lookups of the network check; it asks no service
+installation, the kind of the question (game or setup) and, for the version check, the version, and the name lookups of the network check; it asks no service
 for your public address. The download page of the community setup (`empireearth.eu/download/ee/`, `/neo/` or
 `/download/`) opens in your browser only when you click its button; the launcher sends no request for it. The
 diagnostics report is
@@ -310,7 +310,7 @@ Get-Process 'Empire Earth', 'EE-AOC' -ErrorAction SilentlyContinue |
 ```
 
 `PeakMB` is the most memory the game had committed, `PeakAddressSpaceMB` the most address space it used (the 2 GB limit is
-about this number). Below about 1200 MB in `PeakMB` the limit is surely irrelevant; if `PeakAddressSpaceMB` comes near
+about this number). A `PeakMB` below about 1200 MB makes the limit an unlikely cause, but the address space decides: if `PeakAddressSpaceMB` comes near
 2000, send both numbers with the game, whether it was EE, AoC or NeoEE, and the number of players (test plan WP6-20).
 
 **What do I send with a report?**

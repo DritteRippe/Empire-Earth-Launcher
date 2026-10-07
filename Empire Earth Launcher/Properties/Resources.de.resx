@@ -1031,7 +1031,7 @@ Die alten Dateien werden vorher in den Sicherungsordner kopiert. Ersetzen?</valu
     <value>Netzwerk</value>
   </data>
   <data name="NetworkInfo" xml:space="preserve">
-    <value>Auf Wunsch prüft der Launcher, wonach im Support-Forum immer wieder gefragt wurde: die Netzwerkadapter dieses Rechners, die Namensauflösung (DNS) der NeoEE-Server, den Update-Server, den NeoEE-Statusserver, NeoEE.cfg und WONLobby.cfg der Spielordner (nur lesend) und upnp_info.txt. An den Update-Server sendet er nur die AppId der Installation, und er fragt keinen Dienst nach Ihrer öffentlichen Adresse.</value>
+    <value>Auf Wunsch prüft der Launcher, wonach im Support-Forum immer wieder gefragt wurde: die Netzwerkadapter dieses Rechners, die Namensauflösung (DNS) der NeoEE-Server, den Update-Server, den NeoEE-Statusserver, NeoEE.cfg und WONLobby.cfg der Spielordner (nur lesend) und upnp_info.txt. An den Update-Server sendet er nur die AppId der Installation und die Frage nach der neuesten Spielversion, und er fragt keinen Dienst nach Ihrer öffentlichen Adresse.</value>
   </data>
   <data name="NetworkCheckButton" xml:space="preserve">
     <value>Netzwerk prüfen</value>
