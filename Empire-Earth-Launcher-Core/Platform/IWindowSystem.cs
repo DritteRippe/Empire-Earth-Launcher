@@ -9,11 +9,28 @@ namespace Empire_Earth_Launcher.Core.Platform
         public const int AnyProcess = -1;
     }
 
+    /// <summary>The rule that picks the main window of a game among the windows of its process (A1 of 1.1.0).</summary>
+    public static class WindowRules
+    {
+        /// <summary><c>WS_EX_TOOLWINDOW</c>: a window that is not a main window (the splash 'Loading Game Window' of Empire Earth has it).</summary>
+        public const long ToolWindowExStyle = 0x80;
+
+        /// <summary>
+        /// True if a window can be the main window of a game: visible, without an owner and not a tool window. Empire Earth shows
+        /// its splash before the real window; the hand-over and the log must refer to the main window (class 'SSSI Empire Earth').
+        /// </summary>
+        public static bool IsMainWindowCandidate(bool visible, bool hasOwner, long exStyle)
+        {
+            return visible && !hasOwner && (exStyle & ToolWindowExStyle) == 0;
+        }
+    }
+
     /// <summary>
     /// The windows of the computer as far as the hand-over of the foreground to a started game needs them (ADR 0010
     /// amendment of 1.1.0): who owns the foreground, the first visible top-level window of a process, and the right to take
-    /// the foreground. Nothing else is read or changed: the launcher never minimizes, hides, closes or moves a window of the
-    /// game and never ends a process.
+    /// the foreground, and (for the watch after the hand-over) the foreground window and the rectangle and styles of a window.
+    /// Nothing else is read or changed: the launcher never minimizes, hides, closes or moves a window of the game and never
+    /// ends a process.
     /// </summary>
     /// <remarks>
     /// The real implementation is <c>WindowsWindowSystem</c> (the only place of the core that calls the foreground functions of
@@ -26,8 +43,21 @@ namespace Empire_Earth_Launcher.Core.Platform
         int GetForegroundProcessId();
 
         /// <summary>
-        /// The first visible top-level window without an owner that belongs to <paramref name="processId"/>;
-        /// <see cref="IntPtr.Zero"/> if the process has none (yet).
+        /// The foreground window itself; <see cref="IntPtr.Zero"/> if there is none. Windows briefly has none while a window is
+        /// created or a wrapper such as dgVoodoo switches the display mode; that is no player who switched to another program.
+        /// </summary>
+        IntPtr GetForegroundWindow();
+
+        /// <summary>
+        /// What can be read of <paramref name="window"/>: process, class, rectangle and styles; null if the window does not
+        /// exist (any more). Read-only.
+        /// </summary>
+        WindowState ReadWindow(IntPtr window);
+
+        /// <summary>
+        /// The first visible top-level window without an owner and without <c>WS_EX_TOOLWINDOW</c> that belongs to
+        /// <paramref name="processId"/> (<see cref="WindowRules.IsMainWindowCandidate"/>); <see cref="IntPtr.Zero"/> if the
+        /// process has none (yet).
         /// </summary>
         IntPtr FindVisibleTopLevelWindow(int processId);
 

@@ -32,6 +32,19 @@ namespace Empire_Earth_Launcher.Tests.Core.Platform
         }
 
         [Test]
+        public void TheForegroundWindow_IsAHandleOrNone()
+        {
+            Assert.That(windows.GetForegroundWindow(), Is.Not.Null);
+            Assert.That(windows.ReadWindow(IntPtr.Zero), Is.Null, "no window, nothing to read");
+        }
+
+        [Test]
+        public void AWindowThatDoesNotExist_CannotBeRead()
+        {
+            Assert.That(windows.ReadWindow(new IntPtr(0x7FFFFFF0)), Is.Null);
+        }
+
+        [Test]
         public void AProcessNobodyOwns_HasNoWindow()
         {
             Assert.That(windows.FindVisibleTopLevelWindow(int.MaxValue), Is.EqualTo(IntPtr.Zero));
@@ -50,6 +63,8 @@ namespace Empire_Earth_Launcher.Tests.Core.Platform
                 Assert.Ignore("user32.dll exists on Windows.");
 
             windows.GetForegroundProcessId();
+            windows.GetForegroundWindow();
+            windows.ReadWindow(new IntPtr(0x10));
             windows.FindVisibleTopLevelWindow(1);
             windows.SetForegroundWindow(IntPtr.Zero);
 

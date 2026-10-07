@@ -158,7 +158,8 @@ is not. The start itself does not change (shell execute, no arguments, no verb):
   so that the game may take the foreground when it shows its window. A refusal is logged by the adapter; the start goes on.
 - **After the start**: if the start returned a process id, `GameWindowActivator` (core, `Play`) runs on the thread pool
   (started by `PlayModel`, cancelled when the main window closes). It polls every 100 ms, for at most 60 s, for the first
-  visible top-level window without an owner of that process. If the launcher (or the game) owns the foreground it calls
+  visible top-level window without an owner of that process (since the amendment of 2026-10-07 below: no tool window).
+  If the launcher (or the game) owns the foreground it calls
   `SetForegroundWindow` on it. About 2 s later it looks again (a wrapper such as dgVoodoo switches the display mode
   late, and Windows may give the foreground back to the launcher): while the launcher owns the foreground it hands the
   window over again, at most 3 times; if the game owns it, it stops; if another process owns it (the player switched)
@@ -202,3 +203,36 @@ one to come to the front. Changes to the second-start rules above:
 
 Evidence: `Core/Play/InstanceForwardingTests` (`show` round trip, `TryDecode`, the second launcher without an argument),
 `Launcher/LauncherInstanceTargetTests`; test plan WP13-06 and WP10-03.
+
+## Amendment 2026-10-07 (launcher 1.1.0, A1: the main window, nothing to do if the game is in front, a read-only watch)
+
+The assessment of run 5d (the dead mouse with dgVoodoo, laptop matrix) found that the hand-over above is harmless but cannot be
+the fix: the direct start of the game without the launcher is just as dead, and `SetForegroundWindow` on a window that is in
+front sends no `WM_ACTIVATE` or `WM_ACTIVATEAPP`, so the game's own resume of its DirectInput devices does not run. Four
+changes make the hand-over and its log say what happens, and add the measurement that is missing:
+
+- **(a) The main window.** `FindVisibleTopLevelWindow` skips tool windows (`WS_EX_TOOLWINDOW`, `WindowRules.IsMainWindowCandidate`:
+  visible, no owner, no tool window). The first visible window of Empire Earth is the splash `Loading Game Window`, a tool window
+  that lives until the graphics are initialised; the hand-over and every log line now refer to the window of the class
+  `SSSI Empire Earth`.
+- **(b) The game is in front already.** Then the launcher logs `... found after <N> ms, already in the foreground, nothing to do.`
+  and does not call `SetForegroundWindow`.
+- **(c) A watch of 60 seconds, read-only.** After the hand-over `GameWindowActivator` reads, every 250 ms for 60 s, the foreground
+  window (`GetForegroundWindow`) and the rectangle and the styles (`GetWindowRect`, `GWL_STYLE`, `GWL_EXSTYLE`) of the main window
+  (`IWindowSystem.GetForegroundWindow`, `ReadWindow`, `WindowState`), and logs the first state and every change with the time
+  since the start (`Watch t+10.0 s: foreground window changed from ... to ...`, `main window 0x... rectangle changed from ... to
+  ...`). It changes nothing: it calls no function that changes a window (`ForegroundRulesTests` still allows the foreground
+  imports in the adapter only) and no process is ended. It is a measurement of when a wrapper such as dgVoodoo switches the display
+  mode and whether the game loses the foreground; no watch follows when the game showed no window.
+- **(d) A1 does not fix the dgVoodoo case.** The hand-over covers another failure: the launcher keeps the foreground, for
+  example when the player clicks into it while the game loads. It cannot repair a mouse that a late display-mode switch of a
+  wrapper left unacquired. The contingent A1b (a one-time `WM_ACTIVATE` to the main window after a quiet time) is **not** part of
+  1.1.0: it needs its own validation on the laptop and its own amendment.
+- **A missing foreground window is nobody's.** Windows has no foreground window for a moment while a window is created or the
+  display mode switches; a foreground process id of 0 is looked at again three times, 100 ms apart, and counts as nobody's
+  (the launcher then hands the window the foreground, as it does when it owns it itself), no longer as "the player switched".
+  Another process in front still ends the hand-over at once.
+
+Evidence: `Core/Play/GameWindowActivatorTests` (the splash is skipped, the game in front is left alone, the missing foreground,
+the lines of the watch from a fake clock, no change by the watch, cancellation during the watch), `Core/Platform/WindowRulesTests`,
+`WindowStateTests`, `WindowsWindowSystemTests`, `Architecture/ForegroundRulesTests`; test plan WP6-18.

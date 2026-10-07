@@ -318,12 +318,15 @@ Click Play -> button disabled -> `GameStarter.StartAsync(installation, game)`:
 6. Logged: installation, game, program, process id (`pid unknown` if `Process.Start` returns none). Findings
    of the quick check never block (contract 2.5).
 7. Since 1.1.0, in the background (`PlayModel` starts `GameWindowActivator`, the closing window cancels it): with a
-   process id, the first visible top-level window of the game is looked for every 100 ms, for 60 s at most; if the
-   launcher (or the game) owns the foreground it gets `SetForegroundWindow`; after 2 s the foreground is looked at again
-   and handed over again at most 3 times while the launcher owns it. If another process owns the foreground (the player
-   switched) nothing is changed: the launcher never steals the foreground. One log line says when the window appeared
-   and what was done (ADR 0010 amendment of 2026-10-06; report 1: the mouse stayed dead until minimize and restore, the
-   game did not get activation while the launcher was in front).
+   process id, the main window of the game (the first visible window without an owner that is no tool window, so not the
+   splash `Loading Game Window`) is looked for every 100 ms, for 60 s at most; if the launcher (or nobody) owns the
+   foreground it gets `SetForegroundWindow`, if the game owns it already nothing is called; after 2 s the foreground is
+   looked at again and handed over again at most 3 times while the launcher owns it. If another process owns the foreground
+   (the player switched) nothing is changed: the launcher never steals the foreground. One log line says when the window
+   appeared and what was done (ADR 0010 amendment of 2026-10-06; report 1: the mouse stayed dead until minimize and
+   restore, the game did not get activation while the launcher was in front). Then it only watches for 60 s: every change of
+   the foreground window and of the rectangle and styles of the main window is logged with the time since the start (ADR 0010
+   amendment of 2026-10-07; a measurement, A1 does not fix the dgVoodoo case).
 
 Implemented in L-WP6 (`GameStarter`, `PlayModel`, [ADR 0010](adr/0010-game-start-and-mutex-probing.md) amendment):
 every refusal and start error is a `StartResult` (setup running, same game running with `ProcessFound`, other game

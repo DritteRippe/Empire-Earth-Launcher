@@ -155,7 +155,9 @@
     <Compile Include="Core\Platform\WindowsMutexOwnerTests.cs" />
     <Compile Include="Core\Platform\WindowsMutexProbeTests.cs" />
     <Compile Include="Core\Platform\WindowsProcessListTests.cs" />
+    <Compile Include="Core\Platform\WindowRulesTests.cs" />
     <Compile Include="Core\Platform\WindowsWindowSystemTests.cs" />
+    <Compile Include="Core\Platform\WindowStateTests.cs" />
     <Compile Include="Core\Platform\WinPathTests.cs" />
     <Compile Include="Core\Play\GameStarterTests.cs" />
     <Compile Include="Core\Play\GameWindowActivatorTests.cs" />

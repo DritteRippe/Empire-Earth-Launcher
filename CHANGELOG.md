@@ -72,6 +72,15 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
   a process; the start stays a shell start (ADR 0010 amendment of 2026-10-06, `IWindowSystem` / `WindowsWindowSystem`,
   `ForegroundRulesTests`, test plan WP6-18). One log line says after how many milliseconds the window was brought to the
   foreground. Whether this is the cause is decided by the test on real Windows (WP6-18).
+- Game start, the hand-over of the foreground after the review of run 5d (A1; [ADR 0010](docs/adr/0010-game-start-and-mutex-probing.md),
+  amendment of 2026-10-07): the window is the main window, not the splash `Loading Game Window` (a tool window that
+  `FindVisibleTopLevelWindow` skips, `WindowRules`); a game that is in front already gets no `SetForegroundWindow` (`... already in
+  the foreground, nothing to do.`); a missing foreground window (Windows has none for a moment while a window is created or
+  the display mode switches) is looked at again three times and counts as nobody's, no longer as "the player switched"; and
+  for 60 s after the hand-over the launcher only watches, every 250 ms, and logs each change of the foreground window and of
+  the rectangle and styles of the main window with the time since the start (`Watch t+10.0 s: ...`, `WindowState`). That is a
+  measurement of when a wrapper such as dgVoodoo switches the display mode; A1 does not fix the dgVoodoo case, and the
+  `WM_ACTIVATE` of A1b is not part of 1.1.0 (test plan WP6-18).
 - Game settings page: the header, the description and the "NeoEE in ..." line lay on top of each other, and the book picture
   of the compatibility warning lay over the buttons "Apply recommended display" and "Reset game settings". The page is
   created hidden and filled before the window is shown, and its layout skipped the header, the installation line and

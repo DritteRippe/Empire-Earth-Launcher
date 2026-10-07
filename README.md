@@ -324,6 +324,12 @@ about this number). Below about 1200 MB in `PeakMB` the limit is surely irreleva
   `... not brought to the foreground: skipped, user switched to pid <number>.` means another program was in front,
   `SetForegroundWindow was refused` that Windows said no, `No window of ... within 60 s` that the game showed no window of
   that process (NeoEE may create it elsewhere), and `giving up` that the launcher kept the foreground after three tries.
+  `... already in the foreground, nothing to do.` means the game was in front when its window appeared. The window is the
+  main window of the game (class `SSSI Empire Earth`), never the small start-up window `Loading Game Window`. For one minute
+  after that the launcher only watches and writes `Watch t+<seconds> s: ...` lines: which window is in front and the
+  rectangle and styles of the game window, and each change with the time since the start. That measures when a
+  DirectX wrapper such as dgVoodoo changes the window; it does not change anything and it does not fix a dead mouse that
+  comes from that (test plan WP6-18).
 - What you saw: whether the mouse worked without minimizing, which window or notification took the focus when the game
   minimized itself, whether the game comes back in full size, the Windows version and the display scaling.
 

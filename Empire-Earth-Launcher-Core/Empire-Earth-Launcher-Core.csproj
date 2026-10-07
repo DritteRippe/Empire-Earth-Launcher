@@ -138,6 +138,7 @@
     <Compile Include="Platform\WindowsProcessList.cs" />
     <Compile Include="Platform\WindowsRegistry.cs" />
     <Compile Include="Platform\WindowsSystemInfo.cs" />
+    <Compile Include="Platform\WindowState.cs" />
     <Compile Include="Platform\WindowsWindowSystem.cs" />
     <Compile Include="Platform\WinPath.cs" />
     <Compile Include="Play\GameStarter.cs" />
