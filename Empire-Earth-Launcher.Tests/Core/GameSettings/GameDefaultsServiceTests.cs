@@ -487,6 +487,199 @@ namespace Empire_Earth_Launcher.Tests.Core.GameSettings
             Assert.That(result.Changes.Select(c => GameSettingsTable.Find(c.ValueName).Class), Is.All.EqualTo(SettingClass.D));
         }
 
+        // --- Game window size of the graphics page (launcher 1.1.0, contract 3.2) ---------------------------------------
+
+        private Installation SeedForGameWindow(bool artOfConquest = true)
+        {
+            w.World.AddLegacyInstallation(NeoRoot, Product.NeoEE, artOfConquest: artOfConquest);
+            w.RawRegistry.Seed(NeoEE, "Game Window Width", Dw(1920));
+            w.RawRegistry.Seed(NeoEE, "Game Window Height", Dw(1080));
+            w.RawRegistry.Seed(NeoEE, "Music Volume", Dw(10));
+            w.RawRegistry.Seed(NeoEE, "Game Bit Depth", Dw(16));
+            if (artOfConquest)
+            {
+                w.RawRegistry.Seed(NeoAoC, "Game Window Width", Dw(1920));
+                w.RawRegistry.Seed(NeoAoC, "Game Window Height", Dw(1080));
+            }
+            return Installation();
+        }
+
+        [Test]
+        public void SetGameWindow_BacksUpThenWritesOnlyTheTwoWindowValuesOfEveryGame()
+        {
+            Installation installation = SeedForGameWindow();
+
+            GameSettingsResult result = w.CreateDefaultsService().SetGameWindow(installation, new ScreenSize(1600, 900));
+
+            Assert.That(result.Outcome, Is.EqualTo(GameSettingsOutcome.Done), result.ToString());
+            Assert.That(result.BackupFiles, Has.Count.EqualTo(2));
+            Assert.That(result.BackupFolder, Does.Contain("_game-window"));
+            string backup = Encoding.Unicode.GetString(w.FileSystem.GetContent(result.BackupFiles[0]));
+            Assert.That(backup, Does.Contain("\"Game Window Width\"=dword:00000780"), "the old width 1920 is in the backup");
+            Assert.That(w.Get(NeoEE, "Game Window Width"), Is.EqualTo(Dw(1600)));
+            Assert.That(w.Get(NeoEE, "Game Window Height"), Is.EqualTo(Dw(900)));
+            Assert.That(w.Get(NeoAoC, "Game Window Width"), Is.EqualTo(Dw(1600)));
+            Assert.That(w.Get(NeoAoC, "Game Window Height"), Is.EqualTo(Dw(900)));
+            Assert.That(w.Get(NeoEE, "Music Volume"), Is.EqualTo(Dw(10)), "no other value changes");
+            Assert.That(w.Get(NeoEE, "Game Bit Depth"), Is.EqualTo(Dw(16)), "not even a display value that looks wrong");
+            Assert.That(result.Changes.Select(change => change.ValueName),
+                Is.EquivalentTo(new[] { "Game Window Width", "Game Window Height", "Game Window Width", "Game Window Height" }));
+        }
+
+        [Test]
+        public void SetGameWindow_OnlyTheGamesThatAreInstalled()
+        {
+            Installation installation = SeedForGameWindow(artOfConquest: false);
+
+            GameSettingsResult result = w.CreateDefaultsService().SetGameWindow(installation, new ScreenSize(1280, 960));
+
+            Assert.That(result.Outcome, Is.EqualTo(GameSettingsOutcome.Done));
+            Assert.That(result.BackupFiles, Has.Count.EqualTo(1));
+            Assert.That(w.Get(NeoAoC, "Game Window Width"), Is.Null, "no key is created for a game that is not installed");
+        }
+
+        [Test]
+        public void SetGameWindow_CreatesTheValuesWhenTheyAreMissing()
+        {
+            w.World.AddLegacyInstallation(NeoRoot, Product.NeoEE, artOfConquest: false);
+
+            GameSettingsResult result = w.CreateDefaultsService().SetGameWindow(Installation(), new ScreenSize(1024, 768));
+
+            Assert.That(result.IsDone, Is.True, result.ToString());
+            Assert.That(w.Get(NeoEE, "Game Window Width"), Is.EqualTo(Dw(1024)));
+            Assert.That(w.Get(NeoEE, "Game Window Height"), Is.EqualTo(Dw(768)));
+        }
+
+        [Test]
+        public void SetGameWindow_TheSameSize_ChangesNothing()
+        {
+            Installation installation = SeedForGameWindow();
+
+            GameSettingsResult result = w.CreateDefaultsService().SetGameWindow(installation, new ScreenSize(1920, 1080));
+
+            Assert.That(result.IsDone, Is.True);
+            Assert.That(result.Changes, Is.Empty);
+        }
+
+        [Test]
+        public void SetGameWindow_DoesNotTouchTheMarkerOrTheOtherClasses()
+        {
+            Installation installation = SeedForGameWindow();
+
+            w.CreateDefaultsService().SetGameWindow(installation, new ScreenSize(1280, 960));
+
+            Assert.That(w.Get(NeoMarker, "EE"), Is.Null, "the choice is no answer to the display question");
+            Assert.That(w.Get(NeoEE, "Rasterizer Name"), Is.Null);
+            Assert.That(w.Get(NeoEE, "Installed From Volume"), Is.EqualTo(Sz("C:")), "the value of the setup, not written again");
+        }
+
+        [Test]
+        public void SetGameWindow_ALogLineNamesTheChoice()
+        {
+            Installation installation = SeedForGameWindow();
+
+            w.CreateDefaultsService().SetGameWindow(installation, new ScreenSize(1600, 900));
+
+            Assert.That(w.Logger.MessagesOf(LogLevel.Info), Has.Some.Contains("the player chose the game window size 1600x900"));
+        }
+
+        [TestCase(1920, 1200)]
+        [TestCase(2560, 1440)]
+        [TestCase(800, 600)]
+        [TestCase(1024, 767)]
+        [TestCase(0, 0)]
+        public void SetGameWindow_ASizeOutsideTheLimitsOfContract33_IsRefused(int width, int height)
+        {
+            Installation installation = SeedForGameWindow();
+            int changes = w.Changes.Count;
+
+            Assert.That(() => w.CreateDefaultsService().SetGameWindow(installation, new ScreenSize(width, height)),
+                Throws.TypeOf<ArgumentOutOfRangeException>());
+
+            Assert.That(w.Changes, Has.Count.EqualTo(changes));
+            Assert.That(w.FileSystem.DirectoryExists(GameSettingsWorld.BackupsFolder), Is.False);
+        }
+
+        [Test]
+        public void SetGameWindow_BackupFails_NothingChanged()
+        {
+            Installation installation = SeedForGameWindow();
+            int changes = w.Changes.Count;
+            w.FileSystem.FailOn(GameSettingsWorld.BackupsFolder, FileSystemOperation.Write, FileSystemStatus.IoError);
+
+            GameSettingsResult result = w.CreateDefaultsService().SetGameWindow(installation, new ScreenSize(1600, 900));
+
+            Assert.That(result.Outcome, Is.EqualTo(GameSettingsOutcome.BackupFailed));
+            Assert.That(w.Changes, Has.Count.EqualTo(changes));
+            Assert.That(w.Get(NeoEE, "Game Window Width"), Is.EqualTo(Dw(1920)));
+        }
+
+        [Test]
+        public void SetGameWindow_NewerContract_IsRefused()
+        {
+            w.AddAdminInstallationOfAnotherAccount(NeoRoot, Product.NeoEE, components: "game", contractVersion: 2);
+            Installation installation = Installation();
+            int changes = w.Changes.Count;
+
+            GameSettingsResult result = w.CreateDefaultsService().SetGameWindow(installation, new ScreenSize(1600, 900));
+
+            Assert.That(result.Outcome, Is.EqualTo(GameSettingsOutcome.NewerContract));
+            Assert.That(w.Changes, Has.Count.EqualTo(changes));
+        }
+
+        [Test]
+        public void SetGameWindow_PassesTheWritePolicy_OnlyTheTwoValueNamesOfTheTable()
+        {
+            Installation installation = SeedForGameWindow();
+
+            w.CreateDefaultsService().SetGameWindow(installation, new ScreenSize(1600, 900));
+
+            // The registry of the world is wrapped in LauncherWritePolicy (allow-list by value name): an unknown name would throw.
+            Assert.That(w.Changes.Where(change => change.StartsWith("SetValue", StringComparison.Ordinal))
+                              .Select(change => change.Split('@')[1].Split(new[] { " = " }, StringSplitOptions.None)[0]),
+                Is.All.Matches<string>(name => name == "\"Game Window Width\"" || name == "\"Game Window Height\""));
+        }
+
+        [Test]
+        public void ReadGameWindow_ReadsBothValues()
+        {
+            Installation installation = SeedForGameWindow();
+            w.RawRegistry.Seed(NeoEE, "Game Window Width", Dw(1366));
+            w.RawRegistry.Seed(NeoEE, "Game Window Height", Dw(768));
+
+            Assert.That(w.CreateDefaultsService().ReadGameWindow(installation, Game.EmpireEarth), Is.EqualTo(new ScreenSize(1366, 768)));
+            Assert.That(w.CreateDefaultsService().ReadGameWindow(installation, Game.ArtOfConquest), Is.EqualTo(new ScreenSize(1920, 1080)));
+        }
+
+        [Test]
+        public void ReadGameWindow_AMissingOrDamagedValue_IsEmpty()
+        {
+            w.World.AddLegacyInstallation(NeoRoot, Product.NeoEE, artOfConquest: false);
+            Installation installation = Installation();
+            GameDefaultsService service = w.CreateDefaultsService();
+            Assert.That(service.ReadGameWindow(installation, Game.EmpireEarth), Is.EqualTo(ScreenSize.Empty), "missing");
+
+            w.RawRegistry.Seed(NeoEE, "Game Window Width", Dw(1600));
+            Assert.That(service.ReadGameWindow(installation, Game.EmpireEarth), Is.EqualTo(ScreenSize.Empty), "height missing");
+
+            w.RawRegistry.Seed(NeoEE, "Game Window Height", Sz("900"));
+            Assert.That(service.ReadGameWindow(installation, Game.EmpireEarth), Is.EqualTo(ScreenSize.Empty), "not a REG_DWORD");
+
+            w.RawRegistry.Seed(NeoEE, "Game Window Height", Dw(-1));
+            Assert.That(service.ReadGameWindow(installation, Game.EmpireEarth), Is.EqualTo(ScreenSize.Empty), "not positive");
+        }
+
+        [Test]
+        public void ReadGameWindow_WritesNothing()
+        {
+            Installation installation = SeedForGameWindow();
+            int changes = w.Changes.Count;
+
+            w.CreateDefaultsService().ReadGameWindow(installation, Game.EmpireEarth);
+
+            Assert.That(w.Changes, Has.Count.EqualTo(changes));
+        }
+
         // --- Reset (contract 3.6, R4) --------------------------------------------------------------------------------
 
         private Installation SeedForReset()
@@ -644,6 +837,7 @@ namespace Empire_Earth_Launcher.Tests.Core.GameSettings
             AnswerNo,
             Sync,
             Display,
+            GameWindow,
             Reset,
             DefaultsIfNeeded
         }
@@ -677,6 +871,9 @@ namespace Empire_Earth_Launcher.Tests.Core.GameSettings
                     break;
                 case Action.Display:
                     block = service.ApplyRecommendedDisplay(installation).Block;
+                    break;
+                case Action.GameWindow:
+                    block = service.SetGameWindow(installation, new ScreenSize(1600, 900)).Block;
                     break;
                 case Action.Reset:
                     block = service.Reset(installation).Block;

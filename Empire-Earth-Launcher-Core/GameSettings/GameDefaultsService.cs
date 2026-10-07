@@ -14,15 +14,16 @@ namespace Empire_Earth_Launcher.Core.GameSettings
     /// <summary>
     /// Applies the per-user game defaults of contract 3 for the account that runs the launcher (R1, R4): the class S values
     /// at the start and before a game starts, the first run, the display question, the recommended display settings and
-    /// the reset with its <c>.reg</c> backup.
+    /// the reset with its <c>.reg</c> backup, and, since launcher 1.1.0, the game window size the player chooses on the
+    /// graphics page (<see cref="SetGameWindow"/>).
     /// </summary>
     /// <remarks>
     /// <para>
     /// <b>When</b> (contract 3.6, ADR 0015 with its amendments): at the launcher start only for an installation that is
     /// unambiguous for its game settings key (<see cref="DiscoveryResult.IsUnambiguous"/>) and only if the mutation guard
     /// allows it; class S is then only created when both values are missing, never changed. Before a game starts, class S
-    /// is synchronized (<see cref="SynchronizeInstalledFrom"/>, by <see cref="GameStarter"/>). The reset and the display settings run on the
-    /// player's request. No defaults and no reset for an installation of a newer contract (contract 5).
+    /// is synchronized (<see cref="SynchronizeInstalledFrom"/>, by <see cref="GameStarter"/>). The reset, the display settings and the
+    /// game window size run on the player's request. No defaults and no reset for an installation of a newer contract (contract 5).
     /// </para>
     /// <para>
     /// <b>What</b>: only the values of the contract table (<see cref="GameSettingsTable"/>), the GPU preference of the
@@ -31,7 +32,7 @@ namespace Empire_Earth_Launcher.Core.GameSettings
     /// "overwrite" deletes a value of another type first. Every value written or deleted is logged with old and new value.
     /// </para>
     /// <para>
-    /// <b>Backup or nothing</b>: the display settings and the reset first write a <c>.reg</c> file per game with the
+    /// <b>Backup or nothing</b>: the display settings, the game window size and the reset first write a <c>.reg</c> file per game with the
     /// game settings key and its subkeys, a delete line for every value they create, and the GPU preference and the marker;
     /// if a backup cannot be written completely, nothing is changed. The marker is written last.
     /// </para>
@@ -445,6 +446,70 @@ namespace Empire_Earth_Launcher.Core.GameSettings
             if (!check.IsAllowed)
                 return GameSettingsResult.Blocked(check);
             return ApplyDisplay(GamesOf(installation).Select(game => Tuple.Create(installation, game)).ToList());
+        }
+
+        /// <summary>
+        /// The game window size of a game as the registry holds it (<c>Game Window Width</c> and <c>Game Window Height</c>);
+        /// <see cref="ScreenSize.Empty"/> if either value is missing, not a REG_DWORD or not positive. Only reads.
+        /// </summary>
+        public ScreenSize ReadGameWindow(Installation installation, Game game)
+        {
+            if (installation == null)
+                throw new ArgumentNullException(nameof(installation));
+            if (game == null)
+                throw new ArgumentNullException(nameof(game));
+            RegistryLocation key = SettingsKey(installation, game);
+            int? width = ReadPositiveDWord(key, GameSettingsTable.GameWindowWidth);
+            int? height = ReadPositiveDWord(key, GameSettingsTable.GameWindowHeight);
+            return width.HasValue && height.HasValue ? new ScreenSize(width.Value, height.Value) : ScreenSize.Empty;
+        }
+
+        private int? ReadPositiveDWord(RegistryLocation key, string valueName)
+        {
+            RegistryResult<RegistryValue> value = registry.GetValue(key, valueName);
+            return value.IsOk && value.Value.Type == RegistryValueType.DWord && value.Value.DWordValue > 0
+                ? value.Value.DWordValue
+                : (int?)null;
+        }
+
+        /// <summary>
+        /// "Choose the game window size" of the graphics page (contract 3.2: the player's explicit choice is the consent to
+        /// overwrite the display values): a <c>.reg</c> backup of the game settings of every game of the installation, then
+        /// only <c>Game Window Width</c> and <c>Game Window Height</c> overwritten. No other value changes. Refused while a
+        /// setup or a game runs (ADR 0016), for an installation of a newer contract (contract 5), and for a size outside the
+        /// limits of contract 3.3 (<see cref="ResolutionOptions.IsWithinLimits"/>).
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> is outside the limits of contract 3.3.</exception>
+        public GameSettingsResult SetGameWindow(Installation installation, ScreenSize size)
+        {
+            lock (writes)
+                return SetGameWindowNow(installation, size);
+        }
+
+        private GameSettingsResult SetGameWindowNow(Installation installation, ScreenSize size)
+        {
+            if (installation == null)
+                throw new ArgumentNullException(nameof(installation));
+            if (!ResolutionOptions.IsWithinLimits(size))
+                throw new ArgumentOutOfRangeException(nameof(size), size, "The game window size is outside the limits of contract 3.3.");
+            if (installation.HasNewerContract)
+                return NewerContract(installation);
+            MutationCheck check = guard.Check("set the game window size");
+            if (!check.IsAllowed)
+                return GameSettingsResult.Blocked(check);
+
+            logger.Info("Game defaults: the player chose the game window size " + size + ".");
+            var targets = new List<Tuple<Installation, Game, List<Target>>>();
+            foreach (Game game in GamesOf(installation))
+            {
+                RegistryLocation key = SettingsKey(installation, game);
+                targets.Add(Tuple.Create(installation, game, new List<Target>
+                {
+                    new Target(key, GameSettingsTable.GameWindowWidth, RegistryValue.FromDWord(size.Width)),
+                    new Target(key, GameSettingsTable.GameWindowHeight, RegistryValue.FromDWord(size.Height)),
+                }));
+            }
+            return BackupThenOverwrite("game-window", targets, new List<Target>(), null);
         }
 
         private GameSettingsResult ApplyDisplay(IReadOnlyList<Tuple<Installation, Game>> games)
