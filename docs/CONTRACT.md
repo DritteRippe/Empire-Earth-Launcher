@@ -629,7 +629,17 @@ Who writes what, and when:
 - **Defaults applied once**: D, P and the GPU preference at the first run, only where values are missing;
   existing D values only with the user's consent.
 - **Reset only**: overwriting existing D and P values (and the GPU preference) happens only on an
-  explicit reset by the user.
+  explicit reset by the user, with one exception: the user's explicit choice of the game window size.
+- **Explicit choice of the game window size** (revision 6, compatible clarification): the user's own
+  choice in the launcher is the consent that the table above asks for. A launcher that offers such a
+  choice (the graphics page of launcher 1.1.0) MAY overwrite `Game Window Width` and `Game Window Height`,
+  and only these two values, of every game of the installation for the account that runs it, after the
+  user picked a size and clicked the button that applies it: with the `.reg` backup of
+  [3.6](#36-launcher-procedures) first, only while no setup and no game runs, and within the limits of
+  [3.3](#33-computed-values) (the launcher MUST NOT write a size outside them; a launcher that offers
+  more than 1920 x 1080 needs a new revision). The marker ([3.5](#35-defaults-marker)) is not touched. The
+  setup overwrites both values on its next run (class D, `deletevalue`), so the choice does not survive a
+  repair or an update; the launcher SHOULD say so.
 - **Always in sync**: S follows the installation that is started.
 - "Create if missing" tests only whether the value exists, like Inno Setup. "Overwrite" deletes a value
   of another type first, like `deletevalue`.
@@ -675,6 +685,8 @@ Who writes what, and when:
 
 A screen size below the minimum gives the minimum, one above the maximum the maximum, e.g. 1366 x 768
 stays 1366 x 768, 2560 x 1440 gives 1920 x 1080 and 800 x 600 gives 1024 x 768.
+
+The limits are also those of the size the user chooses in the launcher ([3.2](#32-values), revision 6).
 
 ### 3.4 GPU preference
 
@@ -731,6 +743,11 @@ contract version whose defaults were applied to this game for this account; miss
   subkeys (e.g. `reg.exe export`) into `%LOCALAPPDATA%\Empire Earth Launcher\Backups\`, file name with
   date and time, product and game; then overwrite S, D, P and the GPU preference; then the marker. If
   the backup fails, nothing is changed.
+- **Game window size chosen by the user** (revision 6): the launcher asks the guard of
+  [4.2](#42-running-setup) (no setup and no game running), writes a `.reg` backup of the game settings key
+  with its subkeys of every game of the installation as for the reset, and only then overwrites `Game Window
+  Width` and `Game Window Height` with the chosen size. If a backup fails, nothing is changed. Nothing else
+  is written.
 - **Consistency checks** at every start, shown with the offer of a reset, never fixed by themselves:
   `Game Bit Depth` differs from `Texture Bit Depth` (white, unreadable main menu; comment of the setup);
   16 bit on Windows 8 and later (freezes, t=10931 p=47182, t=11042 p=48016); `Rasterizer Name` does
@@ -936,6 +953,7 @@ hand-off of [4.3](#43-where-the-user-gets-the-setup).
 | 1 (draft) | 2026-10-02 | revision 3 (compatible clarifications after the reviews of setup v2 and launcher v2, which already behave so): source 4 reads key before hive, the EE and AoC folders of `foreign` installations are the real folders (the AoC folder from the same hive and view), the user choice may be the AoC folder, a registry record without `install.ini` also means `community` (1.4); Modified gets no message and no repair offer, the state may be shown (2.5); at the launcher start class S is only created, and the first run only for an installation that is unambiguous for its game settings key; class S before every game start while no other game runs; the display question until the user answers (3.2, 3.5, 3.6); a request without an answer of HTTP 200 is no statement about the version (4.5); O11 also names the `<AppId>` setup data folder of setups up to 1.7.2 | v2 (planned) | v2 (planned) |
 | 1 (draft) | 2026-10-05 | revision 4 (suite installer "Empire Earth Community", setup decision record 0013; optional additions only, no MUST or MUST NOT relaxed, 4.1 and 4.3 unchanged): names and mutexes of the suite and the launcher (0); `--product=EE` or `--product=NeoEE` selects for one session (1.4); suite record (1.6); how the suite runs a product setup, the log line `CD Keys generation result: <n>` as an interface, the guard for products installed for one user only, the removal of old product shortcuts before the suite shortcuts `Empire Earth` and `Neo Empire Earth`, the launcher outside the product roots (1.7, O10 answered); the suite mutex is a setup mutex (4.2); advice with `SourceDir` (4.4); checklist of the additions (7) | suite 1.0.0 (planned) | 1.0.0 (planned) |
 | 1 (draft) | 2026-10-06 | revision 5 (laptop test TP-93: the launcher listed the suite's own uninstall key, whose `Publisher` is that of EE, as a damaged installation of EE; optional additions only, no MUST or MUST NOT relaxed): the marker `Empire Earth Community: Suite` in the suite's uninstall key (0, 1.3); source 3 skips a key with that value, and for a suite built before revision 5 a key in HKLM with the root `InstallPath` of the suite record and no AppId the record embeds (1.4, 1.6); checklist of the additions (7) | suite 1.0.0 (planned) | 1.0.0 (planned) |
+| 1 (draft) | 2026-10-07 | revision 6 (launcher 1.1.0, graphics page; compatible clarification, `ContractVersion` stays 1): the user's explicit choice of the game window size is the consent of 3.2 to overwrite the class D values `Game Window Width` and `Game Window Height`, within the limits of 3.3, after the guard and the `.reg` backup of 3.6, without touching the marker (3.2, 3.3, 3.6) | no change | 1.1.0 (planned) |
 
 ## 6. Open questions
 
