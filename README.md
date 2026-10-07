@@ -12,8 +12,8 @@ Coded in C# with the .NET Framework 4.8 and Krypton UI
 This fork builds on the Empire Earth Launcher by [EE-modders](https://github.com/EE-modders/Empire-Earth-Launcher) and
 its contributors: their Krypton UI, their WON/NeoEE protocol code and their mod creator are the starting point.
 Upstream `main` is early work in progress (last change in June 2022; its README says it is not available for download):
-most controls are placeholders and the *Play* button has no function yet. The `main` branch of this fork is a rebuild on the .NET
-Framework 4.8 that keeps the Krypton UI and the idea, moves the logic into a tested core library and shows only
+most controls are placeholders and the *Play* button has no function yet. The `main` branch of this fork is a rebuild on
+the .NET Framework 4.8 that keeps the Krypton UI and the idea, moves the logic into a tested core library and shows only
 features that work.
 
 | | Upstream `main` | This fork (`main`) |
@@ -79,8 +79,8 @@ WP6-19 (b) to (d), WP6-20 and WP6-21 (e), (f) and (h)
 
 ## 🧾 Features
 
-Launcher v2 was built in nine work packages (developed on the branch `v2`, now merged into `main`; [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md),
-section 15; what each one did is in the [CHANGELOG](CHANGELOG.md)). All of them are done; the launcher is version 1.1.0
+Launcher v2 was built in nine work packages (developed on the branch `v2`, now merged into `main`;
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), section 15; what each one did is in the [CHANGELOG](CHANGELOG.md)). All of them are done; the launcher is version 1.1.0
 (one launcher for the four games, the *Graphics* and *Mods* pages, the optional parts for the suite installer "Empire Earth
 Community" below, which 1.0.0 added). The next step is the test on real Windows computers
 ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md)). The UI shows only controls that work ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md)): the placeholder
@@ -644,7 +644,8 @@ console output and the result file hold no hash (every message is redacted) and 
 the `bin/Release` folders (a test program reports failure through a non-zero exit code; finding no test
 program fails the build): the unit tests and the self-tests of the real-machine checks, whose `RealMachine` fixtures
 stay skipped there. The NUnit result files are kept as the `test-results` artifact. Dependabot (`.github/dependabot.yml`)
-proposes a monthly pull request for the GitHub Actions the workflow uses; NuGet and Python packages stay pinned on purpose.
+proposes a monthly pull request for the GitHub Actions the workflow uses; NuGet packages stay pinned on purpose. On a fork,
+version updates must be enabled once under *Insights* > *Dependency graph* > *Dependabot*.
 
 **Test builds**: when all tests pass, the CI run also keeps the Release output of both applications for 30 days,
 as the artifacts `Empire-Earth-Launcher-testbuild` and `Empire-Earth-Mod-Creator-testbuild` (open the run under

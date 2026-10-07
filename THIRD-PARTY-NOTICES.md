@@ -60,5 +60,5 @@ with `LICENSE` and this file. Update it when a shipped component or its version 
 
 The launcher neither contains nor downloads dgVoodoo (dgVoodoo's terms do not allow bundling it in launchers); the community
 setup installs it into the game folders. The *Graphics* page only reads its `dgVoodoo.conf`. See the
-[THIRD-PARTY-NOTICES.md of the setup](https://github.com/EE-modders/Empire-Earth-Setup/blob/main/THIRD-PARTY-NOTICES.md) for
+[THIRD-PARTY-NOTICES.md of the setup](https://github.com/DritteRippe/Empire-Earth-Setup/blob/main/THIRD-PARTY-NOTICES.md) for
 the terms.

@@ -13,12 +13,14 @@ described in the git history.
 ### Changed
 
 - Development moved to the single main line `main`: README, test plan and notices name `main` instead of the branch `v2`
-  (`LAUNCHER_BRANCH` of the setup workflow is `main`); the CI workflow watches pushes to `main`, as before.
+  (`LAUNCHER_BRANCH` of the setup workflow is `main`); the CI workflow watches pushes to `main`, as before. The link to
+  the `THIRD-PARTY-NOTICES.md` of the setup points to the fork `DritteRippe/Empire-Earth-Setup` (upstream has no such file).
 
 ### Added
 
 - `.github/dependabot.yml`: monthly version updates for the GitHub Actions of the workflow only (NuGet packages stay pinned).
-- Issue form for bug reports (`.github/ISSUE_TEMPLATE/`) and `SECURITY.md` (private vulnerability reporting).
+- Issue form for bug reports (`.github/ISSUE_TEMPLATE/`, with the log locations of the launcher, the suite installer and
+  the setups) and `SECURITY.md` (private vulnerability reporting, with a fallback while it is switched off).
 
 ## [1.1.0] - 2026-10-07
 
