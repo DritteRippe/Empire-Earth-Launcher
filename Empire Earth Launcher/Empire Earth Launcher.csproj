@@ -90,6 +90,12 @@
     <Compile Include="GameSettingsModel.cs" />
     <Compile Include="GraphicsModel.cs" />
     <Compile Include="GraphicsView.cs" />
+    <Compile Include="GraphicsUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="GraphicsUserControl.Designer.cs">
+      <DependentUpon>GraphicsUserControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="InstallationService.cs" />
     <Compile Include="InstanceMessageWindow.cs" />
     <Compile Include="IntegrityModel.cs" />
@@ -140,6 +146,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="GeneralUserControl.resx">
       <DependentUpon>GeneralUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GraphicsUserControl.resx">
+      <DependentUpon>GraphicsUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.de.resx" />
     <EmbeddedResource Include="Properties\Resources.fr.resx" />

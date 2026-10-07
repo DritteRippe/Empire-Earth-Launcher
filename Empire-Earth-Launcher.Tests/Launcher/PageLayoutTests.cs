@@ -10,7 +10,7 @@ using NUnit.Framework;
 namespace Empire_Earth_Launcher.Tests.Launcher
 {
     /// <summary>
-    /// The geometry of the four pages of the launcher (1.1.0, ADR 0012 amendment): at the smallest window, 800 x 500, 1024 x 640
+    /// The geometry of the five pages of the launcher (1.1.0, ADR 0012 amendment): at the smallest window, 800 x 500, 1024 x 640
     /// and 1920 x 1080, in English, German and French, with the fonts of the system and 50 % larger, no two controls overlap,
     /// nothing sticks out of its page, every text has room, and the content grows with the page.
     /// </summary>
@@ -34,7 +34,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
     /// <see cref="PageScreenshotTests"/>.
     /// </para>
     /// <para>
-    /// All four pages keep every rule at every size (the layout work of 1.1.0, ADR 0017: the pages stack by text height for the
+    /// All five pages keep every rule at every size (the layout work of 1.1.0, ADR 0017: the pages stack by text height for the
     /// width of the window); no rule is excused for a page, except the few controls that <see cref="LayoutChecker"/> names with
     /// their reason. The Play page and the Launcher page are driven through the states of <see cref="PlayPageState"/> and
     /// <see cref="LauncherPageState"/>, filled with the real texts of the language (<see cref="PlayPageWorld"/>,
@@ -93,6 +93,14 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             foreach (string lang in Languages)
                 foreach (float scale in FontScales)
                     foreach (LauncherPageState state in Enum.GetValues(typeof(LauncherPageState)))
+                        yield return new TestCaseData(lang, scale, state).SetArgDisplayNames(lang, Fonts(scale), state.ToString());
+        }
+
+        public static IEnumerable<TestCaseData> GraphicsScenarios()
+        {
+            foreach (string lang in Languages)
+                foreach (float scale in FontScales)
+                    foreach (GraphicsPageState state in Enum.GetValues(typeof(GraphicsPageState)))
                         yield return new TestCaseData(lang, scale, state).SetArgDisplayNames(lang, Fonts(scale), state.ToString());
         }
 
@@ -178,6 +186,18 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             language = TestUiLanguage.Use(lang);
             using (LauncherPageWorld world = WinForms.CreateOrIgnore(() => LauncherPageWorld.In(state, true, fontScale)))
                 AssertKeepsTheRules(LauncherPages.Launcher, Evaluate(world.Page, world.ConstructedSize));
+        }
+
+        /// <summary>
+        /// The Graphics page in the states of <see cref="GraphicsPageState"/>, filled with the real texts of the language: on
+        /// Windows only, because its list of sizes is a Krypton combo box, which needs Windows libraries to be created.
+        /// </summary>
+        [TestCaseSource(nameof(GraphicsScenarios))]
+        public void GraphicsPage_FilledBeforeItIsShown_NothingOverlapsOrIsCutOff(string lang, float fontScale, GraphicsPageState state)
+        {
+            language = TestUiLanguage.Use(lang);
+            using (GraphicsPageWorld world = WinForms.CreateOrIgnore(() => GraphicsPageWorld.In(state, true, fontScale)))
+                AssertKeepsTheRules(LauncherPages.Graphics, Evaluate(world.Page, world.ConstructedSize));
         }
 
         /// <summary>

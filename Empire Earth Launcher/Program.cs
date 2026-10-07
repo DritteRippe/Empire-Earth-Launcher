@@ -156,6 +156,11 @@ namespace Empire_Earth_Launcher
                 new NameChecks(fileSystem, effectivePaths, lobbyProfiles, logger), installations, setupWatcher, shell, fileSystem,
                 backups.Directory, logger);
 
+            // Graphics page (launcher 1.1.0, ADR 0014): the game window size is the only thing it writes (guard and backup in the
+            // core); the wrapper and dgVoodoo.conf are shown, read where the game reads them, and never changed.
+            var graphics = new GraphicsModel(defaults, gameSettings, installations, setupWatcher, systemInfo, fileSystem,
+                effectivePaths, logger);
+
             // Server settings stay application settings in "Empire Earth Launcher.exe.config" (ADR 0005). The poller sends no
             // request before the Play page starts it (ADR 0004), and the page starts it only while the selected installation
             // is NeoEE (v1.0.0).
@@ -187,7 +192,7 @@ namespace Empire_Earth_Launcher
 
                 logger.Info("Starting Empire Earth Launcher Form");
                 var mainForm = new MainForm(logger, themeService, settingsStore, installations, lobbyProfiles, gameSettings,
-                    play, integrity, updates, maintenance, diagnostics, setupWatcher, uiOperation, playerList);
+                    play, integrity, updates, maintenance, diagnostics, graphics, setupWatcher, uiOperation, playerList);
 
                 // The hidden window that a second launcher with --product sends the product to (contract 1.4); it is created here,
                 // on the UI thread, so that the message loop below delivers its messages, and lives as long as the launcher.

@@ -33,13 +33,14 @@ namespace Empire_Earth_Launcher
         /// <param name="updates">The update API: version check and the download of the repair advice (L-WP7).</param>
         /// <param name="maintenance">The maintenance tools of the Tools page (L-WP8).</param>
         /// <param name="diagnostics">The network diagnostics and the diagnostics report of the Tools page (L-WP9).</param>
+        /// <param name="graphics">The Graphics page: the game window size and the DirectX wrapper (launcher 1.1.0).</param>
         /// <param name="setupWatcher">Watches the setup mutexes; the window ticks it every half second (contract 4.2).</param>
         /// <param name="uiOperation">Runs the asynchronous work of the pages (ADR 0004).</param>
         /// <param name="playerList">Polls the online player list; null if the server settings are invalid.</param>
         internal MainForm(ILogger logger, IThemeService themeService, SettingsStore settings,
             InstallationService installations, LobbyProfileRepository lobbyProfiles, GameSettingsModel gameSettings,
             PlayModel play, IntegrityModel integrity, UpdateModel updates, MaintenanceModel maintenance, DiagnosticsModel diagnostics,
-            SetupWatcher setupWatcher, UiOperation uiOperation, PlayerListPolling playerList)
+            GraphicsModel graphics, SetupWatcher setupWatcher, UiOperation uiOperation, PlayerListPolling playerList)
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.OptimizedDoubleBuffer, true);
@@ -52,16 +53,21 @@ namespace Empire_Earth_Launcher
             generalUserControl.Initialize(logger, themeService, installations, lobbyProfiles, playerList, gameSettings, play,
                 integrity, updates, uiOperation);
             settingsUserControl.Initialize(themeService, gameSettings, installations, setupWatcher, uiOperation);
+            graphicsUserControl.Initialize(themeService, graphics, setupWatcher, uiOperation);
             toolsUserControl.Initialize(themeService, integrity, updates, setupWatcher, maintenance, diagnostics, uiOperation);
             launcherSettingsUserControl.Initialize(themeService, settings, installations, uiOperation);
 
             // A page cannot be assigned to Tag in the designer, so the navigation is wired up here.
             playKryptonCheckButton.Tag = generalUserControl;
             settingsKryptonCheckButton.Tag = settingsUserControl;
+            graphicsKryptonCheckButton.Tag = graphicsUserControl;
             toolsKryptonCheckButton.Tag = toolsUserControl;
             launcherKryptonCheckButton.Tag = launcherSettingsUserControl;
             navigationButtons = new[]
-                { playKryptonCheckButton, settingsKryptonCheckButton, toolsKryptonCheckButton, launcherKryptonCheckButton };
+            {
+                playKryptonCheckButton, settingsKryptonCheckButton, graphicsKryptonCheckButton, toolsKryptonCheckButton,
+                launcherKryptonCheckButton
+            };
             generalUserControl.GameSettingsRequested += (sender, e) =>
                 navigationKryptonCheckButton_Click(settingsKryptonCheckButton, EventArgs.Empty);
             generalUserControl.ToolsRequested += (sender, e) =>
@@ -95,6 +101,7 @@ namespace Empire_Earth_Launcher
             Text = Resources.LauncherTitle;
             playKryptonCheckButton.Values.Text = Resources.NavigationPlay;
             settingsKryptonCheckButton.Values.Text = Resources.NavigationSettings;
+            graphicsKryptonCheckButton.Values.Text = Resources.NavigationGraphics;
             toolsKryptonCheckButton.Values.Text = Resources.NavigationTools;
             launcherKryptonCheckButton.Values.Text = Resources.NavigationLauncher;
         }

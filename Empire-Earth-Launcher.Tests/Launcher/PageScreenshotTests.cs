@@ -12,7 +12,7 @@ using NUnit.Framework;
 namespace Empire_Earth_Launcher.Tests.Launcher
 {
     /// <summary>
-    /// Pictures of the four pages of the launcher, as PNG files, for the CI run on Windows (1.1.0, ADR 0012 amendment): the
+    /// Pictures of the five pages of the launcher, as PNG files, for the CI run on Windows (1.1.0, ADR 0012 amendment): the
     /// artifact <c>page-pictures</c> of the build shows what the geometry tests of <see cref="PageLayoutTests"/> measured, and
     /// replaces the screenshot of the player when a layout has to be judged by eye.
     /// </summary>
@@ -27,7 +27,8 @@ namespace Empire_Earth_Launcher.Tests.Launcher
     /// <para>
     /// The pages are filled as the launcher fills them (<see cref="SettingsPageWorld"/>, <see cref="PlayPageWorld"/> and
     /// <see cref="LauncherPageWorld"/>: hidden first, shown afterwards); the Game settings, Play and Launcher pages in each of
-    /// their states, English and German, the smallest size and 1024 x 640, and once with fonts 50 % larger; the Tools page as
+    /// their states (the Graphics page too: <see cref="GraphicsPageWorld"/>), English and German, the smallest size and 1024 x 640,
+    /// and once with fonts 50 % larger; the Tools page as
     /// the designer made it. Mono cannot create a window handle for these pages, so the pictures exist on Windows only.
     /// </para>
     /// </remarks>
@@ -143,6 +144,29 @@ namespace Empire_Earth_Launcher.Tests.Launcher
                         foreach (Size size in PictureSizes())
                         {
                             string name = Name(LauncherPages.Launcher, state.ToString(), lang, size, scale);
+                            SavePictures(world.Window, world.Page, size, world.ConstructedSize, folder, name);
+                        }
+                    }
+                }
+            }
+        }
+
+        [TestCaseSource(nameof(Languages))]
+        public void GraphicsPage_EveryState_IsSavedAsPicture(string lang)
+        {
+            string folder = PictureFolder();
+            language = TestUiLanguage.Use(lang);
+            foreach (GraphicsPageState state in Enum.GetValues(typeof(GraphicsPageState)))
+            {
+                foreach (float scale in new[] { 1f, 1.5f })
+                {
+                    if (scale > 1f && state != GraphicsPageState.DgVoodoo)
+                        continue;
+                    using (GraphicsPageWorld world = GraphicsPageWorld.In(state, true, scale))
+                    {
+                        foreach (Size size in PictureSizes())
+                        {
+                            string name = Name(LauncherPages.Graphics, state.ToString(), lang, size, scale);
                             SavePictures(world.Window, world.Page, size, world.ConstructedSize, folder, name);
                         }
                     }

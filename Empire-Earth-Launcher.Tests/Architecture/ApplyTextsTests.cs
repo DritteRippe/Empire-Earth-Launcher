@@ -26,8 +26,8 @@ namespace Empire_Earth_Launcher.Tests.Architecture
         /// <summary>The forms and pages of the launcher; a new one needs its ApplyTexts as well.</summary>
         private static readonly string[] ExpectedForms =
         {
-            "GeneralUserControl", "LauncherDialog", "LauncherSettingsUserControl", "MainForm", "SettingsUserControl",
-            "ToolsUserControl",
+            "GeneralUserControl", "GraphicsUserControl", "LauncherDialog", "LauncherSettingsUserControl", "MainForm",
+            "SettingsUserControl", "ToolsUserControl",
         };
 
         /// <summary>
