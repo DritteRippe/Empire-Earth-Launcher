@@ -122,7 +122,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Graphics
         [Test]
         public void TheScreenModeKeys_DoNotIncludeTheOutputApi()
         {
-            Assert.That(DgVoodooConf.ScreenModeKeys, Does.Contain("FullScreenMode").And.Contain("AppControlledScreenMode"));
+            Assert.That(DgVoodooConf.ScreenModeKeys, Does.Contain("FullScreenMode").And.Contain("AppControlledScreenMode").And.Contain("FullscreenAttributes"));
             Assert.That(DgVoodooConf.ScreenModeKeys, Does.Not.Contain(DgVoodooConf.OutputApiKey));
         }
 

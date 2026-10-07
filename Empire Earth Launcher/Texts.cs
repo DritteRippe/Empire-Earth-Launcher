@@ -1440,6 +1440,32 @@ namespace Empire_Earth_Launcher
             return string.Join(Environment.NewLine + Environment.NewLine, blocks);
         }
 
+        /// <summary>
+        /// The hint about a <c>dgVoodoo.conf</c> that still has the settings of a setup before 1.1.0
+        /// (<see cref="DgVoodooPreset"/>): one paragraph for each game whose file was read and has outdated keys, with the keys
+        /// and their values; the VirtualStore copy has its own text (a repair with the setup does not replace it). Empty if
+        /// there is nothing to say.
+        /// </summary>
+        internal static string WrapperPresetHints(IReadOnlyList<WrapperConfLine> configs)
+        {
+            if (configs == null)
+                throw new ArgumentNullException(nameof(configs));
+            var paragraphs = new List<string>();
+            foreach (WrapperConfLine line in configs)
+            {
+                if (line.File.Status != ConfigFileStatus.Read || line.File.Conf == null)
+                    continue;
+                IReadOnlyList<PresetFinding> findings = DgVoodooPreset.OutdatedKeys(line.File.Conf);
+                if (findings.Count == 0)
+                    continue;
+                paragraphs.Add(string.Format(CultureInfo.CurrentCulture,
+                    line.File.IsVirtualStoreCopy ? Resources.GraphicsConfOutdatedVirtualStoreFormat : Resources.GraphicsConfOutdatedFormat,
+                    GameName(line.Game),
+                    string.Join(", ", findings.Select(finding => finding.Key + " = " + (finding.Value ?? Resources.GraphicsConfNotSet)))));
+            }
+            return string.Join(Environment.NewLine + Environment.NewLine, paragraphs);
+        }
+
         // --- Mods page (launcher 1.1.0) -----------------------------------------------------------------------------------
 
         /// <summary>The line of a running setup on the Mods page; null if none runs. The page reads and opens nothing then (contract 4.2).</summary>

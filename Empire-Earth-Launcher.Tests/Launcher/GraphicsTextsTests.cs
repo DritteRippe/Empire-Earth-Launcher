@@ -192,6 +192,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
                 "DisableAltEnterToToggleScreenMode = false",
                 "DeferredScreenModeSwitch = not set",
                 "WindowedAttributes = Borderless, AlwaysOnTop",
+                "FullscreenAttributes = not set",
                 "Resolution = not set",
                 "ScalingMode = not set",
                 "CaptureMouse = not set",
@@ -244,6 +245,51 @@ namespace Empire_Earth_Launcher.Tests.Launcher
 
                 Assert.That(text, Does.Contain("FullScreenMode = true"));
                 Assert.That(text, Does.Contain("CaptureMouse = " + notSet));
+            }
+        }
+
+        [Test]
+        public void ThePresetHints_NameTheOutdatedKeys_OneParagraphPerGameWhoseConfWasRead()
+        {
+            string old = Tests.Core.Graphics.DgVoodooPresetTests.OldConf;
+            string current = Tests.Core.Graphics.DgVoodooPresetTests.CurrentConf;
+
+            string text = Texts.WrapperPresetHints(new[] { Conf(Game.EmpireEarth, old), Conf(Game.ArtOfConquest, current) });
+
+            Assert.That(text, Does.StartWith("The dgVoodoo.conf of Empire Earth still has the settings of an older setup (Version = 0x282, " +
+                "DeferredScreenModeSwitch = true, DisableAltEnterToToggleScreenMode = false, FullscreenAttributes = not set)."));
+            Assert.That(text, Does.Not.Contain("Art of Conquest"));
+            Assert.That(Texts.WrapperPresetHints(new[] { Conf(Game.EmpireEarth, current) }), Is.Empty);
+            Assert.That(Texts.WrapperPresetHints(new WrapperConfLine[0]), Is.Empty);
+        }
+
+        [Test]
+        public void ThePresetHint_OfAVirtualStoreCopy_SaysThatARepairDoesNotReplaceIt()
+        {
+            string text = Texts.WrapperPresetHints(new[] { Conf(Game.EmpireEarth, Tests.Core.Graphics.DgVoodooPresetTests.OldConf, true) });
+
+            Assert.That(text, Does.StartWith("The copy of dgVoodoo.conf in the VirtualStore that Empire Earth reads has the settings of an older setup"));
+            Assert.That(text, Does.Contain("A repair with the setup does not replace this copy"));
+        }
+
+        [TestCase("en")]
+        [TestCase("de")]
+        [TestCase("fr")]
+        public void ThePresetHintFormats_KeepTheGameAndTheKeys_InEveryLanguage(string language)
+        {
+            using (TestUiLanguage.Use(language))
+            {
+                foreach (string format in new[]
+                {
+                    Empire_Earth_Launcher.Properties.Resources.GraphicsConfOutdatedFormat,
+                    Empire_Earth_Launcher.Properties.Resources.GraphicsConfOutdatedVirtualStoreFormat,
+                })
+                {
+                    Assert.That(format, Does.Contain("{0}").And.Contain("{1}").And.Contain("dgVoodoo.conf"), language);
+                    Assert.That(string.Format(CultureInfo.InvariantCulture, format, "GAME", "KEYS"), Does.Contain("GAME").And.Contain("KEYS"), language);
+                }
+                Assert.That(Empire_Earth_Launcher.Properties.Resources.GraphicsConfOutdatedFormat, Does.Contain("Empire Earth Community Setup"), language);
+                Assert.That(Empire_Earth_Launcher.Properties.Resources.GraphicsConfOutdatedVirtualStoreFormat, Does.Contain("VirtualStore"), language);
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Empire_Earth_Launcher.Core.Diagnostics;
 using Empire_Earth_Launcher.Core.GameSettings;
 using Empire_Earth_Launcher.Core.Platform;
 using Empire_Earth_Launcher.Tests.TestSupport;
@@ -265,6 +266,130 @@ namespace Empire_Earth_Launcher.Tests.Launcher
 
             Assert.That(view.WrapperInstalled, Is.EqualTo("Installed: DirectX 11 (dgVoodoo), API level 10.1"));
             Assert.That(view.WrapperConfig, Does.Contain("OutputAPI = d3d11_fl10_1").And.Contain("FullScreenMode = true"));
+        }
+
+        // --- The hint about an old dgVoodoo preset (contract of setup ADR 0005, amendment 2026-10-07) -----------------------
+
+        private const string OldConf = Tests.Core.Graphics.DgVoodooPresetTests.OldConf;
+        private const string CurrentConf = Tests.Core.Graphics.DgVoodooPresetTests.CurrentConf;
+
+        [Test]
+        public async Task AnOldDgVoodooConf_OfACommunityInstallation_GetsTheHint_PerGame()
+        {
+            g.AddInstallation("game,gameaoc," + GraphicsModelWorld.Wrapper + @"\dx11_lvl10_1");
+            g.World.FileSystem.AddFile(GraphicsModelWorld.EeFolder + @"\dgVoodoo.conf", OldConf);
+            g.World.FileSystem.AddFile(GraphicsModelWorld.AocFolder + @"\dgVoodoo.conf", OldConf);
+            await g.Search();
+
+            string hint = View().WrapperPresetHint;
+
+            Assert.That(hint, Does.StartWith("The dgVoodoo.conf of Empire Earth still has the settings of an older setup (Version = 0x282, " +
+                "DeferredScreenModeSwitch = true, DisableAltEnterToToggleScreenMode = false, FullscreenAttributes = not set)."));
+            Assert.That(hint, Does.Contain(System.Environment.NewLine + System.Environment.NewLine + "The dgVoodoo.conf of The Art of Conquest still has"));
+            Assert.That(hint, Does.Contain("Repair or update the installation with the setup").And.Contain("The launcher does not change the file."));
+        }
+
+        [Test]
+        public async Task TheCurrentDgVoodooConf_GetsNoHint()
+        {
+            g.AddInstallation("game,gameaoc," + GraphicsModelWorld.Wrapper + @"\dx11_lvl10_1");
+            g.World.FileSystem.AddFile(GraphicsModelWorld.EeFolder + @"\dgVoodoo.conf", CurrentConf);
+            g.World.FileSystem.AddFile(GraphicsModelWorld.AocFolder + @"\dgVoodoo.conf", CurrentConf);
+            await g.Search();
+
+            Assert.That(View().WrapperPresetHint, Is.Empty);
+            Assert.That(View().WrapperConfig, Does.Contain("FullscreenAttributes = fake"), "the page shows the key");
+        }
+
+        [Test]
+        public async Task OnlyTheGameWithAnOldConf_GetsAParagraph()
+        {
+            g.AddInstallation("game,gameaoc," + GraphicsModelWorld.Wrapper + @"\dx11_lvl10_1");
+            g.World.FileSystem.AddFile(GraphicsModelWorld.EeFolder + @"\dgVoodoo.conf", CurrentConf);
+            g.World.FileSystem.AddFile(GraphicsModelWorld.AocFolder + @"\dgVoodoo.conf", OldConf);
+            await g.Search();
+
+            string hint = View().WrapperPresetHint;
+
+            Assert.That(hint, Does.StartWith("The dgVoodoo.conf of The Art of Conquest still has"));
+            Assert.That(hint, Does.Not.Contain("Empire Earth still"));
+        }
+
+        [Test]
+        public async Task TheVirtualStoreCopyThatTheGameReads_GetsItsOwnText()
+        {
+            g.AddInstallation("game," + GraphicsModelWorld.Wrapper + @"\dx11_lvl10_1");
+            g.World.FileSystem.AddFile(GraphicsModelWorld.EeFolder + @"\dgVoodoo.conf", CurrentConf);
+            g.World.FileSystem.AddFile(GraphicsModelWorld.VirtualStore + @"\Program Files (x86)\Neo Empire Earth\Empire Earth\dgVoodoo.conf", OldConf);
+            await g.Search();
+
+            string hint = View().WrapperPresetHint;
+
+            Assert.That(hint, Does.StartWith("The copy of dgVoodoo.conf in the VirtualStore that Empire Earth reads has the settings of an older setup (Version = 0x282"));
+            Assert.That(hint, Does.Contain("A repair with the setup does not replace this copy"));
+        }
+
+        [Test]
+        public async Task NoHint_ForAMissingOrAnUnreadableConf()
+        {
+            g.AddInstallation("game,gameaoc," + GraphicsModelWorld.Wrapper + @"\dx11_lvl10_1");
+            g.World.FileSystem.AddFile(GraphicsModelWorld.AocFolder + @"\dgVoodoo.conf", new byte[KeyValueFile.MaxBytes + 1]);
+            await g.Search();
+
+            GraphicsView view = View();
+
+            Assert.That(view.WrapperConfig, Does.Contain("was not found").And.Contain("could not be read"));
+            Assert.That(view.WrapperPresetHint, Is.Empty, "nothing is known about a file that was not read");
+        }
+
+        [TestCase("")]
+        [TestCase(@"\dx9")]
+        [TestCase(@"\dx7")]
+        public async Task NoHint_WithoutDgVoodoo(string wrapper)
+        {
+            g.AddInstallation("game,gameaoc," + GraphicsModelWorld.Wrapper + wrapper);
+            g.World.FileSystem.AddFile(GraphicsModelWorld.EeFolder + @"\dgVoodoo.conf", OldConf);
+            await g.Search();
+
+            Assert.That(View().WrapperPresetHint, Is.Empty);
+        }
+
+        [Test]
+        public async Task NoHint_ForAForeignInstallation_EvenWithAnOldConfNextToAWrapperFile()
+        {
+            g.World.World.AddEmpireEarth(@"C:\Games\EE");
+            g.World.FileSystem.AddFile(@"C:\Games\EE\DDraw.dll", "x");
+            g.World.FileSystem.AddFile(@"C:\Games\EE\dgVoodoo.conf", OldConf);
+            await g.Installations.ChooseFolderAsync(@"C:\Games\EE");
+            await g.Model.LastRead;
+
+            GraphicsView view = View();
+
+            Assert.That(view.WrapperConfig, Does.Contain("Version").Or.Contain("OutputAPI"), "the conf is read and shown");
+            Assert.That(view.WrapperPresetHint, Is.Empty, "the setup that could repair it did not install it");
+        }
+
+        [TestCase("de", "Die dgVoodoo.conf von Empire Earth hat noch die Einstellungen eines älteren Setups (Version = 0x282, DeferredScreenModeSwitch = true, " +
+                        "DisableAltEnterToToggleScreenMode = false, FullscreenAttributes = nicht gesetzt).")]
+        [TestCase("fr", "Le fichier dgVoodoo.conf de Empire Earth contient encore les réglages d'un ancien programme d'installation (Version = 0x282, " +
+                        "DeferredScreenModeSwitch = true, DisableAltEnterToToggleScreenMode = false, FullscreenAttributes = non défini).")]
+        public async Task TheHint_IsInTheUiLanguage_TheKeysAreNot(string language, string start)
+        {
+            g.AddInstallation("game," + GraphicsModelWorld.Wrapper + @"\dx11_lvl10_1");
+            g.World.FileSystem.AddFile(GraphicsModelWorld.EeFolder + @"\dgVoodoo.conf", OldConf);
+            await g.Search();
+
+            using (TestUiLanguage.Use(language))
+                Assert.That(View().WrapperPresetHint, Does.StartWith(start));
+        }
+
+        [Test]
+        public async Task WhileTheStateIsNotRead_ThereIsNoHint()
+        {
+            g.AddInstallation("game," + GraphicsModelWorld.Wrapper + @"\dx11_lvl10_1");
+
+            Assert.That(View().WrapperPresetHint, Is.Empty);
+            await g.Search();
         }
 
         [TestCase("de", "Installiert: DirectX 11 (dgVoodoo), API-Level 10.1")]

@@ -1028,6 +1028,24 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The dgVoodoo.conf of {0} still has the settings of an older setup ({1})..
+        /// </summary>
+        internal static string GraphicsConfOutdatedFormat {
+            get {
+                return ResourceManager.GetString("GraphicsConfOutdatedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The copy of dgVoodoo.conf in the VirtualStore that {0} reads has the settings of an older setup ({1})..
+        /// </summary>
+        internal static string GraphicsConfOutdatedVirtualStoreFormat {
+            get {
+                return ResourceManager.GetString("GraphicsConfOutdatedVirtualStoreFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to dgVoodoo.conf of {0} could not be read..
         /// </summary>
         internal static string GraphicsConfUnreadableFormat {

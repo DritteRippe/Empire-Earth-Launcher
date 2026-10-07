@@ -108,6 +108,7 @@
     <Compile Include="Core\GameSettings\LauncherWritePolicyTests.cs" />
     <Compile Include="Core\GameSettings\ResolutionOptionsTests.cs" />
     <Compile Include="Core\Graphics\DgVoodooConfReaderTests.cs" />
+    <Compile Include="Core\Graphics\DgVoodooPresetTests.cs" />
     <Compile Include="Core\Graphics\WrapperInfoTests.cs" />
     <Compile Include="Core\Installations\ProductChoicesTests.cs" />
     <Compile Include="Core\Mods\CreditsParserTests.cs" />

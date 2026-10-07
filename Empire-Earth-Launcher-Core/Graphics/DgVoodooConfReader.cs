@@ -52,6 +52,7 @@ namespace Empire_Earth_Launcher.Core.Graphics
             "DisableAltEnterToToggleScreenMode",
             "DeferredScreenModeSwitch",
             "WindowedAttributes",
+            "FullscreenAttributes",
             "Resolution",
             "ScalingMode",
             "CaptureMouse",

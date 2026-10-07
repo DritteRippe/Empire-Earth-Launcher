@@ -45,6 +45,7 @@ namespace Empire_Earth_Launcher
             this.wrapperHeadingKryptonLabel = new Krypton.Toolkit.KryptonLabel();
             this.wrapperInstalledKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             this.wrapperConfigKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
+            this.wrapperPresetKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             this.wrapperNoteKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             this.wrapperChangeKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             ((System.ComponentModel.ISupportInitialize)(this.windowSizeKryptonComboBox)).BeginInit();
@@ -128,6 +129,7 @@ namespace Empire_Earth_Launcher
             this.graphicsScrollPanel.Controls.Add(this.wrapperHeadingKryptonLabel);
             this.graphicsScrollPanel.Controls.Add(this.wrapperInstalledKryptonWrapLabel);
             this.graphicsScrollPanel.Controls.Add(this.wrapperConfigKryptonWrapLabel);
+            this.graphicsScrollPanel.Controls.Add(this.wrapperPresetKryptonWrapLabel);
             this.graphicsScrollPanel.Controls.Add(this.wrapperNoteKryptonWrapLabel);
             this.graphicsScrollPanel.Controls.Add(this.wrapperChangeKryptonWrapLabel);
             this.graphicsScrollPanel.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -287,13 +289,26 @@ namespace Empire_Earth_Launcher
             this.wrapperConfigKryptonWrapLabel.Size = new System.Drawing.Size(505, 150);
             this.wrapperConfigKryptonWrapLabel.Text = "";
             // 
+            // wrapperPresetKryptonWrapLabel
+            // 
+            this.wrapperPresetKryptonWrapLabel.AutoSize = false;
+            this.wrapperPresetKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.wrapperPresetKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.wrapperPresetKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
+            this.wrapperPresetKryptonWrapLabel.Location = new System.Drawing.Point(12, 554);
+            this.wrapperPresetKryptonWrapLabel.Name = "wrapperPresetKryptonWrapLabel";
+            this.wrapperPresetKryptonWrapLabel.Palette = this.launcherKryptonPalette;
+            this.wrapperPresetKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.wrapperPresetKryptonWrapLabel.Size = new System.Drawing.Size(505, 64);
+            this.wrapperPresetKryptonWrapLabel.Text = "";
+            // 
             // wrapperNoteKryptonWrapLabel
             // 
             this.wrapperNoteKryptonWrapLabel.AutoSize = false;
             this.wrapperNoteKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.wrapperNoteKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.wrapperNoteKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
-            this.wrapperNoteKryptonWrapLabel.Location = new System.Drawing.Point(12, 554);
+            this.wrapperNoteKryptonWrapLabel.Location = new System.Drawing.Point(12, 624);
             this.wrapperNoteKryptonWrapLabel.Name = "wrapperNoteKryptonWrapLabel";
             this.wrapperNoteKryptonWrapLabel.Palette = this.launcherKryptonPalette;
             this.wrapperNoteKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
@@ -306,7 +321,7 @@ namespace Empire_Earth_Launcher
             this.wrapperChangeKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.wrapperChangeKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.wrapperChangeKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
-            this.wrapperChangeKryptonWrapLabel.Location = new System.Drawing.Point(12, 624);
+            this.wrapperChangeKryptonWrapLabel.Location = new System.Drawing.Point(12, 694);
             this.wrapperChangeKryptonWrapLabel.Name = "wrapperChangeKryptonWrapLabel";
             this.wrapperChangeKryptonWrapLabel.Palette = this.launcherKryptonPalette;
             this.wrapperChangeKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
@@ -342,6 +357,7 @@ namespace Empire_Earth_Launcher
         private Krypton.Toolkit.KryptonLabel wrapperHeadingKryptonLabel;
         private Empire_Earth_Launcher.LauncherWrapLabel wrapperInstalledKryptonWrapLabel;
         private Empire_Earth_Launcher.LauncherWrapLabel wrapperConfigKryptonWrapLabel;
+        private Empire_Earth_Launcher.LauncherWrapLabel wrapperPresetKryptonWrapLabel;
         private Empire_Earth_Launcher.LauncherWrapLabel wrapperNoteKryptonWrapLabel;
         private Empire_Earth_Launcher.LauncherWrapLabel wrapperChangeKryptonWrapLabel;
     }

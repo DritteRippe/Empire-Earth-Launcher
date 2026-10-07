@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Empire_Earth_Launcher.Core.GameSettings;
+using Empire_Earth_Launcher.Core.Graphics;
 using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Platform;
 using Empire_Earth_Launcher.Core.Play;
@@ -56,6 +57,13 @@ namespace Empire_Earth_Launcher
 
         /// <summary>The <c>dgVoodoo.conf</c> lines of the games; empty if there is nothing to show.</summary>
         public string WrapperConfig { get; private set; }
+
+        /// <summary>
+        /// The hint that a <c>dgVoodoo.conf</c> still has the settings of a setup before 1.1.0 and that a repair with the setup
+        /// replaces them; empty if there is none. Only for dgVoodoo of a community installation, never an action (the launcher
+        /// does not write the file).
+        /// </summary>
+        public string WrapperPresetHint { get; private set; }
 
         /// <summary>
         /// The size the player chose, if it was chosen for the installation <paramref name="snapshot"/> is about, else none: another
@@ -113,6 +121,10 @@ namespace Empire_Earth_Launcher
                 : string.Empty;
             view.WrapperInstalled = ready ? Texts.WrapperInstalled(snapshot.Wrapper) : string.Empty;
             view.WrapperConfig = ready ? Texts.WrapperConfigs(snapshot.Configs) : string.Empty;
+            // The preset hint is the setup's business (a repair writes the conf): only for dgVoodoo that a community setup installed.
+            view.WrapperPresetHint = ready && snapshot.Wrapper.Kind == WrapperKind.DgVoodoo && snapshot.Installation.Kind != InstallationKind.Foreign
+                ? Texts.WrapperPresetHints(snapshot.Configs)
+                : string.Empty;
             return view;
         }
     }

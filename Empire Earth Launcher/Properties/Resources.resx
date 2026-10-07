@@ -1787,6 +1787,14 @@ The old files are copied to the backup folder first. Replace them?</value>
     <value>dgVoodoo.conf of {0} was not found.</value>
     <comment>{0}: the game.</comment>
   </data>
+  <data name="GraphicsConfOutdatedFormat" xml:space="preserve">
+    <value>The dgVoodoo.conf of {0} still has the settings of an older setup ({1}). With them the mouse may not react after the start and the multiplayer lobby may minimize the game. Repair or update the installation with the setup (Empire Earth Community Setup): it writes the current settings. The launcher does not change the file.</value>
+    <comment>Hint below the dgVoodoo.conf keys, one paragraph per game. {0}: the game; {1}: the keys that still have the value of a setup before 1.1.0, like "Version = 0x282, DeferredScreenModeSwitch = true". The launcher never changes the file; "Empire Earth Community Setup" is the name of the setup.</comment>
+  </data>
+  <data name="GraphicsConfOutdatedVirtualStoreFormat" xml:space="preserve">
+    <value>The copy of dgVoodoo.conf in the VirtualStore that {0} reads has the settings of an older setup ({1}). A repair with the setup does not replace this copy: close the game, then rename or delete the copy yourself (the Tools page shows where it is). The launcher does not change the file.</value>
+    <comment>Like GraphicsConfOutdatedFormat, for the copy of dgVoodoo.conf in the VirtualStore that the game reads. {0}: the game; {1}: the keys. "VirtualStore" is the Windows name; the Tools page shows where the copy is.</comment>
+  </data>
   <data name="GraphicsConfUnreadableFormat" xml:space="preserve">
     <value>dgVoodoo.conf of {0} could not be read.</value>
     <comment>{0}: the game.</comment>

@@ -159,6 +159,8 @@ namespace Empire_Earth_Launcher
             SetShown(wrapperInstalledKryptonWrapLabel, view.WrapperInstalled.Length > 0);
             wrapperConfigKryptonWrapLabel.Text = view.WrapperConfig;
             SetShown(wrapperConfigKryptonWrapLabel, view.WrapperConfig.Length > 0);
+            wrapperPresetKryptonWrapLabel.Text = view.WrapperPresetHint;
+            SetShown(wrapperPresetKryptonWrapLabel, view.WrapperPresetHint.Length > 0);
             LayoutPage();
         }
 
@@ -214,6 +216,7 @@ namespace Empire_Earth_Launcher
             stack.Place(wrapperHeadingKryptonLabel);
             stack.Place(wrapperInstalledKryptonWrapLabel);
             stack.Place(wrapperConfigKryptonWrapLabel);
+            stack.Place(wrapperPresetKryptonWrapLabel);
             stack.Place(wrapperNoteKryptonWrapLabel);
             stack.Place(wrapperChangeKryptonWrapLabel);
         }
