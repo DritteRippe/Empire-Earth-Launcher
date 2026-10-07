@@ -150,12 +150,6 @@ namespace Empire_Earth_Launcher
             }
         }
 
-        /// <summary>True if The Art of Conquest can be chosen: the selected installation has an AoC folder.</summary>
-        public bool CanChooseArtOfConquest
-        {
-            get { return Selected?.HasArtOfConquest == true; }
-        }
-
         /// <summary>
         /// True if Play is possible: an installation whose folder exists, no running setup (contract 4.2), no start running.
         /// A missing program does not disable Play: the start then gives the repair advice.
@@ -188,21 +182,6 @@ namespace Empire_Earth_Launcher
             // The product is saved by the installations (one save for both); they raise Changed if the selection moved.
             installations.SelectProduct(entry.Product);
             logger.Info("Play: the player chose " + entry.EnglishName + " (" + entry.Product.Id + ", " + entry.Game.Id + ").");
-            RaiseChanged();
-        }
-
-        /// <summary>Chooses the game for Play and saves it as the last game in settings.json.</summary>
-        public void SelectGame(Game game)
-        {
-            if (game == null)
-                throw new ArgumentNullException(nameof(game));
-            if (game == Game.ArtOfConquest && !CanChooseArtOfConquest)
-                throw new InvalidOperationException("The selected installation has no folder of The Art of Conquest.");
-            if (string.Equals(settings.Current.LastGame, game.Id, StringComparison.Ordinal))
-                return;
-            settings.Current.LastGame = game.Id;
-            // If saving fails (logged by the store), the choice is still used for this session.
-            settings.Save();
             RaiseChanged();
         }
 

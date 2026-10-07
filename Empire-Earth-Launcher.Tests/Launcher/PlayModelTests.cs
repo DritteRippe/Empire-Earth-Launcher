@@ -94,7 +94,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             await model.RefreshVersionsAsync();
 
             Assert.That(model.CanPlay, Is.True);
-            Assert.That(model.CanChooseArtOfConquest, Is.True);
+            Assert.That(model.IsAvailable(PlayEntry.NeoEmpireEarthArtOfConquest), Is.True);
             Assert.That(model.Versions.Select(v => v.ToString()),
                 Is.EqualTo(new[] { "Empire Earth.exe 2.0.0.2949", "EE-AOC.exe without version" }));
             Assert.That(w.Logger.Messages, Has.Some.Contains("Program versions of " + GameSettingsWorld.NeoRoot));
@@ -106,7 +106,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
         {
             await installations.RefreshAsync();
 
-            model.SelectGame(Game.ArtOfConquest);
+            model.SelectEntry(PlayEntry.NeoEmpireEarthArtOfConquest);
 
             Assert.That(model.SelectedGame, Is.SameAs(Game.ArtOfConquest));
             Assert.That(w.FileSystem.GetText(SettingsFile), Does.Contain("\"LastGame\": \"AoC\""));
@@ -120,9 +120,9 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             settings.Current.LastGame = "AoC";
             await installations.RefreshAsync();
 
-            Assert.That(model.CanChooseArtOfConquest, Is.False);
+            Assert.That(model.IsAvailable(PlayEntry.NeoEmpireEarthArtOfConquest), Is.False);
             Assert.That(model.SelectedGame, Is.SameAs(Game.EmpireEarth), "the last game AoC counts only with an AoC folder");
-            Assert.That(() => model.SelectGame(Game.ArtOfConquest), Throws.InvalidOperationException);
+            Assert.That(() => model.SelectEntry(PlayEntry.NeoEmpireEarthArtOfConquest), Throws.InvalidOperationException);
         }
 
         // --- The four games (launcher 1.1.0, contract 1.4 revision 6) -------------------------------------------------------
@@ -344,7 +344,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
         public async Task Start_StartsTheChosenGame_InItsRealFolder()
         {
             await installations.RefreshAsync();
-            model.SelectGame(Game.ArtOfConquest);
+            model.SelectEntry(PlayEntry.NeoEmpireEarthArtOfConquest);
 
             StartResult result = await model.StartAsync(false);
 

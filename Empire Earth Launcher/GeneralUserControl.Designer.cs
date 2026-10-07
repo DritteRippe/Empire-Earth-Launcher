@@ -40,8 +40,11 @@ namespace Empire_Earth_Launcher
             this.lobbyStatusLauncherWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             this.usersLobbyKryptonComboBox = new Krypton.Toolkit.KryptonComboBox();
             this.gameSettingsKryptonGroupBox = new Krypton.Toolkit.KryptonGroupBox();
-            this.artOfConquestKryptonRadioButton = new Krypton.Toolkit.KryptonRadioButton();
+            this.neoEmpireEarthAocKryptonRadioButton = new Krypton.Toolkit.KryptonRadioButton();
+            this.neoEmpireEarthKryptonRadioButton = new Krypton.Toolkit.KryptonRadioButton();
+            this.empireEarthAocKryptonRadioButton = new Krypton.Toolkit.KryptonRadioButton();
             this.empireEarthKryptonRadioButton = new Krypton.Toolkit.KryptonRadioButton();
+            this.playEntriesHintKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             this.programVersionsKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             this.playStatusKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             this.versionResultKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
@@ -168,7 +171,7 @@ namespace Empire_Earth_Launcher
             this.playKryptonButton.StatePressed.Back.ImageStyle = Krypton.Toolkit.PaletteImageStyle.Stretch;
             this.playKryptonButton.StatePressed.Content.ShortText.Color1 = System.Drawing.Color.Gold;
             this.playKryptonButton.StatePressed.Content.ShortText.Font = new System.Drawing.Font("Verdana", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.playKryptonButton.TabIndex = 6;
+            this.playKryptonButton.TabIndex = 5;
             this.playKryptonButton.Values.ImageStates.ImageCheckedNormal = null;
             this.playKryptonButton.Values.ImageStates.ImageCheckedPressed = null;
             this.playKryptonButton.Values.ImageStates.ImageCheckedTracking = null;
@@ -186,7 +189,7 @@ namespace Empire_Earth_Launcher
             this.gameColumnPanel.Location = new System.Drawing.Point(0, 0);
             this.gameColumnPanel.Name = "gameColumnPanel";
             this.gameColumnPanel.Size = new System.Drawing.Size(330, 380);
-            this.gameColumnPanel.TabIndex = 17;
+            this.gameColumnPanel.TabIndex = 0;
             // 
             // neoOnlineKryptonGroupBox
             // 
@@ -273,22 +276,14 @@ namespace Empire_Earth_Launcher
             this.gameSettingsKryptonGroupBox.Panel.Controls.Add(this.versionResultKryptonWrapLabel);
             this.gameSettingsKryptonGroupBox.Panel.Controls.Add(this.playStatusKryptonWrapLabel);
             this.gameSettingsKryptonGroupBox.Panel.Controls.Add(this.programVersionsKryptonWrapLabel);
-            this.gameSettingsKryptonGroupBox.Panel.Controls.Add(this.artOfConquestKryptonRadioButton);
+            this.gameSettingsKryptonGroupBox.Panel.Controls.Add(this.playEntriesHintKryptonWrapLabel);
+            this.gameSettingsKryptonGroupBox.Panel.Controls.Add(this.neoEmpireEarthAocKryptonRadioButton);
+            this.gameSettingsKryptonGroupBox.Panel.Controls.Add(this.neoEmpireEarthKryptonRadioButton);
+            this.gameSettingsKryptonGroupBox.Panel.Controls.Add(this.empireEarthAocKryptonRadioButton);
             this.gameSettingsKryptonGroupBox.Panel.Controls.Add(this.empireEarthKryptonRadioButton);
-            this.gameSettingsKryptonGroupBox.Size = new System.Drawing.Size(322, 222);
+            this.gameSettingsKryptonGroupBox.Size = new System.Drawing.Size(322, 322);
             this.gameSettingsKryptonGroupBox.TabIndex = 2;
             this.gameSettingsKryptonGroupBox.Values.Heading = "Game";
-            // 
-            // artOfConquestKryptonRadioButton
-            // 
-            this.artOfConquestKryptonRadioButton.Location = new System.Drawing.Point(144, 13);
-            this.artOfConquestKryptonRadioButton.Name = "artOfConquestKryptonRadioButton";
-            this.artOfConquestKryptonRadioButton.Palette = this.launcherKryptonPalette;
-            this.artOfConquestKryptonRadioButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.artOfConquestKryptonRadioButton.Size = new System.Drawing.Size(140, 20);
-            this.artOfConquestKryptonRadioButton.TabIndex = 7;
-            this.artOfConquestKryptonRadioButton.Values.Text = "The Art of Conquest";
-            this.artOfConquestKryptonRadioButton.CheckedChanged += new System.EventHandler(this.gameKryptonRadioButton_CheckedChanged);
             // 
             // empireEarthKryptonRadioButton
             // 
@@ -296,10 +291,57 @@ namespace Empire_Earth_Launcher
             this.empireEarthKryptonRadioButton.Name = "empireEarthKryptonRadioButton";
             this.empireEarthKryptonRadioButton.Palette = this.launcherKryptonPalette;
             this.empireEarthKryptonRadioButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.empireEarthKryptonRadioButton.Size = new System.Drawing.Size(100, 20);
-            this.empireEarthKryptonRadioButton.TabIndex = 6;
+            this.empireEarthKryptonRadioButton.Size = new System.Drawing.Size(296, 20);
+            this.empireEarthKryptonRadioButton.TabIndex = 1;
             this.empireEarthKryptonRadioButton.Values.Text = "Empire Earth";
-            this.empireEarthKryptonRadioButton.CheckedChanged += new System.EventHandler(this.gameKryptonRadioButton_CheckedChanged);
+            this.empireEarthKryptonRadioButton.CheckedChanged += new System.EventHandler(this.playEntryKryptonRadioButton_CheckedChanged);
+            // 
+            // empireEarthAocKryptonRadioButton
+            // 
+            this.empireEarthAocKryptonRadioButton.Location = new System.Drawing.Point(13, 36);
+            this.empireEarthAocKryptonRadioButton.Name = "empireEarthAocKryptonRadioButton";
+            this.empireEarthAocKryptonRadioButton.Palette = this.launcherKryptonPalette;
+            this.empireEarthAocKryptonRadioButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.empireEarthAocKryptonRadioButton.Size = new System.Drawing.Size(296, 20);
+            this.empireEarthAocKryptonRadioButton.TabIndex = 2;
+            this.empireEarthAocKryptonRadioButton.Values.Text = "Empire Earth \u2013 The Art of Conquest";
+            this.empireEarthAocKryptonRadioButton.CheckedChanged += new System.EventHandler(this.playEntryKryptonRadioButton_CheckedChanged);
+            // 
+            // neoEmpireEarthKryptonRadioButton
+            // 
+            this.neoEmpireEarthKryptonRadioButton.Location = new System.Drawing.Point(13, 59);
+            this.neoEmpireEarthKryptonRadioButton.Name = "neoEmpireEarthKryptonRadioButton";
+            this.neoEmpireEarthKryptonRadioButton.Palette = this.launcherKryptonPalette;
+            this.neoEmpireEarthKryptonRadioButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.neoEmpireEarthKryptonRadioButton.Size = new System.Drawing.Size(296, 20);
+            this.neoEmpireEarthKryptonRadioButton.TabIndex = 3;
+            this.neoEmpireEarthKryptonRadioButton.Values.Text = "Neo Empire Earth";
+            this.neoEmpireEarthKryptonRadioButton.CheckedChanged += new System.EventHandler(this.playEntryKryptonRadioButton_CheckedChanged);
+            // 
+            // neoEmpireEarthAocKryptonRadioButton
+            // 
+            this.neoEmpireEarthAocKryptonRadioButton.Location = new System.Drawing.Point(13, 82);
+            this.neoEmpireEarthAocKryptonRadioButton.Name = "neoEmpireEarthAocKryptonRadioButton";
+            this.neoEmpireEarthAocKryptonRadioButton.Palette = this.launcherKryptonPalette;
+            this.neoEmpireEarthAocKryptonRadioButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.neoEmpireEarthAocKryptonRadioButton.Size = new System.Drawing.Size(296, 20);
+            this.neoEmpireEarthAocKryptonRadioButton.TabIndex = 4;
+            this.neoEmpireEarthAocKryptonRadioButton.Values.Text = "Neo Empire Earth \u2013 The Art of Conquest";
+            this.neoEmpireEarthAocKryptonRadioButton.CheckedChanged += new System.EventHandler(this.playEntryKryptonRadioButton_CheckedChanged);
+            // 
+            // playEntriesHintKryptonWrapLabel
+            // 
+            this.playEntriesHintKryptonWrapLabel.AutoSize = false;
+            this.playEntriesHintKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 8.25F);
+            this.playEntriesHintKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.playEntriesHintKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
+            this.playEntriesHintKryptonWrapLabel.Location = new System.Drawing.Point(13, 106);
+            this.playEntriesHintKryptonWrapLabel.Name = "playEntriesHintKryptonWrapLabel";
+            this.playEntriesHintKryptonWrapLabel.Palette = this.launcherKryptonPalette;
+            this.playEntriesHintKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.playEntriesHintKryptonWrapLabel.Size = new System.Drawing.Size(296, 40);
+            this.playEntriesHintKryptonWrapLabel.Text = "";
+            this.playEntriesHintKryptonWrapLabel.Visible = false;
             // 
             // programVersionsKryptonWrapLabel
             // 
@@ -307,7 +349,7 @@ namespace Empire_Earth_Launcher
             this.programVersionsKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 8.25F);
             this.programVersionsKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.programVersionsKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
-            this.programVersionsKryptonWrapLabel.Location = new System.Drawing.Point(13, 40);
+            this.programVersionsKryptonWrapLabel.Location = new System.Drawing.Point(13, 150);
             this.programVersionsKryptonWrapLabel.Name = "programVersionsKryptonWrapLabel";
             this.programVersionsKryptonWrapLabel.Palette = this.launcherKryptonPalette;
             this.programVersionsKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
@@ -320,7 +362,7 @@ namespace Empire_Earth_Launcher
             this.playStatusKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 8.25F);
             this.playStatusKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.playStatusKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
-            this.playStatusKryptonWrapLabel.Location = new System.Drawing.Point(13, 122);
+            this.playStatusKryptonWrapLabel.Location = new System.Drawing.Point(13, 232);
             this.playStatusKryptonWrapLabel.Name = "playStatusKryptonWrapLabel";
             this.playStatusKryptonWrapLabel.Palette = this.launcherKryptonPalette;
             this.playStatusKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
@@ -333,7 +375,7 @@ namespace Empire_Earth_Launcher
             this.versionResultKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 8.25F);
             this.versionResultKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.versionResultKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
-            this.versionResultKryptonWrapLabel.Location = new System.Drawing.Point(13, 72);
+            this.versionResultKryptonWrapLabel.Location = new System.Drawing.Point(13, 182);
             this.versionResultKryptonWrapLabel.Name = "versionResultKryptonWrapLabel";
             this.versionResultKryptonWrapLabel.Palette = this.launcherKryptonPalette;
             this.versionResultKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
@@ -346,7 +388,7 @@ namespace Empire_Earth_Launcher
             this.integrityKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold);
             this.integrityKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.integrityKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
-            this.integrityKryptonWrapLabel.Location = new System.Drawing.Point(13, 102);
+            this.integrityKryptonWrapLabel.Location = new System.Drawing.Point(13, 212);
             this.integrityKryptonWrapLabel.Name = "integrityKryptonWrapLabel";
             this.integrityKryptonWrapLabel.Palette = this.launcherKryptonPalette;
             this.integrityKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
@@ -355,7 +397,7 @@ namespace Empire_Earth_Launcher
             // 
             // versionCheckKryptonButton
             // 
-            this.versionCheckKryptonButton.Location = new System.Drawing.Point(13, 166);
+            this.versionCheckKryptonButton.Location = new System.Drawing.Point(13, 276);
             this.versionCheckKryptonButton.Name = "versionCheckKryptonButton";
             this.versionCheckKryptonButton.Palette = this.launcherKryptonPalette;
             this.versionCheckKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
@@ -366,7 +408,7 @@ namespace Empire_Earth_Launcher
             // 
             // integrityKryptonButton
             // 
-            this.integrityKryptonButton.Location = new System.Drawing.Point(165, 166);
+            this.integrityKryptonButton.Location = new System.Drawing.Point(165, 276);
             this.integrityKryptonButton.Name = "integrityKryptonButton";
             this.integrityKryptonButton.Palette = this.launcherKryptonPalette;
             this.integrityKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
@@ -423,7 +465,7 @@ namespace Empire_Earth_Launcher
             this.gameSettingsHintKryptonPanel.Controls.Add(this.gameSettingsHintKryptonWrapLabel);
             this.gameSettingsHintKryptonPanel.Controls.Add(this.gameSettingsHintFirstKryptonButton);
             this.gameSettingsHintKryptonPanel.Controls.Add(this.gameSettingsHintSecondKryptonButton);
-            this.gameSettingsHintKryptonPanel.Location = new System.Drawing.Point(8, 236);
+            this.gameSettingsHintKryptonPanel.Location = new System.Drawing.Point(8, 336);
             this.gameSettingsHintKryptonPanel.Name = "gameSettingsHintKryptonPanel";
             this.gameSettingsHintKryptonPanel.Palette = this.launcherKryptonPalette;
             this.gameSettingsHintKryptonPanel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
@@ -503,8 +545,11 @@ namespace Empire_Earth_Launcher
         private System.Windows.Forms.Panel gameColumnPanel;
         private Krypton.Toolkit.KryptonGroupBox neoOnlineKryptonGroupBox;
         private Krypton.Toolkit.KryptonGroupBox gameSettingsKryptonGroupBox;
-        private Krypton.Toolkit.KryptonRadioButton artOfConquestKryptonRadioButton;
         private Krypton.Toolkit.KryptonRadioButton empireEarthKryptonRadioButton;
+        private Krypton.Toolkit.KryptonRadioButton empireEarthAocKryptonRadioButton;
+        private Krypton.Toolkit.KryptonRadioButton neoEmpireEarthKryptonRadioButton;
+        private Krypton.Toolkit.KryptonRadioButton neoEmpireEarthAocKryptonRadioButton;
+        private Empire_Earth_Launcher.LauncherWrapLabel playEntriesHintKryptonWrapLabel;
         private Empire_Earth_Launcher.LauncherWrapLabel programVersionsKryptonWrapLabel;
         private Empire_Earth_Launcher.LauncherWrapLabel playStatusKryptonWrapLabel;
         private Empire_Earth_Launcher.LauncherWrapLabel versionResultKryptonWrapLabel;

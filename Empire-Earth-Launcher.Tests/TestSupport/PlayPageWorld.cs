@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Reflection;
 using System.Windows.Forms;
+using Empire_Earth_Launcher.Core.Play;
 using Empire_Earth_Launcher.Properties;
 using Krypton.Toolkit;
 
@@ -27,6 +28,18 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
 
         /// <summary>The player list says why it is empty (a setup runs) and offers the link to the network check.</summary>
         LobbyStatus,
+
+        /// <summary>
+        /// The list of the four games with every game installed: all four can be chosen, the longest name is checked, no hint
+        /// (launcher 1.1.0).
+        /// </summary>
+        AllEntries,
+
+        /// <summary>
+        /// The list of the four games with the two games of EE greyed out (not installed) and the hint below the list, with the
+        /// long texts of the game group below it.
+        /// </summary>
+        EntriesWithHint,
     }
 
     /// <summary>
@@ -76,6 +89,13 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
                 ShowLongTexts();
             if (state == PlayPageState.InfoBar || state == PlayPageState.LongTextsAndInfoBar)
                 ShowDisplayQuestion();
+            if (state == PlayPageState.AllEntries)
+                Call("ShowEntries", new[] { true, true, true, true }, PlayEntry.NeoEmpireEarthArtOfConquest, false);
+            if (state == PlayPageState.EntriesWithHint)
+            {
+                ShowLongTexts();
+                Call("ShowEntries", new[] { false, false, true, true }, PlayEntry.NeoEmpireEarth, true);
+            }
             if (state == PlayPageState.LobbyStatus)
             {
                 Page.ShowLobbyStatus(Resources.InstallationsWaitingForSetup);

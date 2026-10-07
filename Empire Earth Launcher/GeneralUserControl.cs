@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Empire_Earth_Launcher.Core.Contract;
@@ -19,18 +20,20 @@ using Empire_Earth_WON;
 namespace Empire_Earth_Launcher
 {
     /// <summary>
-    /// The Play page: the game choice (The Art of Conquest only if the installation has it), the file versions of the
-    /// programs with the version check on request (L-WP7, contract 4.5), the integrity state of the installation (L-WP7,
-    /// contract 2.5), Play (L-WP6, ADR 0010) with its refusals, the repair advice and the "setup is running" state, the info
-    /// bar of the game settings (L-WP5), and the lobby profiles with the online player list, whose "not available" links to the
-    /// network check of the Tools page (L-WP9).
+    /// The Play page: the list of the four games (Empire Earth and The Art of Conquest of each product; a game that is not
+    /// installed is shown disabled, the choice selects the installation of its product for every page, launcher 1.1.0), the file
+    /// versions of the programs with the version check on request (L-WP7, contract 4.5), the integrity state of the installation
+    /// (L-WP7, contract 2.5), Play (L-WP6, ADR 0010) with its refusals, the repair advice and the "setup is running" state, the
+    /// info bar of the game settings (L-WP5), and the lobby profiles with the online player list, whose "not available" links to
+    /// the network check of the Tools page (L-WP9).
     /// </summary>
     /// <remarks>
     /// The page has two columns (ADR 0017): the online players and the Play button have the width of the designer at the right
     /// edge and the height of the page; the rest is the game column, which grows with the window. Its controls are stacked from
     /// the heights of their texts by <see cref="ScrollPageLayout"/> in <see cref="LayoutPage"/>, so that no translation is cut
     /// off: the texts of the game group, the group itself, and the column of the group and the info bar below it, which scrolls
-    /// where the window is too small for it.
+    /// where the window is too small for it. The four games are stacked one below the other; a game whose name is wider than the
+    /// group (a large font) takes the two lines of its name (<see cref="PlaceEntry"/>).
     /// </remarks>
     public partial class GeneralUserControl : UserControl
     {
@@ -45,6 +48,16 @@ namespace Empire_Earth_Launcher
 
         /// <summary>True while the game choice is set by code, so that nothing is saved then.</summary>
         private bool updatingGameChoice;
+
+        /// <summary>The radio buttons of the four games, in the order of <see cref="PlayEntry.All"/>.</summary>
+        private readonly Krypton.Toolkit.KryptonRadioButton[] entryRadios;
+
+        /// <summary>The name of each game on one line (<see cref="PlaceEntry"/> splits it where the line would be cut off).</summary>
+        private readonly Dictionary<Krypton.Toolkit.KryptonRadioButton, string> entryNames =
+            new Dictionary<Krypton.Toolkit.KryptonRadioButton, string>();
+
+        /// <summary>The en dash between the product and "The Art of Conquest" in the name of a game; the two-line form splits there.</summary>
+        private const string EntrySeparator = " \u2013 ";
 
         /// <summary>The installation whose file versions were read last (or are being read).</summary>
         private Installation versionsOf;
@@ -116,6 +129,11 @@ namespace Empire_Earth_Launcher
         public GeneralUserControl()
         {
             InitializeComponent();
+            entryRadios = new[]
+            {
+                empireEarthKryptonRadioButton, empireEarthAocKryptonRadioButton, neoEmpireEarthKryptonRadioButton,
+                neoEmpireEarthAocKryptonRadioButton
+            };
             ApplyTexts();
             playerListHeight = onlinePlayersKryptonDataGridView.Height;
             onlineColumnWidth = neoOnlineKryptonGroupBox.Width;
@@ -126,7 +144,10 @@ namespace Empire_Earth_Launcher
             shown[gameSettingsHintKryptonPanel] = gameSettingsHintKryptonPanel.Visible;
             shown[integrityKryptonButton] = integrityKryptonButton.Visible;
             foreach (LauncherWrapLabel label in new[]
-                { programVersionsKryptonWrapLabel, versionResultKryptonWrapLabel, integrityKryptonWrapLabel, playStatusKryptonWrapLabel })
+                {
+                    playEntriesHintKryptonWrapLabel, programVersionsKryptonWrapLabel, versionResultKryptonWrapLabel,
+                    integrityKryptonWrapLabel, playStatusKryptonWrapLabel
+                })
                 SetText(label, label.Text);
             column = new ScrollPageLayout(gameColumnPanel, IsShown, PageMargin);
             gameStack = new ScrollPageLayout(gameSettingsKryptonGroupBox.Panel, IsShown, GroupMargin, false);
@@ -147,8 +168,10 @@ namespace Empire_Earth_Launcher
         private void ApplyTexts()
         {
             gameSettingsKryptonGroupBox.Values.Heading = Resources.GameChoiceHeading;
-            empireEarthKryptonRadioButton.Values.Text = Resources.GameEmpireEarth;
-            artOfConquestKryptonRadioButton.Values.Text = Resources.GameArtOfConquest;
+            empireEarthKryptonRadioButton.Values.Text = RememberName(empireEarthKryptonRadioButton, Resources.PlayEntryEmpireEarth);
+            empireEarthAocKryptonRadioButton.Values.Text = RememberName(empireEarthAocKryptonRadioButton, Resources.PlayEntryEmpireEarthAoc);
+            neoEmpireEarthKryptonRadioButton.Values.Text = RememberName(neoEmpireEarthKryptonRadioButton, Resources.PlayEntryNeoEE);
+            neoEmpireEarthAocKryptonRadioButton.Values.Text = RememberName(neoEmpireEarthAocKryptonRadioButton, Resources.PlayEntryNeoEEAoc);
             playKryptonButton.Values.Text = Resources.PlayButton;
             versionCheckKryptonButton.Values.Text = Resources.VersionCheckPlayButton;
             integrityKryptonButton.Values.Text = Resources.IntegrityDetailsButton;
@@ -157,6 +180,13 @@ namespace Empire_Earth_Launcher
             networkCheckKryptonLinkLabel.Values.Text = Resources.PlayerListCheckNetworkLink;
             usernameColumn.HeaderText = Resources.PlayerListNameColumn;
             stateColumn.HeaderText = Resources.PlayerListStateColumn;
+        }
+
+        /// <summary>Keeps the one-line name of a game for the layout, which may show it in two lines; returns the name.</summary>
+        private string RememberName(Krypton.Toolkit.KryptonRadioButton radio, string name)
+        {
+            entryNames[radio] = name;
+            return name;
         }
 
         /// <summary>
@@ -278,29 +308,46 @@ namespace Empire_Earth_Launcher
         // --- Play (L-WP6) ----------------------------------------------------------------------------------------------
 
         /// <summary>
-        /// Shows the state of <see cref="PlayModel"/>: the game choice (The Art of Conquest only with an AoC folder), the
-        /// file versions, the state line (searching, setup running, started) and whether Play is possible.
+        /// Shows the state of <see cref="PlayModel"/>: the four games (the one chosen is checked, a game that is not installed
+        /// is disabled, with the hint below the list), the file versions, the state line (searching, setup running, started) and
+        /// whether Play is possible.
         /// </summary>
         private void ShowPlayState()
         {
             if (play == null)
                 return;
-            updatingGameChoice = true;
-            try
-            {
-                artOfConquestKryptonRadioButton.Enabled = play.CanChooseArtOfConquest;
-                empireEarthKryptonRadioButton.Checked = play.SelectedGame == Game.EmpireEarth;
-                artOfConquestKryptonRadioButton.Checked = play.SelectedGame == Game.ArtOfConquest;
-            }
-            finally
-            {
-                updatingGameChoice = false;
-            }
+            DiscoveryResult result = installations.Result;
+            // The hint is about games that are not installed; a game that cannot be chosen while a start runs is no such game.
+            bool notInstalled = result != null && PlayEntry.All.Any(entry => !PlayEntry.IsAvailable(result, entry));
+            ShowEntries(play.Entries.Select(play.IsAvailable).ToArray(), play.SelectedEntry, notInstalled);
 
             SetText(programVersionsKryptonWrapLabel, Texts.ProgramVersions(play.Versions));
             SetText(playStatusKryptonWrapLabel, PlayStatusText());
             playKryptonButton.Enabled = play.CanPlay;
             LayoutPage();
+        }
+
+        /// <summary>
+        /// Shows the list of the four games: <paramref name="available"/> says for each, in the order of <see cref="PlayEntry.All"/>,
+        /// whether it can be chosen (a game that cannot is greyed out), <paramref name="selected"/> is checked, and the hint
+        /// "Greyed out games are not installed" is shown if <paramref name="showHint"/>. Nothing is saved.
+        /// </summary>
+        private void ShowEntries(IReadOnlyList<bool> available, PlayEntry selected, bool showHint)
+        {
+            updatingGameChoice = true;
+            try
+            {
+                for (int i = 0; i < entryRadios.Length; i++)
+                {
+                    entryRadios[i].Enabled = available[i];
+                    entryRadios[i].Checked = PlayEntry.All[i] == selected;
+                }
+            }
+            finally
+            {
+                updatingGameChoice = false;
+            }
+            SetText(playEntriesHintKryptonWrapLabel, showHint ? Resources.PlayEntriesNotInstalledHint : string.Empty);
         }
 
         /// <summary>The state line below the versions: a running setup first (contract 4.2), else the search, else the last start.</summary>
@@ -333,11 +380,22 @@ namespace Empire_Earth_Launcher
             uiOperation.Run(programVersionsKryptonWrapLabel, () => play.RefreshVersionsAsync());
         }
 
-        private void gameKryptonRadioButton_CheckedChanged(object sender, EventArgs e)
+        /// <summary>
+        /// The player chose a game of the list: its product's installation becomes the selected one of every page, and the game
+        /// is remembered (<see cref="PlayModel.SelectEntry"/>). A game that cannot be chosen (it is greyed out) is not taken.
+        /// </summary>
+        private void playEntryKryptonRadioButton_CheckedChanged(object sender, EventArgs e)
         {
-            if (updatingGameChoice || play == null || !((Krypton.Toolkit.KryptonRadioButton)sender).Checked)
+            var radio = (Krypton.Toolkit.KryptonRadioButton)sender;
+            if (updatingGameChoice || play == null || !radio.Checked)
                 return;
-            play.SelectGame(sender == artOfConquestKryptonRadioButton ? Game.ArtOfConquest : Game.EmpireEarth);
+            PlayEntry entry = PlayEntry.All[Array.IndexOf(entryRadios, radio)];
+            if (!play.IsAvailable(entry))
+            {
+                ShowPlayState();
+                return;
+            }
+            play.SelectEntry(entry);
         }
 
         /// <summary>Play: the page is the trigger, so the game choice cannot change while a start runs.</summary>
@@ -543,12 +601,29 @@ namespace Empire_Earth_Launcher
 
         private void PlaceGameGroup()
         {
-            gameStack.PlaceRow(empireEarthKryptonRadioButton, artOfConquestKryptonRadioButton);
+            foreach (Krypton.Toolkit.KryptonRadioButton radio in entryRadios)
+                PlaceEntry(radio);
+            gameStack.Place(playEntriesHintKryptonWrapLabel);
             gameStack.Place(programVersionsKryptonWrapLabel);
             gameStack.Place(versionResultKryptonWrapLabel);
             gameStack.Place(integrityKryptonWrapLabel);
             gameStack.Place(playStatusKryptonWrapLabel);
             gameStack.PlaceRow(versionCheckKryptonButton, integrityKryptonButton);
+        }
+
+        /// <summary>
+        /// Places the radio button of a game on its own row of the group. A name that is wider than the group (long names in a
+        /// large font in the smallest window) is shown in two lines, split after the en dash ("Neo Empire Earth –" and "The Art
+        /// of Conquest"), so that no name is cut off; a Krypton radio button cannot wrap by itself.
+        /// </summary>
+        private void PlaceEntry(Krypton.Toolkit.KryptonRadioButton radio)
+        {
+            string name = entryNames.TryGetValue(radio, out string known) ? known : radio.Values.Text;
+            radio.Values.Text = name;
+            int separator = name.IndexOf(EntrySeparator, StringComparison.Ordinal);
+            if (separator > 0 && radio.GetPreferredSize(Size.Empty).Width > gameStack.ContentWidth)
+                radio.Values.Text = name.Substring(0, separator + 2) + Environment.NewLine + name.Substring(separator + 3);
+            gameStack.Place(radio);
         }
 
         /// <summary>

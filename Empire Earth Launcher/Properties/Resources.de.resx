@@ -1456,4 +1456,19 @@ Die alten Dateien werden vorher in den Sicherungsordner kopiert. Ersetzen?</valu
   <data name="ModsOpenFailedFormat" xml:space="preserve">
     <value>Es konnte nicht geöffnet werden: {0}</value>
   </data>
+  <data name="PlayEntryEmpireEarth" xml:space="preserve">
+    <value>Empire Earth</value>
+  </data>
+  <data name="PlayEntryEmpireEarthAoc" xml:space="preserve">
+    <value>Empire Earth – The Art of Conquest</value>
+  </data>
+  <data name="PlayEntryNeoEE" xml:space="preserve">
+    <value>Neo Empire Earth</value>
+  </data>
+  <data name="PlayEntryNeoEEAoc" xml:space="preserve">
+    <value>Neo Empire Earth – The Art of Conquest</value>
+  </data>
+  <data name="PlayEntriesNotInstalledHint" xml:space="preserve">
+    <value>Ausgegraute Spiele sind nicht installiert. Das Empire Earth Community Setup installiert Empire Earth mit The Art of Conquest und Neo Empire Earth; eine andere Installation (CD, GOG) wählen Sie auf der Seite „Launcher“.</value>
+  </data>
 </root>

@@ -1935,4 +1935,24 @@ The old files are copied to the backup folder first. Replace them?</value>
     <value>It could not be opened: {0}</value>
     <comment>Message of the Mods page when the Explorer or the program of the file cannot open it. {0}: the error.</comment>
   </data>
+  <data name="PlayEntryEmpireEarth" xml:space="preserve">
+    <value>Empire Earth</value>
+    <comment>Play page, first game of the list: Empire Earth of the product EE. The name of a game is not translated.</comment>
+  </data>
+  <data name="PlayEntryEmpireEarthAoc" xml:space="preserve">
+    <value>Empire Earth – The Art of Conquest</value>
+    <comment>Play page, second game of the list: The Art of Conquest of the product EE. The name is not translated; the en dash (U+2013) is where the name is split into two lines when it does not fit.</comment>
+  </data>
+  <data name="PlayEntryNeoEE" xml:space="preserve">
+    <value>Neo Empire Earth</value>
+    <comment>Play page, third game of the list: Empire Earth of the product NeoEE. The name of a game is not translated.</comment>
+  </data>
+  <data name="PlayEntryNeoEEAoc" xml:space="preserve">
+    <value>Neo Empire Earth – The Art of Conquest</value>
+    <comment>Play page, fourth game of the list: The Art of Conquest of the product NeoEE. The name is not translated; the en dash (U+2013) is where the name is split into two lines when it does not fit.</comment>
+  </data>
+  <data name="PlayEntriesNotInstalledHint" xml:space="preserve">
+    <value>Greyed out games are not installed. Empire Earth Community Setup installs Empire Earth with The Art of Conquest and Neo Empire Earth; another installation (CD, GOG) is chosen on the Launcher page.</value>
+    <comment>Play page, below the list of the four games; shown only if a game is greyed out because it is not installed. „Launcher“ is the name of the page (NavigationLauncher).</comment>
+  </data>
 </root>

@@ -1456,4 +1456,19 @@ Les anciens fichiers sont d'abord copiés dans le dossier de sauvegarde. Les rem
   <data name="ModsOpenFailedFormat" xml:space="preserve">
     <value>L'ouverture a échoué : {0}</value>
   </data>
+  <data name="PlayEntryEmpireEarth" xml:space="preserve">
+    <value>Empire Earth</value>
+  </data>
+  <data name="PlayEntryEmpireEarthAoc" xml:space="preserve">
+    <value>Empire Earth – The Art of Conquest</value>
+  </data>
+  <data name="PlayEntryNeoEE" xml:space="preserve">
+    <value>Neo Empire Earth</value>
+  </data>
+  <data name="PlayEntryNeoEEAoc" xml:space="preserve">
+    <value>Neo Empire Earth – The Art of Conquest</value>
+  </data>
+  <data name="PlayEntriesNotInstalledHint" xml:space="preserve">
+    <value>Les jeux grisés ne sont pas installés. Empire Earth Community Setup installe Empire Earth avec The Art of Conquest et Neo Empire Earth ; une autre installation (CD, GOG) se choisit sur la page « Launcher ».</value>
+  </data>
 </root>

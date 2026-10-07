@@ -3143,6 +3143,51 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Greyed out games are not installed. Empire Earth Community Setup installs Empire Earth with The Art [rest of string was truncated].
+        /// </summary>
+        internal static string PlayEntriesNotInstalledHint {
+            get {
+                return ResourceManager.GetString("PlayEntriesNotInstalledHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Empire Earth.
+        /// </summary>
+        internal static string PlayEntryEmpireEarth {
+            get {
+                return ResourceManager.GetString("PlayEntryEmpireEarth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Empire Earth – The Art of Conquest.
+        /// </summary>
+        internal static string PlayEntryEmpireEarthAoc {
+            get {
+                return ResourceManager.GetString("PlayEntryEmpireEarthAoc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Neo Empire Earth.
+        /// </summary>
+        internal static string PlayEntryNeoEE {
+            get {
+                return ResourceManager.GetString("PlayEntryNeoEE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Neo Empire Earth – The Art of Conquest.
+        /// </summary>
+        internal static string PlayEntryNeoEEAoc {
+            get {
+                return ResourceManager.GetString("PlayEntryNeoEEAoc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Why? Check the network.
         /// </summary>
         internal static string PlayerListCheckNetworkLink {
