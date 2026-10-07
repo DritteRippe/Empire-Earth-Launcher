@@ -126,6 +126,7 @@ namespace Empire_Earth_Launcher.Tests.Core.GameSettings
                                               GameSettingsTable.HardwareTnLRasterizer + "`."));
             Assert.That(contract, Does.Contain("limited to " + ComputedValues.MinGameWindowWidth + " to " + ComputedValues.MaxGameWindowWidth));
             Assert.That(contract, Does.Contain("limited to " + ComputedValues.MinGameWindowHeight + " to " + ComputedValues.MaxGameWindowHeight));
+            Assert.That(contract, Does.Contain("the larger of `" + ComputedValues.WideScreenGameWindowHeight + "`"));
             Assert.That(contract, Does.Contain("if one of `" + string.Join("`, `", GameSettingsTable.DirectXWrapperFiles) +
                                               "` is in the game folder"));
             Assert.That(GameSettingsTable.DirectXWrapperFiles, Is.EqualTo(new[] { "DDraw.dll", "D3DImm.dll", "D3D8.dll", "D3D9.dll" }));

@@ -8,7 +8,8 @@ namespace Empire_Earth_Launcher.Tests.Core.GameSettings
 {
     /// <summary>
     /// <see cref="ResolutionOptions"/>: the game window sizes of the graphics page (launcher 1.1.0): what fits the primary
-    /// screen, never above 1920x1080 and never below 1024x768 (contract 3.3), always the recommended size.
+    /// screen, never above 1920x1200 (and that only on a screen at least that tall) and never below 1024x768 (contract 3.3, revision 6), always
+    /// the recommended size.
     /// </summary>
     [TestFixture]
     public class ResolutionOptionsTests
@@ -27,18 +28,28 @@ namespace Empire_Earth_Launcher.Tests.Core.GameSettings
 
             Assert.That(sizes, Does.Contain("1920x1080").And.Contain("1680x1050").And.Contain("1600x900").And.Contain("1024x768"));
             Assert.That(ResolutionOptions.For(systemInfo).Select(option => option.Size), Is.All.Matches<ScreenSize>(ResolutionOptions.IsWithinLimits));
-            Assert.That(sizes, Does.Not.Contain("1920x1200"), "above the limit of the height");
+            Assert.That(sizes.Last(), Is.EqualTo("1920x1200"), "the limit of revision 6");
         }
 
         [Test]
-        public void For_AScreenOf1920x1200_TheRecommendedSizeIsTheCap()
+        public void For_A1920x1200Screen_Offers1920x1200_AndRecommendsIt()
         {
             var systemInfo = new FakeSystemInfo().WithScreen(1920, 1200);
 
             ResolutionOption[] recommended = ResolutionOptions.For(systemInfo).Where(option => option.IsRecommended).ToArray();
 
-            Assert.That(recommended.Select(option => option.Size), Is.EqualTo(new[] { new ScreenSize(1920, 1080) }));
-            Assert.That(ComputedValues.GameWindow(systemInfo), Is.EqualTo(new ScreenSize(1920, 1080)));
+            Assert.That(Sizes(systemInfo).Skip(Sizes(systemInfo).Length - 2), Is.EqualTo(new[] { "1920x1080", "1920x1200" }));
+            Assert.That(recommended.Select(option => option.Size), Is.EqualTo(new[] { new ScreenSize(1920, 1200) }));
+            Assert.That(ComputedValues.GameWindow(systemInfo), Is.EqualTo(new ScreenSize(1920, 1200)));
+        }
+
+        [Test]
+        public void For_A1920x1080Screen_DoesNotOffer1920x1200()
+        {
+            var systemInfo = new FakeSystemInfo().WithScreen(1920, 1080);
+
+            Assert.That(Sizes(systemInfo), Does.Not.Contain("1920x1200"), "the screen is not that tall");
+            Assert.That(Sizes(systemInfo).Last(), Is.EqualTo("1920x1080"));
         }
 
         [Test]
@@ -85,13 +96,13 @@ namespace Empire_Earth_Launcher.Tests.Core.GameSettings
         }
 
         [Test]
-        public void For_A4KScreen_StopsAt1920x1080()
+        public void For_A4KScreen_StopsAt1920x1200_AndRecommends1920x1080()
         {
             var systemInfo = new FakeSystemInfo().WithScreen(3840, 2160);
 
             string[] sizes = Sizes(systemInfo);
 
-            Assert.That(sizes.Last(), Is.EqualTo("1920x1080"));
+            Assert.That(sizes.Last(), Is.EqualTo("1920x1200"), "a size the player may choose, not the recommendation");
             Assert.That(ResolutionOptions.For(systemInfo).Single(option => option.IsRecommended).Size, Is.EqualTo(new ScreenSize(1920, 1080)));
         }
 
@@ -101,7 +112,18 @@ namespace Empire_Earth_Launcher.Tests.Core.GameSettings
             // 2560x1440 at 150 %: the game window defaults come from the physical size (contract 3.3, O4).
             var systemInfo = new FakeSystemInfo().WithScreen(2560, 1440, 150);
 
-            Assert.That(Sizes(systemInfo).Last(), Is.EqualTo("1920x1080"));
+            Assert.That(Sizes(systemInfo).Last(), Is.EqualTo("1920x1200"));
+            Assert.That(ResolutionOptions.For(systemInfo).Single(option => option.IsRecommended).Size, Is.EqualTo(new ScreenSize(1920, 1080)),
+                "16:9 screens of any size keep 1920x1080 (contract 3.3, wide-screen limit)");
+        }
+
+        [Test]
+        public void For_A2560x1600Screen_Recommends1920x1200()
+        {
+            var systemInfo = new FakeSystemInfo().WithScreen(2560, 1600);
+
+            Assert.That(Sizes(systemInfo).Last(), Is.EqualTo("1920x1200"));
+            Assert.That(ResolutionOptions.For(systemInfo).Single(option => option.IsRecommended).Size, Is.EqualTo(new ScreenSize(1920, 1200)));
         }
 
         [TestCase(1920, 1200)]
@@ -123,8 +145,9 @@ namespace Empire_Earth_Launcher.Tests.Core.GameSettings
         [TestCase(1023, 768, false)]
         [TestCase(1024, 767, false)]
         [TestCase(1921, 1080, false)]
-        [TestCase(1920, 1081, false)]
-        [TestCase(1920, 1200, false)]
+        [TestCase(1920, 1081, true)]
+        [TestCase(1920, 1200, true)]
+        [TestCase(1920, 1201, false)]
         [TestCase(0, 0, false)]
         public void IsWithinLimits_IsTheRangeOfContract33(int width, int height, bool expected)
         {
@@ -139,6 +162,7 @@ namespace Empire_Earth_Launcher.Tests.Core.GameSettings
         [TestCase(1600, 900, AspectKind.SixteenByNine)]
         [TestCase(1366, 768, AspectKind.SixteenByNine)]
         [TestCase(1920, 1080, AspectKind.SixteenByNine)]
+        [TestCase(1920, 1200, AspectKind.SixteenByTen)]
         [TestCase(1280, 768, AspectKind.Other)]
         [TestCase(0, 0, AspectKind.Other)]
         public void AspectOf_NamesTheUsualShapes(int width, int height, AspectKind expected)

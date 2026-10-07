@@ -709,8 +709,7 @@ Who writes what, and when:
   and only these two values, of every game of the installation for the account that runs it, after the
   user picked a size and clicked the button that applies it: with the `.reg` backup of
   [3.6](#36-launcher-procedures) first, only while no setup and no game runs, and within the limits of
-  [3.3](#33-computed-values) (the launcher MUST NOT write a size outside them; a launcher that offers
-  more than 1920 x 1080 needs a new revision). The marker ([3.5](#35-defaults-marker)) is not touched. The
+  [3.3](#33-computed-values) (the launcher MUST NOT write a size outside them; revision 6 raised the height limit from 1080 to 1200, a launcher that offers more than 1920 x 1200 needs a new revision). The marker ([3.5](#35-defaults-marker)) is not touched. The
   setup overwrites both values on its next run (class D, `deletevalue`), so the choice does not survive a
   repair or an update; the launcher SHOULD say so.
 - **Always in sync**: S follows the installation that is started.
@@ -745,21 +744,30 @@ Who writes what, and when:
     `DDraw.dll`, `D3DImm.dll`, `D3D8.dll`, `D3D9.dll` is in the game folder (the wrapper files the setup
     removes in `[InstallDelete]` before it installs a wrapper; the game itself ships none of them).
 - **`Game Window Width`**: the width of the primary screen in physical pixels, limited to 1024 to 1920.
-  **`Game Window Height`**: its height, limited to 768 to 1080. Each dimension is limited on its own
-  (setup: `GetSystemMetrics(SM_CXSCREEN/SM_CYSCREEN)`, `MinGameWindowWidth` ... `MaxGameWindowHeight`),
-  with the limits of the table below. The launcher MUST measure physical pixels (DPI-aware process or
-  `EnumDisplaySettings`), **O4**. A screen lower than 768 pixels gets a warning in the setup and in the
-  launcher (t=3863).
+  **`Game Window Height`**: its height, limited to 768 to 1200; on a screen wider than 1920 pixels the height is in
+  addition at most the larger of 1080 and the height of the screen scaled to the width 1920 (`height x 1920 / width`,
+  rounded down), so that the window keeps the shape of a screen larger than 1920 x 1200 (revision 6; up to revision 5 the
+  height limit was 1080). Otherwise each dimension is limited on its own (setup: `GetSystemMetrics(SM_CXSCREEN/SM_CYSCREEN)`,
+  `MinGameWindowWidth` ... `MaxGameWindowHeight` and `WideScreenGameWindowHeight`), with the limits of the tables below. The
+  launcher MUST measure physical pixels (DPI-aware process or `EnumDisplaySettings`), **O4**. A screen lower than 768 pixels
+  gets a warning in the setup and in the launcher (t=3863).
 
 | Value | Screen size | Minimum | Maximum |
 |---|---|---|---|
 | `Game Window Width` | width of the primary screen (`SM_CXSCREEN`) | `1024` | `1920` |
-| `Game Window Height` | height of the primary screen (`SM_CYSCREEN`) | `768` | `1080` |
+| `Game Window Height` | height of the primary screen (`SM_CYSCREEN`) | `768` | `1200` |
 
-A screen size below the minimum gives the minimum, one above the maximum the maximum, e.g. 1366 x 768
-stays 1366 x 768, 2560 x 1440 gives 1920 x 1080 and 800 x 600 gives 1024 x 768.
+| Value | Screen | Maximum |
+|---|---|---|
+| `Game Window Height` | wider than `1920` | the larger of `1080` and `height x 1920 / width` |
 
-The limits are also those of the size the user chooses in the launcher ([3.2](#32-values), revision 6).
+A screen size below the minimum gives the minimum, one above the maximum the maximum, e.g. 1366 x 768 stays 1366 x 768,
+1920 x 1200 and 1600 x 1200 stay as they are, 2560 x 1600 gives 1920 x 1200, 2560 x 1440, 3840 x 2160 and 3440 x 1440 give
+1920 x 1080 (as in revision 5) and 800 x 600 gives 1024 x 768.
+
+The limits of the first table are also those of the size the user chooses in the launcher ([3.2](#32-values),
+revision 6); the wide-screen limit applies only to the computed value (a user may choose 1920 x 1200 on a 2560 x 1440
+screen).
 
 ### 3.4 GPU preference
 
@@ -1044,7 +1052,7 @@ hand-off of [4.3](#43-where-the-user-gets-the-setup): the download page of the p
 | 1 (draft) | 2026-10-02 | revision 3 (compatible clarifications after the reviews of setup v2 and launcher v2, which already behave so): source 4 reads key before hive, the EE and AoC folders of `foreign` installations are the real folders (the AoC folder from the same hive and view), the user choice may be the AoC folder, a registry record without `install.ini` also means `community` (1.4); Modified gets no message and no repair offer, the state may be shown (2.5); at the launcher start class S is only created, and the first run only for an installation that is unambiguous for its game settings key; class S before every game start while no other game runs; the display question until the user answers (3.2, 3.5, 3.6); a request without an answer of HTTP 200 is no statement about the version (4.5); O11 also names the `<AppId>` setup data folder of setups up to 1.7.2 | v2 (planned) | v2 (planned) |
 | 1 (draft) | 2026-10-05 | revision 4 (suite installer "Empire Earth Community", setup decision record 0013; optional additions only, no MUST or MUST NOT relaxed, 4.1 and 4.3 unchanged): names and mutexes of the suite and the launcher (0); `--product=EE` or `--product=NeoEE` selects for one session (1.4); suite record (1.6); how the suite runs a product setup, the log line `CD Keys generation result: <n>` as an interface, the guard for products installed for one user only, the removal of old product shortcuts before the suite shortcuts `Empire Earth` and `Neo Empire Earth`, the launcher outside the product roots (1.7, O10 answered); the suite mutex is a setup mutex (4.2); advice with `SourceDir` (4.4); checklist of the additions (7) | suite 1.0.0 (planned) | 1.0.0 (planned) |
 | 1 (draft) | 2026-10-06 | revision 5 (laptop test TP-93: the launcher listed the suite's own uninstall key, whose `Publisher` is that of EE, as a damaged installation of EE; optional additions only, no MUST or MUST NOT relaxed): the marker `Empire Earth Community: Suite` in the suite's uninstall key (0, 1.3); source 3 skips a key with that value, and for a suite built before revision 5 a key in HKLM with the root `InstallPath` of the suite record and no AppId the record embeds (1.4, 1.6); checklist of the additions (7) | suite 1.0.0 (planned) | 1.0.0 (planned) |
-| 1 (draft) | 2026-10-07 | revision 6 (suite 1.1.0, one window during the installation, one shortcut, and launcher 1.1.0, graphics page, one launcher for the four games; compatible, `ContractVersion` stays 1, optional additions and compatible clarifications only, no MUST or MUST NOT relaxed): the suite starts the product setups with `/VERYSILENT` instead of `/SILENT`, so that they show no progress window of their own (1.7 point 3); the lines of the product logs the suite reads for its progress display are an interface like the CD key line, among them Inno Setup's line of a file of the validated TLS transport and the new line `Install step: the game folder is changed from here on` that the product setups log as the first statement of their installation step (1.7 point 5); the suite waits for a product setup with a process handle: Cancel until that line (a product that finished before stays installed and keeps the suite's launcher, shortcut and record), a stall and a time limit that stops a product setup only before that line (1.7 point 2); one suite shortcut `Empire Earth Community` that starts the launcher without an argument (without .NET Framework 4.8 the game program of NeoEE, else EE), no game and no Diagnostic shortcuts, the shortcuts of suite 1.0.0 deleted (1.7 point 8); the launcher MAY save one chosen folder per product and the chosen product, and a second launcher without an argument MAY bring the running one to the front (1.4); the setup and the launcher open the download page of the product (`https://empireearth.eu/download/ee/`, `.../neo/`, `.../download/` for foreign installations) and no longer ask the update API for a download URL (4.3, 4.5, 1.1 `AppId`); the user's explicit choice of the game window size in the launcher is the consent of 3.2 to overwrite the class D values `Game Window Width` and `Game Window Height`, within the limits of 3.3, after the guard and the `.reg` backup of 3.6, without touching the marker (3.2, 3.3, 3.6); checklist of the additions (7) | suite 1.1.0 (planned) | 1.1.0 (planned) |
+| 1 (draft) | 2026-10-07 | revision 6 (suite 1.1.0, one window during the installation, one shortcut, and launcher 1.1.0, graphics page, one launcher for the four games; compatible, `ContractVersion` stays 1, optional additions and compatible clarifications only, no MUST or MUST NOT relaxed): the suite starts the product setups with `/VERYSILENT` instead of `/SILENT`, so that they show no progress window of their own (1.7 point 3); the lines of the product logs the suite reads for its progress display are an interface like the CD key line, among them Inno Setup's line of a file of the validated TLS transport and the new line `Install step: the game folder is changed from here on` that the product setups log as the first statement of their installation step (1.7 point 5); the suite waits for a product setup with a process handle: Cancel until that line (a product that finished before stays installed and keeps the suite's launcher, shortcut and record), a stall and a time limit that stops a product setup only before that line (1.7 point 2); one suite shortcut `Empire Earth Community` that starts the launcher without an argument (without .NET Framework 4.8 the game program of NeoEE, else EE), no game and no Diagnostic shortcuts, the shortcuts of suite 1.0.0 deleted (1.7 point 8); the launcher MAY save one chosen folder per product and the chosen product, and a second launcher without an argument MAY bring the running one to the front (1.4); the setup and the launcher open the download page of the product (`https://empireearth.eu/download/ee/`, `.../neo/`, `.../download/` for foreign installations) and no longer ask the update API for a download URL (4.3, 4.5, 1.1 `AppId`); the user's explicit choice of the game window size in the launcher is the consent of 3.2 to overwrite the class D values `Game Window Width` and `Game Window Height`, within the limits of 3.3, after the guard and the `.reg` backup of 3.6, without touching the marker (3.2, 3.3, 3.6); checklist of the additions (7); the height limit of the game window is 1200 instead of 1080, with a limit for screens wider than 1920 that keeps 1920 x 1080 on screens of the shape 16:9 and wider, also the limit of the user's choice (3.2, 3.3) | suite 1.1.0 (planned) | 1.1.0 (planned) |
 
 ## 6. Open questions
 
@@ -1213,15 +1221,15 @@ Product setups (revision 6): the update question opens the download page of the 
 ([4.3](#43-where-the-user-gets-the-setup)), and the update API gets only the requests of
 [4.5](#45-update-check-optional); they log the line `Install step: the game folder is changed from here on` as
 the first statement of their installation step ([1.7](#17-how-the-suite-runs-a-product-setup-informative)
-point 5); they overwrite `Game Window Width` and `Game Window Height` at every run as before (class D,
+point 5); they compute `Game Window Height` with the limit 1200 and the wide-screen limit of [3.3](#33-computed-values); they overwrite `Game Window Width` and `Game Window Height` at every run as before (class D,
 `deletevalue`, [3.2](#32-values)), which ends a size the user chose in the launcher.
 
 Launcher 1.1.0 (revision 6; the launcher does not start or watch the product setups of the suite, so the
 suite part asks nothing of it):
 
-- the graphics page offers game window sizes within the limits of [3.3](#33-computed-values), from
-  1024 x 768 up to the physical size of the primary screen and at most 1920 x 1080, and refuses a size
-  outside them ([3.2](#32-values));
+- the graphics page offers game window sizes within the limits of [3.3](#33-computed-values), from 1024 x 768 up to the
+  physical size of the primary screen and at most 1920 x 1200 (1920 x 1200 only on a screen at least that tall),
+  recommends the computed size of 3.3 with its wide-screen limit, and refuses a size outside them ([3.2](#32-values));
 - after the user picked a size and clicked the button that applies it, it overwrites `Game Window Width`
   and `Game Window Height`, and only these two values, of every game of the installation in HKCU of the
   account that runs it; the marker ([3.5](#35-defaults-marker)) and the other values stay as they are

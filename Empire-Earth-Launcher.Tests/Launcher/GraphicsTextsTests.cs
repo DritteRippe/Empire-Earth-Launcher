@@ -270,7 +270,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
         {
             using (TestUiLanguage.Use(language))
             {
-                Assert.That(Empire_Earth_Launcher.Properties.Resources.GraphicsWindowSizeInfo, Does.Contain("1920x1080").And.Contain("1024x768"));
+                Assert.That(Empire_Earth_Launcher.Properties.Resources.GraphicsWindowSizeInfo, Does.Contain("1920x1200").And.Contain("1024x768"));
                 Assert.That(string.Format(CultureInfo.CurrentCulture, Empire_Earth_Launcher.Properties.Resources.GraphicsWindowSizeScalingFormat, 150),
                     Does.Contain("150").And.Contain("HIGHDPIAWARE"));
             }

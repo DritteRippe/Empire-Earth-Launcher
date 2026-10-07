@@ -78,6 +78,22 @@ namespace Empire_Earth_Launcher.Tests.Launcher
         }
 
         [Test]
+        public async Task OnA1920x1200Screen_TheRecommendedSizeIs1920x1200()
+        {
+            g.World.SystemInfo.WithScreen(1920, 1200);
+            g.AddInstallation();
+            g.World.RawRegistry.Seed(GraphicsModelWorld.NeoEE, "Game Window Height", RegistryValue.FromDWord(1200));
+            g.World.RawRegistry.Seed(GraphicsModelWorld.NeoAoC, "Game Window Height", RegistryValue.FromDWord(1200));
+            await g.Search();
+
+            GraphicsView view = View();
+
+            Assert.That(view.OptionTexts[view.SelectedIndex], Is.EqualTo("1920x1200 (16:10, recommended)"));
+            Assert.That(view.OptionTexts, Does.Contain("1920x1080 (16:9)"));
+            Assert.That(view.ApplyEnabled, Is.False, "both games have the size already");
+        }
+
+        [Test]
         public async Task AnotherSizeChosen_EnablesTheButton()
         {
             g.AddInstallation();

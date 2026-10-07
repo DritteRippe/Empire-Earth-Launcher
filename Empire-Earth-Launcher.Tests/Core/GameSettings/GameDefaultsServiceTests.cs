@@ -562,6 +562,19 @@ namespace Empire_Earth_Launcher.Tests.Core.GameSettings
         }
 
         [Test]
+        public void SetGameWindow_1920x1200_IsWithinTheLimitsOfRevision6()
+        {
+            Installation installation = SeedForGameWindow();
+
+            GameSettingsResult result = w.CreateDefaultsService().SetGameWindow(installation, new ScreenSize(1920, 1200));
+
+            Assert.That(result.IsDone, Is.True, result.ToString());
+            Assert.That(w.Get(NeoEE, "Game Window Width"), Is.EqualTo(Dw(1920)));
+            Assert.That(w.Get(NeoEE, "Game Window Height"), Is.EqualTo(Dw(1200)));
+            Assert.That(w.Get(NeoAoC, "Game Window Height"), Is.EqualTo(Dw(1200)));
+        }
+
+        [Test]
         public void SetGameWindow_DoesNotTouchTheMarkerOrTheOtherClasses()
         {
             Installation installation = SeedForGameWindow();
@@ -583,7 +596,8 @@ namespace Empire_Earth_Launcher.Tests.Core.GameSettings
             Assert.That(w.Logger.MessagesOf(LogLevel.Info), Has.Some.Contains("the player chose the game window size 1600x900"));
         }
 
-        [TestCase(1920, 1200)]
+        [TestCase(1920, 1201)]
+        [TestCase(1921, 1080)]
         [TestCase(2560, 1440)]
         [TestCase(800, 600)]
         [TestCase(1024, 767)]

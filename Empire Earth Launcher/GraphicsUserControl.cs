@@ -11,7 +11,7 @@ namespace Empire_Earth_Launcher
 {
     /// <summary>
     /// The Graphics page (launcher 1.1.0, ADR 0014): the game window size of the selected installation, chosen from a list of
-    /// sizes up to 1920x1080 (the only thing the page writes: the two registry values of the game window, after a backup), and
+    /// sizes up to 1920x1200 (the only thing the page writes: the two registry values of the game window, after a backup), and
     /// the DirectX wrapper the setup installed with the screen mode keys of its <c>dgVoodoo.conf</c>, which are only shown, and
     /// how to change the wrapper in the setup.
     /// </summary>

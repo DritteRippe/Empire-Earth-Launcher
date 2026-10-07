@@ -1277,7 +1277,7 @@ Les anciens fichiers sont d'abord copiés dans le dossier de sauvegarde. Les rem
     <value>Résolution du jeu</value>
   </data>
   <data name="GraphicsWindowSizeInfo" xml:space="preserve">
-    <value>Choisissez la taille de la fenêtre du jeu. Le Launcher l'enregistre, après une sauvegarde, dans les paramètres de votre compte Windows (Game Window Width et Game Window Height) ; rien d'autre ne change. Les tailles jusqu'à 1920x1080 sont proposées, car le jeu peut planter au-delà. Les menus du jeu sont conçus pour le 4:3 (1024x768) ; avec une taille grand écran, l'image peut y être coupée. Une réparation ou une mise à jour avec le programme d'installation réécrit la taille de votre écran ; choisissez-la alors de nouveau. Le jeu a aussi sa propre option de résolution ; la dernière enregistrée s'applique.</value>
+    <value>Choisissez la taille de la fenêtre du jeu. Le Launcher l'enregistre, après une sauvegarde, dans les paramètres de votre compte Windows (Game Window Width et Game Window Height) ; rien d'autre ne change. Les tailles jusqu'à 1920x1200 sont proposées (1920x1200 seulement sur un écran au moins aussi haut), car le jeu peut planter au-delà. Les menus du jeu sont conçus pour le 4:3 (1024x768) ; avec une taille grand écran, l'image peut y être coupée. Une réparation ou une mise à jour avec le programme d'installation réécrit la taille recommandée ; choisissez-la alors de nouveau. Le jeu a aussi sa propre option de résolution ; la dernière enregistrée s'applique.</value>
   </data>
   <data name="GraphicsWindowSizeCurrentFormat" xml:space="preserve">
     <value>Taille de la fenêtre de {0} : {1}</value>

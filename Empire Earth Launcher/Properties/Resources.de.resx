@@ -1277,7 +1277,7 @@ Die alten Dateien werden vorher in den Sicherungsordner kopiert. Ersetzen?</valu
     <value>Spielauflösung</value>
   </data>
   <data name="GraphicsWindowSizeInfo" xml:space="preserve">
-    <value>Wählen Sie die Größe des Spielfensters. Der Launcher speichert sie nach einer Sicherung in den Einstellungen Ihres Windows-Kontos (Game Window Width und Game Window Height); sonst ändert sich nichts. Es werden Größen bis 1920x1080 angeboten, weil das Spiel darüber abstürzen kann. Die Menüs des Spiels sind für 4:3 (1024x768) gemacht; bei einer Breitbildgröße kann das Bild dort abgeschnitten sein. Eine Reparatur oder Aktualisierung mit dem Setup schreibt wieder die Größe Ihres Bildschirms; wählen Sie dann erneut. Das Spiel hat außerdem eine eigene Auflösungsoption; es gilt, was zuletzt gespeichert wurde.</value>
+    <value>Wählen Sie die Größe des Spielfensters. Der Launcher speichert sie nach einer Sicherung in den Einstellungen Ihres Windows-Kontos (Game Window Width und Game Window Height); sonst ändert sich nichts. Es werden Größen bis 1920x1200 angeboten (1920x1200 nur auf einem Bildschirm, der mindestens so hoch ist), weil das Spiel bei größeren abstürzen kann. Die Menüs des Spiels sind für 4:3 (1024x768) gemacht; bei einer Breitbildgröße kann das Bild dort abgeschnitten sein. Eine Reparatur oder Aktualisierung mit dem Setup schreibt wieder die empfohlene Größe; wählen Sie dann erneut. Das Spiel hat außerdem eine eigene Auflösungsoption; es gilt, was zuletzt gespeichert wurde.</value>
   </data>
   <data name="GraphicsWindowSizeCurrentFormat" xml:space="preserve">
     <value>Fenstergröße von {0}: {1}</value>

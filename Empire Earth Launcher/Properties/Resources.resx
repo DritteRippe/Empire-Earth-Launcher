@@ -1696,8 +1696,8 @@ The old files are copied to the backup folder first. Replace them?</value>
     <comment>Heading of the game window size on the Graphics page.</comment>
   </data>
   <data name="GraphicsWindowSizeInfo" xml:space="preserve">
-    <value>Choose the size of the game window. The launcher saves it in the settings of your Windows account (Game Window Width and Game Window Height) after a backup; nothing else changes. Sizes up to 1920x1080 are offered because the game can crash above that. The menus of the game are made for 4:3 (1024x768); with a widescreen size the picture can be cut off there. A repair or update with the setup writes the size of your screen again, then choose it again. The game also has its own resolution option; the one saved last counts.</value>
-    <comment>Explanation under the heading of the Graphics page. 1920x1080 is the limit of contract 3.3; the registry value names are not translated.</comment>
+    <value>Choose the size of the game window. The launcher saves it in the settings of your Windows account (Game Window Width and Game Window Height) after a backup; nothing else changes. Sizes up to 1920x1200 are offered (1920x1200 only on a screen that is at least that tall), because the game can crash at larger sizes. The menus of the game are made for 4:3 (1024x768); with a widescreen size the picture can be cut off there. A repair or update with the setup writes the recommended size again, then choose it again. The game also has its own resolution option; the one saved last counts.</value>
+    <comment>Explanation under the heading of the Graphics page. 1920x1200 is the limit of contract 3.3 (revision 6); the registry value names are not translated.</comment>
   </data>
   <data name="GraphicsWindowSizeCurrentFormat" xml:space="preserve">
     <value>Window size of {0}: {1}</value>

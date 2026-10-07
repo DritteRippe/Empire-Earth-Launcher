@@ -164,7 +164,14 @@ namespace Empire_Earth_Launcher.Core.GameSettings
         public const int MinGameWindowWidth = 1024;
         public const int MaxGameWindowWidth = 1920;
         public const int MinGameWindowHeight = 768;
-        public const int MaxGameWindowHeight = 1080;
+        public const int MaxGameWindowHeight = 1200;
+
+        /// <summary>
+        /// On a screen wider than <see cref="MaxGameWindowWidth"/> the computed height is at most the larger of this and the
+        /// screen height scaled to <see cref="MaxGameWindowWidth"/> (contract 3.3, revision 6): 16:9 screens of any size keep
+        /// 1920x1080, 2560x1600 gets 1920x1200.
+        /// </summary>
+        public const int WideScreenGameWindowHeight = 1080;
 
         /// <summary>
         /// <c>Rasterizer Name</c> (contract 3.3): <c>Direct3D</c> under Wine or with a DirectX wrapper, else
@@ -232,8 +239,8 @@ namespace Empire_Earth_Launcher.Core.GameSettings
 
         /// <summary>
         /// <c>Game Window Width</c> and <c>Game Window Height</c> (contract 3.3): the primary screen in physical pixels,
-        /// each dimension limited on its own to 1024 to 1920 and 768 to 1080. If the physical size is unknown, the size a
-        /// DPI-unaware program sees is used, and without any size the minimum.
+        /// each dimension limited on its own to 1024 to 1920 and 768 to 1200; on a screen wider than 1920 also the wide-screen
+        /// limit. If the physical size is unknown, the size a DPI-unaware program sees is used, and without any size the minimum.
         /// </summary>
         public static ScreenSize GameWindow(ISystemInfo systemInfo)
         {
@@ -242,8 +249,14 @@ namespace Empire_Earth_Launcher.Core.GameSettings
             ScreenSize screen = !systemInfo.PrimaryScreen.IsEmpty ? systemInfo.PrimaryScreen : systemInfo.PrimaryScreenUnaware;
             if (screen.IsEmpty)
                 return new ScreenSize(MinGameWindowWidth, MinGameWindowHeight);
-            return new ScreenSize(Clamp(screen.Width, MinGameWindowWidth, MaxGameWindowWidth),
-                Clamp(screen.Height, MinGameWindowHeight, MaxGameWindowHeight));
+            int width = Clamp(screen.Width, MinGameWindowWidth, MaxGameWindowWidth);
+            int height = Clamp(screen.Height, MinGameWindowHeight, MaxGameWindowHeight);
+            if (screen.Width > MaxGameWindowWidth)
+            {
+                int scaled = (int)((long)screen.Height * MaxGameWindowWidth / screen.Width);
+                height = Math.Min(height, Math.Max(WideScreenGameWindowHeight, scaled));
+            }
+            return new ScreenSize(width, height);
         }
 
         /// <summary>

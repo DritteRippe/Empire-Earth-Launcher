@@ -50,9 +50,10 @@ namespace Empire_Earth_Launcher.Core.GameSettings
 
     /// <summary>
     /// The game window sizes the graphics page offers for <c>Game Window Width</c> and <c>Game Window Height</c>
-    /// (contract 3.2, 3.3): the usual 4:3, 5:4, 16:10 and 16:9 sizes that fit the primary screen, never above 1920x1080 and
-    /// never below 1024x768, and always the recommended size of this computer. Launcher 1.1.0 stops at the limits of contract
-    /// 3.3 (forum reports of crashes above 1080p, t=5831 p=39111, t=4277 p=30460; the project owner decided to keep them).
+    /// (contract 3.2, 3.3): the usual 4:3, 5:4, 16:10 and 16:9 sizes that fit the primary screen, never above 1920x1200
+    /// (1920x1200 only on a screen at least that tall) and never below 1024x768, and always the recommended size of this
+    /// computer. Launcher 1.1.0 stops at the limits of contract 3.3 (revision 6: 1200 high; forum reports of crashes at
+    /// 2560-wide modes, t=5831 p=39111, t=4277 p=30460).
     /// </summary>
     /// <remarks>
     /// The screen is the one <see cref="ComputedValues.GameWindow"/> uses: the primary screen in physical pixels, else the size a
@@ -78,6 +79,7 @@ namespace Empire_Earth_Launcher.Core.GameSettings
             new ScreenSize(1600, 900),
             new ScreenSize(1680, 1050),
             new ScreenSize(1920, 1080),
+            new ScreenSize(1920, 1200),
         });
 
         /// <summary>The offered sizes for this computer, smallest width first, then smallest height.</summary>
@@ -108,7 +110,7 @@ namespace Empire_Earth_Launcher.Core.GameSettings
         }
 
         /// <summary>
-        /// True if <paramref name="size"/> is inside the limits of contract 3.3: 1024 to 1920 wide and 768 to 1080 high. The
+        /// True if <paramref name="size"/> is inside the limits of contract 3.3: 1024 to 1920 wide and 768 to 1200 high. The
         /// service that writes the values refuses every other size, whatever the page offered.
         /// </summary>
         public static bool IsWithinLimits(ScreenSize size)

@@ -80,7 +80,7 @@ Empire-Earth.sln
 │  │                   settings, reset, GPU preference), ConsistencyChecker and HintVisibility (3.6),
 │  │                   CompatibilityOptions (3.7), LauncherWritePolicy (the launcher's allow-list, ADR 0007)
 │  │                   (contract 3, L-WP5); since 1.1.0 ResolutionOptions (the game window sizes of the Graphics
-│  │                   page, 1024x768 to 1920x1080) and GameDefaultsService.SetGameWindow / ReadGameWindow
+│  │                   page, 1024x768 to 1920x1200) and GameDefaultsService.SetGameWindow / ReadGameWindow
 │  ├─ Graphics/        WrapperInfo (which DirectX wrapper the setup installed, contract 3.3), DgVoodooConfReader
 │  │                   (dgVoodoo.conf as keys and values, read where the game reads it; 1.1.0, read-only)
 │  ├─ Mods/            DreXmodInfo (dreXmod 2 or 3 from the components), DreXmodConfigReader (the Mod and LobbyTheme
@@ -154,7 +154,7 @@ the size it opens with; the navigation buttons sit in a panel docked at the left
 |---|---|---|
 | **Play** | selected installation (product, folder, kind, integrity badge), file versions of `Empire Earth.exe` / `EE-AOC.exe`, choice EE / AoC (AoC only if installed), Play, "setup is running" and "game is running" states (with the hanging-process hint), non-modal warnings that can be hidden per value, lobby profiles and online player list (existing) | R2, R3 |
 | **Game settings** (the *Settings* navigation button) | defaults state, consistency warnings, apply recommended display settings, reset (with backup), compatibility options (HKCU only, HKLM read-only; Windows 8 and later only, on Windows 7 only removing `~ RUNASADMIN` and the old values shown, ADR 0007 plan review), screen warning below 768 pixels | R1, R4 |
-| **Graphics** (1.1.0) | the game window size of the selected installation (list of 4:3, 5:4, 16:10 and 16:9 sizes that fit the screen, 1024x768 to 1920x1080, "Use this size" writes only `Game Window Width` and `Game Window Height` after a backup, section 4.8), the installed DirectX wrapper and, for dgVoodoo, `OutputAPI` and the screen mode keys of `dgVoodoo.conf` (shown only), and the steps to change the wrapper in the setup | R1 (3.2, revision 6) |
+| **Graphics** (1.1.0) | the game window size of the selected installation (list of 4:3, 5:4, 16:10 and 16:9 sizes that fit the screen, 1024x768 to 1920x1200, "Use this size" writes only `Game Window Width` and `Game Window Height` after a backup, section 4.8), the installed DirectX wrapper and, for dgVoodoo, `OutputAPI` and the screen mode keys of `dgVoodoo.conf` (shown only), and the steps to change the wrapper in the setup | R1 (3.2, revision 6) |
 | **Mods** (1.1.0, only for an installation with dreXmod 3) | the dreXmod presets of each game (the folders of `Data\dxm\mods` with name, last edit, author and size from `CREDITS`; the skeleton `template` hidden unless asked), which of them `dreXmod.config` names as the active mod and the active lobby theme, "Open mods folder" and "Open dreXmod.config", the steps to switch a preset by hand; shown only, section 4.9 | O9 |
 | **Tools** | integrity details and full check, repair advice, registry cleanup (HKCU keys to select, HKLM keys read-only with advice), WON login reset, VirtualStore check, saved games and scenarios (folder export, import), player names, network diagnostics, "copy diagnostics report", open backup folder | R2, R5 to R10 |
 | **Launcher** | installations found and the user's choice, hint when several installations share one game settings key, theme, language (system, English, German, French) | R1, R17 |
@@ -606,7 +606,7 @@ suite 1.1.0 starts the launcher without an argument.
   the installations and every time the page is shown (the game's own resolution option or a repair may have changed the
   values): the window size of each game (`GameDefaultsService.ReadGameWindow`), the sizes on offer
   (`ResolutionOptions.For`: the usual sizes that fit the primary screen, the recommended size of contract 3.3 always,
-  never above 1920x1080 or below 1024x768), the wrapper (`WrapperInfo.Describe`: components of `install.ini`, else of the
+  never above 1920x1200 or below 1024x768), the wrapper (`WrapperInfo.Describe`: components of `install.ini`, else of the
   uninstall key, wrapper files only without component information) and, for a wrapper that can be dgVoodoo, the
   `dgVoodoo.conf` of each game through `DgVoodooConfReader` and the `EffectivePathResolver` (the VirtualStore copy first,
   ADR 0016). Only the latest read counts. `GraphicsView.Of` turns the state into what the page shows (texts, shown and
@@ -1119,7 +1119,7 @@ real-Windows cases are WP11-01 to WP11-05, WP13-01 to WP13-07 and WP14-01 to WP1
 
 | Done | Contract 7, additions of revision 6 | Unit tests | Test plan |
 |---|---|---|---|
-| [x] | game window sizes only within the limits of 3.3 (1024x768 up to the physical screen, at most 1920x1080), a size outside them refused (3.2, 3.3) | `ResolutionOptionsTests`, `GameDefaultsServiceTests` | WP11-02, WP11-08 |
+| [x] | game window sizes only within the limits of 3.3 (1024x768 up to the physical screen, at most 1920x1200, the recommended size with the wide-screen limit), a size outside them refused (3.2, 3.3) | `ResolutionOptionsTests`, `ComputedValuesTests`, `GameDefaultsServiceTests` | WP11-02, WP11-08, WP11-10 |
 | [x] | after the click on the button only `Game Window Width` and `Game Window Height` of every installed game in HKCU, the marker and the other values untouched (3.2) | `GameDefaultsServiceTests`, `GraphicsModelTests` | WP11-03 |
 | [x] | before the write the guard of 4.2 (no setup, no game) and the `.reg` backup of 3.6; a failed backup changes nothing (3.6) | `GameDefaultsServiceTests`, `GraphicsModelTests`, `GraphicsTextsTests` | WP11-03, WP11-04 |
 | [x] | the page says that the next run of a setup writes the recommended size again (3.2) | `GraphicsTextsTests` | WP11-01, WP11-05 |
@@ -1136,7 +1136,7 @@ Kept as planned features in the README, with the reason (forum report section 8)
   whether one is installed (the wrapper rule of contract 3.3, since L-WP9), and since 1.1.0 the *Graphics* page shows
   it, with the screen mode keys of `dgVoodoo.conf`, and tells the steps in the setup (section 4.8).
 - **Resolution chooser with 4:3 hint** (row 6): v2 offered the recommended display values and the warning below 768
-  pixels; since 1.1.0 the *Graphics* page lets the player choose the window size up to 1920x1080 (section 4.8). Larger
+  pixels; since 1.1.0 the *Graphics* page lets the player choose the window size up to 1920x1200 (section 4.8). Larger
   sizes and an editor of the screen mode (`dgVoodoo.conf`) are planned for later versions.
 - **GPU driver version** (row 4): little support value for WMI or HKLM class-key reading; the report names the
   display adapter of the primary screen (`EnumDisplayDevices`, since L-WP9). Listed as planned in the README.

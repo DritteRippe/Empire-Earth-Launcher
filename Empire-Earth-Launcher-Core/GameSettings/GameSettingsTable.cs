@@ -41,7 +41,7 @@ namespace Empire_Earth_Launcher.Core.GameSettings
         /// <summary>The width of the primary screen, limited to 1024 to 1920 (contract 3.3).</summary>
         GameWindowWidth,
 
-        /// <summary>The height of the primary screen, limited to 768 to 1080 (contract 3.3).</summary>
+        /// <summary>The height of the primary screen, limited to 768 to 1200 (contract 3.3, with its wide-screen limit).</summary>
         GameWindowHeight
     }
 

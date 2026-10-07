@@ -284,13 +284,22 @@ namespace Empire_Earth_Launcher.Tests.Core.GameSettings
         [TestCase(1366, 768, 100, 1366, 768)]
         [TestCase(2560, 1440, 100, 1920, 1080)]
         [TestCase(3840, 2160, 150, 1920, 1080)]
-        [TestCase(1920, 1200, 100, 1920, 1080)]
+        [TestCase(1920, 1200, 100, 1920, 1200)]
+        [TestCase(1600, 1200, 100, 1600, 1200)]
+        [TestCase(2560, 1600, 100, 1920, 1200)]
+        [TestCase(3840, 2400, 100, 1920, 1200)]
+        [TestCase(3440, 1440, 100, 1920, 1080)]
+        [TestCase(2560, 1080, 100, 1920, 1080)]
+        [TestCase(1920, 1440, 100, 1920, 1200)]
+        [TestCase(1921, 1201, 100, 1920, 1200)]
+        [TestCase(2000, 1200, 100, 1920, 1152)]
+        [TestCase(1919, 1199, 100, 1919, 1199)]
         [TestCase(1280, 1024, 100, 1280, 1024)]
         [TestCase(1024, 600, 100, 1024, 768)]
         [TestCase(800, 600, 100, 1024, 768)]
         [TestCase(1920, 1080, 150, 1920, 1080)]
         [TestCase(1600, 900, 125, 1600, 900)]
-        public void GameWindow_3_3_PhysicalPixelsEachDimensionClamped(int width, int height, int percent, int expectedWidth, int expectedHeight)
+        public void GameWindow_3_3_PhysicalPixels_EachDimensionClamped_AndWideScreensKeepTheirShape(int width, int height, int percent, int expectedWidth, int expectedHeight)
         {
             var systemInfo = new FakeSystemInfo().WithScreen(width, height, percent);
 

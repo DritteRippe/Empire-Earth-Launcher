@@ -285,7 +285,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             AddInstallation();
             await Search();
 
-            Assert.That(async () => await model.ApplyResolutionAsync(new ScreenSize(1920, 1200)),
+            Assert.That(async () => await model.ApplyResolutionAsync(new ScreenSize(1920, 1201)),
                 Throws.InstanceOf<System.ArgumentOutOfRangeException>());
 
             Assert.That(model.IsBusy, Is.False, "the page can be used again");
