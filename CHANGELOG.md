@@ -10,6 +10,16 @@ described in the git history.
 
 ## [Unreleased]
 
+### Changed
+
+- Development moved to the single main line `main`: README, test plan and notices name `main` instead of the branch `v2`
+  (`LAUNCHER_BRANCH` of the setup workflow is `main`); the CI workflow watches pushes to `main`, as before.
+
+### Added
+
+- `.github/dependabot.yml`: monthly version updates for the GitHub Actions of the workflow only (NuGet packages stay pinned).
+- Issue form for bug reports (`.github/ISSUE_TEMPLATE/`) and `SECURITY.md` (private vulnerability reporting).
+
 ## [1.1.0] - 2026-10-07
 
 Version 1.1.0 is the launcher of the suite installer "Empire Earth Community" 1.1.0 (setup repository, contract

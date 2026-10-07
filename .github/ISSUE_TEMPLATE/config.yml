@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: What do I send with a report?
+    url: https://github.com/DritteRippe/Empire-Earth-Launcher#-faq-and-known-issues
+    about: The README FAQ says which logs and which diagnostics report help.

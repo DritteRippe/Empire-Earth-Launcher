@@ -96,8 +96,8 @@ Danach:
 
 - Visual Studio 2019 oder 2022 mit der Workload **.NET-Desktopentwicklung** (enthält das Targeting Pack für
   .NET Framework 4.8), alternativ die Build Tools für Visual Studio plus `nuget.exe`.
-- Quellstand: Branch `v2` des Launcher-Repositorys (zum Beispiel als Git-Bundle:
-  `git clone Empire-Earth-Launcher-v2.bundle -b v2 Empire-Earth-Launcher`).
+- Quellstand: Branch `main` des Launcher-Repositorys (zum Beispiel als Git-Bundle:
+  `git clone Empire-Earth-Launcher-v2.bundle -b main Empire-Earth-Launcher`).
 - Bauen und testen in der „Developer PowerShell for VS“ im Repository-Ordner:
 
   ```powershell

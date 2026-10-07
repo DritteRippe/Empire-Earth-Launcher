@@ -1,0 +1,53 @@
+name: Bug report
+description: Something does not work in the launcher or the suite installer
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for the report. **Never attach game files, CD keys or the private package.** Read logs and the
+        diagnostics report before you post them.
+  - type: input
+    id: version
+    attributes:
+      label: Version of the suite and the launcher
+      description: The version of the launcher and, if you used it, of the suite installer.
+      placeholder: "Suite 1.1.0, launcher 1.1.0"
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: "Windows 11 23H2, 64-bit"
+    validations:
+      required: true
+  - type: textarea
+    id: happened
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        Launcher: the lines of `%LOCALAPPDATA%\Empire Earth Launcher\log.txt` around the problem, and the diagnostics
+        report (Tools page, "Copy report" or "Save report..."). Setup or suite: the log
+        `<suite root>\Logs\<Product>-<yyyyMMdd-HHmm>.log` of the run.
+      render: text
+  - type: checkboxes
+    id: owner
+    attributes:
+      label: Original game
+      options:
+        - label: I own the original game.
+          required: true

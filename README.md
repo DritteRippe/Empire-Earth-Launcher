@@ -12,11 +12,11 @@ Coded in C# with the .NET Framework 4.8 and Krypton UI
 This fork builds on the Empire Earth Launcher by [EE-modders](https://github.com/EE-modders/Empire-Earth-Launcher) and
 its contributors: their Krypton UI, their WON/NeoEE protocol code and their mod creator are the starting point.
 Upstream `main` is early work in progress (last change in June 2022; its README says it is not available for download):
-most controls are placeholders and the *Play* button has no function yet. Branch `v2` is a rebuild on the .NET
+most controls are placeholders and the *Play* button has no function yet. The `main` branch of this fork is a rebuild on the .NET
 Framework 4.8 that keeps the Krypton UI and the idea, moves the logic into a tested core library and shows only
 features that work.
 
-| | Upstream `main` | This fork (`v2`) |
+| | Upstream `main` | This fork (`main`) |
 |---|---|---|
 | *Play* button | No click handler yet | Starts Empire Earth or The Art of Conquest through Windows (compatibility settings and "Run as administrator" apply) and hands the foreground to the game window; blocked while a setup runs, refuses to start a game twice |
 | Finding the game | Fixed paths (lobby file in the working directory, friends in `C:\Program Files (x86)\Neo Empire Earth\...`) | Finds community setups (since v2 and up to 1.7.2; admin, user, portable) by their records, and other installations (CD, GOG, copies) through the game's "Installed From" values, the launcher's own folder or a folder you pick; choose one on the *Launcher* page |
@@ -79,7 +79,7 @@ WP6-19 (b) to (d), WP6-20 and WP6-21 (e), (f) and (h)
 
 ## 🧾 Features
 
-Launcher v2 was built in nine work packages on branch `v2` ([docs/ARCHITECTURE.md](docs/ARCHITECTURE.md),
+Launcher v2 was built in nine work packages (developed on the branch `v2`, now merged into `main`; [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md),
 section 15; what each one did is in the [CHANGELOG](CHANGELOG.md)). All of them are done; the launcher is version 1.1.0
 (one launcher for the four games, the *Graphics* and *Mods* pages, the optional parts for the suite installer "Empire Earth
 Community" below, which 1.0.0 added). The next step is the test on real Windows computers
@@ -561,7 +561,7 @@ and they fail with that switch on a computer that is not Windows or not a GitHub
 not `github-hosted`), because the defaults checks write the game settings of the current Windows account. No project
 references the program, so the `Tests\` folder of the laptop package never contains it. The setup workflow runs a fixed
 commit of this repository (`LAUNCHER_COMMIT` in its `e2e-realdata.yml`), never the tip of a branch, and refuses a commit
-that is not on the branch it names (`LAUNCHER_BRANCH`, today `v2`): the program runs as administrator next to the game
+that is not on the branch it names (`LAUNCHER_BRANCH`, today `main`): the program runs as administrator next to the game
 data. A change of the checks therefore reaches that workflow only when the setup repository moves the pin, and that branch
 must never be rewritten (no rebase, no force push), or the pinned commit stops being on it.
 
@@ -643,7 +643,8 @@ console output and the result file hold no hash (every message is redacted) and 
 `windows-latest` for every push to `main` and every pull request, then runs every `*Tests.exe` it finds in
 the `bin/Release` folders (a test program reports failure through a non-zero exit code; finding no test
 program fails the build): the unit tests and the self-tests of the real-machine checks, whose `RealMachine` fixtures
-stay skipped there. The NUnit result files are kept as the `test-results` artifact.
+stay skipped there. The NUnit result files are kept as the `test-results` artifact. Dependabot (`.github/dependabot.yml`)
+proposes a monthly pull request for the GitHub Actions the workflow uses; NuGet and Python packages stay pinned on purpose.
 
 **Test builds**: when all tests pass, the CI run also keeps the Release output of both applications for 30 days,
 as the artifacts `Empire-Earth-Launcher-testbuild` and `Empire-Earth-Mod-Creator-testbuild` (open the run under
@@ -919,7 +920,9 @@ packages/                         NuGet packages, restored on build (not committ
   VirtualStore folder when Windows does not let a standard user write into a game folder below `Program Files`.
 
 ## 🔨 Contributing
-Pull requests are welcome.\
+Pull requests are welcome; work happens on a short-lived branch with a pull request into `main`.\
+Bugs go into an [issue](https://github.com/DritteRippe/Empire-Earth-Launcher/issues/new/choose) (the form asks for the logs); security problems are reported privately,
+see [SECURITY.md](SECURITY.md).\
 For major changes, please open an issue first to discuss what you would like to change or discuss with us on Discord.
 
 ## 📖 License
