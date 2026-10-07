@@ -71,6 +71,9 @@ namespace Empire_Earth_Launcher.Tests.Fakes
         /// <summary>True if the main window is minimized (<c>WS_MINIMIZE</c> is added to its style).</summary>
         public bool GameMinimized { get; set; }
 
+        /// <summary>True if the main window does not respond (<see cref="IsWindowResponding"/> says false for it).</summary>
+        public bool GameHung { get; set; }
+
         /// <summary>The error <see cref="PostActivateMessage"/> reports; 0 = the message is posted.</summary>
         public int PostActivateError { get; set; }
 
@@ -159,6 +162,14 @@ namespace Empire_Earth_Launcher.Tests.Fakes
             return FindCalls > LooksWithoutWindow && WindowRules.IsMainWindowCandidate(Window != IntPtr.Zero, false, GameExStyle)
                 ? Window
                 : IntPtr.Zero;
+        }
+
+        public bool IsWindowResponding(IntPtr window)
+        {
+            OnCall?.Invoke("responding " + window);
+            if (Failure != null)
+                throw Failure;
+            return !(GameHung && window == Window);
         }
 
         public bool SetForegroundWindow(IntPtr window)

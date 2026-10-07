@@ -28,7 +28,7 @@ namespace Empire_Earth_Launcher.Core.Platform
     /// <summary>
     /// The windows of the computer as far as the hand-over of the foreground to a started game needs them (ADR 0010
     /// amendment of 1.1.0): who owns the foreground, the first visible top-level window of a process, and the right to take
-    /// the foreground, and (for the watch after the hand-over) the foreground window and the rectangle and styles of a window.
+    /// the foreground, and (for the watch after the hand-over) the foreground window and the rectangle and styles of a window, and whether a window responds.
     /// Nothing else is read or changed, and, once per start, one <c>WM_ACTIVATE</c> goes to the main window of a started game
     /// (A1b, <see cref="PostActivateMessage"/>): nothing else is posted or sent. The launcher never minimizes, hides, closes or
     /// moves a window of the game and never ends a process.
@@ -61,6 +61,13 @@ namespace Empire_Earth_Launcher.Core.Platform
         /// process has none (yet).
         /// </summary>
         IntPtr FindVisibleTopLevelWindow(int processId);
+
+        /// <summary>
+        /// False if Windows counts <paramref name="window"/> as not responding (<c>IsHungAppWindow</c>: its thread has not
+        /// processed a message for about five seconds, for example while the game loads); true if it responds or if that cannot
+        /// be told. Read-only. A message posted to such a window waits in its queue, so the activation signal is not sent then.
+        /// </summary>
+        bool IsWindowResponding(IntPtr window);
 
         /// <summary>
         /// <c>SetForegroundWindow</c>: asks Windows to make <paramref name="window"/> the foreground window. Windows may

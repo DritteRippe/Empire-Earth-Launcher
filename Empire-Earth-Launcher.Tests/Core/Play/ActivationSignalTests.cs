@@ -8,7 +8,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
     /// <summary>
     /// <see cref="ActivationSignal"/>, the decision of A1b (ADR 0010 amendment of 1.1.0): the one activation message goes to the
     /// main window of a started game after it has been the foreground window, with the same rectangle and styles and not
-    /// minimized, for five seconds, never while another window is in front, never 180 seconds or later after the start, and
+    /// minimized and responding, for five seconds, never while another window is in front, never 180 seconds or later after the start, and
     /// never twice. The class decides from the windows it is shown and a time since the start; no window is touched here.
     /// </summary>
     [TestFixture]
@@ -17,13 +17,14 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
         private const int GamePid = 4242;
         private const int LauncherPid = 100;
         private const long VisibleStyle = 0x16CF0000;
+        private const string MainClass = "SSSI Empire Earth";
 
         private ActivationSignal signal;
 
         [SetUp]
         public void SetUp()
         {
-            signal = new ActivationSignal(GamePid);
+            signal = new ActivationSignal(GamePid, MainClass);
         }
 
         private static TimeSpan At(double seconds)
@@ -31,9 +32,10 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             return TimeSpan.FromSeconds(seconds);
         }
 
-        private static WindowState Main(int right = 1920, int bottom = 1200, long style = VisibleStyle, long exStyle = 0x00040008, int handle = 0x1234)
+        private static WindowState Main(int right = 1920, int bottom = 1200, long style = VisibleStyle, long exStyle = 0x00040008, int handle = 0x1234,
+            int processId = GamePid, string className = MainClass)
         {
-            return new WindowState(new IntPtr(handle), GamePid, "SSSI Empire Earth", 0, 0, right, bottom, style, exStyle);
+            return new WindowState(new IntPtr(handle), processId, className, 0, 0, right, bottom, style, exStyle);
         }
 
         private static WindowState Lobby()
@@ -52,11 +54,11 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
         }
 
         /// <summary>Looks every 250 ms from <paramref name="from"/> up to and including <paramref name="to"/> seconds; returns the first step that is not Wait.</summary>
-        private SignalStep LookUntil(double from, double to, WindowState foreground, WindowState main, out double at)
+        private SignalStep LookUntil(double from, double to, WindowState foreground, WindowState main, out double at, bool responding = true)
         {
             for (double t = from; t <= to + 0.0001; t += 0.25)
             {
-                SignalStep step = signal.Observe(At(t), foreground, main);
+                SignalStep step = signal.Observe(At(t), foreground, main, responding);
                 if (step != SignalStep.Wait)
                 {
                     at = t;
@@ -195,6 +197,130 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
 
             Assert.That(LookUntil(0, 30.0, main, main, out double none), Is.EqualTo(SignalStep.Wait), why);
             Assert.That(signal.Wait, Is.EqualTo(SignalWait.Minimized), why);
+        }
+
+        [Test]
+        public void AMainWindowThatDoesNotRespond_Waits_AndTheQuietTimeStartsWhenItResponds()
+        {
+            WindowState main = Main();
+
+            Assert.That(LookUntil(0, 30.0, main, main, out double none, responding: false), Is.EqualTo(SignalStep.Wait),
+                "30 s of a window that does not process messages: a message would wait in its queue");
+            Assert.That(signal.Wait, Is.EqualTo(SignalWait.NotResponding));
+            Assert.That(signal.QuietState, Is.Null);
+            Assert.That(signal.QuietFor, Is.EqualTo(TimeSpan.Zero));
+
+            Assert.That(LookUntil(30.25, 35.0, main, main, out none), Is.EqualTo(SignalStep.Wait), "the quiet time started when it responded again");
+            Assert.That(signal.Observe(At(35.25), main, main), Is.EqualTo(SignalStep.Send));
+        }
+
+        [Test]
+        public void AWindowThatStopsRespondingInTheLastSecond_StopsTheQuietTime()
+        {
+            WindowState main = Main();
+            LookUntil(0, 4.75, main, main, out double none);
+
+            Assert.That(signal.Observe(At(5.0), main, main, mainResponding: false), Is.EqualTo(SignalStep.Wait));
+            Assert.That(signal.Wait, Is.EqualTo(SignalWait.NotResponding));
+        }
+
+        [Test]
+        public void AMainWindowOfAnotherClass_CountsAsMissing_AndNeverGetsTheSignal()
+        {
+            WindowState second = Main(className: "SomeOtherClass");
+
+            Assert.That(LookUntil(0, 9.75, second, second, out double none), Is.EqualTo(SignalStep.Wait));
+            Assert.That(signal.Wait, Is.EqualTo(SignalWait.MainWindowMissing));
+            Assert.That(signal.QuietState, Is.Null);
+            Assert.That(signal.Observe(At(10.0), second, second), Is.EqualTo(SignalStep.WindowGone), "the same rule as for a window that is not there");
+        }
+
+        [Test]
+        public void TheClassIsComparedExactly()
+        {
+            WindowState lower = Main(className: "sssi empire earth");
+
+            Assert.That(LookUntil(0, 9.75, lower, lower, out double none), Is.EqualTo(SignalStep.Wait));
+            Assert.That(signal.Wait, Is.EqualTo(SignalWait.MainWindowMissing));
+        }
+
+        [Test]
+        public void AMainWindowOfAnotherProcess_CountsAsMissing_WhenTheProcessIdWasReused()
+        {
+            WindowState reused = Main(processId: 5151);
+
+            Assert.That(LookUntil(0, 9.75, reused, reused, out double none), Is.EqualTo(SignalStep.Wait));
+            Assert.That(signal.Wait, Is.EqualTo(SignalWait.MainWindowMissing));
+            Assert.That(signal.Observe(At(10.0), reused, reused), Is.EqualTo(SignalStep.WindowGone));
+        }
+
+        [Test]
+        public void TheMainWindowOfTheRightClassAndProcess_StillGetsTheSignal_AfterAWrongOneWasSeen()
+        {
+            WindowState wrong = Main(className: "SomeOtherClass", handle: 0x4321);
+            WindowState main = Main();
+            LookUntil(0, 3.0, wrong, wrong, out double none);
+
+            Assert.That(signal.Observe(At(3.25), main, main), Is.EqualTo(SignalStep.Wait));
+            Assert.That(LookUntil(3.5, 8.0, main, main, out none), Is.EqualTo(SignalStep.Wait));
+            Assert.That(signal.Observe(At(8.25), main, main), Is.EqualTo(SignalStep.Send));
+        }
+
+        [Test]
+        public void ASignalNeedsTheClassOfTheMainWindow([Values(null, "")] string className)
+        {
+            Assert.That(() => new ActivationSignal(GamePid, className), Throws.ArgumentException);
+        }
+
+        [Test]
+        public void Withdraw_TakesTheDecisionBack_TheQuietTimeStartsAgain_AndTheSignalCanSendLater()
+        {
+            WindowState main = Main();
+            LookUntil(0, 5.0, main, main, out double none);
+
+            signal.Withdraw(SignalWait.OtherProgramInFront);
+
+            Assert.That(signal.IsPending, Is.True);
+            Assert.That(signal.Wait, Is.EqualTo(SignalWait.OtherProgramInFront));
+            Assert.That(signal.QuietState, Is.Null);
+            Assert.That(signal.QuietFor, Is.EqualTo(TimeSpan.Zero));
+            Assert.That(signal.Observe(At(5.25), main, main), Is.EqualTo(SignalStep.Wait), "5 s from now, not from the first look");
+            Assert.That(LookUntil(5.5, 10.0, main, main, out none), Is.EqualTo(SignalStep.Wait));
+            Assert.That(signal.Observe(At(10.25), main, main), Is.EqualTo(SignalStep.Send));
+        }
+
+        [Test]
+        public void Withdraw_AfterTheDeadline_StillExpires()
+        {
+            WindowState main = Main();
+            LookUntil(0, 5.0, main, main, out double none);
+            signal.Withdraw(SignalWait.NoForeground);
+
+            Assert.That(signal.Observe(At(180.0), main, main), Is.EqualTo(SignalStep.Expire));
+        }
+
+        [Test]
+        public void Withdraw_WithoutADecisionToSend_Throws()
+        {
+            Assert.That(() => signal.Withdraw(SignalWait.NoForeground), Throws.InvalidOperationException, "no look yet");
+            WindowState main = Main();
+            LookUntil(0, 3.0, main, main, out double none);
+            Assert.That(() => signal.Withdraw(SignalWait.NoForeground), Throws.InvalidOperationException, "the quiet time is not over");
+        }
+
+        [Test]
+        public void Withdraw_AfterExpireOrComplete_Throws()
+        {
+            WindowState main = Main();
+            Assert.That(signal.Observe(At(180.0), main, main), Is.EqualTo(SignalStep.Expire));
+            Assert.That(() => signal.Withdraw(SignalWait.NoForeground), Throws.InvalidOperationException, "the decision was Expire");
+
+            var sent = new ActivationSignal(GamePid, MainClass);
+            for (double t = 0; sent.Observe(At(t), main, main) != SignalStep.Send; t += 0.25)
+            {
+            }
+            sent.Complete(ActivationSignalOutcome.Sent);
+            Assert.That(() => sent.Withdraw(SignalWait.NoForeground), Throws.InvalidOperationException, "the message went out");
         }
 
         [Test]

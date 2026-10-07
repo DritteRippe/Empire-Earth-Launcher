@@ -80,8 +80,10 @@ namespace Empire_Earth_Launcher.Tests.Core.Platform
             windows.ReadWindow(new IntPtr(0x10));
             windows.FindVisibleTopLevelWindow(1);
             windows.SetForegroundWindow(IntPtr.Zero);
+            bool responding = windows.IsWindowResponding(new IntPtr(0x10));
             windows.PostActivateMessage(new IntPtr(0x10), out int error);
 
+            Assert.That(responding, Is.True, "what cannot be told counts as responding: the signal is not held back for it");
             Assert.That(error, Is.EqualTo(-1), "no user32.dll");
             Assert.That(logger.Entries, Has.Count.EqualTo(1));
             Assert.That(logger.Entries[0].Level, Is.EqualTo(LogLevel.Warning));

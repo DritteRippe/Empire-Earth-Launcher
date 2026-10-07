@@ -142,6 +142,7 @@
     <Compile Include="Core\Maintenance\VirtualStoreScannerTests.cs" />
     <Compile Include="Core\Maintenance\WonLoginResetTests.cs" />
     <Compile Include="Core\Logging\TraceFileLoggerTests.cs" />
+    <Compile Include="Core\Platform\ClockTests.cs" />
     <Compile Include="Core\Platform\FileSystemExtensionsTests.cs" />
     <Compile Include="Core\Platform\HttpsClientTests.cs" />
     <Compile Include="Core\Platform\LocalFileSystemTests.cs" />

@@ -32,6 +32,9 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
         private Action<TimeSpan> onWait;
         private GameWindowActivator activator;
 
+        /// <summary>The most waits a start needs (the longest, the 180 s deadline of the signal, takes about 720): more means a deadline is missing.</summary>
+        private const int MaxWaits = 1000;
+
         [SetUp]
         public void SetUp()
         {
@@ -43,9 +46,18 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             activator = new GameWindowActivator(windows, clock, logger, LauncherPid, Wait);
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            Assert.That(waits.Count, Is.LessThan(MaxWaits), "the safety cap of the test delay was reached: a deadline is missing");
+        }
+
         /// <summary>The delay of the activator: no real waiting, the fake clock moves, and the test may change the world.</summary>
         private Task Wait(TimeSpan time, CancellationToken cancellationToken)
         {
+            // Without a deadline a watch loops for ever: fail fast instead of hanging the test run.
+            if (waits.Count >= MaxWaits)
+                throw new InvalidOperationException("The activator waited " + MaxWaits + " times: a deadline is missing.");
             waits.Add(time);
             clock.Advance(time);
             onWait?.Invoke(time);
@@ -524,8 +536,8 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             Assert.That(windows.PostActivateCalls, Is.EqualTo(new[] { windows.Window }), "one message, to the main window");
             Assert.That(posted, Is.EqualTo(new[] { 7.0 }), "the hand-over ended at 2 s, the window was quiet from then on: 5 s later");
             Assert.That(windows.SetForegroundCalls, Has.Count.EqualTo(1), "nothing is brought to the foreground after the hand-over");
-            Assert.That(logger.Messages, Has.Some.EqualTo(SignalPrefix + "armed. One WM_ACTIVATE (WA_ACTIVE) goes to its main window once that " +
-                "window has been the foreground window with the same rectangle and styles for 5 s, at the latest 180 s after the start (A1b)."));
+            Assert.That(logger.Messages, Has.Some.EqualTo(SignalPrefix + "armed. One WM_ACTIVATE (WA_ACTIVE) goes to its main window (class 'SSSI Empire Earth') " +
+                "once that window has been the foreground window with the same rectangle and styles for 5 s, at the latest 180 s after the start (A1b)."));
             Assert.That(logger.Messages.Count(message => message.Contains("activation signal sent")), Is.EqualTo(1));
         }
 
@@ -684,14 +696,30 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
         [Test]
         public async Task PostMessageRefusedForAnotherReason_HasNoWordAboutAdministratorRights()
         {
-            windows.PostActivateError = 1400;
+            windows.PostActivateError = 8;
 
             ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
 
             Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.SendFailed));
             var warning = logger.Entries.Single(entry => entry.Level == LogLevel.Warning);
-            Assert.That(warning.Message, Does.Contain("returned error 1400 (").And.Contain("(Alt+Tab)."));
+            Assert.That(warning.Message, Does.Contain("returned error 8 (").And.Contain("(Alt+Tab)."));
             Assert.That(warning.Message, Does.Not.Contain("administrator"));
+        }
+
+        /// <summary>The adapter reports 1400 without calling PostMessage when the window is gone: the log must not say that PostMessage returned it.</summary>
+        [Test]
+        public async Task AMainWindowThatIsGoneBeforeThePost_IsSaidSo_NotAPostMessageError()
+        {
+            windows.PostActivateError = 1400;
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.WindowGone));
+            Assert.That(windows.PostActivateCalls, Has.Count.EqualTo(1), "no retry");
+            Assert.That(logger.Entries.Where(entry => entry.Level == LogLevel.Warning), Is.Empty, "the game has ended; nothing went wrong");
+            Assert.That(logger.Messages, Has.Some.EqualTo(WatchLine("7.0", "activation signal not sent: the main window 0x1234 was gone before the message could be posted.")));
+            Assert.That(logger.Messages, Has.None.Contains("PostMessage"));
+            Assert.That(logger.Messages, Has.None.Contains("1400"));
         }
 
         [Test]
@@ -827,6 +855,305 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             Assert.That(windows.SetForegroundCalls, Has.Count.EqualTo(1), "the hand-over, nothing after it");
             Assert.That(windows.AllowCalls, Is.Empty);
             Assert.That(windows.PostActivateCalls, Has.Count.EqualTo(1));
+        }
+
+        // --- The check right before the post, the identity of the main window, failures and the clock -------------------------
+
+        /// <summary>Calls <paramref name="action"/> once, at the first call of the window system named <paramref name="call"/> from <paramref name="after"/> seconds on.</summary>
+        private void OnceAtCall(string call, double after, DateTime start, Action action)
+        {
+            bool done = false;
+            windows.OnCall = name =>
+            {
+                if (!done && name.StartsWith(call, StringComparison.Ordinal) && (clock.UtcNow - start).TotalSeconds >= after)
+                {
+                    done = true;
+                    action();
+                }
+            };
+        }
+
+        [Test]
+        public async Task TheForegroundChangesBetweenTheLookAndThePost_NothingIsPosted_UntilTheMainWindowHasBeenQuietAgain()
+        {
+            DateTime start = clock.UtcNow;
+            List<double> posted = new List<double>();
+            bool switched = false;
+            windows.OnCall = call =>
+            {
+                TimeSpan elapsed = clock.UtcNow - start;
+                // The look at 7.0 s has read the foreground (the game) and decided to send; the player switches before the post.
+                if (!switched && call.StartsWith("responding", StringComparison.Ordinal) && elapsed >= TimeSpan.FromSeconds(7))
+                {
+                    switched = true;
+                    windows.Foreground = OtherPid;
+                }
+                if (call.StartsWith("post activate", StringComparison.Ordinal))
+                    posted.Add(elapsed.TotalSeconds);
+            };
+            onWait = time =>
+            {
+                if (clock.UtcNow - start >= TimeSpan.FromSeconds(20))
+                    windows.Foreground = GamePid;
+            };
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.Sent));
+            Assert.That(posted, Has.Count.EqualTo(1));
+            Assert.That(posted[0], Is.GreaterThanOrEqualTo(25.0), "5 s after the game was back in front at 20 s");
+            Assert.That(logger.Messages, Has.Some.Contains(WatchLine("7.0", "activation signal held back right before the post: the foreground window is window 0x9309 " +
+                "(pid 777, class 'OtherClass'), another program; the quiet time starts again.")));
+        }
+
+        [Test]
+        public async Task AWindowOfTheGameInFrontBeforeThePost_HoldsTheSignalBack_Too()
+        {
+            DateTime start = clock.UtcNow;
+            OnceAtCall("responding", 7, start, () => windows.GameForegroundWindow = FakeWindowSystem.LobbyWindow);
+            onWait = time =>
+            {
+                if (clock.UtcNow - start >= TimeSpan.FromSeconds(20))
+                    windows.GameForegroundWindow = null;
+            };
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.Sent));
+            Assert.That(windows.PostActivateCalls, Is.EqualTo(new[] { windows.Window }));
+            Assert.That(logger.Messages, Has.Some.Contains("activation signal held back right before the post: the foreground window is window 0x7777 " +
+                "(pid 4242, class 'WONLobbyPopup'), another window of the game"));
+        }
+
+        [Test]
+        public async Task NoForegroundWindowBeforeThePost_HoldsTheSignalBack()
+        {
+            DateTime start = clock.UtcNow;
+            OnceAtCall("responding", 7, start, () => windows.Foreground = 0);
+            onWait = time =>
+            {
+                if (clock.UtcNow - start >= TimeSpan.FromSeconds(12))
+                    windows.Foreground = GamePid;
+            };
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.Sent));
+            Assert.That(logger.Messages, Has.Some.Contains("activation signal held back right before the post: no window is in the foreground"));
+        }
+
+        [Test]
+        public async Task TheLauncherClosesBetweenTheLookAndThePost_NothingIsPosted()
+        {
+            using (var cancellation = new CancellationTokenSource())
+            {
+                DateTime start = clock.UtcNow;
+                // The look at 7.0 s decides to send; the launcher is closing before the post.
+                OnceAtCall("responding", 7, start, cancellation.Cancel);
+
+                ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth, cancellation.Token);
+
+                Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.Cancelled));
+                Assert.That(windows.PostActivateCalls, Is.Empty);
+                Assert.That(logger.Messages.Last(), Is.EqualTo("Info: The activation signal for Empire Earth.exe (pid 4242) was not sent: the launcher is closing."));
+            }
+        }
+
+        [Test]
+        public async Task AMainWindowThatDoesNotRespond_GetsNoSignal_UntilItResponds()
+        {
+            DateTime start = clock.UtcNow;
+            List<double> posted = TrackPosts(start);
+            onWait = time =>
+            {
+                TimeSpan elapsed = clock.UtcNow - start;
+                windows.GameHung = elapsed >= TimeSpan.FromSeconds(3) && elapsed < TimeSpan.FromSeconds(30);
+            };
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.Sent));
+            Assert.That(posted, Has.Count.EqualTo(1));
+            Assert.That(posted[0], Is.GreaterThanOrEqualTo(35.0), "5 s after it responded again at 30 s");
+            Assert.That(logger.Messages, Has.Some.Contains("activation signal waits: the main window does not respond."));
+        }
+
+        [Test]
+        public async Task AMainWindowThatStopsRespondingBeforeThePost_HoldsTheSignalBack()
+        {
+            DateTime start = clock.UtcNow;
+            int responding = 0;
+            windows.OnCall = call =>
+            {
+                // The first call at 7 s is the look, the second the check right before the post.
+                if (call.StartsWith("responding", StringComparison.Ordinal) && clock.UtcNow - start >= TimeSpan.FromSeconds(7) && ++responding == 2)
+                    windows.GameHung = true;
+            };
+            onWait = time =>
+            {
+                if (clock.UtcNow - start >= TimeSpan.FromSeconds(20))
+                    windows.GameHung = false;
+            };
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.Sent));
+            Assert.That(windows.PostActivateCalls, Has.Count.EqualTo(1));
+            Assert.That(logger.Messages, Has.Some.Contains("activation signal held back right before the post: the main window does not respond; the quiet time starts again."));
+        }
+
+        [Test]
+        public async Task AMainWindowOfAnotherClassAfterTheArming_IsNotTheMainWindow_NoSignalGoesToIt()
+        {
+            DateTime start = clock.UtcNow;
+            onWait = time =>
+            {
+                if (clock.UtcNow - start >= TimeSpan.FromSeconds(3))
+                    windows.GameClass = "SomeOtherClass";
+            };
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.WindowGone));
+            Assert.That(windows.PostActivateCalls, Is.Empty);
+            Assert.That(logger.Messages, Has.Some.Contains("activation signal not sent: the main window of Empire Earth.exe (pid 4242) has not been there for 10 s."));
+        }
+
+        [Test]
+        public async Task AMainWindowWhoseClassCannotBeRead_ArmsNothing()
+        {
+            windows.GameClass = string.Empty;
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.HandOver, Is.EqualTo(ActivationOutcome.GameInForeground));
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.NotArmed));
+            Assert.That(windows.PostActivateCalls, Is.Empty);
+            Assert.That(logger.Messages, Has.Some.StartWith(SignalPrefix + "not armed, the class of the main window 0x1234 could not be read"));
+        }
+
+        [Test]
+        public async Task AWatchThatFailsAfterTheHandOver_KeepsTheOutcomeOfTheHandOver_AndSaysTheSignalWasNotSent()
+        {
+            DateTime start = clock.UtcNow;
+            onWait = time =>
+            {
+                if (clock.UtcNow - start >= TimeSpan.FromSeconds(4))
+                    windows.Failure = new InvalidOperationException("boom");
+            };
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.HandOver, Is.EqualTo(ActivationOutcome.GameInForeground), "the hand-over had succeeded");
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.WatchFailed));
+            Assert.That(windows.PostActivateCalls, Is.Empty);
+            var warning = logger.Entries.Single(entry => entry.Level == LogLevel.Warning);
+            Assert.That(warning.Message, Is.EqualTo("The watch of Empire Earth.exe (pid 4242) failed after the hand-over (GameInForeground)."));
+            Assert.That(warning.Exception, Is.SameAs(windows.Failure));
+            Assert.That(logger.Messages, Has.None.Contains("could not be handed"));
+            Assert.That(logger.Messages.Last(), Is.EqualTo("Info: The activation signal for Empire Earth.exe (pid 4242) was not sent: the watch failed."));
+        }
+
+        [Test]
+        public async Task AWatchThatFailsAfterTheSignalWasSent_KeepsTheOutcomeSent()
+        {
+            DateTime start = clock.UtcNow;
+            onWait = time =>
+            {
+                if (clock.UtcNow - start >= TimeSpan.FromSeconds(10))
+                    windows.Failure = new InvalidOperationException("boom");
+            };
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.HandOver, Is.EqualTo(ActivationOutcome.GameInForeground));
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.Sent));
+            Assert.That(logger.Messages, Has.None.Contains("watch failed."));
+        }
+
+        [Test]
+        public async Task AChangeOfTheWallClock_DoesNotMoveTheQuietTimeOrTheDeadline()
+        {
+            DateTime start = clock.UtcNow;
+            TimeSpan startElapsed = clock.Elapsed;
+            var posted = new List<double>();
+            windows.OnCall = call =>
+            {
+                if (call.StartsWith("post activate", StringComparison.Ordinal))
+                    posted.Add((clock.Elapsed - startElapsed).TotalSeconds);
+            };
+            bool set = false;
+            onWait = time =>
+            {
+                // At 3 s the computer's clock jumps forward by an hour (time server, daylight saving).
+                if (!set && clock.Elapsed - startElapsed >= TimeSpan.FromSeconds(3))
+                {
+                    set = true;
+                    clock.SetWallClock(TimeSpan.FromHours(1));
+                }
+            };
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(set);
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.Sent));
+            Assert.That(posted, Is.EqualTo(new[] { 7.0 }), "5 s of quiet time have to pass, however the clock was set");
+        }
+
+        [Test]
+        public async Task AChangeOfTheWallClock_DoesNotEndTheWaitBefore180Seconds()
+        {
+            TimeSpan startElapsed = clock.Elapsed;
+            int flips = 0;
+            bool set = false;
+            onWait = time =>
+            {
+                TimeSpan elapsed = clock.Elapsed - startElapsed;
+                if (time == GameWindowActivator.WatchInterval && elapsed.TotalSeconds % 1.0 == 0)
+                    windows.GameRight = 1900 + (++flips % 2);
+                if (!set && elapsed >= TimeSpan.FromSeconds(50))
+                {
+                    set = true;
+                    clock.SetWallClock(TimeSpan.FromHours(1));
+                }
+            };
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(set);
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.NotSettled));
+            Assert.That(clock.Elapsed - startElapsed, Is.EqualTo(ActivationSignal.Deadline), "180 s of elapsed time, not of the wall clock");
+            Assert.That(logger.Messages, Has.Some.StartWith("Info: Watch t+180.0 s: activation signal not sent"));
+        }
+
+        [Test]
+        public async Task AChangeOfTheWallClock_DoesNotShortenTheSearchForTheWindow()
+        {
+            windows.LooksWithoutWindow = int.MaxValue;
+            onWait = time =>
+            {
+                if (waits.Count == 10)
+                    clock.SetWallClock(TimeSpan.FromHours(1));
+            };
+
+            ActivationOutcome outcome = (await activator.ActivateAsync(GamePid, Game.EmpireEarth)).HandOver;
+
+            Assert.That(outcome, Is.EqualTo(ActivationOutcome.NoWindow));
+            Assert.That(waits.Count, Is.EqualTo(600), "60 s of elapsed time at one look per 100 ms");
+        }
+
+        /// <summary>The safety cap of the test delay itself: a loop without end fails the test instead of hanging the run.</summary>
+        [Test]
+        public void TheTestDelay_StopsALoopWithoutEnd()
+        {
+            var thrown = Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            {
+                for (int i = 0; i <= MaxWaits; i++)
+                    await Wait(TimeSpan.FromMilliseconds(1), CancellationToken.None);
+            });
+
+            Assert.That(thrown.Message, Does.Contain("a deadline is missing"));
+            waits.Clear();
         }
 
         [Test]

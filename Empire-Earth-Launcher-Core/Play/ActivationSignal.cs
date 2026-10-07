@@ -22,7 +22,10 @@ namespace Empire_Earth_Launcher.Core.Play
         WindowGone,
 
         /// <summary>The launcher closed before the signal was decided.</summary>
-        Cancelled
+        Cancelled,
+
+        /// <summary>The watch failed (an exception of the window system) before the signal was decided; nothing was sent.</summary>
+        WatchFailed
     }
 
     /// <summary>What one look of the watch tells the caller to do.</summary>
@@ -59,6 +62,9 @@ namespace Empire_Earth_Launcher.Core.Play
 
         Minimized,
 
+        /// <summary>The main window does not respond (<c>IsHungAppWindow</c>): a message would wait in its queue, maybe until the player has switched away.</summary>
+        NotResponding,
+
         /// <summary>The main window is in front but has not been unchanged for <see cref="ActivationSignal.SettleTime"/> yet.</summary>
         Settling
     }
@@ -66,7 +72,7 @@ namespace Empire_Earth_Launcher.Core.Play
     /// <summary>
     /// A1b of 1.1.0 (ADR 0010 amendment): decides when the launcher posts the one <c>WM_ACTIVATE</c> (<c>WA_ACTIVE</c>) to the
     /// main window of a game it started: once the window has been the foreground window with the same rectangle and styles, not
-    /// minimized, for <see cref="SettleTime"/>, and never <see cref="Deadline"/> or later after the start. Empire Earth acquires
+    /// minimized, responding, for <see cref="SettleTime"/>, and never <see cref="Deadline"/> or later after the start. Empire Earth acquires
     /// its DirectInput mouse and keyboard on activation only; without a display mode change at the start no activation reaches
     /// it after it created them, and the mouse stays dead until Alt+Tab. The class only decides; it calls nothing and has no
     /// clock of its own (the caller passes the time since the start).
@@ -76,8 +82,18 @@ namespace Empire_Earth_Launcher.Core.Play
     /// Inside the wait one look decides in this order: the deadline; no main window (reset the quiet time; the game has ended
     /// after <see cref="MissingWindowLimit"/> in a row); no foreground window; a foreground window that is not the main window
     /// (reset; "another window of the game" if it belongs to the same process, else "another program"); a minimized or hidden
-    /// main window (reset); a main window whose handle, rectangle or styles differ from the last quiet state (the quiet time
-    /// starts now); and finally the quiet time itself.
+    /// main window (reset); a main window that does not respond (reset); a main window whose handle, rectangle or styles differ
+    /// from the last quiet state (the quiet time starts now); and finally the quiet time itself.
+    /// </para>
+    /// <para>
+    /// Which window is the main window: the window the caller passes, but only if it is a window of the process the launcher
+    /// started and of the class the hand-over found at arming (<c>SSSI Empire Earth</c>). Windows reuses process ids; if the game
+    /// has ended and another program got the id, or the game has a second window without an owner, the signal must not go to a
+    /// window that is not the main window of the game. A window of another process or class counts as missing.
+    /// </para>
+    /// <para>
+    /// The caller checks once more right before the post (the foreground may have changed since the look, the launcher may be
+    /// closing); if that fails it calls <see cref="Withdraw"/>, which takes the decision back and starts the quiet time again.
     /// </para>
     /// <para>
     /// Why <see cref="SettleTime"/> is 5 s. dgVoodoo does its window work in one burst: in real fullscreen inside the game's
@@ -114,15 +130,21 @@ namespace Empire_Earth_Launcher.Core.Play
         public const long VisibleStyle = 0x10000000;
 
         private readonly int gameProcessId;
+        private readonly string mainWindowClass;
         private bool completed;
         private bool decided;
+        private bool sendDecided;
         private TimeSpan quietSince;
         private TimeSpan? missingSince;
 
         /// <param name="gameProcessId">The process the launcher started; a foreground window of it that is not the main window is "another window of the game".</param>
-        public ActivationSignal(int gameProcessId)
+        /// <param name="mainWindowClass">The class of the main window that the hand-over found at arming; a main window of another class counts as missing.</param>
+        public ActivationSignal(int gameProcessId, string mainWindowClass)
         {
+            if (string.IsNullOrEmpty(mainWindowClass))
+                throw new ArgumentException("The class of the main window is needed.", nameof(mainWindowClass));
             this.gameProcessId = gameProcessId;
+            this.mainWindowClass = mainWindowClass;
         }
 
         /// <summary>True until <see cref="Complete"/> was called: the signal is still waiting.</summary>
@@ -146,8 +168,9 @@ namespace Empire_Earth_Launcher.Core.Play
         /// <summary>One look of the watch.</summary>
         /// <param name="elapsed">Time since the start of the game.</param>
         /// <param name="foreground">The foreground window (null: none).</param>
-        /// <param name="main">The main window of the game (null: not there).</param>
-        public SignalStep Observe(TimeSpan elapsed, WindowState foreground, WindowState main)
+        /// <param name="main">The main window of the game (null: not there). A window of another process or class counts as not there.</param>
+        /// <param name="mainResponding">False if Windows counts the main window as not responding.</param>
+        public SignalStep Observe(TimeSpan elapsed, WindowState foreground, WindowState main, bool mainResponding = true)
         {
             // Once a look has decided, or the signal is complete, no look can decide again: the message goes out at most once.
             if (completed || decided)
@@ -158,6 +181,10 @@ namespace Empire_Earth_Launcher.Core.Play
                 decided = true;
                 return SignalStep.Expire;
             }
+
+            // Not the main window of this game (the process id was reused, a second window without an owner): as if it was not there.
+            if (main != null && (main.ProcessId != gameProcessId || !string.Equals(main.ClassName, mainWindowClass, StringComparison.Ordinal)))
+                main = null;
 
             if (main == null)
             {
@@ -184,6 +211,8 @@ namespace Empire_Earth_Launcher.Core.Play
             }
             if ((main.Style & MinimizedStyle) != 0 || (main.Style & VisibleStyle) == 0)
                 return WaitFor(SignalWait.Minimized);
+            if (!mainResponding)
+                return WaitFor(SignalWait.NotResponding);
 
             if (QuietState == null || QuietState.Handle != main.Handle || !QuietState.HasSameRectangle(main) || !QuietState.HasSameStyles(main))
             {
@@ -198,11 +227,27 @@ namespace Empire_Earth_Launcher.Core.Play
             if (QuietFor >= SettleTime)
             {
                 decided = true;
+                sendDecided = true;
                 Wait = SignalWait.None;
                 return SignalStep.Send;
             }
             Wait = SignalWait.Settling;
             return SignalStep.Wait;
+        }
+
+        /// <summary>
+        /// Takes back the decision to send that the last <see cref="Observe"/> made, because the check right before the post
+        /// failed: the signal waits again for <paramref name="reason"/>, and the quiet time starts again. Throws if the last look
+        /// did not decide to send or the signal is complete.
+        /// </summary>
+        public void Withdraw(SignalWait reason)
+        {
+            if (completed || !sendDecided)
+                throw new InvalidOperationException("There is no decision to send to withdraw.");
+            decided = false;
+            sendDecided = false;
+            ResetQuiet();
+            Wait = reason;
         }
 
         /// <summary>Ends the wait with <paramref name="outcome"/>; a second call throws.</summary>

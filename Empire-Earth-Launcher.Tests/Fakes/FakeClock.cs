@@ -31,8 +31,21 @@ namespace Empire_Earth_Launcher.Tests.Fakes
             get { return DateTime.SpecifyKind(UtcNow + LocalOffset, DateTimeKind.Local); }
         }
 
-        /// <summary>Moves the clock forward (or back, with a negative value).</summary>
+        /// <summary>
+        /// <see cref="IClock.Elapsed"/>: moves with <see cref="Advance"/> (time that passes) and stays where it is for
+        /// <see cref="SetWallClock"/> (the clock of the computer is set).
+        /// </summary>
+        public TimeSpan Elapsed { get; private set; }
+
+        /// <summary>Lets time pass: the wall clock and <see cref="Elapsed"/> move forward (or the wall clock back, with a negative value).</summary>
         public void Advance(TimeSpan time)
+        {
+            UtcNow += time;
+            Elapsed += time;
+        }
+
+        /// <summary>Sets the wall clock of the computer by <paramref name="time"/> (a time server, daylight saving); no time passes: <see cref="Elapsed"/> stays.</summary>
+        public void SetWallClock(TimeSpan time)
         {
             UtcNow += time;
         }

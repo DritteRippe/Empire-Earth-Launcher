@@ -11,7 +11,8 @@ namespace Empire_Earth_Launcher.Core.Platform
     /// <c>GetWindowThreadProcessId</c> for the foreground process, <c>EnumWindows</c> with <c>IsWindowVisible</c> and
     /// <c>GetWindow(GW_OWNER)</c> and <c>WS_EX_TOOLWINDOW</c> for the main window of a process, <c>SetForegroundWindow</c> and
     /// <c>AllowSetForegroundWindow</c> for the right, <c>GetClassName</c>, <c>GetWindowRect</c> and <c>GetWindowLong</c> for
-    /// the read-only watch (<see cref="ReadWindow"/>), and <c>PostMessage</c> for the one activation message of A1b
+    /// the read-only watch (<see cref="ReadWindow"/>), <c>IsHungAppWindow</c> to see whether a window responds
+    /// (<see cref="IsWindowResponding"/>), and <c>PostMessage</c> for the one activation message of A1b
     /// (<see cref="PostActivateMessage"/>). Checked on real Windows by the test plan (WP6-18, WP6-21).
     /// </summary>
     /// <remarks>
@@ -116,6 +117,19 @@ namespace Empire_Earth_Launcher.Core.Platform
             return found;
         }
 
+        public bool IsWindowResponding(IntPtr window)
+        {
+            try
+            {
+                return !IsHungAppWindow(window);
+            }
+            catch (Exception ex) when (ex is DllNotFoundException || ex is EntryPointNotFoundException)
+            {
+                LogUnavailable(ex);
+                return true;
+            }
+        }
+
         public bool SetForegroundWindow(IntPtr window)
         {
             try
@@ -218,6 +232,10 @@ namespace Empire_Earth_Launcher.Core.Platform
 
         [DllImport("user32.dll")]
         private static extern IntPtr GetWindow(IntPtr window, int command);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool IsHungAppWindow(IntPtr window);
 
         [DllImport("user32.dll", EntryPoint = "SetForegroundWindow")]
         [return: MarshalAs(UnmanagedType.Bool)]

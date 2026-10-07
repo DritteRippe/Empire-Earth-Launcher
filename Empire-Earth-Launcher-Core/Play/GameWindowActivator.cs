@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Empire_Earth_Launcher.Core.Contract;
@@ -76,7 +77,11 @@ namespace Empire_Earth_Launcher.Core.Play
     /// rectangle and styles, for <see cref="ActivationSignal.SettleTime"/>, at the latest <see cref="ActivationSignal.Deadline"/>
     /// after the start; it never goes out while another window (the lobby popup, the splash, another program) is in front. If
     /// the post fails (the game runs as administrator) it is logged and nothing else happens. The watch lasts until the signal
-    /// is decided.
+    /// is decided. Right before the post it reads the foreground window again and whether the main window responds, and it
+    /// stops if the launcher is closing: the look that decided may be some milliseconds old, and a message to a window that does
+    /// not process messages (the game is loading) would wait in its queue, perhaps until the player has switched away. The
+    /// main window must be of the class that the hand-over found (<c>SSSI Empire Earth</c>) and of the started process. All
+    /// durations come from <see cref="IClock.Elapsed"/>, which a change of the clock of the computer does not move.
     /// </para>
     /// <para>
     /// The launcher never steals the foreground: as soon as another process owns it, the hand-over ends. It does not minimize,
@@ -111,6 +116,9 @@ namespace Empire_Earth_Launcher.Core.Play
         /// <summary><c>ERROR_ACCESS_DENIED</c>: what <c>PostMessage</c> reports to a window of a process with higher rights (UIPI).</summary>
         private const int ErrorAccessDenied = 5;
 
+        /// <summary><c>ERROR_INVALID_WINDOW_HANDLE</c>: the main window was gone before the message could be posted.</summary>
+        private const int ErrorInvalidWindowHandle = 1400;
+
         private readonly IWindowSystem windows;
         private readonly IClock clock;
         private readonly ILogger logger;
@@ -118,7 +126,7 @@ namespace Empire_Earth_Launcher.Core.Play
         private readonly Func<TimeSpan, CancellationToken, Task> delay;
 
         /// <param name="windows">The foreground and the windows of the computer.</param>
-        /// <param name="clock">Measures how long the window took to appear.</param>
+        /// <param name="clock">Measures how long the window took to appear and how long it has been quiet (<see cref="IClock.Elapsed"/>).</param>
         /// <param name="logger">Log of the launcher.</param>
         /// <param name="launcherProcessId">The process id of the launcher: while it owns the foreground, the game may take it.</param>
         /// <param name="delay">Waits between two looks; <see cref="Task.Delay(TimeSpan, CancellationToken)"/> if null (tests pass
@@ -157,15 +165,18 @@ namespace Empire_Earth_Launcher.Core.Play
         private async Task<ActivationResult> ActivateCoreAsync(int processId, Game game, CancellationToken cancellationToken)
         {
             ActivationSignal signal = null;
+            ActivationOutcome? handOver = null;
             string name = game.ProgramName + " (pid " + processId.ToString(CultureInfo.InvariantCulture) + ")";
             try
             {
-                DateTime started = clock.UtcNow;
-                ActivationOutcome outcome = await HandOverAsync(processId, name, started, cancellationToken).ConfigureAwait(false);
+                TimeSpan started = clock.Elapsed;
+                var mainWindow = new StrongBox<IntPtr>();
+                ActivationOutcome outcome = await HandOverAsync(processId, name, started, mainWindow, cancellationToken).ConfigureAwait(false);
+                handOver = outcome;
                 // The window may be gone (the game ended) or never came: nothing to watch then.
                 if (outcome == ActivationOutcome.NoWindow)
                     return new ActivationResult(outcome, ActivationSignalOutcome.NotArmed);
-                signal = Arm(outcome, processId, name);
+                signal = Arm(outcome, processId, name, mainWindow.Value);
                 await WatchAsync(processId, name, started, signal, cancellationToken).ConfigureAwait(false);
                 return new ActivationResult(outcome, signal?.Outcome ?? ActivationSignalOutcome.NotArmed);
             }
@@ -181,9 +192,19 @@ namespace Empire_Earth_Launcher.Core.Play
             catch (Exception ex)
             {
                 // A background task of a convenience: it must never end the launcher (ADR 0013). A signal that was still waiting
-                // is dropped: nothing was sent.
-                logger.Warning("The foreground could not be handed to " + game.ProgramName + ".", ex);
-                return new ActivationResult(ActivationOutcome.GaveUp, signal?.Outcome ?? ActivationSignalOutcome.NotArmed);
+                // is dropped: nothing was sent. The result keeps the outcome of the hand-over if it had ended already.
+                if (!handOver.HasValue)
+                {
+                    logger.Warning("The foreground could not be handed to " + game.ProgramName + ".", ex);
+                    return new ActivationResult(ActivationOutcome.GaveUp, ActivationSignalOutcome.NotArmed);
+                }
+                logger.Warning("The watch of " + name + " failed after the hand-over (" + handOver.Value + ").", ex);
+                if (signal != null && signal.IsPending)
+                {
+                    signal.Complete(ActivationSignalOutcome.WatchFailed);
+                    logger.Info("The activation signal for " + name + " was not sent: the watch failed.");
+                }
+                return new ActivationResult(handOver.Value, signal?.Outcome ?? ActivationSignalOutcome.NotArmed);
             }
         }
 
@@ -192,16 +213,26 @@ namespace Empire_Earth_Launcher.Core.Play
         /// owns the foreground (after a user switch Windows activates the game when the player returns to it; after a give-up the
         /// player's click does); null otherwise. Logs which.
         /// </summary>
-        private ActivationSignal Arm(ActivationOutcome outcome, int processId, string name)
+        private ActivationSignal Arm(ActivationOutcome outcome, int processId, string name, IntPtr mainWindow)
         {
             string start = "Activation signal for " + name + ": ";
             switch (outcome)
             {
                 case ActivationOutcome.GameInForeground:
-                    logger.Info(start + "armed. One WM_ACTIVATE (WA_ACTIVE) goes to its main window once that window has been the foreground " +
-                                "window with the same rectangle and styles for " + FormatSeconds(ActivationSignal.SettleTime) + ", at the latest " +
-                                FormatSeconds(ActivationSignal.Deadline) + " after the start (A1b).");
-                    return new ActivationSignal(processId);
+                    // The class of the main window that the hand-over found: a window of another class is not the main window later
+                    // (the process id may be reused, the game may have a second window without an owner).
+                    WindowState found = windows.ReadWindow(mainWindow);
+                    if (found == null || string.IsNullOrEmpty(found.ClassName))
+                    {
+                        logger.Info(start + "not armed, the class of the main window " + FormatWindow(mainWindow) +
+                                    " could not be read (the signal goes to a window of the class that the hand-over found only).");
+                        return null;
+                    }
+                    logger.Info(start + "armed. One WM_ACTIVATE (WA_ACTIVE) goes to its main window (class '" + found.ClassName +
+                                "') once that window has been the foreground window with the same rectangle and styles for " +
+                                FormatSeconds(ActivationSignal.SettleTime) + ", at the latest " + FormatSeconds(ActivationSignal.Deadline) +
+                                " after the start (A1b).");
+                    return new ActivationSignal(processId, found.ClassName);
                 case ActivationOutcome.UserSwitched:
                     logger.Info(start + "not armed, the hand-over ended with UserSwitched (the game is not in front; Windows activates it " +
                                 "when the player returns to it).");
@@ -213,13 +244,15 @@ namespace Empire_Earth_Launcher.Core.Play
             }
         }
 
-        private async Task<ActivationOutcome> HandOverAsync(int processId, string name, DateTime started, CancellationToken cancellationToken)
+        /// <summary>The window found last is left in <paramref name="mainWindow"/>.</summary>
+        private async Task<ActivationOutcome> HandOverAsync(int processId, string name, TimeSpan started, StrongBox<IntPtr> mainWindow,
+            CancellationToken cancellationToken)
         {
             // 1. The window: the game needs a moment (and, with a wrapper, a second window) before it shows one.
             IntPtr window;
             while ((window = windows.FindVisibleTopLevelWindow(processId)) == IntPtr.Zero)
             {
-                if (clock.UtcNow - started >= FindTimeout)
+                if (clock.Elapsed - started >= FindTimeout)
                 {
                     logger.Info("No window of " + name + " within " + FormatSeconds(FindTimeout) + "; the foreground was left alone.");
                     return ActivationOutcome.NoWindow;
@@ -227,8 +260,9 @@ namespace Empire_Earth_Launcher.Core.Play
                 await delay(PollInterval, cancellationToken).ConfigureAwait(false);
                 cancellationToken.ThrowIfCancellationRequested();
             }
+            mainWindow.Value = window;
             string seen = "Game window " + FormatWindow(window) + " of " + name;
-            string after = FormatMilliseconds(clock.UtcNow - started);
+            string after = FormatMilliseconds(clock.Elapsed - started);
 
             // 2. Only the launcher (or nobody) may be in front: if another program is, the player switched. If the game is in front
             // already there is nothing to do (SetForegroundWindow would only wake the wrapper for nothing).
@@ -264,6 +298,7 @@ namespace Empire_Earth_Launcher.Core.Play
                     logger.Info("The window of " + name + " is gone; the hand-over of the foreground ends.");
                     return ActivationOutcome.NoWindow;
                 }
+                mainWindow.Value = window;
                 foreground = await ReadForegroundAsync(cancellationToken).ConfigureAwait(false);
                 if (foreground == processId)
                     return ActivationOutcome.GameInForeground;
@@ -312,11 +347,11 @@ namespace Empire_Earth_Launcher.Core.Play
         /// measurement of when a wrapper switches the display mode and whether the game loses the foreground). The only thing it
         /// ever does besides reading is the one activation message of the signal (A1b, <see cref="SendSignal"/>).
         /// </summary>
-        private async Task WatchAsync(int processId, string name, DateTime started, ActivationSignal signal, CancellationToken cancellationToken)
+        private async Task WatchAsync(int processId, string name, TimeSpan started, ActivationSignal signal, CancellationToken cancellationToken)
         {
             logger.Info("Watching " + name + " for " + FormatSeconds(WatchDuration) + " (read-only): changes of the foreground window and of " +
                         "the rectangle and the styles of its main window are logged with the time since the start.");
-            DateTime begin = clock.UtcNow;
+            TimeSpan begin = clock.Elapsed;
             bool first = true;
             IntPtr foreground = IntPtr.Zero;
             WindowState foregroundState = null;
@@ -326,7 +361,7 @@ namespace Empire_Earth_Launcher.Core.Play
             WindowState loggedQuietState = null;
             while (true)
             {
-                string at = "Watch t+" + FormatElapsed(clock.UtcNow - started) + ": ";
+                string at = "Watch t+" + FormatElapsed(clock.Elapsed - started) + ": ";
 
                 // The foreground window: the handle alone tells a change (a window keeps its process and its class).
                 IntPtr now = windows.GetForegroundWindow();
@@ -369,7 +404,8 @@ namespace Empire_Earth_Launcher.Core.Play
                 {
                     // The foreground window as it is now (read again if the watch could not read it when it came to the front).
                     WindowState inFront = foregroundState ?? (now == IntPtr.Zero ? null : windows.ReadWindow(now));
-                    SignalStep step = signal.Observe(clock.UtcNow - started, inFront, game);
+                    bool responding = game == null || windows.IsWindowResponding(game.Handle);
+                    SignalStep step = signal.Observe(clock.Elapsed - started, inFront, game, responding);
                     if (signal.Wait != SignalWait.None &&
                         (signal.Wait != loggedWait || (signal.Wait == SignalWait.Settling && !ReferenceEquals(signal.QuietState, loggedQuietState))))
                     {
@@ -380,7 +416,7 @@ namespace Empire_Earth_Launcher.Core.Play
                     switch (step)
                     {
                         case SignalStep.Send:
-                            SendSignal(signal, game, at);
+                            SendSignal(signal, game, at, cancellationToken);
                             break;
                         case SignalStep.Expire:
                             signal.Complete(ActivationSignalOutcome.NotSettled);
@@ -396,21 +432,34 @@ namespace Empire_Earth_Launcher.Core.Play
                     }
                 }
 
-                if (clock.UtcNow - begin >= WatchDuration && (signal == null || !signal.IsPending))
+                if (clock.Elapsed - begin >= WatchDuration && (signal == null || !signal.IsPending))
                     break;
                 await delay(WatchInterval, cancellationToken).ConfigureAwait(false);
                 cancellationToken.ThrowIfCancellationRequested();
             }
-            logger.Info("The watch of " + name + " ends after " + FormatSeconds(clock.UtcNow - begin) + ".");
+            logger.Info("The watch of " + name + " ends after " + FormatSeconds(clock.Elapsed - begin) + ".");
         }
 
         /// <summary>
-        /// Posts the one <c>WM_ACTIVATE</c> to <paramref name="main"/> (A1b) and completes <paramref name="signal"/>. Never retried:
-        /// a refusal (error 5, a game that runs as administrator: User Interface Privilege Isolation) is logged as a warning with
-        /// the way out (Alt+Tab) and nothing else happens.
+        /// Posts the one <c>WM_ACTIVATE</c> to <paramref name="main"/> (A1b) and completes <paramref name="signal"/>. First the
+        /// check right before the post: if the launcher is closing nothing is posted (the caller completes the signal as
+        /// cancelled); if the foreground window is not the main window any more, or the main window does not respond, the
+        /// decision is withdrawn and the signal waits again. Never retried after the post: a refusal (error 5, a game that runs as
+        /// administrator: User Interface Privilege Isolation) is logged as a warning with the way out (Alt+Tab) and nothing else
+        /// happens; a main window that is gone (error 1400) ends the signal as <see cref="ActivationSignalOutcome.WindowGone"/>.
         /// </summary>
-        private void SendSignal(ActivationSignal signal, WindowState main, string at)
+        private void SendSignal(ActivationSignal signal, WindowState main, string at, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+            WindowState inFront;
+            SignalWait? held = CheckBeforePost(main, out inFront);
+            if (held.HasValue)
+            {
+                signal.Withdraw(held.Value);
+                logger.Info(at + "activation signal held back right before the post: " + DescribeWait(signal, inFront) + "; the quiet time starts again.");
+                return;
+            }
+
             WindowState quiet = signal.QuietState;
             string target = "main window " + WindowState.FormatHandle(main.Handle);
             if (windows.PostActivateMessage(main.Handle, out int error))
@@ -421,6 +470,12 @@ namespace Empire_Earth_Launcher.Core.Play
                             FormatElapsed(signal.QuietFor) + ".");
                 return;
             }
+            if (error == ErrorInvalidWindowHandle)
+            {
+                signal.Complete(ActivationSignalOutcome.WindowGone);
+                logger.Info(at + "activation signal not sent: the " + target + " was gone before the message could be posted.");
+                return;
+            }
             signal.Complete(ActivationSignalOutcome.SendFailed);
             logger.Warning(at + "activation signal failed: PostMessage(WM_ACTIVATE) to " + target + " returned error " +
                            error.ToString(CultureInfo.InvariantCulture) + " (" + new Win32Exception(error).Message + "). " +
@@ -428,6 +483,26 @@ namespace Empire_Earth_Launcher.Core.Play
                                ? "The game probably runs as administrator, and Windows does not let a program without those rights send it messages. "
                                : string.Empty) +
                            "If the mouse does not react, switch to another window and back once (Alt+Tab).");
+        }
+
+        /// <summary>
+        /// The last look before the post: null if the main window is still the foreground window and responds; else the reason
+        /// to wait again (and, for a foreground window that is not the main window, the window in front in <paramref name="inFront"/>).
+        /// </summary>
+        private SignalWait? CheckBeforePost(WindowState main, out WindowState inFront)
+        {
+            inFront = null;
+            IntPtr front = windows.GetForegroundWindow();
+            if (front == IntPtr.Zero)
+                return SignalWait.NoForeground;
+            if (front != main.Handle)
+            {
+                inFront = windows.ReadWindow(front);
+                return inFront != null && inFront.ProcessId == main.ProcessId
+                    ? SignalWait.OtherWindowOfTheGameInFront
+                    : SignalWait.OtherProgramInFront;
+            }
+            return windows.IsWindowResponding(main.Handle) ? (SignalWait?)null : SignalWait.NotResponding;
         }
 
         /// <summary>The reason the signal waits, for the log line "activation signal waits: ...".</summary>
@@ -440,11 +515,13 @@ namespace Empire_Earth_Launcher.Core.Play
                 case SignalWait.NoForeground:
                     return "no window is in the foreground";
                 case SignalWait.OtherWindowOfTheGameInFront:
-                    return "the foreground window is " + inFront.Describe() + ", another window of the game";
+                    return "the foreground window is " + (inFront == null ? "a window that is gone" : inFront.Describe()) + ", another window of the game";
                 case SignalWait.OtherProgramInFront:
-                    return "the foreground window is " + inFront.Describe() + ", another program";
+                    return "the foreground window is " + (inFront == null ? "a window that is gone" : inFront.Describe()) + ", another program";
                 case SignalWait.Minimized:
                     return "the main window is minimized or hidden";
+                case SignalWait.NotResponding:
+                    return "the main window does not respond";
                 default:
                     WindowState quiet = signal.QuietState;
                     return "the main window " + WindowState.FormatHandle(quiet.Handle) + " has rectangle " + quiet.FormatRectangle() + ", " +
@@ -467,6 +544,8 @@ namespace Empire_Earth_Launcher.Core.Play
                     return "another program was in front";
                 case SignalWait.Minimized:
                     return "the main window was minimized or hidden";
+                case SignalWait.NotResponding:
+                    return "the main window did not respond";
                 case SignalWait.Settling:
                     return "the main window was still changing";
                 default:
