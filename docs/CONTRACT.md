@@ -380,9 +380,11 @@ run, the products the user selects and the launcher:
    then stops the product setup and everything it started (the setup program is only the loader of the real
    setup) and starts no further product setup. The suite takes that decision on a frozen product setup: it
    suspends every process of the product setup, reads its log to the end and stops it only if the log shows
-   neither that line nor the start of it; a product setup that logged the line meanwhile, or that cannot be
-   frozen, is resumed and runs on (the cancel is too late), and one that was stopped and shows the line in its
-   log afterwards counts as failed and possibly only partly installed (the next run of the suite repairs it).
+   neither that line nor the start of it and Windows confirmed that the stop happened; a product setup that
+   logged the line meanwhile is resumed and runs on (the cancel is too late), one that cannot be frozen, whose
+   log cannot be read or that was not stopped is resumed and runs on as well (the cancel is not carried out and
+   the user can repeat it), and one that was stopped and shows the line in its log afterwards counts as failed and
+   possibly only partly installed (the next run of the suite repairs it).
    A product that finished before stays installed: the suite then
    finishes its own part for it (the launcher, the shortcuts and the record of point 8 and
    [1.6](#16-suite-record-optional), written for the products that succeeded) and the last page says that the
