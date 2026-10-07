@@ -98,8 +98,11 @@ namespace Empire_Earth_Launcher
         /// <summary>The result of the last start, else null.</summary>
         public StartResult LastResult { get; private set; }
 
-        /// <summary>The hand-over of the foreground to the game of the last start (it runs in the background); null before one.</summary>
-        internal Task<ActivationOutcome> WindowHandOver { get; private set; }
+        /// <summary>
+        /// The hand-over of the foreground to the game of the last start and its activation signal (A1b); it runs in the background
+        /// and ends after the watch; null before a start.
+        /// </summary>
+        internal Task<ActivationResult> WindowHandOver { get; private set; }
 
         /// <summary>Ends a running hand-over of the foreground: the launcher is closing.</summary>
         public void CancelWindowHandOver()

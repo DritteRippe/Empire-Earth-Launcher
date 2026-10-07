@@ -57,7 +57,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
         {
             windows.LooksWithoutWindow = 7;
 
-            ActivationOutcome outcome = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+            ActivationOutcome outcome = (await activator.ActivateAsync(GamePid, Game.EmpireEarth)).HandOver;
 
             Assert.That(outcome, Is.EqualTo(ActivationOutcome.GameInForeground));
             Assert.That(windows.SetForegroundCalls, Is.EqualTo(new[] { windows.Window }), "once, on the window that was found");
@@ -74,7 +74,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
         {
             windows.Foreground = GamePid;
 
-            ActivationOutcome outcome = await activator.ActivateAsync(GamePid, Game.ArtOfConquest);
+            ActivationOutcome outcome = (await activator.ActivateAsync(GamePid, Game.ArtOfConquest)).HandOver;
 
             Assert.That(outcome, Is.EqualTo(ActivationOutcome.GameInForeground));
             Assert.That(windows.SetForegroundCalls, Is.Empty, "no call: the game is in front");
@@ -89,7 +89,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             windows.HasSplash = true;
             windows.LooksWithoutWindow = 4;
 
-            ActivationOutcome outcome = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+            ActivationOutcome outcome = (await activator.ActivateAsync(GamePid, Game.EmpireEarth)).HandOver;
 
             Assert.That(outcome, Is.EqualTo(ActivationOutcome.GameInForeground));
             Assert.That(windows.SetForegroundCalls, Is.EqualTo(new[] { windows.Window }), "the main window, never the splash");
@@ -104,7 +104,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             windows.HasSplash = true;
             windows.LooksWithoutWindow = int.MaxValue;
 
-            ActivationOutcome outcome = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+            ActivationOutcome outcome = (await activator.ActivateAsync(GamePid, Game.EmpireEarth)).HandOver;
 
             Assert.That(outcome, Is.EqualTo(ActivationOutcome.NoWindow));
             Assert.That(windows.SetForegroundCalls, Is.Empty);
@@ -116,7 +116,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             windows.Foreground = OtherPid;
             windows.LooksWithoutWindow = 3;
 
-            ActivationOutcome outcome = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+            ActivationOutcome outcome = (await activator.ActivateAsync(GamePid, Game.EmpireEarth)).HandOver;
 
             Assert.That(outcome, Is.EqualTo(ActivationOutcome.UserSwitched));
             Assert.That(windows.SetForegroundCalls, Is.Empty);
@@ -132,7 +132,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
         {
             windows.Foreground = 0;
 
-            ActivationOutcome outcome = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+            ActivationOutcome outcome = (await activator.ActivateAsync(GamePid, Game.EmpireEarth)).HandOver;
 
             Assert.That(outcome, Is.EqualTo(ActivationOutcome.GameInForeground));
             Assert.That(waits.Take(GameWindowActivator.NullForegroundPolls), Is.All.EqualTo(GameWindowActivator.PollInterval));
@@ -152,7 +152,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
                     windows.Foreground = OtherPid;
             };
 
-            ActivationOutcome outcome = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+            ActivationOutcome outcome = (await activator.ActivateAsync(GamePid, Game.EmpireEarth)).HandOver;
 
             Assert.That(outcome, Is.EqualTo(ActivationOutcome.UserSwitched));
             Assert.That(windows.SetForegroundCalls, Is.Empty);
@@ -169,7 +169,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
                     windows.Foreground = LauncherPid;
             };
 
-            ActivationOutcome outcome = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+            ActivationOutcome outcome = (await activator.ActivateAsync(GamePid, Game.EmpireEarth)).HandOver;
 
             Assert.That(outcome, Is.EqualTo(ActivationOutcome.GameInForeground));
             Assert.That(windows.SetForegroundCalls, Has.Count.EqualTo(1));
@@ -189,7 +189,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
                 }
             };
 
-            ActivationOutcome outcome = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+            ActivationOutcome outcome = (await activator.ActivateAsync(GamePid, Game.EmpireEarth)).HandOver;
 
             Assert.That(outcome, Is.EqualTo(ActivationOutcome.GameInForeground));
             Assert.That(windows.SetForegroundCalls, Has.Count.EqualTo(2));
@@ -207,7 +207,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
                     windows.Foreground = OtherPid;
             };
 
-            ActivationOutcome outcome = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+            ActivationOutcome outcome = (await activator.ActivateAsync(GamePid, Game.EmpireEarth)).HandOver;
 
             Assert.That(outcome, Is.EqualTo(ActivationOutcome.UserSwitched));
             Assert.That(windows.SetForegroundCalls, Has.Count.EqualTo(1), "no second hand-over");
@@ -224,7 +224,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
                     windows.Foreground = LauncherPid;
             };
 
-            ActivationOutcome outcome = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+            ActivationOutcome outcome = (await activator.ActivateAsync(GamePid, Game.EmpireEarth)).HandOver;
 
             Assert.That(outcome, Is.EqualTo(ActivationOutcome.GameInForeground));
             Assert.That(windows.SetForegroundCalls, Has.Count.EqualTo(2));
@@ -240,7 +240,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
                     windows.Foreground = LauncherPid;
             };
 
-            ActivationOutcome outcome = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+            ActivationOutcome outcome = (await activator.ActivateAsync(GamePid, Game.EmpireEarth)).HandOver;
 
             Assert.That(outcome, Is.EqualTo(ActivationOutcome.GaveUp));
             Assert.That(windows.SetForegroundCalls, Has.Count.EqualTo(1 + GameWindowActivator.MaxReactivations));
@@ -253,7 +253,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
         {
             windows.SetForegroundResult = false;
 
-            ActivationOutcome outcome = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+            ActivationOutcome outcome = (await activator.ActivateAsync(GamePid, Game.EmpireEarth)).HandOver;
 
             Assert.That(outcome, Is.EqualTo(ActivationOutcome.GaveUp));
             Assert.That(windows.SetForegroundCalls, Has.Count.EqualTo(1 + GameWindowActivator.MaxReactivations));
@@ -266,7 +266,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
         {
             windows.LooksWithoutWindow = int.MaxValue;
 
-            ActivationOutcome outcome = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+            ActivationOutcome outcome = (await activator.ActivateAsync(GamePid, Game.EmpireEarth)).HandOver;
 
             Assert.That(outcome, Is.EqualTo(ActivationOutcome.NoWindow));
             Assert.That(windows.SetForegroundCalls, Is.Empty);
@@ -284,7 +284,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
                     windows.Window = IntPtr.Zero;
             };
 
-            ActivationOutcome outcome = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+            ActivationOutcome outcome = (await activator.ActivateAsync(GamePid, Game.EmpireEarth)).HandOver;
 
             Assert.That(outcome, Is.EqualTo(ActivationOutcome.NoWindow));
             Assert.That(windows.SetForegroundCalls, Has.Count.EqualTo(1));
@@ -303,9 +303,9 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
         private const string GameRectangleText = "rectangle 0,0,1920,1080 (1920x1080), style 0x16CF0000, exstyle 0x00040008.";
 
         [Test]
-        public async Task AfterTheHandOver_TheWindowIsWatchedFor60Seconds_AndANoiselessWatchLogsTheStartOnly()
+        public async Task AfterTheHandOver_TheWindowIsWatchedFor60Seconds_AndANoiselessWatchLogsTheStartTheSignalAndTheEndOnly()
         {
-            ActivationOutcome outcome = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+            ActivationOutcome outcome = (await activator.ActivateAsync(GamePid, Game.EmpireEarth)).HandOver;
 
             Assert.That(outcome, Is.EqualTo(ActivationOutcome.GameInForeground), "the outcome is that of the hand-over");
             // The hand-over ends with the look after two seconds; the watch starts there and ends 60 seconds later.
@@ -316,8 +316,15 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             Assert.That(logger.Messages, Has.Some.EqualTo(WatchLine("2.0", "foreground window is " + GameWindowText + " (the game).")));
             Assert.That(logger.Messages, Has.Some.EqualTo(WatchLine("2.0", "main window 0x1234 (class 'SSSI Empire Earth'): " + GameRectangleText)));
             Assert.That(logger.Messages.Last(), Is.EqualTo("Info: The watch of Empire Earth.exe (pid 4242) ends after 60 s."));
-            Assert.That(logger.Messages.Count(message => message.StartsWith("Info: Watch t+", StringComparison.Ordinal)), Is.EqualTo(2),
-                "nothing changed: the first state of the foreground and of the window, nothing more");
+            Assert.That(logger.Messages.Where(message => message.StartsWith("Info: Watch t+", StringComparison.Ordinal)).ToList(), Is.EqualTo(new[]
+            {
+                WatchLine("2.0", "foreground window is " + GameWindowText + " (the game)."),
+                WatchLine("2.0", "main window 0x1234 (class 'SSSI Empire Earth'): " + GameRectangleText),
+                WatchLine("2.0", "activation signal waits: the main window 0x1234 has rectangle 0,0,1920,1080 (1920x1080), style 0x16CF0000, " +
+                                 "exstyle 0x00040008; 5 s without a change are needed."),
+                WatchLine("7.0", "activation signal sent: WM_ACTIVATE (WA_ACTIVE) posted to main window 0x1234 (class 'SSSI Empire Earth'), " +
+                                 "which was the foreground window with rectangle 0,0,1920,1080 (1920x1080) for 5.0 s."),
+            }), "nothing changed: the first state of the foreground and of the window, the wait of the signal and the one post");
         }
 
         [Test]
@@ -421,6 +428,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
 
             Assert.That(windows.SetForegroundCalls, Has.Count.EqualTo(1), "only the hand-over itself, before the watch");
             Assert.That(windows.AllowCalls, Is.Empty);
+            Assert.That(windows.PostActivateCalls, Is.Empty, "the launcher was in front: no activation message");
             Assert.That(logger.Messages, Has.Some.Contains("(the launcher)."), "the watch saw the launcher in front");
         }
 
@@ -461,7 +469,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
                     windows.Foreground = LauncherPid;
             };
 
-            ActivationOutcome outcome = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+            ActivationOutcome outcome = (await activator.ActivateAsync(GamePid, Game.EmpireEarth)).HandOver;
 
             Assert.That(outcome, Is.EqualTo(ActivationOutcome.GaveUp));
             Assert.That(logger.Messages.Last(), Does.StartWith("Info: The watch of Empire Earth.exe (pid 4242) ends"));
@@ -478,17 +486,353 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
                         cancellation.Cancel();
                 };
 
-                ActivationOutcome outcome = await activator.ActivateAsync(GamePid, Game.EmpireEarth, cancellation.Token);
+                ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth, cancellation.Token);
 
-                Assert.That(outcome, Is.EqualTo(ActivationOutcome.Cancelled));
+                Assert.That(result.HandOver, Is.EqualTo(ActivationOutcome.Cancelled));
+                Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.Cancelled), "the signal was still waiting");
                 Assert.That(waits.Count(wait => wait == GameWindowActivator.WatchInterval), Is.EqualTo(1));
+                Assert.That(logger.Messages.Last(), Is.EqualTo("Info: The activation signal for Empire Earth.exe (pid 4242) was not sent: the launcher is closing."));
             }
+        }
+
+        // --- The activation signal (A1b of 1.1.0): one WM_ACTIVATE to the settled main window in front -----------------------
+
+        private const string SignalPrefix = "Info: Activation signal for Empire Earth.exe (pid 4242): ";
+
+        /// <summary>Remembers when (seconds since the start) the activation message was posted.</summary>
+        private List<double> TrackPosts(DateTime start)
+        {
+            var posted = new List<double>();
+            windows.OnCall = call =>
+            {
+                if (call.StartsWith("post activate", StringComparison.Ordinal))
+                    posted.Add((clock.UtcNow - start).TotalSeconds);
+            };
+            return posted;
+        }
+
+        [Test]
+        public async Task TheGameInFront_GetsOneActivationSignal_FiveSecondsAfterItsWindowSettled()
+        {
+            DateTime start = clock.UtcNow;
+            List<double> posted = TrackPosts(start);
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.HandOver, Is.EqualTo(ActivationOutcome.GameInForeground));
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.Sent));
+            Assert.That(windows.PostActivateCalls, Is.EqualTo(new[] { windows.Window }), "one message, to the main window");
+            Assert.That(posted, Is.EqualTo(new[] { 7.0 }), "the hand-over ended at 2 s, the window was quiet from then on: 5 s later");
+            Assert.That(windows.SetForegroundCalls, Has.Count.EqualTo(1), "nothing is brought to the foreground after the hand-over");
+            Assert.That(logger.Messages, Has.Some.EqualTo(SignalPrefix + "armed. One WM_ACTIVATE (WA_ACTIVE) goes to its main window once that " +
+                "window has been the foreground window with the same rectangle and styles for 5 s, at the latest 180 s after the start (A1b)."));
+            Assert.That(logger.Messages.Count(message => message.Contains("activation signal sent")), Is.EqualTo(1));
+        }
+
+        [Test]
+        public async Task TheSignal_WaitsForTheLastChangeOfTheWindow()
+        {
+            DateTime start = clock.UtcNow;
+            List<double> posted = TrackPosts(start);
+            bool changed = false;
+            onWait = time =>
+            {
+                if (!changed && clock.UtcNow - start >= TimeSpan.FromSeconds(6))
+                {
+                    changed = true;
+                    windows.GameRight = 1280;
+                    windows.GameBottom = 720;
+                }
+            };
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.Sent));
+            Assert.That(posted, Has.Count.EqualTo(1));
+            Assert.That(posted[0], Is.GreaterThanOrEqualTo(11.0), "5 s after the change at 6 s, not 5 s after the first look");
+            Assert.That(logger.Messages, Has.Some.Contains("activation signal waits: the main window 0x1234 has rectangle 0,0,1280,720 (1280x720)"),
+                "a change that restarts the quiet time is logged");
+            Assert.That(logger.Messages, Has.Some.Contains("which was the foreground window with rectangle 0,0,1280,720 (1280x720) for 5.0 s."));
+        }
+
+        [Test]
+        public async Task WhileTheLobbyPopupIsInFront_NoSignal_ThenOneAfterItCloses()
+        {
+            DateTime start = clock.UtcNow;
+            List<double> posted = TrackPosts(start);
+            onWait = time =>
+            {
+                TimeSpan elapsed = clock.UtcNow - start;
+                if (elapsed >= TimeSpan.FromSeconds(3) && elapsed < TimeSpan.FromSeconds(20))
+                    windows.GameForegroundWindow = FakeWindowSystem.LobbyWindow;
+                else
+                    windows.GameForegroundWindow = null;
+            };
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.Sent));
+            Assert.That(posted, Has.Count.EqualTo(1));
+            Assert.That(posted[0], Is.GreaterThanOrEqualTo(25.0), "5 s after the lobby closed at 20 s");
+            Assert.That(logger.Messages, Has.Some.Contains("activation signal waits: the foreground window is window 0x7777 (pid 4242, class " +
+                "'WONLobbyPopup'), another window of the game."));
+            Assert.That(windows.PostActivateCalls, Is.EqualTo(new[] { windows.Window }), "to the main window, never to the lobby");
+        }
+
+        [Test]
+        public async Task AnotherProgramInFront_NoSignalUntilItIsGone_AndTheWaitIsLoggedOnce()
+        {
+            DateTime start = clock.UtcNow;
+            List<double> posted = TrackPosts(start);
+            onWait = time =>
+            {
+                TimeSpan elapsed = clock.UtcNow - start;
+                windows.Foreground = elapsed >= TimeSpan.FromSeconds(3) && elapsed < TimeSpan.FromSeconds(100) ? OtherPid : GamePid;
+            };
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.Sent));
+            Assert.That(posted[0], Is.GreaterThanOrEqualTo(105.0));
+            Assert.That(logger.Messages.Count(message => message.Contains("another program.")), Is.EqualTo(1), "logged when the reason changes only");
+            Assert.That(logger.Messages, Has.Some.Contains("activation signal waits: the foreground window is window 0x9309 (pid 777, class 'OtherClass'), another program."));
+            // The watch lasts until the signal is decided: 60 s are long over.
+            Assert.That(logger.Messages.Last(), Does.Match(@"The watch of Empire Earth\.exe \(pid 4242\) ends after 10[3-9] s\."));
+        }
+
+        [Test]
+        public async Task AMinimizedMainWindow_GetsNoSignal_UntilItIsBack()
+        {
+            DateTime start = clock.UtcNow;
+            List<double> posted = TrackPosts(start);
+            onWait = time =>
+            {
+                TimeSpan elapsed = clock.UtcNow - start;
+                windows.GameMinimized = elapsed >= TimeSpan.FromSeconds(3) && elapsed < TimeSpan.FromSeconds(30);
+            };
+
+            await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(posted, Has.Count.EqualTo(1));
+            Assert.That(posted[0], Is.GreaterThanOrEqualTo(35.0));
+            Assert.That(logger.Messages, Has.Some.Contains("activation signal waits: the main window is minimized or hidden."));
+        }
+
+        [Test]
+        public async Task AfterAUserSwitch_TheSignalIsNotArmed()
+        {
+            onWait = time =>
+            {
+                if (time == GameWindowActivator.RecheckInterval)
+                    windows.Foreground = OtherPid;
+            };
+            windows.Foreground = LauncherPid;
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.HandOver, Is.EqualTo(ActivationOutcome.UserSwitched));
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.NotArmed));
+            Assert.That(windows.PostActivateCalls, Is.Empty);
+            Assert.That(logger.Messages, Has.Some.EqualTo(SignalPrefix + "not armed, the hand-over ended with UserSwitched (the game is not in front; " +
+                "Windows activates it when the player returns to it)."));
+            Assert.That(logger.Messages, Has.None.Contains("activation signal waits"));
+        }
+
+        [Test]
+        public async Task AfterAGiveUp_TheSignalIsNotArmed()
+        {
+            windows.SetForegroundResult = false;
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.HandOver, Is.EqualTo(ActivationOutcome.GaveUp));
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.NotArmed));
+            Assert.That(windows.PostActivateCalls, Is.Empty);
+            Assert.That(logger.Messages, Has.Some.EqualTo(SignalPrefix + "not armed, the hand-over ended with GaveUp (the launcher kept the " +
+                "foreground; a click on the game activates it)."));
+        }
+
+        [Test]
+        public async Task WithoutAWindow_ThereIsNothingToArm()
+        {
+            windows.LooksWithoutWindow = int.MaxValue;
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.HandOver, Is.EqualTo(ActivationOutcome.NoWindow));
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.NotArmed));
+            Assert.That(logger.Messages, Has.None.Contains("Activation signal"));
+        }
+
+        [Test]
+        public async Task PostMessageRefused_IsAWarningWithTheAltTabHint_AndNothingElseHappens()
+        {
+            windows.PostActivateError = 5;
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.SendFailed));
+            Assert.That(windows.PostActivateCalls, Has.Count.EqualTo(1), "no retry");
+            Assert.That(windows.SetForegroundCalls, Has.Count.EqualTo(1), "nothing else is done to a window");
+            var warning = logger.Entries.Single(entry => entry.Level == LogLevel.Warning);
+            Assert.That(warning.Message, Does.StartWith("Watch t+7.0 s: activation signal failed: PostMessage(WM_ACTIVATE) to main window 0x1234 returned error 5 ("));
+            Assert.That(warning.Message, Does.Contain("The game probably runs as administrator").And.Contain("switch to another window and back once (Alt+Tab)."));
+            Assert.That(logger.Messages.Last(), Is.EqualTo("Info: The watch of Empire Earth.exe (pid 4242) ends after 60 s."), "the watch goes on to its end");
+            Assert.That(logger.Messages, Has.None.Contains("activation signal sent"));
+        }
+
+        [Test]
+        public async Task PostMessageRefusedForAnotherReason_HasNoWordAboutAdministratorRights()
+        {
+            windows.PostActivateError = 1400;
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.SendFailed));
+            var warning = logger.Entries.Single(entry => entry.Level == LogLevel.Warning);
+            Assert.That(warning.Message, Does.Contain("returned error 1400 (").And.Contain("(Alt+Tab)."));
+            Assert.That(warning.Message, Does.Not.Contain("administrator"));
+        }
+
+        [Test]
+        public async Task WithoutAQuietWindow_TheWatchEndsAt180sAfterTheStart_WithTheNotSentLine()
+        {
+            DateTime start = clock.UtcNow;
+            int flips = 0;
+            onWait = time =>
+            {
+                // The rectangle changes every second: the window never rests for 5 s.
+                if (time == GameWindowActivator.WatchInterval && (clock.UtcNow - start).TotalSeconds % 1.0 == 0)
+                    windows.GameRight = 1900 + (++flips % 2);
+            };
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.NotSettled));
+            Assert.That(windows.PostActivateCalls, Is.Empty);
+            Assert.That(clock.UtcNow - start, Is.EqualTo(ActivationSignal.Deadline), "the look at 180 s ends it");
+            Assert.That(logger.Messages, Has.Some.EqualTo("Info: Watch t+180.0 s: activation signal not sent: the main window of Empire Earth.exe (pid 4242) was not " +
+                "the foreground window with the same rectangle and styles for 5 s within 180 s of the start (last: the main window was still changing)."));
+        }
+
+        [Test]
+        public async Task ClosingTheLauncher_WhileTheSignalWaits_SendsNothing()
+        {
+            using (var cancellation = new CancellationTokenSource())
+            {
+                DateTime start = clock.UtcNow;
+                onWait = time =>
+                {
+                    if (clock.UtcNow - start >= TimeSpan.FromSeconds(4))
+                        cancellation.Cancel();
+                };
+
+                ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth, cancellation.Token);
+
+                Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.Cancelled));
+                Assert.That(windows.PostActivateCalls, Is.Empty);
+                Assert.That(logger.Messages, Has.Some.EqualTo("Info: The activation signal for Empire Earth.exe (pid 4242) was not sent: the launcher is closing."));
+            }
+        }
+
+        [Test]
+        public async Task ClosingTheLauncher_AfterTheSignalWasSent_KeepsItsOutcome()
+        {
+            using (var cancellation = new CancellationTokenSource())
+            {
+                DateTime start = clock.UtcNow;
+                onWait = time =>
+                {
+                    if (clock.UtcNow - start >= TimeSpan.FromSeconds(20))
+                        cancellation.Cancel();
+                };
+
+                ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth, cancellation.Token);
+
+                Assert.That(result.HandOver, Is.EqualTo(ActivationOutcome.Cancelled));
+                Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.Sent));
+                Assert.That(logger.Messages, Has.None.Contains("launcher is closing"), "nothing was pending");
+            }
+        }
+
+        [Test]
+        public async Task TheWindowGone_EndsTheSignalAfter10s()
+        {
+            DateTime start = clock.UtcNow;
+            onWait = time =>
+            {
+                if (clock.UtcNow - start >= TimeSpan.FromSeconds(3))
+                    windows.Window = IntPtr.Zero;
+            };
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.WindowGone));
+            Assert.That(windows.PostActivateCalls, Is.Empty);
+            Assert.That(logger.Messages, Has.Some.Contains("activation signal not sent: the main window of Empire Earth.exe (pid 4242) has not been there for 10 s."));
+        }
+
+        [Test]
+        public async Task AWindowThatComesBackWithin10s_IsNotGone()
+        {
+            DateTime start = clock.UtcNow;
+            IntPtr main = windows.Window;
+            onWait = time =>
+            {
+                TimeSpan elapsed = clock.UtcNow - start;
+                windows.Window = elapsed >= TimeSpan.FromSeconds(3) && elapsed < TimeSpan.FromSeconds(11) ? IntPtr.Zero : main;
+            };
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.Sent));
+            Assert.That(windows.PostActivateCalls, Is.EqualTo(new[] { main }));
+        }
+
+        [Test]
+        public async Task TheWatch_LastsAtLeast60s_AlsoWhenTheSignalWasSentEarly()
+        {
+            DateTime start = clock.UtcNow;
+            List<double> posted = TrackPosts(start);
+
+            await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(posted, Is.EqualTo(new[] { 7.0 }));
+            Assert.That(clock.UtcNow - start, Is.EqualTo(GameWindowActivator.RecheckInterval + GameWindowActivator.WatchDuration));
+            Assert.That(logger.Messages.Last(), Is.EqualTo("Info: The watch of Empire Earth.exe (pid 4242) ends after 60 s."));
+        }
+
+        [Test]
+        public async Task TheSignal_IsSentAtMostOncePerStart_EvenWhenTheWindowChangesAfterwards()
+        {
+            DateTime start = clock.UtcNow;
+            List<double> posted = TrackPosts(start);
+            onWait = time =>
+            {
+                if (clock.UtcNow - start >= TimeSpan.FromSeconds(10))
+                    windows.GameRight = 1000 + (int)(clock.UtcNow - start).TotalSeconds;
+            };
+
+            await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(posted, Is.EqualTo(new[] { 7.0 }));
+            Assert.That(windows.PostActivateCalls, Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public async Task TheSignal_NeverChangesAWindow_OnlyTheOneMessageIsPosted()
+        {
+            await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(windows.SetForegroundCalls, Has.Count.EqualTo(1), "the hand-over, nothing after it");
+            Assert.That(windows.AllowCalls, Is.Empty);
+            Assert.That(windows.PostActivateCalls, Has.Count.EqualTo(1));
         }
 
         [Test]
         public async Task WithoutAProcessId_NothingIsPolled()
         {
-            ActivationOutcome outcome = await activator.ActivateAsync(null, Game.EmpireEarth);
+            ActivationOutcome outcome = (await activator.ActivateAsync(null, Game.EmpireEarth)).HandOver;
 
             Assert.That(outcome, Is.EqualTo(ActivationOutcome.ProcessIdUnknown));
             Assert.That(windows.FindCalls, Is.EqualTo(0));
@@ -515,11 +859,11 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
                 windows.LooksWithoutWindow = int.MaxValue;
                 // With the real delay: the cancelled token ends the wait of 100 ms at once.
                 var real = new GameWindowActivator(windows, clock, logger, LauncherPid);
-                Task<ActivationOutcome> running = real.ActivateAsync(GamePid, Game.EmpireEarth, cancellation.Token);
+                Task<ActivationResult> running = real.ActivateAsync(GamePid, Game.EmpireEarth, cancellation.Token);
 
                 cancellation.Cancel();
 
-                Assert.That(await running, Is.EqualTo(ActivationOutcome.Cancelled));
+                Assert.That((await running).HandOver, Is.EqualTo(ActivationOutcome.Cancelled));
                 Assert.That(windows.SetForegroundCalls, Is.Empty);
             }
         }
@@ -532,7 +876,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
                 windows.LooksWithoutWindow = int.MaxValue;
                 onWait = time => cancellation.Cancel();
 
-                ActivationOutcome outcome = await activator.ActivateAsync(GamePid, Game.EmpireEarth, cancellation.Token);
+                ActivationOutcome outcome = (await activator.ActivateAsync(GamePid, Game.EmpireEarth, cancellation.Token)).HandOver;
 
                 Assert.That(outcome, Is.EqualTo(ActivationOutcome.Cancelled));
                 Assert.That(waits, Has.Count.EqualTo(1));
@@ -544,7 +888,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
         {
             windows.Failure = new InvalidOperationException("boom");
 
-            ActivationOutcome outcome = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+            ActivationOutcome outcome = (await activator.ActivateAsync(GamePid, Game.EmpireEarth)).HandOver;
 
             Assert.That(outcome, Is.EqualTo(ActivationOutcome.GaveUp));
             Assert.That(logger.Entries.Single().Level, Is.EqualTo(LogLevel.Warning));

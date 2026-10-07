@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,6 +31,22 @@ namespace Empire_Earth_Launcher.Core.Play
         Cancelled
     }
 
+    /// <summary>What <see cref="GameWindowActivator.ActivateAsync"/> did for one start: the hand-over of the foreground and the activation signal (A1b).</summary>
+    public sealed class ActivationResult
+    {
+        public ActivationResult(ActivationOutcome handOver, ActivationSignalOutcome signal)
+        {
+            HandOver = handOver;
+            Signal = signal;
+        }
+
+        /// <summary>How the hand-over of the foreground ended; <see cref="ActivationOutcome.Cancelled"/> if the launcher closed at any time before the end of the watch.</summary>
+        public ActivationOutcome HandOver { get; }
+
+        /// <summary><see cref="ActivationSignalOutcome.NotArmed"/> if the signal was not armed (or the watch failed before it was decided).</summary>
+        public ActivationSignalOutcome Signal { get; }
+    }
+
     /// <summary>
     /// Hands the foreground to the window of a game that the launcher has just started (ADR 0010 amendment of 1.1.0). The
     /// game acquires its DirectInput devices with the foreground cooperative level; if the launcher keeps the foreground while
@@ -48,14 +65,24 @@ namespace Empire_Earth_Launcher.Core.Play
     /// <see cref="MaxReactivations"/> times while the launcher (or nobody) owns the foreground.
     /// </para>
     /// <para>
-    /// Afterwards it only watches, for <see cref="WatchDuration"/>: every change of the foreground window and of the rectangle
-    /// and the styles of the main window is logged with the time since the start. That is a measurement, not an action; A1 does
-    /// not fix the dgVoodoo case (ADR 0010 amendment).
+    /// Afterwards it watches, for at least <see cref="WatchDuration"/>: every change of the foreground window and of the rectangle
+    /// and the styles of the main window is logged with the time since the start. That is a measurement, not an action.
+    /// </para>
+    /// <para>
+    /// Once per start, and only for a game it started and that owns the foreground after the hand-over, the launcher posts one
+    /// <c>WM_ACTIVATE</c> (<c>WA_ACTIVE</c>) to the main window (A1b, <see cref="ActivationSignal"/>): Empire Earth acquires its
+    /// DirectInput devices on activation only, and with dgVoodoo no activation reaches it after it created them, unless the
+    /// start changed the display mode. The message goes out when the main window has been the foreground window, with the same
+    /// rectangle and styles, for <see cref="ActivationSignal.SettleTime"/>, at the latest <see cref="ActivationSignal.Deadline"/>
+    /// after the start; it never goes out while another window (the lobby popup, the splash, another program) is in front. If
+    /// the post fails (the game runs as administrator) it is logged and nothing else happens. The watch lasts until the signal
+    /// is decided.
     /// </para>
     /// <para>
     /// The launcher never steals the foreground: as soon as another process owns it, the hand-over ends. It does not minimize,
-    /// hide or move any window, does not wait for the game to end and never ends a process. One line says when the window was
-    /// found, what was done and who owned the foreground. The start itself stays a shell start (ADR 0010).
+    /// hide, move, resize or close any window, does not wait for the game to end and never ends a process. One line says when the
+    /// window was found, what was done and who owned the foreground, and every decision of the signal is logged. The start itself
+    /// stays a shell start (ADR 0010).
     /// </para>
     /// </remarks>
     public sealed class GameWindowActivator
@@ -75,11 +102,14 @@ namespace Empire_Earth_Launcher.Core.Play
         /// <summary>How often a missing foreground window is looked at again (every <see cref="PollInterval"/>) before it counts as nobody's.</summary>
         public const int NullForegroundPolls = 3;
 
-        /// <summary>How long the foreground and the window of the game are watched, read-only, after the hand-over.</summary>
+        /// <summary>How long the foreground and the window of the game are watched, at least, after the hand-over (longer while the activation signal waits).</summary>
         public static readonly TimeSpan WatchDuration = TimeSpan.FromSeconds(60);
 
         /// <summary>How often the watch reads the foreground window and the window of the game.</summary>
         public static readonly TimeSpan WatchInterval = TimeSpan.FromMilliseconds(250);
+
+        /// <summary><c>ERROR_ACCESS_DENIED</c>: what <c>PostMessage</c> reports to a window of a process with higher rights (UIPI).</summary>
+        private const int ErrorAccessDenied = 5;
 
         private readonly IWindowSystem windows;
         private readonly IClock clock;
@@ -105,46 +135,81 @@ namespace Empire_Earth_Launcher.Core.Play
 
         /// <summary>
         /// Hands the foreground to the window of the game started with <paramref name="processId"/>, on the thread pool, and then
-        /// watches it for <see cref="WatchDuration"/>. The task never throws: a failure is logged and a closing launcher
-        /// (<paramref name="cancellationToken"/>) ends it with <see cref="ActivationOutcome.Cancelled"/>. It ends after the
-        /// watch; the outcome is that of the hand-over.
+        /// watches it for <see cref="WatchDuration"/> and while the activation signal waits. The task never throws: a failure is
+        /// logged and a closing launcher (<paramref name="cancellationToken"/>) ends it with <see cref="ActivationOutcome.Cancelled"/>.
+        /// It ends after the watch; the result tells the outcome of the hand-over and of the signal.
         /// </summary>
         /// <param name="processId">The process id of the started game; null if it is not known (logged, nothing else happens).</param>
         /// <param name="game">The game that was started (for the log).</param>
         /// <param name="cancellationToken">Cancelled when the launcher closes.</param>
-        public Task<ActivationOutcome> ActivateAsync(int? processId, Game game, CancellationToken cancellationToken = default)
+        public Task<ActivationResult> ActivateAsync(int? processId, Game game, CancellationToken cancellationToken = default)
         {
             if (game == null)
                 throw new ArgumentNullException(nameof(game));
             if (!processId.HasValue)
             {
-                logger.Info("The foreground is not handed to " + game.ProgramName + ": its process id is not known.");
-                return Task.FromResult(ActivationOutcome.ProcessIdUnknown);
+                logger.Info("The foreground is not handed to " + game.ProgramName + " and no activation signal is sent: its process id is not known.");
+                return Task.FromResult(new ActivationResult(ActivationOutcome.ProcessIdUnknown, ActivationSignalOutcome.NotArmed));
             }
             return Task.Run(() => ActivateCoreAsync(processId.Value, game, cancellationToken));
         }
 
-        private async Task<ActivationOutcome> ActivateCoreAsync(int processId, Game game, CancellationToken cancellationToken)
+        private async Task<ActivationResult> ActivateCoreAsync(int processId, Game game, CancellationToken cancellationToken)
         {
+            ActivationSignal signal = null;
+            string name = game.ProgramName + " (pid " + processId.ToString(CultureInfo.InvariantCulture) + ")";
             try
             {
-                string name = game.ProgramName + " (pid " + processId.ToString(CultureInfo.InvariantCulture) + ")";
                 DateTime started = clock.UtcNow;
                 ActivationOutcome outcome = await HandOverAsync(processId, name, started, cancellationToken).ConfigureAwait(false);
                 // The window may be gone (the game ended) or never came: nothing to watch then.
-                if (outcome != ActivationOutcome.NoWindow)
-                    await WatchAsync(processId, name, started, cancellationToken).ConfigureAwait(false);
-                return outcome;
+                if (outcome == ActivationOutcome.NoWindow)
+                    return new ActivationResult(outcome, ActivationSignalOutcome.NotArmed);
+                signal = Arm(outcome, processId, name);
+                await WatchAsync(processId, name, started, signal, cancellationToken).ConfigureAwait(false);
+                return new ActivationResult(outcome, signal?.Outcome ?? ActivationSignalOutcome.NotArmed);
             }
             catch (OperationCanceledException)
             {
-                return ActivationOutcome.Cancelled;
+                if (signal != null && signal.IsPending)
+                {
+                    signal.Complete(ActivationSignalOutcome.Cancelled);
+                    logger.Info("The activation signal for " + name + " was not sent: the launcher is closing.");
+                }
+                return new ActivationResult(ActivationOutcome.Cancelled, signal?.Outcome ?? ActivationSignalOutcome.NotArmed);
             }
             catch (Exception ex)
             {
-                // A background task of a convenience: it must never end the launcher (ADR 0013).
+                // A background task of a convenience: it must never end the launcher (ADR 0013). A signal that was still waiting
+                // is dropped: nothing was sent.
                 logger.Warning("The foreground could not be handed to " + game.ProgramName + ".", ex);
-                return ActivationOutcome.GaveUp;
+                return new ActivationResult(ActivationOutcome.GaveUp, signal?.Outcome ?? ActivationSignalOutcome.NotArmed);
+            }
+        }
+
+        /// <summary>
+        /// The activation signal of A1b for a start whose hand-over ended with <paramref name="outcome"/>: armed only if the game
+        /// owns the foreground (after a user switch Windows activates the game when the player returns to it; after a give-up the
+        /// player's click does); null otherwise. Logs which.
+        /// </summary>
+        private ActivationSignal Arm(ActivationOutcome outcome, int processId, string name)
+        {
+            string start = "Activation signal for " + name + ": ";
+            switch (outcome)
+            {
+                case ActivationOutcome.GameInForeground:
+                    logger.Info(start + "armed. One WM_ACTIVATE (WA_ACTIVE) goes to its main window once that window has been the foreground " +
+                                "window with the same rectangle and styles for " + FormatSeconds(ActivationSignal.SettleTime) + ", at the latest " +
+                                FormatSeconds(ActivationSignal.Deadline) + " after the start (A1b).");
+                    return new ActivationSignal(processId);
+                case ActivationOutcome.UserSwitched:
+                    logger.Info(start + "not armed, the hand-over ended with UserSwitched (the game is not in front; Windows activates it " +
+                                "when the player returns to it).");
+                    return null;
+                default:
+                    logger.Info(start + "not armed, the hand-over ended with " + outcome + " (the launcher kept the foreground; a click on " +
+                                "the game activates it).");
+                    return null;
             }
         }
 
@@ -242,11 +307,12 @@ namespace Empire_Earth_Launcher.Core.Play
         }
 
         /// <summary>
-        /// Reads, for <see cref="WatchDuration"/>, which window is in front and where the main window of the game is, and logs
-        /// each change with the time since the start. Changes nothing (A1 of 1.1.0: the measurement of when a wrapper switches
-        /// the display mode and whether the game loses the foreground).
+        /// Reads, for <see cref="WatchDuration"/> and while <paramref name="signal"/> (null: not armed) waits, which window is in
+        /// front and where the main window of the game is, and logs each change with the time since the start (A1 of 1.1.0: the
+        /// measurement of when a wrapper switches the display mode and whether the game loses the foreground). The only thing it
+        /// ever does besides reading is the one activation message of the signal (A1b, <see cref="SendSignal"/>).
         /// </summary>
-        private async Task WatchAsync(int processId, string name, DateTime started, CancellationToken cancellationToken)
+        private async Task WatchAsync(int processId, string name, DateTime started, ActivationSignal signal, CancellationToken cancellationToken)
         {
             logger.Info("Watching " + name + " for " + FormatSeconds(WatchDuration) + " (read-only): changes of the foreground window and of " +
                         "the rectangle and the styles of its main window are logged with the time since the start.");
@@ -256,6 +322,8 @@ namespace Empire_Earth_Launcher.Core.Play
             WindowState foregroundState = null;
             WindowState gameState = null;
             bool gameWasThere = false;
+            SignalWait loggedWait = SignalWait.None;
+            WindowState loggedQuietState = null;
             while (true)
             {
                 string at = "Watch t+" + FormatElapsed(clock.UtcNow - started) + ": ";
@@ -297,12 +365,113 @@ namespace Empire_Earth_Launcher.Core.Play
                 gameWasThere = game != null;
                 first = false;
 
-                if (clock.UtcNow - begin >= WatchDuration)
+                if (signal != null && signal.IsPending)
+                {
+                    // The foreground window as it is now (read again if the watch could not read it when it came to the front).
+                    WindowState inFront = foregroundState ?? (now == IntPtr.Zero ? null : windows.ReadWindow(now));
+                    SignalStep step = signal.Observe(clock.UtcNow - started, inFront, game);
+                    if (signal.Wait != SignalWait.None &&
+                        (signal.Wait != loggedWait || (signal.Wait == SignalWait.Settling && !ReferenceEquals(signal.QuietState, loggedQuietState))))
+                    {
+                        logger.Info(at + "activation signal waits: " + DescribeWait(signal, inFront) + ".");
+                        loggedWait = signal.Wait;
+                        loggedQuietState = signal.QuietState;
+                    }
+                    switch (step)
+                    {
+                        case SignalStep.Send:
+                            SendSignal(signal, game, at);
+                            break;
+                        case SignalStep.Expire:
+                            signal.Complete(ActivationSignalOutcome.NotSettled);
+                            logger.Info(at + "activation signal not sent: the main window of " + name + " was not the foreground window with the " +
+                                        "same rectangle and styles for " + FormatSeconds(ActivationSignal.SettleTime) + " within " +
+                                        FormatSeconds(ActivationSignal.Deadline) + " of the start (last: " + DescribeLastWait(signal.Wait) + ").");
+                            break;
+                        case SignalStep.WindowGone:
+                            signal.Complete(ActivationSignalOutcome.WindowGone);
+                            logger.Info(at + "activation signal not sent: the main window of " + name + " has not been there for " +
+                                        FormatSeconds(ActivationSignal.MissingWindowLimit) + ".");
+                            break;
+                    }
+                }
+
+                if (clock.UtcNow - begin >= WatchDuration && (signal == null || !signal.IsPending))
                     break;
                 await delay(WatchInterval, cancellationToken).ConfigureAwait(false);
                 cancellationToken.ThrowIfCancellationRequested();
             }
-            logger.Info("The watch of " + name + " ends after " + FormatSeconds(WatchDuration) + ".");
+            logger.Info("The watch of " + name + " ends after " + FormatSeconds(clock.UtcNow - begin) + ".");
+        }
+
+        /// <summary>
+        /// Posts the one <c>WM_ACTIVATE</c> to <paramref name="main"/> (A1b) and completes <paramref name="signal"/>. Never retried:
+        /// a refusal (error 5, a game that runs as administrator: User Interface Privilege Isolation) is logged as a warning with
+        /// the way out (Alt+Tab) and nothing else happens.
+        /// </summary>
+        private void SendSignal(ActivationSignal signal, WindowState main, string at)
+        {
+            WindowState quiet = signal.QuietState;
+            string target = "main window " + WindowState.FormatHandle(main.Handle);
+            if (windows.PostActivateMessage(main.Handle, out int error))
+            {
+                signal.Complete(ActivationSignalOutcome.Sent);
+                logger.Info(at + "activation signal sent: WM_ACTIVATE (WA_ACTIVE) posted to " + target + " (class '" + main.ClassName +
+                            "'), which was the foreground window with rectangle " + quiet.FormatRectangle() + " for " +
+                            FormatElapsed(signal.QuietFor) + ".");
+                return;
+            }
+            signal.Complete(ActivationSignalOutcome.SendFailed);
+            logger.Warning(at + "activation signal failed: PostMessage(WM_ACTIVATE) to " + target + " returned error " +
+                           error.ToString(CultureInfo.InvariantCulture) + " (" + new Win32Exception(error).Message + "). " +
+                           (error == ErrorAccessDenied
+                               ? "The game probably runs as administrator, and Windows does not let a program without those rights send it messages. "
+                               : string.Empty) +
+                           "If the mouse does not react, switch to another window and back once (Alt+Tab).");
+        }
+
+        /// <summary>The reason the signal waits, for the log line "activation signal waits: ...".</summary>
+        private static string DescribeWait(ActivationSignal signal, WindowState inFront)
+        {
+            switch (signal.Wait)
+            {
+                case SignalWait.MainWindowMissing:
+                    return "the main window is not there";
+                case SignalWait.NoForeground:
+                    return "no window is in the foreground";
+                case SignalWait.OtherWindowOfTheGameInFront:
+                    return "the foreground window is " + inFront.Describe() + ", another window of the game";
+                case SignalWait.OtherProgramInFront:
+                    return "the foreground window is " + inFront.Describe() + ", another program";
+                case SignalWait.Minimized:
+                    return "the main window is minimized or hidden";
+                default:
+                    WindowState quiet = signal.QuietState;
+                    return "the main window " + WindowState.FormatHandle(quiet.Handle) + " has rectangle " + quiet.FormatRectangle() + ", " +
+                           quiet.FormatStyles() + "; " + FormatSeconds(ActivationSignal.SettleTime) + " without a change are needed";
+            }
+        }
+
+        /// <summary>The last reason the signal waited, for the line that says it was not sent in time.</summary>
+        private static string DescribeLastWait(SignalWait wait)
+        {
+            switch (wait)
+            {
+                case SignalWait.MainWindowMissing:
+                    return "the main window was not there";
+                case SignalWait.NoForeground:
+                    return "no window was in the foreground";
+                case SignalWait.OtherWindowOfTheGameInFront:
+                    return "another window of the game was in front";
+                case SignalWait.OtherProgramInFront:
+                    return "another program was in front";
+                case SignalWait.Minimized:
+                    return "the main window was minimized or hidden";
+                case SignalWait.Settling:
+                    return "the main window was still changing";
+                default:
+                    return "the signal never looked";
+            }
         }
 
         private string DescribeForeground(WindowState state, int gameProcessId)

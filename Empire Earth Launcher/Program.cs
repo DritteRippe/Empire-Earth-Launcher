@@ -133,7 +133,8 @@ namespace Empire_Earth_Launcher
             // Play (L-WP6, ADR 0010): setup and game mutexes, the program, class S and the first run, then the start through
             // the shell in the real game folder (contract 3.6, 3.7, 4.2); the repair advice opens the download page.
             // After the start the foreground goes to the window of the game (ADR 0010 amendment of 1.1.0): the game needs it for
-            // its mouse; the launcher allows it before the start and hands it over when the window is there.
+            // its mouse; the launcher allows it before the start and hands it over when the window is there. Once the window has
+            // settled in front, one activation message (A1b) gives the game its mouse devices (ADR 0010 amendment).
             var shell = new ShellProcessStarter();
             var windowSystem = new WindowsWindowSystem(logger);
             var gameStarter = new GameStarter(new RunningGameDetector(mutexProbe, new WindowsProcessList(logger)), fileSystem,

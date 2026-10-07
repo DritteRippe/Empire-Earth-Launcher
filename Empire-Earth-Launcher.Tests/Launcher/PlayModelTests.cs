@@ -362,7 +362,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             StartResult result = await model.StartAsync(false);
 
             Assert.That(result.IsStarted, Is.True);
-            Assert.That(await model.WindowHandOver, Is.EqualTo(ActivationOutcome.GameInForeground));
+            Assert.That((await model.WindowHandOver).HandOver, Is.EqualTo(ActivationOutcome.GameInForeground));
             Assert.That(windows.AllowCalls, Is.EqualTo(new[] { ForegroundRight.AnyProcess }), "allowed right before the start");
             Assert.That(windows.SetForegroundCalls, Is.EqualTo(new[] { windows.Window }));
             Assert.That(w.Logger.Messages, Has.Some.Contains("Game window 0x1234 of Empire Earth.exe (pid 4242) brought to the foreground after"));
@@ -390,7 +390,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
 
             await model.StartAsync(false);
 
-            Assert.That(await model.WindowHandOver, Is.EqualTo(ActivationOutcome.ProcessIdUnknown));
+            Assert.That((await model.WindowHandOver).HandOver, Is.EqualTo(ActivationOutcome.ProcessIdUnknown));
             Assert.That(windows.FindCalls, Is.EqualTo(0));
         }
 
@@ -404,7 +404,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
 
             model.CancelWindowHandOver();
 
-            Assert.That(await model.WindowHandOver, Is.EqualTo(ActivationOutcome.Cancelled));
+            Assert.That((await model.WindowHandOver).HandOver, Is.EqualTo(ActivationOutcome.Cancelled));
             Assert.That(windows.SetForegroundCalls, Is.Empty);
         }
 

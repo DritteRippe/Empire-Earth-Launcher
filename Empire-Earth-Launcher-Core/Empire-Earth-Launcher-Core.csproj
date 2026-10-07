@@ -143,6 +143,7 @@
     <Compile Include="Platform\WindowsWindowSystem.cs" />
     <Compile Include="Platform\WinPath.cs" />
     <Compile Include="Play\GameStarter.cs" />
+    <Compile Include="Play\ActivationSignal.cs" />
     <Compile Include="Play\GameWindowActivator.cs" />
     <Compile Include="Play\InstanceForwarding.cs" />
     <Compile Include="Play\IGameStartPreparation.cs" />

@@ -101,6 +101,7 @@ namespace Empire_Earth_Launcher.Tests.Architecture
                     calls.Add(line.Item1);
             }
 
+            Assert.That(calls, Is.Not.Empty, "the check found no call at all");
             Assert.That(calls, Is.All.EqualTo(Activator));
         }
 
