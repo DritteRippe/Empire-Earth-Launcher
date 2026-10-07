@@ -66,10 +66,14 @@ features that work.
 - Settings of earlier test builds (`user.config`) are not taken over. Saved games are exported into a folder; there is
   no zip export or import.
 
-**Status**: version 1.1.0 (`SharedAssemblyInfo.cs`, CHANGELOG 2026-10-07); not available as a release yet, only test
-builds. Version 1.1.0 is tagged `v1.1.0` only after its test cases on a real Windows computer have passed
-([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), L-WP11 to L-WP14, WP6-13, WP6-18 to WP6-21); the French translation review
-and the German proof-reading are still open.
+**Status**: version 1.1.0 (`SharedAssemblyInfo.cs`, CHANGELOG 2026-10-07) was released on 2026-10-07 as the tag `v1.1.0`
+on the commit 5d256c8. It ships inside the private suite package "Empire Earth Community" 1.1.0; no binaries are published
+here. The maintainer released it after session 1 of the laptop test only (the mouse works right after the start without
+Alt+Tab, WP6-21; WP6-13, WP6-18, WP6-19 (a), WP11-01 to WP11-04 (a), WP11-06, WP11-10, WP12-01 (a), WP12-02, WP12-04, WP13-01,
+WP13-02, WP13-06, WP13-07, WP14-01 and WP14-02), without session 2. Not run on real hardware are WP11-04 (b), WP11-05, WP11-07 to
+WP11-09, WP12-01 (b), WP12-03, WP12-05 to WP12-09, WP13-03 to WP13-05, WP13-08, WP14-03, WP6-19 (b), WP6-20 and WP6-21 (e) and (f)
+([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md)); they are to be run before or with 1.1.1, and a problem found there is fixed in
+1.1.1. The French translation review and the German proof-reading are still open.
 
 ## 🧾 Features
 

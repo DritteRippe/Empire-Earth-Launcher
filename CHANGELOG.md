@@ -15,8 +15,10 @@ described in the git history.
 Version 1.1.0 is the launcher of the suite installer "Empire Earth Community" 1.1.0 (setup repository, contract
 revision 6): one launcher for Empire Earth, Neo Empire Earth and their expansions, the *Graphics* and *Mods* pages, a
 window that can be resized, the download pages of the website and the activation signal against the dead mouse at the
-start of a game. It is tagged `v1.1.0` only after its laptop test cases have passed
-([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), L-WP11 to L-WP14, WP6-13, WP6-18 to WP6-21).
+start of a game. Released on 2026-10-07 as the tag `v1.1.0`, inside the suite package 1.1.0, after session 1 of the laptop
+test only (the mouse works right after the start without Alt+Tab); session 2 and the optional cases were not run on real
+hardware and are to follow before or with 1.1.1 ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), L-WP11 to L-WP14, WP6-13,
+WP6-18 to WP6-21).
 
 ### Changed
 
