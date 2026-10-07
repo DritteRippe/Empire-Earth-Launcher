@@ -83,6 +83,9 @@ Empire-Earth.sln
 │  │                   page, 1024x768 to 1920x1080) and GameDefaultsService.SetGameWindow / ReadGameWindow
 │  ├─ Graphics/        WrapperInfo (which DirectX wrapper the setup installed, contract 3.3), DgVoodooConfReader
 │  │                   (dgVoodoo.conf as keys and values, read where the game reads it; 1.1.0, read-only)
+│  ├─ Mods/            DreXmodInfo (dreXmod 2 or 3 from the components), DreXmodConfigReader (the Mod and LobbyTheme
+│  │                   selectors of dreXmod.config as text), ModFolderScanner (the presets of Data\dxm\mods),
+│  │                   CreditsParser (Name, Last Edit, Created by of a preset); 1.1.0, read-only
 │  ├─ Backup/          RegFileWriter (.reg export), RegistryExport, BackupLocations (ADR 0007, L-WP5);
 │  │                   FileBackup (move files into a dated backup folder, L-WP8)
 │  ├─ Play/            GameStarter, RunningGameDetector, SetupWatcher, ProgramVersions, SingleInstance,
@@ -117,7 +120,8 @@ Empire-Earth.sln
 │                                         maintenance tools, L-WP8), CleanupView (what the registry cleanup
 │                                         shows), DiagnosticsModel (network check and report, L-WP9),
 │                                         ToolsUserControl (the Tools page), GraphicsModel / GraphicsView /
-│                                         GraphicsUserControl (the Graphics page, 1.1.0), RepairAdviceDialog,
+│                                         GraphicsUserControl (the Graphics page, 1.1.0), ModsModel / ModsView /
+│                                         ModsUserControl (the Mods page, 1.1.0), NavigationStack, RepairAdviceDialog,
 │                                         LauncherWrapLabel (wrapping text with a copy of the palette
 │                                         font, never a red X), ScrollPageLayout (stacks the controls of the
 │                                         pages and of their group boxes for the width of the window,
@@ -142,7 +146,7 @@ library is the reverse-engineered protocol with its own history.
 ### UI pages
 
 The navigation keeps the existing look (MainForm, Krypton palette, gold buttons). The window can be resized freely down to
-the size it opens with; the navigation buttons sit in a panel docked at the left edge and the five pages fill the rest
+the size it opens with; the navigation buttons sit in a panel docked at the left edge and the six pages fill the rest
 ([ADR 0017](adr/0017-resizable-layout.md)). Pages:
 
 | Page | Content | Requirements |
@@ -150,6 +154,7 @@ the size it opens with; the navigation buttons sit in a panel docked at the left
 | **Play** | selected installation (product, folder, kind, integrity badge), file versions of `Empire Earth.exe` / `EE-AOC.exe`, choice EE / AoC (AoC only if installed), Play, "setup is running" and "game is running" states (with the hanging-process hint), non-modal warnings that can be hidden per value, lobby profiles and online player list (existing) | R2, R3 |
 | **Game settings** (the *Settings* navigation button) | defaults state, consistency warnings, apply recommended display settings, reset (with backup), compatibility options (HKCU only, HKLM read-only; Windows 8 and later only, on Windows 7 only removing `~ RUNASADMIN` and the old values shown, ADR 0007 plan review), screen warning below 768 pixels | R1, R4 |
 | **Graphics** (1.1.0) | the game window size of the selected installation (list of 4:3, 5:4, 16:10 and 16:9 sizes that fit the screen, 1024x768 to 1920x1080, "Use this size" writes only `Game Window Width` and `Game Window Height` after a backup, section 4.8), the installed DirectX wrapper and, for dgVoodoo, `OutputAPI` and the screen mode keys of `dgVoodoo.conf` (shown only), and the steps to change the wrapper in the setup | R1 (3.2, revision 6) |
+| **Mods** (1.1.0, only for an installation with dreXmod 3) | the dreXmod presets of each game (the folders of `Data\dxm\mods` with name, last edit, author and size from `CREDITS`; the skeleton `template` hidden unless asked), which of them `dreXmod.config` names as the active mod and the active lobby theme, "Open mods folder" and "Open dreXmod.config", the steps to switch a preset by hand; shown only, section 4.9 | O9 |
 | **Tools** | integrity details and full check, repair advice, registry cleanup (HKCU keys to select, HKLM keys read-only with advice), WON login reset, VirtualStore check, saved games and scenarios (folder export, import), player names, network diagnostics, "copy diagnostics report", open backup folder | R2, R5 to R10 |
 | **Launcher** | installations found and the user's choice, hint when several installations share one game settings key, theme, language (system, English, German, French) | R1, R17 |
 
@@ -600,6 +605,38 @@ The shortcuts of the suite start `Empire Earth Launcher.exe --product=EE` or `--
   (ADR 0014 amendment of 2026-10-07; editing comes in 1.2 with an allow-list). `GraphicsModelTests` check that the files
   of the game folder are the same after a change of the size.
 
+### 4.9 Mods page (1.1.0)
+
+- **When it exists**: `DreXmodInfo.Describe` tells from the components of the installation (`install.ini`, else the uninstall
+  key) whether the setup installed dreXmod 3 (`additional\drexmod\v3`), dreXmod 2 (`additional\drexmod\v2`) or none; only
+  without component information (a foreign installation) the folder `Data\dxm\mods` of a game folder decides. dreXmod 2 has
+  no mod system (its `dreXmod.config` has no `Mod` and no `LobbyTheme` block), so only dreXmod 3 gets the page.
+  `ModsModel.IsAvailable` is true while the latest read of the selected installation found dreXmod 3; `MainForm` shows the
+  navigation button then and hides it otherwise, `NavigationStack` moves the buttons below it up, and the Play page is shown
+  if the Mods page was open when the button went (another installation was selected on the Launcher page).
+- **State**: `ModsModel` reads, on the thread pool and only while no setup runs (contract 4.2), after every search and every
+  time the page is shown (the player may have edited the config or made a preset): for each game folder the presets
+  (`ModFolderScanner.Scan`: every folder in `Data\dxm\mods` with the head of its `CREDITS` file, `CreditsParser`, and the
+  size of its files, bounded to 20,000 files and 12 levels) and `dreXmod.config` (`DreXmodConfigReader`, where the game
+  reads it: the VirtualStore copy first, ADR 0016; the file is read as text, comments cut out, the first `Mod` and
+  `LobbyTheme` block taken with their `Enabled` and `Name`). A selector selects a preset if it is on and its name equals the
+  folder name ignoring case. Only the latest read counts. `ModsView.Of` turns the state into what the page shows (texts,
+  shown and enabled controls), so that `ModsViewTests` cover it; `ModsUserControl` only assigns the view and stacks the
+  controls with `ScrollPageLayout` (ADR 0017).
+- **No version, no description**: the files of a preset give a name, a date and an author (the `CREDITS` file is free text and
+  says itself that its format may change, so the parser takes what it finds); the description of the lobby theme in
+  `_drexmod.cfg` is empty in the shipped presets, so the page shows none of the two.
+- **Read only**: the page writes nothing and installs nothing. The two buttons call `IProcessStarter.OpenFolder` and
+  `IProcessStarter.OpenFile` (the document through the shell without a verb; a file that Windows runs is refused,
+  `ShellProcessStarter.CreateFileStartInfo`); the player edits `dreXmod.config` in the program Windows has for it. Switching
+  the preset from the launcher (writing `<Mod>` and `<LobbyTheme>` of that one file, text-level, with a backup) needs a
+  contract section and an allow-list of files and values and is planned for 1.2. `ModsPageRulesTests` keep the sources of
+  the page free of every call that writes. The setup resets the choice by installing `dreXmod.config` anew on every run and
+  does not delete presets the player made (setup repository); the page says both.
+- **Open points**: whether the presets change anything for other players in multiplayer or ranked games (cheat detector,
+  game version) has not been verified, the page says so; what dreXmod does with a name that is no folder is not known
+  either (test plan WP12-03).
+
 ## 5. Threading
 
 Decided in [ADR 0004](adr/0004-async-await-threading-model.md):
@@ -893,7 +930,9 @@ Launcher stance on the open questions of the contract (6):
 - **O5 Portable**: found through the user choice, the launcher folder or the HKCU "Installed From" values.
 - **O6 Mutable files**: classes as in the contract; the laptop test runs a full check after playing.
 - **O8 CD keys**: existence check only.
-- **O9 Launcher mods**: v2 installs no mods (the mods page stays hidden), so no attribution is needed yet.
+- **O9 Launcher mods**: the launcher installs no mods, so no attribution is needed. Since 1.1.0 the *Mods* page lists the
+  dreXmod presets that the setup installed (read only, section 4.9); a mod manager that writes game files and needs its own
+  record of them stays planned.
 - **O10 Launcher in the setup**: answered by contract revision 4: the product setups do not install the launcher; the
   suite "Empire Earth Community" of the setup repository does, outside every product root, and uses the single-instance
   mutex `EmpireEarthCommunityLauncher` in its `AppMutex`. The optional launcher additions of revision 4 (`--product`,
@@ -1068,5 +1107,6 @@ Kept as planned features in the README, with the reason (forum report section 8)
 - **Ending a hanging game process** (row 14): the launcher explains and points to the Task Manager, it never
   kills a process (ADR 0010).
 - **Checking ports from outside** (row 8): needs server support; v2 shows the forwarding table only.
-- **Mods page, Discord presence, HD textures, dreXmod, skip intro, game font, ranking, file association**:
-  placeholders without function (ADR 0014).
+- **Discord presence, HD textures, skip intro, game font, ranking, file association**: placeholders without function
+  (ADR 0014). The *Mods* page and "dreXmod support" returned in 1.1.0 as a read-only list of the dreXmod presets (section
+  4.9); installing mods (`.eem`) and switching the preset are not in the launcher.

@@ -53,9 +53,11 @@ features that work.
 **What changed or was dropped**
 
 - Not implemented: DirectX wrapper switch (the *Graphics* page shows the wrapper and tells how to change it in the
-  setup), Discord presence, dreXmod, HD textures, auto-update, auto-compatibility detector and the *Mods* page. They are listed under "Planned, not in v2" in the
+  setup), switching the dreXmod preset (the *Mods* page shows the presets and the choice), Discord presence, HD textures,
+  auto-update and the auto-compatibility detector. They are listed under "Planned, not in v2" in the
   [Features](#-features).
-- The mod creator remains a separate program; there is no mod system inside the launcher.
+- The mod creator remains a separate program; there is no mod system inside the launcher: the *Mods* page of 1.1.0 only
+  shows the dreXmod presets that the setup installed.
 - "Repair CD-Keys" is not a launcher function: re-running the community setup (with its NeoEE CD-key task) repairs CD
   keys, and the launcher never touches them.
 - The "collect diagnostic data" checkbox is gone because the launcher collects none.
@@ -90,6 +92,13 @@ controls of the old mock-up were removed and the features behind them are listed
   again. It also shows which DirectX wrapper the setup installed (native, DirectX 7, DirectX 9, dgVoodoo with its API
   level) and, for dgVoodoo, the keys of `dgVoodoo.conf` that decide the screen mode (read only: the launcher changes neither
   the wrapper nor that file), and tells how to change the wrapper in the setup
+  ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md), amendment of 2026-10-07)
+- Mods page (1.1.0, only for an installation with dreXmod 3): lists the dreXmod presets of each game (the folders of
+  `Data\dxm\mods` with the name, last edit and author from their `CREDITS` file and their size; the skeleton `template`
+  is hidden unless you ask), marks the active mod and the active lobby theme that `dreXmod.config` names, opens the folder
+  and the config, and tells how to switch a preset by hand. Read only: the launcher changes neither the config nor a preset
+  and installs no mod; a setup run resets the choice but keeps presets you made yourself. Whether a mod has an effect in
+  multiplayer or ranked games has not been verified
   ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md), amendment of 2026-10-07)
 - Integrity check of community installations since setup v2: at every start and after a setup, in the background, the
   launcher checks that every file of the setup's list is there and that the program files are unchanged; the *Play*
@@ -179,8 +188,10 @@ controls of the old mock-up were removed and the features behind them are listed
 
 **Planned, not in v2** (their placeholders were removed from the UI)
 
-- Full mod system in the launcher: *Mods* page, browsable mods list, "mods in use", `.eem` file association
-- dreXmod switch, Discord presence, HD textures, skip intro, game font customizer, lobby customizer
+- Full mod system in the launcher: installing mods (`.eem`), "mods in use", `.eem` file association (the *Mods* page of
+  1.1.0 only lists the dreXmod presets)
+- dreXmod switch (choosing the active preset in the launcher: planned for 1.2 with an allow-list), Discord presence, HD
+  textures, skip intro, game font customizer, lobby customizer
 - Game languages (voices, lobby, campaigns) and the online ranking
 - DirectX wrapper switch (DX 9/11/12): the setup's custom installation switches the wrapper, the launcher must not
   change game files ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md)); the *Graphics* page and the
@@ -384,8 +395,8 @@ of the category `WinForms` create controls and pages without showing them and pa
 labels after the palette disposed its fonts); under Mono they need a display (`xvfb-run -a mono ...`, without one they
 are ignored), and the pages whose Krypton controls call Windows libraries, as well as the check of `KryptonWrapLabel`
 on .NET Framework, run only on Windows (CI, `Tests\` of the laptop package). `PageLayoutTests` check the geometry of the
-five pages (no overlap, nothing outside its page, no cut-off text, content that grows with the page) at four window sizes,
-in English, German and French, with the system font and a 50 % larger one; the *Game settings* and *Graphics* pages are
+six pages (no overlap, nothing outside its page, no cut-off text, content that grows with the page) at four window sizes,
+in English, German and French, with the system font and a 50 % larger one; the *Game settings*, *Graphics* and *Mods* pages are
 driven through their real models in every state ([ADR 0012](docs/adr/0012-test-strategy.md), amendment of 2026-10-06). `PageScreenshotTests`
 write PNG files of the pages when `EE_LAUNCHER_PAGE_PNG_DIR` names a folder (the CI build uploads them as the artifact
 `page-pictures`). The core, the launcher and the WON library make their internal helpers

@@ -2,7 +2,7 @@
 
 Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review; implementation in L-WP5, L-WP6,
 L-WP7, L-WP8 and L-WP9), 2026-10-03 (CI end-to-end test; WinForms tests) and 2026-10-06 (geometry tests; resizable layout;
-Play and Launcher pages), see the
+Play and Launcher pages) and 2026-10-07 (the Graphics and Mods pages), see the
 Amendment sections
 
 ## Context
@@ -406,3 +406,24 @@ The launcher's part of that job is to run its core against the real installation
 - **Architecture tests.** `ApplyTextsTests` lists `GraphicsUserControl`, `MainWindowLayoutTests` the fifth page and navigation
   button; `PlaceholderControlsTests` keep the names of the removed placeholders (`resolutionKryptonComboBox`, ...) out of the new
   page.
+
+## Amendment 2026-10-07 (the Mods page, launcher 1.1.0)
+
+- **The state of the page is tested without the page.** `ModsModel` (the read of the presets and of `dreXmod.config`, the
+  availability of the page, the two buttons) and `ModsView` (what the page shows) run under Mono on the fake computer
+  (`ModsModelWorld`: `ModsModel` on the real `InstallationService` and `SetupWatcher`, a file system that fails the test at the
+  first change, a process starter that records what is opened). The readers of the core use synthetic text only, never a copy
+  of the data of dreXmod: `CreditsParserTests` (free text, missing lines, `dd/mm/yyyy`), `DreXmodConfigReaderTests` (a comment
+  before the first element, tabs, CRLF, LF and CR, element names inside comments, the variant without telemetry, entities,
+  missing elements, dreXmod 2, an unclosed comment, UTF-8 and Latin-1), `ModFolderScannerTests` (credits, size, template, limits),
+  `DreXmodInfoTests` (the components decide) and `ShellProcessStarterTests` (`OpenFile` refuses a program, script, shortcut or
+  registry file).
+- **The page in the geometry tests.** `ModsPageWorld` fills the page through its real model in four states (searching, the
+  presets of the setup, every text at its longest with the template shown, a config in the VirtualStore that names a folder that
+  does not exist and a game without config and folder, and setup running); `PageLayoutTests.ModsPage_...` runs the rules of
+  `LayoutChecker` on them in the three languages with both font sizes (the page has no Krypton combo box, so it runs under Mono
+  as well), `PageScreenshotTests.ModsPage_EveryState_IsSavedAsPicture` writes the pictures of the CI run.
+- **Architecture tests.** `ModsPageRulesTests` keep the sources of the page free of every call that writes and of the paths of
+  other files, and allow the model only `OpenFolder` and `OpenFile` of the shell; `ApplyTextsTests` lists `ModsUserControl`,
+  `MainWindowLayoutTests` the sixth page and navigation button; `NavigationStackTests` check where the buttons sit when the
+  button of the page comes and goes.

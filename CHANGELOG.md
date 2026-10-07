@@ -51,6 +51,25 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
 
 ### Added
 
+- Mods page (M2; [ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md) amendment of 2026-10-07): the planned
+  "dreXmod support" and "browsable mods list" in a form that is true today, read only. For an installation whose setup run
+  installed dreXmod 3 (the component `additional\drexmod\v3`; without component information the folder `Data\dxm\mods`
+  decides) a sixth navigation button leads to a page that lists, for each game, the presets in `Data\dxm\mods` (the folder
+  name, which is what `dreXmod.config` names, with the name, `Last Edit` and `Created by` of the `CREDITS` file and the size;
+  `CreditsParser` is tolerant of free text, missing lines and dates that are none) and marks the active mod and the active
+  lobby theme that the `<Mod>` and `<LobbyTheme>` blocks of `dreXmod.config` name (`DreXmodConfigReader` reads the file as
+  text where the game reads it, a VirtualStore copy first: a comment before the first element, tabs, CRLF, element names
+  inside comments and the variant without telemetry are no problem). The folder `template` (the skeleton for authors) is
+  hidden unless the check box asks for it. "Open mods folder" and "Open dreXmod.config" open the folder in the Explorer and
+  the file in its program through the shell (`IProcessStarter.OpenFile`, which refuses a program, script, shortcut or
+  registry file); the page says how to switch a preset by hand, that a setup run resets the choice to the shipped default
+  but keeps presets the player made, and that whether a mod has an effect in multiplayer or ranked games has not been
+  verified. dreXmod 2 has no mod system and no page. There is no version and no description in the files of a preset, so the
+  page shows none. **The launcher writes nothing here, installs no mod and changes neither `dreXmod.config` nor
+  `dgVoodoo.conf` in 1.1.0** (switching the preset comes in 1.2 with an allow-list; `ModsPageRulesTests` keep the sources
+  free of anything that writes). `ModsModel` reads after every search and when the page is shown and never while a setup
+  runs, `ModsView` holds what the page decides, `NavigationStack` closes the gap of the navigation bar when the button is
+  hidden (the Play page is shown if the page was open). Texts in English, German and French. Test plan WP12-01 to WP12-09.
 - Graphics page (E1; contract 3.2 revision 6, [ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md) amendment of
   2026-10-07): the player chooses the size of the game window from a list of the usual 4:3, 5:4, 16:10 and 16:9 sizes that
   fit the primary screen, between 1024x768 and 1920x1080 (the limit of contract 3.3; offering more was not decided for

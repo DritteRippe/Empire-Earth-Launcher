@@ -1,6 +1,6 @@
 # 0017 Resizable layout
 
-Status: **Accepted** (2026-10-06), amended 2026-10-06 (Play and Launcher pages)
+Status: **Accepted** (2026-10-06), amended 2026-10-06 (Play and Launcher pages) and 2026-10-07 (the Graphics and Mods pages)
 
 ## Context
 
@@ -161,3 +161,16 @@ at the upper left of a larger window. They use the same layout class now, which 
   entry in every language and stays below half of the smallest page, so the rule "grows with the page" does not apply), the
   button of the list in a line of its own so that a large font cannot push it out of the page, and the page scrolls. Hidden
   controls take no room and visibility comes from `IsShown`, not `Control.Visible`.
+
+## Amendment 2026-10-07 (the Mods page)
+
+- The main window has a sixth page and a sixth navigation button (*Mods*, between *Graphics* and *Tools*), which exists only
+  while the selected installation has dreXmod 3. Six buttons of 52 px must fit the 381 px of the smallest window, so the first
+  button moved up from 78 to 66 px (the last one ends at 378 px); the page is `Dock = Fill` like the others and is added before
+  the panel (`MainWindowLayoutTests`). When the button is hidden the buttons below it move up by one step
+  (`NavigationStack`, the step is the distance of the first two buttons of the designer, so a larger font that scales the
+  buttons scales it too), and if the page was open the Play page is shown.
+- `ModsUserControl` is stacked by `ScrollPageLayout` like the Graphics page: wrapping labels over the content width, per game a
+  heading, the choice of the config, the list of the presets (one wrapping label, one block of one or two lines per preset) and
+  a row of the two buttons that wraps into a second line where the width does not suffice; the page scrolls, hidden controls
+  take no room and visibility comes from `IsShown`.

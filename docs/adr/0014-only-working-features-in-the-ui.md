@@ -1,7 +1,7 @@
 # 0014 Only working features in the UI
 
 Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review and implementation in L-WP3; implementation in
-L-WP6, L-WP7, L-WP8 and L-WP9) and 2026-10-07 (launcher 1.1.0: the Graphics page), see the Amendment sections
+L-WP6, L-WP7, L-WP8 and L-WP9) and 2026-10-07 (launcher 1.1.0: the Graphics page and the Mods page), see the Amendment sections
 
 ## Context
 
@@ -196,3 +196,39 @@ only if it works) and without the file rule changing:
   measure the page on Windows.
 - **Still not in the UI**: the DirectX wrapper switch (the wizard of the setup does it), an editor of the screen mode, and a
   choice above 1920x1080.
+
+## Amendment 2026-10-07 (launcher 1.1.0, the Mods page)
+
+The *Mods* page that the amendment of 2026-10-02 removed returns in 1.1.0 as a page that does what the launcher can do
+truthfully today: it shows. The placeholder promised a mod system; what exists and works is a list of the dreXmod presets
+the setup installed and the choice that `dreXmod.config` makes, so that is what the page offers, and nothing the
+launcher cannot do (contract 2.5: it does not change, delete, restore or download game files):
+
+- **Only for dreXmod 3.** dreXmod 3 has presets (the folders of `Data\dxm\mods`) and two independent selectors in its
+  `dreXmod.config`, `Mod` (sounds and textures of the game) and `LobbyTheme`; dreXmod 2 has no mod system. The page and its
+  navigation button exist for an installation whose setup run installed the component `additional\drexmod\v3`
+  (`DreXmodInfo`; without component information the folder of the presets decides) and are hidden otherwise, so no control
+  ever leads to a page that has nothing to show. The button of the page is called `modPresetsKryptonCheckButton`, not
+  `modsKryptonCheckButton`, which stays on the list of removed names (`PlaceholderControlsTests`).
+- **What it shows**: for each game the presets with the name of the folder (the value `dreXmod.config` names), the name,
+  `Last Edit` and `Created by` of the `CREDITS` file where there is one (a tolerant parser: the file is free text), the size,
+  the badges "active mod" and "active lobby theme" (a selector that is on and names the folder, ignoring case), and the
+  choice of the config in words, also when it names a folder that does not exist. The skeleton `template` is hidden unless
+  asked. There is no version and no description: the files of a preset have none. The two buttons open the folder in the
+  Explorer and the config in the program Windows has for it (`IProcessStarter.OpenFolder`, `OpenFile`: through the shell
+  without a verb; a program, script, shortcut or registry file is refused); they change nothing.
+- **Read only, as the rule of the wrapper page: the launcher does not change `dreXmod.config` or `dgVoodoo.conf` in 1.1.0.**
+  Switching the preset means writing two values of a game file; that needs a contract section, an allow-list of files and
+  values, a backup and the guard, and the tests on real computers must first show what dreXmod does with a name that is no
+  folder. It is planned for 1.2. Installing mods (`.eem`) is not planned for the launcher: the format has no target game,
+  no hash that is checked and no uninstall record. `ModsPageRulesTests` keep the sources of the page free of every call
+  that writes (`WriteAllBytes`, `DeleteFile`, `CreateDirectory`, `File.*`, the registry, the backup, the guard).
+- **Honest texts**: the page says how to switch a preset by hand, that a setup run installs `dreXmod.config` anew (the choice
+  returns to the shipped default: mod off, lobby theme `dxm`) but keeps presets the player made (the setup deletes only what it
+  installed; setup repository), and that whether a mod has an effect in multiplayer or ranked games, and what dreXmod does with
+  a name that is no folder, has not been verified. It does not offer mods as a fix for the mouse or the window problems.
+- **Names and tests.** The controls have new names (`modsGame1PresetsKryptonWrapLabel`, `modsGame1OpenFolderKryptonButton`,
+  `modsShowTemplateKryptonCheckBox`, ...); every text is set in `ApplyTexts()` or in `ModsUserControl.ShowState` from
+  `ModsView` (`ApplyTextsTests`). `ModsView` and `ModsModel` hold what the page decides and are tested on Mono; the page is
+  measured by `PageLayoutTests` in four states (`ModsPageWorld`).
+- **Still not in the UI**: switching the preset, installing mods, a mod catalogue or downloads.
