@@ -98,8 +98,8 @@ WP6-18 to WP6-21).
   the display mode switches) is looked at again three times and counts as nobody's, no longer as "the player switched"; and
   for 60 s after the hand-over the launcher only watches, every 250 ms, and logs each change of the foreground window and of
   the rectangle and styles of the main window with the time since the start (`Watch t+10.0 s: ...`, `WindowState`). That is a
-  measurement of when a wrapper such as dgVoodoo switches the display mode; A1 does not fix the dgVoodoo case, and the
-  `WM_ACTIVATE` of A1b is not part of 1.1.0 (test plan WP6-18).
+  measurement of when a wrapper such as dgVoodoo switches the display mode; A1 does not fix the dgVoodoo case, the
+  `WM_ACTIVATE` of A1b (see Added) does (test plan WP6-18, WP6-21).
 - "Auto-detect" on the *Launcher* page keeps the product the player is looking at also when the launcher was started with
   `--product=` (an old shortcut, the hand-over of a second launcher): the product is saved as the product chosen last, so no
   page jumps to the product chosen before (`InstallationService.UseAutomaticDetectionAsync`; test plan WP10-01).
@@ -128,8 +128,8 @@ WP6-18 to WP6-21).
 - Game start: one activation signal (`WM_ACTIVATE`) to the main window of a started game once it has been the foreground
   window with the same rectangle and styles for 5 seconds, at the latest 180 seconds after the start; never while the lobby is
   in front, never after the player has switched to another program (Windows activates the game on the return), at most once, every decision in `log.txt` (A1b, [ADR 0010](docs/adr/0010-game-start-and-mutex-probing.md)
-  amendment). With dgVoodoo 2.87.5 of setup 1.1.0 this should give the game its mouse without Alt+Tab (to be confirmed by
-  test plan WP6-21 on a real machine; not yet tested on Windows). Right before the post the launcher reads the foreground
+  amendment). With dgVoodoo 2.87.5 of setup 1.1.0 this gives the game its mouse without Alt+Tab (confirmed on 2026-10-07 on a
+  laptop with Windows 11, session 1 of the laptop test, WP6-21). Right before the post the launcher reads the foreground
   window again and whether the main window responds (`IsHungAppWindow`), and it sends only to a window of the started
   process and of the class found at the hand-over (`SSSI Empire Earth`); all durations use a monotonic clock
   (`IClock.Elapsed`), so setting the clock of the computer moves neither the 5 seconds nor the 180 seconds. `ActivationSignal`

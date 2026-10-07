@@ -68,10 +68,12 @@ features that work.
 
 **Status**: version 1.1.0 (`SharedAssemblyInfo.cs`, CHANGELOG 2026-10-07) was released on 2026-10-07 as the tag `v1.1.0`
 on the commit 5d256c8. It ships inside the private suite package "Empire Earth Community" 1.1.0; no binaries are published
-here. The maintainer released it after session 1 of the laptop test only (the mouse works right after the start without
-Alt+Tab, WP6-21; WP6-13, WP6-18, WP6-19 (a), WP11-01 to WP11-04 (a), WP11-06, WP11-10, WP12-01 (a), WP12-02, WP12-04, WP13-01,
-WP13-02, WP13-06, WP13-07, WP14-01 and WP14-02), without session 2. Not run on real hardware are WP11-04 (b), WP11-05, WP11-07 to
-WP11-09, WP12-01 (b), WP12-03, WP12-05 to WP12-09, WP13-03 to WP13-05, WP13-08, WP14-03, WP6-19 (b), WP6-20 and WP6-21 (e) and (f)
+here. The maintainer released it after session 1 of the laptop test only, which covers WP6-13, WP6-18, WP6-19 (a),
+WP6-21 (a) to (d) and (g), WP11-01 to WP11-04 (a), WP11-06, WP11-10, WP12-01 (a), WP12-02, WP12-04, WP13-01, WP13-02,
+WP13-06, WP13-07, WP14-01 and WP14-02. He reported only the overall verdict, "passed, the mouse works right after the start
+without Alt+Tab" (WP6-21), and no results for single cases; session 2 was not run. Not run on real hardware are WP11-04 (b),
+WP11-05, WP11-07 to WP11-09, WP12-01 (b) and (c), WP12-03, WP12-05 to WP12-09, WP13-03 to WP13-05, WP13-08, WP14-03,
+WP6-19 (b) to (d), WP6-20 and WP6-21 (e), (f) and (h)
 ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md)); they are to be run before or with 1.1.1, and a problem found there is fixed in
 1.1.1. The French translation review and the German proof-reading are still open.
 
@@ -244,8 +246,8 @@ Empire Earth takes its mouse and keyboard through DirectInput only when its wind
 dgVoodoo of the community setup no activation reaches the game after it has created these devices, unless the start
 changed the display mode; on a screen of the game's own size it does not. Since 1.1.0 the launcher sends the main window
 of a game it started **one** activation (`WM_ACTIVATE`) as soon as that window has been in front, unchanged, for five
-seconds, at the latest three minutes after the start. That **should** give the game its mouse without Alt+Tab, so that a
-click skips the intro videos; this is **to be confirmed by test plan WP6-21** on a real machine (a real Alt+Tab also brings
+seconds, at the latest three minutes after the start. That gives the game its mouse without Alt+Tab, so that a
+click skips the intro videos; confirmed on 2026-10-07 on a laptop with Windows 11 (WP6-21; a real Alt+Tab also brings
 the activation of the whole application and a real change of the foreground window, which one posted message cannot).
 So: **start the game through the launcher** (the desktop icon "Empire Earth Community" of the suite opens it) and keep the
 launcher open until the main menu shows; closing it earlier cancels the signal. A start of `Empire Earth.exe` or
