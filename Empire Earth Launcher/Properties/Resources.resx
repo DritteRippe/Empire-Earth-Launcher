@@ -1788,7 +1788,7 @@ The old files are copied to the backup folder first. Replace them?</value>
     <comment>{0}: the game.</comment>
   </data>
   <data name="GraphicsConfOutdatedFormat" xml:space="preserve">
-    <value>The dgVoodoo.conf of {0} still has the settings of an older setup ({1}). With them the mouse may not react after the start and the multiplayer lobby may minimize the game. Repair or update the installation with the setup (Empire Earth Community Setup): it writes the current settings. The launcher does not change the file.</value>
+    <value>The dgVoodoo.conf of {0} still has the settings of an older setup ({1}). With them there may be problems with the mouse, the multiplayer lobby or Alt+Tab. Repair or update the installation with the setup (Empire Earth Community Setup): it writes the current settings, and a repair replaces changes you made to the file yourself. The launcher does not change the file.</value>
     <comment>Hint below the dgVoodoo.conf keys, one paragraph per game. {0}: the game; {1}: the keys that still have the value of a setup before 1.1.0, like "Version = 0x282, DeferredScreenModeSwitch = true". The launcher never changes the file; "Empire Earth Community Setup" is the name of the setup.</comment>
   </data>
   <data name="GraphicsConfOutdatedVirtualStoreFormat" xml:space="preserve">

@@ -1346,7 +1346,7 @@ Les anciens fichiers sont d'abord copiés dans le dossier de sauvegarde. Les rem
     <value>dgVoodoo.conf de {0} est introuvable.</value>
   </data>
   <data name="GraphicsConfOutdatedFormat" xml:space="preserve">
-    <value>Le fichier dgVoodoo.conf de {0} contient encore les réglages d'un ancien programme d'installation ({1}). Avec eux, la souris peut ne pas réagir après le démarrage et le salon multijoueur peut réduire le jeu. Réparez ou mettez à jour l'installation avec le programme d'installation (Empire Earth Community Setup) : il écrit les réglages actuels. Le Launcher ne modifie pas ce fichier.</value>
+    <value>Le fichier dgVoodoo.conf du jeu {0} contient encore les réglages d'un ancien programme d'installation ({1}). Avec eux, il peut y avoir des problèmes avec la souris, le salon multijoueur ou Alt+Tab. Réparez ou mettez à jour l'installation avec le programme d'installation (Empire Earth Community Setup) : il écrit les réglages actuels, et une réparation remplace les modifications que vous avez apportées vous-même au fichier. Le Launcher ne modifie pas ce fichier.</value>
   </data>
   <data name="GraphicsConfOutdatedVirtualStoreFormat" xml:space="preserve">
     <value>La copie de dgVoodoo.conf dans le VirtualStore que lit {0} contient les réglages d'un ancien programme d'installation ({1}). Une réparation avec le programme d'installation ne remplace pas cette copie : fermez le jeu, puis renommez ou supprimez vous-même la copie (la page « Outils » indique où elle se trouve). Le Launcher ne modifie pas ce fichier.</value>

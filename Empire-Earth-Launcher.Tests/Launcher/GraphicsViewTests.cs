@@ -371,7 +371,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
 
         [TestCase("de", "Die dgVoodoo.conf von Empire Earth hat noch die Einstellungen eines älteren Setups (Version = 0x282, DeferredScreenModeSwitch = true, " +
                         "DisableAltEnterToToggleScreenMode = false, FullscreenAttributes = nicht gesetzt).")]
-        [TestCase("fr", "Le fichier dgVoodoo.conf de Empire Earth contient encore les réglages d'un ancien programme d'installation (Version = 0x282, " +
+        [TestCase("fr", "Le fichier dgVoodoo.conf du jeu Empire Earth contient encore les réglages d'un ancien programme d'installation (Version = 0x282, " +
                         "DeferredScreenModeSwitch = true, DisableAltEnterToToggleScreenMode = false, FullscreenAttributes = non défini).")]
         public async Task TheHint_IsInTheUiLanguage_TheKeysAreNot(string language, string start)
         {
@@ -381,6 +381,22 @@ namespace Empire_Earth_Launcher.Tests.Launcher
 
             using (TestUiLanguage.Use(language))
                 Assert.That(View().WrapperPresetHint, Does.StartWith(start));
+        }
+
+        [TestCase("de", "Probleme mit der Maus, der Mehrspieler-Lobby oder Alt+Tab", "ersetzt Änderungen, die Sie selbst an der Datei vorgenommen haben")]
+        [TestCase("fr", "problèmes avec la souris, le salon multijoueur ou Alt+Tab", "remplace les modifications que vous avez apportées vous-même au fichier")]
+        public async Task TheHint_NamesTheSymptomsGenerically_AndSaysThatARepairReplacesOwnChanges(string language, string symptoms, string repair)
+        {
+            g.AddInstallation("game," + GraphicsModelWorld.Wrapper + @"\dx11_lvl10_1");
+            g.World.FileSystem.AddFile(GraphicsModelWorld.EeFolder + @"\dgVoodoo.conf", OldConf);
+            await g.Search();
+
+            using (TestUiLanguage.Use(language))
+            {
+                string hint = View().WrapperPresetHint;
+                Assert.That(hint, Does.Contain(symptoms));
+                Assert.That(hint, Does.Contain(repair));
+            }
         }
 
         [Test]

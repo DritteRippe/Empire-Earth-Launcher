@@ -1346,7 +1346,7 @@ Die alten Dateien werden vorher in den Sicherungsordner kopiert. Ersetzen?</valu
     <value>dgVoodoo.conf von {0} wurde nicht gefunden.</value>
   </data>
   <data name="GraphicsConfOutdatedFormat" xml:space="preserve">
-    <value>Die dgVoodoo.conf von {0} hat noch die Einstellungen eines älteren Setups ({1}). Damit reagiert die Maus nach dem Start womöglich nicht, und die Mehrspieler-Lobby kann das Spiel minimieren. Reparieren oder aktualisieren Sie die Installation mit dem Setup (Empire Earth Community Setup): Es schreibt die aktuellen Einstellungen. Der Launcher ändert die Datei nicht.</value>
+    <value>Die dgVoodoo.conf von {0} hat noch die Einstellungen eines älteren Setups ({1}). Damit kann es Probleme mit der Maus, der Mehrspieler-Lobby oder Alt+Tab geben. Reparieren oder aktualisieren Sie die Installation mit dem Setup (Empire Earth Community Setup): Es schreibt die aktuellen Einstellungen, und eine Reparatur ersetzt Änderungen, die Sie selbst an der Datei vorgenommen haben. Der Launcher ändert die Datei nicht.</value>
   </data>
   <data name="GraphicsConfOutdatedVirtualStoreFormat" xml:space="preserve">
     <value>Die Kopie der dgVoodoo.conf im VirtualStore, die {0} liest, hat die Einstellungen eines älteren Setups ({1}). Eine Reparatur mit dem Setup ersetzt diese Kopie nicht: Beenden Sie das Spiel und benennen Sie die Kopie dann selbst um oder löschen Sie sie (die Seite „Werkzeuge“ zeigt, wo sie liegt). Der Launcher ändert die Datei nicht.</value>

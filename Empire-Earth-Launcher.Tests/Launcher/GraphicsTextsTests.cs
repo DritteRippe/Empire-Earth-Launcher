@@ -259,6 +259,10 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(text, Does.StartWith("The dgVoodoo.conf of Empire Earth still has the settings of an older setup (Version = 0x282, " +
                 "DeferredScreenModeSwitch = true, DisableAltEnterToToggleScreenMode = false, FullscreenAttributes = not set)."));
             Assert.That(text, Does.Not.Contain("Art of Conquest"));
+            // The symptoms are named generically (the most common old preset has a working lobby), and a repair is said to replace edits.
+            Assert.That(text, Does.Contain("problems with the mouse, the multiplayer lobby or Alt+Tab"));
+            Assert.That(text, Does.Contain("a repair replaces changes you made to the file yourself"));
+            Assert.That(text, Does.Not.Contain("may minimize"));
             Assert.That(Texts.WrapperPresetHints(new[] { Conf(Game.EmpireEarth, current) }), Is.Empty);
             Assert.That(Texts.WrapperPresetHints(new WrapperConfLine[0]), Is.Empty);
         }
