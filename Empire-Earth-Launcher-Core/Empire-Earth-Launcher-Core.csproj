@@ -71,6 +71,8 @@
     <Compile Include="GameSettings\LauncherWritePolicy.cs" />
     <Compile Include="GameSettings\RecommendedValues.cs" />
     <Compile Include="GameSettings\ResolutionOptions.cs" />
+    <Compile Include="Graphics\DgVoodooConfReader.cs" />
+    <Compile Include="Graphics\WrapperInfo.cs" />
     <Compile Include="Installations\DiscoveryResult.cs" />
     <Compile Include="Installations\EffectivePathResolver.cs" />
     <Compile Include="Installations\GameFolders.cs" />
