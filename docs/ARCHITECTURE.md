@@ -93,9 +93,10 @@ Empire-Earth.sln
 │  │                   LauncherArguments (--product) and InstanceForwarding (InstanceMessage, InstanceForwarder,
 │  │                   InstanceReceiver: the hand-over to a running launcher, contract 1.4 revision 4); since 1.1.0
 │  │                   GameWindowActivator (the foreground goes to the window of the game just started, ADR 0010)
-│  ├─ Repair/          UpdateUrlPolicy (port of the setup's IsAllowedUpdateUrl), SetupDownloadLocator,
-│  │                   UpdateChecker, RepairAdvice (contract 4; RepairAdvice since L-WP6, the rest L-WP7);
-│  │                   since 1.0.0 SuiteRepairLocator (the folder of the suite for the advice, contract 4.4)
+│  ├─ Repair/          SetupDownloadPage (the three download pages, contract 4.3), UpdateApi (the query and the
+│  │                   failures of 4.5), UpdateChecker, RepairAdvice (contract 4; RepairAdvice since L-WP6, the rest
+│  │                   L-WP7); since 1.0.0 SuiteRepairLocator (the folder of the suite for the advice, contract 4.4);
+│  │                   since 1.1.0 no request for a download address (U1)
 │  ├─ Maintenance/     CleanupCandidates (the list of 4.6), CleanupAdvice, RegistryCleanup, ManifestFiles,
 │  │                   WonLoginReset, VirtualStoreScanner, SavedGames (folder export, import), NameChecks
 │  │                   (L-WP8)
@@ -223,8 +224,8 @@ Empire_Earth_Mod.exe ──> Empire_Earth_Mod_Lib.dll ──> BCL only
    damaged file moved aside), UI culture (setting or Windows), the command line (`LauncherArguments`: since 1.0.0
    `--product=EE|NeoEE`, an invalid value or another argument is ignored and logged), single-instance check
    ([ADR 0010](adr/0010-game-start-and-mutex-probing.md); since L-WP6 before the theme and every other service, so a
-   second launcher ends at once after its localized message; since 1.0.0 a second launcher with `--product` first hands
-   the product to the running one, see 4.7), theme.
+   second launcher ends at once; since 1.0.0 a second launcher with `--product` first hands the product to the running
+   one, since 1.1.0 every second launcher first asks it to come to the front, see 4.7), theme.
 2. MainForm opens at once; the pages show "searching" states. Nothing blocks the window. `MainForm.OnShown` starts the
    discovery through `UiOperation` (`InstallationService.RefreshAsync` -> `InstallationDiscovery.DiscoverAsync`, thread
    pool).
@@ -244,13 +245,22 @@ Empire_Earth_Mod.exe ──> Empire_Earth_Mod_Lib.dll ──> BCL only
    - **User choice**: it selects the installation whose root, EE folder or AoC folder it is, else the one whose root
      a recognized folder (EE folder, AoC folder, install root) implies; a folder that is missing or holds no program
      stays an installation of its own, so the player sees exactly that folder. Picking an installation in the list
-     saves its EE folder.
+     saves its EE folder. Since 1.1.0 there is one choice per product (`ProductChoices`, `UserChoice`;
+     `InstallationDiscovery.DiscoverChoices`): the folder chosen for EE and the one chosen for NeoEE are both source 1;
+     a `GameDirectory` that is not the folder of the last product is the choice of launcher 1.0.0 and is migrated in
+     memory to the product of the installation it selects (contract 1.4 rule 3, ADR 0005 amendment).
    - **Order of the list**: by the most specific source of each installation (the chosen one first), then by the
      order in which they were found; without a choice the first one is used. On 32-bit Windows a value read through
      both HKLM views is one candidate.
    - **Lobby profiles** come from the EE folder of the selected installation through the `EffectivePathResolver`
      (ADR 0016 amendment).
-4. The selected installation (user choice, else first found) goes to the pages.
+4. The selected installation goes to the pages (`InstallationService.ApplySelection`, contract 1.4, revision 6): the
+   installation of the product of the session (`--product`), else of the product chosen last (`LastProduct`), else the
+   default selection; within the product the folder chosen for it (`ProductFolders`), else its first installation. Choosing
+   one of the four games on the *Play* page (`InstallationService.SelectProduct`) saves the product as `LastProduct`, ends
+   the session product and selects that installation for every page without a new search; all pages read
+   `InstallationService.Selected` and listen to `Changed`. A new `Result` makes the *Game settings* page run its first-run
+   defaults again, for an unambiguous installation only (ADR 0015).
 5. **Quick check** (background, contract 2.5): manifest and `install.ini` read; existence of every listed
    file and the hashes of the `code` files. Result: OK, Modified, Incomplete, Damaged or Unknown. Not started while
    a setup mutex exists, cancelled when one appears ("check cancelled", no findings), files opened with
@@ -283,7 +293,7 @@ Empire_Earth_Mod.exe ──> Empire_Earth_Mod_Lib.dll ──> BCL only
 8. Online player list polling (existing behaviour, now `PlayerListPoller`, L-WP6: started when the Play page
    loads, ended with it). Since 1.0.0 `PlayerListPolling` starts it only while the selected installation is NeoEE: with
    EE (also retail, GOG) or without an installation the launcher sends no request to the status server and the group
-   says "Online Players (NeoEE only)"; a new selection (the user's, or `--product`) starts or ends it.
+   says "Online Players (NeoEE only)"; a new selection (the user's choice of a game, or `--product`) starts or ends it.
 9. The setup-mutex watcher starts (every 2 s while the launcher runs). Since L-WP6 the main window ticks it every 500 ms
    and it probes when two seconds have passed by its `IClock`; the first probe is part of the first search
    (`InstallationService.RefreshAsync`), which waits while a setup runs (4.3).
@@ -297,8 +307,8 @@ Click Play -> button disabled -> `GameStarter.StartAsync(installation, game)`:
 2. Game mutex of that game exists -> refused, "already running" (forum table 8 #14), with the program name and,
    if a process of that name exists, the hint that it may hang and how to end it in the Task Manager (the
    launcher never kills a process). The other game running -> warning with "start anyway".
-3. Program file missing -> refused, "damaged" with the repair advice (`RepairAdvice`, from L-WP6 on with the fixed
-   download page; the update API comes with L-WP7).
+3. Program file missing -> refused, "damaged" with the repair advice (`RepairAdvice`, with the download page of the
+   product, contract 4.3).
 4. Class S values synchronized for the game started, computed from the **real game folder** (ADR 0015);
    written only if different after normalization; changed values are logged with old and new value. Then the
    first run of the defaults if the marker is missing.
@@ -321,8 +331,11 @@ running, chosen folder missing, `Damaged` with `RepairAdvice` also for Windows e
 225/226 with `RepairAdvice`, elevation cancelled 1223, access denied 5/1260, any other error with its number). Step 4 asks
 the mutation guard: when the player starts while the other game runs, class S and the first run are blocked and logged,
 and the game starts anyway. The first run of step 4 may produce the display question; it joins the info bar
-(`GameSettingsModel.AddQuestion`) and never blocks the start. The Art of Conquest can only be chosen when the
-installation has an AoC folder; the choice is `LastGame` in `settings.json`.
+(`GameSettingsModel.AddQuestion`) and never blocks the start. The game started is the entry of the *Play* page's
+list (`PlayEntry`: the product and Empire Earth or The Art of Conquest; four entries, one radio button each). An entry whose
+game is not installed is disabled (the Art of Conquest needs an AoC folder, the product an installation) with one hint
+below the list; the choice is `LastProduct` and `LastGame` in `settings.json` and is applied at the start of the
+launcher when that entry is available (`PlayModel.Entries`, `IsAvailable`, `SelectEntry`).
 
 ### 4.3 Setup finished
 
@@ -364,23 +377,21 @@ failed, or that the change stopped halfway (then the backup restores it).
 
 ### 4.5 Repair hand-off
 
-Damaged/Incomplete/Unknown (`community`) or the user asks -> `SetupDownloadLocator`: with an AppId
-`GET https://api.empireearth.eu/setup/?product=<AppId>` (HTTPS, certificate validation, timeout, no
-redirects) -> trimmed body accepted only if `UpdateUrlPolicy` allows it -> otherwise
-`https://empireearth.eu/download`. The advice dialog shows the steps of contract 4.4 (close the game, same
-folder, same mode, keep "Register NeoEE CDKeys", antivirus exception first, foreign installations are not
-repaired) and opens the URL in the default browser, not elevated. The launcher never downloads or starts
-the setup. `RepairAdvice` (the texts of contract 4.4 and the fixed page) exists from L-WP6 on; L-WP7 adds the
-API request. Implemented in L-WP6: the steps are codes (`RepairStep`) that `Texts` turns into sentences with the folder
+Damaged/Incomplete/Unknown (`community`) or the user asks -> the advice dialog shows the steps of contract 4.4 (close
+the game, same folder, same mode, keep "Register NeoEE CDKeys", antivirus exception first, foreign installations are not
+repaired) and the download page of the product (`SetupDownloadPage.For`, contract 4.3: `https://empireearth.eu/download/ee/`
+or `/neo/` by the installation alone, `https://empireearth.eu/download/` for a foreign installation or an unknown
+product; since 1.1.0 no request to the update API chooses it) and opens it in the default browser, not elevated. The
+launcher never downloads or starts the setup. `RepairAdvice` (the texts of contract 4.4) exists from L-WP6 on. Implemented
+in L-WP6: the steps are codes (`RepairStep`) that `Texts` turns into sentences with the folder
 and the install mode in the words of the setup ("Install for all users", "Install for me only", the portable setup,
 the task "Register NeoEE CDKeys"); the folder of a foreign installation is its EE folder, never a whole drive; the
 window (`RepairAdviceDialog`) stays open after "Open download page" and shows the address to copy if the browser
 cannot be opened. The game version check (`&type=game&version=`, contract 4.5) for installations with an AppId runs on
 request and is not optional; the setup version check is (ADR 0008 plan review). TLS: `Program` sets
-`SecurityProtocol` once, `Tls12` on Windows 7 only. Implemented in L-WP7 (ADR 0008 amendment of L-WP7): the repair
-window asks the update API when it opens (`UpdateModel.LocateAsync`; "Open download page" waits for the answer, at most
-10 s, and closing the window cancels it) and names the reason below the address when the fixed page is used; for
-Damaged and Incomplete it shows the files (at most ten, the damaged ones first) above the steps. "Check version" on the
+`SecurityProtocol` once, `Tls12` on Windows 7 only. Implemented in L-WP7 (ADR 0008 amendment of L-WP7, changed in 1.1.0: the
+repair window no longer asks the update API when it opens, "Open download page" does not wait and no reason is named
+below the address, ADR 0008 amendment of 2026-10-07); for Damaged and Incomplete it shows the files (at most ten, the damaged ones first) above the steps. "Check version" on the
 Play page asks the game version, "Check for updates" on the *Tools* page also the setup version (both implemented); an
 outdated version opens the repair window with the hand-off. A missing answer is "could not be asked", never "up to
 date" (the setup's `CheckUpdate` reads it as "no update").
@@ -513,8 +524,8 @@ product in `Products` or the folder the advice is the download as before.
   `WireGuard`, `VirtualBox`, `Hyper-V`), reads `NeoEE.cfg`, `WONLobby.cfg` and `upnp_info.txt` of both game folders
   through the effective paths (the VirtualStore copy first, ADR 0016; at most 64 KiB, Latin-1, only read) and then, at
   the same time, resolves the host of the status server and the `Server` of every `NeoEE.cfg` (5 seconds each), asks
-  the update API with the query of contract 4.3 (the AppId of the selected installation, else of the first one with
-  an AppId; without one it is not asked) and asks the status server for the player list, as the *Play* page does. The
+  the update API with the query of contract 4.5 and `&type=game` (the AppId of the selected installation, else of the first
+  one with an AppId; without one it is not asked) and asks the status server for the player list, as the *Play* page does. The
   verdict (`OutageHint.Evaluate`) takes three inputs: whether the status host resolves, whether the update API answered
   (or was not asked) and whether the status server answered (or is not configured); "probably a server outage, not
   your computer" needs a resolving name and an answering update API while the status server stays silent, every
@@ -553,34 +564,37 @@ product in `Products` or the folder the advice is the download as before.
   BOM, the file the player chooses, `Documents` suggested; refused inside an installation); the log records only that it
   was copied (with the number of lines) or the anonymized path it was saved to.
 
-### 4.7 Second launcher with `--product` (1.0.0)
+### 4.7 Second launcher (1.0.0, changed in 1.1.0)
 
-The shortcuts of the suite start `Empire Earth Launcher.exe --product=EE` or `--product=NeoEE` (contract 1.4, 1.7).
+The shortcuts of suite 1.0.0 start `Empire Earth Launcher.exe --product=EE` or `--product=NeoEE` (contract 1.4, 1.7); the
+suite 1.1.0 starts the launcher without an argument.
 
 - **First launcher**: `InstallationService.SelectProductForSession` remembers the product; every search then selects the
-  first installation of that product in the order of the sources, the user's choice first if it is of that product
-  (`DiscoveryResult.ForSessionProduct`). Nothing is saved: `settings.json` and the saved choice stay; choosing an
-  installation in the list ends the session product (the user's choice wins). Without an installation of the product the
-  argument is ignored and logged as a warning. An invalid value is ignored and logged by `LauncherArguments`.
+  installation of that product that the folder chosen for it gives, else its first installation
+  (`DiscoveryResult.ForProduct`). Nothing is saved: `settings.json` and the saved choices stay; choosing a game on the *Play*
+  page ends the session product (the player's choice wins). Without an installation of the product the argument is ignored
+  and logged as a warning. An invalid value is ignored and logged by `LauncherArguments`.
 - **Second launcher** (the mutex of ADR 0010 exists): `InstanceForwarder` sends the product to the hidden window of the
   running launcher, five attempts 200 ms apart because that window appears a moment after the mutex; on success it ends
-  silently, otherwise it shows the usual "already running" message. Without `--product` nothing is sent.
+  silently, otherwise it shows the usual "already running" message. Without `--product` it sends `show` (since 1.1.0, ADR 0010
+  amendment of 2026-10-07): the running launcher only comes to the front and keeps its selection, so the one icon of
+  the suite does not change the game of a running launcher.
 - **Transport** (the only Windows-specific part): `WindowsInstanceChannel` finds the message-only window
   `EmpireEarthCommunityLauncher.<Windows session id>` (`InstanceMessage.WindowName`), calls `AllowSetForegroundWindow` for
-  its process and sends `WM_COPYDATA` (`dwData` "EEL1", UTF-8 text `product=EE` or `product=NeoEE`, at most 64 bytes) with
+  its process and sends `WM_COPYDATA` (`dwData` "EEL1", UTF-8 text `product=EE`, `product=NeoEE` or `show`, at most 64 bytes) with
   `SendMessageTimeout`. The running launcher creates the window (`InstanceMessageWindow`, a `NativeWindow`) on the UI thread
-  right before `Application.Run`; its `WndProc` passes the bytes to `InstanceReceiver`, which accepts exactly that text,
+  right before `Application.Run`; its `WndProc` passes the bytes to `InstanceReceiver`, which accepts exactly these texts (`InstanceMessage.TryDecode`),
   brings the main window to the front (`ForegroundWindow`: restore if minimized, `SetForegroundWindow`) and, if no game
   start is in progress (`PlayModel.IsStarting`), no operation runs (`UiOperation.IsRunning`) and no modal dialog is open
   (`ForegroundWindow.IsBlockedByDialog`, the main window is disabled), selects the product through
-  `LauncherInstanceTarget`. Otherwise the product is kept (`InstanceReceiver`) and applied by `ApplyPending` on
+  `LauncherInstanceTarget` (`show` selects nothing). Otherwise the product is kept (`InstanceReceiver`) and applied by `ApplyPending` on
   `Application.Idle` once the launcher is idle, so an open question ("start anyway?") stays about its installation.
   Anything else changes nothing. The window lets `WM_COPYDATA` through UIPI (`ChangeWindowMessageFilterEx`), so a
   non-elevated second launcher reaches an elevated one. The client distinguishes `SendResult.NotFound` (retried, 50 x 200
   ms, a cold start), `Delivered`, `Refused` (the usual message) and `TimedOut` (the message is queued in the busy
   launcher: no second send, no message).
 - **Tests**: `LauncherArgumentsTests`, `InstanceForwardingTests` (the round trip in one process through a fake channel),
-  `LauncherInstanceTargetTests`, `InstallationServiceTests`, `DiscoveryResultSessionProductTests`; the Windows window and the
+  `LauncherInstanceTargetTests`, `InstallationServiceTests`, `DiscoveryResultSessionProductTests` (`ForProduct`); the Windows window and the
   foreground right are checked on real Windows (test plan WP10-03).
 
 ### 4.8 Graphics page (1.1.0)
@@ -704,7 +718,7 @@ Decided in [ADR 0005](adr/0005-own-settings-file-instead-of-user-config.md):
 
 | What | Where | Format |
 |---|---|---|
-| user settings: chosen folder, theme, custom theme file, UI language, last game (`LastGame`, L-WP6), hidden hints (`HiddenHints`: finding and game settings key, values or folder; L-WP5) | `%LOCALAPPDATA%\Empire Earth Launcher\settings.json` | JSON (`DataContractJsonSerializer`), `SchemaVersion`, unknown members kept, written as `.tmp` then replaced; damaged file renamed to `settings.json.damaged` and defaults used; a file that cannot be read or has a higher `SchemaVersion` is never overwritten (ADR 0005 amendment) |
+| user settings: chosen folder (`GameDirectory`, the mirror of the folder of the last product), one chosen folder per product (`ProductFolders`) and the product chosen last (`LastProduct`) since 1.1.0 (optional, ADR 0005 amendment), theme, custom theme file, UI language, last game (`LastGame`, L-WP6), hidden hints (`HiddenHints`: finding and game settings key, values or folder; L-WP5) | `%LOCALAPPDATA%\Empire Earth Launcher\settings.json` | JSON (`DataContractJsonSerializer`), `SchemaVersion`, unknown members kept, written as `.tmp` then replaced; damaged file renamed to `settings.json.damaged` and defaults used; a file that cannot be read or has a higher `SchemaVersion` is never overwritten (ADR 0005 amendment) |
 | server settings: NeoEE host, port, timeout, poll interval | `Empire Earth Launcher.exe.config` next to the program | `applicationSettings` (read-only, admin-editable, as today) |
 | log | `%LOCALAPPDATA%\Empire Earth Launcher\log.txt` | text |
 | backups (`.reg`, moved WON files, replaced saved games) | `%LOCALAPPDATA%\Empire Earth Launcher\Backups\<yyyy-MM-dd_HHmmss>_<what>\` (L-WP5: `display-settings`, `reset-game-settings`, `remove-runasadmin`; L-WP8: `registry-cleanup`, `won-login-reset`, `import-saved-games`) | `.reg` (Windows Registry Editor 5.00, UTF-16 LE with BOM, CRLF) per game `<time>_<Product>_<EE|AoC>.reg`, `<time>_Layers.reg` or `<time>_registry-cleanup.reg`, and original files in `EE\`, `AoC\`, `EE-VirtualStore\`, `AoC-VirtualStore\` with `moved-files.txt` (UTF-8 with BOM, CRLF, one line `<copy> <- <original path>` per file) |
@@ -780,8 +794,9 @@ Decided in [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md):
 - **The diagnostics report** is made only on request, copied or saved by the player and never sent; it follows the
   privacy rules of ADR 0013 (plan review) through `ReportAnonymizer`, and so do the log lines of the network check
   (4.6, 7).
-- **URLs opened in the browser**: only the fixed download page or a URL that passed `UpdateUrlPolicy` (same
-  rules and test cases as the setup's `IsAllowedUpdateUrl`).
+- **URLs opened in the browser**: only the three download pages of contract 4.3 (`SetupDownloadPage`: `empireearth.eu/download/ee/`,
+  `/neo/` and `/download/`), chosen by the installation alone; the launcher opens no address that came from the network, and
+  `NetworkDestinationTests` allow the update API and these pages as URL literals and nothing else.
 - **Files from outside**: imported saves are untrusted (plain file names only, `.ees`/`.scn` only, characters of the
   ANSI code page, 64 MiB at most, never onto a file of the manifest and nothing at all while the manifest exists but
   cannot be used, no overwrite without confirmation and a copy of the old file); there is no zip import (dropped in L-WP8); the manifest never makes the launcher open a file outside
@@ -910,7 +925,7 @@ Decided in [ADR 0001](adr/0001-target-dotnet-framework-4-8.md) and
 | R6 | WON login reset | Maintenance, Backup | | L-WP8 |
 | R7 | network diagnostics; partly: the comparison with the adapter the game uses waits for where EE stores it (14, WP9-02) | Diagnostics | | L-WP9 |
 | R8 | VirtualStore detection | Installations, Maintenance | | L-WP4 (effective paths), L-WP8 |
-| R9 | repair hand-off, pending setup | Repair, Play | 4 | L-WP6 (`RepairAdvice`, fixed page), L-WP7 (API) |
+| R9 | repair hand-off, pending setup | Repair, Play | 4 | L-WP6 (`RepairAdvice`), L-WP7 (API), 1.1.0 (the download pages of the products, U1) |
 | R10 | saves/scenarios export and import, name checks | Maintenance | | L-WP8 |
 | R17 | en/de/fr | UI resources | | L-WP3 and every later package |
 | R18 | docs, ADRs, README/CHANGELOG, test plan | | | every package; test plan from L-WP1, final check L-WP9 |

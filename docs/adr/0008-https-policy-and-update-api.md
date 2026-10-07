@@ -134,7 +134,7 @@ The network diagnostics of L-WP9 add no destination to the three of ARCHITECTURE
 - **Only on request**: "Check network" on the *Tools* page or the link "Why? Check the network" below an unavailable
   player list (`DiagnosticsModel`); nothing is asked at start or in the background.
 - **The update API as the reference for "the internet works"**: the check sends the query of contract 4.3
-  (`SetupDownloadLocator.QueryUrl`, only the AppId: of the selected installation, else of the first one that has one;
+  (`SetupDownloadLocator.QueryUrl`, since 2026-10-07 `UpdateApi.QueryUrl`, only the AppId: of the selected installation, else of the first one that has one;
   without one the API is not asked) through the same `HttpsClient` with the rules of this ADR. Any HTTP answer, also a
   status other than 200, counts as an answer, because it proves the connection and TLS; a timeout, TLS or network error
   does not. With the name lookup of the status host and the answer of the status server this gives the verdict, and
@@ -147,9 +147,32 @@ The network diagnostics of L-WP9 add no destination to the three of ARCHITECTURE
   server support, ARCHITECTURE 16).
 - **Kept by a test**: `NetworkDestinationTests` (category `SourceTree`) reads every source outside the test project and
   fails on a name lookup outside `WindowsNetworkInfo`, a socket outside the WON library's `NeoApiClient`, an HTTP client
-  outside `HttpsClient`, the number 10002 or 10003, and a URL literal other than the update API, the fixed download
-  page and the `https://` prefix of the URL policy; self-tests show that each rule finds a forbidden sample.
+  outside `HttpsClient`, the number 10002 or 10003, and a URL literal other than the update API and the three download pages
+  of contract 4.3 (amendment of 2026-10-07; before it the fixed download page and the `https://` prefix of the URL policy);
+  self-tests show that each rule finds a forbidden sample.
 
 Evidence: `Architecture/NetworkDestinationTests`, `Core/Diagnostics/NetworkDiagnosticsTests`
 (`ItAsks_OnlyDnsTheUpdateApiAndTheStatusServer`, `WithoutAnAppId_TheUpdateApiIsNotAsked`), `Core/Diagnostics/OutageHintTests`,
 `Launcher/DiagnosticsModelTests`; test plan WP9-01, WP9-05 to WP9-07 and W7-06.
+
+## Amendment 2026-10-07 (launcher 1.1.0, contract revision 6: the download pages)
+
+The update API named `https://cdn.empireearth.eu/setup/game/EE_Setup.exe` (NeoEE `.../neo/NeoEE_Setup.exe`) as the
+download; `cdn.empireearth.eu` no longer resolves (a CNAME to `empireearth-cdn.trafficmanager.net`, NXDOMAIN), and the
+URL check let it pass because it is a subdomain of `empireearth.eu`. The website's buttons work. Since launcher 1.1.0:
+
+- **The download page is fixed per product** (contract 4.3): `https://empireearth.eu/download/ee/` for EE,
+  `https://empireearth.eu/download/neo/` for NeoEE (community and community-legacy installations),
+  `https://empireearth.eu/download/` for foreign installations and an unknown product (`Repair.SetupDownloadPage`). No
+  request is made to choose it; the site redirects the browser to the setup file. The repair window shows the address
+  at once.
+- **Removed**: `SetupDownloadLocator`, `SetupDownloadLocation`, `FallbackReason`, `UpdateUrlPolicy` and their tests;
+  the setup removed `IsAllowedUpdateUrl` in the same revision. The failure reasons of the version check are
+  `UpdateApiFailure` (`Timeout`, `TlsError`, `NetworkError`, `StatusNotOk`).
+- **The update API** gets only the requests of contract 4.5 (`UpdateApi.QueryUrl` with `&type=`), when the player
+  asks: the version check and, as the reference of the network check, `&type=game` (the latest game version) instead
+  of the query without `&type=`. The HTTPS rules of this ADR are unchanged.
+- **`NetworkDestinationTests`** allow the update API and the three pages as URL literals and nothing else.
+
+Evidence: `Core/Repair/SetupDownloadPageTests`, `Core/Repair/UpdateApiTests`, `Core/Repair/UpdateCheckerTests`,
+`Launcher/UpdateModelTests`, `Architecture/NetworkDestinationTests`; test plan WP7-12, WP14-01 to WP14-03, W7-05.

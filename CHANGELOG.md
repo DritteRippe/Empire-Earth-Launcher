@@ -39,6 +39,28 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
   the game folder and the note about the new language wrap (they were labels of one line), and the page scrolls where the
   window is too small (test plan WP1-07, WP3-06, WP5-17, WP6-14).
 
+- The update question and the repair advice open the download page of the product (contract 4.3, revision 6):
+  `https://empireearth.eu/download/ee/` for EE, `https://empireearth.eu/download/neo/` for NeoEE, `https://empireearth.eu/download/`
+  for a foreign installation and an unknown product (`Repair.SetupDownloadPage`), instead of the address the update API
+  names. That address pointed to `cdn.empireearth.eu`, which no longer resolves, and the URL check let it pass because it
+  is a subdomain of `empireearth.eu`. The window shows the address at once, without a request and without a wait; the
+  browser gets the setup file from the site. The update API is asked only for the version check and, as the reference of the
+  network check, with `&type=game` (the latest game version) instead of the query without `&type=`
+  ([ADR 0008](docs/adr/0008-https-policy-and-update-api.md), amendment of 2026-10-07; test plan WP7-12, WP14-01 to WP14-03).
+- A second start of the launcher without an argument brings the window of the running launcher to the front and ends without
+  a message (it said that the launcher is running). `InstanceMessage` carries `show` for it; `--product=EE|NeoEE` as before
+  also selects the product ([ADR 0010](docs/adr/0010-game-start-and-mutex-probing.md), amendment of 2026-10-07; test plan
+  WP13-06).
+- `settings.json` keeps the folder you chose per product (`ProductFolders`) and the product chosen last (`LastProduct`), both
+  optional members, so `SchemaVersion` stays 1. `GameDirectory` repeats the folder of the last product, so that launcher 1.0.0
+  reads the same installation, and a `GameDirectory` that is not the folder of the last product is read as the choice of an
+  older launcher (contract 1.4 rule 3; [ADR 0005](docs/adr/0005-own-settings-file-instead-of-user-config.md), amendment of
+  2026-10-07; test plan WP13-02, WP13-03).
+- `docs/CONTRACT.md`, revision 6, extended (still unreleased, contract version still 1): the one shortcut of suite 1.1.0
+  that starts the launcher without an argument (1.7), the choice per product in the default selection (1.4), the
+  download pages of the products (4.3, instead of the answer of the update API) and the items of "Additions of revision 6"
+  in 7; ARCHITECTURE section 15 ticks them.
+
 ### Fixed
 
 - Game start: after the start the launcher hands the foreground to the window of the game (report 1: the mouse was dead
@@ -130,6 +152,30 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
   `LayoutChecker.NarrowByDesign`, and the first layout of a page created at its size (`LauncherPages.Resize`); the cases
   need the Krypton combo box and lists and run on Windows only (ADR 0012 amendment of 2026-10-06). `ScrollPageLayoutTests`
   covers the additions to the layout class.
+- One list of the four games on the *Play* page: "Empire Earth", "Empire Earth - The Art of Conquest", "Neo Empire Earth" and
+  "Neo Empire Earth - The Art of Conquest" (English, German and French), then the *Play* button. A game that is not installed
+  is greyed out, with one hint (the four games stay in the same place); the choice is remembered (`LastProduct`, `LastGame`)
+  and selects the installation of that product for every page, so the NeoEE player list shows only for NeoEE
+  (`PlayEntry`, `PlayModel.Entries`, `GeneralUserControl`; [ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md),
+  amendment of 2026-10-07; test plan WP13-01 to WP13-08). The radio buttons replace the former choice of the game with its
+  separate Art of Conquest option.
+- One chosen folder per product (`ProductChoices`, `UserChoice`, `DiscoveryResult.ForProduct`, `InstallationDiscovery.DiscoverChoices`):
+  choosing a folder or an installation on the *Launcher* page for EE leaves the choice for NeoEE as it was, and the other
+  way round; *Auto-detect* clears the choice of the selected product only.
+- `--product=EE|NeoEE` preselects the game of that product in the list for the session (the folder chosen for that product
+  wins, nothing is saved); the hand-over to a running launcher is unchanged. The shortcuts of suite 1.0.0 keep working, suite
+  1.1.0 creates one icon "Empire Earth Community" without an argument.
+- Geometry and picture tests of the *Play* page with the four entries (`PlayPageWorld` states `AllEntries` and
+  `EntriesWithHint`, `PlayPageEntriesTests`); they run on Windows only. `NetworkDestinationTests` allow the update API and the
+  three download pages as URL literals and nothing else.
+
+### Removed
+
+- The request for a download URL and its check: `SetupDownloadLocator`, `SetupDownloadLocation`, `FallbackReason` and
+  `UpdateUrlPolicy` (the port of the setup's `IsAllowedUpdateUrl`) with their tests; `UpdateApi` keeps the query of contract 4.5
+  and the failure reasons of the version check (`UpdateApiFailure`).
+- `DiscoveryResult.ForSessionProduct`, `PlayModel.SelectGame` and `CanChooseArtOfConquest`, and three texts of the repair
+  window (`FailureUrlRejected`, `RepairLocating`, `RepairFallbackFormat`), in all three languages.
 
 ## [1.0.0] - 2026-10-05
 

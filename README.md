@@ -27,7 +27,7 @@ features that work.
 | Support | Not implemented yet | Network check and a diagnostics report for forum posts, anonymized and never sent by the launcher |
 | Game settings | Placeholder page | Recommended defaults, consistency hints, reset with `.reg` backup, compatibility options (Windows 8 and later) |
 | Privacy | Unwired "collect diagnostic data" checkbox; the *Play* page polls the NeoEE server every 5 s | No telemetry; the player list only while a NeoEE installation is selected; everything else only on click: HTTPS to the update API, plus name lookups and one status request to the NeoEE server in the network check |
-| Suite installer | None | Optional integration with "Empire Earth Community": its desktop icons open the launcher for one game (`--product=EE` or `NeoEE`), a second start hands over to the running launcher, repair advice points to the suite |
+| Suite installer | None | Optional integration with "Empire Earth Community": its one desktop icon opens the launcher (the suite 1.0.0 icons with `--product=EE` or `NeoEE` still work), a second start brings the running launcher to the front, repair advice points to the suite |
 | Languages | English only | English, German and French, with automated checks that all three have the same texts |
 | Runtime | .NET Framework 4.0 | .NET Framework 4.8 for launcher and mod creator, one solution; Windows 7 SP1, 8.1, 10 (1607 or later) and 11 ([Requirements](#requirements)) |
 | Log and settings | `log.txt` in the working directory; theme choice not saved; no handler for unexpected errors | Log and `settings.json` in `%LOCALAPPDATA%\Empire Earth Launcher`, damaged settings recovered, unexpected errors logged and shown |
@@ -81,7 +81,14 @@ controls of the old mock-up were removed and the features behind them are listed
 
 **Available now**
 
-- Play Empire Earth or The Art of Conquest of the selected installation: the launcher waits while a setup runs, does
+- One list of the four games on the *Play* page (1.1.0): "Empire Earth", "Empire Earth - The Art of Conquest",
+  "Neo Empire Earth" and "Neo Empire Earth - The Art of Conquest" (in English, German and French), then the *Play*
+  button. A game that is not installed is shown greyed out; your choice is remembered, and it selects the installation
+  of that product on every page (the NeoEE player list shows only for NeoEE). The folder you chose is remembered per
+  product, so EE and NeoEE can each have their own
+  ([ADR 0005](docs/adr/0005-own-settings-file-instead-of-user-config.md) and
+  [ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md), amendments of 2026-10-07)
+- Play the chosen game of the selected installation: the launcher waits while a setup runs, does
   not start a game twice (and explains how to end a hanging one in the Task Manager), asks before starting the second
   game, keeps the "Installed From" values of the game in step, starts the program through Windows so that its
   compatibility settings apply (also "Run as administrator"), hands the foreground to the window of the game after the
@@ -109,9 +116,9 @@ controls of the old mock-up were removed and the features behind them are listed
   setup (forum: antivirus programs that delete game files)
 - Repair advice when a program is missing, files are damaged or an update is available: what to do with the community
   setup (antivirus exception first, same folder and install mode, keep the NeoEE CD-key task), the files concerned, and
-  the download of the current setup as the community's update API names it (only `https` addresses of the project,
-  else `https://empireearth.eu/download`, with the reason); the launcher never downloads, starts or elevates the setup
-  itself
+  the download page of the product (`https://empireearth.eu/download/ee/` or `/neo/`, `https://empireearth.eu/download/`
+  for a foreign installation), shown at once and opened in the browser only on a click, without a request to the update
+  API; the launcher never downloads, starts or elevates the setup itself
 - Version check on request (*Play* page: the game; *Tools* page: game and setup) against the update API of the
   community setup, for community installations also of setups up to 1.7.2 (forum: version conflicts in multiplayer)
 - Maintenance tools on the *Tools* page, none of which runs while a setup or a game runs:
@@ -151,21 +158,22 @@ controls of the old mock-up were removed and the features behind them are listed
     integrity, game defaults and hints, VirtualStore, whether the CD keys exist, the network check) for a forum post.
     It contains no CD keys, login data, player names, MAC or public IP address and no user or computer name, and the
     launcher never sends it
-- One launcher at a time (a second start says so and ends; started with `--product`, see below, it hands the product to
-  the running launcher and ends without a message)
+- One launcher at a time (a second start brings the window of the running launcher to the front and ends without a
+  message; started with `--product`, see below, it also hands the product to the running launcher)
 - NeoEE online player list, with the lobby profiles and friends of the game folder (also when the game keeps them
   in the VirtualStore). It is asked only while the selected installation is NeoEE: with Empire Earth, a retail or GOG
   installation, or none, the launcher sends nothing to the status server
 - Parts for the suite installer "Empire Earth Community" (launcher 1.0.0; the setup repository's suite installs the
   launcher and runs the EE and NeoEE setups in one go; all of it is optional, the launcher works as before without it;
   `docs/CONTRACT.md` revision 4):
-  - `Empire Earth Launcher.exe --product=EE` or `--product=NeoEE` (the argument of the suite's shortcuts "Empire Earth"
-    and "Neo Empire Earth") selects the first installation of that product for this session only; nothing is saved,
-    your own choice on the *Launcher* page wins, and anything else (another value, a product that is not installed,
-    another argument) is ignored and written to `log.txt`
-  - If the launcher is already running, a second start with `--product` brings its window to the front and selects
-    the product there (not while a game is starting); without the argument the second start says that the launcher
-    is running, as before
+  - The suite 1.1.0 creates one icon "Empire Earth Community" that starts the launcher without an argument; the Play
+    page then shows the game you chose last
+  - `Empire Earth Launcher.exe --product=EE` or `--product=NeoEE` (the argument of the shortcuts of suite 1.0.0 and of
+    your own shortcuts) preselects the game of that product in the list for this session; the folder you chose for
+    that product wins, nothing is saved, and anything else (another value, a product that is not installed, another
+    argument) is ignored and written to `log.txt`
+  - If the launcher is already running, a second start brings its window to the front, with `--product` it also
+    selects the product there (not while a game is starting)
   - The suite counts as a running setup like the EE and NeoEE setups: while it runs, even in the moment between the two
     product setups, the launcher starts no game and changes nothing
   - If the suite installed a product and the folder you unpacked it to is still there, the repair advice says to run
@@ -206,9 +214,11 @@ controls of the old mock-up were removed and the features behind them are listed
 
 **Privacy, no telemetry**: the old checkbox "Allow us to collect diagnostic data" is gone. The launcher collects no
 usage or diagnostic data. Its connections are the request for the NeoEE player list and, only when you ask for it
-(repair advice, version check, network check), an HTTPS request to `api.empireearth.eu` that sends nothing but the
-AppId of the installation and the version, and the name lookups of the network check; it asks no service for your
-public address. The download page opens in your browser only when you click its button. The diagnostics report is
+(version check, network check), an HTTPS request to `api.empireearth.eu` that sends nothing but the AppId of the
+installation and, for the version check, the version, and the name lookups of the network check; it asks no service
+for your public address. The download page of the community setup (`empireearth.eu/download/ee/`, `/neo/` or
+`/download/`) opens in your browser only when you click its button; the launcher sends no request for it. The
+diagnostics report is
 made only when you click, stays on your computer until you paste or send it yourself, and replaces your user and
 computer name, public addresses, MAC addresses and player names; read it before you post it. CD keys are repaired by
 re-running the community setup; the launcher never touches them (the report only says whether they exist).
@@ -269,9 +279,9 @@ What helps, without any promise that the game never minimizes:
   doubled cursor, note the Windows version, the display adapter and the wrapper of the *Graphics* page: the reports so far
   point at the display driver and the wrapper, and the dgVoodoo version and settings of the setup are tested separately;
   the launcher does not touch them.
-- A second start of the launcher with `--product` (the shortcuts of the suite) brings the window of the running launcher to
-  the front, which takes the foreground from a running game and so minimizes it. Do not use those shortcuts while a game
-  runs.
+- A second start of the launcher (the icon of the suite or a shortcut with `--product`) brings the window of the running
+  launcher to the front, which takes the foreground from a running game and so minimizes it. Do not start the launcher
+  again while a game runs.
 
 **I changed `dgVoodoo.conf` by hand and nothing happened.**
 A game below `Program Files` that Windows virtualizes reads a copy in `%LOCALAPPDATA%\VirtualStore\<game folder>` instead of
@@ -685,8 +695,8 @@ Empire-Earth-Launcher-Core/       UI-free core library of the launcher (Empire_E
 │                                 RunningGameDetector, SetupWatcher (setup mutexes every 2 s), ProgramVersions,
 │                                 SingleInstance, MutationGuard (no change while a setup or a game runs, ADR 0016),
 │                                 LauncherArguments (--product), InstanceForwarding (the hand-over to a running launcher)
-└─ Repair/                        RepairAdvice (the steps of contract 4.4), UpdateUrlPolicy (the setup's
-                                  IsAllowedUpdateUrl), SetupDownloadLocator (contract 4.3), UpdateChecker (4.5),
+└─ Repair/                        RepairAdvice (the steps of contract 4.4), SetupDownloadPage (the three download
+                                  pages, contract 4.3), UpdateApi (the query and failures of 4.5), UpdateChecker (4.5),
                                   SuiteRepairLocator (the folder of the suite for the advice, 4.4)
 Empire Earth Launcher/            The launcher (WinForms + Krypton UI)
 ├─ Program.cs                     Entry point and composition root: creates and passes on the services
@@ -697,7 +707,7 @@ Empire Earth Launcher/            The launcher (WinForms + Krypton UI)
 ├─ IThemeService.cs               Theme interface (implemented by KryptonThemeService.cs)
 ├─ InstallationService.cs         The installations found and the selected one (runs the core's discovery)
 ├─ GameSettingsModel.cs           State and actions of the game settings for the Settings and Play pages
-├─ PlayModel.cs                   State and actions of the Play page (game choice, versions, start)
+├─ PlayModel.cs                   State and actions of the Play page (the four entries, versions, start)
 ├─ IntegrityModel.cs              The integrity check of the selected installation (quick check, full check)
 ├─ UpdateModel.cs                 The update API: version check, download of the repair advice
 ├─ MaintenanceModel.cs            The maintenance tools of the Tools page (scans, actions, backup folder)
@@ -765,7 +775,9 @@ packages/                         NuGet packages, restored on build (not committ
   installed in the same folder, and when a setup is newer than the launcher. The search only reads; the log names
   every candidate and why it was used or left out.
 - **Game folder**: the folder chosen with "..." on the *Launcher* page (or by picking an installation of the list)
-  is saved in `settings.json` (`GameDirectory`, the Empire Earth folder of the installation); it may be the install
+  is saved in `settings.json` per product (`ProductFolders`, the Empire Earth folder of the installation, and
+  `LastProduct`, the product chosen last; `GameDirectory` repeats the folder of the last product so that launcher
+  1.0.0 reads the same installation); it may be the install
   folder, the Empire Earth folder or the Art of Conquest folder, and it stays chosen even if it no longer exists, so
   that the player sees it. *Auto-detect* removes the choice. The launcher reads the WON lobby files from the
   Empire Earth folder of the selected installation; for a game folder below `Program Files`, `ProgramData` or the
@@ -789,22 +801,23 @@ packages/                         NuGet packages, restored on build (not committ
   actual hash.
 - **Update API** ([contract 4.3, 4.5](docs/CONTRACT.md#4-repair-hand-off),
   [ADR 0008](docs/adr/0008-https-policy-and-update-api.md)): only on request, `GET
-  https://api.empireearth.eu/setup/?product=<AppId>` (plus `&type=game|setup&version=<version>` for the version check)
-  over HTTPS with the certificate check of Windows, no redirects, 10 seconds and at most 4 KiB; on Windows 7 TLS 1.2 is
-  requested explicitly, elsewhere Windows chooses. A download address is used only if it passes the setup's own URL
-  check; every failure gives `https://empireearth.eu/download`, and the window and the log say why.
+  https://api.empireearth.eu/setup/?product=<AppId>&type=game|setup&version=<version>` for the version check (and
+  `&type=game` as the reference of the network check) over HTTPS with the certificate check of Windows, no redirects,
+  10 seconds and at most 4 KiB; on Windows 7 TLS 1.2 is requested explicitly, elsewhere Windows chooses. The launcher
+  no longer asks it for a download address: the repair window opens the download page of the product (contract 4.3)
+  without a request, and a failed version check says why in the window and the log.
 - **Architecture of v2**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) describes the structure as built (UI-free
   core library, thin WinForms UI on .NET Framework 4.8), data flows, threading, error handling, logging,
   localization and tests, and ticks the launcher items of the contract checklist; the decisions behind it are recorded
   in [docs/adr/](docs/adr/README.md).
 - **Play** ([ADR 0010](docs/adr/0010-game-start-and-mutex-probing.md)): *Play* starts the chosen game of the selected
-  installation (`LastGame` in `settings.json`) in this order: no setup may run (`EE_Setup`, `NeoEE_Setup`), the same
+  installation (the entry of the list: `LastProduct` and `LastGame` in `settings.json`) in this order: no setup may run (`EE_Setup`, `NeoEE_Setup`), the same
   game may not run (its mutex), the other game running asks first, the program must exist (else the repair advice),
   then the "Installed From" values are synchronized and the first run of the defaults is done, then the program
   starts through the Windows shell in its game folder. The log has one line per start with the process id. While a
   setup runs (checked every two seconds), nothing is started, changed or searched; the installations are searched
   again when it has ended. Only one launcher runs per Windows session (mutex `EmpireEarthCommunityLauncher`).
-- **User settings** (game folder, theme, custom theme file, UI language, hints hidden from the *Play* page, last game) are kept in
+- **User settings** (game folder per product, last product, theme, custom theme file, UI language, hints hidden from the *Play* page, last game) are kept in
   `%LOCALAPPDATA%\Empire Earth Launcher\settings.json` (UTF-8 JSON with a `SchemaVersion`,
   [ADR 0005](docs/adr/0005-own-settings-file-instead-of-user-config.md)), so they survive moving or updating
   the launcher. The file is written as `settings.json.tmp` first and then swapped in, so a crash never leaves
@@ -857,8 +870,8 @@ packages/                         NuGet packages, restored on build (not committ
   "Open backup folder" on the *Tools* page opens it. The launcher never deletes backups.
 - **Network check** ([ADR 0008](docs/adr/0008-https-policy-and-update-api.md)): only on request. It reads the
   adapters from Windows, resolves the host of the NeoEE status server and the `Server` of each `NeoEE.cfg` (5 seconds
-  each), asks the update API as the repair advice does (AppId of the selected installation, else of the first one
-  with an AppId) and asks the status server for the player list, all at the same time; it reads `NeoEE.cfg`,
+  each), asks the update API for the latest game version (`&type=game`, AppId of the selected installation, else of the
+  first one with an AppId) and asks the status server for the player list, all at the same time; it reads `NeoEE.cfg`,
   `WONLobby.cfg` and `upnp_info.txt` of both game folders (the VirtualStore copy first) without changing them. It
   never connects to the ports 10002 and 10003 of NeoEE and asks no "what is my IP" service; the external address of
   `upnp_info.txt` is shown only as its class (public, CGNAT, private). The format of `upnp_info.txt` is not known for

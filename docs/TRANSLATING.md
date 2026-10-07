@@ -117,8 +117,8 @@ Changing the English text of an existing key means checking the German and Frenc
   characters). The *Tools* page (since L-WP7) holds the integrity check: its explanation, the list of files with what
   is wrong with each (`IntegrityFile*Format`), the progress of the full check, three buttons in one row (at most about
   26 characters each) and the version check; it scrolls like the *Settings* page. The repair window now also shows
-  the files of the check and, while it asks the update server, "Asking the update server ..."; to see the note of the
-  general download page (`RepairFallbackFormat`), open it without network. Since L-WP8 the *Tools* page continues with
+  the files of the check (since 1.1.0 it shows the address of the download page at once and asks nobody; the texts
+  "Asking the update server ..." and the note of the general download page are gone). Since L-WP8 the *Tools* page continues with
   the maintenance tools, one section each with a heading, an explanation that wraps, a state line and a result line:
   old registry entries (a list with check boxes, a read-only text box with one line of advice per key, the button
   "Delete selected..."), WON login, VirtualStore, saved games and scenarios (three buttons in one row, at most about
@@ -155,6 +155,13 @@ Changing the English text of an existing key means checking the German and Frenc
 
 ## Status
 
+Launcher 1.1.0 (contract revision 6, one launcher for four games) removed three texts of the repair window (`FailureUrlRejected`,
+`RepairLocating`, `RepairFallbackFormat`: the update API no longer chooses the download page) and added five for the *Play* page:
+the four entries of the list of games (`PlayEntryEmpireEarth`, `PlayEntryEmpireEarthAoc`, `PlayEntryNeoEE`, `PlayEntryNeoEEAoc`:
+the names of the games, not translated, joined by an en dash with "The Art of Conquest") and the hint below the list
+(`PlayEntriesNotInstalledHint`, about 200 characters: it explains greyed out games and where another installation is chosen).
+The radio buttons of the list wrap onto a second line when a name is longer than the page is wide.
+
 After 1.0.0 the hint about a differing VirtualStore copy of `dgVoodoo.conf` added three texts (`VirtualStoreWrapperConfigFormat`,
 `OpenVirtualStoreFolderButton`, `OpenVirtualStoreFolderFailedFormat`, A5; test plan WP8-19); they are not in the counts below.
 
@@ -181,7 +188,7 @@ advice, a running setup and a second launcher, L-WP5 51 for the game settings, L
   report (keys from `ToolsNetworkHeading` to `PlayerListCheckNetworkLink`) and the two texts of the review fixes after them
 (`ImportCheckManifestUnusable`, `CleanupKeepFolderUnknownFormat`, at the end of the file) are the newest;
   before them come the 80 texts of the maintenance tools (from `ToolsCleanupHeading` to `ToolsChecking`), the 59 texts of
-  the integrity check and the update API (from `NavigationTools` to `RepairFallbackFormat`) and the 29 texts of Play
+  the integrity check and the update API (from `NavigationTools`, without the three texts removed in 1.1.0) and the 29 texts of Play
   and the repair advice (from `LauncherAlreadyRunning` to `RepairPageNotOpenedFormat`); the 51 texts of the game
   settings (from `GameSettingsDefaultsHeading` to `FindingFolderNotAnsiFormat`) and the explanations of the
   maintenance tools are the longest.

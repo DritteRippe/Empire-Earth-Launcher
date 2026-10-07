@@ -17,7 +17,7 @@ window must not receive results.
 - **One UI thread** (STA, `WindowsFormsSynchronizationContext`); controls and the theme service are used only
   there.
 - **async/await** for everything that can take longer than a few milliseconds. The core exposes
-  `Task`/`Task<T>` methods for those (`IntegrityChecker.CheckAsync`, `SetupDownloadLocator.LocateAsync`,
+  `Task`/`Task<T>` methods for those (`IntegrityChecker.CheckAsync`, `UpdateChecker.CheckAsync`,
   `NetworkDiagnostics.RunAsync`, `InstallationDiscovery.DiscoverAsync`); blocking work inside them (file
   hashing, registry scans, the synchronous `NeoApiClient`) runs on the thread pool through `Task.Run`. The
   core uses `ConfigureAwait(false)` throughout. Fast pure logic stays synchronous.

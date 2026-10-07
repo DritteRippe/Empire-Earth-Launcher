@@ -232,3 +232,23 @@ launcher cannot do (contract 2.5: it does not change, delete, restore or downloa
   `ModsView` (`ApplyTextsTests`). `ModsView` and `ModsModel` hold what the page decides and are tested on Mono; the page is
   measured by `PageLayoutTests` in four states (`ModsPageWorld`).
 - **Still not in the UI**: switching the preset, installing mods, a mod catalogue or downloads.
+
+## Amendment 2026-10-07 (launcher 1.1.0, contract revision 6: the list of four games)
+
+The *Play* page shows one list of four radio buttons, always in the same order: "Empire Earth", "Empire Earth - The Art of
+Conquest", "Neo Empire Earth", "Neo Empire Earth - The Art of Conquest" (en, de, fr), then the *Play* button. This ADR hid controls
+whose function does not exist; here the function exists and only the game may be missing, so:
+
+- **A game that is not installed is shown disabled** (greyed), not hidden, so the four games are always in the same place and
+  the player sees which ones the launcher knows about. One hint below the list says so (`PlayEntriesNotInstalledHint`), shown
+  only while an entry is disabled. A disabled entry cannot be chosen and cannot be started.
+- **What counts as installed**: an installation of the product is known, and for the Art of Conquest entries it has an AoC
+  folder (`PlayEntry.IsAvailable`). The choice is remembered (`LastProduct`, `LastGame`, ADR 0005 amendment); if the entry
+  chosen last is not available at the next start, the default selection of contract 1.4 applies and the list shows the entry
+  of the selected installation.
+- **One list, not one launcher per product**: choosing an entry selects the installation of its product for every page (Game
+  settings, Graphics, Mods, Tools, Launcher); the NeoEE player list shows only for NeoEE (README, ARCHITECTURE 4.2).
+
+Evidence: `Core/Play/PlayEntryTests`, `Launcher/PlayEntryTextsTests`, `Launcher/PlayModelTests`, `Launcher/PlayPageEntriesTests`,
+`PageLayoutTests` and `PlayPageWorld` (states `AllEntries`, `EntriesWithHint`), `ApplyTextsTests`, `ResourceParityTests`; test
+plan WP13-01, WP13-04, WP13-08.

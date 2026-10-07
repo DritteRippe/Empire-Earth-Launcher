@@ -181,3 +181,24 @@ is not. The start itself does not change (shell execute, no arguments, no verb):
   switched, no window within 60 s, no process id, three hand-overs at most, a background thread, cancellation),
   `GameStarterTests` (the right before the start), `Launcher/PlayModelTests`, `Core/Platform/WindowsWindowSystemTests`,
   `Architecture/ForegroundRulesTests`; test plan WP6-18.
+
+## Amendment 2026-10-07 (launcher 1.1.0, contract revision 6: one launcher for four games)
+
+Suite 1.1.0 creates one icon, `Empire Earth Community`, which starts the launcher without an argument; the player may start it
+again while it runs (a second click, the start menu). Contract 1.4 (revision 6) allows the second launcher to ask the running
+one to come to the front. Changes to the second-start rules above:
+
+- **Without `--product` the second launcher sends the message `show`** (`InstanceMessage.ShowText`, `Encode(null)`; the
+  same `WM_COPYDATA` of at most 64 bytes, `dwData` "EEL1", UTF-8 `show`), and ends without a message when it was delivered.
+  The running launcher (`InstanceReceiver.Handle`) brings its window to the front and changes nothing else: no product is
+  selected, so the choice of the player and the page shown stay. If it cannot be reached (no window, an old launcher, an
+  elevated launcher that drops the message) the second launcher shows the usual "already running" message, as before.
+  `--product=EE|NeoEE` is sent and handled as before and also brings the window to the front.
+- **No message box on success**: the one icon is meant to be clicked again, and a box for each click would be noise; the front
+  window is the answer. A launcher 1.0.0 that receives `show` ignores it (it accepts exactly the two product texts), so the
+  second launcher reports "already running" there.
+- **A running game**: coming to the front takes the foreground from a game and so minimizes it (README FAQ); the second start is
+  not blocked while a game runs, because the message is the same as with `--product` in 1.0.0.
+
+Evidence: `Core/Play/InstanceForwardingTests` (`show` round trip, `TryDecode`, the second launcher without an argument),
+`Launcher/LauncherInstanceTargetTests`; test plan WP13-06 and WP10-03.

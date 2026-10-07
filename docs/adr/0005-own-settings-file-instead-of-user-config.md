@@ -87,3 +87,27 @@ the decision:
 default and for `null`; an unknown value means Empire Earth and is kept in the file. The Play page uses The Art of
 Conquest only while the selected installation has an AoC folder. Tests: `SettingsStoreTests.LastGame_IsLoadedAndSaved`
 (the unknown-member test now uses another member), `Launcher/PlayModelTests`.
+
+## Amendment 2026-10-07 (launcher 1.1.0, contract revision 6: one launcher for four games)
+
+The Play page lists the four games, and the choice of a game selects the installation of its product for every page
+(ADR 0014 amendment). `settings.json` gets two optional members of schema 1 (`CurrentSchemaVersion` stays 1; launcher 1.0.0
+keeps unknown members, so it neither fails nor loses them):
+
+- **`ProductFolders`** (order 7): a list of `{Product, Folder}`, at most one entry per product (`EE`, `NeoEE`), the folder chosen
+  for that product (the Empire Earth folder of the installation, as `GameDirectory` before). `ProductChoices` reads and
+  writes it; choosing a folder or an installation, or *Auto-detect*, changes the entry of the product concerned only.
+- **`LastProduct`** (order 8): `EE` or `NeoEE`, the product chosen last, empty by default; an unknown value is kept in the file and
+  means no product chosen.
+- **`GameDirectory` stays and is the mirror** of the folder of the last product, written with every save, so launcher 1.0.0
+  reads the same installation and a downgrade loses nothing.
+- **Rule 3 of contract 1.4**: a `GameDirectory` that is not the folder of the `LastProduct` (or of any entry) is the choice of
+  an older launcher. Its product comes from the installation it resolves to, and it is migrated in memory to
+  `ProductFolders`/`LastProduct`; the file is written again at the first save (`InstallationService.ChooseFolderAsync` saves a
+  second time after the migration). Nothing is deleted or rewritten at the start.
+- `LastGame` keeps its meaning (`EE` or `AoC`); the Art of Conquest is chosen with the entry of the list and is used only
+  while the installation has an AoC folder.
+
+Tests: `SettingsStoreTests` (members, order, unknown values, a file of launcher 1.0.0), `Core/Installations/ProductChoicesTests`,
+`InstallationDiscoveryTests`, `DiscoveryContractTests` (rules of 1.4), `Launcher/InstallationServiceTests`; test plan WP13-02,
+WP13-03, WP13-07.
