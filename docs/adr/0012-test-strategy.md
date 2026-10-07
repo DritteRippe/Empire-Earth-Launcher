@@ -386,3 +386,23 @@ The launcher's part of that job is to run its core against the real installation
   on Windows: build and laptop). They can be run under Mono with the Windows libraries that Krypton asks for (`uxtheme`, `gdi32`,
   `user32`, `dwmapi`) mapped to a library of stubs that return 0 (`<dllmap>` in `Krypton.Toolkit.dll.config`); every measure is then
   Mono's, so that run proves the logic of the layout and nothing about the fonts of Windows.
+
+## Amendment 2026-10-07 (the Graphics page, launcher 1.1.0)
+
+- **What the page decides is tested without the page.** The list of the Graphics page is a Krypton combo box, which Mono cannot
+  create (`CreateCompatibleDC`), so the whole page would be ignored there. `GraphicsView.Of` therefore computes everything the page
+  shows (texts, shown and enabled controls, the sizes of the list and the selected one) from `GraphicsModel`, and the page only
+  assigns it; `GraphicsViewTests`, `GraphicsModelTests` and `GraphicsTextsTests` run under Mono on the fake computer
+  (`GraphicsModelWorld`: `GraphicsModel` on the real `InstallationService`, `SetupWatcher` and `GameSettingsModel`), in English
+  and for German and French where the words differ. The model tests also check what must not happen: the files of the game folder
+  (`dgVoodoo.conf` included) are the same after a change of the window size, nothing is written while a setup or a game runs, and
+  a read that is under way disables the change.
+- **The page in the geometry tests.** `GraphicsPageWorld` fills the page through its real model in four states (searching,
+  native, dgVoodoo on a scaled screen with the conf from the VirtualStore, the missing conf of the second game and the result of
+  a change, setup running); `PageLayoutTests.GraphicsPage_...` runs the rules of `LayoutChecker` on them in the three languages with
+  both font sizes, `PageScreenshotTests.GraphicsPage_EveryState_IsSavedAsPicture` writes the pictures of the CI run. Both need
+  Windows; under Mono they run with the Windows libraries stubbed (the local aid of the Play and Launcher pages), which proves the
+  logic of the layout only.
+- **Architecture tests.** `ApplyTextsTests` lists `GraphicsUserControl`, `MainWindowLayoutTests` the fifth page and navigation
+  button; `PlaceholderControlsTests` keep the names of the removed placeholders (`resolutionKryptonComboBox`, ...) out of the new
+  page.

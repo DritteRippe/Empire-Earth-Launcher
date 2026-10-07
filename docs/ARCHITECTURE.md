@@ -79,7 +79,10 @@ Empire-Earth.sln
 │  │                   (marker, class S at start and before Play, first run, display question, display
 │  │                   settings, reset, GPU preference), ConsistencyChecker and HintVisibility (3.6),
 │  │                   CompatibilityOptions (3.7), LauncherWritePolicy (the launcher's allow-list, ADR 0007)
-│  │                   (contract 3, L-WP5)
+│  │                   (contract 3, L-WP5); since 1.1.0 ResolutionOptions (the game window sizes of the Graphics
+│  │                   page, 1024x768 to 1920x1080) and GameDefaultsService.SetGameWindow / ReadGameWindow
+│  ├─ Graphics/        WrapperInfo (which DirectX wrapper the setup installed, contract 3.3), DgVoodooConfReader
+│  │                   (dgVoodoo.conf as keys and values, read where the game reads it; 1.1.0, read-only)
 │  ├─ Backup/          RegFileWriter (.reg export), RegistryExport, BackupLocations (ADR 0007, L-WP5);
 │  │                   FileBackup (move files into a dated backup folder, L-WP8)
 │  ├─ Play/            GameStarter, RunningGameDetector, SetupWatcher, ProgramVersions, SingleInstance,
@@ -113,7 +116,8 @@ Empire-Earth.sln
 │                                         installation), UpdateModel (the update API), MaintenanceModel (the
 │                                         maintenance tools, L-WP8), CleanupView (what the registry cleanup
 │                                         shows), DiagnosticsModel (network check and report, L-WP9),
-│                                         ToolsUserControl (the Tools page), RepairAdviceDialog,
+│                                         ToolsUserControl (the Tools page), GraphicsModel / GraphicsView /
+│                                         GraphicsUserControl (the Graphics page, 1.1.0), RepairAdviceDialog,
 │                                         LauncherWrapLabel (wrapping text with a copy of the palette
 │                                         font, never a red X), ScrollPageLayout (stacks the controls of the
 │                                         pages and of their group boxes for the width of the window,
@@ -138,13 +142,14 @@ library is the reverse-engineered protocol with its own history.
 ### UI pages
 
 The navigation keeps the existing look (MainForm, Krypton palette, gold buttons). The window can be resized freely down to
-the size it opens with; the navigation buttons sit in a panel docked at the left edge and the four pages fill the rest
+the size it opens with; the navigation buttons sit in a panel docked at the left edge and the five pages fill the rest
 ([ADR 0017](adr/0017-resizable-layout.md)). Pages:
 
 | Page | Content | Requirements |
 |---|---|---|
 | **Play** | selected installation (product, folder, kind, integrity badge), file versions of `Empire Earth.exe` / `EE-AOC.exe`, choice EE / AoC (AoC only if installed), Play, "setup is running" and "game is running" states (with the hanging-process hint), non-modal warnings that can be hidden per value, lobby profiles and online player list (existing) | R2, R3 |
 | **Game settings** (the *Settings* navigation button) | defaults state, consistency warnings, apply recommended display settings, reset (with backup), compatibility options (HKCU only, HKLM read-only; Windows 8 and later only, on Windows 7 only removing `~ RUNASADMIN` and the old values shown, ADR 0007 plan review), screen warning below 768 pixels | R1, R4 |
+| **Graphics** (1.1.0) | the game window size of the selected installation (list of 4:3, 5:4, 16:10 and 16:9 sizes that fit the screen, 1024x768 to 1920x1080, "Use this size" writes only `Game Window Width` and `Game Window Height` after a backup, section 4.8), the installed DirectX wrapper and, for dgVoodoo, `OutputAPI` and the screen mode keys of `dgVoodoo.conf` (shown only), and the steps to change the wrapper in the setup | R1 (3.2, revision 6) |
 | **Tools** | integrity details and full check, repair advice, registry cleanup (HKCU keys to select, HKLM keys read-only with advice), WON login reset, VirtualStore check, saved games and scenarios (folder export, import), player names, network diagnostics, "copy diagnostics report", open backup folder | R2, R5 to R10 |
 | **Launcher** | installations found and the user's choice, hint when several installations share one game settings key, theme, language (system, English, German, French) | R1, R17 |
 
@@ -572,6 +577,28 @@ The shortcuts of the suite start `Empire Earth Launcher.exe --product=EE` or `--
 - **Tests**: `LauncherArgumentsTests`, `InstanceForwardingTests` (the round trip in one process through a fake channel),
   `LauncherInstanceTargetTests`, `InstallationServiceTests`, `DiscoveryResultSessionProductTests`; the Windows window and the
   foreground right are checked on real Windows (test plan WP10-03).
+
+### 4.8 Graphics page (1.1.0)
+
+- **State**: `GraphicsModel` reads, on the thread pool and only while no setup runs (contract 4.2), after every search of
+  the installations and every time the page is shown (the game's own resolution option or a repair may have changed the
+  values): the window size of each game (`GameDefaultsService.ReadGameWindow`), the sizes on offer
+  (`ResolutionOptions.For`: the usual sizes that fit the primary screen, the recommended size of contract 3.3 always,
+  never above 1920x1080 or below 1024x768), the wrapper (`WrapperInfo.Describe`: components of `install.ini`, else of the
+  uninstall key, wrapper files only without component information) and, for a wrapper that can be dgVoodoo, the
+  `dgVoodoo.conf` of each game through `DgVoodooConfReader` and the `EffectivePathResolver` (the VirtualStore copy first,
+  ADR 0016). Only the latest read counts. `GraphicsView.Of` turns the state into what the page shows (texts, shown and
+  enabled controls, the list and its selection), so that `GraphicsViewTests` cover it on Mono; `GraphicsUserControl` only
+  assigns the view and stacks the controls with `ScrollPageLayout` (ADR 0017).
+- **The one change**: "Use this size" calls `GraphicsModel.ApplyResolutionAsync`, which runs
+  `GameDefaultsService.SetGameWindow` on the thread pool: mutation guard (no setup, no game, ADR 0016), a `.reg` backup of the
+  game settings of every game (ADR 0007), then `Game Window Width` and `Game Window Height` of every game overwritten and
+  nothing else, no marker; a size outside the limits of contract 3.3 is refused with an exception, an installation of a
+  newer contract with a result. Afterwards the model reads again and `GameSettingsModel.RefreshAsync` lets the hints of the
+  Game settings page and the Play page follow. The click is the player's consent in the sense of contract 3.2, revision 6.
+- **No file is written**: the launcher of 1.1.0 changes neither the wrapper nor `dgVoodoo.conf` nor `dreXmod.config`
+  (ADR 0014 amendment of 2026-10-07; editing comes in 1.2 with an allow-list). `GraphicsModelTests` check that the files
+  of the game folder are the same after a change of the size.
 
 ## 5. Threading
 
@@ -1031,9 +1058,11 @@ Kept as planned features in the README, with the reason (forum report section 8)
 
 - **DirectX wrapper switch** (row 4): means adding or removing DLLs in the game folders; the launcher must
   not change game files (contract 2.5). The setup's custom installation switches the wrapper; the report says
-  whether one is installed (the wrapper rule of contract 3.3, since L-WP9).
-- **Resolution chooser with 4:3 hint** (row 6): the game has its own option; v2 offers the recommended display
-  values and the warning below 768 pixels.
+  whether one is installed (the wrapper rule of contract 3.3, since L-WP9), and since 1.1.0 the *Graphics* page shows
+  it, with the screen mode keys of `dgVoodoo.conf`, and tells the steps in the setup (section 4.8).
+- **Resolution chooser with 4:3 hint** (row 6): v2 offered the recommended display values and the warning below 768
+  pixels; since 1.1.0 the *Graphics* page lets the player choose the window size up to 1920x1080 (section 4.8). Larger
+  sizes and an editor of the screen mode (`dgVoodoo.conf`) are planned for later versions.
 - **GPU driver version** (row 4): little support value for WMI or HKLM class-key reading; the report names the
   display adapter of the primary screen (`EnumDisplayDevices`, since L-WP9). Listed as planned in the README.
 - **Ending a hanging game process** (row 14): the launcher explains and points to the Task Manager, it never

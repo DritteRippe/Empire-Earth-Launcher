@@ -13,7 +13,7 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
 
 - The launcher window can be resized freely; its smallest size is the size it opens with, and the content grows with the
   window (report 4c: a maximized window showed the same content in the upper left corner). The navigation buttons sit in a
-  panel at the left edge and the four pages fill the rest (`MainForm`). The *Game settings* and *Tools* pages stack their
+  panel at the left edge and the pages fill the rest (`MainForm`). The *Game settings* and *Tools* pages stack their
   controls for the width of the window (`ScrollPageLayout`): texts, lists and boxes take the whole width, a wrapping label is as
   high as its text needs at that width, buttons keep the width their text needs and wrap into a second line where they do not
   fit, and the page keeps its scroll position. A check box or label whose one-line text is wider than the window (a long
@@ -51,6 +51,25 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
 
 ### Added
 
+- Graphics page (E1; contract 3.2 revision 6, [ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md) amendment of
+  2026-10-07): the player chooses the size of the game window from a list of the usual 4:3, 5:4, 16:10 and 16:9 sizes that
+  fit the primary screen, between 1024x768 and 1920x1080 (the limit of contract 3.3; offering more was not decided for
+  1.1.0), and "Use this size" writes `Game Window Width` and `Game Window Height` of every game of the installation and
+  nothing else (`ResolutionOptions`, `GameDefaultsService.SetGameWindow`): the mutation guard first (no setup, no game), a
+  `.reg` backup of the game settings of every game, a refusal for an installation of a newer contract and for a size
+  outside the limits; the marker is not touched. The page says that a repair or an update with the setup writes the
+  recommended size again and that the game's own resolution option writes the same values, and it notes a scaled screen
+  (the game then sees a smaller screen; the *Settings* page offers HIGHDPIAWARE). Below it the page shows, read only, the
+  DirectX wrapper the setup installed (`WrapperInfo`: native, DirectX 7, DirectX 9, dgVoodoo with DirectX version and API
+  level, from `install.ini`, the uninstall key or, without component information, the wrapper files) and, for a wrapper that
+  can be dgVoodoo, `OutputAPI` and the keys of `dgVoodoo.conf` that decide the screen mode (`DgVoodooConfReader`, read where
+  the game reads the file, a VirtualStore copy first; tolerant of CRLF, comments, tabs and missing keys), and the steps to
+  change the wrapper in the setup, in the words of the suite and the wizard in each language. **The launcher changes no
+  file and does not change `dgVoodoo.conf` or `dreXmod.config` in 1.1.0** (editing comes in 1.2 with an allow-list).
+  `GraphicsModel` reads after every search and when the page is shown and never while a setup runs, `GraphicsView` holds
+  what the page decides (tested on Mono, where the combo box cannot be created), `GraphicsPageWorld` drives the page for the
+  geometry tests and the page pictures. Texts in English, German and French; a fifth navigation button. Test plan WP11-01
+  to WP11-08.
 - VirtualStore check: a copy of `dgVoodoo.conf` in `%LOCALAPPDATA%\VirtualStore\<game folder>` that differs from the file
   in the game folder is reported (A5). The game reads the copy, so a hand edit of the real file has no effect. The *Tools*
   page shows a hint with the copy, the button "Open VirtualStore folder" opens its folder, `log.txt` and the diagnostics

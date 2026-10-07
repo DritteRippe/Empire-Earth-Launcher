@@ -1,7 +1,7 @@
 # 0014 Only working features in the UI
 
 Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review and implementation in L-WP3; implementation in
-L-WP6, L-WP7, L-WP8 and L-WP9), see the Amendment sections
+L-WP6, L-WP7, L-WP8 and L-WP9) and 2026-10-07 (launcher 1.1.0: the Graphics page), see the Amendment sections
 
 ## Context
 
@@ -161,3 +161,38 @@ Review against this ADR (L-WP9): the designer files contain no name of the remov
 hidden without a function, and the "collect diagnostic data" checkbox stays removed; the report is the opposite of
 telemetry (made and passed on only by the player). Test plan WP9-05, WP9-11, WP9-12 and WP9-14 check the controls on
 real Windows.
+
+## Amendment 2026-10-07 (launcher 1.1.0, the Graphics page)
+
+Two of the features that "Not in v2" above left out come back in 1.1.0, within the rule of this ADR (a control is shown
+only if it works) and without the file rule changing:
+
+- **The resolution choice returns.** The reason given above for leaving it out was that the game has its own option and
+  the launcher offers only the recommended display settings. The new *Graphics* page lets the player choose the size of
+  the game window from the usual 4:3, 5:4, 16:10 and 16:9 sizes that fit the primary screen (`ResolutionOptions`), never
+  above 1920x1080 (the limit of contract 3.3; forum reports of crashes above it; the project owner decided to keep it
+  for 1.1.0) and never below 1024x768. "Use this size" writes `Game Window Width` and `Game Window Height` of every
+  game of the installation and nothing else (`GameDefaultsService.SetGameWindow`): these are registry values of class D
+  that are on the write allow-list by name already (ADR 0007), no game file changes. The click is the explicit choice
+  that contract 3.2 (revision 6) counts as the consent to overwrite a display value; the mutation guard refuses it while
+  a setup or a game runs (ADR 0016), a `.reg` backup of the game settings of every game is written first and, if it
+  fails, nothing changes (ADR 0007), and the marker is not touched. The setup overwrites both values on every run, so a
+  repair or an update sets the recommended size again; the page says so. The game's own resolution option writes the
+  same values: whichever wrote last counts.
+- **The wrapper is shown, never changed.** The page names the DirectX wrapper the setup installed (`WrapperInfo`: from
+  the components of `install.ini`, else of the uninstall key, only without component information from the wrapper files,
+  the rule of contract 3.3) and, for a wrapper that can be dgVoodoo, shows `OutputAPI` and the keys that decide the
+  screen mode of its `dgVoodoo.conf` (`DgVoodooConf.ScreenModeKeys`), read where the game reads the file (the
+  VirtualStore copy first, ADR 0016). Switching the wrapper means adding or removing DLLs, which the launcher must not do
+  (contract 2.5, 4.1) and cannot (the setup grants no right to create or delete code files); the page says so and tells
+  the steps in the suite and the setup wizard in the words of both (suite: "Advanced ...", then "Custom install
+  settings", then "DirectX Wrapper", or "Recommended settings" and "Native" for none). **The launcher does not change
+  `dgVoodoo.conf` or `dreXmod.config` in 1.1.0**: editing them needs a contract section and an allow-list of files and
+  keys and is planned for 1.2, after the tests on real computers show which keys really help.
+- **Names.** The controls of the page have new names (`windowSizeKryptonComboBox`, `windowSizeApplyKryptonButton`,
+  `wrapperInstalledKryptonWrapLabel`, ...); none is a name of the list in the amendment of 2026-10-02
+  (`PlaceholderControlsTests`), and every text is set in `ApplyTexts()` (`ApplyTextsTests`). `GraphicsView` holds what
+  the page decides, so that it is tested on Mono, where the Krypton combo box cannot be created; `PageLayoutTests`
+  measure the page on Windows.
+- **Still not in the UI**: the DirectX wrapper switch (the wizard of the setup does it), an editor of the screen mode, and a
+  choice above 1920x1080.

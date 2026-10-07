@@ -150,3 +150,14 @@ at the upper left of a larger window. They use the same layout class now, which 
   keeps 60 pixels.
 - A control added to one of these pages is placed by `PlaceGameGroup`, `PlaceColumn`, `PlaceHint` or `PlaceGroupContent`; the
   designer coordinates are the starting values only.
+
+## Amendment 2026-10-07 (the Graphics page)
+
+- The main window has a fifth page and a fifth navigation button (*Graphics*, between *Settings* and *Tools*; the buttons keep
+  their places inside the panel, the last one ends at 338 px of the 381 px of the smallest window). The page is `Dock = Fill` like
+  the others and is added before the panel (`MainWindowLayoutTests` lists it).
+- `GraphicsUserControl` is stacked by `ScrollPageLayout` from the start: wrapping labels over the content width, one row of a
+  form for the list of sizes (label in its natural width, the combo box at its designer width of 240 px, which holds the longest
+  entry in every language and stays below half of the smallest page, so the rule "grows with the page" does not apply), the
+  button of the list in a line of its own so that a large font cannot push it out of the page, and the page scrolls. Hidden
+  controls take no room and visibility comes from `IsShown`, not `Control.Visible`.

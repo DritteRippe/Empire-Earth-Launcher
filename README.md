@@ -52,8 +52,8 @@ features that work.
 
 **What changed or was dropped**
 
-- Not implemented: DirectX wrapper switch, resolution chooser, Discord presence, dreXmod, HD textures, auto-update,
-  auto-compatibility detector and the *Mods* page. They are listed under "Planned, not in v2" in the
+- Not implemented: DirectX wrapper switch (the *Graphics* page shows the wrapper and tells how to change it in the
+  setup), Discord presence, dreXmod, HD textures, auto-update, auto-compatibility detector and the *Mods* page. They are listed under "Planned, not in v2" in the
   [Features](#-features).
 - The mod creator remains a separate program; there is no mod system inside the launcher.
 - "Repair CD-Keys" is not a launcher function: re-running the community setup (with its NeoEE CD-key task) repairs CD
@@ -84,6 +84,13 @@ controls of the old mock-up were removed and the features behind them are listed
   game, keeps the "Installed From" values of the game in step, starts the program through Windows so that its
   compatibility settings apply (also "Run as administrator"), shows the file versions of both programs and logs every
   start
+- Graphics page (1.1.0): choose the size of the game window from the usual 4:3, 5:4, 16:10 and 16:9 sizes that fit
+  your screen, up to 1920x1080 (the game can crash above that), with a backup of the game settings first; only the two
+  values of the window size are written, never a file, and a repair or update with the setup sets the recommended size
+  again. It also shows which DirectX wrapper the setup installed (native, DirectX 7, DirectX 9, dgVoodoo with its API
+  level) and, for dgVoodoo, the keys of `dgVoodoo.conf` that decide the screen mode (read only: the launcher changes neither
+  the wrapper nor that file), and tells how to change the wrapper in the setup
+  ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md), amendment of 2026-10-07)
 - Integrity check of community installations since setup v2: at every start and after a setup, in the background, the
   launcher checks that every file of the setup's list is there and that the program files are unchanged; the *Play*
   page shows the state ("Files: OK", "damaged", "incomplete", ...), the new *Tools* page explains it, lists every
@@ -176,10 +183,11 @@ controls of the old mock-up were removed and the features behind them are listed
 - dreXmod switch, Discord presence, HD textures, skip intro, game font customizer, lobby customizer
 - Game languages (voices, lobby, campaigns) and the online ranking
 - DirectX wrapper switch (DX 9/11/12): the setup's custom installation switches the wrapper, the launcher must not
-  change game files ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md)); the diagnostics report says whether
-  one is installed
-- Resolution choice with a 4:3 hint: the game has its own option; the launcher offers the recommended display settings
-  and warns below 768 pixels
+  change game files ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md)); the *Graphics* page and the
+  diagnostics report show which one is installed
+- Editing the screen mode in `dgVoodoo.conf` (and the dreXmod preset in `dreXmod.config`) from the launcher: planned for
+  1.2 with an allow-list of files and keys; the launcher of 1.1.0 changes neither file
+- Resolution above 1920x1080 (the *Graphics* page stops at the limit of contract 3.3)
 - Auto-compatibility detector ("My game is working", "Auto-detect") and auto-update
 - Writing the GPU driver version into the log (the diagnostics report names the display adapter)
 - Checking the forwarded ports from outside (needs a service on the server; the launcher shows the forwarding table)
@@ -376,9 +384,9 @@ of the category `WinForms` create controls and pages without showing them and pa
 labels after the palette disposed its fonts); under Mono they need a display (`xvfb-run -a mono ...`, without one they
 are ignored), and the pages whose Krypton controls call Windows libraries, as well as the check of `KryptonWrapLabel`
 on .NET Framework, run only on Windows (CI, `Tests\` of the laptop package). `PageLayoutTests` check the geometry of the
-four pages (no overlap, nothing outside its page, no cut-off text, content that grows with the page) at four window sizes,
-in English, German and French, with the system font and a 50 % larger one; the *Game settings* page is driven through its
-real model in every state ([ADR 0012](docs/adr/0012-test-strategy.md), amendment of 2026-10-06). `PageScreenshotTests`
+five pages (no overlap, nothing outside its page, no cut-off text, content that grows with the page) at four window sizes,
+in English, German and French, with the system font and a 50 % larger one; the *Game settings* and *Graphics* pages are
+driven through their real models in every state ([ADR 0012](docs/adr/0012-test-strategy.md), amendment of 2026-10-06). `PageScreenshotTests`
 write PNG files of the pages when `EE_LAUNCHER_PAGE_PNG_DIR` names a folder (the CI build uploads them as the artifact
 `page-pictures`). The core, the launcher and the WON library make their internal helpers
 visible to the test assembly (`InternalsVisibleTo`).
