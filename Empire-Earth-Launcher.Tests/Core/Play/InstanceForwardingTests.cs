@@ -10,9 +10,10 @@ using NUnit.Framework;
 namespace Empire_Earth_Launcher.Tests.Core.Play
 {
     /// <summary>
-    /// The hand-over of <c>--product</c> from a second launcher to the running one (contract 1.4, revision 4): the message, the
-    /// client (<see cref="InstanceForwarder"/>), the server (<see cref="InstanceReceiver"/>) and a round trip in one process
-    /// through a fake channel instead of <c>WM_COPYDATA</c>. No window, no network.
+    /// The hand-over of <c>--product</c> from a second launcher to the running one (contract 1.4, revision 4), and since revision 6
+    /// of the request to come to the front when the second launcher has no argument: the message, the client
+    /// (<see cref="InstanceForwarder"/>), the server (<see cref="InstanceReceiver"/>) and a round trip in one process through a
+    /// fake channel instead of <c>WM_COPYDATA</c>. No window, no network.
     /// </summary>
     [TestFixture]
     public class InstanceForwardingTests
@@ -114,6 +115,52 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             Assert.That(InstanceMessage.Decode(bytes), Is.SameAs(product));
         }
 
+        [Test]
+        public void TheShowMessage_RoundTrips_AndHasNoProduct()
+        {
+            byte[] bytes = InstanceMessage.ToBytes(InstanceMessage.Encode(null));
+
+            Assert.That(InstanceMessage.ShowText, Is.EqualTo("show"));
+            Assert.That(InstanceMessage.Encode(null), Is.EqualTo("show"));
+            Assert.That(InstanceMessage.TryDecode(bytes, out Product product), Is.True);
+            Assert.That(product, Is.Null, "no product: the window only comes to the front");
+            Assert.That(InstanceMessage.Decode(bytes), Is.Null, "the old Decode knows products only");
+        }
+
+        [TestCase("product=EE", "EE")]
+        [TestCase("product=NeoEE", "NeoEE")]
+        public void TryDecode_ReadsAProduct(string text, string id)
+        {
+            Assert.That(InstanceMessage.TryDecode(InstanceMessage.ToBytes(text), out Product product), Is.True);
+            Assert.That(product, Is.SameAs(Product.FromId(id)));
+        }
+
+        [TestCase("show ")]
+        [TestCase("SHOW")]
+        [TestCase("Show")]
+        [TestCase("show\0")]
+        [TestCase("shown")]
+        [TestCase("product=")]
+        [TestCase("product=ee")]
+        [TestCase("product=AoC")]
+        [TestCase("product=EE\n")]
+        [TestCase("")]
+        public void TryDecode_RefusesWhatIsNotExactlyOurs(string text)
+        {
+            Assert.That(InstanceMessage.TryDecode(InstanceMessage.ToBytes(text), out Product product), Is.False);
+            Assert.That(product, Is.Null);
+        }
+
+        [Test]
+        public void TryDecode_BytesFromAnotherProcess_NeverThrow()
+        {
+            Assert.That(InstanceMessage.TryDecode(null, out _), Is.False);
+            Assert.That(InstanceMessage.TryDecode(new byte[0], out _), Is.False);
+            Assert.That(InstanceMessage.TryDecode(new byte[] { 0xFF, 0xFE, 0x00 }, out _), Is.False, "no UTF-8");
+            Assert.That(InstanceMessage.TryDecode(new byte[InstanceMessage.MaxBytes + 1], out _), Is.False, "too long");
+            Assert.That(InstanceMessage.TryDecode(InstanceMessage.ToBytes("show" + new string(' ', InstanceMessage.MaxBytes)), out _), Is.False);
+        }
+
         [TestCase("product=")]
         [TestCase("product=ee")]
         [TestCase("product=AoC")]
@@ -178,15 +225,84 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             Assert.That(target.Calls, Is.Empty);
         }
 
+        /// <summary>The one shortcut of the suite starts the launcher without an argument (contract 1.7 point 8, revision 6).</summary>
         [Test]
-        public void WithoutTheArgument_NothingIsSent()
+        public void WithoutTheArgument_TheForwarderSendsShow_AndTheRunningLauncherOnlyComesToTheFront()
         {
             RunningLauncher(1);
 
-            Assert.That(forwarder.TryForward(Args(), 1), Is.False);
-            Assert.That(forwarder.TryForward(Args("--product=Neo"), 1), Is.False, "an invalid value is no product");
-            Assert.That(channel.Sends, Is.Zero);
-            Assert.That(target.Calls, Is.Empty);
+            bool forwarded = forwarder.TryForward(Args(), 1);
+
+            Assert.That(forwarded, Is.True);
+            Assert.That(channel.Sends, Is.EqualTo(1));
+            Assert.That(target.Calls, Is.EqualTo(new[] { "front" }), "no product is selected: the selection of the running launcher stays");
+            Assert.That(logger.Messages.Any(m => m.Contains("The running launcher took the request to come to the front")), Is.True);
+            Assert.That(logger.Messages.Any(m => m.Contains("A second launcher asked the launcher to come to the front; the selection stays.")), Is.True);
+        }
+
+        [Test]
+        public void AnInvalidProduct_IsNoProduct_TheForwarderSendsShow()
+        {
+            RunningLauncher(1);
+
+            Assert.That(forwarder.TryForward(Args("--product=Neo"), 1), Is.True);
+
+            Assert.That(target.Calls, Is.EqualTo(new[] { "front" }));
+        }
+
+        [Test]
+        public void Show_DuringAGameStart_ChangesNothing_AndKeepsAPendingProduct()
+        {
+            var receiver = new InstanceReceiver(target, logger);
+            target.IsIdle = false;
+            receiver.Handle(InstanceMessage.ToBytes("product=EE"));
+
+            bool handled = receiver.Handle(InstanceMessage.ToBytes("show"));
+
+            Assert.That(handled, Is.True);
+            target.IsIdle = true;
+            receiver.ApplyPending();
+            Assert.That(target.Calls, Is.EqualTo(new[] { "front", "front", "select EE" }), "show neither selects nor clears the product that came before");
+        }
+
+        [Test]
+        public void Show_NeverCallsSelectProduct()
+        {
+            var receiver = new InstanceReceiver(target, logger);
+
+            receiver.Handle(InstanceMessage.ToBytes("show"));
+            receiver.ApplyPending();
+
+            Assert.That(target.Calls, Is.EqualTo(new[] { "front" }));
+        }
+
+        [Test]
+        public void WithoutTheArgument_AndWithoutARunningLauncher_ShowsTheUsualMessage()
+        {
+            var mutexes = new FakeMutexProbe().With(SingleInstance.MutexName);
+            var messages = new List<string>();
+
+            IDisposable handle = Empire_Earth_Launcher.Program.ClaimSingleInstance(mutexes, logger, messages.Add,
+                () => forwarder.TryForward(Args(), 7));
+
+            Assert.That(handle, Is.Null);
+            Assert.That(messages, Is.EqualTo(new[] { Empire_Earth_Launcher.Properties.Resources.LauncherAlreadyRunning }),
+                "a launcher 1.0.0 that does not know show is no window of ours: the old message");
+        }
+
+        [Test]
+        public void WithoutTheArgument_TheSecondLauncherShowsNoMessage_WhenTheRunningOneTookShow()
+        {
+            var mutexes = new FakeMutexProbe().With(SingleInstance.MutexName);
+            RunningLauncher(7);
+            var messages = new List<string>();
+
+            IDisposable handle = Empire_Earth_Launcher.Program.ClaimSingleInstance(mutexes, logger, messages.Add,
+                () => forwarder.TryForward(Args(), 7));
+
+            Assert.That(handle, Is.Null, "Main returns");
+            Assert.That(messages, Is.Empty, "no message \"already running\" on every second click");
+            Assert.That(target.Calls, Is.EqualTo(new[] { "front" }));
         }
 
         [Test]
@@ -295,7 +411,6 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             Assert.That(() => new InstanceReceiver(null, logger), Throws.ArgumentNullException);
             Assert.That(() => new InstanceReceiver(target, null), Throws.ArgumentNullException);
             Assert.That(() => forwarder.TryForward(null, 1), Throws.ArgumentNullException);
-            Assert.That(() => InstanceMessage.Encode(null), Throws.ArgumentNullException);
         }
 
         // --- Together with the single-instance mutex -------------------------------------------------------------------

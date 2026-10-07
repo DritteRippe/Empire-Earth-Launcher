@@ -29,8 +29,10 @@ namespace Empire_Earth_Launcher.Tests.Core.Installations
         public sealed class ContractCase
         {
             internal ContractCase(string rule, string name, Action<InstallationWorld> arrange,
-                Action<InstallationWorld, DiscoveryResult> verify, string userChoice = null, string launcherFolder = null)
+                Action<InstallationWorld, DiscoveryResult> verify, string userChoice = null, string launcherFolder = null,
+                UserChoice[] choices = null)
             {
+                Choices = choices;
                 Rule = rule;
                 Name = name;
                 Arrange = arrange;
@@ -51,6 +53,9 @@ namespace Empire_Earth_Launcher.Tests.Core.Installations
             public string UserChoice { get; }
 
             public string LauncherFolder { get; }
+
+            /// <summary>The folders chosen per product (revision 6); instead of <see cref="UserChoice"/> if given.</summary>
+            public UserChoice[] Choices { get; }
 
             public override string ToString()
             {
@@ -464,6 +469,65 @@ namespace Empire_Earth_Launcher.Tests.Core.Installations
                     Assert.That(r.Selected.Root, Is.EqualTo(@"D:\Games\Empire Earth"));
                     Assert.That(r.IsSelectedByUser, Is.False);
                 });
+            yield return new ContractCase(selection, "revision 6: the installation of the product chosen last, by the folder chosen for it",
+                w =>
+                {
+                    w.AddCommunityInstallation(NeoRoot, Product.NeoEE);
+                    w.AddCommunityInstallation(EERoot, Product.EE);
+                    w.AddForeignInstallation(@"D:\GOG Games\Empire Earth Gold\Empire Earth");
+                },
+                (w, r) =>
+                {
+                    Assert.That(r.Installations, Has.Count.EqualTo(3));
+                    Assert.That(r.ChosenFor(Product.EE).EeFolder, Is.EqualTo(@"D:\GOG Games\Empire Earth Gold\Empire Earth").IgnoreCase);
+                    Assert.That(r.ChosenFor(Product.NeoEE).Root, Is.EqualTo(NeoRoot));
+                    Assert.That(r.ForProduct(Product.EE).Selected.EeFolder, Is.EqualTo(@"D:\GOG Games\Empire Earth Gold\Empire Earth").IgnoreCase,
+                        "not the first installation of EE in the order of the sources");
+                    Assert.That(r.ForProduct(Product.EE).IsSelectedByUser, Is.True);
+                },
+                choices: new[]
+                {
+                    new UserChoice(NeoRoot, Product.NeoEE), new UserChoice(@"D:\GOG Games\Empire Earth Gold\Empire Earth", Product.EE)
+                });
+            yield return new ContractCase(selection, "revision 6: without a folder chosen for the product, its first installation",
+                w =>
+                {
+                    w.AddCommunityInstallation(NeoRoot, Product.NeoEE);
+                    w.AddCommunityInstallation(EERoot, Product.EE);
+                    w.AddForeignInstallation(@"D:\GOG Games\Empire Earth Gold\Empire Earth");
+                },
+                (w, r) =>
+                {
+                    Assert.That(r.ChosenFor(Product.EE), Is.Null);
+                    Assert.That(r.ForProduct(Product.EE).Selected.Root, Is.EqualTo(EERoot), "source 2 before source 4");
+                    Assert.That(r.ForProduct(Product.EE).IsSelectedByUser, Is.False);
+                },
+                choices: new[] { new UserChoice(NeoRoot, Product.NeoEE) });
+            yield return new ContractCase(selection, "revision 6: a folder chosen for a product that does not exist (any more) stays its choice",
+                w => w.AddCommunityInstallation(EERoot, Product.EE),
+                (w, r) =>
+                {
+                    Installation missing = r.ChosenFor(Product.NeoEE);
+                    Assert.That(missing.State, Is.EqualTo(InstallationState.FolderMissing));
+                    Assert.That(missing.Product, Is.SameAs(Product.NeoEE));
+                    Assert.That(r.ForProduct(Product.NeoEE).Selected, Is.SameAs(missing));
+                    Assert.That(r.Installations, Has.Count.EqualTo(2), "it is listed");
+                },
+                choices: new[] { new UserChoice(@"D:\Removed\Neo Empire Earth", Product.NeoEE) });
+            yield return new ContractCase(selection, "revision 6: a chosen folder whose installation is now of the other product is no choice for either",
+                w =>
+                {
+                    w.AddCommunityInstallation(NeoRoot, Product.NeoEE);
+                    w.AddCommunityInstallation(EERoot, Product.EE);
+                },
+                (w, r) =>
+                {
+                    Assert.That(r.ChosenFor(Product.EE), Is.Null);
+                    Assert.That(r.ChosenFor(Product.NeoEE), Is.Null);
+                    Assert.That(r.Installations, Has.Count.EqualTo(2), "it stays listed");
+                    Assert.That(r.ForProduct(Product.EE).Selected.Root, Is.EqualTo(EERoot));
+                },
+                choices: new[] { new UserChoice(NeoRoot, Product.EE) });
             yield return new ContractCase(selection, "every installation found is shown",
                 w =>
                 {
@@ -591,7 +655,9 @@ namespace Empire_Earth_Launcher.Tests.Core.Installations
             var world = new InstallationWorld();
             contractCase.Arrange(world);
 
-            DiscoveryResult result = world.Discover(contractCase.UserChoice, contractCase.LauncherFolder);
+            DiscoveryResult result = contractCase.Choices != null
+                ? world.CreateDiscovery().DiscoverChoices(contractCase.Choices, contractCase.LauncherFolder)
+                : world.Discover(contractCase.UserChoice, contractCase.LauncherFolder);
 
             contractCase.Verify(world, result);
             Assert.That(world.Registry.Changes, Is.Empty);

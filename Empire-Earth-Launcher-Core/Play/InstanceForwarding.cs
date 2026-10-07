@@ -6,9 +6,10 @@ using Empire_Earth_Launcher.Core.Logging;
 namespace Empire_Earth_Launcher.Core.Play
 {
     /// <summary>
-    /// The message a second launcher hands to the running one (contract 1.4, revision 4): the product of
-    /// <c>--product=</c>. On Windows it travels as <c>WM_COPYDATA</c> to a hidden window of the running launcher; the text
-    /// and the name of the window are fixed here, so that both sides and the tests agree.
+    /// The message a second launcher hands to the running one (contract 1.4, revision 4 and 6): the product of
+    /// <c>--product=</c>, or, since revision 6, the request to come to the front when the second launcher has no argument (the
+    /// one shortcut of the suite). On Windows it travels as <c>WM_COPYDATA</c> to a hidden window of the running launcher; the
+    /// text and the name of the window are fixed here, so that both sides and the tests agree.
     /// </summary>
     public static class InstanceMessage
     {
@@ -21,6 +22,9 @@ namespace Empire_Earth_Launcher.Core.Play
         /// <summary>The most bytes of a message that are read; anything longer is refused.</summary>
         public const int MaxBytes = 64;
 
+        /// <summary>The message of a second launcher without <c>--product=</c>: the running one comes to the front, nothing else.</summary>
+        public const string ShowText = "show";
+
         private const string ProductPrefix = "product=";
 
         /// <summary>The name of the hidden window of the launcher of Windows session <paramref name="sessionId"/>.</summary>
@@ -29,12 +33,10 @@ namespace Empire_Earth_Launcher.Core.Play
             return WindowNamePrefix + sessionId.ToString(System.Globalization.CultureInfo.InvariantCulture);
         }
 
-        /// <summary>The text for <paramref name="product"/>: <c>product=EE</c> or <c>product=NeoEE</c>.</summary>
+        /// <summary>The text for <paramref name="product"/>: <c>product=EE</c> or <c>product=NeoEE</c>; <c>show</c> for none.</summary>
         public static string Encode(Product product)
         {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
-            return ProductPrefix + product.Id;
+            return product == null ? ShowText : ProductPrefix + product.Id;
         }
 
         /// <summary>The bytes of a message (UTF-8, no terminator).</summary>
@@ -45,12 +47,23 @@ namespace Empire_Earth_Launcher.Core.Play
 
         /// <summary>
         /// The product of a message; null for anything that is not exactly <c>product=EE</c> or <c>product=NeoEE</c>
-        /// (also for bytes that are too many or no UTF-8). Never throws: the bytes come from another process.
+        /// (also for <c>show</c>, bytes that are too many or no UTF-8). Never throws: the bytes come from another process.
         /// </summary>
         public static Product Decode(byte[] bytes)
         {
+            return TryDecode(bytes, out Product product) ? product : null;
+        }
+
+        /// <summary>
+        /// Reads a message: true for exactly <c>product=EE</c> or <c>product=NeoEE</c> (<paramref name="product"/> is that product)
+        /// and for exactly <c>show</c> (<paramref name="product"/> is null); false for anything else (also bytes that are too many
+        /// or no UTF-8). Never throws: the bytes come from another process.
+        /// </summary>
+        public static bool TryDecode(byte[] bytes, out Product product)
+        {
+            product = null;
             if (bytes == null || bytes.Length == 0 || bytes.Length > MaxBytes)
-                return null;
+                return false;
             string text;
             try
             {
@@ -58,11 +71,14 @@ namespace Empire_Earth_Launcher.Core.Play
             }
             catch (ArgumentException)
             {
-                return null;
+                return false;
             }
-            return text.StartsWith(ProductPrefix, StringComparison.Ordinal)
-                ? LauncherArguments.ParseProduct(text.Substring(ProductPrefix.Length))
-                : null;
+            if (string.Equals(text, ShowText, StringComparison.Ordinal))
+                return true;
+            if (!text.StartsWith(ProductPrefix, StringComparison.Ordinal))
+                return false;
+            product = LauncherArguments.ParseProduct(text.Substring(ProductPrefix.Length));
+            return product != null;
         }
     }
 
@@ -97,8 +113,8 @@ namespace Empire_Earth_Launcher.Core.Play
     }
 
     /// <summary>
-    /// What the running launcher does with a forwarded product (the server side): bring its window to the front, and switch
-    /// the selection if no game start is in progress.
+    /// What the running launcher does with a forwarded message (the server side): bring its window to the front, and switch
+    /// the selection to a forwarded product if no game start is in progress.
     /// </summary>
     public interface IInstanceTarget
     {
@@ -113,8 +129,9 @@ namespace Empire_Earth_Launcher.Core.Play
     }
 
     /// <summary>
-    /// The second launcher: hands the <c>--product</c> argument to the running launcher of the same Windows session and
-    /// reports whether that worked. If not, the caller shows the usual "already running" message.
+    /// The second launcher: hands its command line to the running launcher of the same Windows session (the product of
+    /// <c>--product</c>, or the request to come to the front without it) and reports whether that worked. If not, the caller
+    /// shows the usual "already running" message.
     /// </summary>
     public sealed class InstanceForwarder
     {
@@ -142,35 +159,36 @@ namespace Empire_Earth_Launcher.Core.Play
         }
 
         /// <summary>
-        /// Hands <paramref name="arguments"/> to the running launcher of Windows session <paramref name="sessionId"/>.
-        /// Without <c>--product</c> there is nothing to hand over and nothing is sent.
+        /// Hands <paramref name="arguments"/> to the running launcher of Windows session <paramref name="sessionId"/>: the product
+        /// of <c>--product</c>, or, without one (the shortcut of the suite passes none, also an invalid value counts as none), the
+        /// request to come to the front, which keeps the selection of the running launcher (contract 1.4, revision 6).
         /// </summary>
-        /// <returns>True if the running launcher took the product (or has it queued after a timeout); false if nothing was sent,
-        /// there is no window or the window refused.</returns>
+        /// <returns>True if the running launcher took the message (or has it queued after a timeout); false if there is no window
+        /// or the window refused.</returns>
         public bool TryForward(LauncherArguments arguments, int sessionId)
         {
             if (arguments == null)
                 throw new ArgumentNullException(nameof(arguments));
-            if (arguments.SessionProduct == null)
-                return false;
 
             string window = InstanceMessage.WindowName(sessionId);
-            byte[] message = InstanceMessage.ToBytes(InstanceMessage.Encode(arguments.SessionProduct));
+            string text = InstanceMessage.Encode(arguments.SessionProduct);
+            string what = arguments.SessionProduct == null
+                ? "the request to come to the front"
+                : ContractNames.ProductArgumentName + "=" + arguments.SessionProduct.Id;
+            byte[] message = InstanceMessage.ToBytes(text);
             for (int attempt = 1; attempt <= Attempts; attempt++)
             {
                 SendResult result = channel.TrySend(window, message);
                 if (result == SendResult.Delivered)
                 {
-                    logger.Info("The running launcher took " + ContractNames.ProductArgumentName + "=" + arguments.SessionProduct.Id +
-                                "; this one ends.");
+                    logger.Info("The running launcher took " + what + "; this one ends.");
                     return true;
                 }
                 if (result == SendResult.TimedOut)
                 {
                     // The message is sent and stays in the queue of the busy launcher: no second one, no message to the user.
-                    logger.Warning("The running launcher (window " + window + ") did not answer in time; the " +
-                                   ContractNames.ProductArgumentName + "=" + arguments.SessionProduct.Id +
-                                   " it was sent stays queued, and this one ends.");
+                    logger.Warning("The running launcher (window " + window + ") did not answer in time; " + what +
+                                   ", which was sent, stays queued, and this one ends.");
                     return true;
                 }
                 if (result == SendResult.Refused)
@@ -178,15 +196,15 @@ namespace Empire_Earth_Launcher.Core.Play
                 if (attempt < Attempts)
                     sleep(RetryDelay);
             }
-            logger.Warning("The running launcher (window " + window + ") did not take " + ContractNames.ProductArgumentName +
-                           "=" + arguments.SessionProduct.Id + "; this one ends with the usual message.");
+            logger.Warning("The running launcher (window " + window + ") did not take " + what + "; this one ends with the usual message.");
             return false;
         }
     }
 
     /// <summary>
     /// The running launcher: takes a message of <see cref="InstanceMessage"/> from its hidden window and acts on it
-    /// through <see cref="IInstanceTarget"/>. The bytes come from another process: a message that is not ours changes nothing.
+    /// through <see cref="IInstanceTarget"/>: a product is selected for this session, <c>show</c> only brings the window to the
+    /// front. The bytes come from another process: a message that is not ours changes nothing.
     /// </summary>
     public sealed class InstanceReceiver
     {
@@ -201,18 +219,25 @@ namespace Empire_Earth_Launcher.Core.Play
         }
 
         /// <summary>
-        /// Handles a message: the window comes to the front, and the product is selected if the launcher is idle. During a
+        /// Handles a message: the window comes to the front, and a product is selected if the launcher is idle. During a
         /// game start (or while a dialog is open) the selection stays (the start would otherwise run for another installation
         /// than the one asked for); the product is kept and applied by <see cref="ApplyPending"/> when the launcher is idle.
+        /// <c>show</c> changes no selection and no pending product.
         /// </summary>
         /// <returns>True if the message was ours (the answer of <c>WM_COPYDATA</c>), also if the selection stayed.</returns>
         public bool Handle(byte[] message)
         {
-            Product product = InstanceMessage.Decode(message);
+            if (!InstanceMessage.TryDecode(message, out Product product))
+            {
+                logger.Warning("A message to the launcher window was ignored: it is not a product selection or a request to come to the front.");
+                return false;
+            }
+
             if (product == null)
             {
-                logger.Warning("A message to the launcher window was ignored: it is not a product selection.");
-                return false;
+                logger.Info("A second launcher asked the launcher to come to the front; the selection stays.");
+                target.BringToFront();
+                return true;
             }
 
             logger.Info("A second launcher handed over " + ContractNames.ProductArgumentName + "=" + product.Id + ".");

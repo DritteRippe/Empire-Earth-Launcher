@@ -174,6 +174,101 @@ namespace Empire_Earth_Launcher.Tests.Core.Installations
         }
 
         [Test]
+        public void UserChoices_OneFolderPerProduct_AreBothSource1()
+        {
+            world.AddCommunityInstallation(NeoRoot, Product.NeoEE);
+            world.AddForeignInstallation(@"D:\GOG Games\EE", RegistryHive.LocalMachine, RegistryView.Registry32);
+
+            DiscoveryResult result = world.CreateDiscovery().DiscoverChoices(
+                new[] { new UserChoice(@"D:\GOG Games\EE", Product.EE), new UserChoice(NeoRoot, Product.NeoEE) }, null);
+
+            Assert.That(result.Installations, Has.Count.EqualTo(2));
+            Assert.That(result.Installations.All(installation => installation.Sources.Contains(InstallationSource.UserChoice)), Is.True);
+            Assert.That(result.Selected.EeFolder, Is.EqualTo(@"D:\GOG Games\EE").IgnoreCase, "the first choice is the selection");
+            Assert.That(result.IsSelectedByUser, Is.True);
+            Assert.That(result.Choices.Select(choice => choice.Installation.Product.Id), Is.EqualTo(new[] { "EE", "NeoEE" }));
+            Assert.That(world.LogLinesAbout("the chosen folder"), Has.Length.EqualTo(2), "each choice is logged once");
+        }
+
+        [Test]
+        public void UserChoices_AFolderNoSourceKnows_IsListed_NextToTheOneOfTheOtherProduct()
+        {
+            world.AddCommunityInstallation(NeoRoot, Product.NeoEE);
+            world.AddEmpireEarth(@"D:\Portable\EE");
+
+            DiscoveryResult result = world.CreateDiscovery().DiscoverChoices(
+                new[] { new UserChoice(@"D:\Portable\EE", Product.EE), new UserChoice(NeoRoot, Product.NeoEE) }, null);
+
+            Assert.That(result.Installations, Has.Count.EqualTo(2));
+            Assert.That(result.ChosenFor(Product.EE).Sources, Is.EqualTo(new[] { InstallationSource.UserChoice }));
+            Assert.That(result.ChosenFor(Product.NeoEE).Root, Is.EqualTo(NeoRoot));
+        }
+
+        [Test]
+        public void UserChoices_TwoFoldersOfOneInstallation_SelectItOnce()
+        {
+            world.AddCommunityInstallation(NeoRoot, Product.NeoEE);
+
+            DiscoveryResult result = world.CreateDiscovery().DiscoverChoices(
+                new[] { new UserChoice(NeoRoot, Product.NeoEE), new UserChoice(NeoRoot + @"\Empire Earth", null) }, null);
+
+            Assert.That(result.Installations, Has.Count.EqualTo(1));
+            Assert.That(result.Choices.Select(choice => choice.Installation).Distinct().Count(), Is.EqualTo(1));
+        }
+
+        [TestCase("NeoEE", "NeoEE")]
+        [TestCase("EE", "EE")]
+        [TestCase(null, "EE")]
+        public void UserChoices_AMissingFolder_IsAnInstallationOfTheProductItWasChosenFor_ElseEE(string product, string expected)
+        {
+            DiscoveryResult result = world.CreateDiscovery().DiscoverChoices(
+                new[] { new UserChoice(@"D:\Removed\Neo Empire Earth", Product.FromId(product)) }, null);
+
+            Assert.That(result.Selected.State, Is.EqualTo(InstallationState.FolderMissing));
+            Assert.That(result.Selected.Product.Id, Is.EqualTo(expected), "the user sees the folder under the product it was chosen for");
+            Assert.That(result.ChosenFor(Product.FromId(expected)), Is.SameAs(result.Selected));
+        }
+
+        [Test]
+        public void UserChoices_AFolderThatExists_KeepsTheProductOfItsFiles_WhateverItWasChosenFor()
+        {
+            world.AddEmpireEarth(@"C:\NeoCopy\Empire Earth", neoee: true);
+
+            DiscoveryResult result = world.CreateDiscovery().DiscoverChoices(new[] { new UserChoice(@"C:\NeoCopy\Empire Earth", Product.EE) }, null);
+
+            Assert.That(result.Selected.Product, Is.SameAs(Product.NeoEE), "neoee.dll decides, contract 1.4");
+            Assert.That(result.ChosenFor(Product.EE), Is.Null, "the folder now belongs to the other product");
+        }
+
+        [Test]
+        public void NoChoices_AreAutomaticDetection()
+        {
+            world.AddCommunityInstallation(NeoRoot, Product.NeoEE);
+
+            foreach (DiscoveryResult result in new[]
+                     {
+                         world.CreateDiscovery().DiscoverChoices(null, null), world.CreateDiscovery().DiscoverChoices(new UserChoice[0], null)
+                     })
+            {
+                Assert.That(result.IsSelectedByUser, Is.False);
+                Assert.That(result.UserChoice, Is.Null);
+                Assert.That(result.Choices, Is.Empty);
+                Assert.That(result.Selected.Root, Is.EqualTo(NeoRoot));
+            }
+        }
+
+        [Test]
+        public void DiscoverChoicesAsync_RunsTheSameDiscovery()
+        {
+            world.AddCommunityInstallation(NeoRoot, Product.NeoEE);
+
+            DiscoveryResult result = world.CreateDiscovery().DiscoverChoicesAsync(
+                new[] { new UserChoice(NeoRoot, Product.NeoEE) }, null).GetAwaiter().GetResult();
+
+            Assert.That(result.ChosenFor(Product.NeoEE).Root, Is.EqualTo(NeoRoot));
+        }
+
+        [Test]
         public void UserChoice_AFolderWithoutTheProgram_IsDamaged()
         {
             world.FileSystem.AddDirectory(@"D:\Empty");

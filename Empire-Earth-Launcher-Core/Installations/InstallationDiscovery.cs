@@ -16,7 +16,7 @@ namespace Empire_Earth_Launcher.Core.Installations
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Sources: 1 the user choice (it only selects), 2 the registry records (<see cref="InstallRecordReader"/>), 3 the
+    /// Sources: 1 the user choices (they only select; one folder per product since revision 6), 2 the registry records (<see cref="InstallRecordReader"/>), 3 the
     /// uninstall keys (<see cref="UninstallKeyScanner"/>; not the suite's own key: marker, or the suite root of the suite
     /// record, contract revision 5), 4 the "Installed From" values, key before hive
     /// (<see cref="InstalledFromReader"/>), 5 the launcher folder or its parent.
@@ -50,15 +50,40 @@ namespace Empire_Earth_Launcher.Core.Installations
             return Task.Run(() => Discover(userChoice, launcherFolder, cancellationToken), cancellationToken);
         }
 
-        /// <summary>Finds the installations.</summary>
+        /// <summary>Runs <see cref="DiscoverChoices"/> on a thread of the pool (ADR 0004).</summary>
+        public Task<DiscoveryResult> DiscoverChoicesAsync(IReadOnlyList<UserChoice> choices, string launcherFolder,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.Run(() => DiscoverChoices(choices, launcherFolder, cancellationToken), cancellationToken);
+        }
+
+        /// <summary>Finds the installations with one folder chosen by the user, whose product is not known.</summary>
         /// <param name="userChoice">The folder chosen in the launcher settings (install root, EE folder or AoC folder);
         /// null or white space for automatic detection.</param>
         /// <param name="launcherFolder">The folder of the launcher (source 5); null to skip it.</param>
         /// <param name="cancellationToken">Ends the discovery between two candidates.</param>
         public DiscoveryResult Discover(string userChoice, string launcherFolder, CancellationToken cancellationToken = default)
         {
+            return DiscoverChoices(string.IsNullOrWhiteSpace(userChoice)
+                ? new UserChoice[0]
+                : new[] { new UserChoice(userChoice, null) }, launcherFolder, cancellationToken);
+        }
+
+        /// <summary>
+        /// Finds the installations with the folders chosen by the user (contract 1.4 source 1, revision 6: one per product). Each
+        /// choice selects the installation its folder belongs to; <see cref="DiscoveryResult.Selected"/> is the installation of
+        /// the first choice, else the first one in the order of the sources, and <see cref="DiscoveryResult.Choices"/> names
+        /// the installation of every choice.
+        /// </summary>
+        /// <param name="choices">The chosen folders with their products, the most important first; empty or null for automatic
+        /// detection.</param>
+        /// <param name="launcherFolder">The folder of the launcher (source 5); null to skip it.</param>
+        /// <param name="cancellationToken">Ends the discovery between two candidates.</param>
+        public DiscoveryResult DiscoverChoices(IReadOnlyList<UserChoice> choices, string launcherFolder,
+            CancellationToken cancellationToken = default)
+        {
             var run = new Run(this, cancellationToken);
-            return run.Execute(string.IsNullOrWhiteSpace(userChoice) ? null : userChoice.Trim(), launcherFolder);
+            return run.Execute(choices ?? new UserChoice[0], launcherFolder);
         }
 
         /// <summary>A candidate of one source: an install root, and the folders the source names.</summary>
@@ -80,6 +105,9 @@ namespace Empire_Earth_Launcher.Core.Installations
 
             /// <summary>The folder the user chose (user choice only).</summary>
             public string ChosenFolder;
+
+            /// <summary>The product the folder was chosen for; null if not known (user choice only).</summary>
+            public Product ChosenFor;
 
             /// <summary>
             /// True if the chosen folder exists and is an EE folder, an AoC folder or an install root (user choice only):
@@ -123,7 +151,7 @@ namespace Empire_Earth_Launcher.Core.Installations
                 get { return owner.logger; }
             }
 
-            public DiscoveryResult Execute(string userChoice, string launcherFolder)
+            public DiscoveryResult Execute(IReadOnlyList<UserChoice> choices, string launcherFolder)
             {
                 foreach (InstallRecord record in new InstallRecordReader(owner.registry, Logger).Read(cancellationToken))
                 {
@@ -166,7 +194,9 @@ namespace Empire_Earth_Launcher.Core.Installations
                     installations.Add(Build(group));
                 }
 
-                int selected = userChoice == null ? -1 : SelectUserChoice(userChoice, installations);
+                // Every choice selects an installation; the first one is the selection of the discovery.
+                List<int> chosen = choices.Select(choice => SelectUserChoice(choice, installations)).ToList();
+                int selected = chosen.Count == 0 ? -1 : chosen[0];
 
                 // Ordered by the sources (user choice first), then by the order in which they were found.
                 List<int> order = Enumerable.Range(0, installations.Count)
@@ -183,7 +213,10 @@ namespace Empire_Earth_Launcher.Core.Installations
                     Logger.Info("Discovery: " + ordered.Count + " installation(s) found, selected " + selection.Root +
                                 (selected >= 0 ? " (chosen by the user)." : " (the first one found)."));
                 }
-                return new DiscoveryResult(ordered, selection, selected >= 0, userChoice);
+                var resolved = new List<ResolvedChoice>();
+                for (int i = 0; i < choices.Count; i++)
+                    resolved.Add(new ResolvedChoice(choices[i], installations[chosen[i]]));
+                return new DiscoveryResult(ordered, selection, selected >= 0, choices.Count == 0 ? null : choices[0].Folder, resolved);
             }
 
             private void AddIfFolderExists(Candidate candidate, string folder, string where)
@@ -233,11 +266,13 @@ namespace Empire_Earth_Launcher.Core.Installations
             /// <summary>
             /// Source 1: selects the installation the chosen folder belongs to (its root, EE folder or AoC folder, or the
             /// root the folder implies); a folder that belongs to none becomes an installation of its own, also when it
-            /// does not exist (contract 1.4: the choice is kept so that the user sees it).
+            /// does not exist (contract 1.4: the choice is kept so that the user sees it, as an installation of the product it
+            /// was chosen for).
             /// </summary>
             /// <returns>The index of the selected installation in <paramref name="installations"/>.</returns>
-            private int SelectUserChoice(string choice, List<Installation> installations)
+            private int SelectUserChoice(UserChoice userChoice, List<Installation> installations)
             {
+                string choice = userChoice.Folder;
                 int index = installations.FindIndex(installation => installation.HasFolder(choice));
                 if (index >= 0)
                 {
@@ -249,7 +284,7 @@ namespace Empire_Earth_Launcher.Core.Installations
 
                 // A folder that is not recognized (missing, or without a program) implies no root: it stays an installation
                 // of its own, so that the user sees exactly the folder they chose.
-                Candidate user = FromUserChoice(choice);
+                Candidate user = FromUserChoice(choice, userChoice.Product);
                 index = user.Recognized ? groups.FindIndex(group => WinPath.IsSamePath(group[0].Root, user.Root)) : -1;
                 if (index >= 0)
                 {
@@ -269,12 +304,12 @@ namespace Empire_Earth_Launcher.Core.Installations
                 return installations.Count - 1;
             }
 
-            private Candidate FromUserChoice(string choice)
+            private Candidate FromUserChoice(string choice, Product chosenFor)
             {
                 string folder = WinPath.IsFullyQualified(choice) ? WinPath.Normalize(choice) : choice;
                 var candidate = new Candidate
                 {
-                    Source = InstallationSource.UserChoice, Sequence = sequence++, ChosenFolder = folder
+                    Source = InstallationSource.UserChoice, Sequence = sequence++, ChosenFolder = folder, ChosenFor = chosenFor
                 };
                 string parent = WinPath.IsFullyQualified(folder) ? WinPath.GetParent(folder) ?? folder : folder;
                 GameFolderKind kind = FileSystem.DirectoryExists(folder) ? GameFolders.Classify(FileSystem, folder) : GameFolderKind.None;
@@ -338,6 +373,9 @@ namespace Empire_Earth_Launcher.Core.Installations
                         : Product.EE;
                     record = null;
                     uninstall = null;
+                    // Contract 1.4 revision 6: a chosen folder that does not exist (any more) is an installation of the product it
+                    // was chosen for; without that (the choice of an older launcher) it is EE.
+                    product = ProductOfMissingChoice(group) ?? product;
                 }
 
                 SetupNameList components = kind == InstallationKind.Foreign ? info?.File.Components
@@ -404,10 +442,22 @@ namespace Empire_Earth_Launcher.Core.Installations
                 return uninstall?.InstallMode ?? InstallMode.Unknown;
             }
 
+            /// <summary>True for a group of the user's choice alone whose folder does not exist.</summary>
+            private bool IsMissingChoice(List<Candidate> group)
+            {
+                return group.All(candidate => candidate.Source == InstallationSource.UserChoice) &&
+                       !FileSystem.DirectoryExists(group[0].ChosenFolder);
+            }
+
+            /// <summary>The product a missing chosen folder was chosen for; null if it is not missing or the product is not known.</summary>
+            private Product ProductOfMissingChoice(List<Candidate> group)
+            {
+                return IsMissingChoice(group) ? group[0].ChosenFor : null;
+            }
+
             private void SetState(Installation installation, List<Candidate> group)
             {
-                if (group.All(candidate => candidate.Source == InstallationSource.UserChoice) &&
-                    !FileSystem.DirectoryExists(group[0].ChosenFolder))
+                if (IsMissingChoice(group))
                 {
                     installation.State = InstallationState.FolderMissing;
                     return;

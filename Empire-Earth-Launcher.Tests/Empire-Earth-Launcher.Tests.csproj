@@ -109,6 +109,7 @@
     <Compile Include="Core\GameSettings\ResolutionOptionsTests.cs" />
     <Compile Include="Core\Graphics\DgVoodooConfReaderTests.cs" />
     <Compile Include="Core\Graphics\WrapperInfoTests.cs" />
+    <Compile Include="Core\Installations\ProductChoicesTests.cs" />
     <Compile Include="Core\Mods\CreditsParserTests.cs" />
     <Compile Include="Core\Mods\DreXmodConfigReaderTests.cs" />
     <Compile Include="Core\Mods\DreXmodInfoTests.cs" />
@@ -161,6 +162,7 @@
     <Compile Include="Core\Play\InstanceForwardingTests.cs" />
     <Compile Include="Core\Play\LauncherArgumentsTests.cs" />
     <Compile Include="Core\Play\MutationGuardTests.cs" />
+    <Compile Include="Core\Play\PlayEntryTests.cs" />
     <Compile Include="Core\Play\ProgramVersionsTests.cs" />
     <Compile Include="Core\Play\RunningGameDetectorTests.cs" />
     <Compile Include="Core\Play\SetupWatcherTests.cs" />

@@ -12,7 +12,7 @@ namespace Empire_Earth_Launcher.Core.Installations
         private readonly ReadOnlyCollection<Installation> installations;
 
         internal DiscoveryResult(IEnumerable<Installation> installations, Installation selected, bool isSelectedByUser,
-            string userChoice)
+            string userChoice, IEnumerable<ResolvedChoice> choices = null)
         {
             this.installations = new ReadOnlyCollection<Installation>(
                 (installations ?? throw new ArgumentNullException(nameof(installations))).ToList());
@@ -21,6 +21,7 @@ namespace Empire_Earth_Launcher.Core.Installations
             Selected = selected;
             IsSelectedByUser = isSelectedByUser;
             UserChoice = userChoice;
+            Choices = new ReadOnlyCollection<ResolvedChoice>((choices ?? new ResolvedChoice[0]).ToList());
         }
 
         /// <summary>
@@ -41,27 +42,78 @@ namespace Empire_Earth_Launcher.Core.Installations
         /// <summary>True if <see cref="Selected"/> is the user's choice (source 1).</summary>
         public bool IsSelectedByUser { get; }
 
-        /// <summary>The folder chosen in the launcher settings (trimmed), or null for automatic detection.</summary>
+        /// <summary>The first folder chosen in the launcher settings (trimmed), or null for automatic detection.</summary>
         public string UserChoice { get; }
 
         /// <summary>
-        /// The result for a session that was started with <c>--product=&lt;product&gt;</c> (contract 1.4, "Default selection"):
-        /// the selected installation is the first installation of that product in the order of the sources, the user's
-        /// choice first if it is of that product. Nothing else changes: the order, the user choice and the sources stay, and
-        /// nothing is saved.
+        /// Every folder the user chose (contract 1.4 source 1, one per product since revision 6) with the installation it
+        /// resolved to, the first choice first; empty for automatic detection.
         /// </summary>
-        /// <returns>
-        /// This result if the selected installation is of that product already or there is none of that product (the rule of
-        /// "Default selection" applies then); otherwise a result with the other selection, which is not the user's choice.
-        /// </returns>
-        public DiscoveryResult ForSessionProduct(Product product)
+        public IReadOnlyList<ResolvedChoice> Choices { get; }
+
+        /// <summary>True if the discovery found an installation of <paramref name="product"/> (a chosen folder that is missing counts).</summary>
+        public bool Has(Product product)
+        {
+            return FirstOf(product) != null;
+        }
+
+        /// <summary>The first installation of <paramref name="product"/> in the order of the sources; null if there is none.</summary>
+        public Installation FirstOf(Product product)
         {
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
-            if (Selected != null && Selected.Product == product)
+            return installations.FirstOrDefault(installation => installation.Product == product);
+        }
+
+        /// <summary>
+        /// The installation the user's choice for <paramref name="product"/> selects (contract 1.4, "Default selection", revision 6):
+        /// the first choice that was made for that product, or for none (the choice of an older launcher), whose installation is of
+        /// that product; null if there is none. A folder that was chosen for the other product, and one that now belongs to the
+        /// other product, is no choice for this product.
+        /// </summary>
+        public Installation ChosenFor(Product product)
+        {
+            if (product == null)
+                throw new ArgumentNullException(nameof(product));
+            foreach (ResolvedChoice choice in Choices)
+            {
+                if ((choice.Choice.Product == null || choice.Choice.Product == product) && choice.Installation.Product == product)
+                    return choice.Installation;
+            }
+            return null;
+        }
+
+        /// <summary>The installation to work with for <paramref name="product"/>: <see cref="ChosenFor"/>, else <see cref="FirstOf"/>.</summary>
+        public Installation SelectionFor(Product product)
+        {
+            return ChosenFor(product) ?? FirstOf(product);
+        }
+
+        /// <summary>
+        /// The result with the selection of <paramref name="product"/> (contract 1.4, "Default selection", revision 6): the folder the
+        /// user chose for it, else its first installation in the order of the sources. The list, its order and the choices stay;
+        /// <see cref="IsSelectedByUser"/> tells whether the selection is a choice of the user. Used for the product of the game the
+        /// player chose, and for <c>--product=</c> (for this session only; nothing is saved).
+        /// </summary>
+        /// <returns>
+        /// This result if it selects that installation already, or if there is none of that product (the rule of "Default selection"
+        /// applies then); otherwise a result with the other selection.
+        /// </returns>
+        public DiscoveryResult ForProduct(Product product)
+        {
+            if (product == null)
+                throw new ArgumentNullException(nameof(product));
+            Installation chosen = ChosenFor(product);
+            Installation selection = chosen ?? FirstOf(product);
+            if (selection == null || (selection == Selected && (chosen != null) == IsSelectedByUser))
                 return this;
-            Installation first = installations.FirstOrDefault(installation => installation.Product == product);
-            return first == null ? this : new DiscoveryResult(installations, first, false, UserChoice);
+            return new DiscoveryResult(installations, selection, chosen != null, UserChoice, Choices);
+        }
+
+        /// <summary>The selection of <c>--product=</c> for one session (contract 1.4, revision 4): <see cref="ForProduct"/>.</summary>
+        public DiscoveryResult ForSessionProduct(Product product)
+        {
+            return ForProduct(product);
         }
 
         /// <summary>

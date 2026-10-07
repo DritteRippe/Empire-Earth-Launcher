@@ -45,6 +45,8 @@ namespace Empire_Earth_Launcher.Tests.Core.Settings
             Assert.That(settings.CustomThemeFile, Is.Empty);
             Assert.That(settings.UiCulture, Is.Empty, "the Windows language");
             Assert.That(settings.LastGame, Is.Empty, "Empire Earth");
+            Assert.That(settings.LastProduct, Is.Empty, "the default selection of contract 1.4");
+            Assert.That(settings.ProductFolders, Is.Empty);
             Assert.That(settings.SchemaVersion, Is.EqualTo(1));
         }
 
@@ -279,6 +281,119 @@ namespace Empire_Earth_Launcher.Tests.Core.Settings
 
             Assert.That(fileSystem.GetText(File), Does.Contain("\"LastGame\": \"AoC\""));
             Assert.That(new SettingsStore(fileSystem, File, logger).LoadAndGet().LastGame, Is.EqualTo("AoC"));
+        }
+
+        /// <summary>
+        /// Launcher 1.1.0 (contract 1.4 revision 6): the folder chosen for each product and the product chosen last are optional
+        /// members of schema 1.
+        /// </summary>
+        [Test]
+        public void ProductChoices_AreLoadedAndSaved()
+        {
+            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"GameDirectory\":\"D:\\\\GOG\\\\Empire Earth\",\"LastGame\":\"AoC\"," +
+                                     "\"ProductFolders\":[{\"Product\":\"EE\",\"Folder\":\"D:\\\\GOG\\\\Empire Earth\"}],\"LastProduct\":\"EE\"}");
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Loaded));
+            Assert.That(store.Current.LastProduct, Is.EqualTo("EE"));
+            Assert.That(store.Current.ProductFolders.Select(entry => entry.Product + "=" + entry.Folder),
+                Is.EqualTo(new[] { @"EE=D:\GOG\Empire Earth" }));
+
+            store.Current.ProductFolders.Add(new ProductFolder { Product = "NeoEE", Folder = @"C:\Neo" });
+            store.Current.LastProduct = "NeoEE";
+            Assert.That(store.Save(), Is.EqualTo(SettingsSaveStatus.Saved));
+
+            Assert.That(fileSystem.GetText(File), Does.Contain("\"LastProduct\": \"NeoEE\""));
+            LauncherSettings reloaded = new SettingsStore(fileSystem, File, logger).LoadAndGet();
+            Assert.That(reloaded.LastProduct, Is.EqualTo("NeoEE"));
+            Assert.That(reloaded.ProductFolders.Select(entry => entry.Product + "=" + entry.Folder),
+                Is.EqualTo(new[] { @"EE=D:\GOG\Empire Earth", @"NeoEE=C:\Neo" }));
+            Assert.That(reloaded.SchemaVersion, Is.EqualTo(LauncherSettings.CurrentSchemaVersion), "an optional member keeps schema 1");
+        }
+
+        [Test]
+        public void AFileOfLauncher100_HasNoProductChoices()
+        {
+            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"GameDirectory\":\"D:\\\\Spiele\\\\Empire Earth\",\"ThemeName\":\"Dark\",\"LastGame\":\"AoC\"}");
+
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Loaded));
+
+            Assert.That(store.Current.LastProduct, Is.Empty);
+            Assert.That(store.Current.ProductFolders, Is.Empty);
+            Assert.That(store.Current.GameDirectory, Is.EqualTo(@"D:\Spiele\Empire Earth"), "the choice of the older launcher");
+            Assert.That(logger.MessagesOf(LogLevel.Warning), Is.Empty);
+        }
+
+        [Test]
+        public void NullProductChoices_GetTheirDefaults()
+        {
+            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"ProductFolders\":[null,{\"Product\":\"EE\",\"Folder\":\"C:\\\\EE\"},null],\"LastProduct\":null}");
+
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Loaded));
+
+            Assert.That(store.Current.LastProduct, Is.Empty);
+            Assert.That(store.Current.ProductFolders.Select(entry => entry.Product), Is.EqualTo(new[] { "EE" }), "the null entries are dropped");
+
+            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"ProductFolders\":null}");
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Loaded));
+            Assert.That(store.Current.ProductFolders, Is.Empty);
+        }
+
+        [Test]
+        public void AnEntryOfAnUnknownProduct_AndItsUnknownMembers_AreWrittenBack()
+        {
+            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"ProductFolders\":[{\"Product\":\"FutureEE\",\"Folder\":\"C:\\\\Future\"," +
+                                     "\"Mode\":\"portable\"}],\"LastProduct\":\"FutureEE\",\"Other\":\"kept\"}");
+            store.Load();
+
+            store.Current.ThemeName = "Blue";
+            Assert.That(store.Save(), Is.EqualTo(SettingsSaveStatus.Saved));
+
+            string saved = fileSystem.GetText(File);
+            Assert.That(saved, Does.Contain("\"Product\": \"FutureEE\"").And.Contain("\"Folder\": \"C:\\\\Future\""));
+            Assert.That(saved, Does.Contain("\"Mode\": \"portable\""), "an unknown member of an entry survives");
+            Assert.That(saved, Does.Contain("\"LastProduct\": \"FutureEE\"").And.Contain("\"Other\": \"kept\""));
+        }
+
+        /// <summary>The settings class of launcher 1.0.0, as it was compiled then: without the members of revision 6.</summary>
+        [System.Runtime.Serialization.DataContract(Name = "LauncherSettings", Namespace = "")]
+        private sealed class SettingsOfLauncher100 : System.Runtime.Serialization.IExtensibleDataObject
+        {
+            [System.Runtime.Serialization.DataMember(Order = 0)] public int SchemaVersion { get; set; }
+            [System.Runtime.Serialization.DataMember(Order = 1)] public string GameDirectory { get; set; }
+            [System.Runtime.Serialization.DataMember(Order = 2)] public string ThemeName { get; set; }
+            [System.Runtime.Serialization.DataMember(Order = 6)] public string LastGame { get; set; }
+            public System.Runtime.Serialization.ExtensionDataObject ExtensionData { get; set; }
+        }
+
+        /// <summary>
+        /// Launcher 1.0.0 reads the file of 1.1.0 (the mirror <c>GameDirectory</c> and <c>LastGame</c>) and keeps the new members
+        /// through its <c>ExtensionData</c> when it saves (ADR 0005 amendment).
+        /// </summary>
+        [Test]
+        public void Launcher100_ReadsTheFileOf110_AndKeepsTheProductChoices()
+        {
+            const string json = "{\"SchemaVersion\":1,\"GameDirectory\":\"C:\\\\Neo\",\"ThemeName\":\"Dark\",\"LastGame\":\"AoC\"," +
+                                "\"ProductFolders\":[{\"Product\":\"NeoEE\",\"Folder\":\"C:\\\\Neo\"}],\"LastProduct\":\"NeoEE\"}";
+            var serializer = new System.Runtime.Serialization.Json.DataContractJsonSerializer(typeof(SettingsOfLauncher100));
+            SettingsOfLauncher100 old;
+            using (var stream = new System.IO.MemoryStream(Encoding.UTF8.GetBytes(json)))
+                old = (SettingsOfLauncher100)serializer.ReadObject(stream);
+
+            Assert.That(old.GameDirectory, Is.EqualTo(@"C:\Neo"), "launcher 1.0.0 selects the same installation");
+            Assert.That(old.LastGame, Is.EqualTo("AoC"));
+
+            old.ThemeName = "Blue";
+            string written;
+            using (var stream = new System.IO.MemoryStream())
+            {
+                serializer.WriteObject(stream, old);
+                written = Encoding.UTF8.GetString(stream.ToArray());
+            }
+            Assert.That(written, Does.Contain("\"LastProduct\":\"NeoEE\"").And.Contain("\"ProductFolders\":[{\"Product\":\"NeoEE\""));
+            fileSystem.AddFile(File, written);
+            LauncherSettings back = new SettingsStore(fileSystem, File, logger).LoadAndGet();
+            Assert.That(back.LastProduct, Is.EqualTo("NeoEE"));
+            Assert.That(back.ProductFolders.Single().Folder, Is.EqualTo(@"C:\Neo"));
+            Assert.That(back.ThemeName, Is.EqualTo("Blue"));
         }
 
         [Test]

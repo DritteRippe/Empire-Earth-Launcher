@@ -82,10 +82,12 @@
     <Compile Include="Installations\InstalledFromReader.cs" />
     <Compile Include="Installations\InstallInfoFile.cs" />
     <Compile Include="Installations\InstallRecordReader.cs" />
+    <Compile Include="Installations\ProductChoices.cs" />
     <Compile Include="Installations\SuiteRecordReader.cs" />
     <Compile Include="Installations\RegistryReads.cs" />
     <Compile Include="Installations\SetupNameList.cs" />
     <Compile Include="Installations\UninstallKeyScanner.cs" />
+    <Compile Include="Installations\UserChoice.cs" />
     <Compile Include="Integrity\FileClassifier.cs" />
     <Compile Include="Integrity\IntegrityChecker.cs" />
     <Compile Include="Integrity\IntegrityReport.cs" />
@@ -144,6 +146,7 @@
     <Compile Include="Play\IGameStartPreparation.cs" />
     <Compile Include="Play\LauncherArguments.cs" />
     <Compile Include="Play\MutationGuard.cs" />
+    <Compile Include="Play\PlayEntry.cs" />
     <Compile Include="Play\ProgramVersions.cs" />
     <Compile Include="Play\RunningGameDetector.cs" />
     <Compile Include="Play\SetupWatcher.cs" />

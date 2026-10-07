@@ -78,6 +78,23 @@ namespace Empire_Earth_Launcher.Core.Settings
         [DataMember(Order = 6)]
         public string LastGame { get; set; }
 
+        /// <summary>
+        /// The folder chosen for each product (contract 1.4 revision 6, source 1): a product without an entry or with an empty
+        /// folder is found automatically. Launcher 1.1.0 keeps <see cref="GameDirectory"/> as a mirror of the folder of the
+        /// current product (<see cref="LastProduct"/>), so that launcher 1.0.0 selects the same installation. Added in
+        /// launcher 1.1.0 as an optional member (schema 1); <c>Installations.ProductChoices</c> reads and changes it.
+        /// </summary>
+        [DataMember(Order = 7)]
+        public List<ProductFolder> ProductFolders { get; set; }
+
+        /// <summary>
+        /// The product of the game chosen on the Play page last time: <c>EE</c> or <c>NeoEE</c> (<c>Contract.Product.Id</c>);
+        /// empty for the default selection of contract 1.4. Together with <see cref="LastGame"/> it is the remembered entry of
+        /// the four games. Added in launcher 1.1.0 as an optional member (schema 1).
+        /// </summary>
+        [DataMember(Order = 8)]
+        public string LastProduct { get; set; }
+
         /// <summary>Members of the file this launcher does not know (written by a newer launcher).</summary>
         public ExtensionDataObject ExtensionData { get; set; }
 
@@ -89,6 +106,8 @@ namespace Empire_Earth_Launcher.Core.Settings
             UiCulture = UiLanguage.Windows;
             HiddenHints = new List<HiddenHint>();
             LastGame = string.Empty;
+            ProductFolders = new List<ProductFolder>();
+            LastProduct = string.Empty;
         }
 
         /// <summary>The serializer creates the object without a constructor: start from the defaults.</summary>
@@ -110,7 +129,29 @@ namespace Empire_Earth_Launcher.Core.Settings
             HiddenHints = HiddenHints ?? new List<HiddenHint>();
             HiddenHints.RemoveAll(hint => hint == null);
             LastGame = LastGame ?? string.Empty;
+            ProductFolders = ProductFolders ?? new List<ProductFolder>();
+            ProductFolders.RemoveAll(entry => entry == null);
+            LastProduct = LastProduct ?? string.Empty;
         }
+    }
+
+    /// <summary>
+    /// The folder the player chose for one product (<see cref="LauncherSettings.ProductFolders"/>). An entry of a product this
+    /// launcher does not know is kept and written back unchanged.
+    /// </summary>
+    [DataContract(Name = "ProductFolder", Namespace = "")]
+    public sealed class ProductFolder : IExtensibleDataObject
+    {
+        /// <summary>The product id, <c>EE</c> or <c>NeoEE</c> (<c>Contract.Product.Id</c>).</summary>
+        [DataMember(Order = 0)]
+        public string Product { get; set; }
+
+        /// <summary>The EE folder, the install root or the AoC folder chosen for the product; empty for automatic detection.</summary>
+        [DataMember(Order = 1)]
+        public string Folder { get; set; }
+
+        /// <summary>Members of a newer launcher.</summary>
+        public ExtensionDataObject ExtensionData { get; set; }
     }
 
     /// <summary>
