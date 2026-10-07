@@ -11,6 +11,12 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
 
 ### Changed
 
+- Graphics page: sizes up to 1920x1200 (on a screen at least that tall); the recommended size on screens wider than 1920
+  keeps their shape (contract 3.3, revision 6): the height is limited to 1200, and on a screen wider than 1920 also to the
+  larger of 1080 and the screen height scaled to the width 1920, so 2560x1440 and 3840x2160 keep 1920x1080 and 2560x1600 gets
+  1920x1200 (`ComputedValues.GameWindow`, `ResolutionOptions`; the limit of the player's own choice is 1200, the wide-screen
+  limit applies to the computed value only). `docs/CONTRACT.md`, revision 6, carries the new limits and the optional record
+  value `ComponentDefaults` of the setup (the launcher ignores it).
 - `docs/CONTRACT.md`, revision 6 (identical to the copy in the setup repository; contract version still 1, compatible, no
   MUST or MUST NOT relaxed): one revision with the launcher part (the player's explicit choice of the game window size is
   the consent of 3.2, within the limits of 3.3, after the guard and the backup of 3.6; the Graphics page below) and the
@@ -63,6 +69,8 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
 
 ### Fixed
 
+- Play page: the names of games that are not installed are grey, not only their circles (the palette had one text colour for
+  every state of a label; it has the disabled text colour now, `GeneralUserControl`).
 - Game start: after the start the launcher hands the foreground to the window of the game (report 1: the mouse was dead
   until the window was minimized and restored, probably because the game was never activated while the launcher stayed in
   front). `GameStarter` allows the foreground (`AllowSetForegroundWindow`) right before the shell start; `GameWindowActivator`
@@ -106,6 +114,16 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
 
 ### Added
 
+- Game start: one activation signal (`WM_ACTIVATE`) to the main window of a started game once it has been the foreground
+  window with the same rectangle and styles for 5 seconds, at the latest 180 seconds after the start; never while the lobby or
+  another program is in front, at most once, every decision in `log.txt` (A1b, [ADR 0010](docs/adr/0010-game-start-and-mutex-probing.md)
+  amendment). With dgVoodoo 2.87.5 of setup 1.1.0 this gives the game its mouse without Alt+Tab. `ActivationSignal` decides
+  (a state machine without windows or clock), `GameWindowActivator` watches and posts through
+  `IWindowSystem.PostActivateMessage`, the only message the launcher posts to another program (`WindowMessageRulesTests`); a
+  game that runs as administrator refuses it (warning in the log, Alt+Tab). Test plan WP6-21.
+- Graphics page: a hint when `dgVoodoo.conf` still has the window settings of a setup before 1.1.0 (`Version` below 0x287,
+  `DeferredScreenModeSwitch = true`, Alt+Enter on, no fake fullscreen), with the way to repair it (a repair or update with the
+  setup; the launcher never writes the file); the page also shows `FullscreenAttributes` (`DgVoodooPreset`). Test plan WP11-09.
 - README: the section "FAQ and known issues" (K1) says what is known, what is only probable and what has not been verified
   about three reports of the laptop test. The mouse that is dead in the menu until the window is minimized and restored: the
   probable cause (the game acquires its DirectInput devices with the foreground cooperative level) and what the hand-over of

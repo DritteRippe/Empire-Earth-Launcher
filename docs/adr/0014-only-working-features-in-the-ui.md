@@ -170,8 +170,8 @@ only if it works) and without the file rule changing:
 - **The resolution choice returns.** The reason given above for leaving it out was that the game has its own option and
   the launcher offers only the recommended display settings. The new *Graphics* page lets the player choose the size of
   the game window from the usual 4:3, 5:4, 16:10 and 16:9 sizes that fit the primary screen (`ResolutionOptions`), never
-  above 1920x1080 (the limit of contract 3.3; forum reports of crashes above it; the project owner decided to keep it
-  for 1.1.0) and never below 1024x768. "Use this size" writes `Game Window Width` and `Game Window Height` of every
+  above 1920x1200 (the limit of contract 3.3 since revision 6, 1920x1200 only on a screen at least that tall; forum reports
+  of crashes above it; the project owner decided to keep it for 1.1.0) and never below 1024x768. "Use this size" writes `Game Window Width` and `Game Window Height` of every
   game of the installation and nothing else (`GameDefaultsService.SetGameWindow`): these are registry values of class D
   that are on the write allow-list by name already (ADR 0007), no game file changes. The click is the explicit choice
   that contract 3.2 (revision 6) counts as the consent to overwrite a display value; the mutation guard refuses it while
@@ -195,7 +195,7 @@ only if it works) and without the file rule changing:
   the page decides, so that it is tested on Mono, where the Krypton combo box cannot be created; `PageLayoutTests`
   measure the page on Windows.
 - **Still not in the UI**: the DirectX wrapper switch (the wizard of the setup does it), an editor of the screen mode, and a
-  choice above 1920x1080.
+  choice above 1920x1200 (contract 3.3, revision 6; 1920x1200 only on a screen at least that tall).
 
 ## Amendment 2026-10-07 (launcher 1.1.0, the Mods page)
 
@@ -254,3 +254,24 @@ whose function does not exist; here the function exists and only the game may be
 Evidence: `Core/Play/PlayEntryTests`, `Launcher/PlayEntryTextsTests`, `Launcher/PlayModelTests`, `Launcher/PlayPageEntriesTests`,
 `PageLayoutTests` and `PlayPageWorld` (states `AllEntries`, `EntriesWithHint`), `ApplyTextsTests`, `ResourceParityTests`; test
 plan WP13-01, WP13-04, WP13-08.
+
+## Amendment 2026-10-07 (launcher 1.1.0: sizes up to 1920x1200, the hint for an old dgVoodoo preset)
+
+Two changes to the *Graphics* page, both within the rule of this ADR:
+
+- **Sizes up to 1920x1200.** Contract revision 6 raises the height limit of the game window from 1080 to 1200 (width stays 1920,
+  the laptop of the project has a 1920x1200 panel). The list offers 1920x1200 when the screen is at least that tall (also on a
+  2560x1440 screen: a choice of the player, not the recommendation); the recommended size keeps the shape of a screen wider
+  than 1920 (2560x1440 and 3840x2160 keep 1920x1080, 2560x1600 gets 1920x1200: contract 3.3, `ComputedValues.GameWindow`).
+  `GameDefaultsService.SetGameWindow` refuses every size outside 1024 to 1920 by 768 to 1200.
+- **A hint, not a control.** When a `dgVoodoo.conf` of a community installation that was read still has the window settings of
+  a setup before 1.1.0 (`Version` below `0x287`, `DeferredScreenModeSwitch = true`, `DisableAltEnterToToggleScreenMode =
+  false`, no item `fake` in `FullscreenAttributes`: `DgVoodooPreset`), the page says so for each game with the keys and their
+  values and tells the player to repair or update the installation with the setup, which writes the current settings (a
+  VirtualStore copy has its own text, because a repair does not replace it). The hint is information only and offers no
+  button: the setup repairs, **the launcher never writes `dgVoodoo.conf`**. The page also shows `FullscreenAttributes` among
+  the screen mode keys.
+
+Evidence: `Core/GameSettings/ResolutionOptionsTests`, `ComputedValuesTests`, `GameDefaultsServiceTests`,
+`Core/Graphics/DgVoodooPresetTests`, `Launcher/GraphicsViewTests`, `GraphicsTextsTests`, `PageLayoutTests` and `PageScreenshotTests`
+(state `OldPreset`); test plan WP11-02, WP11-09, WP11-10.

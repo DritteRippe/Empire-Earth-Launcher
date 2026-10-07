@@ -55,3 +55,10 @@ Binary copies (including the CI test builds) must carry the license texts of the
 `licenses/THIRD-PARTY-LICENSES.txt` contains the BSD-3-Clause text of Krypton.Toolkit (with the copyright
 line of the package's nuspec) and the MIT text of ZipStorer. The CI copies it next to the executables together
 with `LICENSE` and this file. Update it when a shipped component or its version changes.
+
+## Not included: dgVoodoo
+
+The launcher neither contains nor downloads dgVoodoo (dgVoodoo's terms do not allow bundling it in launchers); the community
+setup installs it into the game folders. The *Graphics* page only reads its `dgVoodoo.conf`. See the
+[THIRD-PARTY-NOTICES.md of the setup](https://github.com/EE-modders/Empire-Earth-Setup/blob/v2/THIRD-PARTY-NOTICES.md) for
+the terms.

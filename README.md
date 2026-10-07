@@ -92,12 +92,15 @@ controls of the old mock-up were removed and the features behind them are listed
   not start a game twice (and explains how to end a hanging one in the Task Manager), asks before starting the second
   game, keeps the "Installed From" values of the game in step, starts the program through Windows so that its
   compatibility settings apply (also "Run as administrator"), hands the foreground to the window of the game after the
-  start (1.1.0, see the [FAQ](#-faq-and-known-issues): the mouse was dead in the menu until the window was minimized and
-  restored), shows the file versions of both programs and logs every start
+  start and gives it one activation once its window has settled (1.1.0, see the [FAQ](#-faq-and-known-issues): the mouse
+  was dead in the menu until the window was switched away and back), shows the file versions of both programs and logs every
+  start
 - Graphics page (1.1.0): choose the size of the game window from the usual 4:3, 5:4, 16:10 and 16:9 sizes that fit
-  your screen, up to 1920x1080 (the game can crash above that), with a backup of the game settings first; only the two
-  values of the window size are written, never a file, and a repair or update with the setup sets the recommended size
-  again. It also shows which DirectX wrapper the setup installed (native, DirectX 7, DirectX 9, dgVoodoo with its API
+  your screen, up to 1920x1200 (the game can crash above that; 1920x1200 only on a screen that is at least that tall), with
+  a backup of the game settings first; only the two values of the window size are written, never a file, and a repair or
+  update with the setup sets the recommended size again. The page tells you when `dgVoodoo.conf` still has the settings of a
+  setup before 1.1.0 (a dead mouse after the start, a lobby that minimizes the game) and that a repair or update with the
+  setup replaces them. It also shows which DirectX wrapper the setup installed (native, DirectX 7, DirectX 9, dgVoodoo with its API
   level) and, for dgVoodoo, the keys of `dgVoodoo.conf` that decide the screen mode (read only: the launcher changes neither
   the wrapper nor that file), and tells how to change the wrapper in the setup
   ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md), amendment of 2026-10-07)
@@ -208,7 +211,7 @@ controls of the old mock-up were removed and the features behind them are listed
   diagnostics report show which one is installed
 - Editing the screen mode in `dgVoodoo.conf` (and the dreXmod preset in `dreXmod.config`) from the launcher: planned for
   1.2 with an allow-list of files and keys; the launcher of 1.1.0 changes neither file
-- Resolution above 1920x1080 (the *Graphics* page stops at the limit of contract 3.3)
+- Resolution above 1920x1200 (the *Graphics* page stops at the limit of contract 3.3)
 - Auto-compatibility detector ("My game is working", "Auto-detect") and auto-update
 - Writing the GPU driver version into the log (the diagnostics report names the display adapter)
 - Checking the forwarded ports from outside (needs a service on the server; the launcher shows the forwarding table)
@@ -231,12 +234,21 @@ changes a game program. The NeoEE programs and their CD-key registration stay un
 neither `dgVoodoo.conf` nor `dreXmod.config` (the *Graphics* and *Mods* pages only show them). The answers below say what is
 known, what is only a probable cause and what has not been verified.
 
-**The mouse does not work in the main menu until I minimize and restore the game window.**
-The probable cause, not yet proven: Empire Earth reads the mouse and the keyboard through DirectInput with the
-"foreground" cooperative level, and such a device can be acquired only while the game window is the foreground window.
-If the launcher is still in front while the game creates its window (or a DirectX wrapper switches the display mode a
-moment later), the game is never activated; minimizing and restoring gives it the activation it missed. Since 1.1.0 the
-launcher hands the foreground to the game window after the start:
+**The mouse does not work in the main menu until I switch away and back (Alt+Tab).**
+Empire Earth takes its mouse and keyboard through DirectInput only when its window is activated. With the DirectX wrapper
+dgVoodoo of the community setup no activation reaches the game after it has created these devices, unless the start
+changed the display mode; on a screen of the game's own size it does not. Since 1.1.0 the launcher sends the main window
+of a game it started **one** activation (`WM_ACTIVATE`) as soon as that window has been in front, unchanged, for five
+seconds, at the latest three minutes after the start; with the intro videos the mouse can then skip the intro.
+So: **start the game through the launcher** (the desktop icon "Empire Earth Community" of the suite opens it) and keep the
+launcher open until the main menu shows; closing it earlier cancels the signal. A start of `Empire Earth.exe` or
+`EE-AOC.exe` without the launcher still needs one Alt+Tab, out and back.
+The launcher sends nothing while another window is in front (the lobby, another program), never minimizes, moves or closes
+a window and never ends a process; `log.txt` says what it decided (`Activation signal ...`). A game that runs as
+administrator refuses the message (`activation signal failed ... error 5`): then use Alt+Tab once.
+Before the signal the launcher still hands the foreground to the game window after the start when the launcher itself
+holds it (it never takes it from another program) and watches the window for at least a minute, read-only; those lines
+help when a report comes in:
 
 - right before the start it allows the game to take the foreground (`AllowSetForegroundWindow`); the start itself stays a
   start through the Windows shell;
@@ -245,16 +257,13 @@ launcher hands the foreground to the game window after the start:
   about 2 s (a wrapper such as dgVoodoo may switch the mode late) and hands the window over again, at most three times,
   while the launcher has the foreground back;
 - if another program is in front (you clicked into a browser while the game loads) the launcher changes nothing and
-  never takes the foreground away from it; it never minimizes, hides or closes a window and never ends a process.
+  never takes the foreground away from it.
 
-One line of `log.txt` says what happened (see "What do I send with a report?" below). Whether this removes the problem on
-your computer is decided by the test on real Windows (test plan WP6-18). If the mouse is dead although the log says
-"brought to the foreground", the cause is elsewhere: then click the taskbar button of the game once (or switch to it with
-Alt+Tab) instead of minimizing, and note whether that is enough and whether the game behaves the same when you start it
-from its own desktop shortcut without the launcher; both answers narrow it down. A game with the compatibility setting
-"Run as administrator" may refuse the foreground from the launcher, which does not run as administrator
-(`SetForegroundWindow was refused` in the log); the launcher tries three more times and then gives up without changing
-anything else.
+If the mouse is dead although the log says `activation signal sent`, note whether Alt+Tab (or a click on the taskbar button
+of the game) revives it, and send the lines of `log.txt` from `Game started:` on (see "What do I send with a report?").
+A game with the compatibility setting "Run as administrator" may also refuse the foreground from the launcher, which does not
+run as administrator (`SetForegroundWindow was refused` in the log); the launcher tries three more times and then gives up
+without changing anything else.
 
 **The game minimizes itself when another window or a notification appears.**
 This is a behavior of the game program, not of the launcher or of a DirectX wrapper: `Empire Earth.exe` reacts to
@@ -326,11 +335,13 @@ about this number). A `PeakMB` below about 1200 MB makes the limit an unlikely c
   `SetForegroundWindow was refused` that Windows said no, `No window of ... within 60 s` that the game showed no window of
   that process (NeoEE may create it elsewhere), and `giving up` that the launcher kept the foreground after three tries.
   `... already in the foreground, nothing to do.` means the game was in front when its window appeared. The window is the
-  main window of the game (class `SSSI Empire Earth`), never the small start-up window `Loading Game Window`. For one minute
-  after that the launcher only watches and writes `Watch t+<seconds> s: ...` lines: which window is in front and the
+  main window of the game (class `SSSI Empire Earth`), never the small start-up window `Loading Game Window`. For at least
+  one minute after that the launcher watches and writes `Watch t+<seconds> s: ...` lines: which window is in front and the
   rectangle and styles of the game window, and each change with the time since the start. That measures when a
-  DirectX wrapper such as dgVoodoo changes the window; it does not change anything and it does not fix a dead mouse that
-  comes from that (test plan WP6-18).
+  DirectX wrapper such as dgVoodoo changes the window; the watch itself changes nothing (test plan WP6-18). The lines
+  `Activation signal for ...: armed`, `... activation signal waits: ...`, `... activation signal sent: ...` (or `failed`, `not
+  sent`) tell what the activation signal decided (test plan WP6-21); the watch lasts until it is decided, at most three
+  minutes after the start.
 - What you saw: whether the mouse worked without minimizing, which window or notification took the focus when the game
   minimized itself, whether the game comes back in full size, the Windows version and the display scaling.
 
@@ -901,3 +912,6 @@ For major changes, please open an issue first to discuss what you would like to 
 
 ## 📖 License
 [GNU General Public License v3.0](https://github.com/EE-modders/Empire-Earth-Launcher/blob/main/LICENSE)
+
+Third-party components are listed in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). The launcher neither contains nor downloads
+dgVoodoo (dgVoodoo's terms do not allow bundling it in launchers); the community setup installs it into the game folders.

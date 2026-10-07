@@ -236,3 +236,66 @@ changes make the hand-over and its log say what happens, and add the measurement
 Evidence: `Core/Play/GameWindowActivatorTests` (the splash is skipped, the game in front is left alone, the missing foreground,
 the lines of the watch from a fake clock, no change by the watch, cancellation during the watch), `Core/Platform/WindowRulesTests`,
 `WindowStateTests`, `WindowsWindowSystemTests`, `Architecture/ForegroundRulesTests`; test plan WP6-18.
+
+## Amendment 2026-10-07 (launcher 1.1.0, A1b: one activation signal to the settled main window)
+
+**Context.** The laptop round of runs 5d and 5e: with every dgVoodoo 2.87.5 setting that keeps the multiplayer lobby and Alt+Tab
+working (fake fullscreen, real fullscreen at the panel resolution) the mouse is dead from the start, also during the intro (a
+click cannot skip it) and also with a direct start of the game program; Alt+Tab revives it. Only a real display mode change at
+the start gave the game a usable activation. Empire Earth acquires its DirectInput devices (exclusive, foreground) while it
+starts and re-acquires them only on an activation (`WM_ACTIVATE` that is not `WA_INACTIVE` and not minimized, or
+`WM_ACTIVATEAPP(TRUE)`). The statements of the amendment above ("A1 does not fix the dgVoodoo case", "A1b is not part of 1.1.0")
+are superseded by this decision of the user.
+
+**Decision.** After the launcher started a game it posts the game's main window **one** `WM_ACTIVATE` (`WA_ACTIVE`) as soon as
+that window has been the foreground window with the same rectangle and styles for a short settle time, at most once per start,
+never later than 180 seconds after the start.
+
+- **State machine** (`Core/Play/ActivationSignal`, pure: it decides, it calls nothing and has no clock): armed only when the
+  hand-over ended with `GameInForeground`; then a look every 250 ms (the interval of the watch) decides in this order: the
+  deadline (180 s: `NotSettled`); no main window (the quiet time starts again, 10 s in a row: `WindowGone`); no foreground
+  window; a foreground window that is not the main window (the lobby popup, the splash tool window, a dialog of the game,
+  another program, the launcher: the quiet time starts again); a minimized or hidden main window; a main window whose handle,
+  rectangle or styles differ from the last quiet state (the quiet time starts now); the quiet time of 5 s: `Send`.
+- **5 seconds** settle time: dgVoodoo does its window work in one burst (real fullscreen inside `SetCooperativeLevel` and
+  `SetDisplayMode`, fake fullscreen at the first presented frame, with a resolution change "when needed"); a display mode
+  switch with its monitor resync takes up to 2 to 3 s on laptop panels and over HDMI. Five quiet seconds put the signal after
+  that burst with margin, so it is not spent before the last change (a signal is sent once). The game creates its DirectInput
+  devices right after its graphics initialization, so five seconds after the window has settled is after that, also from a slow
+  disk. And it is short enough for the intro: the logos last 9 s (Sierra) and 8 s (SSSI), so the signal arrives during a logo and
+  a click skips the 98 s movie at the latest; 3 s would win two seconds but leave no margin on slow machines.
+- **180 seconds** deadline: the user's bound of about three minutes; the longest normal way to the main menu is the window search
+  (at most 60 s) plus the intro (115 s). Later the player is in the menu, the lobby or a match, where a synthetic activation (the
+  game centres its cursor once) would only disturb. **10 seconds** for a missing window: a window is briefly invisible while a
+  wrapper restyles it; ten seconds without it mean the game has ended.
+- **Guards.** Only for a game this launcher started (the process id of the start result) and only after the hand-over ended
+  with `GameInForeground` (after `UserSwitched` Windows activates the game when the player returns to it, after `GaveUp` the
+  player's click does); only if `GetForegroundWindow()` is exactly the main window (never while the lobby popup, the splash tool
+  window or another program is in front); at most once (`Complete` throws on a second call and a look that decided never decides
+  again); never minimize, hide, move, resize or close a window and never end a process (`WindowMessageRulesTests`,
+  `ProcessRulesTests`); every decision is logged (`Activation signal for ...: armed`, `not armed, ...`, `activation signal waits:
+  ...` when the reason changes, `sent`, `failed`, `not sent`, `The activation signal for ... was not sent: the launcher is
+  closing.`); if `PostMessage` fails (a game that runs as administrator: error 5, User Interface Privilege Isolation) it is a
+  warning with the way out (Alt+Tab), without a retry.
+- **The platform.** `IWindowSystem.PostActivateMessage` is the only message the launcher posts to a window of another program:
+  `PostMessage(window, WM_ACTIVATE, WA_ACTIVE, 0)` to a window that exists. `WindowMessageRulesTests` keeps the imports of the
+  functions that post, send, show, move or close a window to the three adapters that have a rule (`PostMessage` in
+  `WindowsWindowSystem`, `SendMessageTimeout` in `WindowsInstanceChannel`, `ShowWindow` in `ForegroundWindow`), the one call
+  with `WM_ACTIVATE` and `WA_ACTIVE` and no other message constant, and the call only in the activator.
+- **The watch stays** (read-only, A1) and now lasts at least 60 s and until the signal is decided, never beyond 180 s after the
+  start; its last line says the real length.
+
+**Evidence.** `Core/Play/ActivationSignalTests`, `Core/Play/GameWindowActivatorTests`, `Architecture/WindowMessageRulesTests`,
+`Core/Platform/WindowsWindowSystemTests`, `Launcher/PlayModelTests`; test plan WP6-21 and setup test plan TP-25 (to be recorded
+on the laptop). The signal itself is a hypothesis on this laptop until WP6-21 ran.
+
+**Consequences.** A start through the launcher (the desktop icon of the suite starts it) gets a live mouse after about five
+seconds of a quiet window; closing the launcher earlier cancels the signal; a direct start of the game program still needs one
+Alt+Tab (README); a game started as administrator refuses the message (logged, Alt+Tab); the game centres its cursor once on the
+signal, as on every real activation. If the mouse stays dead after `activation signal sent`, the watch lines show whether
+something changed after the signal; the next step would be `WM_ACTIVATEAPP(TRUE)` as well (an amendment).
+
+**Alternatives considered.** `WM_ACTIVATEAPP(TRUE)` (the user chose `WM_ACTIVATE`; the game's handler of both resumes the devices);
+minimize and restore (changes the window: forbidden); `SetForegroundWindow` on a window that is in front (sends nothing);
+`AttachThreadInput` or simulated key presses (input faking, forbidden by `ForegroundRulesTests` in spirit); a patched game
+program (never).

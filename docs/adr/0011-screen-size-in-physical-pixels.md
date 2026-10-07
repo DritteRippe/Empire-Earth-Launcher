@@ -6,7 +6,8 @@ sections
 ## Context
 
 The default game window size is the primary screen size in physical pixels, limited to 1024-1920 by
-768-1080 (contract 3.3); screens lower than 768 pixels get a warning (R13, t=3863). A DPI-unaware process
+768-1200 (contract 3.3, revision 6; on a screen wider than 1920 also the larger of 1080 and the height scaled to the width 1920,
+so 16:9 screens keep 1920x1080); screens lower than 768 pixels get a warning (R13, t=3863). A DPI-unaware process
 gets scaled ("logical") sizes from `GetSystemMetrics` and `Screen.PrimaryScreen` on scaled displays, e.g.
 1536x864 instead of 1920x1080 at 125 %. The launcher UI is designed with fixed bitmaps and runs DPI-unaware
 today (no `dpiAware` in its manifest).

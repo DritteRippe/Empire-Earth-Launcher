@@ -82,7 +82,8 @@ Empire-Earth.sln
 │  │                   (contract 3, L-WP5); since 1.1.0 ResolutionOptions (the game window sizes of the Graphics
 │  │                   page, 1024x768 to 1920x1200) and GameDefaultsService.SetGameWindow / ReadGameWindow
 │  ├─ Graphics/        WrapperInfo (which DirectX wrapper the setup installed, contract 3.3), DgVoodooConfReader
-│  │                   (dgVoodoo.conf as keys and values, read where the game reads it; 1.1.0, read-only)
+│  │                   (dgVoodoo.conf as keys and values, read where the game reads it; 1.1.0, read-only),
+│  │                   DgVoodooPreset (which keys still have the window settings of a setup before 1.1.0)
 │  ├─ Mods/            DreXmodInfo (dreXmod 2 or 3 from the components), DreXmodConfigReader (the Mod and LobbyTheme
 │  │                   selectors of dreXmod.config as text), ModFolderScanner (the presets of Data\dxm\mods),
 │  │                   CreditsParser (Name, Last Edit, Created by of a preset); 1.1.0, read-only
@@ -92,7 +93,8 @@ Empire-Earth.sln
 │  │                   MutationGuard (contract 4.2, 3.7, ADR 0010, ADR 0016; L-WP6); since 1.0.0
 │  │                   LauncherArguments (--product) and InstanceForwarding (InstanceMessage, InstanceForwarder,
 │  │                   InstanceReceiver: the hand-over to a running launcher, contract 1.4 revision 4); since 1.1.0
-│  │                   GameWindowActivator (the foreground goes to the window of the game just started, ADR 0010)
+│  │                   GameWindowActivator (the foreground goes to the window of the game just started, ADR 0010) and
+│  │                   ActivationSignal (A1b: when the one WM_ACTIVATE goes to its settled main window, pure)
 │  ├─ Repair/          SetupDownloadPage (the three download pages, contract 4.3), UpdateApi (the query and the
 │  │                   failures of 4.5), UpdateChecker, RepairAdvice (contract 4; RepairAdvice since L-WP6, the rest
 │  │                   L-WP7); since 1.0.0 SuiteRepairLocator (the folder of the suite for the advice, contract 4.4);
@@ -154,7 +156,7 @@ the size it opens with; the navigation buttons sit in a panel docked at the left
 |---|---|---|
 | **Play** | selected installation (product, folder, kind, integrity badge), file versions of `Empire Earth.exe` / `EE-AOC.exe`, choice EE / AoC (AoC only if installed), Play, "setup is running" and "game is running" states (with the hanging-process hint), non-modal warnings that can be hidden per value, lobby profiles and online player list (existing) | R2, R3 |
 | **Game settings** (the *Settings* navigation button) | defaults state, consistency warnings, apply recommended display settings, reset (with backup), compatibility options (HKCU only, HKLM read-only; Windows 8 and later only, on Windows 7 only removing `~ RUNASADMIN` and the old values shown, ADR 0007 plan review), screen warning below 768 pixels | R1, R4 |
-| **Graphics** (1.1.0) | the game window size of the selected installation (list of 4:3, 5:4, 16:10 and 16:9 sizes that fit the screen, 1024x768 to 1920x1200, "Use this size" writes only `Game Window Width` and `Game Window Height` after a backup, section 4.8), the installed DirectX wrapper and, for dgVoodoo, `OutputAPI` and the screen mode keys of `dgVoodoo.conf` (shown only), and the steps to change the wrapper in the setup | R1 (3.2, revision 6) |
+| **Graphics** (1.1.0) | the game window size of the selected installation (list of 4:3, 5:4, 16:10 and 16:9 sizes that fit the screen, 1024x768 to 1920x1200, "Use this size" writes only `Game Window Width` and `Game Window Height` after a backup, section 4.8), the installed DirectX wrapper and, for dgVoodoo, `OutputAPI` and the screen mode keys of `dgVoodoo.conf` (shown only; a hint when they are still those of a setup before 1.1.0), and the steps to change the wrapper in the setup | R1 (3.2, revision 6) |
 | **Mods** (1.1.0, only for an installation with dreXmod 3) | the dreXmod presets of each game (the folders of `Data\dxm\mods` with name, last edit, author and size from `CREDITS`; the skeleton `template` hidden unless asked), which of them `dreXmod.config` names as the active mod and the active lobby theme, "Open mods folder" and "Open dreXmod.config", the steps to switch a preset by hand; shown only, section 4.9 | O9 |
 | **Tools** | integrity details and full check, repair advice, registry cleanup (HKCU keys to select, HKLM keys read-only with advice), WON login reset, VirtualStore check, saved games and scenarios (folder export, import), player names, network diagnostics, "copy diagnostics report", open backup folder | R2, R5 to R10 |
 | **Launcher** | installations found and the user's choice, hint when several installations share one game settings key, theme, language (system, English, German, French) | R1, R17 |
@@ -324,9 +326,15 @@ Click Play -> button disabled -> `GameStarter.StartAsync(installation, game)`:
    looked at again and handed over again at most 3 times while the launcher owns it. If another process owns the foreground
    (the player switched) nothing is changed: the launcher never steals the foreground. One log line says when the window
    appeared and what was done (ADR 0010 amendment of 2026-10-06; report 1: the mouse stayed dead until minimize and
-   restore, the game did not get activation while the launcher was in front). Then it only watches for 60 s: every change of
-   the foreground window and of the rectangle and styles of the main window is logged with the time since the start (ADR 0010
-   amendment of 2026-10-07; a measurement, A1 does not fix the dgVoodoo case).
+   restore, the game did not get activation while the launcher was in front). Then it watches, for 60 s at least: every
+   change of the foreground window and of the rectangle and styles of the main window is logged with the time since the
+   start (ADR 0010 amendment of 2026-10-07; a measurement). If the hand-over ended with the game in front, the watch also
+   feeds `ActivationSignal` (A1b, ADR 0010 amendment of 2026-10-07): once the main window has been the foreground window with
+   the same rectangle and styles for 5 s, at the latest 180 s after the start, `IWindowSystem.PostActivateMessage` posts it
+   one `WM_ACTIVATE` (`WA_ACTIVE`), so that the game acquires its DirectInput mouse (with dgVoodoo no activation reaches it
+   after it created the devices). Never while the lobby popup, the splash or another program is in front, at most once, every
+   decision logged; the watch lasts until the signal is decided. `WindowMessageRulesTests` keep the imports of the functions
+   that post, send, show or move a window to the three adapters that have a rule.
 
 Implemented in L-WP6 (`GameStarter`, `PlayModel`, [ADR 0010](adr/0010-game-start-and-mutex-probing.md) amendment):
 every refusal and start error is a `StartResult` (setup running, same game running with `ProcessFound`, other game
@@ -609,7 +617,12 @@ suite 1.1.0 starts the launcher without an argument.
   never above 1920x1200 or below 1024x768), the wrapper (`WrapperInfo.Describe`: components of `install.ini`, else of the
   uninstall key, wrapper files only without component information) and, for a wrapper that can be dgVoodoo, the
   `dgVoodoo.conf` of each game through `DgVoodooConfReader` and the `EffectivePathResolver` (the VirtualStore copy first,
-  ADR 0016). Only the latest read counts. `GraphicsView.Of` turns the state into what the page shows (texts, shown and
+  ADR 0016). `DgVoodooPreset.OutdatedKeys` tells which keys of such a conf still have the window settings of a setup before
+  1.1.0 (`Version` below `0x287`, `DeferredScreenModeSwitch = true`, `DisableAltEnterToToggleScreenMode = false`, no item
+  `fake` in `FullscreenAttributes`); `GraphicsView.WrapperPresetHint` turns that into one paragraph per game, only for
+  dgVoodoo of a community installation and only for a file that was read (the VirtualStore copy has its own text: a repair
+  does not replace it). It is information only, no button: the setup repairs, the launcher never writes the file. Only the
+  latest read counts. `GraphicsView.Of` turns the state into what the page shows (texts, shown and
   enabled controls, the list and its selection), so that `GraphicsViewTests` cover it on Mono; `GraphicsUserControl` only
   assigns the view and stacks the controls with `ScrollPageLayout` (ADR 0017).
 - **The one change**: "Use this size" calls `GraphicsModel.ApplyResolutionAsync`, which runs
