@@ -205,6 +205,9 @@
     <Compile Include="Launcher\IntegrityModelTests.cs" />
     <Compile Include="Launcher\MaintenanceModelTests.cs" />
     <Compile Include="Launcher\MaintenanceTextsTests.cs" />
+    <Compile Include="Launcher\ModsModelTests.cs" />
+    <Compile Include="Launcher\ModsTextsTests.cs" />
+    <Compile Include="Launcher\ModsViewTests.cs" />
     <Compile Include="Launcher\NetworkTextsTests.cs" />
     <Compile Include="Launcher\PageLayoutTests.cs" />
     <Compile Include="Launcher\PageScreenshotTests.cs" />
@@ -235,6 +238,7 @@
     <Compile Include="TestSupport\LauncherPageWorld.cs" />
     <Compile Include="TestSupport\LauncherPages.cs" />
     <Compile Include="TestSupport\LayoutChecker.cs" />
+    <Compile Include="TestSupport\ModsModelWorld.cs" />
     <Compile Include="TestSupport\PlayPageWorld.cs" />
     <Compile Include="TestSupport\ProductionSources.cs" />
     <Compile Include="TestSupport\InstallationWorld.cs" />

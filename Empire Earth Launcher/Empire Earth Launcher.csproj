@@ -90,6 +90,8 @@
     <Compile Include="GameSettingsModel.cs" />
     <Compile Include="GraphicsModel.cs" />
     <Compile Include="GraphicsView.cs" />
+    <Compile Include="ModsModel.cs" />
+    <Compile Include="ModsView.cs" />
     <Compile Include="GraphicsUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

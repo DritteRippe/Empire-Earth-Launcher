@@ -1811,4 +1811,140 @@ The old files are copied to the backup folder first. Replace them?</value>
     <value>To change the wrapper, run the setup again: in the suite choose "Advanced: go through the setup of each game myself", then "Custom install settings", and pick the wrapper under "DirectX Wrapper". For no wrapper at all choose "Recommended settings" and then "Native" on the graphics card page. A repair or update with the setup also sets the game resolution back to the recommended size.</value>
     <comment>Hand-off to the setup. The quoted names are the texts of the suite and of the setup wizard in the same language (suite_messages.iss SuiteAdvanced, messages.iss MIQP_Custom, CompDxWrapper, MIQP_Recommended, GPUIQP_Native).</comment>
   </data>
+  <data name="NavigationMods" xml:space="preserve">
+    <value>Mods</value>
+    <comment>Navigation button of the Mods page; at most about 14 characters.</comment>
+  </data>
+  <data name="ModsHeading" xml:space="preserve">
+    <value>dreXmod presets</value>
+    <comment>Heading of the Mods page.</comment>
+  </data>
+  <data name="ModsInfo" xml:space="preserve">
+    <value>dreXmod 3 comes with presets: folders in Data\dxm\mods with sounds, textures, fonts and a lobby theme. The file dreXmod.config chooses one of them as the active mod (block Mod: the sounds and textures of the game) and one as the active lobby theme (block LobbyTheme: the look of the lobby), independently of each other. This page only shows the presets and the choice; the launcher changes nothing.</value>
+    <comment>Explanation at the top of the Mods page (launcher 1.1.0, read-only).</comment>
+  </data>
+  <data name="ModsHowTo" xml:space="preserve">
+    <value>To switch by hand: click "Open dreXmod.config" for the game, set Enabled to 1 and Name to the name of a folder (the name at the beginning of each entry above) in the block Mod or LobbyTheme, save the file and start the game. What dreXmod does with a name that is no folder has not been verified.</value>
+    <comment>How to switch the preset by hand (the launcher does not). The quoted words are the caption of ModsOpenConfigButton.</comment>
+  </data>
+  <data name="ModsNote" xml:space="preserve">
+    <value>A setup run (installation, update or repair) installs dreXmod.config anew, so the choice goes back to the shipped default (mod off, lobby theme dxm). Presets you made yourself in Data\dxm\mods stay; the setup does not delete them. Whether an active mod has an effect in multiplayer or ranked games has not been verified: use one there only if you know it is accepted.</value>
+    <comment>Note at the bottom of the Mods page: the setup resets the choice but keeps self-made presets; the multiplayer effect is unverified.</comment>
+  </data>
+  <data name="ModsShowTemplates" xml:space="preserve">
+    <value>Also show the template folder</value>
+    <comment>Check box of the Mods page: the folder template is the skeleton for authors of presets.</comment>
+  </data>
+  <data name="ModsOpenFolderButton" xml:space="preserve">
+    <value>Open mods folder</value>
+    <comment>Button of the Mods page: opens Data\dxm\mods of the game in the Explorer.</comment>
+  </data>
+  <data name="ModsOpenConfigButton" xml:space="preserve">
+    <value>Open dreXmod.config</value>
+    <comment>Button of the Mods page: opens dreXmod.config of the game in its program.</comment>
+  </data>
+  <data name="ModsSetupRunningFormat" xml:space="preserve">
+    <value>The {0} setup is running. Until it has ended, this page reads and opens nothing in the game folders.</value>
+    <comment>Mods page while EE_Setup, NeoEE_Setup or EmpireEarthCommunity_Suite exists (contract 4.2). {0}: Empire Earth, NeoEE or Empire Earth Community.</comment>
+  </data>
+  <data name="ModsActiveModFormat" xml:space="preserve">
+    <value>Active mod: {0}</value>
+    <comment>Mods page. {0}: a folder name, ModsSelectorOff or ModsSelectorUnknown.</comment>
+  </data>
+  <data name="ModsActiveLobbyFormat" xml:space="preserve">
+    <value>Active lobby theme: {0}</value>
+    <comment>Mods page. {0}: a folder name, ModsSelectorOff or ModsSelectorUnknown.</comment>
+  </data>
+  <data name="ModsSelectorOff" xml:space="preserve">
+    <value>none (switched off)</value>
+    <comment>Mods page: the Mod or LobbyTheme block of dreXmod.config has Enabled 0.</comment>
+  </data>
+  <data name="ModsSelectorUnknown" xml:space="preserve">
+    <value>unknown</value>
+    <comment>Mods page: the block has no usable Enabled or Name.</comment>
+  </data>
+  <data name="ModsSelectedMissingFormat" xml:space="preserve">
+    <value>dreXmod.config names the folder {0}, which does not exist in Data\dxm\mods.</value>
+    <comment>Mods page. {0}: the name in the Mod or LobbyTheme block.</comment>
+  </data>
+  <data name="ModsConfigVirtualStore" xml:space="preserve">
+    <value>The game reads the copy of dreXmod.config in the VirtualStore.</value>
+    <comment>Mods page (ADR 0016).</comment>
+  </data>
+  <data name="ModsConfigMissingFormat" xml:space="preserve">
+    <value>dreXmod.config was not found ({0}).</value>
+    <comment>Mods page. {0}: the path of the file.</comment>
+  </data>
+  <data name="ModsConfigUnreadable" xml:space="preserve">
+    <value>dreXmod.config could not be read.</value>
+    <comment>Mods page.</comment>
+  </data>
+  <data name="ModsConfigNoSelectors" xml:space="preserve">
+    <value>dreXmod.config has no Mod and no LobbyTheme block, so no preset is chosen in it.</value>
+    <comment>Mods page.</comment>
+  </data>
+  <data name="ModsFolderMissingFormat" xml:space="preserve">
+    <value>The folder {0} does not exist.</value>
+    <comment>Mods page and message of the button "Open mods folder". {0}: the path.</comment>
+  </data>
+  <data name="ModsFolderUnreadableFormat" xml:space="preserve">
+    <value>The folder {0} could not be read.</value>
+    <comment>Mods page. {0}: the path.</comment>
+  </data>
+  <data name="ModsNoPresets" xml:space="preserve">
+    <value>There are no presets in this folder.</value>
+    <comment>Mods page.</comment>
+  </data>
+  <data name="ModsPresetNameFormat" xml:space="preserve">
+    <value>{0} ({1})</value>
+    <comment>Mods page: the folder name and, if it says more, the name from the CREDITS file.</comment>
+  </data>
+  <data name="ModsPresetBadgesFormat" xml:space="preserve">
+    <value>{0}  [{1}]</value>
+    <comment>Mods page: a preset and its badges. {1}: ModsBadgeMod, ModsBadgeLobby, ModsBadgeTemplate, separated by commas.</comment>
+  </data>
+  <data name="ModsBadgeMod" xml:space="preserve">
+    <value>active mod</value>
+    <comment>Badge of a preset that dreXmod.config names in the block Mod.</comment>
+  </data>
+  <data name="ModsBadgeLobby" xml:space="preserve">
+    <value>active lobby theme</value>
+    <comment>Badge of a preset that dreXmod.config names in the block LobbyTheme.</comment>
+  </data>
+  <data name="ModsBadgeTemplate" xml:space="preserve">
+    <value>template for authors</value>
+    <comment>Badge of the folder template.</comment>
+  </data>
+  <data name="ModsPresetLastEditFormat" xml:space="preserve">
+    <value>last edit {0}</value>
+    <comment>Mods page. {0}: the date of the CREDITS file in the format of the language, or its text.</comment>
+  </data>
+  <data name="ModsPresetCreatedByFormat" xml:space="preserve">
+    <value>created by {0}</value>
+    <comment>Mods page. {0}: the text of the CREDITS file.</comment>
+  </data>
+  <data name="ModsPresetSizeFormat" xml:space="preserve">
+    <value>size {0}</value>
+    <comment>Mods page. {0}: ModsSizeKilobytesFormat or ModsSizeMegabytesFormat.</comment>
+  </data>
+  <data name="ModsSizeKilobytesFormat" xml:space="preserve">
+    <value>{0} KB</value>
+    <comment>Size of a preset below 1 MB.</comment>
+  </data>
+  <data name="ModsSizeMegabytesFormat" xml:space="preserve">
+    <value>{0} MB</value>
+    <comment>Size of a preset.</comment>
+  </data>
+  <data name="ModsSizeMoreThanFormat" xml:space="preserve">
+    <value>more than {0}</value>
+    <comment>A size that is only a lower bound: the folder has more files than the page counts.</comment>
+  </data>
+  <data name="ModsNothingToOpen" xml:space="preserve">
+    <value>There is nothing to open now.</value>
+    <comment>Message of the buttons of the Mods page when no state is read or a setup runs.</comment>
+  </data>
+  <data name="ModsOpenFailedFormat" xml:space="preserve">
+    <value>It could not be opened: {0}</value>
+    <comment>Message of the Mods page when the Explorer or the program of the file cannot open it. {0}: the error.</comment>
+  </data>
 </root>

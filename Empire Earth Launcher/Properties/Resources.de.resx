@@ -1363,4 +1363,106 @@ Die alten Dateien werden vorher in den Sicherungsordner kopiert. Ersetzen?</valu
   <data name="GraphicsWrapperChangeInfo" xml:space="preserve">
     <value>Um den Wrapper zu wechseln, führen Sie das Setup erneut aus: Wählen Sie in der Suite „Erweitert: Das Setup jedes Spiels selbst durchgehen“, dann „Benutzerdefinierte Installationseinstellungen“ und unter „DirectX-Wrapper“ den Wrapper. Für gar keinen Wrapper wählen Sie „Empfohlene Einstellungen“ und auf der Seite der Grafikkarte „Nativ“. Eine Reparatur oder Aktualisierung mit dem Setup setzt auch die Spielauflösung auf die empfohlene Größe zurück.</value>
   </data>
+  <data name="NavigationMods" xml:space="preserve">
+    <value>Mods</value>
+  </data>
+  <data name="ModsHeading" xml:space="preserve">
+    <value>dreXmod-Presets</value>
+  </data>
+  <data name="ModsInfo" xml:space="preserve">
+    <value>dreXmod 3 bringt Presets mit: Ordner in Data\dxm\mods mit Sounds, Texturen, Schriften und einem Lobby-Theme. Die Datei dreXmod.config wählt eines davon als aktiven Mod (Block Mod: Sounds und Texturen des Spiels) und eines als aktives Lobby-Theme (Block LobbyTheme: Aussehen der Lobby), unabhängig voneinander. Diese Seite zeigt die Presets und die Auswahl nur an; der Launcher ändert nichts.</value>
+  </data>
+  <data name="ModsHowTo" xml:space="preserve">
+    <value>So wechseln Sie von Hand: Klicken Sie beim Spiel auf „dreXmod.config öffnen“, setzen Sie im Block Mod oder LobbyTheme Enabled auf 1 und Name auf den Namen eines Ordners (der Name am Anfang jedes Eintrags oben), speichern Sie die Datei und starten Sie das Spiel. Was dreXmod mit einem Namen macht, der kein Ordner ist, wurde nicht geprüft.</value>
+  </data>
+  <data name="ModsNote" xml:space="preserve">
+    <value>Ein Setup-Lauf (Installation, Update oder Reparatur) installiert dreXmod.config neu, die Auswahl geht dann auf die mitgelieferte Voreinstellung zurück (Mod aus, Lobby-Theme dxm). Presets, die Sie selbst in Data\dxm\mods angelegt haben, bleiben erhalten; das Setup löscht sie nicht. Ob ein aktiver Mod in Mehrspieler- oder Ranglistenspielen eine Wirkung hat, wurde nicht geprüft: Verwenden Sie dort einen nur, wenn Sie wissen, dass er akzeptiert wird.</value>
+  </data>
+  <data name="ModsShowTemplates" xml:space="preserve">
+    <value>Auch den Ordner template anzeigen</value>
+  </data>
+  <data name="ModsOpenFolderButton" xml:space="preserve">
+    <value>Mods-Ordner öffnen</value>
+  </data>
+  <data name="ModsOpenConfigButton" xml:space="preserve">
+    <value>dreXmod.config öffnen</value>
+  </data>
+  <data name="ModsSetupRunningFormat" xml:space="preserve">
+    <value>Das Setup von {0} läuft. Bis es beendet ist, liest diese Seite nichts aus den Spielordnern und öffnet nichts darin.</value>
+  </data>
+  <data name="ModsActiveModFormat" xml:space="preserve">
+    <value>Aktiver Mod: {0}</value>
+  </data>
+  <data name="ModsActiveLobbyFormat" xml:space="preserve">
+    <value>Aktives Lobby-Theme: {0}</value>
+  </data>
+  <data name="ModsSelectorOff" xml:space="preserve">
+    <value>keiner (ausgeschaltet)</value>
+  </data>
+  <data name="ModsSelectorUnknown" xml:space="preserve">
+    <value>unbekannt</value>
+  </data>
+  <data name="ModsSelectedMissingFormat" xml:space="preserve">
+    <value>dreXmod.config nennt den Ordner {0}, den es in Data\dxm\mods nicht gibt.</value>
+  </data>
+  <data name="ModsConfigVirtualStore" xml:space="preserve">
+    <value>Das Spiel liest die Kopie von dreXmod.config im VirtualStore.</value>
+  </data>
+  <data name="ModsConfigMissingFormat" xml:space="preserve">
+    <value>dreXmod.config wurde nicht gefunden ({0}).</value>
+  </data>
+  <data name="ModsConfigUnreadable" xml:space="preserve">
+    <value>dreXmod.config konnte nicht gelesen werden.</value>
+  </data>
+  <data name="ModsConfigNoSelectors" xml:space="preserve">
+    <value>dreXmod.config hat weder einen Block Mod noch einen Block LobbyTheme; es wird darin also kein Preset ausgewählt.</value>
+  </data>
+  <data name="ModsFolderMissingFormat" xml:space="preserve">
+    <value>Den Ordner {0} gibt es nicht.</value>
+  </data>
+  <data name="ModsFolderUnreadableFormat" xml:space="preserve">
+    <value>Der Ordner {0} konnte nicht gelesen werden.</value>
+  </data>
+  <data name="ModsNoPresets" xml:space="preserve">
+    <value>In diesem Ordner gibt es keine Presets.</value>
+  </data>
+  <data name="ModsPresetNameFormat" xml:space="preserve">
+    <value>{0} ({1})</value>
+  </data>
+  <data name="ModsPresetBadgesFormat" xml:space="preserve">
+    <value>{0}  [{1}]</value>
+  </data>
+  <data name="ModsBadgeMod" xml:space="preserve">
+    <value>aktiver Mod</value>
+  </data>
+  <data name="ModsBadgeLobby" xml:space="preserve">
+    <value>aktives Lobby-Theme</value>
+  </data>
+  <data name="ModsBadgeTemplate" xml:space="preserve">
+    <value>Vorlage für Autoren</value>
+  </data>
+  <data name="ModsPresetLastEditFormat" xml:space="preserve">
+    <value>zuletzt geändert {0}</value>
+  </data>
+  <data name="ModsPresetCreatedByFormat" xml:space="preserve">
+    <value>erstellt von {0}</value>
+  </data>
+  <data name="ModsPresetSizeFormat" xml:space="preserve">
+    <value>Größe {0}</value>
+  </data>
+  <data name="ModsSizeKilobytesFormat" xml:space="preserve">
+    <value>{0} KB</value>
+  </data>
+  <data name="ModsSizeMegabytesFormat" xml:space="preserve">
+    <value>{0} MB</value>
+  </data>
+  <data name="ModsSizeMoreThanFormat" xml:space="preserve">
+    <value>mehr als {0}</value>
+  </data>
+  <data name="ModsNothingToOpen" xml:space="preserve">
+    <value>Es gibt jetzt nichts zu öffnen.</value>
+  </data>
+  <data name="ModsOpenFailedFormat" xml:space="preserve">
+    <value>Es konnte nicht geöffnet werden: {0}</value>
+  </data>
 </root>

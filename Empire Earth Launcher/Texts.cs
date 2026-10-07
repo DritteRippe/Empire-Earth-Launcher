@@ -11,6 +11,7 @@ using Empire_Earth_Launcher.Core.Backup;
 using Empire_Earth_Launcher.Core.Integrity;
 using Empire_Earth_Launcher.Core.Lobby;
 using Empire_Earth_Launcher.Core.Maintenance;
+using Empire_Earth_Launcher.Core.Mods;
 using Empire_Earth_Launcher.Core.Platform;
 using Empire_Earth_Launcher.Core.Play;
 using Empire_Earth_Launcher.Core.Repair;
@@ -1453,6 +1454,136 @@ namespace Empire_Earth_Launcher
                 blocks.Add(string.Join(Environment.NewLine, lines));
             }
             return string.Join(Environment.NewLine + Environment.NewLine, blocks);
+        }
+
+        // --- Mods page (launcher 1.1.0) -----------------------------------------------------------------------------------
+
+        /// <summary>The line of a running setup on the Mods page; null if none runs. The page reads and opens nothing then (contract 4.2).</summary>
+        internal static string ModsSetupRunning(SetupKind setup)
+        {
+            return setup == null ? null : string.Format(CultureInfo.CurrentCulture, Resources.ModsSetupRunningFormat, setup.AppName);
+        }
+
+        /// <summary>
+        /// The active mod and the active lobby theme that <c>dreXmod.config</c> of a game folder names, or why it tells nothing (not
+        /// found, not readable, no selectors); a selected folder that does not exist and the VirtualStore copy get a line of their own.
+        /// </summary>
+        internal static string ModsSelection(GameModsLine line)
+        {
+            if (line == null)
+                throw new ArgumentNullException(nameof(line));
+            DreXmodConfigFile file = line.Config;
+            switch (file.Status)
+            {
+                case ConfigFileStatus.Missing:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.ModsConfigMissingFormat, file.Path);
+                case ConfigFileStatus.Unreadable:
+                    return Resources.ModsConfigUnreadable;
+            }
+            if (!file.Config.HasModSystem)
+                return Resources.ModsConfigNoSelectors;
+            var lines = new List<string>
+            {
+                string.Format(CultureInfo.CurrentCulture, Resources.ModsActiveModFormat, ModsSelector(file.Config.Mod)),
+                string.Format(CultureInfo.CurrentCulture, Resources.ModsActiveLobbyFormat, ModsSelector(file.Config.LobbyTheme)),
+            };
+            // A name that is no folder: dreXmod finds no preset to load (what it does then is not verified).
+            foreach (DreXmodSelector selector in new[] { file.Config.Mod, file.Config.LobbyTheme })
+            {
+                if (selector.Enabled == true && selector.Name != null && line.Scan.Status == ConfigFileStatus.Read &&
+                    !line.Scan.Presets.Any(preset => selector.Selects(preset.FolderName)))
+                {
+                    string missing = string.Format(CultureInfo.CurrentCulture, Resources.ModsSelectedMissingFormat, selector.Name);
+                    if (!lines.Contains(missing))
+                        lines.Add(missing);
+                }
+            }
+            if (file.IsVirtualStoreCopy)
+                lines.Add(Resources.ModsConfigVirtualStore);
+            return string.Join(Environment.NewLine, lines);
+        }
+
+        /// <summary>What a selector of <c>dreXmod.config</c> says: the folder it names, "none" if it is switched off, else "unknown".</summary>
+        private static string ModsSelector(DreXmodSelector selector)
+        {
+            if (selector.Enabled == false)
+                return Resources.ModsSelectorOff;
+            return selector.Enabled == true && selector.Name != null ? selector.Name : Resources.ModsSelectorUnknown;
+        }
+
+        /// <summary>
+        /// The presets of the folder <c>Data\dxm\mods</c> of a game, one block of one or two lines each; the folder <c>template</c> only if
+        /// <paramref name="showTemplates"/> is set. If there is none, why.
+        /// </summary>
+        internal static string ModsPresets(GameModsLine line, bool showTemplates)
+        {
+            if (line == null)
+                throw new ArgumentNullException(nameof(line));
+            switch (line.Scan.Status)
+            {
+                case ConfigFileStatus.Missing:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.ModsFolderMissingFormat, line.Scan.Path);
+                case ConfigFileStatus.Unreadable:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.ModsFolderUnreadableFormat, line.Scan.Path);
+            }
+            DreXmodConfig config = line.Config.Config;
+            List<string> presets = line.Scan.Presets.Where(preset => showTemplates || !preset.IsTemplate)
+                                       .Select(preset => ModsPreset(preset, config)).ToList();
+            return presets.Count == 0 ? Resources.ModsNoPresets : string.Join(Environment.NewLine, presets);
+        }
+
+        /// <summary>
+        /// One preset: its name (the name of the folder, which is what <c>dreXmod.config</c> names, with the name of its credits if
+        /// that says more), the badges "active mod" and "active lobby theme" (<paramref name="config"/> may be null), and, in a
+        /// second line, the last edit, the author and the size, as far as the files tell them.
+        /// </summary>
+        internal static string ModsPreset(ModPreset preset, DreXmodConfig config)
+        {
+            if (preset == null)
+                throw new ArgumentNullException(nameof(preset));
+            string name = preset.FolderName;
+            string creditsName = preset.CreditsName;
+            if (preset.IsTemplate)
+                creditsName = null;
+            else if (creditsName != null)
+                name = creditsName.StartsWith(preset.FolderName, StringComparison.OrdinalIgnoreCase)
+                    ? creditsName
+                    : string.Format(CultureInfo.CurrentCulture, Resources.ModsPresetNameFormat, preset.FolderName, creditsName);
+
+            var badges = new List<string>();
+            if (preset.IsTemplate)
+                badges.Add(Resources.ModsBadgeTemplate);
+            if (config != null && config.Mod.Selects(preset.FolderName))
+                badges.Add(Resources.ModsBadgeMod);
+            if (config != null && config.LobbyTheme.Selects(preset.FolderName))
+                badges.Add(Resources.ModsBadgeLobby);
+            string first = badges.Count == 0
+                ? name
+                : string.Format(CultureInfo.CurrentCulture, Resources.ModsPresetBadgesFormat, name, string.Join(", ", badges));
+
+            var details = new List<string>();
+            ModCredits credits = preset.Credits;
+            if (credits?.LastEdit != null)
+                details.Add(string.Format(CultureInfo.CurrentCulture, Resources.ModsPresetLastEditFormat,
+                    credits.LastEditDate.HasValue ? credits.LastEditDate.Value.ToString("d", CultureInfo.CurrentCulture) : credits.LastEdit));
+            if (credits?.CreatedBy != null)
+                details.Add(string.Format(CultureInfo.CurrentCulture, Resources.ModsPresetCreatedByFormat, credits.CreatedBy));
+            details.Add(string.Format(CultureInfo.CurrentCulture, Resources.ModsPresetSizeFormat, ModsSize(preset)));
+            return first + Environment.NewLine + "    " + string.Join("; ", details);
+        }
+
+        /// <summary>The size of a preset in KB or MB; "more than ..." if the scan did not follow every file.</summary>
+        internal static string ModsSize(ModPreset preset)
+        {
+            if (preset == null)
+                throw new ArgumentNullException(nameof(preset));
+            const double Megabyte = 1024d * 1024d;
+            string size = preset.SizeBytes < Megabyte
+                ? string.Format(CultureInfo.CurrentCulture, Resources.ModsSizeKilobytesFormat,
+                    Math.Max(1, Math.Round(preset.SizeBytes / 1024d)).ToString("0", CultureInfo.CurrentCulture))
+                : string.Format(CultureInfo.CurrentCulture, Resources.ModsSizeMegabytesFormat,
+                    (preset.SizeBytes / Megabyte).ToString("0.0", CultureInfo.CurrentCulture));
+            return preset.IsSizeComplete ? size : string.Format(CultureInfo.CurrentCulture, Resources.ModsSizeMoreThanFormat, size);
         }
     }
 }

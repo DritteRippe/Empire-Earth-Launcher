@@ -2081,6 +2081,303 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Active lobby theme: {0}.
+        /// </summary>
+        internal static string ModsActiveLobbyFormat {
+            get {
+                return ResourceManager.GetString("ModsActiveLobbyFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Active mod: {0}.
+        /// </summary>
+        internal static string ModsActiveModFormat {
+            get {
+                return ResourceManager.GetString("ModsActiveModFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to active lobby theme.
+        /// </summary>
+        internal static string ModsBadgeLobby {
+            get {
+                return ResourceManager.GetString("ModsBadgeLobby", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to active mod.
+        /// </summary>
+        internal static string ModsBadgeMod {
+            get {
+                return ResourceManager.GetString("ModsBadgeMod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to template for authors.
+        /// </summary>
+        internal static string ModsBadgeTemplate {
+            get {
+                return ResourceManager.GetString("ModsBadgeTemplate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to dreXmod.config was not found ({0})..
+        /// </summary>
+        internal static string ModsConfigMissingFormat {
+            get {
+                return ResourceManager.GetString("ModsConfigMissingFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to dreXmod.config has no Mod and no LobbyTheme block, so no preset is chosen in it..
+        /// </summary>
+        internal static string ModsConfigNoSelectors {
+            get {
+                return ResourceManager.GetString("ModsConfigNoSelectors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to dreXmod.config could not be read..
+        /// </summary>
+        internal static string ModsConfigUnreadable {
+            get {
+                return ResourceManager.GetString("ModsConfigUnreadable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The game reads the copy of dreXmod.config in the VirtualStore..
+        /// </summary>
+        internal static string ModsConfigVirtualStore {
+            get {
+                return ResourceManager.GetString("ModsConfigVirtualStore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The folder {0} does not exist..
+        /// </summary>
+        internal static string ModsFolderMissingFormat {
+            get {
+                return ResourceManager.GetString("ModsFolderMissingFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The folder {0} could not be read..
+        /// </summary>
+        internal static string ModsFolderUnreadableFormat {
+            get {
+                return ResourceManager.GetString("ModsFolderUnreadableFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to dreXmod presets.
+        /// </summary>
+        internal static string ModsHeading {
+            get {
+                return ResourceManager.GetString("ModsHeading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To switch by hand: click "Open dreXmod.config" for the game, set Enabled to 1 and Name to the name o[rest of string was truncated].
+        /// </summary>
+        internal static string ModsHowTo {
+            get {
+                return ResourceManager.GetString("ModsHowTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to dreXmod 3 comes with presets: folders in Data\dxm\mods with sounds, textures, fonts and a lobby them[rest of string was truncated].
+        /// </summary>
+        internal static string ModsInfo {
+            get {
+                return ResourceManager.GetString("ModsInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There are no presets in this folder..
+        /// </summary>
+        internal static string ModsNoPresets {
+            get {
+                return ResourceManager.GetString("ModsNoPresets", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A setup run (installation, update or repair) installs dreXmod.config anew, so the choice goes back t[rest of string was truncated].
+        /// </summary>
+        internal static string ModsNote {
+            get {
+                return ResourceManager.GetString("ModsNote", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There is nothing to open now..
+        /// </summary>
+        internal static string ModsNothingToOpen {
+            get {
+                return ResourceManager.GetString("ModsNothingToOpen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open dreXmod.config.
+        /// </summary>
+        internal static string ModsOpenConfigButton {
+            get {
+                return ResourceManager.GetString("ModsOpenConfigButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to It could not be opened: {0}.
+        /// </summary>
+        internal static string ModsOpenFailedFormat {
+            get {
+                return ResourceManager.GetString("ModsOpenFailedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open mods folder.
+        /// </summary>
+        internal static string ModsOpenFolderButton {
+            get {
+                return ResourceManager.GetString("ModsOpenFolderButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}  [{1}].
+        /// </summary>
+        internal static string ModsPresetBadgesFormat {
+            get {
+                return ResourceManager.GetString("ModsPresetBadgesFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to created by {0}.
+        /// </summary>
+        internal static string ModsPresetCreatedByFormat {
+            get {
+                return ResourceManager.GetString("ModsPresetCreatedByFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to last edit {0}.
+        /// </summary>
+        internal static string ModsPresetLastEditFormat {
+            get {
+                return ResourceManager.GetString("ModsPresetLastEditFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} ({1}).
+        /// </summary>
+        internal static string ModsPresetNameFormat {
+            get {
+                return ResourceManager.GetString("ModsPresetNameFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to size {0}.
+        /// </summary>
+        internal static string ModsPresetSizeFormat {
+            get {
+                return ResourceManager.GetString("ModsPresetSizeFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to dreXmod.config names the folder {0}, which does not exist in Data\dxm\mods..
+        /// </summary>
+        internal static string ModsSelectedMissingFormat {
+            get {
+                return ResourceManager.GetString("ModsSelectedMissingFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to none (switched off).
+        /// </summary>
+        internal static string ModsSelectorOff {
+            get {
+                return ResourceManager.GetString("ModsSelectorOff", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to unknown.
+        /// </summary>
+        internal static string ModsSelectorUnknown {
+            get {
+                return ResourceManager.GetString("ModsSelectorUnknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The {0} setup is running. Until it has ended, this page reads and opens nothing in the game folders..
+        /// </summary>
+        internal static string ModsSetupRunningFormat {
+            get {
+                return ResourceManager.GetString("ModsSetupRunningFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Also show the template folder.
+        /// </summary>
+        internal static string ModsShowTemplates {
+            get {
+                return ResourceManager.GetString("ModsShowTemplates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} KB.
+        /// </summary>
+        internal static string ModsSizeKilobytesFormat {
+            get {
+                return ResourceManager.GetString("ModsSizeKilobytesFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} MB.
+        /// </summary>
+        internal static string ModsSizeMegabytesFormat {
+            get {
+                return ResourceManager.GetString("ModsSizeMegabytesFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to more than {0}.
+        /// </summary>
+        internal static string ModsSizeMoreThanFormat {
+            get {
+                return ResourceManager.GetString("ModsSizeMoreThanFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0}, lobby profile: {1}.
         /// </summary>
         internal static string NameLobbyProfileFormat {
@@ -2149,6 +2446,15 @@ namespace Empire_Earth_Launcher.Properties {
         internal static string NavigationLauncher {
             get {
                 return ResourceManager.GetString("NavigationLauncher", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mods.
+        /// </summary>
+        internal static string NavigationMods {
+            get {
+                return ResourceManager.GetString("NavigationMods", resourceCulture);
             }
         }
         
