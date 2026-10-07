@@ -161,6 +161,10 @@ namespace Empire_Earth_Launcher
             var graphics = new GraphicsModel(defaults, gameSettings, installations, setupWatcher, systemInfo, fileSystem,
                 effectivePaths, logger);
 
+            // Mods page (launcher 1.1.0, ADR 0014): the dreXmod presets and dreXmod.config of the selected installation, only read;
+            // the two buttons open the folder and the file in their programs, nothing is written.
+            var mods = new ModsModel(installations, setupWatcher, fileSystem, effectivePaths, shell, logger);
+
             // Server settings stay application settings in "Empire Earth Launcher.exe.config" (ADR 0005). The poller sends no
             // request before the Play page starts it (ADR 0004), and the page starts it only while the selected installation
             // is NeoEE (v1.0.0).
@@ -192,7 +196,7 @@ namespace Empire_Earth_Launcher
 
                 logger.Info("Starting Empire Earth Launcher Form");
                 var mainForm = new MainForm(logger, themeService, settingsStore, installations, lobbyProfiles, gameSettings,
-                    play, integrity, updates, maintenance, diagnostics, graphics, setupWatcher, uiOperation, playerList);
+                    play, integrity, updates, maintenance, diagnostics, graphics, mods, setupWatcher, uiOperation, playerList);
 
                 // The hidden window that a second launcher with --product sends the product to (contract 1.4); it is created here,
                 // on the UI thread, so that the message loop below delivers its messages, and lives as long as the launcher.

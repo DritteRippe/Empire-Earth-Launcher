@@ -9,7 +9,7 @@ namespace Empire_Earth_Launcher.Tests.Architecture
 {
     /// <summary>
     /// The main window can be resized freely and its pages grow with it (1.1.0, ADR 0017): the navigation buttons sit in a
-    /// panel at the left edge, the five pages fill the rest, and the window never gets smaller than it opens. The main window
+    /// panel at the left edge, the six pages fill the rest, and the window never gets smaller than it opens. The main window
     /// cannot be created under Mono, so the rules are checked on the sources; the pages themselves are measured by
     /// <c>PageLayoutTests</c> at several window sizes.
     /// </summary>
@@ -21,13 +21,14 @@ namespace Empire_Earth_Launcher.Tests.Architecture
 
         private static readonly string[] Pages =
         {
-            "generalUserControl", "settingsUserControl", "graphicsUserControl", "toolsUserControl", "launcherSettingsUserControl"
+            "generalUserControl", "settingsUserControl", "graphicsUserControl", "modsUserControl", "toolsUserControl",
+            "launcherSettingsUserControl"
         };
 
         private static readonly string[] NavigationButtons =
         {
-            "playKryptonCheckButton", "settingsKryptonCheckButton", "graphicsKryptonCheckButton", "toolsKryptonCheckButton",
-            "launcherKryptonCheckButton"
+            "playKryptonCheckButton", "settingsKryptonCheckButton", "graphicsKryptonCheckButton", "modPresetsKryptonCheckButton",
+            "toolsKryptonCheckButton", "launcherKryptonCheckButton"
         };
 
         private static string Designer()

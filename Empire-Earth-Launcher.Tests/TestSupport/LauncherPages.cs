@@ -16,6 +16,7 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
         public const string Play = "Play";
         public const string GameSettings = "Game settings";
         public const string Graphics = "Graphics";
+        public const string Mods = "Mods";
         public const string Tools = "Tools";
         public const string Launcher = "Launcher";
 
@@ -30,7 +31,7 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
 
         public static IEnumerable<string> Names
         {
-            get { return new[] { Play, GameSettings, Graphics, Tools, Launcher }; }
+            get { return new[] { Play, GameSettings, Graphics, Mods, Tools, Launcher }; }
         }
 
         /// <summary>The page sizes of the window sizes of the geometry tests: the minimum, 800 x 500, 1024 x 640 and 1920 x 1080.</summary>
@@ -61,6 +62,8 @@ namespace Empire_Earth_Launcher.Tests.TestSupport
                     return new SettingsUserControl();
                 case Graphics:
                     return new GraphicsUserControl();
+                case Mods:
+                    return new ModsUserControl();
                 case Tools:
                     return new ToolsUserControl();
                 case Launcher:

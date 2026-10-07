@@ -37,12 +37,14 @@ namespace Empire_Earth_Launcher
             this.playKryptonCheckButton = new Krypton.Toolkit.KryptonCheckButton();
             this.settingsKryptonCheckButton = new Krypton.Toolkit.KryptonCheckButton();
             this.graphicsKryptonCheckButton = new Krypton.Toolkit.KryptonCheckButton();
+            this.modPresetsKryptonCheckButton = new Krypton.Toolkit.KryptonCheckButton();
             this.toolsKryptonCheckButton = new Krypton.Toolkit.KryptonCheckButton();
             this.launcherKryptonCheckButton = new Krypton.Toolkit.KryptonCheckButton();
             this.generalUserControl = new Empire_Earth_Launcher.GeneralUserControl();
             this.launcherSettingsUserControl = new Empire_Earth_Launcher.LauncherSettingsUserControl();
             this.settingsUserControl = new Empire_Earth_Launcher.SettingsUserControl();
             this.graphicsUserControl = new Empire_Earth_Launcher.GraphicsUserControl();
+            this.modsUserControl = new Empire_Earth_Launcher.ModsUserControl();
             this.toolsUserControl = new Empire_Earth_Launcher.ToolsUserControl();
             this.navigationPanel.SuspendLayout();
             this.SuspendLayout();
@@ -114,6 +116,7 @@ namespace Empire_Earth_Launcher
             this.navigationPanel.BackColor = System.Drawing.Color.White;
             this.navigationPanel.Controls.Add(this.launcherKryptonCheckButton);
             this.navigationPanel.Controls.Add(this.toolsKryptonCheckButton);
+            this.navigationPanel.Controls.Add(this.modPresetsKryptonCheckButton);
             this.navigationPanel.Controls.Add(this.graphicsKryptonCheckButton);
             this.navigationPanel.Controls.Add(this.settingsKryptonCheckButton);
             this.navigationPanel.Controls.Add(this.playKryptonCheckButton);
@@ -170,6 +173,20 @@ namespace Empire_Earth_Launcher
             this.graphicsKryptonCheckButton.Values.Text = resources.GetString("graphicsKryptonCheckButton.Values.Text");
             this.graphicsKryptonCheckButton.Click += new System.EventHandler(this.navigationKryptonCheckButton_Click);
             // 
+            // modPresetsKryptonCheckButton
+            // 
+            resources.ApplyResources(this.modPresetsKryptonCheckButton, "modPresetsKryptonCheckButton");
+            this.modPresetsKryptonCheckButton.Name = "modPresetsKryptonCheckButton";
+            this.modPresetsKryptonCheckButton.Palette = this.launcherKryptonPalette;
+            this.modPresetsKryptonCheckButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.modPresetsKryptonCheckButton.StateCommon.Border.DrawBorders = ((Krypton.Toolkit.PaletteDrawBorders)((((Krypton.Toolkit.PaletteDrawBorders.Top | Krypton.Toolkit.PaletteDrawBorders.Bottom) 
+            | Krypton.Toolkit.PaletteDrawBorders.Left) 
+            | Krypton.Toolkit.PaletteDrawBorders.Right)));
+            this.modPresetsKryptonCheckButton.StateCommon.Border.Rounding = 0F;
+            this.modPresetsKryptonCheckButton.Values.Text = resources.GetString("modPresetsKryptonCheckButton.Values.Text");
+            this.modPresetsKryptonCheckButton.Visible = false;
+            this.modPresetsKryptonCheckButton.Click += new System.EventHandler(this.navigationKryptonCheckButton_Click);
+            // 
             // toolsKryptonCheckButton
             // 
             resources.ApplyResources(this.toolsKryptonCheckButton, "toolsKryptonCheckButton");
@@ -222,6 +239,12 @@ namespace Empire_Earth_Launcher
             this.graphicsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.graphicsUserControl.Name = "graphicsUserControl";
             // 
+            // modsUserControl
+            // 
+            resources.ApplyResources(this.modsUserControl, "modsUserControl");
+            this.modsUserControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.modsUserControl.Name = "modsUserControl";
+            // 
             // toolsUserControl
             // 
             resources.ApplyResources(this.toolsUserControl, "toolsUserControl");
@@ -236,6 +259,7 @@ namespace Empire_Earth_Launcher
             this.Controls.Add(this.generalUserControl);
             this.Controls.Add(this.settingsUserControl);
             this.Controls.Add(this.graphicsUserControl);
+            this.Controls.Add(this.modsUserControl);
             this.Controls.Add(this.toolsUserControl);
             this.Controls.Add(this.launcherSettingsUserControl);
             this.Controls.Add(this.navigationPanel);
@@ -255,6 +279,7 @@ namespace Empire_Earth_Launcher
         private Krypton.Toolkit.KryptonCheckButton playKryptonCheckButton;
         private Krypton.Toolkit.KryptonCheckButton settingsKryptonCheckButton;
         private Krypton.Toolkit.KryptonCheckButton graphicsKryptonCheckButton;
+        private Krypton.Toolkit.KryptonCheckButton modPresetsKryptonCheckButton;
         private Krypton.Toolkit.KryptonCheckButton toolsKryptonCheckButton;
         private Krypton.Toolkit.KryptonCheckButton launcherKryptonCheckButton;
         private Krypton.Toolkit.KryptonPalette launcherKryptonPalette;
@@ -262,6 +287,7 @@ namespace Empire_Earth_Launcher
         private GeneralUserControl generalUserControl;
         private SettingsUserControl settingsUserControl;
         private GraphicsUserControl graphicsUserControl;
+        private ModsUserControl modsUserControl;
         private ToolsUserControl toolsUserControl;
     }
 }

@@ -92,6 +92,13 @@
     <Compile Include="GraphicsView.cs" />
     <Compile Include="ModsModel.cs" />
     <Compile Include="ModsView.cs" />
+    <Compile Include="ModsUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ModsUserControl.Designer.cs">
+      <DependentUpon>ModsUserControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NavigationStack.cs" />
     <Compile Include="GraphicsUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -151,6 +158,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="GraphicsUserControl.resx">
       <DependentUpon>GraphicsUserControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModsUserControl.resx">
+      <DependentUpon>ModsUserControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.de.resx" />
     <EmbeddedResource Include="Properties\Resources.fr.resx" />

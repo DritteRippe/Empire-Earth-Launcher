@@ -1,5 +1,7 @@
 ﻿using Krypton.Toolkit;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 using Empire_Earth_Launcher.Core.Lobby;
 using Empire_Earth_Launcher.Core.Logging;
@@ -19,6 +21,9 @@ namespace Empire_Earth_Launcher
 
         private readonly SetupWatcher setupWatcher;
 
+        /// <summary>Decides whether the button of the Mods page exists (dreXmod 3 in the selected installation).</summary>
+        private readonly ModsModel mods;
+
         /// <summary>Ticks <see cref="setupWatcher"/> on the UI thread while the window is open (contract 4.2).</summary>
         private readonly Timer setupWatcherTimer = new Timer { Interval = SetupWatcherTickMilliseconds };
 
@@ -34,13 +39,14 @@ namespace Empire_Earth_Launcher
         /// <param name="maintenance">The maintenance tools of the Tools page (L-WP8).</param>
         /// <param name="diagnostics">The network diagnostics and the diagnostics report of the Tools page (L-WP9).</param>
         /// <param name="graphics">The Graphics page: the game window size and the DirectX wrapper (launcher 1.1.0).</param>
+        /// <param name="mods">The Mods page: the dreXmod presets, read only (launcher 1.1.0); its button exists with dreXmod 3 only.</param>
         /// <param name="setupWatcher">Watches the setup mutexes; the window ticks it every half second (contract 4.2).</param>
         /// <param name="uiOperation">Runs the asynchronous work of the pages (ADR 0004).</param>
         /// <param name="playerList">Polls the online player list; null if the server settings are invalid.</param>
         internal MainForm(ILogger logger, IThemeService themeService, SettingsStore settings,
             InstallationService installations, LobbyProfileRepository lobbyProfiles, GameSettingsModel gameSettings,
             PlayModel play, IntegrityModel integrity, UpdateModel updates, MaintenanceModel maintenance, DiagnosticsModel diagnostics,
-            GraphicsModel graphics, SetupWatcher setupWatcher, UiOperation uiOperation, PlayerListPolling playerList)
+            GraphicsModel graphics, ModsModel mods, SetupWatcher setupWatcher, UiOperation uiOperation, PlayerListPolling playerList)
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.OptimizedDoubleBuffer, true);
@@ -54,6 +60,7 @@ namespace Empire_Earth_Launcher
                 integrity, updates, uiOperation);
             settingsUserControl.Initialize(themeService, gameSettings, installations, setupWatcher, uiOperation);
             graphicsUserControl.Initialize(themeService, graphics, setupWatcher, uiOperation);
+            modsUserControl.Initialize(themeService, mods, setupWatcher);
             toolsUserControl.Initialize(themeService, integrity, updates, setupWatcher, maintenance, diagnostics, uiOperation);
             launcherSettingsUserControl.Initialize(themeService, settings, installations, uiOperation);
 
@@ -61,13 +68,17 @@ namespace Empire_Earth_Launcher
             playKryptonCheckButton.Tag = generalUserControl;
             settingsKryptonCheckButton.Tag = settingsUserControl;
             graphicsKryptonCheckButton.Tag = graphicsUserControl;
+            modPresetsKryptonCheckButton.Tag = modsUserControl;
             toolsKryptonCheckButton.Tag = toolsUserControl;
             launcherKryptonCheckButton.Tag = launcherSettingsUserControl;
             navigationButtons = new[]
             {
-                playKryptonCheckButton, settingsKryptonCheckButton, graphicsKryptonCheckButton, toolsKryptonCheckButton,
-                launcherKryptonCheckButton
+                playKryptonCheckButton, settingsKryptonCheckButton, graphicsKryptonCheckButton, modPresetsKryptonCheckButton,
+                toolsKryptonCheckButton, launcherKryptonCheckButton
             };
+            this.mods = mods ?? throw new ArgumentNullException(nameof(mods));
+            mods.Changed += (sender, e) => UpdateNavigation();
+            UpdateNavigation();
             generalUserControl.GameSettingsRequested += (sender, e) =>
                 navigationKryptonCheckButton_Click(settingsKryptonCheckButton, EventArgs.Empty);
             generalUserControl.ToolsRequested += (sender, e) =>
@@ -102,6 +113,7 @@ namespace Empire_Earth_Launcher
             playKryptonCheckButton.Values.Text = Resources.NavigationPlay;
             settingsKryptonCheckButton.Values.Text = Resources.NavigationSettings;
             graphicsKryptonCheckButton.Values.Text = Resources.NavigationGraphics;
+            modPresetsKryptonCheckButton.Values.Text = Resources.NavigationMods;
             toolsKryptonCheckButton.Values.Text = Resources.NavigationTools;
             launcherKryptonCheckButton.Values.Text = Resources.NavigationLauncher;
         }
@@ -126,6 +138,25 @@ namespace Empire_Earth_Launcher
             // The first probe of the setup mutexes runs with the first search (InstallationService), then every 2 s.
             setupWatcherTimer.Start();
             launcherSettingsUserControl.StartDiscovery();
+        }
+
+        /// <summary>
+        /// Shows the button of the Mods page while the selected installation has dreXmod 3 (<see cref="ModsModel.IsAvailable"/>), hides
+        /// it otherwise, and closes the gap: the buttons that are shown sit one below the other. If the page is open when its button
+        /// goes (another installation was selected), the Play page is shown instead.
+        /// </summary>
+        private void UpdateNavigation()
+        {
+            bool modsAvailable = mods.IsAvailable;
+            modPresetsKryptonCheckButton.Visible = modsAvailable;
+            // The distance of two buttons is the one of the designer (scaled by the font of the computer like the buttons).
+            int step = settingsKryptonCheckButton.Top - playKryptonCheckButton.Top;
+            IReadOnlyList<int> tops = NavigationStack.Tops(playKryptonCheckButton.Top, step,
+                navigationButtons.Select(button => button != modPresetsKryptonCheckButton || modsAvailable).ToList());
+            for (int i = 0; i < navigationButtons.Length; i++)
+                navigationButtons[i].Top = tops[i];
+            if (!modsAvailable && modPresetsKryptonCheckButton.Checked)
+                navigationKryptonCheckButton_Click(playKryptonCheckButton, EventArgs.Empty);
         }
 
         /// <summary>
