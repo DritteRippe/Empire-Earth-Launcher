@@ -108,6 +108,10 @@
     <Compile Include="Core\GameSettings\ResolutionOptionsTests.cs" />
     <Compile Include="Core\Graphics\DgVoodooConfReaderTests.cs" />
     <Compile Include="Core\Graphics\WrapperInfoTests.cs" />
+    <Compile Include="Core\Mods\CreditsParserTests.cs" />
+    <Compile Include="Core\Mods\DreXmodConfigReaderTests.cs" />
+    <Compile Include="Core\Mods\DreXmodInfoTests.cs" />
+    <Compile Include="Core\Mods\ModFolderScannerTests.cs" />
     <Compile Include="Core\Installations\DiscoveryContractTests.cs" />
     <Compile Include="Core\Installations\DiscoveryResultSessionProductTests.cs" />
     <Compile Include="Core\Installations\EffectivePathResolverTests.cs" />

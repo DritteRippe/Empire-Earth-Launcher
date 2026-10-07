@@ -15,6 +15,7 @@ namespace Empire_Earth_Launcher.Tests.Fakes
         private readonly List<Tuple<string, string>> started = new List<Tuple<string, string>>();
         private readonly List<string> openedUrls = new List<string>();
         private readonly List<string> openedFolders = new List<string>();
+        private readonly List<string> openedFiles = new List<string>();
 
         /// <summary>The process id the next starts return; null for "no process" (default 4242).</summary>
         public int? ProcessId { get; set; } = 4242;
@@ -22,7 +23,7 @@ namespace Empire_Earth_Launcher.Tests.Fakes
         /// <summary>Thrown by <see cref="StartProgram"/> instead of starting, if set.</summary>
         public Exception StartException { get; set; }
 
-        /// <summary>Thrown by <see cref="OpenUrl"/> and <see cref="OpenFolder"/> instead of opening, if set.</summary>
+        /// <summary>Thrown by <see cref="OpenUrl"/>, <see cref="OpenFolder"/> and <see cref="OpenFile"/> instead of opening, if set.</summary>
         public Exception OpenException { get; set; }
 
         /// <summary>Called first by every method with "start &lt;path&gt;" or "open &lt;url&gt;" (order tests).</summary>
@@ -44,6 +45,12 @@ namespace Empire_Earth_Launcher.Tests.Fakes
         public IReadOnlyList<string> OpenedFolders
         {
             get { return openedFolders.ToList(); }
+        }
+
+        /// <summary>Every document opened with its program, in order.</summary>
+        public IReadOnlyList<string> OpenedFiles
+        {
+            get { return openedFiles.ToList(); }
         }
 
         public int? StartProgram(string programPath, string workingDirectory)
@@ -73,6 +80,15 @@ namespace Empire_Earth_Launcher.Tests.Fakes
             if (OpenException != null)
                 throw OpenException;
             openedFolders.Add(folder);
+        }
+
+        public void OpenFile(string file)
+        {
+            OnCall?.Invoke("file " + file);
+            ShellProcessStarter.CreateFileStartInfo(file);
+            if (OpenException != null)
+                throw OpenException;
+            openedFiles.Add(file);
         }
     }
 }

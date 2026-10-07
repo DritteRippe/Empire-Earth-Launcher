@@ -91,5 +91,37 @@ namespace Empire_Earth_Launcher.Tests.Core.Platform
         {
             Assert.That(() => ShellProcessStarter.CreateFolderStartInfo(folder), Throws.ArgumentException);
         }
+
+        /// <summary>
+        /// "Open dreXmod.config" of the Mods page (launcher 1.1.0): the document through the shell, without a verb and without
+        /// arguments, so that the program Windows has registered for it shows it; the launcher keeps no handle.
+        /// </summary>
+        [TestCase(@"C:\Program Files (x86)\Empire Earth\Empire Earth\dreXmod.config")]
+        [TestCase(@"D:\Games\EE\dreXmod.config")]
+        [TestCase(@"\\server\share\EE\dreXmod.config")]
+        public void TheModsPage_OpensAConfigFileThroughTheShell(string file)
+        {
+            ProcessStartInfo info = ShellProcessStarter.CreateFileStartInfo(file);
+
+            Assert.That(info.UseShellExecute, Is.True);
+            Assert.That(info.FileName, Is.EqualTo(file));
+            Assert.That(info.Verb, Is.Empty);
+            Assert.That(info.Arguments, Is.Empty);
+            Assert.That(info.ErrorDialog, Is.False);
+        }
+
+        [TestCase("dreXmod.config", TestName = "OpenFile_RelativePath_IsRefused")]
+        [TestCase("https://empireearth.eu/dreXmod.config", TestName = "OpenFile_Url_IsRefused")]
+        [TestCase("", TestName = "OpenFile_Empty_IsRefused")]
+        [TestCase(@"C:\Games\EE\Empire Earth.exe", TestName = "OpenFile_Program_IsRefused")]
+        [TestCase(@"C:\Games\EE\EMPIRE EARTH.EXE", TestName = "OpenFile_ProgramInCapitals_IsRefused")]
+        [TestCase(@"C:\Games\EE\setup.bat", TestName = "OpenFile_BatchFile_IsRefused")]
+        [TestCase(@"C:\Games\EE\run.ps1", TestName = "OpenFile_Script_IsRefused")]
+        [TestCase(@"C:\Games\EE\game.lnk", TestName = "OpenFile_Shortcut_IsRefused")]
+        [TestCase(@"C:\Games\EE\import.reg", TestName = "OpenFile_RegistryFile_IsRefused")]
+        public void OnlyFullPathsOfDocuments_AreOpened(string file)
+        {
+            Assert.That(() => ShellProcessStarter.CreateFileStartInfo(file), Throws.ArgumentException);
+        }
     }
 }

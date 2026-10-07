@@ -38,5 +38,12 @@
         /// verb: "Open backup folder" of the Tools page (ADR 0007).
         /// </summary>
         void OpenFolder(string folder);
+
+        /// <summary>
+        /// Opens the existing document <paramref name="file"/> (a full path of a text or configuration file, never a program) in
+        /// the program Windows has registered for it, through the shell and without a verb: "Open dreXmod.config" of the Mods
+        /// page (launcher 1.1.0). The launcher only shows the file to the player; it does not change it.
+        /// </summary>
+        void OpenFile(string file);
     }
 }

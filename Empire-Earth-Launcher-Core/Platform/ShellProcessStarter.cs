@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Empire_Earth_Launcher.Core.Platform
@@ -16,6 +17,13 @@ namespace Empire_Earth_Launcher.Core.Platform
     /// </remarks>
     public sealed class ShellProcessStarter : IProcessStarter
     {
+        /// <summary>What the shell runs when asked to open it: <see cref="CreateFileStartInfo"/> refuses these.</summary>
+        private static readonly HashSet<string> RunnableExtensions = new HashSet<string>(StringComparer.Ordinal)
+        {
+            ".exe", ".com", ".scr", ".pif", ".bat", ".cmd", ".msi", ".msp", ".lnk", ".url", ".ps1", ".psm1", ".vbs", ".vbe", ".js",
+            ".jse", ".wsf", ".wsh", ".hta", ".cpl", ".msc", ".reg", ".jar", ".dll", ".appref-ms", ".application", ".gadget"
+        };
+
         public int? StartProgram(string programPath, string workingDirectory)
         {
             using (Process process = Process.Start(CreateProgramStartInfo(programPath, workingDirectory)))
@@ -35,6 +43,14 @@ namespace Empire_Earth_Launcher.Core.Platform
             using (Process.Start(CreateFolderStartInfo(folder)))
             {
                 // The Explorer runs on its own; the launcher keeps no handle.
+            }
+        }
+
+        public void OpenFile(string file)
+        {
+            using (Process.Start(CreateFileStartInfo(file)))
+            {
+                // The program of the document runs on its own; the launcher keeps no handle.
             }
         }
 
@@ -90,6 +106,28 @@ namespace Empire_Earth_Launcher.Core.Platform
             return new ProcessStartInfo
             {
                 FileName = WinPath.Normalize(folder).TrimEnd(WinPath.Separator) + WinPath.Separator,
+                Arguments = string.Empty,
+                UseShellExecute = true,
+                Verb = string.Empty,
+                ErrorDialog = false
+            };
+        }
+
+        /// <summary>
+        /// The opening of a document: the full path of the file through the shell, no verb, no arguments, no error dialog. A
+        /// file that Windows runs (a program, a script, a shortcut, a registry file) is refused: programs are started by
+        /// <see cref="CreateProgramStartInfo"/> with the compatibility layers of the game, and nothing else is ever run.
+        /// </summary>
+        public static ProcessStartInfo CreateFileStartInfo(string file)
+        {
+            if (!WinPath.IsFullyQualified(file))
+                throw new ArgumentException("A full path of the file is required: " + file, nameof(file));
+            string normalized = WinPath.Normalize(file);
+            if (RunnableExtensions.Contains(WinPath.GetExtension(normalized).ToLowerInvariant()))
+                throw new ArgumentException("Only a document can be opened, not a program or a script: " + file, nameof(file));
+            return new ProcessStartInfo
+            {
+                FileName = normalized,
                 Arguments = string.Empty,
                 UseShellExecute = true,
                 Verb = string.Empty,

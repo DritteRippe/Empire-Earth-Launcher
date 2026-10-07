@@ -99,6 +99,10 @@
     <Compile Include="Maintenance\SavedGames.cs" />
     <Compile Include="Maintenance\VirtualStoreScanner.cs" />
     <Compile Include="Maintenance\WonLoginReset.cs" />
+    <Compile Include="Mods\CreditsParser.cs" />
+    <Compile Include="Mods\DreXmodConfigReader.cs" />
+    <Compile Include="Mods\DreXmodInfo.cs" />
+    <Compile Include="Mods\ModFolderScanner.cs" />
     <Compile Include="Lobby\PlayerListPoller.cs" />
     <Compile Include="Lobby\PlayerListPolling.cs" />
     <Compile Include="Logging\ILogger.cs" />
