@@ -11,6 +11,13 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
 
 ### Changed
 
+- `docs/CONTRACT.md`, revision 6 (identical to the copy in the setup repository; contract version still 1, compatible, no
+  MUST or MUST NOT relaxed): one revision with the launcher part (the player's explicit choice of the game window size is
+  the consent of 3.2, within the limits of 3.3, after the guard and the backup of 3.6; the Graphics page below) and the
+  suite part of suite 1.1.0 (1.7 points 2, 3 and 5: the product setups run with `/VERYSILENT`, the suite reads their log
+  lines for its progress display and waits with a process handle), which asks nothing of the launcher. Contract 7
+  "Additions of revision 6" lists the launcher items; ARCHITECTURE section 15 ticks them and `ContractChecklistTests`
+  checks that table like those of revisions 4 and 5.
 - The launcher window can be resized freely; its smallest size is the size it opens with, and the content grows with the
   window (report 4c: a maximized window showed the same content in the upper left corner). The navigation buttons sit in a
   panel at the left edge and the pages fill the rest (`MainForm`). The *Game settings* and *Tools* pages stack their

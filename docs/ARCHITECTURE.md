@@ -1091,6 +1091,20 @@ installation). `ContractChecklistTests` checks this table like the ones above; t
 |---|---|---|---|
 | [x] | the uninstall key of the suite is no installation: the value `Empire Earth Community: Suite`, else in HKLM the root `InstallPath` of the suite record with no AppId it embeds (1.4 source 3, 1.6) | `UninstallKeyScannerTests`, `DiscoveryContractTests`, `InstallationDiscoveryTests`, `GameDefaultsServiceTests`, `SuiteRulesTests` | WP10-10 |
 
+### Launcher checklist of CONTRACT 7, revision 6 additions
+
+The launcher items of "Additions of revision 6 (suite 1.1.0, launcher 1.1.0)" in section 7 of [CONTRACT.md](CONTRACT.md),
+built in launcher 1.1.0 (graphics page, E1). The suite part of revision 6 (`/VERYSILENT`, the product log lines, the
+process handle) asks nothing of the launcher. `ContractChecklistTests` checks this table like the ones above; the
+real-Windows cases are WP11-01 to WP11-05.
+
+| Done | Contract 7, additions of revision 6 | Unit tests | Test plan |
+|---|---|---|---|
+| [x] | game window sizes only within the limits of 3.3 (1024x768 up to the physical screen, at most 1920x1080), a size outside them refused (3.2, 3.3) | `ResolutionOptionsTests`, `GameDefaultsServiceTests` | WP11-02, WP11-08 |
+| [x] | after the click on the button only `Game Window Width` and `Game Window Height` of every installed game in HKCU, the marker and the other values untouched (3.2) | `GameDefaultsServiceTests`, `GraphicsModelTests` | WP11-03 |
+| [x] | before the write the guard of 4.2 (no setup, no game) and the `.reg` backup of 3.6; a failed backup changes nothing (3.6) | `GameDefaultsServiceTests`, `GraphicsModelTests`, `GraphicsTextsTests` | WP11-03, WP11-04 |
+| [x] | the page says that the next run of a setup writes the recommended size again (3.2) | `GraphicsTextsTests` | WP11-01, WP11-05 |
+
 ## 16. Not in v2
 
 Kept as planned features in the README, with the reason (forum report section 8):
