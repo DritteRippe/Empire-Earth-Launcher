@@ -51,6 +51,21 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
 
 ### Added
 
+- README: the section "FAQ and known issues" (K1) says what is known, what is only probable and what has not been verified
+  about three reports of the laptop test. The mouse that is dead in the menu until the window is minimized and restored: the
+  probable cause (the game acquires its DirectInput devices with the foreground cooperative level) and what the hand-over of
+  the foreground does and does not do. The game that minimizes itself when another window takes the foreground: it is
+  behavior of the game program (`Empire Earth.exe` minimizes its window when its application is deactivated), which the
+  launcher cannot and may not change (no game program is modified, the NeoEE programs stay untouched); what avoids the
+  triggers (tray programs, **Do not disturb** / *Nicht stören* of Windows 11, no second launcher start with `--product` while
+  a game runs) and that the aim is a reliable restore, not a game that never minimizes. A hand edit of `dgVoodoo.conf` that
+  does nothing (the VirtualStore copy of the file). The 2 GB limit of the 32-bit game programs, which is address space, not
+  RAM, with the PowerShell command that measures the peak of a big game; no launcher or program change comes with it. What
+  to send with a report (diagnostics report, the log lines of the hand-over, what was seen). The comparison table and the
+  feature list name the hand-over and the resizable window. Test plan WP6-19 (the game minimizes itself, with and without
+  Do not disturb) and WP6-20 (optional: the memory peak of a big game); the cases of this version's other changes are WP1-07,
+  WP3-06, WP5-17 and WP6-14 (layout), WP6-18 (foreground), WP8-19 (VirtualStore copy), WP11-01 to WP11-08 (Graphics) and
+  WP12-01 to WP12-09 (Mods).
 - Mods page (M2; [ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md) amendment of 2026-10-07): the planned
   "dreXmod support" and "browsable mods list" in a form that is true today, read only. For an installation whose setup run
   installed dreXmod 3 (the component `additional\drexmod\v3`; without component information the folder `Data\dxm\mods`

@@ -18,7 +18,7 @@ features that work.
 
 | | Upstream `main` | This fork (`v2`) |
 |---|---|---|
-| *Play* button | No click handler yet | Starts Empire Earth or The Art of Conquest through Windows (compatibility settings and "Run as administrator" apply); blocked while a setup runs, refuses to start a game twice |
+| *Play* button | No click handler yet | Starts Empire Earth or The Art of Conquest through Windows (compatibility settings and "Run as administrator" apply) and hands the foreground to the game window; blocked while a setup runs, refuses to start a game twice |
 | Finding the game | Fixed paths (lobby file in the working directory, friends in `C:\Program Files (x86)\Neo Empire Earth\...`) | Finds community setups (since v2 and up to 1.7.2; admin, user, portable) by their records, and other installations (CD, GOG, copies) through the game's "Installed From" values, the launcher's own folder or a folder you pick; choose one on the *Launcher* page |
 | Visible controls | Many placeholders (Repair CD-Keys, Clear Registry, DirectX wrapper, resolution, ...) | Only controls that work; a test keeps placeholders out ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md)) |
 | Damaged game files | Not implemented yet | For installations of the community setup since v2: read-only integrity check against the setup's file list, naming the missing or changed files |
@@ -84,8 +84,9 @@ controls of the old mock-up were removed and the features behind them are listed
 - Play Empire Earth or The Art of Conquest of the selected installation: the launcher waits while a setup runs, does
   not start a game twice (and explains how to end a hanging one in the Task Manager), asks before starting the second
   game, keeps the "Installed From" values of the game in step, starts the program through Windows so that its
-  compatibility settings apply (also "Run as administrator"), shows the file versions of both programs and logs every
-  start
+  compatibility settings apply (also "Run as administrator"), hands the foreground to the window of the game after the
+  start (1.1.0, see the [FAQ](#-faq-and-known-issues): the mouse was dead in the menu until the window was minimized and
+  restored), shows the file versions of both programs and logs every start
 - Graphics page (1.1.0): choose the size of the game window from the usual 4:3, 5:4, 16:10 and 16:9 sizes that fit
   your screen, up to 1920x1080 (the game can crash above that), with a backup of the game settings first; only the two
   values of the window size are written, never a file, and a repair or update with the setup sets the recommended size
@@ -212,6 +213,110 @@ made only when you click, stays on your computer until you paste or send it your
 computer name, public addresses, MAC addresses and player names; read it before you post it. CD keys are repaired by
 re-running the community setup; the launcher never touches them (the report only says whether they exist).
 
+## ❓ FAQ and known issues
+
+What the launcher can do about a problem of the game itself is limited: it starts the game, shows what it finds and never
+changes a game program. The NeoEE programs and their CD-key registration stay untouched, and the launcher of 1.1.0 changes
+neither `dgVoodoo.conf` nor `dreXmod.config` (the *Graphics* and *Mods* pages only show them). The answers below say what is
+known, what is only a probable cause and what has not been verified.
+
+**The mouse does not work in the main menu until I minimize and restore the game window.**
+The probable cause, not yet proven: Empire Earth reads the mouse and the keyboard through DirectInput with the
+"foreground" cooperative level, and such a device can be acquired only while the game window is the foreground window.
+If the launcher is still in front while the game creates its window (or a DirectX wrapper switches the display mode a
+moment later), the game is never activated; minimizing and restoring gives it the activation it missed. Since 1.1.0 the
+launcher hands the foreground to the game window after the start:
+
+- right before the start it allows the game to take the foreground (`AllowSetForegroundWindow`); the start itself stays a
+  start through the Windows shell;
+- after the start it looks every 100 ms (for 60 s at most) for the first visible window of the game process and, if the
+  launcher or the game owns the foreground, brings that window to the front (`SetForegroundWindow`); it looks again after
+  about 2 s (a wrapper such as dgVoodoo may switch the mode late) and hands the window over again, at most three times,
+  while the launcher has the foreground back;
+- if another program is in front (you clicked into a browser while the game loads) the launcher changes nothing and
+  never takes the foreground away from it; it never minimizes, hides or closes a window and never ends a process.
+
+One line of `log.txt` says what happened (see "What do I send with a report?" below). Whether this removes the problem on
+your computer is decided by the test on real Windows (test plan WP6-18). If the mouse is dead although the log says
+"brought to the foreground", the cause is elsewhere: then click the taskbar button of the game once (or switch to it with
+Alt+Tab) instead of minimizing, and note whether that is enough and whether the game behaves the same when you start it
+from its own desktop shortcut without the launcher; both answers narrow it down. A game with the compatibility setting
+"Run as administrator" may refuse the foreground from the launcher, which does not run as administrator
+(`SetForegroundWindow was refused` in the log); the launcher tries three more times and then gives up without changing
+anything else.
+
+**The game minimizes itself when another window or a notification appears.**
+This is a behavior of the game program, not of the launcher or of a DirectX wrapper: `Empire Earth.exe` reacts to
+the loss of the application's activation by minimizing its own window (`CloseWindow`), and an internal flag decides when
+it does not (what sets that flag is not known). Any window that takes the foreground triggers it: the pop-up of a
+browser, a chat or tray program, the software of a graphics card, mouse or keyboard maker, a security program, an updater
+or an installer. A toast notification of Windows normally does not take the activation, a window that a program opens
+does. The community forum has described the same for years, mostly while the game is loading. The NeoEE programs behave
+alike. The launcher cannot change this: it never modifies game programs, the NeoEE programs are off limits, and a changed
+program would be reported as damaged by the integrity check.
+
+What helps, without any promise that the game never minimizes:
+
+- Close tray programs that open windows by themselves (updaters, chat clients, vendor tools) before you play, and do not
+  click into other programs while the game loads, the most sensitive moment.
+- **Do not disturb**: in Windows 11 *Settings > System > Notifications > Do not disturb* (German: *Nicht stören*; in
+  Windows 10 *Focus assist*, German *Fokus-Assistent*) keeps notification pop-ups away for the play session. Whether it is
+  enough to keep the game from minimizing is not verified (test plan WP6-19). The automatic rules of Windows for games and
+  full-screen programs only apply when Windows classifies the game as full screen; whether it does so with a DirectX
+  wrapper is not known.
+- If the game was minimized, restore it with its taskbar button or Alt+Tab. The aim is that it comes back reliably in full
+  size and with a working mouse, not that it is never minimized. If it comes back too small, black, lagging or with a
+  doubled cursor, note the Windows version, the display adapter and the wrapper of the *Graphics* page: the reports so far
+  point at the display driver and the wrapper, and the dgVoodoo version and settings of the setup are tested separately;
+  the launcher does not touch them.
+- A second start of the launcher with `--product` (the shortcuts of the suite) brings the window of the running launcher to
+  the front, which takes the foreground from a running game and so minimizes it. Do not use those shortcuts while a game
+  runs.
+
+**I changed `dgVoodoo.conf` by hand and nothing happened.**
+A game below `Program Files` that Windows virtualizes reads a copy in `%LOCALAPPDATA%\VirtualStore\<game folder>` instead of
+the file in the game folder, if one exists. The *Tools* page ("VirtualStore") warns when such a copy of `dgVoodoo.conf`
+differs from the real file and offers "Open VirtualStore folder"; the launcher never deletes the copy: close the game and
+rename or delete it yourself, then edit the file in the game folder again. The *Graphics* page shows `OutputAPI` and the
+screen-mode keys of the file the game reads (the copy first). To see whether the file is read at all, set
+`dgVoodooWatermark = true` in it: the watermark must appear in the game.
+
+**Is the 2 GB limit a problem? Does the launcher offer a 4 GB patch?**
+The game programs are 32-bit programs without the "large address aware" flag, so every game process can use 2 GB of
+address space, whatever the RAM of the computer is; with the flag it would be 4 GB. None of the community's reports we
+know describes running out of memory, and the launcher makes no change here: it never modifies game programs, the NeoEE
+programs are off limits, and a patched program would lose the signature of the community certificate and be reported as
+damaged by the integrity check (every run of the setup would also put the original back).
+To measure what your games really use, read the peak values while a big game is still running (late in a long game with
+many players), for example after switching to PowerShell with Alt+Tab (the game minimizes itself, see above) and back
+with its taskbar button; the numbers vanish when the game ends:
+
+```powershell
+Get-Process 'Empire Earth', 'EE-AOC' -ErrorAction SilentlyContinue |
+    Select-Object Name,
+        @{n='PeakMB';e={[int]($_.PeakPagefileUsage/1MB)}},
+        @{n='PeakAddressSpaceMB';e={[int]($_.PeakVirtualMemorySize64/1MB)}}
+```
+
+`PeakMB` is the most memory the game had committed, `PeakAddressSpaceMB` the most address space it used (the 2 GB limit is
+about this number). Below about 1200 MB in `PeakMB` the limit is surely irrelevant; if `PeakAddressSpaceMB` comes near
+2000, send both numbers with the game, whether it was EE, AoC or NeoEE, and the number of players (test plan WP6-20).
+
+**What do I send with a report?**
+
+- The diagnostics report: *Tools* page, "Copy report" or "Save report..." (launcher and Windows version, screen and display
+  adapter, installations, file versions, DirectX wrapper, integrity, game defaults and hints, VirtualStore, the network
+  check). It contains no CD keys, login data, player names, MAC or public IP address and no user or computer name; read it
+  before you post it, the launcher never sends it.
+- The lines of `%LOCALAPPDATA%\Empire Earth Launcher\log.txt` around the start. `Game started: ..., pid <number>` is the
+  start; the line about the hand-over of the foreground follows: `Game window 0x... of Empire Earth.exe (pid <number>)
+  brought to the foreground after <N> ms (the foreground was pid <number> (the launcher)).` is the normal case.
+  `... not brought to the foreground: skipped, user switched to pid <number>.` means another program was in front,
+  `SetForegroundWindow was refused` that Windows said no, `No window of ... within 60 s` that the game showed no window of
+  that process (NeoEE may create it elsewhere), and `giving up` that the launcher kept the foreground after three tries.
+- What you saw: whether the mouse worked without minimizing, which window or notification took the focus when the game
+  minimized itself, whether the game comes back in full size, the Windows version and the display scaling.
+
 ## 🌐 Download
 Sorry, at the moment the launcher is **ABSOLUTELY NOT** available for download in its current state.\
 To use the Launcher you will only need the .NET Framework 4.8 on your computer (see [Requirements](#requirements)).
@@ -239,7 +344,8 @@ The launcher and the mod creator need the **.NET Framework 4.8** and run on thes
   ([Install the .NET Framework on Windows 7 SP1](https://learn.microsoft.com/en-us/previous-versions/dotnet/framework/install/on-windows-7)).
   Windows 7 is no longer supported by Microsoft and the launcher has not been tested on it; reports are welcome.
 - The launcher does not ask for administrator rights. Its window is not DPI-aware: on screens with a scaling
-  above 100 % Windows enlarges it (it may look slightly blurry), the layout stays the same.
+  above 100 % Windows enlarges it (it may look slightly blurry). The window can be resized freely (its smallest size is
+  the size it opens with) and the content of the pages grows with it.
 
 ## Dev
 You just need to clone the repo and open `Empire-Earth.sln` with Visual Studio **2019** or newer (with the workload ".NET desktop development", which contains the .NET Framework 4.8 targeting pack)\
