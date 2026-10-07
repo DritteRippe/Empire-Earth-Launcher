@@ -24,7 +24,10 @@ namespace Empire_Earth_Launcher.Tests.Architecture
         private const string TestPlan = "docs/TEST-PLAN.de.md";
         private const string Contract = "docs/CONTRACT.md";
 
-        /// <summary>The last work package of the launcher v2; from it on the plan is complete.</summary>
+        /// <summary>
+        /// The last work package of the launcher v2; from it on the plan is complete. The packages of launcher 1.0.0 and 1.1.0 (L-WP10
+        /// and later) come after it: the line "Stand" may name them, and each of them needs its cases.
+        /// </summary>
         private const int LastPackage = 9;
 
         private static readonly Regex CaseId = new Regex(@"^(?:WP\d+-\d{2}|W7-\d{2})$", RegexOptions.CultureInvariant);
@@ -154,7 +157,7 @@ namespace Empire_Earth_Launcher.Tests.Architecture
             int current = CurrentPackage();
             List<string> ids = DefinedCases().Select(c => c.Item1).ToList();
 
-            Assert.That(current, Is.InRange(1, LastPackage));
+            Assert.That(current, Is.GreaterThanOrEqualTo(LastPackage), "the plan is complete since L-WP" + LastPackage);
             for (int package = 1; package <= current; package++)
             {
                 Assert.That(ids, Has.Some.StartsWith("WP" + package.ToString(CultureInfo.InvariantCulture) + "-"),

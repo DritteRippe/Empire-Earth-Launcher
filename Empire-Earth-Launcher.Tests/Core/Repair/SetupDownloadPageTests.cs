@@ -1,7 +1,11 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Repair;
+using Empire_Earth_Launcher.Tests.TestSupport;
 using NUnit.Framework;
 
 namespace Empire_Earth_Launcher.Tests.Core.Repair
@@ -73,6 +77,28 @@ namespace Empire_Earth_Launcher.Tests.Core.Repair
                 Assert.That(url, Does.EndWith("/"), "the address of the page itself: no redirect to a page without the slash");
                 Assert.That(uri.Query, Is.Empty, "no parameter, no AppId, nothing about the player is sent");
             }
+        }
+
+        /// <summary>The table of <c>docs/CONTRACT.md</c> 4.3 and the constants of the launcher name the same pages.</summary>
+        [Test]
+        [Category(TestCategories.SourceTree)]
+        public void TheTableOfContract_4_3_NamesTheThreePagesOfTheConstants()
+        {
+            string contract = File.ReadAllText(RepositoryRoot.GetFullPath("docs/CONTRACT.md")).Replace("\r\n", "\n");
+            int start = contract.IndexOf("### 4.3 Where the user gets the setup", StringComparison.Ordinal);
+            int end = contract.IndexOf("### 4.4 ", StringComparison.Ordinal);
+            Assert.That(start, Is.GreaterThanOrEqualTo(0), "CONTRACT.md has no section 4.3");
+            Assert.That(end, Is.GreaterThan(start));
+            string[] rows = contract.Substring(start, end - start).Split('\n')
+                .Where(line => line.StartsWith("| ", StringComparison.Ordinal) && !line.StartsWith("| Installation", StringComparison.Ordinal))
+                .ToArray();
+
+            Assert.That(rows, Has.Length.EqualTo(3), "one row per page: EE, NeoEE, foreign or unknown");
+            string[] pages = rows.Select(row => Regex.Match(row, @"`(https://[^`]+)`\s*\|\s*$").Groups[1].Value).ToArray();
+            Assert.That(pages, Is.EqualTo(new[] { SetupDownloadPage.EmpireEarth, SetupDownloadPage.NeoEE, SetupDownloadPage.General }));
+            Assert.That(rows[0], Does.Contain("`EE`").And.Contain("`community`").And.Contain("`community-legacy`"));
+            Assert.That(rows[1], Does.Contain("`NeoEE`").And.Contain("`community`").And.Contain("`community-legacy`"));
+            Assert.That(rows[2], Does.Contain("`foreign`"));
         }
 
         [Test]

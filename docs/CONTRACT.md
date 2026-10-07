@@ -10,7 +10,7 @@ repositories at once (same text, same commit subject), see [5. Versioning](#5-ve
 |---|---|
 | Contract version | **1** |
 | Status | **Draft**: specified for setup v2 and launcher v2, not implemented by a release yet |
-| Based on | setup `setup_is6.iss`, `config_ee.iss`, `config_neoee.iss`, `utils.iss` (branch `v2` at 2ce68ee, plus the task `compatibility_legacy` that revision 2 adds) and the setup's decision records 0004, 0005, 0007, 0008 and 0010 (`docs/adr`, branch `v2` at 2ce68ee), launcher `GameDirectoryLocator.cs` (branch `v2` at 79464d4) and the launcher's decision record 0016 (branch `v2` at ec02afa), the official setups 1.7.2; revision 3 also on setup `environment.iss` (branch `v2` at 3a9498d) and the launcher v2 core library with its decision records 0015 and 0016 (branch `v2` at 1b49410); revision 4 also on the setup's decision record 0013 (suite installer) and `setup_is6.iss` (branch `v2` at 332d877) and launcher `SingleInstance.cs` (branch `v2` at 19386bb); revision 5 also on the suite `suite/suite_record.iss` (branch `v2` at 85736cf), launcher `UninstallKeyScanner.cs` (branch `v2` at d454079) and the laptop test TP-93 of the setup's test plan; revision 6 also on the suite `suite/suite_common.iss` (branch `v2` at 36b0e09) and launcher `ResolutionOptions.cs` and `GameDefaultsService.cs` (branch `v2` at e392d01) |
+| Based on | setup `setup_is6.iss`, `config_ee.iss`, `config_neoee.iss`, `utils.iss` (branch `v2` at 2ce68ee, plus the task `compatibility_legacy` that revision 2 adds) and the setup's decision records 0004, 0005, 0007, 0008 and 0010 (`docs/adr`, branch `v2` at 2ce68ee), launcher `GameDirectoryLocator.cs` (branch `v2` at 79464d4) and the launcher's decision record 0016 (branch `v2` at ec02afa), the official setups 1.7.2; revision 3 also on setup `environment.iss` (branch `v2` at 3a9498d) and the launcher v2 core library with its decision records 0015 and 0016 (branch `v2` at 1b49410); revision 4 also on the setup's decision record 0013 (suite installer) and `setup_is6.iss` (branch `v2` at 332d877) and launcher `SingleInstance.cs` (branch `v2` at 19386bb); revision 5 also on the suite `suite/suite_record.iss` (branch `v2` at 85736cf), launcher `UninstallKeyScanner.cs` (branch `v2` at d454079) and the laptop test TP-93 of the setup's test plan; revision 6 also on the suite `suite/suite_common.iss` (branch `v2` at 36b0e09) and launcher `ResolutionOptions.cs` and `GameDefaultsService.cs` (branch `v2` at e392d01), and on the suite `suite/suite_shortcuts.iss` and the setup `utils.iss` (branch `v2` at `<parent of setup commit S3>`) and launcher `InstallationService.cs`, `DiscoveryResult.cs` and `SetupDownloadPage.cs` (branch `v2` at `132bbd4`) |
 
 The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. "Setup" means the EE and the
 NeoEE setup of every build variant, including their uninstallers; "launcher" means the Empire Earth
@@ -128,7 +128,7 @@ Key: `Software\Empire Earth Community\Installations\<Product>`
 | `ContractVersion` | REG_DWORD | `1` | version of this contract the setup implements |
 | `InstallPath` | REG_SZ | `C:\Program Files (x86)\Neo Empire Earth` | install root (`{app}`), full path, no trailing backslash |
 | `InstallMode` | REG_SZ | `admin` | `admin` or `user` |
-| `AppId` | REG_SZ | `00000000-0000-0000-0000-000000000AEE` | AppId without braces: uninstall key `{<AppId>}_is1`, `product` of the update API ([4.3](#43-where-the-user-gets-the-setup)) |
+| `AppId` | REG_SZ | `00000000-0000-0000-0000-000000000AEE` | AppId without braces: uninstall key `{<AppId>}_is1`, `product` of the update API ([4.5](#45-update-check-optional)) |
 | `GameVersion` | REG_SZ | `2.0.0.5` | `MyAppVersion` of the setup |
 | `SetupVersion` | REG_SZ | `2.0.0` | `MySetupVersion` of the setup |
 | `SetupBuild` | REG_SZ | `a1b2c3d` | optional: build identifier of the setup (build switch `SetupBuild`, e.g. the short Git commit, test builds `test<TestID>-<commit>`); absent if the build sets none; informative only, e.g. to tell test builds of the same `SetupVersion` apart |
@@ -284,13 +284,22 @@ Rules:
   there.
 - **Default selection**: without a user choice the launcher uses the first installation in the order of
   the sources. It SHOULD show every installation it found and let the user choose; the choice is saved
-  as source 1. Since revision 4 the launcher MAY accept the command-line argument `--product=EE` or
-  `--product=NeoEE` (the suite shortcuts, [1.7](#17-how-the-suite-runs-a-product-setup-informative)): it
-  then selects, for this session only, the first installation of that product in the order of the
-  sources (the user choice first, if it is one of that product). The argument is not saved, does not
-  change the saved choice and changes neither the sources nor their order; without an installation of
-  that product, or with another value, it is ignored (logged) and the rule above applies. A second
-  launcher started with the argument MAY hand it to the running launcher.
+  as source 1. Since revision 6 the launcher MAY instead save one choice per product and the product the
+  user chose last (launcher 1.1.0: the four games of its Play page, Empire Earth and The Art of Conquest
+  of each product): the folder chosen for EE and the folder chosen for NeoEE are then both source 1, and
+  the launcher uses the installation of the chosen product that the folder chosen for that product
+  selects, else the first installation of that product in the order of the sources. Without a chosen
+  product, or without an installation of it, the rule above applies. A folder chosen for a product that
+  does not exist (any more) is listed as an installation of that product and stays its choice; a chosen
+  folder whose installation is now of the other product is no choice for either product (it stays
+  listed). Since revision 4 the launcher MAY accept the command-line argument `--product=EE` or
+  `--product=NeoEE` (the shortcuts of suite 1.0.0, [1.7](#17-how-the-suite-runs-a-product-setup-informative)):
+  it then selects, for this session only, the installation that the rules above give for that product
+  (the folder chosen for that product first). The argument is not saved, does not change the saved
+  choices and changes neither the sources nor their order; without an installation of that product, or
+  with another value, it is ignored (logged) and the rules above apply. A second launcher started with
+  the argument MAY hand it to the running launcher; since revision 6 a second launcher started without an
+  argument MAY ask the running launcher to come to the front instead, which keeps its selection.
 - **Errors**: a missing key or value, denied access or an invalid path only drops that candidate (logged);
   discovery never fails as a whole.
 - **Read-only**: the launcher MUST NOT write, repair or delete any of these sources. The only values it
@@ -440,13 +449,21 @@ run, the products the user selects and the launcher:
    `{autoprograms}\Empire Earth\<AppName>.lnk`, `{autoprograms}\Empire Earth\<AppName> - AoC.lnk` and
    `{autoprograms}\Empire Earth\<AppName> Diagnostic.lnk`, then the folder `{autoprograms}\Empire Earth`
    if it is empty.
-8. **Suite shortcuts** (table below): created after that cleanup, by every run of the suite, so a
-   repair restores them. The game shortcuts start the launcher with the product; without .NET
-   Framework 4.8 the suite creates shortcuts of the same names to the game program of the product
-   instead. The EE shortcut has the name of the EE setup's own desktop shortcut (`Empire Earth`, the
-   `AppName` of EE): if EE was once installed standalone with a desktop shortcut, the uninstall log of
-   EE still names `{autodesktop}\Empire Earth.lnk`, so uninstalling EE alone through Windows "Apps" can
-   delete the suite's shortcut; running the suite again (repair) restores it.
+8. **Suite shortcut** (table below): since revision 6 the suite creates one shortcut, `Empire Earth
+   Community`, on the desktop and in its start menu folder, after that cleanup and by every run of the
+   suite, so a repair restores it. It starts the launcher without an argument, so the launcher opens with
+   the product and the game the user chose last ([1.4](#14-discovery-by-the-launcher), default selection).
+   Without .NET Framework 4.8 the launcher is not installed; the shortcut of the same name then starts the
+   game program of NeoEE if NeoEE is installed, else that of EE (the product the default selection of 1.4
+   prefers), and it is not created if neither is installed. Every run of the suite, before it creates its
+   shortcut, and its uninstaller delete the shortcuts of suite 1.0.0 (revisions 4 and 5) that exist,
+   exactly these paths: `{autodesktop}\Neo Empire Earth.lnk` and, in `{autoprograms}\Empire Earth
+   Community`, `Empire Earth.lnk`, `Neo Empire Earth.lnk`, `Empire Earth Diagnostic.lnk`, `Neo Empire Earth
+   Diagnostic.lnk` and `Empire Earth Launcher.lnk`; `{autodesktop}\Empire Earth.lnk` only if it starts the
+   launcher, because the EE setup's own desktop shortcut has that name (point 7 deletes that one after a run
+   of the EE setup). Up to revision 5 the suite created the game shortcuts `Empire Earth` and `Neo Empire
+   Earth` with `--product=EE` and `--product=NeoEE`; the launcher still accepts the argument
+   ([1.4](#14-discovery-by-the-launcher)).
 9. **Launcher outside the product roots** (former **O10**): the suite installs the launcher into the
    suite root. Its files are therefore in no manifest ([2.3](#23-which-files) unchanged), the suite
    closes it before it runs through its `AppMutex` ([Suite and launcher](#suite-and-launcher)), and the
@@ -456,12 +473,12 @@ run, the products the user selects and the launcher:
 
 | Shortcut | Product | Places | Target | Parameters | Without .NET Framework 4.8 |
 |---|---|---|---|---|---|
-| `Empire Earth` | `EE` | `{autodesktop}`, `{autoprograms}\Empire Earth Community` | `{app}\Empire Earth Launcher.exe` | `--product=EE` | `<product root>\Empire Earth\Empire Earth.exe` |
-| `Neo Empire Earth` | `NeoEE` | `{autodesktop}`, `{autoprograms}\Empire Earth Community` | `{app}\Empire Earth Launcher.exe` | `--product=NeoEE` | `<product root>\Empire Earth\Empire Earth.exe` |
+| `Empire Earth Community` | `NeoEE`, else `EE` | `{autodesktop}`, `{autoprograms}\Empire Earth Community` | `{app}\Empire Earth Launcher.exe` | none | `<product root>\Empire Earth\Empire Earth.exe` |
 
-`{app}` is the suite root, `<product root>` the install root of the product. The suite's start menu
-folder also holds shortcuts to the launcher, the Mod Creator, the suite's uninstaller and Empire Earth
-Diagnostic of each product; they are no game shortcuts.
+`{app}` is the suite root, `<product root>` the install root of the first product of the column Product
+that is installed. The suite's start menu folder also holds the Mod Creator (only with .NET Framework 4.8)
+and the suite's uninstaller; they are no game shortcuts. Since revision 6 the suite creates no Diagnostic
+shortcut; the program stays in `<product root>\Tools\Diagnostic` if the product setup installed it.
 
 ## 2. Integrity manifest
 
@@ -921,17 +938,28 @@ The other way round, the setup does not install while a game mutex
 
 ### 4.3 Where the user gets the setup
 
-1. If the installation has an AppId: `GET https://api.empireearth.eu/setup/?product=<AppId>`. An answer
-   with HTTP 200 contains (trimmed) the download URL of the latest setup.
-2. That URL is accepted only if it passes the setup's `IsAllowedUpdateUrl` (`utils.iss`): `https://`; no
-   user information, port, backslash, space, control or non-ASCII character; host `empireearth.eu`,
-   `neoee.net` or a subdomain of either, or `github.com` with a path that starts with `/EE-modders/`
-   (ignoring case) and contains neither `..` nor `%`.
-3. Otherwise (no AppId, no answer, URL refused): `https://empireearth.eu/download`.
-4. The URL opens in the default browser with the rights of the launcher (not elevated).
+Since revision 6 the launcher and the setup send the user to the download page of the product on the
+community website, chosen by this table alone:
 
-Requests use HTTPS with certificate validation (TLS 1.2 or newer), never fall back to HTTP, have
-timeouts and send nothing but the query above (no telemetry).
+| Installation | Page |
+|---|---|
+| product `EE`, kind `community` or `community-legacy` | `https://empireearth.eu/download/ee/` |
+| product `NeoEE`, kind `community` or `community-legacy` | `https://empireearth.eu/download/neo/` |
+| kind `foreign`, or the product is not known | `https://empireearth.eu/download/` |
+
+1. No request is made to choose the page. The setup uses the row of its own product (`InstallType`).
+2. The page opens in the default browser with the rights of the launcher (not elevated); the setup opens
+   it as the original user, not with its administrator rights.
+3. The website answers the two product pages with a redirect to the current setup of the product
+   (informative; in October 2026 `https://r2.empireearth.eu/setup/game/EE_Setup.exe` and
+   `https://r2.empireearth.eu/setup/game/neo/NeoEE_Setup.exe`), so the browser may download it right
+   away. The launcher and the setup follow no redirect themselves.
+4. Up to revision 5 the launcher and the setup asked `GET https://api.empireearth.eu/setup/?product=<AppId>`
+   for a download URL, accepted it only if it passed the setup's `IsAllowedUpdateUrl` and otherwise opened
+   `https://empireearth.eu/download`. In October 2026 that answer named `cdn.empireearth.eu`, which does not
+   resolve. Setups up to 1.7.2, setups v2 before this revision and launcher 1.0.0 still ask it
+   (informative: the server operators keep that answer pointing to a page that works, setup
+   `docs/SERVER-OPERATIONS.md`).
 
 ### 4.4 What the launcher tells the user
 
@@ -963,10 +991,17 @@ The same API as the setup's `CheckUpdate`, only for installations with an AppId:
 | `&type=setup&version=<SetupVersion>` | `false` if this setup version is outdated |
 | `&type=game` or `&type=setup` | the latest version; shown only if it has at most 32 characters of `0-9 . - _ space A-Z a-z`, else `?` |
 
+Requests use HTTPS with certificate validation (TLS 1.2 or newer), never fall back to HTTP, have timeouts
+and send nothing but the queries of this table (no telemetry). Since revision 6 these are the only
+requests to the update API: the launcher and the setup no longer send the query without `&type=` (the
+download URL of the latest setup, [4.3](#43-where-the-user-gets-the-setup) point 4). The launcher's network
+check, which asks the update API to see whether the internet works, sends a request of this table too
+(`&type=game`).
+
 A request without an answer of HTTP 200 (no connection, timeout, certificate error, another status) is
 no statement about the version: the launcher reports that it could not ask, never that the version is
 current (the setup's `CheckUpdate` then asks no update question). An available update uses the
-hand-off of [4.3](#43-where-the-user-gets-the-setup).
+hand-off of [4.3](#43-where-the-user-gets-the-setup): the download page of the product.
 
 ## 5. Versioning
 
@@ -995,7 +1030,7 @@ hand-off of [4.3](#43-where-the-user-gets-the-setup).
 | 1 (draft) | 2026-10-02 | revision 3 (compatible clarifications after the reviews of setup v2 and launcher v2, which already behave so): source 4 reads key before hive, the EE and AoC folders of `foreign` installations are the real folders (the AoC folder from the same hive and view), the user choice may be the AoC folder, a registry record without `install.ini` also means `community` (1.4); Modified gets no message and no repair offer, the state may be shown (2.5); at the launcher start class S is only created, and the first run only for an installation that is unambiguous for its game settings key; class S before every game start while no other game runs; the display question until the user answers (3.2, 3.5, 3.6); a request without an answer of HTTP 200 is no statement about the version (4.5); O11 also names the `<AppId>` setup data folder of setups up to 1.7.2 | v2 (planned) | v2 (planned) |
 | 1 (draft) | 2026-10-05 | revision 4 (suite installer "Empire Earth Community", setup decision record 0013; optional additions only, no MUST or MUST NOT relaxed, 4.1 and 4.3 unchanged): names and mutexes of the suite and the launcher (0); `--product=EE` or `--product=NeoEE` selects for one session (1.4); suite record (1.6); how the suite runs a product setup, the log line `CD Keys generation result: <n>` as an interface, the guard for products installed for one user only, the removal of old product shortcuts before the suite shortcuts `Empire Earth` and `Neo Empire Earth`, the launcher outside the product roots (1.7, O10 answered); the suite mutex is a setup mutex (4.2); advice with `SourceDir` (4.4); checklist of the additions (7) | suite 1.0.0 (planned) | 1.0.0 (planned) |
 | 1 (draft) | 2026-10-06 | revision 5 (laptop test TP-93: the launcher listed the suite's own uninstall key, whose `Publisher` is that of EE, as a damaged installation of EE; optional additions only, no MUST or MUST NOT relaxed): the marker `Empire Earth Community: Suite` in the suite's uninstall key (0, 1.3); source 3 skips a key with that value, and for a suite built before revision 5 a key in HKLM with the root `InstallPath` of the suite record and no AppId the record embeds (1.4, 1.6); checklist of the additions (7) | suite 1.0.0 (planned) | 1.0.0 (planned) |
-| 1 (draft) | 2026-10-07 | revision 6 (suite 1.1.0, one window during the installation, and launcher 1.1.0, graphics page; compatible, `ContractVersion` stays 1, optional additions and a compatible clarification only, no MUST or MUST NOT relaxed): the suite starts the product setups with `/VERYSILENT` instead of `/SILENT`, so that they show no progress window of their own (1.7 point 3); the lines of the product logs the suite reads for its progress display are an interface like the CD key line (1.7 point 5); the suite waits for a product setup with a process handle: Cancel before the installation starts, a stall and a time limit (1.7 point 2); the user's explicit choice of the game window size in the launcher is the consent of 3.2 to overwrite the class D values `Game Window Width` and `Game Window Height`, within the limits of 3.3, after the guard and the `.reg` backup of 3.6, without touching the marker (3.2, 3.3, 3.6); checklist of the additions (7) | suite 1.1.0 (planned) | 1.1.0 (planned) |
+| 1 (draft) | 2026-10-07 | revision 6 (suite 1.1.0, one window during the installation, one shortcut, and launcher 1.1.0, graphics page, one launcher for the four games; compatible, `ContractVersion` stays 1, optional additions and compatible clarifications only, no MUST or MUST NOT relaxed): the suite starts the product setups with `/VERYSILENT` instead of `/SILENT`, so that they show no progress window of their own (1.7 point 3); the lines of the product logs the suite reads for its progress display are an interface like the CD key line (1.7 point 5); the suite waits for a product setup with a process handle: Cancel before the installation starts, a stall and a time limit (1.7 point 2); one suite shortcut `Empire Earth Community` that starts the launcher without an argument (without .NET Framework 4.8 the game program of NeoEE, else EE), no game and no Diagnostic shortcuts, the shortcuts of suite 1.0.0 deleted (1.7 point 8); the launcher MAY save one chosen folder per product and the chosen product, and a second launcher without an argument MAY bring the running one to the front (1.4); the setup and the launcher open the download page of the product (`https://empireearth.eu/download/ee/`, `.../neo/`, `.../download/` for foreign installations) and no longer ask the update API for a download URL (4.3, 4.5, 1.1 `AppId`); the user's explicit choice of the game window size in the launcher is the consent of 3.2 to overwrite the class D values `Game Window Width` and `Game Window Height`, within the limits of 3.3, after the guard and the `.reg` backup of 3.6, without touching the marker (3.2, 3.3, 3.6); checklist of the additions (7) | suite 1.1.0 (planned) | 1.1.0 (planned) |
 
 ## 6. Open questions
 
@@ -1082,7 +1117,8 @@ Launcher v2, in the UI-free core library with unit tests (fake registry and file
 - manifest reader and checks ([2](#2-integrity-manifest)): BOM, CRLF, invalid lines, paths outside the
   root, classes, states, the uninstall key rule of [2.5](#25-verification-by-the-launcher);
 - defaults, marker, consistency checks and reset with backup ([3](#3-per-user-default-game-settings));
-- repair hand-off and update check ([4](#4-repair-hand-off)) with the URL cases of the setup's unit tests;
+- repair hand-off with the download pages of [4.3](#43-where-the-user-gets-the-setup) and update check
+  ([4.5](#45-update-check-optional));
 - setup and game mutexes ([4.2](#42-running-setup)): no game start, no reading of `install.ini` and
   `files.sha256` and no integrity check while a setup mutex exists, a running check cancelled, the
   share modes; starting the games with shell execute.
@@ -1131,8 +1167,7 @@ Launcher 1.0.0 (revision 5):
 
 ### Additions of revision 6 (suite 1.1.0, launcher 1.1.0)
 
-Suite 1.1.0 (revision 6, informative section 1.7 only; no registry value or file of the suite or the product
-setups changes):
+Suite 1.1.0 (revision 6; no registry value of the suite or of the product setups changes, its shortcuts do):
 
 - the product setups run with `/VERYSILENT /SUPPRESSMSGBOXES /NORESTART` in the default mode instead of
   `/SILENT`, so no product setup shows a window or a taskbar button of its own
@@ -1148,8 +1183,19 @@ setups changes):
   once, 90 minutes stop the product setup as a failure ([1.7](#17-how-the-suite-runs-a-product-setup-informative) point 2);
 - `ci/check_suite.py`, the unit tests of `SuiteProductArguments` and the suite scenarios of CI expect
   `/VERYSILENT` and no `/SILENT`.
+- one shortcut `Empire Earth Community` on the desktop and in the start menu folder `Empire Earth
+  Community`, to the launcher without an argument, without .NET Framework 4.8 to the game program of
+  NeoEE, else EE; the Mod Creator and the uninstaller in the start menu folder; no game and no Diagnostic
+  shortcut; the shortcuts of suite 1.0.0 deleted by every run and by the uninstaller,
+  `{autodesktop}\Empire Earth.lnk` only if it starts the launcher
+  ([1.7](#17-how-the-suite-runs-a-product-setup-informative) point 8);
+- `ci/check_contract.py` reads the table of 1.7 with a shortcut without parameters and the products of
+  its fallback in order, `ci/check_suite.py` checks that only the paths of suite 1.0.0 of 1.7 point 8 are
+  deleted, and the suite scenarios of CI expect the one shortcut and none of suite 1.0.0.
 
-Product setups (revision 6): none; they overwrite `Game Window Width` and `Game Window Height` at every run
+Product setups (revision 6): the update question opens the download page of the setup's own product
+([4.3](#43-where-the-user-gets-the-setup)), and the update API gets only the requests of
+[4.5](#45-update-check-optional); they overwrite `Game Window Width` and `Game Window Height` at every run
 as before (class D, `deletevalue`, [3.2](#32-values)), which ends a size the user chose in the launcher.
 
 Launcher 1.1.0 (revision 6; the launcher does not start or watch the product setups of the suite, so the
@@ -1166,3 +1212,13 @@ suite part asks nothing of it):
   backup of [3.6](#36-launcher-procedures); if a backup fails, nothing is changed;
 - the page says that the next run of a setup (repair, update) writes the recommended size again
   ([3.2](#32-values)).
+- the Play page lists the four games (Empire Earth and The Art of Conquest of each product); choosing one
+  selects the installation of its product for every page, a game that is not installed is shown disabled,
+  and the choice is saved with one chosen folder per product ([1.4](#14-discovery-by-the-launcher), default
+  selection); `--product=` selects for one session as before;
+- a second launcher started without an argument brings the running one to the front instead of showing a
+  message ([1.4](#14-discovery-by-the-launcher));
+- the repair advice and an available update open the download page of the product of the installation,
+  `https://empireearth.eu/download/` for a foreign one, without a request
+  ([4.3](#43-where-the-user-gets-the-setup)); the update API gets only the requests of
+  [4.5](#45-update-check-optional), also from the network check.

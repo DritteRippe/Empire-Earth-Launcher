@@ -7,7 +7,7 @@ von Krypton und die Texte der Oberfläche ([ADR 0012](adr/0012-test-strategy.md)
 
 | | |
 |---|---|
-| Stand | Fälle von L-WP1 bis L-WP9; der Plan ist vollständig: Jede Anforderung und jeder Forum-Testfall ist zugeordnet (Abschnitt 7), kein Paket ist offen |
+| Stand | Fälle von L-WP1 bis L-WP14; der Plan ist vollständig: Jede Anforderung und jeder Forum-Testfall ist zugeordnet (Abschnitt 7), kein Paket ist offen |
 | Sprache | Deutsch (die Programmtexte gibt es auf Englisch, Deutsch und Französisch) |
 | Gehört zu | [ARCHITECTURE.md](ARCHITECTURE.md), Abschnitt 11 und 15 |
 
@@ -45,11 +45,13 @@ Inhalt: [1. Voraussetzungen](#1-voraussetzungen) · [2. Paket holen und prüfen]
   `Data\Scenarios` beider Spiele kopieren. Den Schlüssel `Software\Sierra\CDKeys` nie ändern oder löschen.
 - **Netzwerk**: Der Launcher fragt im Hintergrund die Online-Spielerliste beim NeoEE-Statusserver ab
   (`titan.empireearth.eu`, Port 10005, eingestellt in `Empire Earth Launcher.exe.config`). Ab L-WP7 fragt er nur auf
-  Wunsch (Reparatur-Hinweise, „Version prüfen“, „Nach Updates suchen“) per HTTPS `api.empireearth.eu` nach dem
-  Download des aktuellen Setups und nach den Versionen; gesendet werden nur die AppId der Installation und die Version
-  (WP7-10 bis WP7-12). Ab L-WP9 kommt nur auf Wunsch die Netzwerkprüfung dazu: Namensauflösung (DNS) der NeoEE-Server,
-  dieselbe Anfrage an den Update-Server und an den Statusserver; kein Dienst für die öffentliche Adresse, nichts an die
-  Ports 10002/10003 (WP9-01). Weitere Verbindungen gibt es nicht.
+  Wunsch (Versionsprüfung, Netzwerkprüfung) per HTTPS `api.empireearth.eu` nach den Versionen; gesendet werden nur die AppId
+  der Installation, die Art der Frage (`&type=`) und die Version (WP7-10, WP7-11). Die Downloadseite des Setups
+  (`https://empireearth.eu/download/ee/`, `/neo/`, für fremde Installationen `/download/`) öffnet der Launcher ab 1.1.0 nur auf Klick
+  im Browser und ohne eigene Anfrage (WP7-12, WP14-01 bis WP14-03). Ab L-WP9 kommt nur auf Wunsch die Netzwerkprüfung dazu:
+  Namensauflösung (DNS) der NeoEE-Server, eine Frage nach der letzten Spielversion an den Update-Server und die Anfrage an den
+  Statusserver; kein Dienst für die öffentliche Adresse, nichts an die Ports 10002/10003 (WP9-01). Weitere Verbindungen gibt es
+  nicht.
 
 ## 2. Paket holen und prüfen
 
@@ -351,7 +353,7 @@ Texte.
 | WP6-07 | Forenbericht Abschnitt 8 Testfall 18: Empire Earth über den Launcher starten und im Hauptmenü lassen (Alt+Tab zurück zum Launcher), noch einmal „Empire Earth“ → „Spielen“. | Meldung „Empire Earth.exe läuft bereits. Der Launcher startet es kein zweites Mal.“ mit dem Hinweis auf den Task-Manager (Registerkarte „Details“, „Task beenden“), weil ein Prozess `Empire Earth.exe` existiert. Kein zweites Spiel; der Launcher beendet nichts. `log.txt`: `Game start refused: Empire Earth.exe is already running (mutex StainlessSteelStudiosPresentsEmpireEarth); a process Empire Earth.exe exists, it may hang.` |
 | WP6-08 | Forenbericht Abschnitt 8 Testfall 18 (hängendes `Empire Earth.exe`, t=5859): Empire Earth läuft wie in WP6-07; „The Art of Conquest“ wählen, „Spielen“, zuerst „Nein“, dann noch einmal „Spielen“ und „Ja“. | Rückfrage „Empire Earth.exe läuft. The Art of Conquest trotzdem starten? Beide Spiele gleichzeitig können instabil laufen.“; „Nein“ startet nichts, „Ja“ startet AoC. `log.txt`: `Game started: … game AoC, program …\EE-AOC.exe, pid … (Empire Earth.exe is running, the player started anyway).` und davor die Warnung `Game start of EE-AOC.exe without synchronized "Installed From" values: Blocked …` (solange ein Spiel läuft, ändert der Launcher keine Spieleinstellungen, ADR 0016). Ergebnis im Spiel notieren. |
 | WP6-09 | Kompatibilitätsebene `RUNASADMIN` (Vertrag 3.7): Rechtsklick auf `Empire Earth.exe` → Eigenschaften → Kompatibilität → „Programm als Administrator ausführen“ ankreuzen (nur für das eigene Konto), OK. Im Launcher „Spielen“, die UAC-Abfrage mit „Nein“ beantworten; dann noch einmal „Spielen“ und „Ja“. Danach das Häkchen wieder entfernen. | Windows zeigt die UAC-Abfrage (kein Fehler 740, kein „Der angeforderte Vorgang erfordert erhöhte Rechte“). Bei „Nein“: Meldung „Das Spiel wurde nicht gestartet, weil die Abfrage nach Administratorrechten abgebrochen wurde …“; `log.txt`: `… cancelled: the elevation prompt was not confirmed (error 1223).` Bei „Ja“ startet das Spiel (Task-Manager, Spalte „Mit erhöhten Rechten“: Ja). Der Launcher selbst bleibt ohne erhöhte Rechte. |
-| WP6-10 | Programm fehlt: die Installation in einen eigenen Ordner kopieren (z. B. `C:\Spiele\EE-Test`), dort `Empire Earth.exe` in `Empire Earth.exe.bak` umbenennen, den Ordner auf der Seite *Launcher* wählen; Seite *Spielen* → „Spielen“. Im Fenster „Downloadseite öffnen“, dann „Schließen“. Danach umbenennen rückgängig machen und „Automatisch“. | Fenster „Installation reparieren“: „…\Empire Earth.exe fehlt. Die Installation ist beschädigt …“, darunter nummeriert zuerst „Fügen Sie zuerst in Ihrem Antivirenprogramm eine Ausnahme für den Ordner … hinzu …“, dann die Schritte zum Setup (bei einer Kopie ohne `install.ini` stattdessen „… stammt nicht vom Community-Setup …“), die Adresse `https://empireearth.eu/download`. „Downloadseite öffnen“ öffnet sie im Standardbrowser, ohne UAC-Abfrage (Task-Manager: Browser nicht „Mit erhöhten Rechten“); das Fenster bleibt offen. Auf *Spielen*: „Empire Earth.exe: fehlt“. `log.txt`: `Game start refused: the program … is missing …; repair advice: …` und `Repair advice for …: opening the download page https://empireearth.eu/download (the fixed page of contract 4.3 …)`. |
+| WP6-10 | Programm fehlt: die Installation in einen eigenen Ordner kopieren (z. B. `C:\Spiele\EE-Test`), dort `Empire Earth.exe` in `Empire Earth.exe.bak` umbenennen, den Ordner auf der Seite *Launcher* wählen; Seite *Spielen* → „Spielen“. Im Fenster „Downloadseite öffnen“, dann „Schließen“. Danach umbenennen rückgängig machen und „Automatisch“. | Fenster „Installation reparieren“: „…\Empire Earth.exe fehlt. Die Installation ist beschädigt …“, darunter nummeriert zuerst „Fügen Sie zuerst in Ihrem Antivirenprogramm eine Ausnahme für den Ordner … hinzu …“, dann die Schritte zum Setup (bei einer Kopie ohne `install.ini` stattdessen „… stammt nicht vom Community-Setup …“), die Adresse der Downloadseite des Produkts (`https://empireearth.eu/download/ee/`, `/neo/`, bei einer Kopie `https://empireearth.eu/download/`). „Downloadseite öffnen“ öffnet sie im Standardbrowser, ohne UAC-Abfrage (Task-Manager: Browser nicht „Mit erhöhten Rechten“); das Fenster bleibt offen. Auf *Spielen*: „Empire Earth.exe: fehlt“. `log.txt`: `Game start refused: the program … is missing …; repair advice: …` und `Repair advice for …: opening the download page https://empireearth.eu/download/… (contract 4.3, … page).` |
 | WP6-11 | Forenbericht Abschnitt 8 Testfall 22: NeoEE-Installation „für alle Benutzer“ (Setup v2), als Administrator `EE-AOC.exe` umbenennen; im Launcher „The Art of Conquest“ → „Spielen“. Danach zurück umbenennen. Zusatz (Setup-Testplan TP-73): das Setup nach den Schritten erneut ausführen. | Die Schritte nennen den Installationsordner, „wählen Sie wieder „Installation für alle Benutzer““ und „Lassen Sie die Aufgabe „NeoEE-CD-Keys registrieren“ ausgewählt …“. Das Setup bietet die Reparatur an und läuft durch; danach startet AoC wieder über den Launcher. |
 | WP6-12 | Forenbericht Abschnitt 8 Testfall 20, Spielerliste ohne Netz: Launcher starten, Spielerliste abwarten; Netzwerk trennen (Flugmodus oder Kabel ziehen), 2 Minuten warten; Netzwerk wieder verbinden, 1 Minute warten; Launcher schließen. | Ohne Netz: Überschrift „Online-Spieler (nicht verfügbar)“, das Fenster bleibt bedienbar. Mit Netz wieder die Liste. `log.txt` enthält für die Unterbrechung genau eine Zeile `Error : The online player list of … is unavailable, retrying every … ms.` und danach genau eine `The online player list is available again.` Nach dem Schließen ist der Launcher-Prozess sofort weg. |
 | WP6-13 | Launcher starten und offen lassen; noch einmal `Empire Earth Launcher.exe` starten (auch aus einer Kopie des Ordners). | Meldung „Der Empire Earth Launcher läuft bereits. Bitte verwenden Sie das geöffnete Fenster …“, danach endet der zweite Start; es bleibt ein Launcher-Fenster. `log.txt`: `Another Empire Earth Launcher is already running (mutex EmpireEarthCommunityLauncher); this one ends.` |
@@ -371,7 +373,7 @@ Alle Dateien müssen da sein, die Programmdateien werden gehasht (schnelle Prüf
 Ergebnis unter den Versionen („Dateien: OK“ usw.), daneben „Details“ (Seite *Werkzeuge*) oder „Reparieren ...“. Die neue
 Seite *Werkzeuge* zeigt die Erklärung und alle betroffenen Dateien, startet die vollständige Prüfung (auch die Spieldaten)
 mit Fortschritt und Abbruch, öffnet die Reparatur-Hinweise und fragt nach Updates. Das Fenster „Installation reparieren“
-fragt jetzt zuerst `api.empireearth.eu` nach dem Download des aktuellen Setups. Der Launcher liest die Spieldateien nur;
+zeigt seit Launcher 1.1.0 sofort die Downloadseite des Produkts (Vertrag 4.3, ohne Anfrage). Der Launcher liest die Spieldateien nur;
 er ändert, löscht, verschiebt oder lädt keine. Voraussetzung: eine Installation mit dem Community-Setup v2 (Setup-Testplan
 TP-40, TP-50); für WP7-07 eine mit Setup 1.7.2, für WP7-08 eine CD- oder GOG-Installation oder eine Kopie. Für Fälle, die
 Dateien umbenennen, Adminrechte im Explorer; danach immer zurückbenennen.
@@ -389,7 +391,7 @@ Dateien umbenennen, Adminrechte im Explorer; danach immer zurückbenennen.
 | WP7-09 | Vertrag 2.5, älteres Setup danach (nur Installation „für alle Benutzer“): Uninstall-Schlüssel sichern: `reg export "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{<AppId>}_is1" "%USERPROFILE%\Desktop\uninstall.reg"` (AppId aus `install.ini`); dann als Administrator im Registrierungs-Editor den Wert `Empire Earth Community: ContractVersion` dieses Schlüssels löschen; Launcher starten. Danach `uninstall.reg` per Doppelklick wieder einspielen und den Launcher neu starten. | „Dateien: nicht prüfbar“ mit „Reparieren ...“; *Werkzeuge*: „Nach dem aktuellen Setup lief ein älteres Setup, oder das letzte Setup konnte seine Einträge nicht ersetzen. Führen Sie das aktuelle Setup aus.“ `log.txt`: `… is unknown (OlderSetupRanAfter): the uninstall key … lacks Empire Earth Community: ContractVersion …`. Nach dem Einspielen wieder „Dateien: OK“. |
 | WP7-10 | Forenbericht Abschnitt 8 Zeile 1 und Testfall 2 (Versionsanzeige): Seite *Spielen* → „Version prüfen“. Danach dasselbe ohne Netz (Flugmodus). | Kurz „Der Update-Server wird gefragt ...“, dann „Spielversion …: aktuell.“ oder „Spielversion …: Version … ist verfügbar.“ – bei einer neueren Version öffnet sich „Installation reparieren“ mit dieser Zeile und den Setup-Schritten. Ohne Netz: „Der Update-Server konnte nicht gefragt werden (keine Verbindung); Einzelheiten im Protokoll.“ `log.txt`: `Update API: GET https://api.empireearth.eu/setup/?product=<AppId>&type=game&version=<Version>: HTTP 200 in … ms.` und `Version check: Game version … of …: UpToDate` (bzw. `UpdateAvailable`, `Failed (NetworkError)`). Antwort notieren. |
 | WP7-11 | *Werkzeuge* → „Nach Updates suchen“ für eine Installation des Setups v2, eine des Setups 1.7.2 und eine fremde. | v2 und 1.7.2: je eine Zeile für die Spielversion und die Setup-Version (beim Setup 1.7.2 mit AppId und Versionen aus dem Uninstall-Schlüssel). Fremd: „Keine Versionsprüfung: Prüfen lassen sich nur Installationen des Community-Setups mit eingetragener Version.“ und keine Zeile `Update API:` im Protokoll. |
-| WP7-12 | Vertrag 4.3: *Werkzeuge* → „Reparatur-Hinweise“, „Downloadseite öffnen“; danach dasselbe ohne Netz. | Zuerst „Der Update-Server wird nach dem aktuellen Setup gefragt ...“ und „Downloadseite öffnen“ ausgegraut, nach höchstens 10 Sekunden „Downloadseite des Community-Setups:“ mit der Adresse aus der Antwort (`https://` auf `empireearth.eu`, `neoee.net` oder `github.com/EE-modders/…`) oder `https://empireearth.eu/download` mit dem Hinweis „Keine Adresse vom Update-Server (…); dies ist die allgemeine Downloadseite.“ Ohne Netz: „(keine Verbindung)“. „Downloadseite öffnen“ öffnet sie ohne UAC-Abfrage. `log.txt`: `Repair: the update API names the setup download …` bzw. `Repair: the fixed download page https://empireearth.eu/download is used (<Grund>: …).` |
+| WP7-12 | Vertrag 4.3: *Werkzeuge* → „Reparatur-Hinweise“, „Downloadseite öffnen“; danach dasselbe ohne Netz. | Das Fenster zeigt sofort die Adresse `https://empireearth.eu/download/ee/` bzw. `/neo/` (fremde Installation: `https://empireearth.eu/download/`), ohne Wartezeit; „Downloadseite öffnen“ lädt im Browser `EE_Setup.exe` bzw. `NeoEE_Setup.exe` von `r2.empireearth.eu` und öffnet sie ohne UAC-Abfrage; ohne Netz dieselbe Adresse, der Browser meldet den Fehler. `log.txt`: `Repair advice for …: opening the download page https://empireearth.eu/download/ee/ (contract 4.3, EE page).`, keine Zeile `Update API: GET …` ohne `&type=`. |
 | WP7-13 | Vertrag O11 (wenn aus WP4-12 vorhanden: EE und NeoEE im selben Ordner): Seiten *Spielen* und *Werkzeuge*. | Der Zustand endet mit „(unzuverlässig)“; *Werkzeuge* zusätzlich „Empire Earth und NeoEE sind im selben Ordner installiert: Das Setup von … kann Dateien von … ersetzt haben, daher ist diese Prüfung unzuverlässig.“ |
 | WP7-14 | Seiten *Spielen* (Zustand, Versionsprüfung, Infoleiste mit der Anzeigefrage aus WP5-02) und *Werkzeuge* (mit Dateiliste und während der vollständigen Prüfung) sowie das Fenster aus WP7-02 auf Deutsch, Englisch und Französisch, je bei 100 % und 150 %; Screenshots. Die Navigation hat jetzt vier Knöpfe: *Spielen*, *Einstellungen*, *Werkzeuge*, *Launcher*. | Nichts abgeschnitten oder überlappend; die Infoleiste auf *Spielen* ist 20 Pixel niedriger als in L-WP6, ihr Text muss trotzdem vollständig lesbar sein; *Werkzeuge* scrollt bei langen Texten. Deutsche Texte gegenlesen wie in WP3-03. |
 | WP7-15 | Nach allen Fällen `log.txt` durchsehen. | Keine `Unhandled exception`, keine `A background task failed`, keine `The integrity check of … failed`; jede Prüfung hat genau eine Zeile `Integrity: quick check of …` bzw. `full check of …`; jede Anfrage eine Zeile `Update API: GET …` mit Status oder Fehler; unter Windows 10/11 beim Start `TLS: the versions Windows chooses (SystemDefault).` |
@@ -469,7 +471,7 @@ reg delete "HKCU\Software\EELinkTest" /f
 Die Seite *Werkzeuge* endet mit zwei neuen Abschnitten. „Netzwerk“ prüft nur auf Knopfdruck (oder über den Link der Seite
 *Spielen*): die Netzwerkadapter dieses Rechners (Typ, Treibername, IPv4 mit Gateway, IPv6 nur als „keine“/„nur
 Link-local“/„vorhanden“, virtuelle und VPN-Adapter markiert), die Namensauflösung (DNS) des NeoEE-Statusservers und des
-Servers aus `NeoEE.cfg`, den Update-Server (`api.empireearth.eu`, gesendet wird nur die AppId wie in WP7-12), den
+Servers aus `NeoEE.cfg`, den Update-Server (`api.empireearth.eu`, gesendet werden nur die AppId und `&type=game` wie bei der Versionsprüfung WP7-10), den
 NeoEE-Statusserver (dieselbe Anfrage wie die Spielerliste), `NeoEE.cfg` und `WONLobby.cfg` beider Spielordner (nur lesend)
 mit der Tabelle der Portweiterleitung und `upnp_info.txt`. Daraus entstehen das Ergebnis (zum Beispiel „Vermutlich ein
 Serverausfall, nicht Ihr PC“) und Hinweise. Der Launcher fragt keinen Dienst nach der öffentlichen Adresse und verbindet sich
@@ -572,6 +574,41 @@ oder ein Community-Setup. `<Config>` ist die `dreXmod.config` im Spielordner (`E
 | WP12-08 | Nur lesen. Vor dem Test `Get-FileHash` von `dreXmod.config` und `dgVoodoo.conf` in beiden Spielordnern sowie `Get-ChildItem -Recurse` der Spielordner (Name, Länge, Änderungszeit) und `reg export` der Spielschlüssel (`HKCU\Software\Neo\Empire Earth`, `…\Art of Conquest`) sichern. Dann alle Funktionen der Seite benutzen (Seitenwechsel, Häkchen, beide Knöpfe je Spiel; in der geöffneten Datei **nichts** speichern) und alles nachher vergleichen. | Alle Prüfsummen, Dateilisten und Exporte sind nachher gleich, auch die Änderungszeit von `dreXmod.config` und der Presets. `log.txt` hat keine Zeile `changed`, `Backup` oder `Error` zur Seite *Mods*. Der Launcher legt keinen Ordner im Spielordner an. |
 | WP12-09 | Fehlende Dateien. **(a)** `<Config>` eines Spiels umbenennen. **(b)** Den Ordner `Data\dxm\mods` eines Spiels umbenennen. **(c)** `<Config>` durch eine Datei ohne die Blöcke `Mod` und `LobbyTheme` ersetzen (z. B. die der dreXmod-2-Auslieferung). Je Seitenwechsel, danach alles zurückbenennen. | (a) „dreXmod.config wurde nicht gefunden (…).“ für dieses Spiel, „dreXmod.config öffnen“ ist ausgegraut, die Presets stehen weiter da. (b) „Den Ordner … gibt es nicht.“, „Mods-Ordner öffnen“ ist ausgegraut, die Zeilen der Auswahl bleiben. (c) „dreXmod.config hat weder einen Block Mod noch einen Block LobbyTheme; es wird darin also kein Preset ausgewählt.“ und kein Kennzeichen. Das andere Spiel ist nicht betroffen, keine `Error`-Zeile im Protokoll (eine Datei, die nicht gelesen werden kann, steht als `Warning`). |
 
+### L-WP13 – Ein Launcher für vier Spiele (Launcher 1.1.0, Vertrag Revision 6)
+
+Der Launcher 1.1.0 ist der eine Launcher für Empire Earth und Neo Empire Earth mit je ihrer Erweiterung: Die Seite *Spielen* hat eine Liste mit
+vier Spielen (Vertrag 1.4, Standardauswahl, Revision 6). Wer ein Spiel wählt, wählt damit die Installation seines Produkts für **alle** Seiten
+(*Spielen*, *Einstellungen*, *Grafik*, *Mods*, *Werkzeuge*, *Launcher*); ein Spiel, das nicht installiert ist, steht ausgegraut da, mit einem Hinweis darunter.
+Die Wahl wird gemerkt (`settings.json`: `LastProduct`, `LastGame`, `ProductFolders`; `GameDirectory` spiegelt den Ordner des zuletzt gewählten Produkts, damit der
+Launcher 1.0.0 dieselbe Installation wählt). Die Verknüpfung `Empire Earth Community` der Suite 1.1.0 startet den Launcher ohne Argument; ein
+zweiter Start holt den offenen Launcher nur nach vorn. `--product=EE` und `--product=NeoEE` wählen weiter für eine Sitzung (WP10-01 bis WP10-03, nicht
+gespeichert). Voraussetzung für WP13-01 bis WP13-03 und WP13-06: EE (mit The Art of Conquest) und NeoEE mit der Suite 1.1.0 installiert (Setup-Testplan TP-93).
+
+| Fall | Schritte | Erwartet |
+|---|---|---|
+| WP13-01 | Liste: EE (mit AoC) und NeoEE mit der Suite installiert. Seite *Spielen* ansehen, je auf Deutsch, Englisch und Französisch (R17). | Vier Einträge in der Reihenfolge „Empire Earth“, „Empire Earth – The Art of Conquest“, „Neo Empire Earth“, „Neo Empire Earth – The Art of Conquest“, alle wählbar, kein Hinweis darunter; die Namen der Spiele sind in allen drei Sprachen gleich. |
+| WP13-02 | Merken: „Empire Earth – The Art of Conquest“ wählen, Launcher schließen, ohne Argument starten. | Derselbe Eintrag ist gewählt; `settings.json` enthält `"LastProduct": "EE"` und `"LastGame": "AoC"`. |
+| WP13-03 | Alle Seiten: „Neo Empire Earth“ wählen, dann *Einstellungen*, *Grafik*, *Mods*, *Werkzeuge*, *Launcher* öffnen. | Überall die NeoEE-Installation (Ordner, Schlüssel `Software\Neo\…`); auf *Spielen* die Spielerliste. Zurück auf „Empire Earth“: überall EE, „Spieler online (nur NeoEE)“ ohne Liste. |
+| WP13-04 | Ausgegraut: NeoEE über „Apps“ deinstallieren (oder auf einer Maschine nur mit EE ohne AoC). | Die zwei NeoEE-Einträge (bzw. die AoC-Einträge) sind grau, der Hinweis „Ausgegraute Spiele sind nicht installiert …“ steht darunter; ein gemerkter NeoEE-Eintrag fällt auf „Empire Earth“ zurück, ohne `settings.json` zu schreiben. |
+| WP13-05 | Fremde Installation: eine GOG- oder CD-Kopie auf der Seite *Launcher* wählen („Durchsuchen …“). | *Spielen* zeigt „Empire Earth“ gewählt und spielt die Kopie; „Neo Empire Earth“ wählen und zurück auf „Empire Earth“: wieder die Kopie (Ordner je Produkt gemerkt); „Automatisch“: die Suite-Installation von EE. |
+| WP13-06 | Zweiter Start: Launcher offen und minimiert; das Symbol `Empire Earth Community` (oder `"<Launcher>"` ohne Argument) noch einmal starten. | Keine Meldung, das Fenster kommt nach vorn, die Auswahl bleibt unverändert; mit `--product=EE` wechselt es auf den EE-Eintrag (Sitzung, nicht gespeichert, WP10-03). |
+| WP13-07 | Alte Einstellungen: `settings.json` eines Launchers 1.0.0 mit `GameDirectory` auf die EE-Installation. | Launcher 1.1.0 öffnet mit EE; erst nach einer Wahl stehen `ProductFolders` und `LastProduct` in der Datei; Launcher 1.0.0 danach liest die Datei ohne Fehler. |
+| WP13-08 | Seite *Spielen* auf Deutsch, Englisch und Französisch bei 100 % und 150 % Schrift, im kleinsten Fenster und maximiert; Bildschirmfotos (R17). | Kein Eintrag ist abgeschnitten oder überlappt; ein langer Name steht, wo er nicht in die Gruppe passt, in zwei Zeilen („Neo Empire Earth –“ und „The Art of Conquest“). |
+
+### L-WP14 – Download-Seiten (Launcher 1.1.0, Vertrag 4.3 Revision 6)
+
+Seit Launcher 1.1.0 öffnen das Fenster „Installation reparieren“ und die Update-Übergabe die Downloadseite des Produkts **ohne Anfrage**:
+`https://empireearth.eu/download/ee/` für EE, `https://empireearth.eu/download/neo/` für NeoEE, `https://empireearth.eu/download/` für eine
+fremde Installation (Vertrag 4.3, [ADR 0008](adr/0008-https-policy-and-update-api.md), Nachtrag vom 2026-10-07). Die Website leitet die beiden
+Produktseiten auf das Setup um (`r2.empireearth.eu`), der Browser lädt es also gleich. `api.empireearth.eu` bekommt nur noch die Fragen
+der Versionsprüfung (Vertrag 4.5), auch von der Netzwerkprüfung (`&type=game`).
+
+| Fall | Schritte | Erwartet |
+|---|---|---|
+| WP14-01 | EE: *Werkzeuge* → „Reparatur-Hinweise“. | Sofort `https://empireearth.eu/download/ee/`, ohne „wird gefragt“; „Downloadseite öffnen“ lädt `EE_Setup.exe` von `r2.empireearth.eu`. |
+| WP14-02 | NeoEE: dasselbe; danach eine fremde Installation (GOG, CD). | NeoEE: `https://empireearth.eu/download/neo/` und `NeoEE_Setup.exe`; fremde Installation: `https://empireearth.eu/download/`. |
+| WP14-03 | Ohne Netz (Flugmodus): Reparatur-Hinweise öffnen, „Version prüfen“. | Die Adresse steht trotzdem sofort da; „Version prüfen“ meldet „konnte nicht fragen“; das Protokoll enthält kein `GET https://api.empireearth.eu/setup/?product=…` ohne `&type=`. |
+
 ## 6. Optional: Windows 7 SP1 in einer VM
 
 Windows 7 SP1 ist unterstützt, aber ungetestet ([ADR 0001](adr/0001-target-dotnet-framework-4-8.md),
@@ -587,7 +624,7 @@ verlangt Microsoft, dass das Stammzertifikat „Microsoft Root Certificate Autho
 | W7-02 | .NET Framework 4.8 installieren, neu starten, Launcher starten. | Hauptfenster erscheint, Krypton-Darstellung wie unter Windows 10/11 (Screenshot). |
 | W7-03 | `log.txt` öffnen. | Startzeilen wie in WP1-04, keine weiteren `Error`-Zeilen als dort genannt. |
 | W7-04 | Mod-Creator starten. | „You are using: Windows 7“. |
-| W7-05 | Ab L-WP7: Reparatur-Hinweis öffnen bzw. Update-Prüfung starten. | Entweder Antwort von `api.empireearth.eu` (TLS 1.2) oder die feste Seite `https://empireearth.eu/download`; `log.txt` nennt bei der Ersatzseite den Grund (z. B. TLS-Handshake). |
+| W7-05 | Ab L-WP7: Reparatur-Hinweis öffnen bzw. Update-Prüfung starten. | Der Reparatur-Hinweis zeigt sofort die Seite des Produkts (`https://empireearth.eu/download/ee/` bzw. `/neo/`, ohne Anfrage); die Versionsprüfung bekommt eine Antwort von `api.empireearth.eu` (TLS 1.2) oder meldet „konnte nicht fragen“, `log.txt` nennt den Grund (z. B. TLS-Handshake). |
 | W7-06 | Ab L-WP9: *Werkzeuge* → „Netzwerk prüfen“, „Bericht kopieren“. | Adapterzeilen wie in WP9-01 (auch unter Windows 7 ohne Adapternamen und MAC); „Update-Server: antwortet“ oder „keine Antwort (die sichere Verbindung ist fehlgeschlagen)“ bei fehlendem TLS 1.2 – dann lautet das Ergebnis nicht „Serverausfall“; der Bericht nennt „Windows: NT 6.1.7601, …“. |
 
 ## 7. Zuordnung der Anforderungen und Forum-Testfälle
@@ -609,9 +646,9 @@ existiert, kein „offen“ mehr, und jede Zeile „Setup:“ oder „entfällt:
 | R6 | WON-Login zurücksetzen | WP8-06, WP8-07, WP8-14 |
 | R7 | Netzwerkdiagnose | WP9-01, WP9-02, WP9-03, WP9-04, WP9-05, WP9-06, WP9-07, WP9-08, WP9-09, WP9-10, WP9-13 |
 | R8 | VirtualStore | WP4-16, WP8-08, WP8-09, WP8-11, WP8-19 |
-| R9 | Reparatur über das Setup | WP6-05, WP6-06, WP6-10, WP6-11, WP7-02, WP7-04, WP7-12 |
+| R9 | Reparatur über das Setup | WP6-05, WP6-06, WP6-10, WP6-11, WP7-02, WP7-04, WP7-12, WP14-01, WP14-02, WP14-03 |
 | R10 | Spielstände und Szenarien | WP8-09, WP8-10, WP8-11, WP8-12 |
-| R17 | Texte auf Englisch, Deutsch, Französisch | WP3-01, WP3-03, WP3-11, WP3-12, WP4-17, WP5-17, WP6-14, WP7-14, WP8-15, WP9-14, WP11-01, WP12-07 |
+| R17 | Texte auf Englisch, Deutsch, Französisch | WP3-01, WP3-03, WP3-11, WP3-12, WP4-17, WP5-17, WP6-14, WP7-14, WP8-15, WP9-14, WP11-01, WP12-07, WP13-01, WP13-08 |
 | Forum 1 | Frische Installation, Standardnutzer, zweites Konto | WP4-06, WP4-16, WP5-02, WP8-08, WP8-11; Setup: TP-41, TP-71 (Installation und Rechte) |
 | Forum 2 | Versionsanzeige, Mehrspieler ohne Versionskonflikt | WP6-02, WP7-10, WP7-11; Setup: TP-70, TP-72 (Version im Hauptmenü) |
 | Forum 3 | Grafikmatrix mit und ohne Wrapper | WP5-05, WP11-06, WP11-07; Setup: TP-23 (Wrapper und Renderer installiert das Setup) |
@@ -644,5 +681,5 @@ automatischen Tests dazu nennt die abgehakte Checkliste in [ARCHITECTURE.md](ARC
 | Launcher 1 | Erkennung mit allen fünf Quellen, Setups bis 1.7.2, fremde und beschädigte Installationen, Zusammenführen (1.4) | WP4-02, WP4-03, WP4-04, WP4-05, WP4-06, WP4-07, WP4-08, WP4-10, WP4-13, WP4-15 |
 | Launcher 2 | Manifest lesen und prüfen: BOM, CRLF, ungültige Zeilen, Pfade außerhalb, Klassen, Zustände, Uninstall-Regel (2) | WP7-01, WP7-02, WP7-03, WP7-05, WP7-06, WP7-07, WP7-08, WP7-09, WP7-13 |
 | Launcher 3 | Standardwerte, Marker, Konsistenzprüfungen, Zurücksetzen mit Sicherung (3) | WP5-01, WP5-02, WP5-03, WP5-04, WP5-05, WP5-06, WP5-08, WP5-09, WP5-15 |
-| Launcher 4 | Reparatur-Übergabe und Versionsprüfung mit den URL-Fällen des Setups (4) | WP6-10, WP6-11, WP7-02, WP7-10, WP7-11, WP7-12, W7-05 |
+| Launcher 4 | Reparatur-Übergabe mit den Download-Seiten (4.3) und Versionsprüfung (4.5) | WP6-10, WP6-11, WP7-02, WP7-10, WP7-11, WP7-12, WP14-01, WP14-02, W7-05 |
 | Launcher 5 | Setup- und Spiel-Mutexe: kein Start, kein Lesen von `install.ini`/Manifest und keine Prüfung während eines Setups, laufende Prüfung abgebrochen, Freigabemodi; Start per Shell (4.2) | WP6-01, WP6-05, WP6-06, WP6-07, WP6-09, WP7-04 |

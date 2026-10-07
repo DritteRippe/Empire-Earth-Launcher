@@ -1094,9 +1094,9 @@ installation). `ContractChecklistTests` checks this table like the ones above; t
 ### Launcher checklist of CONTRACT 7, revision 6 additions
 
 The launcher items of "Additions of revision 6 (suite 1.1.0, launcher 1.1.0)" in section 7 of [CONTRACT.md](CONTRACT.md),
-built in launcher 1.1.0 (graphics page, E1). The suite part of revision 6 (`/VERYSILENT`, the product log lines, the
+built in launcher 1.1.0 (graphics page, E1; one launcher for the four games and the download pages of the products, P1 and U1). The suite part of revision 6 (`/VERYSILENT`, the product log lines, the
 process handle) asks nothing of the launcher. `ContractChecklistTests` checks this table like the ones above; the
-real-Windows cases are WP11-01 to WP11-05.
+real-Windows cases are WP11-01 to WP11-05, WP13-01 to WP13-07 and WP14-01 to WP14-03.
 
 | Done | Contract 7, additions of revision 6 | Unit tests | Test plan |
 |---|---|---|---|
@@ -1104,6 +1104,9 @@ real-Windows cases are WP11-01 to WP11-05.
 | [x] | after the click on the button only `Game Window Width` and `Game Window Height` of every installed game in HKCU, the marker and the other values untouched (3.2) | `GameDefaultsServiceTests`, `GraphicsModelTests` | WP11-03 |
 | [x] | before the write the guard of 4.2 (no setup, no game) and the `.reg` backup of 3.6; a failed backup changes nothing (3.6) | `GameDefaultsServiceTests`, `GraphicsModelTests`, `GraphicsTextsTests` | WP11-03, WP11-04 |
 | [x] | the page says that the next run of a setup writes the recommended size again (3.2) | `GraphicsTextsTests` | WP11-01, WP11-05 |
+| [x] | the Play page lists the four games, choosing one selects the installation of its product for every page, a game that is not installed is disabled, the choice is saved with one chosen folder per product (1.4, default selection, revision 6) | `PlayEntryTests`, `ProductChoicesTests`, `InstallationServiceTests`, `PlayModelTests`, `DiscoveryResultSessionProductTests` | WP13-01, WP13-02, WP13-03, WP13-04, WP13-05, WP13-07 |
+| [x] | a second launcher started without an argument brings the running one to the front instead of showing a message (1.4, revision 6) | `InstanceForwardingTests`, `LauncherInstanceTargetTests` | WP13-06 |
+| [x] | the repair advice and an available update open the download page of the product without a request, the update API gets only the requests of 4.5, also from the network check (4.3, 4.5, revision 6) | `SetupDownloadPageTests`, `UpdateApiTests`, `NetworkDestinationTests`, `UpdateModelTests` | WP14-01, WP14-02, WP14-03 |
 
 ## 16. Not in v2
 
