@@ -253,10 +253,11 @@ never later than 180 seconds after the start.
 
 - **State machine** (`Core/Play/ActivationSignal`, pure: it decides, it calls nothing and has no clock): armed only when the
   hand-over ended with `GameInForeground`; then a look every 250 ms (the interval of the watch) decides in this order: the
-  deadline (180 s: `NotSettled`); no main window (the quiet time starts again, 10 s in a row: `WindowGone`); no foreground
-  window; a foreground window that is not the main window (the lobby popup, the splash tool window, a dialog of the game,
-  another program, the launcher: the quiet time starts again); a minimized or hidden main window; a main window whose handle,
-  rectangle or styles differ from the last quiet state (the quiet time starts now); the quiet time of 5 s: `Send`.
+  deadline (180 s: `NotSettled`); a foreground window of another program, neither the game nor the launcher (the player
+  switched: `PlayerSwitched`, for good, see the second review below); no main window (the quiet time starts again, 10 s in a
+  row: `WindowGone`); no foreground window; a foreground window that is not the main window (the lobby popup, the splash tool
+  window, a dialog of the game, the launcher: the quiet time starts again); a minimized or hidden main window; a main window
+  whose handle, rectangle or styles differ from the last quiet state (the quiet time starts now); the quiet time of 5 s: `Send`.
 - **5 seconds** settle time: dgVoodoo does its window work in one burst (real fullscreen inside `SetCooperativeLevel` and
   `SetDisplayMode`, fake fullscreen at the first presented frame, with a resolution change "when needed"); a display mode
   switch with its monitor resync takes up to 2 to 3 s on laptop panels and over HDMI. Five quiet seconds put the signal after
@@ -271,7 +272,7 @@ never later than 180 seconds after the start.
 - **Guards.** Only for a game this launcher started (the process id of the start result) and only after the hand-over ended
   with `GameInForeground` (after `UserSwitched` Windows activates the game when the player returns to it, after `GaveUp` the
   player's click does); only if `GetForegroundWindow()` is exactly the main window (never while the lobby popup, the splash tool
-  window or another program is in front); at most once (`Complete` throws on a second call and a look that decided never decides
+  window or the launcher is in front, and not any more once another program has been in front); at most once (`Complete` throws on a second call and a look that decided never decides
   again); never minimize, hide, move, resize or close a window and never end a process (`WindowMessageRulesTests`,
   `ProcessRulesTests`); every decision is logged (`Activation signal for ...: armed`, `not armed, ...`, `activation signal waits:
   ...` when the reason changes, `sent`, `failed`, `not sent`, `The activation signal for ... was not sent: the launcher is
@@ -332,3 +333,26 @@ A review of the first implementation found five gaps. The decision above stays; 
   window (and the first presented picture), and this amendment is updated with the log.** WP6-21 (g) separates the two possible
   reasons for a dead mouse (the activation itself, or a resume that a posted message cannot give: `WM_ACTIVATEAPP(TRUE)` and a
   real change of the foreground window).
+
+### Second review of A1b (2026-10-07): a switch to another program ends the signal
+
+The state machine kept waiting while another program was in front and only restarted the 5 s quiet time. A player who switched
+away and came back within the 180 s got a real activation from Windows on the return (the same reason why `UserSwitched` arms
+nothing), and the synthetic `WM_ACTIVATE` still followed 5 s later: a second activation, in the worst case in the middle of a
+match, and the contradiction of the rule at arming.
+
+- **Rule.** Once the signal is armed, the first look that finds a foreground window of a process that is neither the game nor the
+  launcher ends the signal for good: `SignalStep.PlayerSwitched`, outcome `ActivationSignalOutcome.PlayerSwitched`, one line
+  `activation signal not sent: the player switched to window 0x... (pid ..., class '...'), another program, after the game had
+  been in front; Windows activates the game when the player returns to it.` Later looks decide nothing; the watch still logs for
+  its 60 s. The same check runs right before the post (the player may switch between the look and the post).
+- **Not a switch** (the signal keeps waiting, the quiet time starts again): the launcher (`SignalWait.LauncherInFront`: it started
+  the game and may hold the foreground for a moment while the game takes it), the windows of the game itself (lobby popup,
+  splash, a dialog) and no window at all (Windows has none for a moment while a window is created or the mode switches); a window
+  of process id 0 (the window is gone) counts as none. `ActivationSignal` therefore also needs the process id of the launcher.
+- **Cost.** Every foreground window of another program counts, also one that is in front for a moment on its own: a toast of
+  Windows, a driver pop-up, an overlay. The signal is then not sent, and the player gets the real activation when the game is
+  in front again or has to press Alt+Tab once, as with a direct start. WP6-21 (c) records which programs this happens with.
+- **Evidence.** `ActivationSignalTests` (another program in front, with and without a main window, switch away and back, a
+  switch of one look, the launcher, the lobby and the splash, process id 0), `GameWindowActivatorTests` (switch away and back
+  after 100 s sends nothing, a switch between the look and the post, the launcher in front still gets the signal).

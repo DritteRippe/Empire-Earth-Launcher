@@ -245,7 +245,8 @@ the activation of the whole application and a real change of the foreground wind
 So: **start the game through the launcher** (the desktop icon "Empire Earth Community" of the suite opens it) and keep the
 launcher open until the main menu shows; closing it earlier cancels the signal. A start of `Empire Earth.exe` or
 `EE-AOC.exe` without the launcher still needs one Alt+Tab, out and back.
-The launcher sends nothing while another window is in front (the lobby, another program), never minimizes, moves or closes
+The launcher sends nothing while the lobby or the launcher itself is in front, nothing at all once you have switched to another
+program after the game had been in front (Windows activates the game when you return), never minimizes, moves or closes
 a window and never ends a process; `log.txt` says what it decided (`Activation signal ...`). A game that runs as
 administrator refuses the message (`activation signal failed ... error 5`): then use Alt+Tab once.
 Before the signal the launcher still hands the foreground to the game window after the start when the launcher itself

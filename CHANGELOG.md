@@ -115,8 +115,8 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
 ### Added
 
 - Game start: one activation signal (`WM_ACTIVATE`) to the main window of a started game once it has been the foreground
-  window with the same rectangle and styles for 5 seconds, at the latest 180 seconds after the start; never while the lobby or
-  another program is in front, at most once, every decision in `log.txt` (A1b, [ADR 0010](docs/adr/0010-game-start-and-mutex-probing.md)
+  window with the same rectangle and styles for 5 seconds, at the latest 180 seconds after the start; never while the lobby is
+  in front, never after the player has switched to another program (Windows activates the game on the return), at most once, every decision in `log.txt` (A1b, [ADR 0010](docs/adr/0010-game-start-and-mutex-probing.md)
   amendment). With dgVoodoo 2.87.5 of setup 1.1.0 this should give the game its mouse without Alt+Tab (to be confirmed by
   test plan WP6-21 on a real machine; not yet tested on Windows). Right before the post the launcher reads the foreground
   window again and whether the main window responds (`IsHungAppWindow`), and it sends only to a window of the started

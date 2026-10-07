@@ -332,7 +332,7 @@ Click Play -> button disabled -> `GameStarter.StartAsync(installation, game)`:
    feeds `ActivationSignal` (A1b, ADR 0010 amendment of 2026-10-07): once the main window has been the foreground window with
    the same rectangle and styles for 5 s, at the latest 180 s after the start, `IWindowSystem.PostActivateMessage` posts it
    one `WM_ACTIVATE` (`WA_ACTIVE`), so that the game acquires its DirectInput mouse (with dgVoodoo no activation reaches it
-   after it created the devices). Never while the lobby popup, the splash or another program is in front, at most once, every
+   after it created the devices). Never while the lobby popup, the splash or the launcher is in front, not any more once the player switched to another program, at most once, every
    decision logged; the watch lasts until the signal is decided. `WindowMessageRulesTests` keep the imports of the functions
    that post, send, show or move a window to the three adapters that have a rule.
 
