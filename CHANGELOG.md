@@ -88,6 +88,9 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
   `ProductFolders`; an empty `GameDirectory` next to a folder of the product chosen last is read as that automatic detection
   and the folder is dropped in memory (`ProductChoices.DropFolderClearedByOlderLauncher`, ADR 0005 amendment; test plan
   WP13-07).
+- "Open dreXmod.config" on a Windows with no program for `.config` ended with an error message (error 1155); the launcher now
+  asks Windows for the "Open with" dialog (`openas`). `IProcessStarter.OpenFile` is an allow-list now (`.config`, `.conf`,
+  `.txt`, `.ini`, `.log`) instead of a list of what Windows runs (test plan WP12-04).
 - Game settings page: the header, the description and the "NeoEE in ..." line lay on top of each other, and the book picture
   of the compatibility warning lay over the buttons "Apply recommended display" and "Reset game settings". The page is
   created hidden and filled before the window is shown, and its layout skipped the header, the installation line and
@@ -121,8 +124,9 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
   text where the game reads it, a VirtualStore copy first: a comment before the first element, tabs, CRLF, element names
   inside comments and the variant without telemetry are no problem). The folder `template` (the skeleton for authors) is
   hidden unless the check box asks for it. "Open mods folder" and "Open dreXmod.config" open the folder in the Explorer and
-  the file in its program through the shell (`IProcessStarter.OpenFile`, which refuses a program, script, shortcut or
-  registry file); the page says how to switch a preset by hand, that a setup run resets the choice to the shipped default
+  the file in its program through the shell (`IProcessStarter.OpenFile`, which opens only `.config`, `.conf`, `.txt`, `.ini`
+  and `.log` files and refuses anything else, and asks Windows for the "Open with" dialog when no program is registered for
+  `.config`, as on a stock Windows); the page says how to switch a preset by hand, that a setup run resets the choice to the shipped default
   but keeps presets the player made, and that whether a mod has an effect in multiplayer or ranked games has not been
   verified. dreXmod 2 has no mod system and no page. There is no version and no description in the files of a preset, so the
   page shows none. **The launcher writes nothing here, installs no mod and changes neither `dreXmod.config` nor

@@ -216,7 +216,9 @@ launcher cannot do (contract 2.5: it does not change, delete, restore or downloa
   choice of the config in words, also when it names a folder that does not exist. The skeleton `template` is hidden unless
   asked. There is no version and no description: the files of a preset have none. The two buttons open the folder in the
   Explorer and the config in the program Windows has for it (`IProcessStarter.OpenFolder`, `OpenFile`: through the shell
-  without a verb; a program, script, shortcut or registry file is refused); they change nothing.
+  without a verb; only `.config`, `.conf`, `.txt`, `.ini` and `.log` files are opened, everything else is refused, and when no
+  program is registered for the file, as for `.config` on a stock Windows (error 1155), Windows is asked for its "Open with"
+  dialog, verb `openas`); they change nothing.
 - **Read only, as the rule of the wrapper page: the launcher does not change `dreXmod.config` or `dgVoodoo.conf` in 1.1.0.**
   Switching the preset means writing two values of a game file; that needs a contract section, an allow-list of files and
   values, a backup and the guard, and the tests on real computers must first show what dreXmod does with a name that is no

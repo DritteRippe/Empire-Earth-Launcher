@@ -416,8 +416,8 @@ The launcher's part of that job is to run its core against the real installation
   of the data of dreXmod: `CreditsParserTests` (free text, missing lines, `dd/mm/yyyy`), `DreXmodConfigReaderTests` (a comment
   before the first element, tabs, CRLF, LF and CR, element names inside comments, the variant without telemetry, entities,
   missing elements, dreXmod 2, an unclosed comment, UTF-8 and Latin-1), `ModFolderScannerTests` (credits, size, template, limits),
-  `DreXmodInfoTests` (the components decide) and `ShellProcessStarterTests` (`OpenFile` refuses a program, script, shortcut or
-  registry file).
+  `DreXmodInfoTests` (the components decide) and `ShellProcessStarterTests` (`OpenFile` opens only `.config`, `.conf`, `.txt`, `.ini` and `.log`
+  files and retries with "Open with" when no program is registered).
 - **The page in the geometry tests.** `ModsPageWorld` fills the page through its real model in four states (searching, the
   presets of the setup, every text at its longest with the template shown, a config in the VirtualStore that names a folder that
   does not exist and a game without config and folder, and setup running); `PageLayoutTests.ModsPage_...` runs the rules of

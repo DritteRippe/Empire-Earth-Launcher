@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 
 namespace Empire_Earth_Launcher.Core.Platform
@@ -17,22 +18,53 @@ namespace Empire_Earth_Launcher.Core.Platform
     /// </remarks>
     public sealed class ShellProcessStarter : IProcessStarter
     {
-        /// <summary>What the shell runs when asked to open it: <see cref="CreateFileStartInfo"/> refuses these.</summary>
-        private static readonly HashSet<string> RunnableExtensions = new HashSet<string>(StringComparer.Ordinal)
+        /// <summary>
+        /// The only documents <see cref="CreateFileStartInfo"/> opens: text and configuration files. An allow-list, not a list of
+        /// what Windows runs: the shell runs far more than a list of programs can name (and takes <c>.exe.</c> or <c>.exe </c>
+        /// for <c>.exe</c>), so anything that is not named here is refused.
+        /// </summary>
+        private static readonly HashSet<string> OpenableExtensions = new HashSet<string>(StringComparer.Ordinal)
         {
-            ".exe", ".com", ".scr", ".pif", ".bat", ".cmd", ".msi", ".msp", ".lnk", ".url", ".ps1", ".psm1", ".vbs", ".vbe", ".js",
-            ".jse", ".wsf", ".wsh", ".hta", ".cpl", ".msc", ".reg", ".jar", ".dll", ".appref-ms", ".application", ".gadget"
+            ".config", ".conf", ".txt", ".ini", ".log"
         };
+
+        /// <summary>
+        /// <c>ERROR_NO_ASSOCIATION</c> (1155): no program is registered for the extension, as for <c>.config</c> on a stock
+        /// Windows. The shell then reports it as a <see cref="Win32Exception"/> and shows no dialog (<c>ErrorDialog</c> is off).
+        /// </summary>
+        private const int NoAssociation = 1155;
+
+        /// <summary>The verb of the "Open with" dialog, the way out when no program is registered for a document.</summary>
+        public const string OpenAsVerb = "openas";
+
+        private readonly Func<ProcessStartInfo, Process> start;
+
+        public ShellProcessStarter()
+            : this(StartWithShell)
+        {
+        }
+
+        /// <summary>The one call of <see cref="Process.Start(ProcessStartInfo)"/> of the launcher (checked by ProcessRulesTests).</summary>
+        private static Process StartWithShell(ProcessStartInfo info)
+        {
+            return Process.Start(info);
+        }
+
+        /// <param name="start">What starts a process; the tests replace it to see the start information and to fail like Windows.</param>
+        internal ShellProcessStarter(Func<ProcessStartInfo, Process> start)
+        {
+            this.start = start ?? throw new ArgumentNullException(nameof(start));
+        }
 
         public int? StartProgram(string programPath, string workingDirectory)
         {
-            using (Process process = Process.Start(CreateProgramStartInfo(programPath, workingDirectory)))
+            using (Process process = start(CreateProgramStartInfo(programPath, workingDirectory)))
                 return TryGetId(process);
         }
 
         public void OpenUrl(string url)
         {
-            using (Process.Start(CreateUrlStartInfo(url)))
+            using (start(CreateUrlStartInfo(url)))
             {
                 // The browser runs on its own; the launcher keeps no handle.
             }
@@ -40,7 +72,7 @@ namespace Empire_Earth_Launcher.Core.Platform
 
         public void OpenFolder(string folder)
         {
-            using (Process.Start(CreateFolderStartInfo(folder)))
+            using (start(CreateFolderStartInfo(folder)))
             {
                 // The Explorer runs on its own; the launcher keeps no handle.
             }
@@ -48,9 +80,21 @@ namespace Empire_Earth_Launcher.Core.Platform
 
         public void OpenFile(string file)
         {
-            using (Process.Start(CreateFileStartInfo(file)))
+            try
             {
-                // The program of the document runs on its own; the launcher keeps no handle.
+                using (start(CreateFileStartInfo(file)))
+                {
+                    // The program of the document runs on its own; the launcher keeps no handle.
+                }
+            }
+            catch (Win32Exception ex) when (ex.NativeErrorCode == NoAssociation)
+            {
+                // No program is registered (a stock Windows has none for .config): let the player choose one in the dialog of
+                // Windows instead of ending with an error message.
+                using (start(CreateFileStartInfo(file, OpenAsVerb)))
+                {
+                    // The dialog and the program run on their own.
+                }
             }
         }
 
@@ -114,23 +158,28 @@ namespace Empire_Earth_Launcher.Core.Platform
         }
 
         /// <summary>
-        /// The opening of a document: the full path of the file through the shell, no verb, no arguments, no error dialog. A
-        /// file that Windows runs (a program, a script, a shortcut, a registry file) is refused: programs are started by
+        /// The opening of a document: the full path of the file through the shell, no arguments, no error dialog, and no verb
+        /// unless <paramref name="verb"/> is <see cref="OpenAsVerb"/> (the retry when no program is registered). Only a text or
+        /// configuration file is opened (<c>.config</c>, <c>.conf</c>, <c>.txt</c>, <c>.ini</c>, <c>.log</c>); anything else, a
+        /// program, a script, a shortcut or a file of an unknown kind, is refused: programs are started by
         /// <see cref="CreateProgramStartInfo"/> with the compatibility layers of the game, and nothing else is ever run.
         /// </summary>
-        public static ProcessStartInfo CreateFileStartInfo(string file)
+        public static ProcessStartInfo CreateFileStartInfo(string file, string verb = "")
         {
             if (!WinPath.IsFullyQualified(file))
                 throw new ArgumentException("A full path of the file is required: " + file, nameof(file));
+            if (verb != string.Empty && verb != OpenAsVerb)
+                throw new ArgumentException("Only no verb or " + OpenAsVerb + " is allowed: " + verb, nameof(verb));
             string normalized = WinPath.Normalize(file);
-            if (RunnableExtensions.Contains(WinPath.GetExtension(normalized).ToLowerInvariant()))
-                throw new ArgumentException("Only a document can be opened, not a program or a script: " + file, nameof(file));
+            if (!OpenableExtensions.Contains(WinPath.GetExtension(normalized).ToLowerInvariant()))
+                throw new ArgumentException("Only a text or configuration file can be opened, not a program, a script or another " +
+                                            "kind of file: " + file, nameof(file));
             return new ProcessStartInfo
             {
                 FileName = normalized,
                 Arguments = string.Empty,
                 UseShellExecute = true,
-                Verb = string.Empty,
+                Verb = verb,
                 ErrorDialog = false
             };
         }

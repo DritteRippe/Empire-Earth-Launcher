@@ -644,7 +644,8 @@ suite 1.1.0 starts the launcher without an argument.
   says itself that its format may change, so the parser takes what it finds); the description of the lobby theme in
   `_drexmod.cfg` is empty in the shipped presets, so the page shows none of the two.
 - **Read only**: the page writes nothing and installs nothing. The two buttons call `IProcessStarter.OpenFolder` and
-  `IProcessStarter.OpenFile` (the document through the shell without a verb; a file that Windows runs is refused,
+  `IProcessStarter.OpenFile` (the document through the shell without a verb; only `.config`, `.conf`, `.txt`, `.ini` and `.log` files are opened, anything
+  else is refused, and when no program is registered for the file Windows is asked for its "Open with" dialog,
   `ShellProcessStarter.CreateFileStartInfo`); the player edits `dreXmod.config` in the program Windows has for it. Switching
   the preset from the launcher (writing `<Mod>` and `<LobbyTheme>` of that one file, text-level, with a backup) needs a
   contract section and an allow-list of files and values and is planned for 1.2. `ModsPageRulesTests` keep the sources of

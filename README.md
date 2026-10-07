@@ -104,7 +104,8 @@ controls of the old mock-up were removed and the features behind them are listed
 - Mods page (1.1.0, only for an installation with dreXmod 3): lists the dreXmod presets of each game (the folders of
   `Data\dxm\mods` with the name, last edit and author from their `CREDITS` file and their size; the skeleton `template`
   is hidden unless you ask), marks the active mod and the active lobby theme that `dreXmod.config` names, opens the folder
-  and the config, and tells how to switch a preset by hand. Read only: the launcher changes neither the config nor a preset
+  and the config (in the program Windows has for `.config`; with none, Windows asks which program to use), and tells how
+  to switch a preset by hand. Read only: the launcher changes neither the config nor a preset
   and installs no mod; a setup run resets the choice but keeps presets you made yourself. Whether a mod has an effect in
   multiplayer or ranked games has not been verified
   ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md), amendment of 2026-10-07)

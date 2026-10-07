@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using Empire_Earth_Launcher.Core.Platform;
 using NUnit.Framework;
 
@@ -110,6 +113,18 @@ namespace Empire_Earth_Launcher.Tests.Core.Platform
             Assert.That(info.ErrorDialog, Is.False);
         }
 
+        /// <summary>Text and configuration files are the documents the launcher opens; the extension counts in any case.</summary>
+        [TestCase(@"C:\Games\EE\dreXmod.config")]
+        [TestCase(@"C:\Games\EE\DREXMOD.CONFIG")]
+        [TestCase(@"C:\Games\EE\dgVoodoo.conf")]
+        [TestCase(@"C:\Games\EE\readme.txt")]
+        [TestCase(@"C:\Games\EE\Empire Earth.ini")]
+        [TestCase(@"C:\Games\EE\log.txt.LOG")]
+        public void TheDocuments_OfTheAllowList_AreOpened(string file)
+        {
+            Assert.That(() => ShellProcessStarter.CreateFileStartInfo(file), Throws.Nothing);
+        }
+
         [TestCase("dreXmod.config", TestName = "OpenFile_RelativePath_IsRefused")]
         [TestCase("https://empireearth.eu/dreXmod.config", TestName = "OpenFile_Url_IsRefused")]
         [TestCase("", TestName = "OpenFile_Empty_IsRefused")]
@@ -119,9 +134,112 @@ namespace Empire_Earth_Launcher.Tests.Core.Platform
         [TestCase(@"C:\Games\EE\run.ps1", TestName = "OpenFile_Script_IsRefused")]
         [TestCase(@"C:\Games\EE\game.lnk", TestName = "OpenFile_Shortcut_IsRefused")]
         [TestCase(@"C:\Games\EE\import.reg", TestName = "OpenFile_RegistryFile_IsRefused")]
+        [TestCase(@"C:\Games\EE\setup.msi", TestName = "OpenFile_Installer_IsRefused")]
+        [TestCase(@"C:\Games\EE\page.html", TestName = "OpenFile_WebPage_IsRefused")]
+        [TestCase(@"C:\Games\EE\macro.docm", TestName = "OpenFile_DocumentWithMacros_IsRefused")]
+        [TestCase(@"C:\Games\EE\tool.exe.", TestName = "OpenFile_ProgramWithTrailingDot_IsRefused")]
+        [TestCase(@"C:\Games\EE\tool.exe ", TestName = "OpenFile_ProgramWithTrailingSpace_IsRefused")]
+        [TestCase(@"C:\Games\EE\tool.exe.txt.exe", TestName = "OpenFile_DoubleExtension_IsRefused")]
+        [TestCase(@"C:\Games\EE\noextension", TestName = "OpenFile_NoExtension_IsRefused")]
         public void OnlyFullPathsOfDocuments_AreOpened(string file)
         {
             Assert.That(() => ShellProcessStarter.CreateFileStartInfo(file), Throws.ArgumentException);
+        }
+
+        /// <summary>Windows drops a trailing dot of a name: the file that is opened is the one the extension is judged by.</summary>
+        [Test]
+        public void ATrailingDot_IsDropped_BeforeTheExtensionIsJudged()
+        {
+            Assert.That(ShellProcessStarter.CreateFileStartInfo(@"C:\Games\EE\readme.txt.").FileName, Is.EqualTo(@"C:\Games\EE\readme.txt"));
+            Assert.That(() => ShellProcessStarter.CreateFileStartInfo(@"C:\Games\EE\tool.exe."), Throws.ArgumentException);
+        }
+
+        /// <summary>The retry of a document nobody is registered for: only the verb "openas", and the same checks.</summary>
+        [Test]
+        public void TheOpenAsRetry_UsesTheOpenWithDialogOfWindows()
+        {
+            ProcessStartInfo info = ShellProcessStarter.CreateFileStartInfo(@"C:\Games\EE\dreXmod.config", ShellProcessStarter.OpenAsVerb);
+
+            Assert.That(info.Verb, Is.EqualTo("openas"));
+            Assert.That(info.UseShellExecute, Is.True);
+            Assert.That(info.Arguments, Is.Empty);
+            Assert.That(info.ErrorDialog, Is.False);
+        }
+
+        [TestCase("runas")]
+        [TestCase("edit")]
+        [TestCase("print")]
+        public void AnyOtherVerb_IsRefused(string verb)
+        {
+            Assert.That(() => ShellProcessStarter.CreateFileStartInfo(@"C:\Games\EE\dreXmod.config", verb), Throws.ArgumentException);
+        }
+
+        [Test]
+        public void TheOpenAsRetry_DoesNotOpenAProgram()
+        {
+            Assert.That(() => ShellProcessStarter.CreateFileStartInfo(@"C:\Games\EE\Empire Earth.exe", ShellProcessStarter.OpenAsVerb),
+                Throws.ArgumentException);
+        }
+
+        [Test]
+        public void OpenFile_WithAProgramRegistered_StartsOnceWithoutAVerb()
+        {
+            var started = new List<ProcessStartInfo>();
+            var shell = new ShellProcessStarter(info =>
+            {
+                started.Add(info);
+                return null;
+            });
+
+            shell.OpenFile(@"C:\Games\EE\dreXmod.config");
+
+            Assert.That(started, Has.Count.EqualTo(1));
+            Assert.That(started[0].Verb, Is.Empty);
+        }
+
+        /// <summary>A stock Windows has no program for .config (error 1155): the player gets the "Open with" dialog, not an error.</summary>
+        [Test]
+        public void OpenFile_WithoutAProgramForTheExtension_RetriesWithOpenAs()
+        {
+            var started = new List<ProcessStartInfo>();
+            var shell = new ShellProcessStarter(info =>
+            {
+                started.Add(info);
+                if (started.Count == 1)
+                    throw new Win32Exception(1155);
+                return null;
+            });
+
+            shell.OpenFile(@"C:\Games\EE\dreXmod.config");
+
+            Assert.That(started.Select(info => info.Verb), Is.EqualTo(new[] { string.Empty, "openas" }));
+            Assert.That(started.Select(info => info.FileName), Is.All.EqualTo(@"C:\Games\EE\dreXmod.config"));
+        }
+
+        [Test]
+        public void OpenFile_WithAnotherFailure_IsNotRetried()
+        {
+            var started = new List<ProcessStartInfo>();
+            var shell = new ShellProcessStarter(info =>
+            {
+                started.Add(info);
+                throw new Win32Exception(5);
+            });
+
+            Assert.That(() => shell.OpenFile(@"C:\Games\EE\dreXmod.config"), Throws.TypeOf<Win32Exception>());
+            Assert.That(started, Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void OpenFile_OfAProgram_StartsNothing()
+        {
+            var shell = new ShellProcessStarter(info =>
+            {
+                Assert.Fail("nothing may be started");
+                return null;
+            });
+
+            Assert.That(() => shell.OpenFile(@"C:\Games\EE\Empire Earth.exe"), Throws.ArgumentException);
         }
     }
 }
