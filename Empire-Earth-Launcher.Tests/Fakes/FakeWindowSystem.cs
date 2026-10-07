@@ -19,6 +19,7 @@ namespace Empire_Earth_Launcher.Tests.Fakes
     {
         private readonly List<IntPtr> setForegroundCalls = new List<IntPtr>();
         private readonly List<int> allowCalls = new List<int>();
+        private readonly List<IntPtr> postActivateCalls = new List<IntPtr>();
 
         /// <param name="gameProcessId">The process that owns the window.</param>
         public FakeWindowSystem(int gameProcessId)
@@ -58,6 +59,21 @@ namespace Empire_Earth_Launcher.Tests.Fakes
 
         public long GameExStyle { get; set; } = 0x00040008;
 
+        /// <summary>The lobby popup of the game: an owned window of its process (class 'WONLobbyPopup'), no main window.</summary>
+        public static readonly IntPtr LobbyWindow = new IntPtr(0x7777);
+
+        /// <summary>
+        /// The window of the game that is in front while the game owns the foreground; null for the main window
+        /// (<see cref="Window"/>). A test sets <see cref="LobbyWindow"/> to see the lobby popup in front.
+        /// </summary>
+        public IntPtr? GameForegroundWindow { get; set; }
+
+        /// <summary>True if the main window is minimized (<c>WS_MINIMIZE</c> is added to its style).</summary>
+        public bool GameMinimized { get; set; }
+
+        /// <summary>The error <see cref="PostActivateMessage"/> reports; 0 = the message is posted.</summary>
+        public int PostActivateError { get; set; }
+
         /// <summary>The window that a process other than the game owns when it owns the foreground.</summary>
         public static IntPtr WindowOf(int processId)
         {
@@ -89,6 +105,12 @@ namespace Empire_Earth_Launcher.Tests.Fakes
             get { return allowCalls.ToList(); }
         }
 
+        /// <summary>The windows <see cref="PostActivateMessage"/> was called for, also when it was refused.</summary>
+        public IReadOnlyList<IntPtr> PostActivateCalls
+        {
+            get { return postActivateCalls.ToList(); }
+        }
+
         public int GetForegroundProcessId()
         {
             OnCall?.Invoke("foreground");
@@ -102,7 +124,7 @@ namespace Empire_Earth_Launcher.Tests.Fakes
             OnCall?.Invoke("foreground window");
             if (Failure != null)
                 throw Failure;
-            return Foreground == 0 ? IntPtr.Zero : Foreground == GameProcessId ? Window : WindowOf(Foreground);
+            return Foreground == 0 ? IntPtr.Zero : Foreground == GameProcessId ? GameForegroundWindow ?? Window : WindowOf(Foreground);
         }
 
         public WindowState ReadWindow(IntPtr window)
@@ -113,7 +135,10 @@ namespace Empire_Earth_Launcher.Tests.Fakes
             if (window == IntPtr.Zero)
                 return null;
             if (window == Window)
-                return new WindowState(window, GameProcessId, GameClass, GameLeft, GameTop, GameRight, GameBottom, GameStyle, GameExStyle);
+                return new WindowState(window, GameProcessId, GameClass, GameLeft, GameTop, GameRight, GameBottom,
+                    GameMinimized ? GameStyle | 0x20000000 : GameStyle, GameExStyle);
+            if (window == LobbyWindow)
+                return new WindowState(window, GameProcessId, "WONLobbyPopup", 200, 100, 1000, 700, 0x94CA0000, 0x00000100);
             if (window == SplashWindow)
                 return new WindowState(window, GameProcessId, "Loading Game Window", 660, 440, 1260, 640, 0x90000000, 0x00000088);
             return new WindowState(window, window.ToInt32() - 0x9000, "OtherClass", 100, 100, 900, 700, 0x14CF0000, 0x100);
@@ -145,6 +170,16 @@ namespace Empire_Earth_Launcher.Tests.Fakes
             if (SetForegroundResult)
                 Foreground = GameProcessId;
             return SetForegroundResult;
+        }
+
+        public bool PostActivateMessage(IntPtr window, out int error)
+        {
+            OnCall?.Invoke("post activate " + window);
+            if (Failure != null)
+                throw Failure;
+            postActivateCalls.Add(window);
+            error = PostActivateError;
+            return PostActivateError == 0;
         }
 
         public bool AllowSetForegroundWindow(int processId)

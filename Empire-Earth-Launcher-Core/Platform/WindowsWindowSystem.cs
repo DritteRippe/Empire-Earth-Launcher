@@ -10,13 +10,15 @@ namespace Empire_Earth_Launcher.Core.Platform
     /// <see cref="IWindowSystem"/> with <c>user32.dll</c> (ADR 0010 amendment of 1.1.0): <c>GetForegroundWindow</c> and
     /// <c>GetWindowThreadProcessId</c> for the foreground process, <c>EnumWindows</c> with <c>IsWindowVisible</c> and
     /// <c>GetWindow(GW_OWNER)</c> and <c>WS_EX_TOOLWINDOW</c> for the main window of a process, <c>SetForegroundWindow</c> and
-    /// <c>AllowSetForegroundWindow</c> for the right, and <c>GetClassName</c>, <c>GetWindowRect</c> and <c>GetWindowLong</c> for
-    /// the read-only watch (<see cref="ReadWindow"/>). Checked on real Windows by the test plan (WP6-18).
+    /// <c>AllowSetForegroundWindow</c> for the right, <c>GetClassName</c>, <c>GetWindowRect</c> and <c>GetWindowLong</c> for
+    /// the read-only watch (<see cref="ReadWindow"/>), and <c>PostMessage</c> for the one activation message of A1b
+    /// (<see cref="PostActivateMessage"/>). Checked on real Windows by the test plan (WP6-18, WP6-21).
     /// </summary>
     /// <remarks>
     /// A thin adapter: a missing <c>user32.dll</c> (the tests under Mono) is logged once and gives the neutral value (no
     /// foreground process, no window, refused), never an exception (ADR 0013). The class changes no window except through
-    /// <see cref="SetForegroundWindow"/>.
+    /// <see cref="SetForegroundWindow"/>, and posts nothing but the one <c>WM_ACTIVATE</c> of <see cref="PostActivateMessage"/>
+    /// (<c>WindowMessageRulesTests</c>).
     /// </remarks>
     public sealed class WindowsWindowSystem : IWindowSystem
     {
@@ -24,6 +26,11 @@ namespace Empire_Earth_Launcher.Core.Platform
         private const int GwlStyle = -16;
         private const int GwlExStyle = -20;
         private const int MaxClassName = 256;
+
+        // The one message the launcher posts to a window of another program (A1b): WM_ACTIVATE with WA_ACTIVE.
+        private const int WmActivate = 0x0006;
+        private const int WaActive = 1;
+        private const int ErrorInvalidWindowHandle = 1400;
 
         private readonly ILogger logger;
         private int unavailableLogged;
@@ -138,6 +145,30 @@ namespace Empire_Earth_Launcher.Core.Platform
             }
         }
 
+        public bool PostActivateMessage(IntPtr window, out int error)
+        {
+            error = 0;
+            try
+            {
+                // Never to "no window" (a message to the thread of the caller) or to a broadcast handle: only to a window that exists.
+                if (window == IntPtr.Zero || !IsWindow(window))
+                {
+                    error = ErrorInvalidWindowHandle;
+                    return false;
+                }
+                if (PostMessageNative(window, WmActivate, new IntPtr(WaActive), IntPtr.Zero))
+                    return true;
+                error = Marshal.GetLastWin32Error();
+                return false;
+            }
+            catch (Exception ex) when (ex is DllNotFoundException || ex is EntryPointNotFoundException)
+            {
+                LogUnavailable(ex);
+                error = -1;
+                return false;
+            }
+        }
+
         private void LogUnavailable(Exception exception)
         {
             if (System.Threading.Interlocked.Exchange(ref unavailableLogged, 1) == 0)
@@ -195,5 +226,9 @@ namespace Empire_Earth_Launcher.Core.Platform
         [DllImport("user32.dll", EntryPoint = "AllowSetForegroundWindow", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool AllowSetForegroundWindowNative(int processId);
+
+        [DllImport("user32.dll", EntryPoint = "PostMessageW", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool PostMessageNative(IntPtr window, int message, IntPtr wParam, IntPtr lParam);
     }
 }

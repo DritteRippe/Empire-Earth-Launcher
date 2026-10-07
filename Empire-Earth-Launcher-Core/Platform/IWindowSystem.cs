@@ -29,8 +29,9 @@ namespace Empire_Earth_Launcher.Core.Platform
     /// The windows of the computer as far as the hand-over of the foreground to a started game needs them (ADR 0010
     /// amendment of 1.1.0): who owns the foreground, the first visible top-level window of a process, and the right to take
     /// the foreground, and (for the watch after the hand-over) the foreground window and the rectangle and styles of a window.
-    /// Nothing else is read or changed: the launcher never minimizes, hides, closes or moves a window of the game and never
-    /// ends a process.
+    /// Nothing else is read or changed, and, once per start, one <c>WM_ACTIVATE</c> goes to the main window of a started game
+    /// (A1b, <see cref="PostActivateMessage"/>): nothing else is posted or sent. The launcher never minimizes, hides, closes or
+    /// moves a window of the game and never ends a process.
     /// </summary>
     /// <remarks>
     /// The real implementation is <c>WindowsWindowSystem</c> (the only place of the core that calls the foreground functions of
@@ -72,5 +73,13 @@ namespace Empire_Earth_Launcher.Core.Platform
         /// process) take the foreground. Only a process that owns the foreground right may grant it; false if Windows refused.
         /// </summary>
         bool AllowSetForegroundWindow(int processId);
+
+        /// <summary>
+        /// <c>PostMessage(window, WM_ACTIVATE, WA_ACTIVE, 0)</c>: puts one activation message into the queue of
+        /// <paramref name="window"/> (A1b of 1.1.0, <c>ActivationSignal</c>); the only message the launcher posts to a window of
+        /// another program. False if Windows refused; <paramref name="error"/> is the Win32 error then (5, ERROR_ACCESS_DENIED,
+        /// when the game runs with higher rights: User Interface Privilege Isolation), else 0.
+        /// </summary>
+        bool PostActivateMessage(IntPtr window, out int error);
     }
 }

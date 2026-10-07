@@ -80,6 +80,7 @@
     <Compile Include="Architecture\TestIsolationTests.cs" />
     <Compile Include="Architecture\TestPlanTests.cs" />
     <Compile Include="Architecture\TlsSettingTests.cs" />
+    <Compile Include="Architecture\WindowMessageRulesTests.cs" />
     <Compile Include="Architecture\UiOperationRestoreTests.cs" />
     <Compile Include="Architecture\WrapLabelRulesTests.cs" />
     <Compile Include="Core\Backup\BackupLocationsTests.cs" />

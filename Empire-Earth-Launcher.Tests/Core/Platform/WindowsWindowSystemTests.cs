@@ -57,6 +57,19 @@ namespace Empire_Earth_Launcher.Tests.Core.Platform
         }
 
         [Test]
+        public void ActivationMessage_NeverGoesToNoWindowOrToAWindowThatDoesNotExist()
+        {
+            // A message to "no window" would go to the thread of the caller, one to a broadcast handle to every window.
+            foreach (IntPtr window in new[] { IntPtr.Zero, new IntPtr(0xFFFF), new IntPtr(-1), new IntPtr(0x7FFFFFF0) })
+            {
+                bool posted = windows.PostActivateMessage(window, out int error);
+
+                Assert.That(posted, Is.False, window.ToString());
+                Assert.That(error, Is.Not.EqualTo(0), "the reason is given: " + window);
+            }
+        }
+
+        [Test]
         public void WithoutUser32_TheWarningIsLoggedOnce()
         {
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
@@ -67,7 +80,9 @@ namespace Empire_Earth_Launcher.Tests.Core.Platform
             windows.ReadWindow(new IntPtr(0x10));
             windows.FindVisibleTopLevelWindow(1);
             windows.SetForegroundWindow(IntPtr.Zero);
+            windows.PostActivateMessage(new IntPtr(0x10), out int error);
 
+            Assert.That(error, Is.EqualTo(-1), "no user32.dll");
             Assert.That(logger.Entries, Has.Count.EqualTo(1));
             Assert.That(logger.Entries[0].Level, Is.EqualTo(LogLevel.Warning));
             Assert.That(logger.Entries[0].Message, Does.Contain("not available"));
