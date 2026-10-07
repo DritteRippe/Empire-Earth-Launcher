@@ -25,7 +25,13 @@ namespace Empire_Earth_Launcher.Core.Play
         Cancelled,
 
         /// <summary>The watch failed (an exception of the window system) before the signal was decided; nothing was sent.</summary>
-        WatchFailed
+        WatchFailed,
+
+        /// <summary>
+        /// A window of another program (neither the game nor the launcher) was in front after the game had been: the player
+        /// switched away, and Windows activates the game when the player returns to it. Nothing is sent.
+        /// </summary>
+        PlayerSwitched
     }
 
     /// <summary>What one look of the watch tells the caller to do.</summary>
@@ -41,7 +47,10 @@ namespace Empire_Earth_Launcher.Core.Play
         Expire,
 
         /// <summary>The main window has been missing too long: complete with <see cref="ActivationSignalOutcome.WindowGone"/>.</summary>
-        WindowGone
+        WindowGone,
+
+        /// <summary>A window of another program is in front: complete with <see cref="ActivationSignalOutcome.PlayerSwitched"/>.</summary>
+        PlayerSwitched
     }
 
     /// <summary>Why the signal waits (logged when it changes).</summary>
@@ -57,8 +66,8 @@ namespace Empire_Earth_Launcher.Core.Play
         /// <summary>A window of the game other than the main window is in front: the lobby popup, the splash, a dialog.</summary>
         OtherWindowOfTheGameInFront,
 
-        /// <summary>A window of another program is in front; the launcher counts as another program.</summary>
-        OtherProgramInFront,
+        /// <summary>A window of the launcher is in front (it started the game and may hold the foreground for a moment): the signal keeps waiting.</summary>
+        LauncherInFront,
 
         Minimized,
 
@@ -79,11 +88,21 @@ namespace Empire_Earth_Launcher.Core.Play
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Inside the wait one look decides in this order: the deadline; no main window (reset the quiet time; the game has ended
-    /// after <see cref="MissingWindowLimit"/> in a row); no foreground window; a foreground window that is not the main window
-    /// (reset; "another window of the game" if it belongs to the same process, else "another program"); a minimized or hidden
-    /// main window (reset); a main window that does not respond (reset); a main window whose handle, rectangle or styles differ
-    /// from the last quiet state (the quiet time starts now); and finally the quiet time itself.
+    /// Inside the wait one look decides in this order: the deadline; a foreground window of another program, neither the game
+    /// nor the launcher (the player switched away: the signal ends for good, <see cref="SignalStep.PlayerSwitched"/>); no main
+    /// window (reset the quiet time; the game has ended after <see cref="MissingWindowLimit"/> in a row); no foreground window;
+    /// a foreground window that is not the main window (reset; "another window of the game" if it belongs to the same process,
+    /// else the launcher); a minimized or hidden main window (reset); a main window that does not respond (reset); a main
+    /// window whose handle, rectangle or styles differ from the last quiet state (the quiet time starts now); and finally the
+    /// quiet time itself.
+    /// </para>
+    /// <para>
+    /// Why a switch to another program ends the signal: it is armed only while the game is in front (the hand-over ended with
+    /// <see cref="ActivationOutcome.GameInForeground"/>). If the player goes to another program and comes back, Windows gives
+    /// the game a real activation on the return, which does what the message would do; a synthetic one five seconds later
+    /// would be a second activation, in the worst case in the middle of a match. It is the rule of
+    /// <see cref="ActivationOutcome.UserSwitched"/>, which arms nothing. Not a switch: the launcher, the windows of the game
+    /// itself (lobby popup, splash, a dialog) and no window at all (Windows has none for a moment while a window is created).
     /// </para>
     /// <para>
     /// Which window is the main window: the window the caller passes, but only if it is a window of the process the launcher
@@ -130,6 +149,7 @@ namespace Empire_Earth_Launcher.Core.Play
         public const long VisibleStyle = 0x10000000;
 
         private readonly int gameProcessId;
+        private readonly int launcherProcessId;
         private readonly string mainWindowClass;
         private bool completed;
         private bool decided;
@@ -138,12 +158,14 @@ namespace Empire_Earth_Launcher.Core.Play
         private TimeSpan? missingSince;
 
         /// <param name="gameProcessId">The process the launcher started; a foreground window of it that is not the main window is "another window of the game".</param>
+        /// <param name="launcherProcessId">The process of the launcher: its windows in front are no switch to another program.</param>
         /// <param name="mainWindowClass">The class of the main window that the hand-over found at arming; a main window of another class counts as missing.</param>
-        public ActivationSignal(int gameProcessId, string mainWindowClass)
+        public ActivationSignal(int gameProcessId, int launcherProcessId, string mainWindowClass)
         {
             if (string.IsNullOrEmpty(mainWindowClass))
                 throw new ArgumentException("The class of the main window is needed.", nameof(mainWindowClass));
             this.gameProcessId = gameProcessId;
+            this.launcherProcessId = launcherProcessId;
             this.mainWindowClass = mainWindowClass;
         }
 
@@ -182,6 +204,14 @@ namespace Empire_Earth_Launcher.Core.Play
                 return SignalStep.Expire;
             }
 
+            // The player went to another program (process 0: a window that is gone, as good as none).
+            if (IsOtherProgram(foreground))
+            {
+                decided = true;
+                Wait = SignalWait.None;
+                return SignalStep.PlayerSwitched;
+            }
+
             // Not the main window of this game (the process id was reused, a second window without an owner): as if it was not there.
             if (main != null && (main.ProcessId != gameProcessId || !string.Equals(main.ClassName, mainWindowClass, StringComparison.Ordinal)))
                 main = null;
@@ -207,7 +237,7 @@ namespace Empire_Earth_Launcher.Core.Play
             {
                 return WaitFor(foreground.ProcessId == gameProcessId
                     ? SignalWait.OtherWindowOfTheGameInFront
-                    : SignalWait.OtherProgramInFront);
+                    : SignalWait.LauncherInFront);
             }
             if ((main.Style & MinimizedStyle) != 0 || (main.Style & VisibleStyle) == 0)
                 return WaitFor(SignalWait.Minimized);
@@ -257,6 +287,15 @@ namespace Empire_Earth_Launcher.Core.Play
                 throw new InvalidOperationException("The activation signal is complete already (" + Outcome + ").");
             completed = true;
             Outcome = outcome;
+        }
+
+        /// <summary>
+        /// True if <paramref name="window"/> belongs to a program that is neither the game nor the launcher: the player is
+        /// there. The caller uses it right before the post too.
+        /// </summary>
+        public bool IsOtherProgram(WindowState window)
+        {
+            return window != null && window.ProcessId != 0 && window.ProcessId != gameProcessId && window.ProcessId != launcherProcessId;
         }
 
         private SignalStep WaitFor(SignalWait reason)

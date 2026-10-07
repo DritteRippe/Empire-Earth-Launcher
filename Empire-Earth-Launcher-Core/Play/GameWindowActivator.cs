@@ -75,7 +75,9 @@ namespace Empire_Earth_Launcher.Core.Play
     /// DirectInput devices on activation only, and with dgVoodoo no activation reaches it after it created them, unless the
     /// start changed the display mode. The message goes out when the main window has been the foreground window, with the same
     /// rectangle and styles, for <see cref="ActivationSignal.SettleTime"/>, at the latest <see cref="ActivationSignal.Deadline"/>
-    /// after the start; it never goes out while another window (the lobby popup, the splash, another program) is in front. If
+    /// after the start; it never goes out while another window (the lobby popup, the splash, the launcher) is in front, and it is
+    /// dropped for good as soon as a window of another program has been in front after the game had been (the player switched;
+    /// Windows activates the game on the return, <see cref="ActivationSignalOutcome.PlayerSwitched"/>). If
     /// the post fails (the game runs as administrator) it is logged and nothing else happens. The watch lasts until the signal
     /// is decided. Right before the post it reads the foreground window again and whether the main window responds, and it
     /// stops if the launcher is closing: the look that decided may be some milliseconds old, and a message to a window that does
@@ -232,7 +234,7 @@ namespace Empire_Earth_Launcher.Core.Play
                                 "') once that window has been the foreground window with the same rectangle and styles for " +
                                 FormatSeconds(ActivationSignal.SettleTime) + ", at the latest " + FormatSeconds(ActivationSignal.Deadline) +
                                 " after the start (A1b).");
-                    return new ActivationSignal(processId, found.ClassName);
+                    return new ActivationSignal(processId, launcherProcessId, found.ClassName);
                 case ActivationOutcome.UserSwitched:
                     logger.Info(start + "not armed, the hand-over ended with UserSwitched (the game is not in front; Windows activates it " +
                                 "when the player returns to it).");
@@ -429,6 +431,9 @@ namespace Empire_Earth_Launcher.Core.Play
                             logger.Info(at + "activation signal not sent: the main window of " + name + " has not been there for " +
                                         FormatSeconds(ActivationSignal.MissingWindowLimit) + ".");
                             break;
+                        case SignalStep.PlayerSwitched:
+                            CompletePlayerSwitched(signal, inFront, at);
+                            break;
                     }
                 }
 
@@ -444,7 +449,8 @@ namespace Empire_Earth_Launcher.Core.Play
         /// Posts the one <c>WM_ACTIVATE</c> to <paramref name="main"/> (A1b) and completes <paramref name="signal"/>. First the
         /// check right before the post: if the launcher is closing nothing is posted (the caller completes the signal as
         /// cancelled); if the foreground window is not the main window any more, or the main window does not respond, the
-        /// decision is withdrawn and the signal waits again. Never retried after the post: a refusal (error 5, a game that runs as
+        /// decision is withdrawn and the signal waits again; if it belongs to another program the player has switched and the
+        /// signal ends as <see cref="ActivationSignalOutcome.PlayerSwitched"/>. Never retried after the post: a refusal (error 5, a game that runs as
         /// administrator: User Interface Privilege Isolation) is logged as a warning with the way out (Alt+Tab) and nothing else
         /// happens; a main window that is gone (error 1400) ends the signal as <see cref="ActivationSignalOutcome.WindowGone"/>.
         /// </summary>
@@ -453,6 +459,12 @@ namespace Empire_Earth_Launcher.Core.Play
             cancellationToken.ThrowIfCancellationRequested();
             WindowState inFront;
             SignalWait? held = CheckBeforePost(main, out inFront);
+            if (signal.IsOtherProgram(inFront))
+            {
+                // The player switched to another program between the look and the post: no message (the return activates the game).
+                CompletePlayerSwitched(signal, inFront, at);
+                return;
+            }
             if (held.HasValue)
             {
                 signal.Withdraw(held.Value);
@@ -486,6 +498,17 @@ namespace Empire_Earth_Launcher.Core.Play
         }
 
         /// <summary>
+        /// Ends the signal because a window of another program (neither the game nor the launcher) is in front after the game
+        /// had been: the player switched away. Windows activates the game when the player returns to it, so nothing is sent.
+        /// </summary>
+        private void CompletePlayerSwitched(ActivationSignal signal, WindowState inFront, string at)
+        {
+            signal.Complete(ActivationSignalOutcome.PlayerSwitched);
+            logger.Info(at + "activation signal not sent: the player switched to " + inFront.Describe() + ", another program, after " +
+                        "the game had been in front; Windows activates the game when the player returns to it.");
+        }
+
+        /// <summary>
         /// The last look before the post: null if the main window is still the foreground window and responds; else the reason
         /// to wait again (and, for a foreground window that is not the main window, the window in front in <paramref name="inFront"/>).
         /// </summary>
@@ -498,9 +521,9 @@ namespace Empire_Earth_Launcher.Core.Play
             if (front != main.Handle)
             {
                 inFront = windows.ReadWindow(front);
-                return inFront != null && inFront.ProcessId == main.ProcessId
-                    ? SignalWait.OtherWindowOfTheGameInFront
-                    : SignalWait.OtherProgramInFront;
+                if (inFront == null || inFront.ProcessId == 0)
+                    return SignalWait.NoForeground;
+                return inFront.ProcessId == main.ProcessId ? SignalWait.OtherWindowOfTheGameInFront : SignalWait.LauncherInFront;
             }
             return windows.IsWindowResponding(main.Handle) ? (SignalWait?)null : SignalWait.NotResponding;
         }
@@ -516,8 +539,8 @@ namespace Empire_Earth_Launcher.Core.Play
                     return "no window is in the foreground";
                 case SignalWait.OtherWindowOfTheGameInFront:
                     return "the foreground window is " + (inFront == null ? "a window that is gone" : inFront.Describe()) + ", another window of the game";
-                case SignalWait.OtherProgramInFront:
-                    return "the foreground window is " + (inFront == null ? "a window that is gone" : inFront.Describe()) + ", another program";
+                case SignalWait.LauncherInFront:
+                    return "the foreground window is " + (inFront == null ? "a window that is gone" : inFront.Describe()) + ", the launcher";
                 case SignalWait.Minimized:
                     return "the main window is minimized or hidden";
                 case SignalWait.NotResponding:
@@ -540,8 +563,8 @@ namespace Empire_Earth_Launcher.Core.Play
                     return "no window was in the foreground";
                 case SignalWait.OtherWindowOfTheGameInFront:
                     return "another window of the game was in front";
-                case SignalWait.OtherProgramInFront:
-                    return "another program was in front";
+                case SignalWait.LauncherInFront:
+                    return "the launcher was in front";
                 case SignalWait.Minimized:
                     return "the main window was minimized or hidden";
                 case SignalWait.NotResponding:

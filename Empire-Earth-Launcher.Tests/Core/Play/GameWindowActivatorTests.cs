@@ -591,8 +591,12 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             Assert.That(windows.PostActivateCalls, Is.EqualTo(new[] { windows.Window }), "to the main window, never to the lobby");
         }
 
+        /// <summary>
+        /// The review of A1b: the player switches to another program and comes back. The return is a real activation by Windows,
+        /// so the synthetic one never follows, however long the main window is in front afterwards.
+        /// </summary>
         [Test]
-        public async Task AnotherProgramInFront_NoSignalUntilItIsGone_AndTheWaitIsLoggedOnce()
+        public async Task AnotherProgramInFront_AfterTheGame_EndsTheSignal_AndTheReturnSendsNothing()
         {
             DateTime start = clock.UtcNow;
             List<double> posted = TrackPosts(start);
@@ -604,10 +608,35 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
 
             ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
 
+            Assert.That(result.HandOver, Is.EqualTo(ActivationOutcome.GameInForeground));
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.PlayerSwitched));
+            Assert.That(posted, Is.Empty);
+            Assert.That(windows.PostActivateCalls, Is.Empty);
+            Assert.That(logger.Messages.Count(message => message.Contains("activation signal not sent")), Is.EqualTo(1));
+            Assert.That(logger.Messages, Has.Some.Contains("activation signal not sent: the player switched to window 0x9309 (pid 777, class 'OtherClass'), " +
+                "another program, after the game had been in front; Windows activates the game when the player returns to it."));
+            Assert.That(logger.Messages, Has.None.Contains("activation signal waits: the foreground window is window 0x9309"));
+            // The signal is decided at once, so the watch ends with its minimum length of 60 s, long before the player is back.
+            Assert.That(logger.Messages.Last(), Does.Match(@"The watch of Empire Earth\.exe \(pid 4242\) ends after 6\d s\."));
+        }
+
+        [Test]
+        public async Task TheLauncherInFront_NoSignalUntilItIsGone_AndTheWaitIsLoggedOnce()
+        {
+            DateTime start = clock.UtcNow;
+            List<double> posted = TrackPosts(start);
+            onWait = time =>
+            {
+                TimeSpan elapsed = clock.UtcNow - start;
+                windows.Foreground = elapsed >= TimeSpan.FromSeconds(3) && elapsed < TimeSpan.FromSeconds(100) ? LauncherPid : GamePid;
+            };
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
             Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.Sent));
             Assert.That(posted[0], Is.GreaterThanOrEqualTo(105.0));
-            Assert.That(logger.Messages.Count(message => message.Contains("another program.")), Is.EqualTo(1), "logged when the reason changes only");
-            Assert.That(logger.Messages, Has.Some.Contains("activation signal waits: the foreground window is window 0x9309 (pid 777, class 'OtherClass'), another program."));
+            Assert.That(logger.Messages.Count(message => message.Contains(", the launcher.")), Is.EqualTo(1), "logged when the reason changes only");
+            Assert.That(logger.Messages, Has.Some.Contains("activation signal waits: the foreground window is window 0x9064 (pid 100, class 'OtherClass'), the launcher."));
             // The watch lasts until the signal is decided: 60 s are long over.
             Assert.That(logger.Messages.Last(), Does.Match(@"The watch of Empire Earth\.exe \(pid 4242\) ends after 10[3-9] s\."));
         }
@@ -874,7 +903,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
         }
 
         [Test]
-        public async Task TheForegroundChangesBetweenTheLookAndThePost_NothingIsPosted_UntilTheMainWindowHasBeenQuietAgain()
+        public async Task TheLauncherTakesTheForegroundBetweenTheLookAndThePost_NothingIsPosted_UntilTheMainWindowHasBeenQuietAgain()
         {
             DateTime start = clock.UtcNow;
             List<double> posted = new List<double>();
@@ -882,11 +911,11 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             windows.OnCall = call =>
             {
                 TimeSpan elapsed = clock.UtcNow - start;
-                // The look at 7.0 s has read the foreground (the game) and decided to send; the player switches before the post.
+                // The look at 7.0 s has read the foreground (the game) and decided to send; the launcher is in front before the post.
                 if (!switched && call.StartsWith("responding", StringComparison.Ordinal) && elapsed >= TimeSpan.FromSeconds(7))
                 {
                     switched = true;
-                    windows.Foreground = OtherPid;
+                    windows.Foreground = LauncherPid;
                 }
                 if (call.StartsWith("post activate", StringComparison.Ordinal))
                     posted.Add(elapsed.TotalSeconds);
@@ -902,8 +931,29 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.Sent));
             Assert.That(posted, Has.Count.EqualTo(1));
             Assert.That(posted[0], Is.GreaterThanOrEqualTo(25.0), "5 s after the game was back in front at 20 s");
-            Assert.That(logger.Messages, Has.Some.Contains(WatchLine("7.0", "activation signal held back right before the post: the foreground window is window 0x9309 " +
-                "(pid 777, class 'OtherClass'), another program; the quiet time starts again.")));
+            Assert.That(logger.Messages, Has.Some.Contains(WatchLine("7.0", "activation signal held back right before the post: the foreground window is window 0x9064 " +
+                "(pid 100, class 'OtherClass'), the launcher; the quiet time starts again.")));
+        }
+
+        /// <summary>The player switches to another program between the look and the post: that is a switch like any other, nothing is posted, ever.</summary>
+        [Test]
+        public async Task AnotherProgramTakesTheForegroundBetweenTheLookAndThePost_NothingIsPosted_AndTheSignalEnds()
+        {
+            DateTime start = clock.UtcNow;
+            OnceAtCall("responding", 7, start, () => windows.Foreground = OtherPid);
+            onWait = time =>
+            {
+                if (clock.UtcNow - start >= TimeSpan.FromSeconds(20))
+                    windows.Foreground = GamePid;
+            };
+
+            ActivationResult result = await activator.ActivateAsync(GamePid, Game.EmpireEarth);
+
+            Assert.That(result.Signal, Is.EqualTo(ActivationSignalOutcome.PlayerSwitched));
+            Assert.That(windows.PostActivateCalls, Is.Empty, "not even when the game is back in front for longer than 5 s");
+            Assert.That(logger.Messages, Has.Some.Contains(WatchLine("7.0", "activation signal not sent: the player switched to window 0x9309 " +
+                "(pid 777, class 'OtherClass'), another program, after the game had been in front; Windows activates the game when the player returns to it.")));
+            Assert.That(logger.Messages, Has.None.Contains("held back right before the post"));
         }
 
         [Test]

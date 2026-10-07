@@ -8,8 +8,9 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
     /// <summary>
     /// <see cref="ActivationSignal"/>, the decision of A1b (ADR 0010 amendment of 1.1.0): the one activation message goes to the
     /// main window of a started game after it has been the foreground window, with the same rectangle and styles and not
-    /// minimized and responding, for five seconds, never while another window is in front, never 180 seconds or later after the start, and
-    /// never twice. The class decides from the windows it is shown and a time since the start; no window is touched here.
+    /// minimized and responding, for five seconds, never while another window is in front, never once the player has switched
+    /// to another program, never 180 seconds or later after the start, and never twice. The class decides from the windows it
+    /// is shown and a time since the start; no window is touched here.
     /// </summary>
     [TestFixture]
     public class ActivationSignalTests
@@ -24,7 +25,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
         [SetUp]
         public void SetUp()
         {
-            signal = new ActivationSignal(GamePid, MainClass);
+            signal = new ActivationSignal(GamePid, LauncherPid, MainClass);
         }
 
         private static TimeSpan At(double seconds)
@@ -168,18 +169,104 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             Assert.That(signal.Wait, Is.EqualTo(SignalWait.OtherWindowOfTheGameInFront));
         }
 
+        /// <summary>The launcher may hold the foreground for a moment while the game takes it: no switch, the signal keeps waiting.</summary>
         [Test]
-        public void AnotherProgramInFront_Waits()
+        public void TheLauncherInFront_Waits_ItIsNoSwitchToAnotherProgram()
         {
-            Assert.That(LookUntil(0, 30.0, Other(777), Main(), out double none), Is.EqualTo(SignalStep.Wait));
-            Assert.That(signal.Wait, Is.EqualTo(SignalWait.OtherProgramInFront));
+            Assert.That(LookUntil(0, 30.0, Other(LauncherPid, "WindowsForms10.Window.8.app"), Main(), out double none), Is.EqualTo(SignalStep.Wait));
+            Assert.That(signal.Wait, Is.EqualTo(SignalWait.LauncherInFront));
+            Assert.That(signal.IsPending, Is.True);
+        }
+
+        /// <summary>The launcher in front, then the main window for 5 s: the signal still goes out (the launcher is no switch).</summary>
+        [Test]
+        public void TheLauncherInFrontAndThenTheMainWindow_StillGetsTheSignal()
+        {
+            WindowState main = Main();
+            Assert.That(LookUntil(0, 4.0, Other(LauncherPid), main, out double none), Is.EqualTo(SignalStep.Wait));
+
+            Assert.That(LookUntil(4.25, 9.0, main, main, out none), Is.EqualTo(SignalStep.Wait), "the quiet time starts when the main window is in front");
+            Assert.That(signal.Observe(At(9.25), main, main), Is.EqualTo(SignalStep.Send));
+        }
+
+        /// <summary>The player left for another program: the signal ends at once, also if the main window is not there or minimized.</summary>
+        [Test]
+        public void AnotherProgramInFront_EndsTheSignal_AsPlayerSwitched()
+        {
+            Assert.That(signal.Observe(At(10.0), Other(777), Main()), Is.EqualTo(SignalStep.PlayerSwitched));
+            Assert.That(signal.Wait, Is.EqualTo(SignalWait.None), "decided, not waiting");
         }
 
         [Test]
-        public void TheLauncherInFront_Waits_ItCountsAsAnotherProgram()
+        public void AnotherProgramInFront_WithoutAMainWindow_EndsTheSignal()
         {
-            Assert.That(LookUntil(0, 30.0, Other(LauncherPid, "WindowsForms10.Window.8.app"), Main(), out double none), Is.EqualTo(SignalStep.Wait));
-            Assert.That(signal.Wait, Is.EqualTo(SignalWait.OtherProgramInFront));
+            Assert.That(signal.Observe(At(10.0), Other(777), null), Is.EqualTo(SignalStep.PlayerSwitched));
+        }
+
+        [Test]
+        public void AnotherProgramInFront_WithAMinimizedMainWindow_EndsTheSignal()
+        {
+            Assert.That(signal.Observe(At(10.0), Other(777), Main(style: VisibleStyle | 0x20000000L)), Is.EqualTo(SignalStep.PlayerSwitched));
+        }
+
+        /// <summary>
+        /// The finding of the review: after the signal is armed the player switches to another program and comes back within
+        /// the 180 s. The return is a real activation by Windows, so the main window in front for 5 s afterwards gets no signal.
+        /// </summary>
+        [Test]
+        public void SwitchedToAnotherProgramAndBackToTheMainWindow_NeverSends()
+        {
+            WindowState main = Main();
+            Assert.That(LookUntil(10.0, 12.0, main, main, out double none), Is.EqualTo(SignalStep.Wait), "settling");
+            Assert.That(signal.Observe(At(12.25), Other(777), main), Is.EqualTo(SignalStep.PlayerSwitched));
+
+            // the caller completes the signal; even without that no later look decides again
+            Assert.That(LookUntil(12.5, 30.0, main, main, out none), Is.EqualTo(SignalStep.Wait), "5 s and more with the main window back in front");
+            Assert.That(double.IsNaN(none));
+            signal.Complete(ActivationSignalOutcome.PlayerSwitched);
+            Assert.That(signal.Outcome, Is.EqualTo(ActivationSignalOutcome.PlayerSwitched));
+            Assert.That(signal.IsPending, Is.False);
+            Assert.That(LookUntil(30.25, 60.0, main, main, out none), Is.EqualTo(SignalStep.Wait));
+        }
+
+        /// <summary>A switch to another program for one look is enough: it is not undone by the next look.</summary>
+        [Test]
+        public void ASwitchOfOneLook_IsEnough()
+        {
+            WindowState main = Main();
+            Assert.That(signal.Observe(At(20.0), Other(777), main), Is.EqualTo(SignalStep.PlayerSwitched));
+
+            Assert.That(signal.Observe(At(20.25), main, main), Is.EqualTo(SignalStep.Wait));
+            Assert.That(signal.Observe(At(25.25), main, main), Is.EqualTo(SignalStep.Wait), "no Send 5 s later");
+        }
+
+        [Test]
+        public void TheLobbyAndTheSplash_AreNoSwitch_TheyAreWindowsOfTheGame()
+        {
+            WindowState main = Main();
+            Assert.That(LookUntil(0, 5.0, Lobby(), main, out double none), Is.EqualTo(SignalStep.Wait));
+            Assert.That(LookUntil(5.25, 10.0, Splash(), main, out none), Is.EqualTo(SignalStep.Wait));
+            Assert.That(LookUntil(10.25, 15.0, main, main, out none), Is.EqualTo(SignalStep.Wait));
+            Assert.That(signal.Observe(At(15.25), main, main), Is.EqualTo(SignalStep.Send));
+        }
+
+        /// <summary>A window whose process cannot be read (id 0, the window is gone) is as good as none.</summary>
+        [Test]
+        public void AForegroundWindowOfNoProcess_IsNoSwitch()
+        {
+            WindowState gone = Other(0);
+
+            Assert.That(LookUntil(0, 10.0, gone, Main(), out double none), Is.EqualTo(SignalStep.Wait));
+            Assert.That(signal.IsOtherProgram(gone), Is.False);
+        }
+
+        [Test]
+        public void IsOtherProgram_TheGameTheLauncherAndNobodyAreNot_AnythingElseIs()
+        {
+            Assert.That(signal.IsOtherProgram(null), Is.False);
+            Assert.That(signal.IsOtherProgram(Main()), Is.False, "the game");
+            Assert.That(signal.IsOtherProgram(Other(LauncherPid)), Is.False, "the launcher");
+            Assert.That(signal.IsOtherProgram(Other(777)), Is.True);
         }
 
         [Test]
@@ -249,9 +336,9 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
         {
             WindowState reused = Main(processId: 5151);
 
-            Assert.That(LookUntil(0, 9.75, reused, reused, out double none), Is.EqualTo(SignalStep.Wait));
+            Assert.That(LookUntil(0, 9.75, Splash(), reused, out double none), Is.EqualTo(SignalStep.Wait));
             Assert.That(signal.Wait, Is.EqualTo(SignalWait.MainWindowMissing));
-            Assert.That(signal.Observe(At(10.0), reused, reused), Is.EqualTo(SignalStep.WindowGone));
+            Assert.That(signal.Observe(At(10.0), Splash(), reused), Is.EqualTo(SignalStep.WindowGone));
         }
 
         [Test]
@@ -269,7 +356,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
         [Test]
         public void ASignalNeedsTheClassOfTheMainWindow([Values(null, "")] string className)
         {
-            Assert.That(() => new ActivationSignal(GamePid, className), Throws.ArgumentException);
+            Assert.That(() => new ActivationSignal(GamePid, LauncherPid, className), Throws.ArgumentException);
         }
 
         [Test]
@@ -278,10 +365,10 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             WindowState main = Main();
             LookUntil(0, 5.0, main, main, out double none);
 
-            signal.Withdraw(SignalWait.OtherProgramInFront);
+            signal.Withdraw(SignalWait.LauncherInFront);
 
             Assert.That(signal.IsPending, Is.True);
-            Assert.That(signal.Wait, Is.EqualTo(SignalWait.OtherProgramInFront));
+            Assert.That(signal.Wait, Is.EqualTo(SignalWait.LauncherInFront));
             Assert.That(signal.QuietState, Is.Null);
             Assert.That(signal.QuietFor, Is.EqualTo(TimeSpan.Zero));
             Assert.That(signal.Observe(At(5.25), main, main), Is.EqualTo(SignalStep.Wait), "5 s from now, not from the first look");
@@ -315,7 +402,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
             Assert.That(signal.Observe(At(180.0), main, main), Is.EqualTo(SignalStep.Expire));
             Assert.That(() => signal.Withdraw(SignalWait.NoForeground), Throws.InvalidOperationException, "the decision was Expire");
 
-            var sent = new ActivationSignal(GamePid, MainClass);
+            var sent = new ActivationSignal(GamePid, LauncherPid, MainClass);
             for (double t = 0; sent.Observe(At(t), main, main) != SignalStep.Send; t += 0.25)
             {
             }
@@ -336,9 +423,9 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
         public void AtTheDeadline_ExpiresOnce()
         {
             WindowState main = Main();
-            Assert.That(signal.Observe(At(179.75), Other(777), main), Is.EqualTo(SignalStep.Wait));
+            Assert.That(signal.Observe(At(179.75), Other(LauncherPid), main), Is.EqualTo(SignalStep.Wait));
 
-            Assert.That(signal.Observe(At(180.0), Other(777), main), Is.EqualTo(SignalStep.Expire));
+            Assert.That(signal.Observe(At(180.0), Other(LauncherPid), main), Is.EqualTo(SignalStep.Expire));
             Assert.That(signal.Observe(At(180.25), main, main), Is.EqualTo(SignalStep.Wait), "decided: no second Expire, and no Send");
             signal.Complete(ActivationSignalOutcome.NotSettled);
             Assert.That(signal.Observe(At(181.0), main, main), Is.EqualTo(SignalStep.Wait));
