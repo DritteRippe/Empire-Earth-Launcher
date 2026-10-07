@@ -1,0 +1,62 @@
+# Editor settings shared by Visual Studio 2019+, Rider and other editors that read .editorconfig.
+#
+# Only the .NET naming conventions are configured (as suggestions, so they never break a build).
+# Formatting rules are deliberately left out: enabling them would reformat files that are otherwise
+# untouched.
+root = true
+
+[*.cs]
+
+# Symbols
+dotnet_naming_symbols.interfaces.applicable_kinds = interface
+
+dotnet_naming_symbols.types_and_members.applicable_kinds = namespace, class, struct, enum, delegate, event, method, property
+
+dotnet_naming_symbols.constants.applicable_kinds = field, local
+dotnet_naming_symbols.constants.required_modifiers = const
+
+dotnet_naming_symbols.static_readonly_fields.applicable_kinds = field
+dotnet_naming_symbols.static_readonly_fields.required_modifiers = static, readonly
+
+dotnet_naming_symbols.non_public_fields.applicable_kinds = field
+dotnet_naming_symbols.non_public_fields.applicable_accessibilities = private, internal, protected, protected_internal, private_protected
+
+dotnet_naming_symbols.locals_and_parameters.applicable_kinds = parameter, local, local_function
+
+# Styles
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+
+dotnet_naming_style.camel_case.capitalization = camel_case
+
+dotnet_naming_style.prefix_i.capitalization = pascal_case
+dotnet_naming_style.prefix_i.required_prefix = I
+
+# Rules (most specific first): IThing, PascalCase types/members/constants/static readonly fields,
+# camelCase fields (no "_" prefix), locals and parameters (no snake_case).
+dotnet_naming_rule.interfaces_start_with_i.symbols = interfaces
+dotnet_naming_rule.interfaces_start_with_i.style = prefix_i
+dotnet_naming_rule.interfaces_start_with_i.severity = suggestion
+
+dotnet_naming_rule.constants_are_pascal_case.symbols = constants
+dotnet_naming_rule.constants_are_pascal_case.style = pascal_case
+dotnet_naming_rule.constants_are_pascal_case.severity = suggestion
+
+dotnet_naming_rule.static_readonly_fields_are_pascal_case.symbols = static_readonly_fields
+dotnet_naming_rule.static_readonly_fields_are_pascal_case.style = pascal_case
+dotnet_naming_rule.static_readonly_fields_are_pascal_case.severity = suggestion
+
+dotnet_naming_rule.non_public_fields_are_camel_case.symbols = non_public_fields
+dotnet_naming_rule.non_public_fields_are_camel_case.style = camel_case
+dotnet_naming_rule.non_public_fields_are_camel_case.severity = suggestion
+
+dotnet_naming_rule.types_and_members_are_pascal_case.symbols = types_and_members
+dotnet_naming_rule.types_and_members_are_pascal_case.style = pascal_case
+dotnet_naming_rule.types_and_members_are_pascal_case.severity = suggestion
+
+dotnet_naming_rule.locals_and_parameters_are_camel_case.symbols = locals_and_parameters
+dotnet_naming_rule.locals_and_parameters_are_camel_case.style = camel_case
+dotnet_naming_rule.locals_and_parameters_are_camel_case.severity = suggestion
+
+# Vendored third-party code (see THIRD-PARTY-NOTICES.md): not analysed, it keeps its upstream style.
+[Empire-Earth-Mod/Empire-Earth-Mod-Lib/ZipStorer.cs]
+generated_code = true

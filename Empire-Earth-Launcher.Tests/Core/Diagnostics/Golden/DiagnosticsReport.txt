@@ -1,0 +1,64 @@
+Empire Earth Launcher - diagnostics report
+==========================================
+Made by the launcher on request and never sent anywhere. It contains no CD keys, no login data, no player or
+profile names, no MAC or public IP address and no user or computer name (they are replaced by <user>,
+<computer> and <server>). Please read it before you post it.
+
+Created:      2026-10-02 20:04
+Launcher:     0.1.0-alpha
+Windows:      NT 10.0.19045, 64-bit
+Screen:       1920x1080 physical, 1536x864 for DPI-unaware programs (125 %)
+Display:      Sample Display Adapter
+UI language:  de-DE
+
+Installations (2)
+  1. NeoEE, community setup, mode admin, contract 1, selected
+    Root:       C:\Program Files (x86)\Neo Empire Earth
+    EE folder:  C:\Program Files (x86)\Neo Empire Earth\Empire Earth
+    AoC folder: C:\Program Files (x86)\Neo Empire Earth\Empire Earth - The Art of Conquest
+    State:      ok
+    Setup:      2.0.0 (build a1b2c3d), game 2.0.0.5, AppId 00000000-0000-0000-0000-000000000AEE, sources 2,3,4
+  2. EE, other (CD, GOG, copy), mode unknown, contract 0
+    Root:       D:\GAMES
+    EE folder:  D:\GAMES\Empire Earth
+    AoC folder: none
+    State:      ok
+    Setup:      ?, game ?, AppId none, sources 4
+
+Selected installation
+  Programs:     Empire Earth.exe 2.0.0.5; EE-AOC.exe without version
+  DirectX wrapper: EE none (install.ini); AoC none (install.ini)
+  Integrity:    Damaged, quick check, 4 files listed, 3 hashed, 1 finding
+    - code Empire Earth/neoee.dll: changed
+  Game defaults: EE applied; AoC pending (applied at the next start)
+  Consistency:  2 findings
+    - BitDepthMismatch (EE): Game Bit Depth=16; Texture Bit Depth=32, recommended 32
+    - SixteenBitOnWindows8 (EE): Game Bit Depth=16; Texture Bit Depth=32, recommended 32
+  VirtualStore: 3 files, 1 serious
+    - serious ManifestFile: %LOCALAPPDATA%\VirtualStore\Program Files (x86)\Neo Empire Earth\Empire Earth\neoee.dll (shadows the file of the game folder)
+    - RuntimeFile: %LOCALAPPDATA%\VirtualStore\Program Files (x86)\Neo Empire Earth\Empire Earth\upnp_info.txt
+    - RuntimeFile: %LOCALAPPDATA%\VirtualStore\Program Files (x86)\Neo Empire Earth\Empire Earth\_wonlobbypersistent.dat
+  Player names: 3 names checked, 2 with characters outside printable ASCII
+    - EE lobby profile 1: characters outside printable ASCII
+    - EE player 1: characters outside printable ASCII
+  CD keys:      HKLM32\Software\Sierra\CDKeys exists; HKLM64\Software\Sierra\CDKeys missing; HKCU\Software\Sierra\CDKeys exists; HKCU\Software\Classes\VirtualStore\MACHINE\SOFTWARE\Sierra\CDKeys missing; HKCU\Software\Classes\VirtualStore\MACHINE\SOFTWARE\WOW6432Node\Sierra\CDKeys missing
+  Old registry entries: 0 keys offered for cleanup, 2 shown read-only
+
+Network (checked 2026-10-02 20:04)
+  Verdict:      probably a server outage, not this computer (DNS works and the update API answers, the status server does not)
+  Adapters:     2
+    - Ethernet "Sample Ethernet Controller", connected, IPv4 192.168.178.20/24, gateway 192.168.178.1, IPv6 link-local only
+    - Ethernet "Sample Hamachi Virtual Ethernet Adapter", connected, IPv4 <public address>, gateway none, IPv6 none, virtual or VPN
+  DNS:          status.neoee.example: resolved (1 IPv4, 0 IPv6)
+  DNS:          rip.neoee.example: resolved (1 IPv4, 0 IPv6)
+  Update API:   answered (HTTP 200)
+  Status server: status.neoee.example:10005: no answer (TimeoutException)
+  EE NeoEE.cfg: Active true, Server rip.neoee.example, DefaultPort 33334, MemberPorts 33340, PortCheck true, TryUPnP true
+  AoC NeoEE.cfg: Active true, Server rip.neoee.example, DefaultPort 33334, MemberPorts 33340, PortCheck true, TryUPnP true
+  EE WONLobby.cfg: CDKeyCheck true, EEFileTransferPort 33335, LobbyPort 33336
+  AoC WONLobby.cfg: CDKeyCheck true, EEFileTransferPort 33335, LobbyPort 33336
+  EE upnp_info.txt: external address CGNAT, local address 192.168.178.20
+  AoC upnp_info.txt: missing
+  EE ports:     33334 TCP+UDP, 33335 TCP, 33336 TCP+UDP to 192.168.178.20
+  AoC ports:    33334 TCP+UDP, 33335 TCP, 33336 TCP+UDP to 192.168.178.20
+  Hints:        VirtualAdapters (1), CgnatAddress

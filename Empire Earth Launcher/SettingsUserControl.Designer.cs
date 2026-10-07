@@ -4,14 +4,14 @@ namespace Empire_Earth_Launcher
     partial class SettingsUserControl
     {
         /// <summary> 
-        /// Variable nécessaire au concepteur.
+        /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary> 
-        /// Nettoyage des ressources utilisées.
+        /// Clean up any resources being used.
         /// </summary>
-        /// <param name="disposing">true si les ressources managées doivent être supprimées ; sinon, false.</param>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -21,80 +21,48 @@ namespace Empire_Earth_Launcher
             base.Dispose(disposing);
         }
 
-        #region Code généré par le Concepteur de composants
+        #region Component Designer generated code
 
         /// <summary> 
-        /// Méthode requise pour la prise en charge du concepteur - ne modifiez pas 
-        /// le contenu de cette méthode avec l'éditeur de code.
+        /// Required method for Designer support - do not modify 
+        /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsUserControl));
             this.launcherKryptonPalette = new Krypton.Toolkit.KryptonPalette(this.components);
+            this.gameSettingsScrollPanel = new System.Windows.Forms.Panel();
+            this.defaultsHeadingKryptonLabel = new Krypton.Toolkit.KryptonLabel();
+            this.installationKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
+            this.defaultsStatusKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
+            this.displayQuestionKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
+            this.displayQuestionApplyKryptonButton = new Krypton.Toolkit.KryptonButton();
+            this.displayQuestionKeepKryptonButton = new Krypton.Toolkit.KryptonButton();
+            this.applyDisplayKryptonButton = new Krypton.Toolkit.KryptonButton();
+            this.resetGameSettingsKryptonButton = new Krypton.Toolkit.KryptonButton();
+            this.confirmKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
+            this.confirmYesKryptonButton = new Krypton.Toolkit.KryptonButton();
+            this.confirmNoKryptonButton = new Krypton.Toolkit.KryptonButton();
+            this.resultKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
+            this.hintsHeadingKryptonLabel = new Krypton.Toolkit.KryptonLabel();
+            this.hintsNoneKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
+            this.compatibilityHeadingKryptonLabel = new Krypton.Toolkit.KryptonLabel();
+            this.dwm8And16BitMitigationKryptonCheckBox = new Krypton.Toolkit.KryptonCheckBox();
+            this.highDpiAwareKryptonCheckBox = new Krypton.Toolkit.KryptonCheckBox();
+            this.heapClearAllocationKryptonCheckBox = new Krypton.Toolkit.KryptonCheckBox();
+            this.windows7ModeKryptonCheckBox = new Krypton.Toolkit.KryptonCheckBox();
+            this.compatibilityInfoKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
+            this.removeRunAsAdminKryptonButton = new Krypton.Toolkit.KryptonButton();
+            this.compatibilityResultKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             this.compatibilityWarningKryptonPanel = new Krypton.Toolkit.KryptonPanel();
-            this.kryptonGroupBox4 = new Krypton.Toolkit.KryptonGroupBox();
-            this.kryptonButton7 = new Krypton.Toolkit.KryptonButton();
-            this.kryptonButton6 = new Krypton.Toolkit.KryptonButton();
-            this.kryptonButton5 = new Krypton.Toolkit.KryptonButton();
-            this.kryptonGroupBox2 = new Krypton.Toolkit.KryptonGroupBox();
-            this.kryptonGroupBox3 = new Krypton.Toolkit.KryptonGroupBox();
-            this.kryptonCheckBox8 = new Krypton.Toolkit.KryptonCheckBox();
-            this.kryptonCheckBox6 = new Krypton.Toolkit.KryptonCheckBox();
-            this.kryptonComboBox3 = new Krypton.Toolkit.KryptonComboBox();
-            this.kryptonCheckBox5 = new Krypton.Toolkit.KryptonCheckBox();
-            this.kryptonButton4 = new Krypton.Toolkit.KryptonButton();
-            this.kryptonButton3 = new Krypton.Toolkit.KryptonButton();
-            this.kryptonButton2 = new Krypton.Toolkit.KryptonButton();
-            this.kryptonGroupBox1 = new Krypton.Toolkit.KryptonGroupBox();
-            this.kryptonButton1 = new Krypton.Toolkit.KryptonButton();
-            this.kryptonComboBox1 = new Krypton.Toolkit.KryptonComboBox();
-            this.kryptonLabel1 = new Krypton.Toolkit.KryptonLabel();
-            this.kryptonCheckBox9 = new Krypton.Toolkit.KryptonCheckBox();
-            this.kryptonLabel5 = new Krypton.Toolkit.KryptonLabel();
-            this.kryptonTextBox2 = new Krypton.Toolkit.KryptonTextBox();
-            this.kryptonComboBox5 = new Krypton.Toolkit.KryptonComboBox();
-            this.kryptonLabel4 = new Krypton.Toolkit.KryptonLabel();
-            this.kryptonComboBox4 = new Krypton.Toolkit.KryptonComboBox();
-            this.kryptonLabel3 = new Krypton.Toolkit.KryptonLabel();
-            this.kryptonGroupBox5 = new Krypton.Toolkit.KryptonGroupBox();
-            this.kryptonComboBox2 = new Krypton.Toolkit.KryptonComboBox();
-            this.kryptonCheckBox7 = new Krypton.Toolkit.KryptonCheckBox();
-            this.kryptonCheckBox4 = new Krypton.Toolkit.KryptonCheckBox();
-            this.kryptonCheckBox1 = new Krypton.Toolkit.KryptonCheckBox();
-            this.kryptonCheckBox3 = new Krypton.Toolkit.KryptonCheckBox();
-            this.kryptonCheckBox2 = new Krypton.Toolkit.KryptonCheckBox();
-            this.compatibilityWarningKryptonWrapLabel = new Krypton.Toolkit.KryptonWrapLabel();
+            this.compatibilityWarningKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             this.compatibilityWarningConfirmationKryptonButton = new Krypton.Toolkit.KryptonButton();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.compatibilityWarningPictureBox = new System.Windows.Forms.PictureBox();
+            this.gameSettingsScrollPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.compatibilityWarningKryptonPanel)).BeginInit();
             this.compatibilityWarningKryptonPanel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonGroupBox4)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonGroupBox4.Panel)).BeginInit();
-            this.kryptonGroupBox4.Panel.SuspendLayout();
-            this.kryptonGroupBox4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonGroupBox2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonGroupBox2.Panel)).BeginInit();
-            this.kryptonGroupBox2.Panel.SuspendLayout();
-            this.kryptonGroupBox2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonGroupBox3)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonGroupBox3.Panel)).BeginInit();
-            this.kryptonGroupBox3.Panel.SuspendLayout();
-            this.kryptonGroupBox3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonComboBox3)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonGroupBox1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonGroupBox1.Panel)).BeginInit();
-            this.kryptonGroupBox1.Panel.SuspendLayout();
-            this.kryptonGroupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonComboBox1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonComboBox5)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonComboBox4)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonGroupBox5)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonGroupBox5.Panel)).BeginInit();
-            this.kryptonGroupBox5.Panel.SuspendLayout();
-            this.kryptonGroupBox5.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonComboBox2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.compatibilityWarningPictureBox)).BeginInit();
             this.SuspendLayout();
             // 
             // launcherKryptonPalette
@@ -158,436 +126,252 @@ namespace Empire_Earth_Launcher
             this.launcherKryptonPalette.PanelStyles.PanelCommon.StateCommon.Color1 = System.Drawing.Color.White;
             this.launcherKryptonPalette.PanelStyles.PanelCommon.StateCommon.ColorStyle = Krypton.Toolkit.PaletteColorStyle.Solid;
             // 
+            // gameSettingsScrollPanel
+            // 
+            this.gameSettingsScrollPanel.AutoScroll = true;
+            this.gameSettingsScrollPanel.BackColor = System.Drawing.Color.White;
+            this.gameSettingsScrollPanel.Controls.Add(this.defaultsHeadingKryptonLabel);
+            this.gameSettingsScrollPanel.Controls.Add(this.installationKryptonWrapLabel);
+            this.gameSettingsScrollPanel.Controls.Add(this.defaultsStatusKryptonWrapLabel);
+            this.gameSettingsScrollPanel.Controls.Add(this.displayQuestionKryptonWrapLabel);
+            this.gameSettingsScrollPanel.Controls.Add(this.displayQuestionApplyKryptonButton);
+            this.gameSettingsScrollPanel.Controls.Add(this.displayQuestionKeepKryptonButton);
+            this.gameSettingsScrollPanel.Controls.Add(this.applyDisplayKryptonButton);
+            this.gameSettingsScrollPanel.Controls.Add(this.resetGameSettingsKryptonButton);
+            this.gameSettingsScrollPanel.Controls.Add(this.confirmKryptonWrapLabel);
+            this.gameSettingsScrollPanel.Controls.Add(this.confirmYesKryptonButton);
+            this.gameSettingsScrollPanel.Controls.Add(this.confirmNoKryptonButton);
+            this.gameSettingsScrollPanel.Controls.Add(this.resultKryptonWrapLabel);
+            this.gameSettingsScrollPanel.Controls.Add(this.hintsHeadingKryptonLabel);
+            this.gameSettingsScrollPanel.Controls.Add(this.hintsNoneKryptonWrapLabel);
+            this.gameSettingsScrollPanel.Controls.Add(this.compatibilityHeadingKryptonLabel);
+            this.gameSettingsScrollPanel.Controls.Add(this.compatibilityWarningKryptonPanel);
+            this.gameSettingsScrollPanel.Controls.Add(this.dwm8And16BitMitigationKryptonCheckBox);
+            this.gameSettingsScrollPanel.Controls.Add(this.highDpiAwareKryptonCheckBox);
+            this.gameSettingsScrollPanel.Controls.Add(this.heapClearAllocationKryptonCheckBox);
+            this.gameSettingsScrollPanel.Controls.Add(this.windows7ModeKryptonCheckBox);
+            this.gameSettingsScrollPanel.Controls.Add(this.compatibilityInfoKryptonWrapLabel);
+            this.gameSettingsScrollPanel.Controls.Add(this.removeRunAsAdminKryptonButton);
+            this.gameSettingsScrollPanel.Controls.Add(this.compatibilityResultKryptonWrapLabel);
+            this.gameSettingsScrollPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gameSettingsScrollPanel.Location = new System.Drawing.Point(0, 0);
+            this.gameSettingsScrollPanel.Name = "gameSettingsScrollPanel";
+            this.gameSettingsScrollPanel.Size = new System.Drawing.Size(554, 380);
+            this.gameSettingsScrollPanel.TabIndex = 0;
+            // 
+            // defaultsHeadingKryptonLabel
+            // 
+            this.defaultsHeadingKryptonLabel.AutoSize = false;
+            this.defaultsHeadingKryptonLabel.Location = new System.Drawing.Point(12, 8);
+            this.defaultsHeadingKryptonLabel.Name = "defaultsHeadingKryptonLabel";
+            this.defaultsHeadingKryptonLabel.Palette = this.launcherKryptonPalette;
+            this.defaultsHeadingKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.defaultsHeadingKryptonLabel.Size = new System.Drawing.Size(505, 20);
+            this.defaultsHeadingKryptonLabel.LabelStyle = Krypton.Toolkit.LabelStyle.BoldControl;
+            this.defaultsHeadingKryptonLabel.TabIndex = 0;
+            this.defaultsHeadingKryptonLabel.Values.Text = "Game defaults";
+
+            // 
+            // installationKryptonWrapLabel
+            // 
+            this.installationKryptonWrapLabel.AutoSize = false;
+            this.installationKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.installationKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.installationKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
+            this.installationKryptonWrapLabel.Location = new System.Drawing.Point(12, 30);
+            this.installationKryptonWrapLabel.Name = "installationKryptonWrapLabel";
+            this.installationKryptonWrapLabel.Palette = this.launcherKryptonPalette;
+            this.installationKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.installationKryptonWrapLabel.Size = new System.Drawing.Size(505, 20);
+            this.installationKryptonWrapLabel.Text = "";
+
+            // 
+            // defaultsStatusKryptonWrapLabel
+            // 
+            this.defaultsStatusKryptonWrapLabel.AutoSize = false;
+            this.defaultsStatusKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.defaultsStatusKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.defaultsStatusKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
+            this.defaultsStatusKryptonWrapLabel.Location = new System.Drawing.Point(12, 52);
+            this.defaultsStatusKryptonWrapLabel.Name = "defaultsStatusKryptonWrapLabel";
+            this.defaultsStatusKryptonWrapLabel.Palette = this.launcherKryptonPalette;
+            this.defaultsStatusKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.defaultsStatusKryptonWrapLabel.Size = new System.Drawing.Size(505, 34);
+            this.defaultsStatusKryptonWrapLabel.Text = "";
+
+            // 
+            // displayQuestionKryptonWrapLabel
+            // 
+            this.displayQuestionKryptonWrapLabel.AutoSize = false;
+            this.displayQuestionKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.displayQuestionKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.displayQuestionKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
+            this.displayQuestionKryptonWrapLabel.Location = new System.Drawing.Point(12, 90);
+            this.displayQuestionKryptonWrapLabel.Name = "displayQuestionKryptonWrapLabel";
+            this.displayQuestionKryptonWrapLabel.Palette = this.launcherKryptonPalette;
+            this.displayQuestionKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.displayQuestionKryptonWrapLabel.Size = new System.Drawing.Size(505, 34);
+            this.displayQuestionKryptonWrapLabel.Text = "";
+            this.displayQuestionKryptonWrapLabel.Visible = false;
+
+            // 
+            // displayQuestionApplyKryptonButton
+            // 
+            this.displayQuestionApplyKryptonButton.Location = new System.Drawing.Point(12, 128);
+            this.displayQuestionApplyKryptonButton.Name = "displayQuestionApplyKryptonButton";
+            this.displayQuestionApplyKryptonButton.Palette = this.launcherKryptonPalette;
+            this.displayQuestionApplyKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.displayQuestionApplyKryptonButton.Size = new System.Drawing.Size(140, 28);
+            this.displayQuestionApplyKryptonButton.TabIndex = 0;
+            this.displayQuestionApplyKryptonButton.Values.Text = "Apply";
+            this.displayQuestionApplyKryptonButton.Visible = false;
+            this.displayQuestionApplyKryptonButton.Click += new System.EventHandler(this.displayQuestionApplyKryptonButton_Click);
+
+            // 
+            // displayQuestionKeepKryptonButton
+            // 
+            this.displayQuestionKeepKryptonButton.Location = new System.Drawing.Point(158, 128);
+            this.displayQuestionKeepKryptonButton.Name = "displayQuestionKeepKryptonButton";
+            this.displayQuestionKeepKryptonButton.Palette = this.launcherKryptonPalette;
+            this.displayQuestionKeepKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.displayQuestionKeepKryptonButton.Size = new System.Drawing.Size(140, 28);
+            this.displayQuestionKeepKryptonButton.TabIndex = 0;
+            this.displayQuestionKeepKryptonButton.Values.Text = "Keep mine";
+            this.displayQuestionKeepKryptonButton.Visible = false;
+            this.displayQuestionKeepKryptonButton.Click += new System.EventHandler(this.displayQuestionKeepKryptonButton_Click);
+
+            // 
+            // applyDisplayKryptonButton
+            // 
+            this.applyDisplayKryptonButton.Location = new System.Drawing.Point(12, 162);
+            this.applyDisplayKryptonButton.Name = "applyDisplayKryptonButton";
+            this.applyDisplayKryptonButton.Palette = this.launcherKryptonPalette;
+            this.applyDisplayKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.applyDisplayKryptonButton.Size = new System.Drawing.Size(248, 28);
+            this.applyDisplayKryptonButton.TabIndex = 0;
+            this.applyDisplayKryptonButton.Values.Text = "Apply recommended display";
+            this.applyDisplayKryptonButton.Click += new System.EventHandler(this.applyDisplayKryptonButton_Click);
+
+            // 
+            // resetGameSettingsKryptonButton
+            // 
+            this.resetGameSettingsKryptonButton.Location = new System.Drawing.Point(269, 162);
+            this.resetGameSettingsKryptonButton.Name = "resetGameSettingsKryptonButton";
+            this.resetGameSettingsKryptonButton.Palette = this.launcherKryptonPalette;
+            this.resetGameSettingsKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.resetGameSettingsKryptonButton.Size = new System.Drawing.Size(248, 28);
+            this.resetGameSettingsKryptonButton.TabIndex = 0;
+            this.resetGameSettingsKryptonButton.Values.Text = "Reset game settings";
+            this.resetGameSettingsKryptonButton.Click += new System.EventHandler(this.resetGameSettingsKryptonButton_Click);
+
+            // 
+            // confirmKryptonWrapLabel
+            // 
+            this.confirmKryptonWrapLabel.AutoSize = false;
+            this.confirmKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.confirmKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.confirmKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
+            this.confirmKryptonWrapLabel.Location = new System.Drawing.Point(12, 196);
+            this.confirmKryptonWrapLabel.Name = "confirmKryptonWrapLabel";
+            this.confirmKryptonWrapLabel.Palette = this.launcherKryptonPalette;
+            this.confirmKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.confirmKryptonWrapLabel.Size = new System.Drawing.Size(505, 50);
+            this.confirmKryptonWrapLabel.Text = "";
+            this.confirmKryptonWrapLabel.Visible = false;
+
+            // 
+            // confirmYesKryptonButton
+            // 
+            this.confirmYesKryptonButton.Location = new System.Drawing.Point(12, 250);
+            this.confirmYesKryptonButton.Name = "confirmYesKryptonButton";
+            this.confirmYesKryptonButton.Palette = this.launcherKryptonPalette;
+            this.confirmYesKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.confirmYesKryptonButton.Size = new System.Drawing.Size(200, 28);
+            this.confirmYesKryptonButton.TabIndex = 0;
+            this.confirmYesKryptonButton.Values.Text = "";
+            this.confirmYesKryptonButton.Visible = false;
+            this.confirmYesKryptonButton.Click += new System.EventHandler(this.confirmYesKryptonButton_Click);
+
+            // 
+            // confirmNoKryptonButton
+            // 
+            this.confirmNoKryptonButton.Location = new System.Drawing.Point(218, 250);
+            this.confirmNoKryptonButton.Name = "confirmNoKryptonButton";
+            this.confirmNoKryptonButton.Palette = this.launcherKryptonPalette;
+            this.confirmNoKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.confirmNoKryptonButton.Size = new System.Drawing.Size(140, 28);
+            this.confirmNoKryptonButton.TabIndex = 0;
+            this.confirmNoKryptonButton.Values.Text = "Cancel";
+            this.confirmNoKryptonButton.Visible = false;
+            this.confirmNoKryptonButton.Click += new System.EventHandler(this.confirmNoKryptonButton_Click);
+
+            // 
+            // resultKryptonWrapLabel
+            // 
+            this.resultKryptonWrapLabel.AutoSize = false;
+            this.resultKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.resultKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.resultKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
+            this.resultKryptonWrapLabel.Location = new System.Drawing.Point(12, 284);
+            this.resultKryptonWrapLabel.Name = "resultKryptonWrapLabel";
+            this.resultKryptonWrapLabel.Palette = this.launcherKryptonPalette;
+            this.resultKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.resultKryptonWrapLabel.Size = new System.Drawing.Size(505, 34);
+            this.resultKryptonWrapLabel.Text = "";
+            this.resultKryptonWrapLabel.Visible = false;
+
+            // 
+            // hintsHeadingKryptonLabel
+            // 
+            this.hintsHeadingKryptonLabel.AutoSize = false;
+            this.hintsHeadingKryptonLabel.Location = new System.Drawing.Point(12, 322);
+            this.hintsHeadingKryptonLabel.Name = "hintsHeadingKryptonLabel";
+            this.hintsHeadingKryptonLabel.Palette = this.launcherKryptonPalette;
+            this.hintsHeadingKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.hintsHeadingKryptonLabel.Size = new System.Drawing.Size(505, 20);
+            this.hintsHeadingKryptonLabel.LabelStyle = Krypton.Toolkit.LabelStyle.BoldControl;
+            this.hintsHeadingKryptonLabel.TabIndex = 0;
+            this.hintsHeadingKryptonLabel.Values.Text = "Hints";
+
+            // 
+            // hintsNoneKryptonWrapLabel
+            // 
+            this.hintsNoneKryptonWrapLabel.AutoSize = false;
+            this.hintsNoneKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.hintsNoneKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.hintsNoneKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
+            this.hintsNoneKryptonWrapLabel.Location = new System.Drawing.Point(12, 344);
+            this.hintsNoneKryptonWrapLabel.Name = "hintsNoneKryptonWrapLabel";
+            this.hintsNoneKryptonWrapLabel.Palette = this.launcherKryptonPalette;
+            this.hintsNoneKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.hintsNoneKryptonWrapLabel.Size = new System.Drawing.Size(505, 20);
+            this.hintsNoneKryptonWrapLabel.Text = "No hints";
+
+            // 
+            // compatibilityHeadingKryptonLabel
+            // 
+            this.compatibilityHeadingKryptonLabel.AutoSize = false;
+            this.compatibilityHeadingKryptonLabel.Location = new System.Drawing.Point(12, 370);
+            this.compatibilityHeadingKryptonLabel.Name = "compatibilityHeadingKryptonLabel";
+            this.compatibilityHeadingKryptonLabel.Palette = this.launcherKryptonPalette;
+            this.compatibilityHeadingKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.compatibilityHeadingKryptonLabel.Size = new System.Drawing.Size(505, 20);
+            this.compatibilityHeadingKryptonLabel.LabelStyle = Krypton.Toolkit.LabelStyle.BoldControl;
+            this.compatibilityHeadingKryptonLabel.TabIndex = 0;
+            this.compatibilityHeadingKryptonLabel.Values.Text = "Compatibility options";
+
+            // 
             // compatibilityWarningKryptonPanel
             // 
-            this.compatibilityWarningKryptonPanel.Controls.Add(this.pictureBox1);
+            this.compatibilityWarningKryptonPanel.Controls.Add(this.compatibilityWarningPictureBox);
             this.compatibilityWarningKryptonPanel.Controls.Add(this.compatibilityWarningKryptonWrapLabel);
             this.compatibilityWarningKryptonPanel.Controls.Add(this.compatibilityWarningConfirmationKryptonButton);
-            this.compatibilityWarningKryptonPanel.Location = new System.Drawing.Point(209, 31);
+            this.compatibilityWarningKryptonPanel.Location = new System.Drawing.Point(99, 392);
             this.compatibilityWarningKryptonPanel.Name = "compatibilityWarningKryptonPanel";
             this.compatibilityWarningKryptonPanel.Palette = this.launcherKryptonPalette;
             this.compatibilityWarningKryptonPanel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.compatibilityWarningKryptonPanel.Size = new System.Drawing.Size(330, 339);
             this.compatibilityWarningKryptonPanel.TabIndex = 19;
-            // 
-            // kryptonGroupBox4
-            // 
-            this.kryptonGroupBox4.Location = new System.Drawing.Point(10, 247);
-            this.kryptonGroupBox4.Name = "kryptonGroupBox4";
-            this.kryptonGroupBox4.Palette = this.launcherKryptonPalette;
-            this.kryptonGroupBox4.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            // 
-            // kryptonGroupBox4.Panel
-            // 
-            this.kryptonGroupBox4.Panel.Controls.Add(this.kryptonButton7);
-            this.kryptonGroupBox4.Panel.Controls.Add(this.kryptonButton6);
-            this.kryptonGroupBox4.Panel.Controls.Add(this.kryptonButton5);
-            this.kryptonGroupBox4.Size = new System.Drawing.Size(188, 128);
-            this.kryptonGroupBox4.TabIndex = 18;
-            this.kryptonGroupBox4.Values.Heading = "Magic Button";
-            // 
-            // kryptonButton7
-            // 
-            this.kryptonButton7.Location = new System.Drawing.Point(6, 71);
-            this.kryptonButton7.Name = "kryptonButton7";
-            this.kryptonButton7.Palette = this.launcherKryptonPalette;
-            this.kryptonButton7.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonButton7.Size = new System.Drawing.Size(173, 26);
-            this.kryptonButton7.StateCommon.Border.DrawBorders = ((Krypton.Toolkit.PaletteDrawBorders)((((Krypton.Toolkit.PaletteDrawBorders.Top | Krypton.Toolkit.PaletteDrawBorders.Bottom) 
-            | Krypton.Toolkit.PaletteDrawBorders.Left) 
-            | Krypton.Toolkit.PaletteDrawBorders.Right)));
-            this.kryptonButton7.StateCommon.Border.Rounding = 4F;
-            this.kryptonButton7.TabIndex = 37;
-            this.kryptonButton7.Values.Text = "Repair CD-Keys";
-            // 
-            // kryptonButton6
-            // 
-            this.kryptonButton6.Location = new System.Drawing.Point(6, 39);
-            this.kryptonButton6.Name = "kryptonButton6";
-            this.kryptonButton6.Palette = this.launcherKryptonPalette;
-            this.kryptonButton6.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonButton6.Size = new System.Drawing.Size(173, 26);
-            this.kryptonButton6.StateCommon.Border.DrawBorders = ((Krypton.Toolkit.PaletteDrawBorders)((((Krypton.Toolkit.PaletteDrawBorders.Top | Krypton.Toolkit.PaletteDrawBorders.Bottom) 
-            | Krypton.Toolkit.PaletteDrawBorders.Left) 
-            | Krypton.Toolkit.PaletteDrawBorders.Right)));
-            this.kryptonButton6.StateCommon.Border.Rounding = 4F;
-            this.kryptonButton6.TabIndex = 36;
-            this.kryptonButton6.Values.Text = "Reset the Game";
-            // 
-            // kryptonButton5
-            // 
-            this.kryptonButton5.Location = new System.Drawing.Point(6, 7);
-            this.kryptonButton5.Name = "kryptonButton5";
-            this.kryptonButton5.Palette = this.launcherKryptonPalette;
-            this.kryptonButton5.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonButton5.Size = new System.Drawing.Size(173, 26);
-            this.kryptonButton5.StateCommon.Border.DrawBorders = ((Krypton.Toolkit.PaletteDrawBorders)((((Krypton.Toolkit.PaletteDrawBorders.Top | Krypton.Toolkit.PaletteDrawBorders.Bottom) 
-            | Krypton.Toolkit.PaletteDrawBorders.Left) 
-            | Krypton.Toolkit.PaletteDrawBorders.Right)));
-            this.kryptonButton5.StateCommon.Border.Rounding = 4F;
-            this.kryptonButton5.TabIndex = 35;
-            this.kryptonButton5.Values.Text = "Clear Registry";
-            // 
-            // kryptonGroupBox2
-            // 
-            this.kryptonGroupBox2.Location = new System.Drawing.Point(204, 6);
-            this.kryptonGroupBox2.Name = "kryptonGroupBox2";
-            this.kryptonGroupBox2.Palette = this.launcherKryptonPalette;
-            this.kryptonGroupBox2.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            // 
-            // kryptonGroupBox2.Panel
-            // 
-            this.kryptonGroupBox2.Panel.Controls.Add(this.kryptonGroupBox3);
-            this.kryptonGroupBox2.Panel.Controls.Add(this.kryptonButton4);
-            this.kryptonGroupBox2.Panel.Controls.Add(this.kryptonButton3);
-            this.kryptonGroupBox2.Panel.Controls.Add(this.kryptonButton2);
-            this.kryptonGroupBox2.Panel.Controls.Add(this.kryptonGroupBox1);
-            this.kryptonGroupBox2.Panel.Controls.Add(this.kryptonLabel5);
-            this.kryptonGroupBox2.Panel.Controls.Add(this.kryptonTextBox2);
-            this.kryptonGroupBox2.Panel.Controls.Add(this.kryptonComboBox5);
-            this.kryptonGroupBox2.Panel.Controls.Add(this.kryptonLabel4);
-            this.kryptonGroupBox2.Panel.Controls.Add(this.kryptonComboBox4);
-            this.kryptonGroupBox2.Panel.Controls.Add(this.kryptonLabel3);
-            this.kryptonGroupBox2.Size = new System.Drawing.Size(340, 369);
-            this.kryptonGroupBox2.TabIndex = 17;
-            this.kryptonGroupBox2.Values.Heading = "Compatibility";
-            // 
-            // kryptonGroupBox3
-            // 
-            this.kryptonGroupBox3.Location = new System.Drawing.Point(8, 99);
-            this.kryptonGroupBox3.Name = "kryptonGroupBox3";
-            this.kryptonGroupBox3.Palette = this.launcherKryptonPalette;
-            this.kryptonGroupBox3.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            // 
-            // kryptonGroupBox3.Panel
-            // 
-            this.kryptonGroupBox3.Panel.Controls.Add(this.kryptonCheckBox8);
-            this.kryptonGroupBox3.Panel.Controls.Add(this.kryptonCheckBox6);
-            this.kryptonGroupBox3.Panel.Controls.Add(this.kryptonComboBox3);
-            this.kryptonGroupBox3.Panel.Controls.Add(this.kryptonCheckBox5);
-            this.kryptonGroupBox3.Size = new System.Drawing.Size(320, 103);
-            this.kryptonGroupBox3.TabIndex = 39;
-            this.kryptonGroupBox3.Values.Heading = "Windows";
-            // 
-            // kryptonCheckBox8
-            // 
-            this.kryptonCheckBox8.Location = new System.Drawing.Point(13, 45);
-            this.kryptonCheckBox8.Name = "kryptonCheckBox8";
-            this.kryptonCheckBox8.Palette = this.launcherKryptonPalette;
-            this.kryptonCheckBox8.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonCheckBox8.Size = new System.Drawing.Size(139, 20);
-            this.kryptonCheckBox8.TabIndex = 31;
-            this.kryptonCheckBox8.Values.Text = "Compatibility Mode";
-            // 
-            // kryptonCheckBox6
-            // 
-            this.kryptonCheckBox6.Location = new System.Drawing.Point(155, 11);
-            this.kryptonCheckBox6.Name = "kryptonCheckBox6";
-            this.kryptonCheckBox6.Palette = this.launcherKryptonPalette;
-            this.kryptonCheckBox6.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonCheckBox6.Size = new System.Drawing.Size(148, 20);
-            this.kryptonCheckBox6.TabIndex = 30;
-            this.kryptonCheckBox6.Values.Text = "Clear Heap Allocation";
-            // 
-            // kryptonComboBox3
-            // 
-            this.kryptonComboBox3.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
-            this.kryptonComboBox3.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.kryptonComboBox3.DropDownWidth = 241;
-            this.kryptonComboBox3.IntegralHeight = false;
-            this.kryptonComboBox3.Items.AddRange(new object[] {
-            "Windows 95",
-            "Windows 98",
-            "Windows XP",
-            "Windows XP SP2",
-            "Windows XP SP3",
-            "Windows Vista",
-            "Windows 7",
-            "Windows 8"});
-            this.kryptonComboBox3.Location = new System.Drawing.Point(155, 44);
-            this.kryptonComboBox3.Name = "kryptonComboBox3";
-            this.kryptonComboBox3.Palette = this.launcherKryptonPalette;
-            this.kryptonComboBox3.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonComboBox3.Size = new System.Drawing.Size(148, 23);
-            this.kryptonComboBox3.StateCommon.ComboBox.Content.TextH = Krypton.Toolkit.PaletteRelativeAlign.Near;
-            this.kryptonComboBox3.TabIndex = 29;
-            // 
-            // kryptonCheckBox5
-            // 
-            this.kryptonCheckBox5.Location = new System.Drawing.Point(13, 11);
-            this.kryptonCheckBox5.Name = "kryptonCheckBox5";
-            this.kryptonCheckBox5.Palette = this.launcherKryptonPalette;
-            this.kryptonCheckBox5.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonCheckBox5.Size = new System.Drawing.Size(133, 20);
-            this.kryptonCheckBox5.TabIndex = 27;
-            this.kryptonCheckBox5.Values.Text = "8/16 Bit Mitigation";
-            // 
-            // kryptonButton4
-            // 
-            this.kryptonButton4.Location = new System.Drawing.Point(8, 311);
-            this.kryptonButton4.Name = "kryptonButton4";
-            this.kryptonButton4.Palette = this.launcherKryptonPalette;
-            this.kryptonButton4.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonButton4.Size = new System.Drawing.Size(203, 26);
-            this.kryptonButton4.StateCommon.Border.DrawBorders = ((Krypton.Toolkit.PaletteDrawBorders)((((Krypton.Toolkit.PaletteDrawBorders.Top | Krypton.Toolkit.PaletteDrawBorders.Bottom) 
-            | Krypton.Toolkit.PaletteDrawBorders.Left) 
-            | Krypton.Toolkit.PaletteDrawBorders.Right)));
-            this.kryptonButton4.StateCommon.Border.Rounding = 4F;
-            this.kryptonButton4.TabIndex = 38;
-            this.kryptonButton4.Values.Text = "My game is working";
-            // 
-            // kryptonButton3
-            // 
-            this.kryptonButton3.Location = new System.Drawing.Point(217, 311);
-            this.kryptonButton3.Name = "kryptonButton3";
-            this.kryptonButton3.Palette = this.launcherKryptonPalette;
-            this.kryptonButton3.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonButton3.Size = new System.Drawing.Size(111, 26);
-            this.kryptonButton3.StateCommon.Border.DrawBorders = ((Krypton.Toolkit.PaletteDrawBorders)((((Krypton.Toolkit.PaletteDrawBorders.Top | Krypton.Toolkit.PaletteDrawBorders.Bottom) 
-            | Krypton.Toolkit.PaletteDrawBorders.Left) 
-            | Krypton.Toolkit.PaletteDrawBorders.Right)));
-            this.kryptonButton3.StateCommon.Border.Rounding = 4F;
-            this.kryptonButton3.TabIndex = 31;
-            this.kryptonButton3.Values.Text = "Auto-detect";
-            // 
-            // kryptonButton2
-            // 
-            this.kryptonButton2.Location = new System.Drawing.Point(272, 70);
-            this.kryptonButton2.Name = "kryptonButton2";
-            this.kryptonButton2.Palette = this.launcherKryptonPalette;
-            this.kryptonButton2.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonButton2.Size = new System.Drawing.Size(37, 25);
-            this.kryptonButton2.StateCommon.Border.DrawBorders = ((Krypton.Toolkit.PaletteDrawBorders)(((Krypton.Toolkit.PaletteDrawBorders.Top | Krypton.Toolkit.PaletteDrawBorders.Bottom) 
-            | Krypton.Toolkit.PaletteDrawBorders.Right)));
-            this.kryptonButton2.StateCommon.Border.Rounding = 4F;
-            this.kryptonButton2.TabIndex = 23;
-            this.kryptonButton2.Values.Text = "...";
-            // 
-            // kryptonGroupBox1
-            // 
-            this.kryptonGroupBox1.Location = new System.Drawing.Point(8, 202);
-            this.kryptonGroupBox1.Name = "kryptonGroupBox1";
-            this.kryptonGroupBox1.Palette = this.launcherKryptonPalette;
-            this.kryptonGroupBox1.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            // 
-            // kryptonGroupBox1.Panel
-            // 
-            this.kryptonGroupBox1.Panel.Controls.Add(this.kryptonButton1);
-            this.kryptonGroupBox1.Panel.Controls.Add(this.kryptonComboBox1);
-            this.kryptonGroupBox1.Panel.Controls.Add(this.kryptonLabel1);
-            this.kryptonGroupBox1.Panel.Controls.Add(this.kryptonCheckBox9);
-            this.kryptonGroupBox1.Size = new System.Drawing.Size(320, 103);
-            this.kryptonGroupBox1.TabIndex = 12;
-            this.kryptonGroupBox1.Values.Heading = "DirectX";
-            // 
-            // kryptonButton1
-            // 
-            this.kryptonButton1.Location = new System.Drawing.Point(139, 10);
-            this.kryptonButton1.Name = "kryptonButton1";
-            this.kryptonButton1.Palette = this.launcherKryptonPalette;
-            this.kryptonButton1.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonButton1.Size = new System.Drawing.Size(164, 26);
-            this.kryptonButton1.StateCommon.Border.DrawBorders = ((Krypton.Toolkit.PaletteDrawBorders)((((Krypton.Toolkit.PaletteDrawBorders.Top | Krypton.Toolkit.PaletteDrawBorders.Bottom) 
-            | Krypton.Toolkit.PaletteDrawBorders.Left) 
-            | Krypton.Toolkit.PaletteDrawBorders.Right)));
-            this.kryptonButton1.StateCommon.Border.Rounding = 4F;
-            this.kryptonButton1.TabIndex = 30;
-            this.kryptonButton1.Values.Text = "Open dgVoodoo Settings";
-            // 
-            // kryptonComboBox1
-            // 
-            this.kryptonComboBox1.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
-            this.kryptonComboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.kryptonComboBox1.DropDownWidth = 241;
-            this.kryptonComboBox1.IntegralHeight = false;
-            this.kryptonComboBox1.Items.AddRange(new object[] {
-            "DirectX 9 (GOG)",
-            "DirectX 11 lvl 10 (dgVoodoo)",
-            "DirectX 11 lvl 10.1 (dgVoodoo)",
-            "DirectX 11 lvl 11 (dgVoodoo)",
-            "DirectX 12 lvl 11 (dgVoodoo)",
-            "DirectX 12 lvl 12 (dgVoodoo)"});
-            this.kryptonComboBox1.Location = new System.Drawing.Point(69, 45);
-            this.kryptonComboBox1.Name = "kryptonComboBox1";
-            this.kryptonComboBox1.Palette = this.launcherKryptonPalette;
-            this.kryptonComboBox1.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonComboBox1.Size = new System.Drawing.Size(234, 23);
-            this.kryptonComboBox1.StateCommon.ComboBox.Content.TextH = Krypton.Toolkit.PaletteRelativeAlign.Near;
-            this.kryptonComboBox1.TabIndex = 29;
-            // 
-            // kryptonLabel1
-            // 
-            this.kryptonLabel1.Location = new System.Drawing.Point(13, 48);
-            this.kryptonLabel1.Name = "kryptonLabel1";
-            this.kryptonLabel1.Palette = this.launcherKryptonPalette;
-            this.kryptonLabel1.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonLabel1.Size = new System.Drawing.Size(50, 20);
-            this.kryptonLabel1.TabIndex = 28;
-            this.kryptonLabel1.Values.Text = "DirectX";
-            // 
-            // kryptonCheckBox9
-            // 
-            this.kryptonCheckBox9.Location = new System.Drawing.Point(13, 13);
-            this.kryptonCheckBox9.Name = "kryptonCheckBox9";
-            this.kryptonCheckBox9.Palette = this.launcherKryptonPalette;
-            this.kryptonCheckBox9.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonCheckBox9.Size = new System.Drawing.Size(117, 20);
-            this.kryptonCheckBox9.TabIndex = 27;
-            this.kryptonCheckBox9.Values.Text = "DirecX Wrapper";
-            // 
-            // kryptonLabel5
-            // 
-            this.kryptonLabel5.Location = new System.Drawing.Point(10, 73);
-            this.kryptonLabel5.Name = "kryptonLabel5";
-            this.kryptonLabel5.Palette = this.launcherKryptonPalette;
-            this.kryptonLabel5.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonLabel5.Size = new System.Drawing.Size(70, 20);
-            this.kryptonLabel5.TabIndex = 37;
-            this.kryptonLabel5.Values.Text = "Game Font";
-            // 
-            // kryptonTextBox2
-            // 
-            this.kryptonTextBox2.Location = new System.Drawing.Point(95, 70);
-            this.kryptonTextBox2.Name = "kryptonTextBox2";
-            this.kryptonTextBox2.Palette = this.launcherKryptonPalette;
-            this.kryptonTextBox2.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonTextBox2.Size = new System.Drawing.Size(214, 25);
-            this.kryptonTextBox2.TabIndex = 36;
-            // 
-            // kryptonComboBox5
-            // 
-            this.kryptonComboBox5.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
-            this.kryptonComboBox5.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.kryptonComboBox5.DropDownWidth = 212;
-            this.kryptonComboBox5.IntegralHeight = false;
-            this.kryptonComboBox5.Location = new System.Drawing.Point(95, 41);
-            this.kryptonComboBox5.Name = "kryptonComboBox5";
-            this.kryptonComboBox5.Palette = this.launcherKryptonPalette;
-            this.kryptonComboBox5.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonComboBox5.Size = new System.Drawing.Size(214, 23);
-            this.kryptonComboBox5.StateCommon.ComboBox.Content.TextH = Krypton.Toolkit.PaletteRelativeAlign.Near;
-            this.kryptonComboBox5.TabIndex = 25;
-            // 
-            // kryptonLabel4
-            // 
-            this.kryptonLabel4.Location = new System.Drawing.Point(10, 44);
-            this.kryptonLabel4.Name = "kryptonLabel4";
-            this.kryptonLabel4.Palette = this.launcherKryptonPalette;
-            this.kryptonLabel4.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonLabel4.Size = new System.Drawing.Size(68, 20);
-            this.kryptonLabel4.TabIndex = 24;
-            this.kryptonLabel4.Values.Text = "Resolution";
-            // 
-            // kryptonComboBox4
-            // 
-            this.kryptonComboBox4.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
-            this.kryptonComboBox4.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.kryptonComboBox4.DropDownWidth = 212;
-            this.kryptonComboBox4.IntegralHeight = false;
-            this.kryptonComboBox4.Location = new System.Drawing.Point(95, 12);
-            this.kryptonComboBox4.Name = "kryptonComboBox4";
-            this.kryptonComboBox4.Palette = this.launcherKryptonPalette;
-            this.kryptonComboBox4.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonComboBox4.Size = new System.Drawing.Size(214, 23);
-            this.kryptonComboBox4.StateCommon.ComboBox.Content.TextH = Krypton.Toolkit.PaletteRelativeAlign.Near;
-            this.kryptonComboBox4.TabIndex = 23;
-            // 
-            // kryptonLabel3
-            // 
-            this.kryptonLabel3.Location = new System.Drawing.Point(10, 15);
-            this.kryptonLabel3.Name = "kryptonLabel3";
-            this.kryptonLabel3.Palette = this.launcherKryptonPalette;
-            this.kryptonLabel3.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonLabel3.Size = new System.Drawing.Size(55, 20);
-            this.kryptonLabel3.TabIndex = 22;
-            this.kryptonLabel3.Values.Text = "Monitor";
-            // 
-            // kryptonGroupBox5
-            // 
-            this.kryptonGroupBox5.Location = new System.Drawing.Point(10, 6);
-            this.kryptonGroupBox5.Name = "kryptonGroupBox5";
-            this.kryptonGroupBox5.Palette = this.launcherKryptonPalette;
-            this.kryptonGroupBox5.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            // 
-            // kryptonGroupBox5.Panel
-            // 
-            this.kryptonGroupBox5.Panel.Controls.Add(this.kryptonComboBox2);
-            this.kryptonGroupBox5.Panel.Controls.Add(this.kryptonCheckBox7);
-            this.kryptonGroupBox5.Panel.Controls.Add(this.kryptonCheckBox4);
-            this.kryptonGroupBox5.Panel.Controls.Add(this.kryptonCheckBox1);
-            this.kryptonGroupBox5.Panel.Controls.Add(this.kryptonCheckBox3);
-            this.kryptonGroupBox5.Panel.Controls.Add(this.kryptonCheckBox2);
-            this.kryptonGroupBox5.Size = new System.Drawing.Size(188, 235);
-            this.kryptonGroupBox5.TabIndex = 16;
-            this.kryptonGroupBox5.Values.Heading = "Advanced Settings";
-            // 
-            // kryptonComboBox2
-            // 
-            this.kryptonComboBox2.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
-            this.kryptonComboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.kryptonComboBox2.DropDownWidth = 77;
-            this.kryptonComboBox2.IntegralHeight = false;
-            this.kryptonComboBox2.Items.AddRange(new object[] {
-            "1.03",
-            "2.01",
-            "3.16 beta"});
-            this.kryptonComboBox2.Location = new System.Drawing.Point(97, 12);
-            this.kryptonComboBox2.Name = "kryptonComboBox2";
-            this.kryptonComboBox2.Palette = this.launcherKryptonPalette;
-            this.kryptonComboBox2.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonComboBox2.Size = new System.Drawing.Size(79, 23);
-            this.kryptonComboBox2.StateCommon.ComboBox.Content.TextH = Krypton.Toolkit.PaletteRelativeAlign.Near;
-            this.kryptonComboBox2.TabIndex = 23;
-            // 
-            // kryptonCheckBox7
-            // 
-            this.kryptonCheckBox7.Location = new System.Drawing.Point(13, 14);
-            this.kryptonCheckBox7.Name = "kryptonCheckBox7";
-            this.kryptonCheckBox7.Palette = this.launcherKryptonPalette;
-            this.kryptonCheckBox7.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonCheckBox7.Size = new System.Drawing.Size(81, 20);
-            this.kryptonCheckBox7.TabIndex = 18;
-            this.kryptonCheckBox7.Values.Text = "dreXmod";
-            // 
-            // kryptonCheckBox4
-            // 
-            this.kryptonCheckBox4.Location = new System.Drawing.Point(13, 106);
-            this.kryptonCheckBox4.Name = "kryptonCheckBox4";
-            this.kryptonCheckBox4.Palette = this.launcherKryptonPalette;
-            this.kryptonCheckBox4.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonCheckBox4.Size = new System.Drawing.Size(150, 20);
-            this.kryptonCheckBox4.TabIndex = 17;
-            this.kryptonCheckBox4.Values.Text = "NeoEE (Online Lobby)";
-            // 
-            // kryptonCheckBox1
-            // 
-            this.kryptonCheckBox1.Location = new System.Drawing.Point(13, 76);
-            this.kryptonCheckBox1.Name = "kryptonCheckBox1";
-            this.kryptonCheckBox1.Palette = this.launcherKryptonPalette;
-            this.kryptonCheckBox1.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonCheckBox1.Size = new System.Drawing.Size(124, 20);
-            this.kryptonCheckBox1.TabIndex = 16;
-            this.kryptonCheckBox1.Values.Text = "Discord Presence";
-            // 
-            // kryptonCheckBox3
-            // 
-            this.kryptonCheckBox3.Location = new System.Drawing.Point(13, 136);
-            this.kryptonCheckBox3.Name = "kryptonCheckBox3";
-            this.kryptonCheckBox3.Palette = this.launcherKryptonPalette;
-            this.kryptonCheckBox3.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonCheckBox3.Size = new System.Drawing.Size(97, 20);
-            this.kryptonCheckBox3.TabIndex = 15;
-            this.kryptonCheckBox3.Values.Text = "HD Textures";
-            // 
-            // kryptonCheckBox2
-            // 
-            this.kryptonCheckBox2.Location = new System.Drawing.Point(13, 46);
-            this.kryptonCheckBox2.Name = "kryptonCheckBox2";
-            this.kryptonCheckBox2.Palette = this.launcherKryptonPalette;
-            this.kryptonCheckBox2.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.kryptonCheckBox2.Size = new System.Drawing.Size(83, 20);
-            this.kryptonCheckBox2.TabIndex = 14;
-            this.kryptonCheckBox2.Values.Text = "Skip Intro";
             // 
             // compatibilityWarningKryptonWrapLabel
             // 
@@ -600,7 +384,7 @@ namespace Empire_Earth_Launcher
             this.compatibilityWarningKryptonWrapLabel.Palette = this.launcherKryptonPalette;
             this.compatibilityWarningKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.compatibilityWarningKryptonWrapLabel.Size = new System.Drawing.Size(310, 222);
-            this.compatibilityWarningKryptonWrapLabel.Text = resources.GetString("compatibilityWarningKryptonWrapLabel.Text");
+            this.compatibilityWarningKryptonWrapLabel.Text = "Compatibility warning";
             this.compatibilityWarningKryptonWrapLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // compatibilityWarningConfirmationKryptonButton
@@ -618,99 +402,158 @@ namespace Empire_Earth_Launcher
             this.compatibilityWarningConfirmationKryptonButton.Values.Text = "Confirm";
             this.compatibilityWarningConfirmationKryptonButton.Click += new System.EventHandler(this.compatibilityWarningConfirmationKryptonButton_Click);
             // 
-            // pictureBox1
+            // compatibilityWarningPictureBox
             // 
-            this.pictureBox1.BackColor = System.Drawing.Color.Transparent;
-            this.pictureBox1.Image = global::Empire_Earth_Launcher.Properties.Resources.ee_book;
-            this.pictureBox1.Location = new System.Drawing.Point(10, 8);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(310, 66);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox1.TabIndex = 13;
-            this.pictureBox1.TabStop = false;
+            this.compatibilityWarningPictureBox.BackColor = System.Drawing.Color.Transparent;
+            this.compatibilityWarningPictureBox.Image = global::Empire_Earth_Launcher.Properties.Resources.ee_book;
+            this.compatibilityWarningPictureBox.Location = new System.Drawing.Point(10, 8);
+            this.compatibilityWarningPictureBox.Name = "compatibilityWarningPictureBox";
+            this.compatibilityWarningPictureBox.Size = new System.Drawing.Size(66, 66);
+            this.compatibilityWarningPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.compatibilityWarningPictureBox.TabIndex = 13;
+            this.compatibilityWarningPictureBox.TabStop = false;
+            // 
+            // dwm8And16BitMitigationKryptonCheckBox
+            // 
+            this.dwm8And16BitMitigationKryptonCheckBox.AutoSize = false;
+            this.dwm8And16BitMitigationKryptonCheckBox.Location = new System.Drawing.Point(12, 392);
+            this.dwm8And16BitMitigationKryptonCheckBox.Name = "dwm8And16BitMitigationKryptonCheckBox";
+            this.dwm8And16BitMitigationKryptonCheckBox.Palette = this.launcherKryptonPalette;
+            this.dwm8And16BitMitigationKryptonCheckBox.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.dwm8And16BitMitigationKryptonCheckBox.Size = new System.Drawing.Size(505, 22);
+            this.dwm8And16BitMitigationKryptonCheckBox.TabIndex = 0;
+            this.dwm8And16BitMitigationKryptonCheckBox.Values.Text = "DWM8And16BitMitigation";
+            this.dwm8And16BitMitigationKryptonCheckBox.Visible = false;
+            this.dwm8And16BitMitigationKryptonCheckBox.CheckedChanged += new System.EventHandler(this.compatibilityKryptonCheckBox_CheckedChanged);
+
+            // 
+            // highDpiAwareKryptonCheckBox
+            // 
+            this.highDpiAwareKryptonCheckBox.AutoSize = false;
+            this.highDpiAwareKryptonCheckBox.Location = new System.Drawing.Point(12, 416);
+            this.highDpiAwareKryptonCheckBox.Name = "highDpiAwareKryptonCheckBox";
+            this.highDpiAwareKryptonCheckBox.Palette = this.launcherKryptonPalette;
+            this.highDpiAwareKryptonCheckBox.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.highDpiAwareKryptonCheckBox.Size = new System.Drawing.Size(505, 22);
+            this.highDpiAwareKryptonCheckBox.TabIndex = 0;
+            this.highDpiAwareKryptonCheckBox.Values.Text = "HIGHDPIAWARE";
+            this.highDpiAwareKryptonCheckBox.Visible = false;
+            this.highDpiAwareKryptonCheckBox.CheckedChanged += new System.EventHandler(this.compatibilityKryptonCheckBox_CheckedChanged);
+
+            // 
+            // heapClearAllocationKryptonCheckBox
+            // 
+            this.heapClearAllocationKryptonCheckBox.AutoSize = false;
+            this.heapClearAllocationKryptonCheckBox.Location = new System.Drawing.Point(12, 440);
+            this.heapClearAllocationKryptonCheckBox.Name = "heapClearAllocationKryptonCheckBox";
+            this.heapClearAllocationKryptonCheckBox.Palette = this.launcherKryptonPalette;
+            this.heapClearAllocationKryptonCheckBox.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.heapClearAllocationKryptonCheckBox.Size = new System.Drawing.Size(505, 22);
+            this.heapClearAllocationKryptonCheckBox.TabIndex = 0;
+            this.heapClearAllocationKryptonCheckBox.Values.Text = "HeapClearAllocation";
+            this.heapClearAllocationKryptonCheckBox.Visible = false;
+            this.heapClearAllocationKryptonCheckBox.CheckedChanged += new System.EventHandler(this.compatibilityKryptonCheckBox_CheckedChanged);
+
+            // 
+            // windows7ModeKryptonCheckBox
+            // 
+            this.windows7ModeKryptonCheckBox.AutoSize = false;
+            this.windows7ModeKryptonCheckBox.Location = new System.Drawing.Point(12, 464);
+            this.windows7ModeKryptonCheckBox.Name = "windows7ModeKryptonCheckBox";
+            this.windows7ModeKryptonCheckBox.Palette = this.launcherKryptonPalette;
+            this.windows7ModeKryptonCheckBox.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.windows7ModeKryptonCheckBox.Size = new System.Drawing.Size(505, 22);
+            this.windows7ModeKryptonCheckBox.TabIndex = 0;
+            this.windows7ModeKryptonCheckBox.Values.Text = "WIN7RTM";
+            this.windows7ModeKryptonCheckBox.Visible = false;
+            this.windows7ModeKryptonCheckBox.CheckedChanged += new System.EventHandler(this.compatibilityKryptonCheckBox_CheckedChanged);
+
+            // 
+            // compatibilityInfoKryptonWrapLabel
+            // 
+            this.compatibilityInfoKryptonWrapLabel.AutoSize = false;
+            this.compatibilityInfoKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.compatibilityInfoKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.compatibilityInfoKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
+            this.compatibilityInfoKryptonWrapLabel.Location = new System.Drawing.Point(12, 490);
+            this.compatibilityInfoKryptonWrapLabel.Name = "compatibilityInfoKryptonWrapLabel";
+            this.compatibilityInfoKryptonWrapLabel.Palette = this.launcherKryptonPalette;
+            this.compatibilityInfoKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.compatibilityInfoKryptonWrapLabel.Size = new System.Drawing.Size(505, 50);
+            this.compatibilityInfoKryptonWrapLabel.Text = "";
+
+            // 
+            // removeRunAsAdminKryptonButton
+            // 
+            this.removeRunAsAdminKryptonButton.Location = new System.Drawing.Point(12, 544);
+            this.removeRunAsAdminKryptonButton.Name = "removeRunAsAdminKryptonButton";
+            this.removeRunAsAdminKryptonButton.Palette = this.launcherKryptonPalette;
+            this.removeRunAsAdminKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.removeRunAsAdminKryptonButton.Size = new System.Drawing.Size(300, 28);
+            this.removeRunAsAdminKryptonButton.TabIndex = 0;
+            this.removeRunAsAdminKryptonButton.Values.Text = "Remove Run as administrator";
+            this.removeRunAsAdminKryptonButton.Visible = false;
+            this.removeRunAsAdminKryptonButton.Click += new System.EventHandler(this.removeRunAsAdminKryptonButton_Click);
+
+            // 
+            // compatibilityResultKryptonWrapLabel
+            // 
+            this.compatibilityResultKryptonWrapLabel.AutoSize = false;
+            this.compatibilityResultKryptonWrapLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.compatibilityResultKryptonWrapLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.compatibilityResultKryptonWrapLabel.LabelStyle = Krypton.Toolkit.LabelStyle.NormalControl;
+            this.compatibilityResultKryptonWrapLabel.Location = new System.Drawing.Point(12, 578);
+            this.compatibilityResultKryptonWrapLabel.Name = "compatibilityResultKryptonWrapLabel";
+            this.compatibilityResultKryptonWrapLabel.Palette = this.launcherKryptonPalette;
+            this.compatibilityResultKryptonWrapLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.compatibilityResultKryptonWrapLabel.Size = new System.Drawing.Size(505, 34);
+            this.compatibilityResultKryptonWrapLabel.Text = "";
+            this.compatibilityResultKryptonWrapLabel.Visible = false;
+
             // 
             // SettingsUserControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.compatibilityWarningKryptonPanel);
-            this.Controls.Add(this.kryptonGroupBox4);
-            this.Controls.Add(this.kryptonGroupBox2);
-            this.Controls.Add(this.kryptonGroupBox5);
+            this.Controls.Add(this.gameSettingsScrollPanel);
             this.Name = "SettingsUserControl";
             this.Size = new System.Drawing.Size(554, 380);
+            this.gameSettingsScrollPanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.compatibilityWarningKryptonPanel)).EndInit();
             this.compatibilityWarningKryptonPanel.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonGroupBox4.Panel)).EndInit();
-            this.kryptonGroupBox4.Panel.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonGroupBox4)).EndInit();
-            this.kryptonGroupBox4.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonGroupBox2.Panel)).EndInit();
-            this.kryptonGroupBox2.Panel.ResumeLayout(false);
-            this.kryptonGroupBox2.Panel.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonGroupBox2)).EndInit();
-            this.kryptonGroupBox2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonGroupBox3.Panel)).EndInit();
-            this.kryptonGroupBox3.Panel.ResumeLayout(false);
-            this.kryptonGroupBox3.Panel.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonGroupBox3)).EndInit();
-            this.kryptonGroupBox3.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonComboBox3)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonGroupBox1.Panel)).EndInit();
-            this.kryptonGroupBox1.Panel.ResumeLayout(false);
-            this.kryptonGroupBox1.Panel.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonGroupBox1)).EndInit();
-            this.kryptonGroupBox1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonComboBox1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonComboBox5)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonComboBox4)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonGroupBox5.Panel)).EndInit();
-            this.kryptonGroupBox5.Panel.ResumeLayout(false);
-            this.kryptonGroupBox5.Panel.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonGroupBox5)).EndInit();
-            this.kryptonGroupBox5.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.kryptonComboBox2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.compatibilityWarningPictureBox)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
         private Krypton.Toolkit.KryptonPalette launcherKryptonPalette;
+        private System.Windows.Forms.Panel gameSettingsScrollPanel;
+        private Krypton.Toolkit.KryptonLabel defaultsHeadingKryptonLabel;
+        private Empire_Earth_Launcher.LauncherWrapLabel installationKryptonWrapLabel;
+        private Empire_Earth_Launcher.LauncherWrapLabel defaultsStatusKryptonWrapLabel;
+        private Empire_Earth_Launcher.LauncherWrapLabel displayQuestionKryptonWrapLabel;
+        private Krypton.Toolkit.KryptonButton displayQuestionApplyKryptonButton;
+        private Krypton.Toolkit.KryptonButton displayQuestionKeepKryptonButton;
+        private Krypton.Toolkit.KryptonButton applyDisplayKryptonButton;
+        private Krypton.Toolkit.KryptonButton resetGameSettingsKryptonButton;
+        private Empire_Earth_Launcher.LauncherWrapLabel confirmKryptonWrapLabel;
+        private Krypton.Toolkit.KryptonButton confirmYesKryptonButton;
+        private Krypton.Toolkit.KryptonButton confirmNoKryptonButton;
+        private Empire_Earth_Launcher.LauncherWrapLabel resultKryptonWrapLabel;
+        private Krypton.Toolkit.KryptonLabel hintsHeadingKryptonLabel;
+        private Empire_Earth_Launcher.LauncherWrapLabel hintsNoneKryptonWrapLabel;
+        private Krypton.Toolkit.KryptonLabel compatibilityHeadingKryptonLabel;
+        private Krypton.Toolkit.KryptonCheckBox dwm8And16BitMitigationKryptonCheckBox;
+        private Krypton.Toolkit.KryptonCheckBox highDpiAwareKryptonCheckBox;
+        private Krypton.Toolkit.KryptonCheckBox heapClearAllocationKryptonCheckBox;
+        private Krypton.Toolkit.KryptonCheckBox windows7ModeKryptonCheckBox;
+        private Empire_Earth_Launcher.LauncherWrapLabel compatibilityInfoKryptonWrapLabel;
+        private Krypton.Toolkit.KryptonButton removeRunAsAdminKryptonButton;
+        private Empire_Earth_Launcher.LauncherWrapLabel compatibilityResultKryptonWrapLabel;
         private Krypton.Toolkit.KryptonPanel compatibilityWarningKryptonPanel;
-        private Krypton.Toolkit.KryptonGroupBox kryptonGroupBox4;
-        private Krypton.Toolkit.KryptonButton kryptonButton7;
-        private Krypton.Toolkit.KryptonButton kryptonButton6;
-        private Krypton.Toolkit.KryptonButton kryptonButton5;
-        private Krypton.Toolkit.KryptonGroupBox kryptonGroupBox2;
-        private Krypton.Toolkit.KryptonGroupBox kryptonGroupBox3;
-        private Krypton.Toolkit.KryptonCheckBox kryptonCheckBox8;
-        private Krypton.Toolkit.KryptonCheckBox kryptonCheckBox6;
-        private Krypton.Toolkit.KryptonComboBox kryptonComboBox3;
-        private Krypton.Toolkit.KryptonCheckBox kryptonCheckBox5;
-        private Krypton.Toolkit.KryptonButton kryptonButton4;
-        private Krypton.Toolkit.KryptonButton kryptonButton3;
-        private Krypton.Toolkit.KryptonButton kryptonButton2;
-        private Krypton.Toolkit.KryptonGroupBox kryptonGroupBox1;
-        private Krypton.Toolkit.KryptonButton kryptonButton1;
-        private Krypton.Toolkit.KryptonComboBox kryptonComboBox1;
-        private Krypton.Toolkit.KryptonLabel kryptonLabel1;
-        private Krypton.Toolkit.KryptonCheckBox kryptonCheckBox9;
-        private Krypton.Toolkit.KryptonLabel kryptonLabel5;
-        private Krypton.Toolkit.KryptonTextBox kryptonTextBox2;
-        private Krypton.Toolkit.KryptonComboBox kryptonComboBox5;
-        private Krypton.Toolkit.KryptonLabel kryptonLabel4;
-        private Krypton.Toolkit.KryptonComboBox kryptonComboBox4;
-        private Krypton.Toolkit.KryptonLabel kryptonLabel3;
-        private Krypton.Toolkit.KryptonGroupBox kryptonGroupBox5;
-        private Krypton.Toolkit.KryptonComboBox kryptonComboBox2;
-        private Krypton.Toolkit.KryptonCheckBox kryptonCheckBox7;
-        private Krypton.Toolkit.KryptonCheckBox kryptonCheckBox4;
-        private Krypton.Toolkit.KryptonCheckBox kryptonCheckBox1;
-        private Krypton.Toolkit.KryptonCheckBox kryptonCheckBox3;
-        private Krypton.Toolkit.KryptonCheckBox kryptonCheckBox2;
-        private System.Windows.Forms.PictureBox pictureBox1;
-        private Krypton.Toolkit.KryptonWrapLabel compatibilityWarningKryptonWrapLabel;
+        private System.Windows.Forms.PictureBox compatibilityWarningPictureBox;
+        private Empire_Earth_Launcher.LauncherWrapLabel compatibilityWarningKryptonWrapLabel;
         private Krypton.Toolkit.KryptonButton compatibilityWarningConfirmationKryptonButton;
     }
 }

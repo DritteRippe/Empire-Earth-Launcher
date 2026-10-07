@@ -1,0 +1,59 @@
+name: Bug report
+description: Something does not work in the launcher or the suite installer
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for the report. **Never attach game files, CD keys or the private package.** Read logs and the
+        diagnostics report before you post them.
+  - type: input
+    id: version
+    attributes:
+      label: Version of the suite and the launcher
+      description: The version of the launcher and, if you used it, of the suite installer.
+      placeholder: "Suite 1.1.0, launcher 1.1.0"
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: "Windows 11 23H2, 64-bit"
+    validations:
+      required: true
+  - type: textarea
+    id: happened
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        Paste the relevant lines, or attach the file as `.txt` or `.log` (drag it into this box).
+
+        - Launcher: the lines of `%LOCALAPPDATA%\Empire Earth Launcher\log.txt` around the problem, and the diagnostics
+          report (Tools page, "Copy report" or "Save report...").
+        - Suite installer or a setup started on its own: `%TEMP%\Setup Log <date> #<n>.txt` (if Windows asked for the
+          password of an administrator account, it is in that account's `%TEMP%`).
+        - Game setups started by the suite installer: `Logs\EE-<yyyyMMdd-HHmm>.log` and `Logs\NeoEE-<yyyyMMdd-HHmm>.log`
+          in the folder of the suite (by default `C:\Program Files\Empire Earth Community\Logs`).
+
+        Bugs of the setups themselves belong in the issues of the setup repository.
+  - type: checkboxes
+    id: owner
+    attributes:
+      label: Original game
+      options:
+        - label: I own the original game.
+          required: true

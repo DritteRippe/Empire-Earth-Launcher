@@ -1,7 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace Empire_Earth_Mod_Lib
 {
@@ -9,14 +7,19 @@ namespace Empire_Earth_Mod_Lib
     {
         
         /// <summary>
+        /// The [Description] is the name shown to the user (see <see cref="EnumExtensions.GetDescription"/>).
         /// Version are using big numbers in case we want to add another version
-        /// and still being able to compare with < and > operators.
+        /// and still being able to compare with &lt; and &gt; operators.
         /// Because ModData will store the version as number, changing the order will result
         /// in an invalid version or invalid comparison.
         /// </summary>
         public enum WindowsVersionEnum
         {
             [Description("Error")] Error = 0,
+            /// <summary>
+            /// Reserved: Wine is not detected yet (TODO), <see cref="GetCurrentWindowsVersion"/> reports the
+            /// Windows version that Wine emulates. Kept because mod data stores the number.
+            /// </summary>
             [Description("Wine")] Wine = 1,
             [Description("Windows 95")] W95 = 100,
             [Description("Windows 98")] W98 = 200,
@@ -31,29 +34,16 @@ namespace Empire_Earth_Mod_Lib
             [Description("Windows 11")] Eleven = 1100
         }
 
-        [DllImport("kernel32.dll", CharSet=CharSet.Auto, SetLastError=true)]
-        private static extern IntPtr GetModuleHandle(string lpModuleName);
-
-        [DllImport("kernel32.dll", CharSet=CharSet.Auto, ExactSpelling=true, SetLastError=true)]
-        private static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
-
-        /**
-         * Don't forget to add Windows 10 in supportedOS in app.manifest or
-         * it will not be able to detect it
-         *
-         * Microsoft est pas foutu de faire un truc pour identifier la version de Windows...
-         * A little dirty I know but It support all versions :V
-         */
+        /// <summary>
+        /// Windows version the process runs on, from <see cref="Environment.OSVersion"/>.
+        /// </summary>
+        /// <remarks>
+        /// Windows has no reliable API for its own version: without Windows 8.1/10 in the supportedOS list of
+        /// the application manifest, newer versions report themselves as Windows 8. The app.manifest of the
+        /// executable must therefore list every supported version.
+        /// </remarks>
         public static WindowsVersionEnum GetCurrentWindowsVersion()
         {
-            // Based from isWine (https://github.com/zocker-160/isWINE/blob/master/isWINE_dll/isWINE.cpp)
-            // Don't seems to work sadly...
-            /*
-            IntPtr ntPtr = GetModuleHandle("ntdll.dll");
-            if (ntPtr != IntPtr.Zero && GetProcAddress(ntPtr, "wine_get_version") != IntPtr.Zero)
-                return WindowsVersionEnum.Wine; // Not working for some reasons for the moment
-            */
-
             OperatingSystem operatingSystem = Environment.OSVersion;
 
             switch (operatingSystem.Platform)
@@ -90,7 +80,7 @@ namespace Empire_Earth_Mod_Lib
                                     return WindowsVersionEnum.Seven;
                                 default:
                                 {
-                                    return operatingSystem.Version.Minor is 2 or 3 ?
+                                    return operatingSystem.Version.Minor == 2 || operatingSystem.Version.Minor == 3 ?
                                         WindowsVersionEnum.Eight : WindowsVersionEnum.Error;
                                 }
                             }
@@ -104,15 +94,6 @@ namespace Empire_Earth_Mod_Lib
                 default:
                     return WindowsVersionEnum.Error;
             }
-        }
-
-        public static string GetWindowsVersionName(WindowsVersionEnum value)
-        {
-            DescriptionAttribute attribute = value.GetType()
-                .GetField(value.ToString())
-                .GetCustomAttributes(typeof(DescriptionAttribute), false)
-                .SingleOrDefault() as DescriptionAttribute;
-            return attribute == null ? value.ToString() : attribute.Description;
         }
     }
 }

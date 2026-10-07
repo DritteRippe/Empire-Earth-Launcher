@@ -1,0 +1,486 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Empire_Earth_Launcher.Core.Logging;
+using Empire_Earth_Launcher.Core.Platform;
+using Empire_Earth_Launcher.Core.Settings;
+using Empire_Earth_Launcher.Tests.Fakes;
+using NUnit.Framework;
+
+namespace Empire_Earth_Launcher.Tests.Core.Settings
+{
+    /// <summary>
+    /// <c>settings.json</c> (<see cref="SettingsStore"/>, ADR 0005), including the scenarios of the removed
+    /// <c>UserSettingsRecoveryTests</c> (damaged file moved aside, older copy replaced, a file that cannot be
+    /// handled left alone) and the behaviour a settings file of a newer launcher needs.
+    /// </summary>
+    [TestFixture]
+    public class SettingsStoreTests
+    {
+        private const string Folder = @"C:\Users\Player\AppData\Local\Empire Earth Launcher";
+        private const string File = Folder + @"\settings.json";
+        private const string DamagedFile = File + ".damaged";
+
+        private const string ValidJson =
+            "{\"SchemaVersion\":1,\"GameDirectory\":\"D:\\\\Spiele\\\\Empire Earth\",\"ThemeName\":\"Dark\",\"CustomThemeFile\":\"\"}";
+
+        private InMemoryFileSystem fileSystem;
+        private RecordingLogger logger;
+        private SettingsStore store;
+
+        [SetUp]
+        public void SetUp()
+        {
+            fileSystem = new InMemoryFileSystem();
+            fileSystem.AddDirectory(Folder);
+            logger = new RecordingLogger();
+            store = new SettingsStore(fileSystem, File, logger);
+        }
+
+        private static void AssertDefaults(LauncherSettings settings)
+        {
+            Assert.That(settings.GameDirectory, Is.Empty);
+            Assert.That(settings.ThemeName, Is.EqualTo("Light"));
+            Assert.That(settings.CustomThemeFile, Is.Empty);
+            Assert.That(settings.UiCulture, Is.Empty, "the Windows language");
+            Assert.That(settings.LastGame, Is.Empty, "Empire Earth");
+            Assert.That(settings.LastProduct, Is.Empty, "the default selection of contract 1.4");
+            Assert.That(settings.ProductFolders, Is.Empty);
+            Assert.That(settings.SchemaVersion, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void MissingFile_DefaultsAreUsed_AndNothingIsCreated()
+        {
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.NotFound));
+
+            AssertDefaults(store.Current);
+            Assert.That(store.CanSave, Is.True);
+            Assert.That(fileSystem.AllFiles, Is.Empty);
+            Assert.That(logger.MessagesOf(LogLevel.Error), Is.Empty);
+        }
+
+        [Test]
+        public void ValidFile_IsLoaded_AndNothingIsChanged()
+        {
+            fileSystem.AddFile(File, ValidJson);
+
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Loaded));
+
+            Assert.That(store.Current.GameDirectory, Is.EqualTo(@"D:\Spiele\Empire Earth"));
+            Assert.That(store.Current.ThemeName, Is.EqualTo("Dark"));
+            Assert.That(fileSystem.GetText(File), Is.EqualTo(ValidJson));
+            Assert.That(fileSystem.AllFiles, Is.EqualTo(new[] { File }));
+            Assert.That(logger.MessagesOf(LogLevel.Error), Is.Empty);
+            Assert.That(logger.MessagesOf(LogLevel.Warning), Is.Empty);
+        }
+
+        [Test]
+        public void DamagedFile_IsMovedAside_AndTheDefaultsAreUsed()
+        {
+            const string damaged = "{\"SchemaVersion\":1,\"ThemeName\":\"Da";
+            fileSystem.AddFile(File, damaged);
+
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Damaged));
+
+            AssertDefaults(store.Current);
+            Assert.That(fileSystem.FileExists(File), Is.False);
+            Assert.That(fileSystem.GetText(DamagedFile), Is.EqualTo(damaged));
+            Assert.That(logger.MessagesOf(LogLevel.Error), Has.Count.EqualTo(1));
+            Assert.That(logger.MessagesOf(LogLevel.Error)[0], Does.Contain(DamagedFile));
+
+            // The settings work again: a change is saved into a new file.
+            store.Current.ThemeName = "Blue";
+            Assert.That(store.Save(), Is.EqualTo(SettingsSaveStatus.Saved));
+            Assert.That(new SettingsStore(fileSystem, File, logger).LoadAndGet().ThemeName, Is.EqualTo("Blue"));
+        }
+
+        [Test]
+        public void TheBuiltInColors_AreSavedAndLoaded()
+        {
+            store.Current.ThemeName = LauncherSettings.BuiltInThemeName;
+            Assert.That(store.Save(), Is.EqualTo(SettingsSaveStatus.Saved));
+
+            Assert.That(new SettingsStore(fileSystem, File, logger).LoadAndGet().ThemeName,
+                Is.EqualTo(LauncherSettings.BuiltInThemeName));
+        }
+
+        [Test]
+        public void OlderDamagedCopy_IsReplaced()
+        {
+            fileSystem.AddFile(DamagedFile, "old copy");
+            fileSystem.AddFile(File, "new damage");
+
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Damaged));
+
+            Assert.That(fileSystem.GetText(DamagedFile), Is.EqualTo("new damage"));
+            Assert.That(fileSystem.AllFiles, Is.EqualTo(new[] { DamagedFile }));
+        }
+
+        [Test]
+        public void DamagedFileThatCannotBeMovedAside_DefaultsAreUsedAndItIsLogged()
+        {
+            fileSystem.AddFile(File, "{");
+            fileSystem.FailOn(File, FileSystemOperation.Move, FileSystemStatus.AccessDenied);
+
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Damaged));
+
+            AssertDefaults(store.Current);
+            Assert.That(fileSystem.GetText(File), Is.EqualTo("{"));
+            Assert.That(logger.MessagesOf(LogLevel.Error).Single(), Does.Contain("Unable to keep the damaged file"));
+        }
+
+        [Test]
+        public void UnreadableFile_IsNeverOverwritten()
+        {
+            // Like a user.config error without a file name before: nothing is moved, nothing is lost.
+            fileSystem.AddFile(File, ValidJson);
+            fileSystem.FailOn(File, FileSystemOperation.Read, FileSystemStatus.AccessDenied);
+
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Unreadable));
+            AssertDefaults(store.Current);
+            Assert.That(store.CanSave, Is.False);
+
+            store.Current.ThemeName = "Blue";
+            Assert.That(store.Save(), Is.EqualTo(SettingsSaveStatus.NotSaved));
+
+            Assert.That(fileSystem.GetText(File), Is.EqualTo(ValidJson));
+            Assert.That(fileSystem.FileExists(DamagedFile), Is.False);
+            Assert.That(logger.MessagesOf(LogLevel.Error), Has.Count.EqualTo(1));
+            Assert.That(logger.MessagesOf(LogLevel.Warning), Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void FileOfANewerLauncher_IsNotOverwritten()
+        {
+            const string newer = "{\"SchemaVersion\":2,\"Theme\":{\"Name\":\"Dark\"}}";
+            fileSystem.AddFile(File, newer);
+
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.NewerSchema));
+            AssertDefaults(store.Current);
+
+            store.Current.GameDirectory = @"C:\Games";
+            Assert.That(store.Save(), Is.EqualTo(SettingsSaveStatus.NotSaved));
+            Assert.That(fileSystem.GetText(File), Is.EqualTo(newer));
+            Assert.That(logger.MessagesOf(LogLevel.Warning)[0], Does.Contain("newer launcher"));
+        }
+
+        public static IEnumerable<TestCaseData> DamagedContents()
+        {
+            yield return new TestCaseData(new byte[0]).SetName("Damaged(empty)");
+            yield return new TestCaseData(Bytes("{")).SetName("Damaged(open brace)");
+            yield return new TestCaseData(Bytes("null")).SetName("Damaged(null)");
+            yield return new TestCaseData(Bytes("[]")).SetName("Damaged(array)");
+            yield return new TestCaseData(Bytes("42")).SetName("Damaged(number)");
+            yield return new TestCaseData(Bytes("{}")).SetName("Damaged(no schema version)");
+            yield return new TestCaseData(Bytes("{\"SchemaVersion\":0}")).SetName("Damaged(schema version 0)");
+            yield return new TestCaseData(Bytes("{\"SchemaVersion\":\"one\"}")).SetName("Damaged(schema version text)");
+            yield return new TestCaseData(Bytes("{\"SchemaVersion\":99999999999}")).SetName("Damaged(schema version overflow)");
+            yield return new TestCaseData(Bytes("{\"SchemaVersion\":1} trailing")).SetName("Damaged(trailing text)");
+            yield return new TestCaseData(Bytes("{\"SchemaVersion\":1,\"ThemeName\":\"a\",\"ThemeName\":\"b\"}")).SetName("Damaged(duplicate member)");
+            yield return new TestCaseData(new byte[] { 0, 1, 2, 0xFF, 0xFE, 3 }).SetName("Damaged(binary)");
+            yield return new TestCaseData(new byte[] { (byte)'{', (byte)'"', (byte)'x', (byte)'"', (byte)':', (byte)'"', 0xFC, (byte)'"', (byte)'}' })
+                .SetName("Damaged(invalid UTF-8)");
+            yield return new TestCaseData(Bytes("{\"SchemaVersion\":1,\"GameDirectory\":\"" + new string('x', (int)SettingsStore.MaxFileBytes) + "\"}"))
+                .SetName("Damaged(larger than 1 MiB)");
+        }
+
+        [TestCaseSource(nameof(DamagedContents))]
+        public void DamagedContent_IsMovedAside(byte[] content)
+        {
+            fileSystem.AddFile(File, content);
+
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Damaged));
+
+            AssertDefaults(store.Current);
+            Assert.That(fileSystem.GetContent(DamagedFile), Is.EqualTo(content));
+            Assert.That(fileSystem.FileExists(File), Is.False);
+        }
+
+        [Test]
+        public void AnyContent_NeverThrows()
+        {
+            // Truncated and randomly changed versions of a valid file: always a status, never an exception.
+            byte[] valid = Bytes(ValidJson);
+            var random = new Random(1);
+            for (int i = 0; i < 400; i++)
+            {
+                byte[] content = valid.Take(random.Next(valid.Length + 1)).ToArray();
+                if (i % 2 == 1 && content.Length > 0)
+                    content[random.Next(content.Length)] = (byte)random.Next(256);
+                fileSystem.AddFile(File, content);
+
+                SettingsLoadStatus status = SettingsLoadStatus.Unreadable;
+                Assert.That(() => status = store.Load(), Throws.Nothing, "content: " + BitConverter.ToString(content));
+                Assert.That(status, Is.EqualTo(SettingsLoadStatus.Loaded).Or.EqualTo(SettingsLoadStatus.Damaged)
+                    .Or.EqualTo(SettingsLoadStatus.NewerSchema));
+                Assert.That(store.Current, Is.Not.Null);
+            }
+        }
+
+        [Test]
+        public void FileWithBom_IsLoaded()
+        {
+            fileSystem.AddFile(File, new byte[] { 0xEF, 0xBB, 0xBF }.Concat(Bytes(ValidJson)).ToArray());
+
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Loaded));
+            Assert.That(store.Current.ThemeName, Is.EqualTo("Dark"));
+        }
+
+        [Test]
+        public void MissingAndNullMembers_GetTheirDefaults()
+        {
+            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"ThemeName\":null,\"CustomThemeFile\":null,\"UiCulture\":null}");
+
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Loaded));
+            AssertDefaults(store.Current);
+        }
+
+        [Test]
+        public void UnknownMembers_SurviveASave()
+        {
+            // A newer launcher with the same schema version added members; this launcher keeps them.
+            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"FavoriteMap\":\"Earth\",\"HiddenWarnings\":[{\"Name\":\"Game Bit Depth\",\"Value\":\"16\"}],\"ThemeName\":\"Dark\"}");
+            store.Load();
+
+            store.Current.ThemeName = "Blue";
+            Assert.That(store.Save(), Is.EqualTo(SettingsSaveStatus.Saved));
+
+            string saved = fileSystem.GetText(File);
+            Assert.That(saved, Does.Contain("\"FavoriteMap\": \"Earth\""));
+            Assert.That(saved, Does.Contain("\"Game Bit Depth\""));
+            Assert.That(saved, Does.Contain("\"ThemeName\": \"Blue\""));
+        }
+
+        [Test]
+        public void UiLanguage_IsLoadedAndSaved()
+        {
+            // UiCulture was an unknown member before L-WP3; files of earlier test builds simply lack it.
+            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"ThemeName\":\"Dark\",\"UiCulture\":\"fr\"}");
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Loaded));
+            Assert.That(store.Current.UiCulture, Is.EqualTo("fr"));
+
+            store.Current.UiCulture = "de";
+            Assert.That(store.Save(), Is.EqualTo(SettingsSaveStatus.Saved));
+
+            Assert.That(fileSystem.GetText(File), Does.Contain("\"UiCulture\": \"de\""));
+            Assert.That(new SettingsStore(fileSystem, File, logger).LoadAndGet().UiCulture, Is.EqualTo("de"));
+        }
+
+        [Test]
+        public void LastGame_IsLoadedAndSaved()
+        {
+            // LastGame was an unknown member before L-WP6; files of earlier test builds simply lack it.
+            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"ThemeName\":\"Dark\",\"LastGame\":null}");
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Loaded));
+            Assert.That(store.Current.LastGame, Is.Empty);
+
+            store.Current.LastGame = "AoC";
+            Assert.That(store.Save(), Is.EqualTo(SettingsSaveStatus.Saved));
+
+            Assert.That(fileSystem.GetText(File), Does.Contain("\"LastGame\": \"AoC\""));
+            Assert.That(new SettingsStore(fileSystem, File, logger).LoadAndGet().LastGame, Is.EqualTo("AoC"));
+        }
+
+        /// <summary>
+        /// Launcher 1.1.0 (contract 1.4 revision 6): the folder chosen for each product and the product chosen last are optional
+        /// members of schema 1.
+        /// </summary>
+        [Test]
+        public void ProductChoices_AreLoadedAndSaved()
+        {
+            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"GameDirectory\":\"D:\\\\GOG\\\\Empire Earth\",\"LastGame\":\"AoC\"," +
+                                     "\"ProductFolders\":[{\"Product\":\"EE\",\"Folder\":\"D:\\\\GOG\\\\Empire Earth\"}],\"LastProduct\":\"EE\"}");
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Loaded));
+            Assert.That(store.Current.LastProduct, Is.EqualTo("EE"));
+            Assert.That(store.Current.ProductFolders.Select(entry => entry.Product + "=" + entry.Folder),
+                Is.EqualTo(new[] { @"EE=D:\GOG\Empire Earth" }));
+
+            store.Current.ProductFolders.Add(new ProductFolder { Product = "NeoEE", Folder = @"C:\Neo" });
+            store.Current.LastProduct = "NeoEE";
+            Assert.That(store.Save(), Is.EqualTo(SettingsSaveStatus.Saved));
+
+            Assert.That(fileSystem.GetText(File), Does.Contain("\"LastProduct\": \"NeoEE\""));
+            LauncherSettings reloaded = new SettingsStore(fileSystem, File, logger).LoadAndGet();
+            Assert.That(reloaded.LastProduct, Is.EqualTo("NeoEE"));
+            Assert.That(reloaded.ProductFolders.Select(entry => entry.Product + "=" + entry.Folder),
+                Is.EqualTo(new[] { @"EE=D:\GOG\Empire Earth", @"NeoEE=C:\Neo" }));
+            Assert.That(reloaded.SchemaVersion, Is.EqualTo(LauncherSettings.CurrentSchemaVersion), "an optional member keeps schema 1");
+        }
+
+        [Test]
+        public void AFileOfLauncher100_HasNoProductChoices()
+        {
+            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"GameDirectory\":\"D:\\\\Spiele\\\\Empire Earth\",\"ThemeName\":\"Dark\",\"LastGame\":\"AoC\"}");
+
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Loaded));
+
+            Assert.That(store.Current.LastProduct, Is.Empty);
+            Assert.That(store.Current.ProductFolders, Is.Empty);
+            Assert.That(store.Current.GameDirectory, Is.EqualTo(@"D:\Spiele\Empire Earth"), "the choice of the older launcher");
+            Assert.That(logger.MessagesOf(LogLevel.Warning), Is.Empty);
+        }
+
+        [Test]
+        public void NullProductChoices_GetTheirDefaults()
+        {
+            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"ProductFolders\":[null,{\"Product\":\"EE\",\"Folder\":\"C:\\\\EE\"},null],\"LastProduct\":null}");
+
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Loaded));
+
+            Assert.That(store.Current.LastProduct, Is.Empty);
+            Assert.That(store.Current.ProductFolders.Select(entry => entry.Product), Is.EqualTo(new[] { "EE" }), "the null entries are dropped");
+
+            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"ProductFolders\":null}");
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Loaded));
+            Assert.That(store.Current.ProductFolders, Is.Empty);
+        }
+
+        [Test]
+        public void AnEntryOfAnUnknownProduct_AndItsUnknownMembers_AreWrittenBack()
+        {
+            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"ProductFolders\":[{\"Product\":\"FutureEE\",\"Folder\":\"C:\\\\Future\"," +
+                                     "\"Mode\":\"portable\"}],\"LastProduct\":\"FutureEE\",\"Other\":\"kept\"}");
+            store.Load();
+
+            store.Current.ThemeName = "Blue";
+            Assert.That(store.Save(), Is.EqualTo(SettingsSaveStatus.Saved));
+
+            string saved = fileSystem.GetText(File);
+            Assert.That(saved, Does.Contain("\"Product\": \"FutureEE\"").And.Contain("\"Folder\": \"C:\\\\Future\""));
+            Assert.That(saved, Does.Contain("\"Mode\": \"portable\""), "an unknown member of an entry survives");
+            Assert.That(saved, Does.Contain("\"LastProduct\": \"FutureEE\"").And.Contain("\"Other\": \"kept\""));
+        }
+
+        /// <summary>The settings class of launcher 1.0.0, as it was compiled then: without the members of revision 6.</summary>
+        [System.Runtime.Serialization.DataContract(Name = "LauncherSettings", Namespace = "")]
+        private sealed class SettingsOfLauncher100 : System.Runtime.Serialization.IExtensibleDataObject
+        {
+            [System.Runtime.Serialization.DataMember(Order = 0)] public int SchemaVersion { get; set; }
+            [System.Runtime.Serialization.DataMember(Order = 1)] public string GameDirectory { get; set; }
+            [System.Runtime.Serialization.DataMember(Order = 2)] public string ThemeName { get; set; }
+            [System.Runtime.Serialization.DataMember(Order = 6)] public string LastGame { get; set; }
+            public System.Runtime.Serialization.ExtensionDataObject ExtensionData { get; set; }
+        }
+
+        /// <summary>
+        /// Launcher 1.0.0 reads the file of 1.1.0 (the mirror <c>GameDirectory</c> and <c>LastGame</c>) and keeps the new members
+        /// through its <c>ExtensionData</c> when it saves (ADR 0005 amendment).
+        /// </summary>
+        [Test]
+        public void Launcher100_ReadsTheFileOf110_AndKeepsTheProductChoices()
+        {
+            const string json = "{\"SchemaVersion\":1,\"GameDirectory\":\"C:\\\\Neo\",\"ThemeName\":\"Dark\",\"LastGame\":\"AoC\"," +
+                                "\"ProductFolders\":[{\"Product\":\"NeoEE\",\"Folder\":\"C:\\\\Neo\"}],\"LastProduct\":\"NeoEE\"}";
+            var serializer = new System.Runtime.Serialization.Json.DataContractJsonSerializer(typeof(SettingsOfLauncher100));
+            SettingsOfLauncher100 old;
+            using (var stream = new System.IO.MemoryStream(Encoding.UTF8.GetBytes(json)))
+                old = (SettingsOfLauncher100)serializer.ReadObject(stream);
+
+            Assert.That(old.GameDirectory, Is.EqualTo(@"C:\Neo"), "launcher 1.0.0 selects the same installation");
+            Assert.That(old.LastGame, Is.EqualTo("AoC"));
+
+            old.ThemeName = "Blue";
+            string written;
+            using (var stream = new System.IO.MemoryStream())
+            {
+                serializer.WriteObject(stream, old);
+                written = Encoding.UTF8.GetString(stream.ToArray());
+            }
+            Assert.That(written, Does.Contain("\"LastProduct\":\"NeoEE\"").And.Contain("\"ProductFolders\":[{\"Product\":\"NeoEE\""));
+            fileSystem.AddFile(File, written);
+            LauncherSettings back = new SettingsStore(fileSystem, File, logger).LoadAndGet();
+            Assert.That(back.LastProduct, Is.EqualTo("NeoEE"));
+            Assert.That(back.ProductFolders.Single().Folder, Is.EqualTo(@"C:\Neo"));
+            Assert.That(back.ThemeName, Is.EqualTo("Blue"));
+        }
+
+        [Test]
+        public void UnknownUiLanguage_IsKeptAsWritten()
+        {
+            // The launcher shows the Windows language for it (UiLanguage), but does not rewrite the file.
+            fileSystem.AddFile(File, "{\"SchemaVersion\":1,\"UiCulture\":\"es\"}");
+
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Loaded));
+            Assert.That(store.Current.UiCulture, Is.EqualTo("es"));
+            Assert.That(logger.MessagesOf(LogLevel.Error), Is.Empty);
+        }
+
+        [Test]
+        public void Save_CreatesTheFolder_AndWritesReadableIndentedJson()
+        {
+            var empty = new InMemoryFileSystem();
+            var newStore = new SettingsStore(empty, File, logger);
+            newStore.Current.GameDirectory = @"C:\Spiele\Müll\Empire Earth";
+            newStore.Current.CustomThemeFile = @"C:\Themes\gold.xml";
+
+            Assert.That(newStore.Save(), Is.EqualTo(SettingsSaveStatus.Saved));
+
+            Assert.That(empty.DirectoryExists(Folder), Is.True);
+            Assert.That(empty.AllFiles, Is.EqualTo(new[] { File }), "no temporary file is left");
+            string json = empty.GetText(File);
+            Assert.That(json, Does.StartWith("{"));
+            Assert.That(json, Does.Contain("  \"SchemaVersion\": 1,"), "indented, schema version first");
+            Assert.That(json, Does.Contain("Müll"), "UTF-8, not escaped");
+            Assert.That(empty.GetContent(File).Take(3), Is.Not.EqualTo(new byte[] { 0xEF, 0xBB, 0xBF }), "no BOM");
+
+            LauncherSettings loaded = new SettingsStore(empty, File, logger).LoadAndGet();
+            Assert.That(loaded.GameDirectory, Is.EqualTo(@"C:\Spiele\Müll\Empire Earth"));
+            Assert.That(loaded.CustomThemeFile, Is.EqualTo(@"C:\Themes\gold.xml"));
+            Assert.That(loaded.ThemeName, Is.EqualTo("Light"));
+        }
+
+        [Test]
+        public void Save_ReplacesTheFileThroughATemporaryFile()
+        {
+            fileSystem.AddFile(File, ValidJson);
+            store.Load();
+            store.Current.ThemeName = "Blue";
+
+            Assert.That(store.Save(), Is.EqualTo(SettingsSaveStatus.Saved));
+
+            Assert.That(fileSystem.AllFiles, Is.EqualTo(new[] { File }));
+            Assert.That(new SettingsStore(fileSystem, File, logger).LoadAndGet().ThemeName, Is.EqualTo("Blue"));
+        }
+
+        [Test]
+        public void Save_Failure_KeepsThePreviousFile()
+        {
+            fileSystem.AddFile(File, ValidJson);
+            store.Load();
+            fileSystem.FailOn(File + ".tmp", FileSystemOperation.Write, FileSystemStatus.IoError);
+            store.Current.ThemeName = "Blue";
+
+            Assert.That(store.Save(), Is.EqualTo(SettingsSaveStatus.Failed));
+
+            Assert.That(fileSystem.GetText(File), Is.EqualTo(ValidJson));
+            Assert.That(fileSystem.AllFiles, Is.EqualTo(new[] { File }));
+            Assert.That(logger.MessagesOf(LogLevel.Error).Single(), Does.Contain("Unable to save the launcher settings"));
+            Assert.That(store.Current.ThemeName, Is.EqualTo("Blue"), "the change applies to this session");
+        }
+
+        [Test]
+        public void Save_WithoutTheDrive_Fails()
+        {
+            var newStore = new SettingsStore(fileSystem, @"Q:\Empire Earth Launcher\settings.json", logger);
+
+            Assert.That(newStore.Save(), Is.EqualTo(SettingsSaveStatus.Failed));
+        }
+
+        private static byte[] Bytes(string text)
+        {
+            return new UTF8Encoding(false).GetBytes(text);
+        }
+    }
+
+    internal static class SettingsStoreTestExtensions
+    {
+        /// <summary>Loads (expecting success) and returns the settings.</summary>
+        public static LauncherSettings LoadAndGet(this SettingsStore store)
+        {
+            Assert.That(store.Load(), Is.EqualTo(SettingsLoadStatus.Loaded));
+            return store.Current;
+        }
+    }
+}

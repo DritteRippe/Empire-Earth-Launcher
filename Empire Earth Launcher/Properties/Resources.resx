@@ -172,4 +172,1795 @@
   <data name="DialogBorderLeft" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\DialogBorderLeft.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="LauncherTitle" xml:space="preserve">
+    <value>Empire Earth Launcher</value>
+    <comment>Caption of the launcher's message boxes.</comment>
+  </data>
+  <data name="UnexpectedErrorClosing" xml:space="preserve">
+    <value>An unexpected error occurred and the launcher has to close.</value>
+  </data>
+  <data name="UnexpectedErrorContinuing" xml:space="preserve">
+    <value>An unexpected error occurred. The launcher will try to continue.</value>
+  </data>
+  <data name="UnknownError" xml:space="preserve">
+    <value>Unknown error.</value>
+  </data>
+  <data name="DetailsWrittenToLogFormat" xml:space="preserve">
+    <value>Details have been written to {0}.</value>
+    <comment>{0}: full path of the log file.</comment>
+  </data>
+  <data name="OnlinePlayersFormat" xml:space="preserve">
+    <value>Online Players ({0})</value>
+    <comment>{0}: number of players.</comment>
+  </data>
+  <data name="OnlinePlayersLoading" xml:space="preserve">
+    <value>Online Players (...)</value>
+    <comment>Shown until the first player list arrives.</comment>
+  </data>
+  <data name="OnlinePlayersUnavailable" xml:space="preserve">
+    <value>Online Players (unavailable)</value>
+  </data>
+  <data name="OnlinePlayersUnavailableSeeLog" xml:space="preserve">
+    <value>Online Players (unavailable, see the log)</value>
+  </data>
+  <data name="OnlinePlayersNeoOnly" xml:space="preserve">
+    <value>Online Players (NeoEE only)</value>
+    <comment>Heading of the player list when the selected installation is not NeoEE: the list belongs to the NeoEE lobby and is not polled.</comment>
+  </data>
+  <data name="OnlinePlayersInvalidSettings" xml:space="preserve">
+    <value>Online Players (invalid server settings, see the log)</value>
+  </data>
+  <data name="GameDirectoryNotFound" xml:space="preserve">
+    <value>Empire Earth installation not found</value>
+  </data>
+  <data name="NoLobbyProfileFound" xml:space="preserve">
+    <value>No lobby profile found</value>
+  </data>
+  <data name="LobbyProfilesUnreadable" xml:space="preserve">
+    <value>Lobby profiles could not be read (see the log)</value>
+  </data>
+  <data name="FriendsFormat" xml:space="preserve">
+    <value>Friends ({0})</value>
+    <comment>{0}: number of friends.</comment>
+  </data>
+  <data name="FriendsUnreadable" xml:space="preserve">
+    <value>Friends could not be read (see the log)</value>
+  </data>
+  <data name="PlayerStateLobby" xml:space="preserve">
+    <value>Lobby</value>
+    <comment>Game state of an online player.</comment>
+  </data>
+  <data name="PlayerStateRoom" xml:space="preserve">
+    <value>Room</value>
+    <comment>Game state of an online player.</comment>
+  </data>
+  <data name="PlayerStatePlaying" xml:space="preserve">
+    <value>Playing</value>
+    <comment>Game state of an online player.</comment>
+  </data>
+  <data name="PlayerStateUnknownFormat" xml:space="preserve">
+    <value>Unknown ({0})</value>
+    <comment>{0}: state number sent by the server.</comment>
+  </data>
+  <data name="ThemeFileFilter" xml:space="preserve">
+    <value>Theme File (*.xml)|*.xml|All files (*.*)|*.*</value>
+    <comment>File dialog filter: keep the | separators and patterns.</comment>
+  </data>
+  <data name="ThemeNotLoadedFormat" xml:space="preserve">
+    <value>The theme could not be loaded. Details have been written to {0}.</value>
+    <comment>{0}: full path of the log file.</comment>
+  </data>
+  <data name="GameDirectorySourceUser" xml:space="preserve">
+    <value>Chosen manually</value>
+  </data>
+  <data name="GameDirectorySourceUserMissing" xml:space="preserve">
+    <value>Chosen manually, but the folder does not exist</value>
+  </data>
+  <data name="GameDirectorySourceRegistry" xml:space="preserve">
+    <value>Detected from the game installation</value>
+  </data>
+  <data name="GameDirectorySourceLauncherFolder" xml:space="preserve">
+    <value>Detected in the launcher folder</value>
+  </data>
+  <data name="GameDirectoryNotFoundHintFormat" xml:space="preserve">
+    <value>Not found, please choose the folder of {0}</value>
+    <comment>{0}: name of the game executable.</comment>
+  </data>
+  <data name="SelectGameDirectoryFormat" xml:space="preserve">
+    <value>Select the Empire Earth folder (the folder of {0}).</value>
+    <comment>{0}: name of the game executable.</comment>
+  </data>
+  <data name="GameExecutableMissingFormat" xml:space="preserve">
+    <value>This folder does not contain {0}:
+{1}
+
+Use it anyway?</value>
+    <comment>{0}: name of the game executable, {1}: folder.</comment>
+  </data>
+  <data name="CompatibilityHintTitle" xml:space="preserve">
+    <value>Compatibility options</value>
+  </data>
+  <data name="CompatibilityHintMessage" xml:space="preserve">
+    <value>Change one option at a time and start the game to check it.
+If the game gets worse, undo the last change.</value>
+  </data>
+  <data name="NavigationPlay" xml:space="preserve">
+    <value>Play</value>
+    <comment>Navigation button of the Play page.</comment>
+  </data>
+  <data name="NavigationSettings" xml:space="preserve">
+    <value>Settings</value>
+    <comment>Navigation button of the Settings page.</comment>
+  </data>
+  <data name="NavigationLauncher" xml:space="preserve">
+    <value>Launcher</value>
+    <comment>Navigation button of the page with the launcher's own settings.</comment>
+  </data>
+  <data name="PlayButton" xml:space="preserve">
+    <value>Play</value>
+    <comment>Big gold button of the Play page; at most about 12 characters.</comment>
+  </data>
+  <data name="GameChoiceHeading" xml:space="preserve">
+    <value>Game</value>
+    <comment>Heading of the choice between Empire Earth and The Art of Conquest.</comment>
+  </data>
+  <data name="GameEmpireEarth" xml:space="preserve">
+    <value>Empire Earth</value>
+    <comment>Name of the game; not translated.</comment>
+  </data>
+  <data name="GameArtOfConquest" xml:space="preserve">
+    <value>The Art of Conquest</value>
+    <comment>Name of the expansion; not translated.</comment>
+  </data>
+  <data name="LobbyProfileLabel" xml:space="preserve">
+    <value>Profile:</value>
+    <comment>Label of the list of the player's lobby profiles; at most about 9 characters.</comment>
+  </data>
+  <data name="PlayerListNameColumn" xml:space="preserve">
+    <value>Player</value>
+    <comment>Column of the online player list (name).</comment>
+  </data>
+  <data name="PlayerListStateColumn" xml:space="preserve">
+    <value>State</value>
+    <comment>Column of the online player list (lobby, room, playing).</comment>
+  </data>
+  <data name="CompatibilityWarningText" xml:space="preserve">
+    <value>Here you can find advanced compatibility options. These options can solve compatibility problems or make the game faster as well as make the game unstable or not functional.
+
+Empire Earth is an old game and although it requires very little performance, it will run poorly on many computers, especially laptops.
+
+However you should be able to solve many problems with these options, but finding the right combination of settings can take some time.</value>
+    <comment>Warning shown before the compatibility options; the box has room for about 14 lines of 50 characters.</comment>
+  </data>
+  <data name="CompatibilityWarningConfirm" xml:space="preserve">
+    <value>Confirm</value>
+    <comment>Button that closes the compatibility warning.</comment>
+  </data>
+  <data name="LauncherSettingsHeading" xml:space="preserve">
+    <value>Launcher Settings</value>
+    <comment>Heading of the page with the launcher's own settings.</comment>
+  </data>
+  <data name="ThemeLabel" xml:space="preserve">
+    <value>Theme</value>
+    <comment>Label of the theme list; at most about 8 characters.</comment>
+  </data>
+  <data name="ThemeBuiltIn" xml:space="preserve">
+    <value>Built-in colors</value>
+    <comment>First item of the theme list: the colors built into the launcher, used while no theme file is applied; at most about 25 characters.</comment>
+  </data>
+  <data name="ThemeBuiltInNextStart" xml:space="preserve">
+    <value>The built-in colors are used when the launcher starts the next time.</value>
+    <comment>Message after the player chose the built-in colors while a theme file is applied (the colors of the open windows stay until then).</comment>
+  </data>
+  <data name="ThemeCustom" xml:space="preserve">
+    <value>Custom file...</value>
+    <comment>Second item of the theme list (after the built-in colors): opens a theme file.</comment>
+  </data>
+  <data name="GameDirectoryLabel" xml:space="preserve">
+    <value>Empire Earth folder:</value>
+    <comment>Label of the game folder; at most about 25 characters.</comment>
+  </data>
+  <data name="DetectGameDirectoryButton" xml:space="preserve">
+    <value>Auto-detect</value>
+    <comment>Button that switches back to the automatic detection of the game folder; at most about 12 characters.</comment>
+  </data>
+  <data name="DialogOk" xml:space="preserve">
+    <value>OK</value>
+    <comment>Button of the launcher's message dialog.</comment>
+  </data>
+  <data name="DialogYes" xml:space="preserve">
+    <value>Yes</value>
+    <comment>Button of the launcher's message dialog.</comment>
+  </data>
+  <data name="DialogNo" xml:space="preserve">
+    <value>No</value>
+    <comment>Button of the launcher's message dialog.</comment>
+  </data>
+  <data name="UiLanguageLabel" xml:space="preserve">
+    <value>Language</value>
+    <comment>Label of the language list of the launcher; at most about 12 characters.</comment>
+  </data>
+  <data name="UiLanguageWindows" xml:space="preserve">
+    <value>Windows language</value>
+    <comment>First item of the language list: the language of Windows. The other items are the names of the languages in their own language and are not translated.</comment>
+  </data>
+  <data name="UiLanguageRestartHint" xml:space="preserve">
+    <value>The new language is used when the launcher starts the next time.</value>
+    <comment>Shown after another language was chosen.</comment>
+  </data>
+  <data name="InstallationsLabel" xml:space="preserve">
+    <value>Installations found:</value>
+    <comment>Label above the list of installations on the Launcher page; at most about 25 characters.</comment>
+  </data>
+  <data name="InstallationsSearching" xml:space="preserve">
+    <value>Searching for Empire Earth installations...</value>
+    <comment>Shown while the launcher searches the installations (Launcher page, profile list of the Play page).</comment>
+  </data>
+  <data name="InstallationProductColumn" xml:space="preserve">
+    <value>Product</value>
+    <comment>Column of the list of installations: Empire Earth or NeoEE (names, not translated).</comment>
+  </data>
+  <data name="InstallationRootColumn" xml:space="preserve">
+    <value>Install folder</value>
+    <comment>Column of the list of installations: the folder the setup installed into.</comment>
+  </data>
+  <data name="InstallationGameFolderColumn" xml:space="preserve">
+    <value>Empire Earth folder</value>
+    <comment>Column of the list of installations: the folder of Empire Earth.exe.</comment>
+  </data>
+  <data name="InstallationKindColumn" xml:space="preserve">
+    <value>Type</value>
+    <comment>Column of the list of installations: who installed it.</comment>
+  </data>
+  <data name="InstallationStateColumn" xml:space="preserve">
+    <value>State</value>
+    <comment>Column of the list of installations: OK, damaged or not found.</comment>
+  </data>
+  <data name="InstallationKindCommunity" xml:space="preserve">
+    <value>Community setup</value>
+    <comment>Type of an installation: the current community setup; at most about 16 characters.</comment>
+  </data>
+  <data name="InstallationKindCommunityLegacy" xml:space="preserve">
+    <value>Older setup</value>
+    <comment>Type of an installation: the community setup 1.7.2 or older; at most about 16 characters.</comment>
+  </data>
+  <data name="InstallationKindForeign" xml:space="preserve">
+    <value>Other</value>
+    <comment>Type of an installation: retail CD, GOG, a copy; at most about 16 characters.</comment>
+  </data>
+  <data name="InstallationKindCommunityHint" xml:space="preserve">
+    <value>Installed by the current community setup.</value>
+    <comment>Tooltip of the type Community setup.</comment>
+  </data>
+  <data name="InstallationKindCommunityLegacyHint" xml:space="preserve">
+    <value>Installed by the community setup 1.7.2 or older. Run the current setup to update it.</value>
+    <comment>Tooltip of the type Older setup.</comment>
+  </data>
+  <data name="InstallationKindForeignHint" xml:space="preserve">
+    <value>Not installed by the community setup, for example from the CD, by GOG or copied.</value>
+    <comment>Tooltip of the type Other.</comment>
+  </data>
+  <data name="InstallationStateOk" xml:space="preserve">
+    <value>OK</value>
+    <comment>State of an installation: its programs are there.</comment>
+  </data>
+  <data name="InstallationStateDamaged" xml:space="preserve">
+    <value>Damaged</value>
+    <comment>State of an installation: a program is missing (often deleted by an antivirus); at most about 12 characters.</comment>
+  </data>
+  <data name="InstallationStateFolderMissing" xml:space="preserve">
+    <value>Not found</value>
+    <comment>State of an installation: the chosen folder does not exist; at most about 12 characters.</comment>
+  </data>
+  <data name="InstallationMissingProgramsFormat" xml:space="preserve">
+    <value>Missing: {0}</value>
+    <comment>Tooltip of a damaged installation. {0}: the missing programs, e.g. Empire Earth.exe.</comment>
+  </data>
+  <data name="InstallationDamagedFormat" xml:space="preserve">
+    <value>{0} is missing in {1}. Antivirus programs often delete or quarantine game files: restore it from the quarantine, or repair the installation with its setup.</value>
+    <comment>Hint below the list when the selected installation is damaged. {0}: the missing programs, {1}: their folder.</comment>
+  </data>
+  <data name="InstallationsSharedSettingsFormat" xml:space="preserve">
+    <value>{0} installations of {1} use the same game settings ({2}): the settings, including the game folder stored there, are the same for all of them.</value>
+    <comment>Hint below the list when several installations share one game settings key. {0}: number of installations, {1}: Empire Earth or NeoEE, {2}: registry key.</comment>
+  </data>
+  <data name="InstallationSharedRootFormat" xml:space="preserve">
+    <value>Empire Earth and NeoEE are installed in the same folder ({0}). The launcher uses {1}, which was installed last; uninstalling one of them also removes files of the other.</value>
+    <comment>Hint below the list (contract O11). {0}: the folder, {1}: Empire Earth or NeoEE.</comment>
+  </data>
+  <data name="InstallationNewerSetupFormat" xml:space="preserve">
+    <value>{0} was installed by a newer setup than this launcher knows. Please update the launcher.</value>
+    <comment>Hint below the list (contract 5). {0}: the install folder.</comment>
+  </data>
+  <data name="GameSettingsDefaultsHeading" xml:space="preserve">
+    <value>Game defaults</value>
+    <comment>Heading on the Game settings page above the state of the recommended settings; at most about 30 characters.</comment>
+  </data>
+  <data name="GameSettingsInstallationFormat" xml:space="preserve">
+    <value>{0} in {1}</value>
+    <comment>The installation the Game settings page shows. {0}: Empire Earth or NeoEE, {1}: the folder of Empire Earth.exe.</comment>
+  </data>
+  <data name="DefaultsStatusAppliedFormat" xml:space="preserve">
+    <value>{0}: the recommended settings are set up for your Windows account.</value>
+    <comment>State of the defaults of a game. {0}: Empire Earth or The Art of Conquest.</comment>
+  </data>
+  <data name="DefaultsStatusAppliedByNewerFormat" xml:space="preserve">
+    <value>{0}: set up by a newer launcher or setup; the launcher leaves them as they are.</value>
+    <comment>State of the defaults of a game. {0}: Empire Earth or The Art of Conquest.</comment>
+  </data>
+  <data name="DefaultsStatusPendingFormat" xml:space="preserve">
+    <value>{0}: the recommended settings are not set up for your Windows account yet.</value>
+    <comment>State of the defaults of a game. {0}: Empire Earth or The Art of Conquest.</comment>
+  </data>
+  <data name="DefaultsStatusWaitingForPlayFormat" xml:space="preserve">
+    <value>{0}: not set up yet, because several installations share these settings. "Reset game settings" sets them up for this installation.</value>
+    <comment>State of the defaults of a game. {0}: Empire Earth or The Art of Conquest. Name the button ResetGameSettingsButton exactly.</comment>
+  </data>
+  <data name="DefaultsStatusNewerContractFormat" xml:space="preserve">
+    <value>{0}: installed by a newer setup than this launcher knows. The launcher changes no settings; please update it.</value>
+    <comment>State of the defaults of a game (contract 5). {0}: Empire Earth or The Art of Conquest.</comment>
+  </data>
+  <data name="BlockedBySetupFormat" xml:space="preserve">
+    <value>Not possible while the {0} setup is running.</value>
+    <comment>A change was refused because a setup runs. {0}: Empire Earth, NeoEE or Empire Earth Community.</comment>
+  </data>
+  <data name="BlockedByGameFormat" xml:space="preserve">
+    <value>Not possible while {0} is running.</value>
+    <comment>A change was refused because a game runs. {0}: the program, Empire Earth.exe or EE-AOC.exe.</comment>
+  </data>
+  <data name="DisplayQuestionFormat" xml:space="preserve">
+    <value>Your display settings differ from the recommended ones: {0}. Apply the recommended display settings? Your current values are saved as a .reg file first.</value>
+    <comment>The question of the first run (Play page and Game settings page). {0}: the differing values, see DisplayDifferenceFormat.</comment>
+  </data>
+  <data name="DisplayDifferenceFormat" xml:space="preserve">
+    <value>{0} {1} {2} instead of {3}</value>
+    <comment>One differing value in DisplayQuestionFormat. {0}: Empire Earth or The Art of Conquest, {1}: the value name (not translated, e.g. Game Bit Depth), {2}: the current value, {3}: the recommended value.</comment>
+  </data>
+  <data name="DisplayQuestionApply" xml:space="preserve">
+    <value>Apply</value>
+    <comment>Button of the display question; at most about 14 characters.</comment>
+  </data>
+  <data name="DisplayQuestionKeep" xml:space="preserve">
+    <value>Keep mine</value>
+    <comment>Button of the display question: keep the current display settings; at most about 14 characters.</comment>
+  </data>
+  <data name="ApplyDisplayButton" xml:space="preserve">
+    <value>Apply recommended display</value>
+    <comment>Button on the Game settings page: writes the recommended display values (with a backup); at most about 30 characters.</comment>
+  </data>
+  <data name="ResetGameSettingsButton" xml:space="preserve">
+    <value>Reset game settings</value>
+    <comment>Button on the Game settings page; at most about 30 characters.</comment>
+  </data>
+  <data name="ResetConfirmFormat" xml:space="preserve">
+    <value>Set the settings of {0} back to the recommended values for your Windows account?
+
+Your current settings are saved first as .reg files in {1}; double-click such a file to restore them. Player names and other values of the game stay as they are.</value>
+    <comment>Confirmation of the reset. {0}: Empire Earth and/or The Art of Conquest, {1}: the backup folder.</comment>
+  </data>
+  <data name="ResultDoneFormat" xml:space="preserve">
+    <value>Done. Your previous settings are saved in: {0}</value>
+    <comment>Result of the reset or of the display settings. {0}: the backup folder.</comment>
+  </data>
+  <data name="ResultDone" xml:space="preserve">
+    <value>Done.</value>
+    <comment>Result of a change without a backup.</comment>
+  </data>
+  <data name="ResultBackupFailed" xml:space="preserve">
+    <value>Nothing was changed: the backup could not be written (details in the log).</value>
+    <comment>Result when the .reg backup failed.</comment>
+  </data>
+  <data name="ResultFailedFormat" xml:space="preserve">
+    <value>The settings could not be changed completely (details in the log). Double-click the backup to restore the previous values: {0}</value>
+    <comment>Result when a registry value could not be written after the backup. {0}: the backup folder.</comment>
+  </data>
+  <data name="ResultFailed" xml:space="preserve">
+    <value>The settings could not be changed (details in the log).</value>
+    <comment>Result when a change failed without a backup.</comment>
+  </data>
+  <data name="ResultNewerContract" xml:space="preserve">
+    <value>Not possible: this installation comes from a newer setup than this launcher knows. Please update the launcher.</value>
+    <comment>Result of the reset or the display settings for an installation of a newer contract (contract 5).</comment>
+  </data>
+  <data name="HintsHeading" xml:space="preserve">
+    <value>Hints</value>
+    <comment>Heading of the consistency hints on the Game settings page.</comment>
+  </data>
+  <data name="HintsNone" xml:space="preserve">
+    <value>No hints: the game settings fit together.</value>
+    <comment>Shown instead of the list when there is no hint.</comment>
+  </data>
+  <data name="HintShowColumn" xml:space="preserve">
+    <value>Play page</value>
+    <comment>Column of the list of hints: checked = the hint is shown on the Play page; at most about 14 characters.</comment>
+  </data>
+  <data name="FindingBitDepthMismatchFormat" xml:space="preserve">
+    <value>{0}: Game Bit Depth ({1}) differs from Texture Bit Depth ({2}); the main menu can turn white and unreadable. "Apply recommended display" sets both to 32.</value>
+    <comment>Hint. {0}: Empire Earth or The Art of Conquest, {1} and {2}: numbers of bits. Value names are not translated; name the button ApplyDisplayButton exactly.</comment>
+  </data>
+  <data name="FindingSixteenBitFormat" xml:space="preserve">
+    <value>{0}: 16-bit colors often freeze the game on Windows 8 and later. "Apply recommended display" sets 32 bit; hide the hint if 16 bit works for you.</value>
+    <comment>Hint. {0}: Empire Earth or The Art of Conquest.</comment>
+  </data>
+  <data name="FindingRasterizerFormat" xml:space="preserve">
+    <value>{0}: the renderer is "{1}"; recommended for this installation is "{2}". Hide the hint if you chose it on purpose.</value>
+    <comment>Hint. {0}: Empire Earth or The Art of Conquest, {1} and {2}: names of renderers (not translated).</comment>
+  </data>
+  <data name="FindingWindowLargerFormat" xml:space="preserve">
+    <value>{0}: the game window ({1}) is larger than the screen as the game sees it ({2}). "Apply recommended display" sets {3}.</value>
+    <comment>Hint. {0}: Empire Earth or The Art of Conquest, {1}, {2}, {3}: sizes like 1920x1080.</comment>
+  </data>
+  <data name="FindingWindowHighDpiFormat" xml:space="preserve">
+    <value>{0}: the game window ({1}) fits the screen only with the compatibility option HIGHDPIAWARE; without it, the game sees {2} at this scaling. Switch the option on below or set the Windows scaling to 100 %.</value>
+    <comment>Hint (contract O4). {0}: Empire Earth or The Art of Conquest, {1} and {2}: sizes like 1920x1080.</comment>
+  </data>
+  <data name="FindingScreenTooLowFormat" xml:space="preserve">
+    <value>The screen is only {0} pixels high; the menus of the game need at least 768. Some menus may not fit.</value>
+    <comment>Hint (R13). {0}: the height of the screen in pixels.</comment>
+  </data>
+  <data name="FindingNotOnADriveFormat" xml:space="preserve">
+    <value>{0}: the folder {1} is not on a drive letter, so the "Installed From" values cannot point to it. Connect the network folder as a drive, e.g. Z:.</value>
+    <comment>Hint (contract 3.3). {0}: Empire Earth or The Art of Conquest, {1}: the folder.</comment>
+  </data>
+  <data name="CompatibilityDwmOption" xml:space="preserve">
+    <value>Fix 8/16-bit colors (DWM8And16BitMitigation)</value>
+    <comment>Check box of a compatibility option; the name in brackets is not translated.</comment>
+  </data>
+  <data name="CompatibilityHighDpiOption" xml:space="preserve">
+    <value>No scaling by Windows (HIGHDPIAWARE)</value>
+    <comment>Check box of a compatibility option; the name in brackets is not translated.</comment>
+  </data>
+  <data name="CompatibilityHeapOption" xml:space="preserve">
+    <value>Clear memory allocations (HeapClearAllocation)</value>
+    <comment>Check box of a compatibility option; the name in brackets is not translated.</comment>
+  </data>
+  <data name="CompatibilityWindows7Option" xml:space="preserve">
+    <value>Windows 7 compatibility mode (WIN7RTM)</value>
+    <comment>Check box of a compatibility option; the name in brackets is not translated.</comment>
+  </data>
+  <data name="CompatibilityAppliesToFormat" xml:space="preserve">
+    <value>The options apply to {0} for your Windows account.</value>
+    <comment>Below the compatibility options. {0}: the programs, e.g. Empire Earth.exe, EE-AOC.exe.</comment>
+  </data>
+  <data name="CompatibilityAllUsersFormat" xml:space="preserve">
+    <value>Set by the setup for all users (only the setup changes it): {0}</value>
+    <comment>The read-only HKLM value of a program. {0}: program and value, e.g. EE-AOC.exe: ~ HIGHDPIAWARE.</comment>
+  </data>
+  <data name="CompatibilityVersionModeSet" xml:space="preserve">
+    <value>A Windows compatibility mode is already set, so no second one is offered. If the setup set it for all users, a custom run of the setup without "Enable earlier Windows compatibility mode" removes it.</value>
+    <comment>Below the compatibility options (ADR 0015). The quoted text is the task of the setup (messages.iss, TaskCompatibilityWindows) and must match it.</comment>
+  </data>
+  <data name="CompatibilityNotOffered" xml:space="preserve">
+    <value>On Windows 7 and under Wine the launcher offers no compatibility options. On Windows 7 the current setup can set them if you choose them during the installation.</value>
+    <comment>Instead of the compatibility options on Windows 7 and Wine (contract 3.7).</comment>
+  </data>
+  <data name="CompatibilityLegacyFormat" xml:space="preserve">
+    <value>Compatibility values of an older setup ({0}), which can cause black screens on Windows 7. Run the current community setup: it removes them.</value>
+    <comment>Windows 7: old values shown read-only (contract 3.7). {0}: program and value.</comment>
+  </data>
+  <data name="RemoveRunAsAdminButton" xml:space="preserve">
+    <value>Remove "Run as administrator"</value>
+    <comment>Button; at most about 40 characters.</comment>
+  </data>
+  <data name="CompatibilityRunAsAdminHint" xml:space="preserve">
+    <value>An older setup set "Run as administrator" for your account (~ RUNASADMIN). The online lobby should not run as administrator.</value>
+    <comment>Above the button RemoveRunAsAdminButton.</comment>
+  </data>
+  <data name="HighDpiOffConfirmFormat" xml:space="preserve">
+    <value>The screen is scaled to {0} %. Without HIGHDPIAWARE the game sees a smaller screen, and its window may no longer fit. Switch the option off anyway?</value>
+    <comment>Question before switching HIGHDPIAWARE off (ADR 0011). {0}: the scaling in percent.</comment>
+  </data>
+  <data name="HintBarHide" xml:space="preserve">
+    <value>Hide</value>
+    <comment>Button of the hint on the Play page; at most about 14 characters.</comment>
+  </data>
+  <data name="HintBarDetails" xml:space="preserve">
+    <value>Details</value>
+    <comment>Button of the hint on the Play page: opens the Game settings page; at most about 14 characters.</comment>
+  </data>
+  <data name="HintBarMoreFormat" xml:space="preserve">
+    <value>More hints on the Settings page: {0}</value>
+    <comment>Below the hint on the Play page. {0}: the number of further hints.</comment>
+  </data>
+  <data name="ResetConfirmButton" xml:space="preserve">
+    <value>Reset now</value>
+    <comment>Button of the confirmation of the reset on the Game settings page; at most about 28 characters.</comment>
+  </data>
+  <data name="ConfirmCancel" xml:space="preserve">
+    <value>Cancel</value>
+    <comment>Button that closes a confirmation on the Game settings page; at most about 20 characters.</comment>
+  </data>
+  <data name="HighDpiOffConfirmButton" xml:space="preserve">
+    <value>Switch off</value>
+    <comment>Button of the confirmation before switching HIGHDPIAWARE off; at most about 28 characters.</comment>
+  </data>
+  <data name="FindingFolderNotAnsiFormat" xml:space="preserve">
+    <value>{0}: the folder {1} contains characters that Windows does not have for non-Unicode programs such as the game, so the game may not find its files. If it does not start, copy it to a folder whose name has only the letters A to Z and digits.</value>
+    <comment>Hint (ADR 0015, forum test case 20): the game folder has characters outside the ANSI code page. {0}: Empire Earth or The Art of Conquest, {1}: the folder.</comment>
+  </data>
+  <data name="LauncherAlreadyRunning" xml:space="preserve">
+    <value>Empire Earth Launcher is already running. Please use the open window (it may be minimized or behind other windows).</value>
+    <comment>Message when the launcher is started a second time in the same Windows session (ADR 0010); the second launcher ends after it.</comment>
+  </data>
+  <data name="PlayVersionFormat" xml:space="preserve">
+    <value>{0}: version {1}</value>
+    <comment>Play page, one line per program (forum report section 8 row 1). {0}: Empire Earth.exe or EE-AOC.exe, {1}: the file version, e.g. 2.0.0.2949.</comment>
+  </data>
+  <data name="PlayVersionMissingFormat" xml:space="preserve">
+    <value>{0}: missing</value>
+    <comment>Play page: the program file does not exist. {0}: Empire Earth.exe or EE-AOC.exe.</comment>
+  </data>
+  <data name="PlayVersionUnknownFormat" xml:space="preserve">
+    <value>{0}: no version information</value>
+    <comment>Play page: the program has no version resource. {0}: Empire Earth.exe or EE-AOC.exe.</comment>
+  </data>
+  <data name="PlayStartedFormat" xml:space="preserve">
+    <value>{0} was started.</value>
+    <comment>Play page after a start. {0}: Empire Earth or The Art of Conquest.</comment>
+  </data>
+  <data name="SetupRunningFormat" xml:space="preserve">
+    <value>The {0} setup is running. Until it has ended, the launcher starts no game and changes no game settings.</value>
+    <comment>Play and Settings pages while EE_Setup, NeoEE_Setup or EmpireEarthCommunity_Suite exists (contract 4.2). {0}: Empire Earth, NeoEE or Empire Earth Community.</comment>
+  </data>
+  <data name="InstallationsWaitingForSetup" xml:space="preserve">
+    <value>A setup is running. The installations are searched when it has ended.</value>
+    <comment>Instead of the installations while a setup runs (contract 4.2: install.ini is not read then).</comment>
+  </data>
+  <data name="StartAlreadyRunningFormat" xml:space="preserve">
+    <value>{0} is already running. The launcher does not start it a second time.</value>
+    <comment>Message after Play when the game's mutex exists. {0}: Empire Earth.exe or EE-AOC.exe.</comment>
+  </data>
+  <data name="StartHangingHintFormat" xml:space="preserve">
+    <value>If you cannot see its window, it may hang: open the Task Manager (Ctrl+Shift+Esc), select {0} on the Details tab, click "End task" and start the game again. The launcher never ends a program itself.</value>
+    <comment>Added below StartAlreadyRunningFormat when a process of that name exists (forum report section 8 row 14, t=2815, t=5859). {0}: Empire Earth.exe or EE-AOC.exe. Use the names of the Task Manager of Windows in this language.</comment>
+  </data>
+  <data name="StartOtherGameRunningFormat" xml:space="preserve">
+    <value>{0} is running. Start {1} anyway? Both games at the same time can become unstable.</value>
+    <comment>Question with Yes and No after Play. {0}: the program that runs (Empire Earth.exe or EE-AOC.exe), {1}: the game to start (Empire Earth or The Art of Conquest).</comment>
+  </data>
+  <data name="StartFolderMissingFormat" xml:space="preserve">
+    <value>The folder {0} does not exist. Choose the game folder on the Launcher page.</value>
+    <comment>Message after Play when the chosen folder is gone. {0}: the folder.</comment>
+  </data>
+  <data name="StartElevationCancelled" xml:space="preserve">
+    <value>The game was not started because the request for administrator rights was cancelled. Windows asks for them because "Run as administrator" is set for the game.</value>
+    <comment>Message after Play when the UAC prompt of a RUNASADMIN layer was cancelled (Windows error 1223).</comment>
+  </data>
+  <data name="StartAccessDeniedFormat" xml:space="preserve">
+    <value>Windows did not allow starting {0} (error {1}). Check the security settings of the file and your antivirus program.</value>
+    <comment>Message after Play (Windows error 5 or 1260). {0}: the full path of the program, {1}: the error number.</comment>
+  </data>
+  <data name="StartFailedFormat" xml:space="preserve">
+    <value>{0} could not be started (Windows error {1}): {2}</value>
+    <comment>Message after Play for any other error. {0}: the full path of the program, {1}: the error number, {2}: the message of Windows.</comment>
+  </data>
+  <data name="StartDamagedFormat" xml:space="preserve">
+    <value>{0} is missing. The installation is damaged; Windows or an antivirus program has probably deleted the file or moved it to quarantine.</value>
+    <comment>First line of the repair advice when a program is missing (contract 1.4, 4.4). {0}: the full path of the program.</comment>
+  </data>
+  <data name="StartBlockedByAntivirusFormat" xml:space="preserve">
+    <value>Windows did not start {0} because an antivirus program reports it as a threat (error {1}).</value>
+    <comment>First line of the repair advice (Windows error 225 or 226). {0}: the full path of the program, {1}: the error number.</comment>
+  </data>
+  <data name="RepairAdviceTitle" xml:space="preserve">
+    <value>Repair the installation</value>
+    <comment>Title of the window with the repair advice (contract 4.4).</comment>
+  </data>
+  <data name="RepairStepAntivirusFormat" xml:space="preserve">
+    <value>First add an exception for the folder {0} in your antivirus program; otherwise it removes the files again.</value>
+    <comment>Step of the repair advice when files were deleted (contract 4.4). {0}: the install root.</comment>
+  </data>
+  <data name="RepairStepRunSetup" xml:space="preserve">
+    <value>Close the game. Download the current community setup and run it: it finds the installation and offers to update or repair it.</value>
+    <comment>Step of the repair advice (contract 4.4).</comment>
+  </data>
+  <data name="RepairStepRunSuiteFormat" xml:space="preserve">
+    <value>Close the game. Run "Empire Earth Community Setup" again from the folder you unpacked it to ({0}): it repairs or updates the games it installed.</value>
+    <comment>Step of the repair advice when the suite record lists the product and its folder exists (contract 4.4, revision 4). {0}: the folder the suite was started from (SourceDir). The quoted text is the name of the suite setup file.</comment>
+  </data>
+  <data name="RepairStepKeepFolderAllUsersFormat" xml:space="preserve">
+    <value>Keep the folder {0} and choose "Install for all users" again.</value>
+    <comment>Step of the repair advice for an installation in the mode admin (contract 4.4). {0}: the install root. The quoted text is the option of Inno Setup in this language (PrivilegesRequiredOverrideAllUsers without the &amp;).</comment>
+  </data>
+  <data name="RepairStepKeepFolderCurrentUserFormat" xml:space="preserve">
+    <value>Keep the folder {0} and choose "Install for me only" again.</value>
+    <comment>Step of the repair advice for an installation in the mode user (contract 4.4). {0}: the install root. The quoted text is the option of Inno Setup in this language (PrivilegesRequiredOverrideCurrentUser without the &amp;).</comment>
+  </data>
+  <data name="RepairStepKeepFolderPortableFormat" xml:space="preserve">
+    <value>Run the portable setup again from the same place, so that it uses the folder {0} again.</value>
+    <comment>Step of the repair advice for a portable installation (contract 4.4). {0}: the install root.</comment>
+  </data>
+  <data name="RepairStepKeepFolderFormat" xml:space="preserve">
+    <value>Keep the folder {0}.</value>
+    <comment>Step of the repair advice when the install mode is unknown (contract 4.4). {0}: the install root.</comment>
+  </data>
+  <data name="RepairStepCdKeys" xml:space="preserve">
+    <value>Keep the task "Register NeoEE CDKeys" selected: it also repairs the CD keys.</value>
+    <comment>Step of the repair advice for NeoEE (contract 4.4). The quoted text is the start of the setup's task TaskNeoEECDKeys in this language.</comment>
+  </data>
+  <data name="RepairStepForeignFormat" xml:space="preserve">
+    <value>The installation in {0} was not made by the community setup (for example a CD or GOG installation). The setup does not repair it; it installs its own copy of the game in a new folder.</value>
+    <comment>Step of the repair advice for a foreign installation (contract 4.4). {0}: the install root.</comment>
+  </data>
+  <data name="RepairDownloadPageLabel" xml:space="preserve">
+    <value>Download page of the community setup:</value>
+    <comment>Repair advice, above the address of the download page (contract 4.3).</comment>
+  </data>
+  <data name="RepairDownloadPageSuiteLabel" xml:space="preserve">
+    <value>If that folder is gone, download the community setup instead:</value>
+    <comment>Repair advice with the suite step, above the address of the download page, which stays the second option (contract 4.4, revision 4).</comment>
+  </data>
+  <data name="RepairOpenPageButton" xml:space="preserve">
+    <value>Open download page</value>
+    <comment>Button of the repair advice; opens the download page in the browser; at most about 24 characters.</comment>
+  </data>
+  <data name="RepairOpenSuiteFolderButton" xml:space="preserve">
+    <value>Open setup folder</value>
+    <comment>Button of the repair advice with the suite step; opens the folder of the suite setup in the Explorer (never starts a program); at most about 24 characters.</comment>
+  </data>
+  <data name="RepairCloseButton" xml:space="preserve">
+    <value>Close</value>
+    <comment>Button of the repair advice; at most about 24 characters.</comment>
+  </data>
+  <data name="RepairPageNotOpenedFormat" xml:space="preserve">
+    <value>The page could not be opened. Copy the address into your browser: {0}</value>
+    <comment>Repair advice when the browser could not be opened. {0}: the address of the download page.</comment>
+  </data>
+  <data name="RepairSuiteFolderNotOpenedFormat" xml:space="preserve">
+    <value>The folder could not be opened: {0}</value>
+    <comment>Repair advice when the Explorer could not be opened. {0}: the folder of the suite setup.</comment>
+  </data>
+  <data name="NavigationTools" xml:space="preserve">
+    <value>Tools</value>
+    <comment>Navigation button of the Tools page.</comment>
+  </data>
+  <data name="ToolsFilesHeading" xml:space="preserve">
+    <value>Installation files</value>
+    <comment>Heading of the integrity check on the Tools page.</comment>
+  </data>
+  <data name="ToolsUpdatesHeading" xml:space="preserve">
+    <value>Updates</value>
+    <comment>Heading of the version check on the Tools page.</comment>
+  </data>
+  <data name="FullCheckButton" xml:space="preserve">
+    <value>Check all files</value>
+    <comment>Button on the Tools page: starts the full check of the installation (contract 2.5); at most about 26 characters.</comment>
+  </data>
+  <data name="CancelCheckButton" xml:space="preserve">
+    <value>Cancel check</value>
+    <comment>Button on the Tools page: cancels the running check; at most about 26 characters.</comment>
+  </data>
+  <data name="RepairAdviceButton" xml:space="preserve">
+    <value>Repair advice</value>
+    <comment>Button on the Tools page: opens the repair advice (contract 4.4); at most about 26 characters.</comment>
+  </data>
+  <data name="IntegrityRepairButton" xml:space="preserve">
+    <value>Repair...</value>
+    <comment>Button next to the integrity state on the Play page: opens the repair advice; at most about 14 characters.</comment>
+  </data>
+  <data name="IntegrityDetailsButton" xml:space="preserve">
+    <value>Details</value>
+    <comment>Button next to the integrity state on the Play page: opens the Tools page; at most about 14 characters.</comment>
+  </data>
+  <data name="IntegrityCheckInfo" xml:space="preserve">
+    <value>The quick check runs at every start and after a setup and checks the program files. "Check all files" also compares the game data; that can take a few minutes. The launcher only reads the files.</value>
+    <comment>Below the heading of the integrity check on the Tools page. The quoted text is FullCheckButton.</comment>
+  </data>
+  <data name="IntegrityBadgeChecking" xml:space="preserve">
+    <value>Files: checking...</value>
+    <comment>Integrity state on the Play page while the check runs; at most about 40 characters.</comment>
+  </data>
+  <data name="IntegrityBadgeOk" xml:space="preserve">
+    <value>Files: OK</value>
+    <comment>Integrity state on the Play page (contract 2.5: OK); at most about 40 characters.</comment>
+  </data>
+  <data name="IntegrityBadgeModified" xml:space="preserve">
+    <value>Files: OK, game data changed</value>
+    <comment>Integrity state on the Play page (contract 2.5: Modified, e.g. mods); at most about 40 characters.</comment>
+  </data>
+  <data name="IntegrityBadgeIncomplete" xml:space="preserve">
+    <value>Files: incomplete</value>
+    <comment>Integrity state on the Play page (contract 2.5: Incomplete); at most about 40 characters.</comment>
+  </data>
+  <data name="IntegrityBadgeDamaged" xml:space="preserve">
+    <value>Files: damaged</value>
+    <comment>Integrity state on the Play page (contract 2.5: Damaged); at most about 40 characters.</comment>
+  </data>
+  <data name="IntegrityBadgeChanged" xml:space="preserve">
+    <value>Files: changed since the installation</value>
+    <comment>Integrity state on the Play page when NeoEE program files differ (contract 2.6, O2: neutral wording); at most about 40 characters.</comment>
+  </data>
+  <data name="IntegrityBadgeLegacy" xml:space="preserve">
+    <value>Files: no check (older setup)</value>
+    <comment>Integrity state on the Play page of an installation of the community setup 1.7.2 or older (contract 2.5); at most about 40 characters.</comment>
+  </data>
+  <data name="IntegrityBadgeUnknown" xml:space="preserve">
+    <value>Files: cannot be checked</value>
+    <comment>Integrity state on the Play page (contract 2.5: Unknown); the Tools page says why; at most about 40 characters.</comment>
+  </data>
+  <data name="IntegrityBadgeCancelled" xml:space="preserve">
+    <value>Files: check cancelled</value>
+    <comment>Integrity state on the Play page when the check was cancelled (a setup started, contract 4.2); at most about 40 characters.</comment>
+  </data>
+  <data name="IntegrityBadgeUnreliableFormat" xml:space="preserve">
+    <value>{0} (unreliable)</value>
+    <comment>Integrity state on the Play page when EE and NeoEE share the folder (contract O11). {0}: the state, e.g. Files: OK.</comment>
+  </data>
+  <data name="IntegrityNotChecked" xml:space="preserve">
+    <value>Not checked: this installation was not made by the community setup, which writes the list of files for the check.</value>
+    <comment>Tools page, integrity of a foreign installation (contract 2.5: no check).</comment>
+  </data>
+  <data name="IntegrityOkQuickFormat" xml:space="preserve">
+    <value>All {0} files of the setup's list are there, and the {1} program files are unchanged (quick check).</value>
+    <comment>Tools page, state OK after the quick check. {0}: number of files of the list, {1}: number of program files compared.</comment>
+  </data>
+  <data name="IntegrityOkFullFormat" xml:space="preserve">
+    <value>All {0} files of the setup's list are there, and the {1} files compared with their checksum are unchanged (full check).</value>
+    <comment>Tools page, state OK after the full check. {0}: number of files of the list, {1}: number of files compared.</comment>
+  </data>
+  <data name="IntegrityModifiedFormat" xml:space="preserve">
+    <value>{0} files of the game data differ from the installation, for example because of mods, HD packs or edited civilizations. This is only information: the program files are unchanged.</value>
+    <comment>Tools page, state Modified (contract 2.5). {0}: number of changed data files.</comment>
+  </data>
+  <data name="IntegrityFilesIntro" xml:space="preserve">
+    <value>Files of the installation are missing or damaged. Antivirus programs often delete game files or move them to quarantine.</value>
+    <comment>Tools page and repair advice, states Damaged and Incomplete (contract 2.5); the files follow, the repair steps start with the antivirus exception.</comment>
+  </data>
+  <data name="IntegrityChangedIntro" xml:space="preserve">
+    <value>Program files have changed since the installation. The NeoEE updater can replace NeoEE files; if the game does not work, repair the installation with the setup.</value>
+    <comment>Tools page and repair advice when only NeoEE program files differ (contract 2.6, O2: neutral wording).</comment>
+  </data>
+  <data name="IntegrityUnknownLegacy" xml:space="preserve">
+    <value>Installed by the community setup 1.7.2 or older, which writes no list of files. Run the current setup to enable the check.</value>
+    <comment>Tools page, state Unknown of an installation of the community setup 1.7.2 or older (contract 2.5).</comment>
+  </data>
+  <data name="IntegrityUnknownNewerContract" xml:space="preserve">
+    <value>Installed by a newer setup than this launcher knows. Please update the launcher.</value>
+    <comment>Tools page, state Unknown (contract 5: a newer contract version).</comment>
+  </data>
+  <data name="IntegrityUnknownOlderSetup" xml:space="preserve">
+    <value>An older setup ran after the current one, or the last setup could not replace its records. Run the current setup.</value>
+    <comment>Tools page, state Unknown: the uninstall key lacks the contract version (contract 2.5).</comment>
+  </data>
+  <data name="IntegrityUnknownNoRecords" xml:space="preserve">
+    <value>The last run of the setup did not finish, or the setup could not write its list of files. Run the setup again to repair the installation.</value>
+    <comment>Tools page, state Unknown: no usable install.ini or list of files (contract 2.5).</comment>
+  </data>
+  <data name="IntegrityUnknownUnreadable" xml:space="preserve">
+    <value>Some files could not be read (in use or access denied). Close the game and check again.</value>
+    <comment>Tools page, state Unknown: files could not be read.</comment>
+  </data>
+  <data name="IntegrityCancelledSetup" xml:space="preserve">
+    <value>The check was cancelled because a setup started. It runs again when the setup has ended.</value>
+    <comment>Tools page, the check was cancelled by a setup (contract 4.2).</comment>
+  </data>
+  <data name="IntegrityCancelledRequested" xml:space="preserve">
+    <value>The check was cancelled.</value>
+    <comment>Tools page, the check was cancelled with CancelCheckButton.</comment>
+  </data>
+  <data name="IntegrityUnreliableFormat" xml:space="preserve">
+    <value>Empire Earth and NeoEE are installed in the same folder: the setup of {0} may have replaced files of {1}, so this check is unreliable.</value>
+    <comment>Tools page (contract O11). {0}: the other product, {1}: the product checked (Empire Earth or NeoEE).</comment>
+  </data>
+  <data name="IntegrityChecking" xml:space="preserve">
+    <value>Checking the files of the installation...</value>
+    <comment>Tools page while the check runs.</comment>
+  </data>
+  <data name="IntegrityProgressFormat" xml:space="preserve">
+    <value>Checking: {0} of {1} files</value>
+    <comment>Tools page during the full check. {0}: files checked, {1}: all files.</comment>
+  </data>
+  <data name="IntegrityFileMissingFormat" xml:space="preserve">
+    <value>{0}: missing</value>
+    <comment>One file of the integrity findings. {0}: the path in the installation.</comment>
+  </data>
+  <data name="IntegrityFileMissingAfterInstallFormat" xml:space="preserve">
+    <value>{0}: missing since the installation</value>
+    <comment>One file of the integrity findings: the setup found it gone at the end of the installation. {0}: the path.</comment>
+  </data>
+  <data name="IntegrityFileDamagedFormat" xml:space="preserve">
+    <value>{0}: damaged or replaced</value>
+    <comment>One file of the integrity findings: a program file with another checksum. {0}: the path.</comment>
+  </data>
+  <data name="IntegrityFileChangedFormat" xml:space="preserve">
+    <value>{0}: changed since the installation</value>
+    <comment>One file of the integrity findings: a NeoEE program file with another checksum (contract O2). {0}: the path.</comment>
+  </data>
+  <data name="IntegrityFileModifiedFormat" xml:space="preserve">
+    <value>{0}: modified</value>
+    <comment>One file of the integrity findings: a data file with another checksum (only information). {0}: the path.</comment>
+  </data>
+  <data name="IntegrityFileUnreadableFormat" xml:space="preserve">
+    <value>{0}: cannot be read</value>
+    <comment>One file of the integrity findings: it could not be read. {0}: the path.</comment>
+  </data>
+  <data name="IntegrityMoreFilesFormat" xml:space="preserve">
+    <value>and {0} more files</value>
+    <comment>Below the first files of the repair advice. {0}: the number of further files.</comment>
+  </data>
+  <data name="VersionCheckPlayButton" xml:space="preserve">
+    <value>Check version</value>
+    <comment>Button next to the versions on the Play page: asks the update server (contract 4.5); at most about 16 characters.</comment>
+  </data>
+  <data name="VersionCheckToolsButton" xml:space="preserve">
+    <value>Check for updates</value>
+    <comment>Button on the Tools page: asks the update server about the game and the setup version (contract 4.5); at most about 26 characters.</comment>
+  </data>
+  <data name="VersionCheckInfo" xml:space="preserve">
+    <value>Asks api.empireearth.eu whether the installed game and setup are current. Only the AppId of the installation and the version are sent.</value>
+    <comment>Below the heading of the version check on the Tools page (contract 4.3: no telemetry).</comment>
+  </data>
+  <data name="VersionChecking" xml:space="preserve">
+    <value>Asking the update server...</value>
+    <comment>Play and Tools pages while the version check runs.</comment>
+  </data>
+  <data name="VersionGameUpToDateFormat" xml:space="preserve">
+    <value>Game version {0}: up to date.</value>
+    <comment>Result of the version check (contract 4.5). {0}: the installed game version.</comment>
+  </data>
+  <data name="VersionGameUpdateFormat" xml:space="preserve">
+    <value>Game version {0}: version {1} is available.</value>
+    <comment>Result of the version check (contract 4.5). {0}: the installed game version, {1}: the latest version or ?.</comment>
+  </data>
+  <data name="VersionSetupUpToDateFormat" xml:space="preserve">
+    <value>Setup version {0}: up to date.</value>
+    <comment>Result of the version check (contract 4.5). {0}: the version of the setup that installed the game.</comment>
+  </data>
+  <data name="VersionSetupUpdateFormat" xml:space="preserve">
+    <value>Setup version {0}: version {1} is available.</value>
+    <comment>Result of the version check (contract 4.5). {0}: the installed setup version, {1}: the latest version or ?.</comment>
+  </data>
+  <data name="VersionNotPossible" xml:space="preserve">
+    <value>No version check: only installations of the community setup with a recorded version can be checked.</value>
+    <comment>Result of the version check for a foreign installation or one without a version (contract 4.5).</comment>
+  </data>
+  <data name="VersionFailedFormat" xml:space="preserve">
+    <value>The update server could not be asked ({0}); details in the log.</value>
+    <comment>Result of the version check without an answer. {0}: the reason, one of the Failure texts.</comment>
+  </data>
+  <data name="FailureTimeout" xml:space="preserve">
+    <value>no answer within 10 seconds</value>
+    <comment>Reason in VersionFailedFormat.</comment>
+  </data>
+  <data name="FailureTls" xml:space="preserve">
+    <value>the secure connection failed</value>
+    <comment>Reason in VersionFailedFormat (TLS handshake or certificate).</comment>
+  </data>
+  <data name="FailureNetwork" xml:space="preserve">
+    <value>no connection</value>
+    <comment>Reason in VersionFailedFormat (offline, DNS, proxy).</comment>
+  </data>
+  <data name="FailureStatus" xml:space="preserve">
+    <value>unexpected answer of the server</value>
+    <comment>Reason in VersionFailedFormat (an HTTP status other than 200).</comment>
+  </data>
+  <data name="ToolsCleanupHeading" xml:space="preserve">
+    <value>Old registry entries</value>
+    <comment>Heading of the registry cleanup on the Tools page.</comment>
+  </data>
+  <data name="CleanupInfo" xml:space="preserve">
+    <value>Leftovers of removed installations (SSSI, Mad Doc, NeoEE) can disturb a new installation. The launcher deletes only entries of your Windows account, only when no installation uses them and their game folder is gone, and only after it has exported them to the backup folder. Entries for all users are only shown, with advice. Software\Sierra is never deleted: it contains the NeoEE CD keys.</value>
+    <comment>Below the heading of the registry cleanup (R5, ADR 0007).</comment>
+  </data>
+  <data name="CleanupNothingToCleanUp" xml:space="preserve">
+    <value>Nothing to clean up: no entry of your account is a leftover.</value>
+    <comment>Registry cleanup without a key the launcher could delete (ADR 0007 plan review); the read-only list follows.</comment>
+  </data>
+  <data name="CleanupCandidatesFormat" xml:space="preserve">
+    <value>{0} entries of your account are leftovers of a removed installation. Select the ones to delete.</value>
+    <comment>Registry cleanup with keys the launcher can delete. {0}: their number.</comment>
+  </data>
+  <data name="CleanupDeleteButton" xml:space="preserve">
+    <value>Delete selected...</value>
+    <comment>Button of the registry cleanup; at most about 26 characters.</comment>
+  </data>
+  <data name="CleanupConfirmFormat" xml:space="preserve">
+    <value>Delete these registry entries?
+
+{0}
+
+They are exported first to a .reg file in {1}; double-click it to restore them.</value>
+    <comment>Confirmation of the registry cleanup. {0}: the keys, one per line; {1}: the backup folder.</comment>
+  </data>
+  <data name="CleanupOfferedFormat" xml:space="preserve">
+    <value>{0} (folder {1} no longer exists)</value>
+    <comment>An entry of the registry cleanup the player can select. {0}: the key as the Registry Editor names it; {1}: the folder its values name.</comment>
+  </data>
+  <data name="CleanupAdviceExportFormat" xml:space="preserve">
+    <value>{0}: leftover of a removed installation (folder {1} no longer exists). It applies to all users, so the launcher does not change it. To remove it: start the Registry Editor as administrator, right-click the key, choose Export and save the file, then delete the key.</value>
+    <comment>Read-only advice for a stale HKLM key (SSSI or Mad Doc only, ADR 0007 plan review). {0}: the key; {1}: its folder.</comment>
+  </data>
+  <data name="CleanupAdviceDoNotDeleteFormat" xml:space="preserve">
+    <value>{0}: do not delete, it contains the NeoEE CD keys ({1}).</value>
+    <comment>Read-only entry of Software\Sierra (contract 3.8). {0}: the key; {1}: CleanupCdKeysExist, CleanupCdKeysMissing or CleanupCdKeysUnknown.</comment>
+  </data>
+  <data name="CleanupCdKeysExist" xml:space="preserve">
+    <value>CD keys present</value>
+    <comment>Part of CleanupAdviceDoNotDeleteFormat (O8: only whether they exist).</comment>
+  </data>
+  <data name="CleanupCdKeysMissing" xml:space="preserve">
+    <value>no CD keys</value>
+    <comment>Part of CleanupAdviceDoNotDeleteFormat.</comment>
+  </data>
+  <data name="CleanupCdKeysUnknown" xml:space="preserve">
+    <value>CD keys cannot be read</value>
+    <comment>Part of CleanupAdviceDoNotDeleteFormat.</comment>
+  </data>
+  <data name="CleanupKeepInstallationFormat" xml:space="preserve">
+    <value>{0}: kept, an installation of {1} was found.</value>
+    <comment>Read-only entry of the registry cleanup. {0}: the key; {1}: Empire Earth or NeoEE.</comment>
+  </data>
+  <data name="CleanupKeepFolderFormat" xml:space="preserve">
+    <value>{0}: kept, its folder {1} exists.</value>
+    <comment>Read-only entry of the registry cleanup. {0}: the key; {1}: the folder.</comment>
+  </data>
+  <data name="CleanupKeepDriveFormat" xml:space="preserve">
+    <value>{0}: kept, its folder {1} is on a drive that is not connected or not a local hard disk.</value>
+    <comment>Read-only entry of the registry cleanup (a missing USB stick is no removed installation). {0}: the key; {1}: the folder.</comment>
+  </data>
+  <data name="CleanupKeepNoFolderFormat" xml:space="preserve">
+    <value>{0}: kept, it names no game folder.</value>
+    <comment>Read-only entry of the registry cleanup. {0}: the key.</comment>
+  </data>
+  <data name="CleanupKeepUnreadableFormat" xml:space="preserve">
+    <value>{0}: kept, it cannot be read.</value>
+    <comment>Read-only entry of the registry cleanup. {0}: the key.</comment>
+  </data>
+  <data name="CleanupDoneFormat" xml:space="preserve">
+    <value>{0} entries deleted. The backup is in: {1}</value>
+    <comment>Result of the registry cleanup. {0}: number of keys; {1}: the backup folder.</comment>
+  </data>
+  <data name="CleanupNoLongerStale" xml:space="preserve">
+    <value>Nothing was deleted: an entry is in use again (an installation or its drive is back). The list was updated.</value>
+    <comment>Result of the registry cleanup when a selected key is not stale any more.</comment>
+  </data>
+  <data name="CleanupFailedFormat" xml:space="preserve">
+    <value>Not every entry could be deleted (details in the log). The backup {0} restores the deleted ones.</value>
+    <comment>Result of the registry cleanup when a delete failed after the backup. {0}: the backup file.</comment>
+  </data>
+  <data name="ToolsWonHeading" xml:space="preserve">
+    <value>WON login</value>
+    <comment>Heading of the WON login reset on the Tools page.</comment>
+  </data>
+  <data name="WonInfo" xml:space="preserve">
+    <value>If the online login fails, for example with WS_GetCert_InvalidPubKeyBlock, it helps to reset the WON login (forum): the files _wonkver.pub and _wonlogin.ks of both games are moved to the backup folder, and the game creates new ones at the next login. The backup folder then contains login data: never pass it on.</value>
+    <comment>Below the heading of the WON login reset (R6, forum p=83519, ADR 0007: the backup folder contains login data).</comment>
+  </data>
+  <data name="WonFilesFormat" xml:space="preserve">
+    <value>WON login files: {0}</value>
+    <comment>State of the WON login reset. {0}: the files found, separated by commas.</comment>
+  </data>
+  <data name="WonNoFiles" xml:space="preserve">
+    <value>No WON login file found.</value>
+    <comment>State of the WON login reset without files.</comment>
+  </data>
+  <data name="WonResetButton" xml:space="preserve">
+    <value>Reset WON login</value>
+    <comment>Button of the WON login reset; at most about 34 characters.</comment>
+  </data>
+  <data name="WonDoneFormat" xml:space="preserve">
+    <value>{0} files moved to {1}. This folder contains login data: never pass it on. If the login still fails, repair the installation with the setup.</value>
+    <comment>Result of the WON login reset. {0}: number of files; {1}: the backup folder.</comment>
+  </data>
+  <data name="WonPartialFormat" xml:space="preserve">
+    <value>Copied to {0}, but these files could not be removed (access denied). Close the game and try again, or delete them in the Explorer:
+{1}</value>
+    <comment>Result of the WON login reset when Windows denied removing files. {0}: the backup folder; {1}: the files, one per line.</comment>
+  </data>
+  <data name="WonNothingToReset" xml:space="preserve">
+    <value>No WON login file was found; there is nothing to reset.</value>
+    <comment>Result of the WON login reset without files.</comment>
+  </data>
+  <data name="WonManifestUnusable" xml:space="preserve">
+    <value>Nothing was moved: the list of files of the setup cannot be read, so the launcher cannot tell the files of the installation apart. Repair the installation with the setup.</value>
+    <comment>Result of the WON login reset when the manifest exists but cannot be used.</comment>
+  </data>
+  <data name="ToolsVirtualStoreHeading" xml:space="preserve">
+    <value>VirtualStore</value>
+    <comment>Heading of the VirtualStore check on the Tools page (a Windows term).</comment>
+  </data>
+  <data name="VirtualStoreInfo" xml:space="preserve">
+    <value>When a game below Program Files runs without administrator rights, Windows keeps the files it changes as copies in %LOCALAPPDATA%\VirtualStore. Then the game can use other files than the installation, for example another version with and without administrator rights (forum).</value>
+    <comment>Below the heading of the VirtualStore check (R8, forum 4.12).</comment>
+  </data>
+  <data name="VirtualStoreNotVirtualized" xml:space="preserve">
+    <value>Not affected: the game folders are not below Program Files, ProgramData or the Windows folder.</value>
+    <comment>VirtualStore check of an installation outside the virtualized folders.</comment>
+  </data>
+  <data name="VirtualStoreNone" xml:space="preserve">
+    <value>No copies in the VirtualStore.</value>
+    <comment>VirtualStore check without copies.</comment>
+  </data>
+  <data name="VirtualStoreSeriousFormat" xml:space="preserve">
+    <value>{0} files of the installation or program files are used from the VirtualStore instead of the game folder, so the game may run another version. Close the game, move these copies out of the VirtualStore folder, and repair the installation with the setup if the game does not start.</value>
+    <comment>VirtualStore check with shadowed manifest or program files (serious). {0}: their number.</comment>
+  </data>
+  <data name="VirtualStoreRuntimeFormat" xml:space="preserve">
+    <value>{0} other files (lobby profiles, logs, saved games) are in the VirtualStore; that is normal for a game without administrator rights.</value>
+    <comment>VirtualStore check with runtime files (information). {0}: their number.</comment>
+  </data>
+  <data name="VirtualStoreSeriousLineFormat" xml:space="preserve">
+    <value>{0} (used instead of {1})</value>
+    <comment>A serious VirtualStore copy in the list. {0}: the copy; {1}: the file of the game folder.</comment>
+  </data>
+  <data name="VirtualStoreTruncatedFormat" xml:space="preserve">
+    <value>Only the first {0} files are listed.</value>
+    <comment>Below a long VirtualStore list. {0}: the limit.</comment>
+  </data>
+  <data name="ToolsSavesHeading" xml:space="preserve">
+    <value>Saved games and scenarios</value>
+    <comment>Heading of the saved games on the Tools page.</comment>
+  </data>
+  <data name="SavesInfo" xml:space="preserve">
+    <value>Export copies all saved games (.ees) and scenarios (.scn) of both games into a new folder, also those in the VirtualStore. For a multiplayer saved game every player needs the same file with exactly the same name, and the host needs its ports forwarded (by default 33334 and 33336 TCP and UDP, 33335 TCP; the network check below names those of this installation).</value>
+    <comment>Below the heading of the saved games (R10, forum t=9004 p=44629, p=44615).</comment>
+  </data>
+  <data name="SavesCountFormat" xml:space="preserve">
+    <value>{0} saved games and {1} scenarios found.</value>
+    <comment>State of the saved games. {0}, {1}: numbers.</comment>
+  </data>
+  <data name="SavesShadowedFormat" xml:space="preserve">
+    <value>Hidden by a VirtualStore copy of the same name (the game uses the copy, the export takes the copy): {0}</value>
+    <comment>Below the number of saved games when a VirtualStore copy hides a file of the game folder. {0}: the hidden files.</comment>
+  </data>
+  <data name="ExportSavesButton" xml:space="preserve">
+    <value>Export...</value>
+    <comment>Button of the saved games; at most about 20 characters.</comment>
+  </data>
+  <data name="ImportEeSavesButton" xml:space="preserve">
+    <value>Import into Empire Earth...</value>
+    <comment>Button of the saved games; at most about 34 characters.</comment>
+  </data>
+  <data name="ImportAocSavesButton" xml:space="preserve">
+    <value>Import into The Art of Conquest...</value>
+    <comment>Button of the saved games; at most about 38 characters.</comment>
+  </data>
+  <data name="ExportFolderDescription" xml:space="preserve">
+    <value>Choose the folder for the export; the launcher creates a new folder in it.</value>
+    <comment>Description of the folder dialog of the export.</comment>
+  </data>
+  <data name="ImportDialogTitle" xml:space="preserve">
+    <value>Saved games and scenarios to import</value>
+    <comment>Title of the file dialog of the import.</comment>
+  </data>
+  <data name="ImportFileFilter" xml:space="preserve">
+    <value>Saved games and scenarios (*.ees;*.scn)|*.ees;*.scn</value>
+    <comment>Filter of the file dialog of the import: the text before | is shown, the part after it must stay *.ees;*.scn.</comment>
+  </data>
+  <data name="ExportDoneFormat" xml:space="preserve">
+    <value>{0} files exported to: {1}</value>
+    <comment>Result of the export. {0}: number; {1}: the new folder.</comment>
+  </data>
+  <data name="ExportPartialFormat" xml:space="preserve">
+    <value>{0} files exported to {1}; not exported (details in the log): {2}</value>
+    <comment>Result of the export with files left out. {0}: number; {1}: the folder; {2}: the files left out.</comment>
+  </data>
+  <data name="ExportNothing" xml:space="preserve">
+    <value>There is no saved game and no scenario to export.</value>
+    <comment>Result of the export without files.</comment>
+  </data>
+  <data name="ExportInsideGameFolder" xml:space="preserve">
+    <value>Choose a folder outside the game folders.</value>
+    <comment>Result of the export into a game folder.</comment>
+  </data>
+  <data name="ExportFailed" xml:space="preserve">
+    <value>The export folder could not be created (details in the log).</value>
+    <comment>Result of the export when its folder fails.</comment>
+  </data>
+  <data name="ImportConfirmFormat" xml:space="preserve">
+    <value>These files exist already and would be replaced:
+
+{0}
+
+The old files are copied to the backup folder first. Replace them?</value>
+    <comment>Confirmation of an import that replaces files. {0}: the files, one per line.</comment>
+  </data>
+  <data name="ImportResultFormat" xml:space="preserve">
+    <value>{0} of {1} files imported.</value>
+    <comment>Result of the import. {0}, {1}: numbers.</comment>
+  </data>
+  <data name="ImportFileProblemFormat" xml:space="preserve">
+    <value>{0}: {1}</value>
+    <comment>A file of the import that was not imported. {0}: the file name; {1}: the reason.</comment>
+  </data>
+  <data name="ImportCheckNotFound" xml:space="preserve">
+    <value>not found</value>
+    <comment>Reason of ImportFileProblemFormat.</comment>
+  </data>
+  <data name="ImportCheckWrongExtension" xml:space="preserve">
+    <value>only .ees and .scn files can be imported</value>
+    <comment>Reason of ImportFileProblemFormat.</comment>
+  </data>
+  <data name="ImportCheckNotAPlainName" xml:space="preserve">
+    <value>not a plain file name</value>
+    <comment>Reason of ImportFileProblemFormat.</comment>
+  </data>
+  <data name="ImportCheckNameOutsideAnsi" xml:space="preserve">
+    <value>the name has characters the game cannot read</value>
+    <comment>Reason of ImportFileProblemFormat.</comment>
+  </data>
+  <data name="ImportCheckTooLarge" xml:space="preserve">
+    <value>larger than 64 MiB</value>
+    <comment>Reason of ImportFileProblemFormat.</comment>
+  </data>
+  <data name="ImportCheckAlreadyInPlace" xml:space="preserve">
+    <value>already in the game folder</value>
+    <comment>Reason of ImportFileProblemFormat.</comment>
+  </data>
+  <data name="ImportCheckManifestFile" xml:space="preserve">
+    <value>a file of the installation, never replaced</value>
+    <comment>Reason of ImportFileProblemFormat (contract 2.5).</comment>
+  </data>
+  <data name="ImportCheckDuplicateName" xml:space="preserve">
+    <value>another selected file has the same name</value>
+    <comment>Reason of ImportFileProblemFormat.</comment>
+  </data>
+  <data name="ImportNotConfirmed" xml:space="preserve">
+    <value>not replaced</value>
+    <comment>Reason of ImportFileProblemFormat (the player did not confirm).</comment>
+  </data>
+  <data name="ImportAccessDenied" xml:space="preserve">
+    <value>access denied</value>
+    <comment>Reason of ImportFileProblemFormat.</comment>
+  </data>
+  <data name="ImportFailed" xml:space="preserve">
+    <value>could not be written (details in the log)</value>
+    <comment>Reason of ImportFileProblemFormat.</comment>
+  </data>
+  <data name="ImportNameNoteFormat" xml:space="preserve">
+    <value>{0}: the name has characters outside plain ASCII; in multiplayer every player needs exactly this name.</value>
+    <comment>Note below the result of the import (forum t=9004 p=44629, t=3563 p=23879). {0}: the file name.</comment>
+  </data>
+  <data name="ImportBackupFormat" xml:space="preserve">
+    <value>The replaced files are in: {0}</value>
+    <comment>Below the result of an import that replaced files. {0}: the backup folder.</comment>
+  </data>
+  <data name="ToolsNamesHeading" xml:space="preserve">
+    <value>Player names</value>
+    <comment>Heading of the name check on the Tools page.</comment>
+  </data>
+  <data name="NamesInfo" xml:space="preserve">
+    <value>Special characters in names cause problems in multiplayer: with symbols in a player name a saved game cannot be loaded, and Unicode characters in a name made the game crash (forum). Use letters A to Z, digits and simple punctuation.</value>
+    <comment>Below the heading of the name check (forum t=3563 p=23879, t=2126 p=14281).</comment>
+  </data>
+  <data name="NamesOkFormat" xml:space="preserve">
+    <value>All {0} lobby profiles and player names use plain characters.</value>
+    <comment>Name check without warnings. {0}: number.</comment>
+  </data>
+  <data name="NamesNone" xml:space="preserve">
+    <value>No lobby profile and no player found.</value>
+    <comment>Name check without names.</comment>
+  </data>
+  <data name="NamesWarningFormat" xml:space="preserve">
+    <value>{0} names have characters outside plain ASCII:</value>
+    <comment>Name check with warnings; the names follow. {0}: number.</comment>
+  </data>
+  <data name="NameLobbyProfileFormat" xml:space="preserve">
+    <value>{0}, lobby profile: {1}</value>
+    <comment>A name of the name check. {0}: the game; {1}: the name.</comment>
+  </data>
+  <data name="NamePlayerFormat" xml:space="preserve">
+    <value>{0}, player: {1}</value>
+    <comment>A name of the name check (folder Users\&lt;Name&gt;). {0}: the game; {1}: the name.</comment>
+  </data>
+  <data name="ToolsBackupsHeading" xml:space="preserve">
+    <value>Backups</value>
+    <comment>Heading of the backup folder on the Tools page.</comment>
+  </data>
+  <data name="BackupFolderInfoFormat" xml:space="preserve">
+    <value>The launcher keeps its backups in {0}: .reg files of changed or deleted registry entries, the moved WON login files and replaced saved games. The folder contains login data; never pass it on.</value>
+    <comment>Below the heading of the backups (ADR 0007). {0}: the backup folder.</comment>
+  </data>
+  <data name="OpenBackupFolderButton" xml:space="preserve">
+    <value>Open backup folder</value>
+    <comment>Button of the backups; at most about 34 characters.</comment>
+  </data>
+  <data name="OpenBackupFolderFailedFormat" xml:space="preserve">
+    <value>The backup folder could not be opened: {0}</value>
+    <comment>Message when the Explorer cannot open it. {0}: the error.</comment>
+  </data>
+  <data name="ToolsChecking" xml:space="preserve">
+    <value>Checking...</value>
+    <comment>State of a tool of the Tools page while it reads.</comment>
+  </data>
+  <data name="ToolsNetworkHeading" xml:space="preserve">
+    <value>Network</value>
+    <comment>Heading of the network diagnostics on the Tools page.</comment>
+  </data>
+  <data name="NetworkInfo" xml:space="preserve">
+    <value>On request the launcher checks what the support forum asked again and again: the network adapters of this computer, the name lookup (DNS) of the NeoEE servers, the update server, the NeoEE status server, NeoEE.cfg and WONLobby.cfg of the game folders (only read) and upnp_info.txt. It sends nothing but the AppId of the installation and the question for the latest game version to the update server and asks no service for your public address.</value>
+    <comment>Below the heading of the network diagnostics (R7, ARCHITECTURE 4.6). Keep the file names untranslated.</comment>
+  </data>
+  <data name="NetworkCheckButton" xml:space="preserve">
+    <value>Check network</value>
+    <comment>Button of the network diagnostics; at most about 26 characters.</comment>
+  </data>
+  <data name="NetworkChecking" xml:space="preserve">
+    <value>Checking the network ...</value>
+    <comment>State line while the network diagnostics run (up to about 20 seconds).</comment>
+  </data>
+  <data name="NetworkVerdictServerAnswersFormat" xml:space="preserve">
+    <value>The NeoEE server answers ({0} players online). If the lobby still fails, see the hints below and the WON login on this page.</value>
+    <comment>Outage verdict: the status server answered. {0}: the number of online players.</comment>
+  </data>
+  <data name="NetworkVerdictOutage" xml:space="preserve">
+    <value>Probably a server outage, not your computer: the server names resolve and the update server answers, but the NeoEE server does not. Try again later; nothing needs to be changed on this computer.</value>
+    <comment>Outage verdict (forum report section 8 row 9, not droppable): DNS works, the update API answers, the status server does not.</comment>
+  </data>
+  <data name="NetworkVerdictNameNotResolvedFormat" xml:space="preserve">
+    <value>The update server answers, but the name {0} of the NeoEE server cannot be resolved. The DNS server of your connection may have a problem, or the server name has changed: try again later or restart the router.</value>
+    <comment>Outage verdict: the update API answers, DNS of the status server fails. {0}: the host name.</comment>
+  </data>
+  <data name="NetworkVerdictNoConnection" xml:space="preserve">
+    <value>This computer seems to have no internet connection: the name of the NeoEE server cannot be resolved and the update server does not answer. Check the network connection (cable, Wi-Fi, flight mode).</value>
+    <comment>Outage verdict: DNS fails and the update API does not answer (or could not be asked).</comment>
+  </data>
+  <data name="NetworkVerdictNoServerReached" xml:space="preserve">
+    <value>No server answers although the names resolve. A firewall, an antivirus program or a proxy may block the launcher, or both servers are down. Check the exceptions of the firewall and the antivirus program, then try again.</value>
+    <comment>Outage verdict: DNS works, but neither the update API nor the status server answers.</comment>
+  </data>
+  <data name="NetworkVerdictUndetermined" xml:space="preserve">
+    <value>The NeoEE server does not answer. Whether the server is down cannot be told: the update server is only asked with the AppId of an installation of the community setup, and there is none.</value>
+    <comment>Outage verdict: DNS works, the status server does not answer, the update API was not asked (no AppId, ADR 0008).</comment>
+  </data>
+  <data name="NetworkVerdictNotConfigured" xml:space="preserve">
+    <value>The NeoEE server is not configured (the server settings in Empire Earth Launcher.exe.config are invalid), so it was not asked.</value>
+    <comment>Outage verdict: no status server settings. Keep the file name untranslated.</comment>
+  </data>
+  <data name="NetworkHintNoConnection" xml:space="preserve">
+    <value>No connected network adapter has an IPv4 gateway: the computer seems to be offline.</value>
+    <comment>Hint of the network diagnostics.</comment>
+  </data>
+  <data name="NetworkHintIPv6Only" xml:space="preserve">
+    <value>Your connection has IPv6 but no IPv4 gateway. Empire Earth needs IPv4: ask your provider for an IPv4 connection.</value>
+    <comment>Hint of the network diagnostics (IPv6 only, forum t=11057 p=48100).</comment>
+  </data>
+  <data name="NetworkHintVirtualAdaptersFormat" xml:space="preserve">
+    <value>{0} virtual or VPN adapters are connected (for example Hamachi, a VPN or a virtual machine). In the lobby options and in the game's multiplayer options choose the same real adapter with the IPv4 address of your home network; a virtual adapter can hide hosted games or crash the game.</value>
+    <comment>Hint of the network diagnostics (forum 4.10). {0}: their number.</comment>
+  </data>
+  <data name="NetworkHintSeveralAdaptersFormat" xml:space="preserve">
+    <value>{0} network adapters are connected with a gateway (for example cable and Wi-Fi). Choose the same one in the lobby options and in the game's multiplayer options.</value>
+    <comment>Hint of the network diagnostics (forum 4.10). {0}: their number.</comment>
+  </data>
+  <data name="NetworkHintCgnat" xml:space="preserve">
+    <value>The router reports an address of carrier-grade NAT (100.64.0.0/10): your provider shares one public address with other customers, so port forwarding cannot work. NeoEE's RIP hosting still works for normal games; for scenarios and saved games ask your provider for a public IPv4 address.</value>
+    <comment>Hint of the network diagnostics (upnp_info.txt, CGNAT, forum 4.9).</comment>
+  </data>
+  <data name="NetworkHintDsLite" xml:space="preserve">
+    <value>The router has no public IPv4 address of its own and the computer uses IPv6: probably DS-Lite. Port forwarding for IPv4 cannot work; NeoEE's RIP hosting still works for normal games. For scenarios and saved games ask your provider for a public IPv4 address (in the forum this solved it).</value>
+    <comment>Hint of the network diagnostics (upnp_info.txt and IPv6, DS-Lite, t=11057 p=48100).</comment>
+  </data>
+  <data name="NetworkHintNoExternalIPv4" xml:space="preserve">
+    <value>The router reports no external IPv4 address (0.0.0.0). Port forwarding needs one; check the internet connection of the router.</value>
+    <comment>Hint of the network diagnostics (upnp_info.txt).</comment>
+  </data>
+  <data name="NetworkHintPrivateExternal" xml:space="preserve">
+    <value>The router's external address is a private one: a second router or modem is in front of it (double NAT). Forward the ports on both devices, or switch the modem to router or bridge mode.</value>
+    <comment>Hint of the network diagnostics (upnp_info.txt, double NAT, forum 4.9).</comment>
+  </data>
+  <data name="NetworkHintRipOffFormat" xml:space="preserve">
+    <value>NeoEE.cfg of {0}: RIP hosting is switched off (Active: false). Without it every hosted game needs port forwarding; the setup installs the file with RIP hosting on.</value>
+    <comment>Hint of the network diagnostics (t=5843 p=39204). {0}: Empire Earth or The Art of Conquest. Keep NeoEE.cfg and Active: false untranslated.</comment>
+  </data>
+  <data name="NetworkHintCdKeyCheckFormat" xml:space="preserve">
+    <value>WONLobby.cfg of {0}: CDKeyCheck is not true. NeoEE needs it; run the community setup as a repair to install the file again (the launcher does not change it).</value>
+    <comment>Hint of the network diagnostics (t=10950 p=47202). {0}: Empire Earth or The Art of Conquest. Keep WONLobby.cfg and CDKeyCheck untranslated.</comment>
+  </data>
+  <data name="NetworkAdaptersUnreadable" xml:space="preserve">
+    <value>The network adapters could not be listed.</value>
+    <comment>Detail line of the network diagnostics.</comment>
+  </data>
+  <data name="NetworkAdapterFormat" xml:space="preserve">
+    <value>{0} "{1}": IPv4 {2}, gateway {3}, IPv6 {4}</value>
+    <comment>Detail line of one adapter. {0}: its type (NetworkKind...); {1}: the driver name; {2}: addresses; {3}: gateway; {4}: NetworkIPv6...</comment>
+  </data>
+  <data name="NetworkAdapterVirtual" xml:space="preserve">
+    <value>, virtual or VPN</value>
+    <comment>Appended to NetworkAdapterFormat.</comment>
+  </data>
+  <data name="NetworkAdapterDisconnected" xml:space="preserve">
+    <value>, not connected</value>
+    <comment>Appended to NetworkAdapterFormat.</comment>
+  </data>
+  <data name="NetworkKindEthernet" xml:space="preserve">
+    <value>Ethernet</value>
+    <comment>Adapter type in NetworkAdapterFormat.</comment>
+  </data>
+  <data name="NetworkKindWireless" xml:space="preserve">
+    <value>Wi-Fi</value>
+    <comment>Adapter type in NetworkAdapterFormat.</comment>
+  </data>
+  <data name="NetworkKindTunnel" xml:space="preserve">
+    <value>Tunnel (VPN)</value>
+    <comment>Adapter type in NetworkAdapterFormat.</comment>
+  </data>
+  <data name="NetworkKindPpp" xml:space="preserve">
+    <value>Dial-up (PPP)</value>
+    <comment>Adapter type in NetworkAdapterFormat.</comment>
+  </data>
+  <data name="NetworkKindMobile" xml:space="preserve">
+    <value>Mobile broadband</value>
+    <comment>Adapter type in NetworkAdapterFormat.</comment>
+  </data>
+  <data name="NetworkKindOther" xml:space="preserve">
+    <value>Other adapter</value>
+    <comment>Adapter type in NetworkAdapterFormat.</comment>
+  </data>
+  <data name="NetworkNone" xml:space="preserve">
+    <value>none</value>
+    <comment>No address or gateway in NetworkAdapterFormat.</comment>
+  </data>
+  <data name="NetworkIPv6None" xml:space="preserve">
+    <value>none</value>
+    <comment>IPv6 class in NetworkAdapterFormat (ADR 0013: IPv6 only as a class).</comment>
+  </data>
+  <data name="NetworkIPv6LinkLocal" xml:space="preserve">
+    <value>link-local only</value>
+    <comment>IPv6 class in NetworkAdapterFormat.</comment>
+  </data>
+  <data name="NetworkIPv6Global" xml:space="preserve">
+    <value>available</value>
+    <comment>IPv6 class in NetworkAdapterFormat: a global IPv6 address.</comment>
+  </data>
+  <data name="NetworkClassPrivate" xml:space="preserve">
+    <value>private address</value>
+    <comment>Class of an IPv4 address that is not shown.</comment>
+  </data>
+  <data name="NetworkClassLinkLocal" xml:space="preserve">
+    <value>link-local address</value>
+    <comment>Class of an IPv4 address.</comment>
+  </data>
+  <data name="NetworkClassCgnat" xml:space="preserve">
+    <value>CGNAT address</value>
+    <comment>Class of an IPv4 address (100.64.0.0/10).</comment>
+  </data>
+  <data name="NetworkClassPublic" xml:space="preserve">
+    <value>public address</value>
+    <comment>Class of an IPv4 address; its value is never shown (ADR 0013).</comment>
+  </data>
+  <data name="NetworkClassUnspecified" xml:space="preserve">
+    <value>none (0.0.0.0)</value>
+    <comment>Class of the address 0.0.0.0.</comment>
+  </data>
+  <data name="NetworkClassSpecial" xml:space="preserve">
+    <value>special address</value>
+    <comment>Class of a loopback, multicast or reserved address.</comment>
+  </data>
+  <data name="NetworkDnsResolvedFormat" xml:space="preserve">
+    <value>Name lookup {0}: OK</value>
+    <comment>Detail line. {0}: the server name.</comment>
+  </data>
+  <data name="NetworkDnsNotFoundFormat" xml:space="preserve">
+    <value>Name lookup {0}: name not found</value>
+    <comment>Detail line. {0}: the server name.</comment>
+  </data>
+  <data name="NetworkDnsTimeoutFormat" xml:space="preserve">
+    <value>Name lookup {0}: no answer</value>
+    <comment>Detail line. {0}: the server name.</comment>
+  </data>
+  <data name="NetworkDnsFailedFormat" xml:space="preserve">
+    <value>Name lookup {0}: failed</value>
+    <comment>Detail line. {0}: the server name.</comment>
+  </data>
+  <data name="NetworkApiAnsweredFormat" xml:space="preserve">
+    <value>Update server: answers (HTTP {0})</value>
+    <comment>Detail line. {0}: the HTTP status.</comment>
+  </data>
+  <data name="NetworkApiNoAnswerFormat" xml:space="preserve">
+    <value>Update server: no answer ({0})</value>
+    <comment>Detail line. {0}: FailureTimeout, FailureTls or FailureNetwork.</comment>
+  </data>
+  <data name="NetworkApiNotAsked" xml:space="preserve">
+    <value>Update server: not asked (no installation of the community setup with an AppId)</value>
+    <comment>Detail line.</comment>
+  </data>
+  <data name="NetworkStatusAnsweredFormat" xml:space="preserve">
+    <value>NeoEE status server {0}: answers, {1} players online</value>
+    <comment>Detail line. {0}: host:port; {1}: players.</comment>
+  </data>
+  <data name="NetworkStatusNoAnswerFormat" xml:space="preserve">
+    <value>NeoEE status server {0}: no answer</value>
+    <comment>Detail line. {0}: host:port.</comment>
+  </data>
+  <data name="NetworkStatusNotConfigured" xml:space="preserve">
+    <value>NeoEE status server: not configured</value>
+    <comment>Detail line.</comment>
+  </data>
+  <data name="NetworkNeoEeCfgFormat" xml:space="preserve">
+    <value>{0}, NeoEE.cfg: RIP hosting {1}, server {2}, game port {3}, relay ports {4}, port check {5}, UPnP {6}</value>
+    <comment>Detail line (read-only). {0}: the game; {1}, {5}, {6}: NetworkOn/NetworkOff/?; {2}: server; {3}, {4}: ports.</comment>
+  </data>
+  <data name="NetworkOn" xml:space="preserve">
+    <value>on</value>
+    <comment>Value in NetworkNeoEeCfgFormat.</comment>
+  </data>
+  <data name="NetworkOff" xml:space="preserve">
+    <value>off</value>
+    <comment>Value in NetworkNeoEeCfgFormat.</comment>
+  </data>
+  <data name="NetworkFileMissingFormat" xml:space="preserve">
+    <value>{0}, {1}: not found</value>
+    <comment>Detail line. {0}: the game; {1}: the file name.</comment>
+  </data>
+  <data name="NetworkFileUnreadableFormat" xml:space="preserve">
+    <value>{0}, {1}: cannot be read</value>
+    <comment>Detail line. {0}: the game; {1}: the file name.</comment>
+  </data>
+  <data name="NetworkWonLobbyFormat" xml:space="preserve">
+    <value>{0}, WONLobby.cfg: CDKeyCheck {1}, file transfer port {2}, lobby port {3}</value>
+    <comment>Detail line (read-only). {0}: the game; {1}: true, false, ? or NetworkInvalid; {2}, {3}: ports.</comment>
+  </data>
+  <data name="NetworkInvalid" xml:space="preserve">
+    <value>invalid</value>
+    <comment>A value of a file that is not what the game expects.</comment>
+  </data>
+  <data name="NetworkUpnpMissingFormat" xml:space="preserve">
+    <value>{0}, upnp_info.txt: not found (NeoEE may write it while you host)</value>
+    <comment>Detail line. {0}: the game.</comment>
+  </data>
+  <data name="NetworkUpnpUnknownFormat" xml:space="preserve">
+    <value>{0}, upnp_info.txt: unknown format</value>
+    <comment>Detail line (ARCHITECTURE 14: the format is not documented). {0}: the game.</comment>
+  </data>
+  <data name="NetworkUpnpFormat" xml:space="preserve">
+    <value>{0}, upnp_info.txt: external address {1}, local address {2}</value>
+    <comment>Detail line. {0}: the game; {1}: the class of the external address (NetworkClass...), never its value; {2}: the local address or NetworkNone.</comment>
+  </data>
+  <data name="NetworkPortsFormat" xml:space="preserve">
+    <value>Port forwarding for hosting ({0}): {1} to {2}. Only the host needs it; with RIP hosting most normal games work without it.</value>
+    <comment>Detail line (forum 4.9). {0}: the game; {1}: ports with TCP/UDP; {2}: the address or NetworkPortsThisComputer.</comment>
+  </data>
+  <data name="NetworkPortsThisComputer" xml:space="preserve">
+    <value>the IPv4 address of this computer</value>
+    <comment>Part of NetworkPortsFormat when the address is not unique.</comment>
+  </data>
+  <data name="ToolsReportHeading" xml:space="preserve">
+    <value>Diagnostics report</value>
+    <comment>Heading of the diagnostics report on the Tools page.</comment>
+  </data>
+  <data name="ReportInfo" xml:space="preserve">
+    <value>A text with everything the launcher found, for a post in the forum or a message to a helper. It is in English, the language of the support, and contains no CD keys, no login data, no player names, no MAC or public IP address and no user or computer name. The launcher never sends it; read it before you post it.</value>
+    <comment>Below the heading of the diagnostics report (ADR 0013 plan review).</comment>
+  </data>
+  <data name="CopyReportButton" xml:space="preserve">
+    <value>Copy report</value>
+    <comment>Button of the diagnostics report; at most about 26 characters.</comment>
+  </data>
+  <data name="SaveReportButton" xml:space="preserve">
+    <value>Save report...</value>
+    <comment>Button of the diagnostics report; at most about 26 characters.</comment>
+  </data>
+  <data name="ReportCopied" xml:space="preserve">
+    <value>The report was copied to the clipboard; it is shown below.</value>
+    <comment>Result of Copy report.</comment>
+  </data>
+  <data name="ReportCopyFailedFormat" xml:space="preserve">
+    <value>The report could not be copied to the clipboard: {0}. It is shown below; select it and copy it.</value>
+    <comment>Result of Copy report. {0}: the error of Windows.</comment>
+  </data>
+  <data name="ReportSavedFormat" xml:space="preserve">
+    <value>The report was saved: {0}</value>
+    <comment>Result of Save report. {0}: the file.</comment>
+  </data>
+  <data name="ReportSaveFailedFormat" xml:space="preserve">
+    <value>The report could not be saved: {0}</value>
+    <comment>Result of Save report. {0}: the reason.</comment>
+  </data>
+  <data name="ReportSaveRefused" xml:space="preserve">
+    <value>The report is not saved in a game folder or the installation folder; choose another folder.</value>
+    <comment>Result of Save report for a file inside an installation (the launcher never writes into the installation).</comment>
+  </data>
+  <data name="ReportSaveDialogTitle" xml:space="preserve">
+    <value>Save diagnostics report</value>
+    <comment>Title of the save dialog.</comment>
+  </data>
+  <data name="ReportFileFilter" xml:space="preserve">
+    <value>Text file (*.txt)|*.txt</value>
+    <comment>Filter of the save dialog: description|pattern; keep |*.txt.</comment>
+  </data>
+  <data name="ReportFileNameFormat" xml:space="preserve">
+    <value>Empire Earth Launcher report {0}</value>
+    <comment>Proposed file name of the report. {0}: date and time.</comment>
+  </data>
+  <data name="PlayerListCheckNetworkLink" xml:space="preserve">
+    <value>Why? Check the network</value>
+    <comment>Link below an unavailable player list on the Play page; at most about 30 characters.</comment>
+  </data>
+  <data name="ImportCheckManifestUnusable" xml:space="preserve">
+    <value>the list of files of the setup cannot be read, so the launcher cannot tell the files of the installation apart; repair the installation with the setup</value>
+    <comment>Reason of ImportFileProblemFormat when the manifest exists but cannot be used (security review; like WonManifestUnusable).</comment>
+  </data>
+  <data name="CleanupKeepFolderUnknownFormat" xml:space="preserve">
+    <value>{0}: kept, the launcher may not look into the folder {1} or its parent folder, so it cannot tell whether the folder still exists.</value>
+    <comment>Read-only entry of the registry cleanup when Windows denies access to the folder or its parent (security review: such a folder is no proof of a removed installation). {0}: the key; {1}: the folder.</comment>
+  </data>
+  <data name="VirtualStoreWrapperConfigFormat" xml:space="preserve">
+    <value>The VirtualStore holds its own copy of dgVoodoo.conf that differs from the file in the game folder: {0}. The game reads the copy, so edits to the file in the game folder have no effect. Close the game, then rename or delete the copy yourself; the launcher does not delete it.</value>
+    <comment>VirtualStore check when dgVoodoo.conf of a game folder is shadowed by a different copy (A5). {0}: the copies, separated by commas.</comment>
+  </data>
+  <data name="OpenVirtualStoreFolderButton" xml:space="preserve">
+    <value>Open VirtualStore folder</value>
+    <comment>Button of the VirtualStore check, shown with a shadowed dgVoodoo.conf; at most about 34 characters.</comment>
+  </data>
+  <data name="OpenVirtualStoreFolderFailedFormat" xml:space="preserve">
+    <value>The VirtualStore folder could not be opened: {0}</value>
+    <comment>Message when the Explorer cannot open it. {0}: the error.</comment>
+  </data>
+  <data name="NavigationGraphics" xml:space="preserve">
+    <value>Graphics</value>
+    <comment>Navigation button of the Graphics page; at most about 14 characters.</comment>
+  </data>
+  <data name="GraphicsWindowSizeHeading" xml:space="preserve">
+    <value>Game resolution</value>
+    <comment>Heading of the game window size on the Graphics page.</comment>
+  </data>
+  <data name="GraphicsWindowSizeInfo" xml:space="preserve">
+    <value>Choose the size of the game window. The launcher saves it in the settings of your Windows account (Game Window Width and Game Window Height) after a backup; nothing else changes. Sizes up to 1920x1200 are offered (1920x1200 only on a screen that is at least that tall), because the game can crash at larger sizes. The menus of the game are made for 4:3 (1024x768); with a widescreen size the picture can be cut off there. A repair or update with the setup writes the recommended size again, then choose it again. The game also has its own resolution option; the one saved last counts.</value>
+    <comment>Explanation under the heading of the Graphics page. 1920x1200 is the limit of contract 3.3 (revision 6); the registry value names are not translated.</comment>
+  </data>
+  <data name="GraphicsWindowSizeCurrentFormat" xml:space="preserve">
+    <value>Window size of {0}: {1}</value>
+    <comment>One line per game of the selected installation. {0}: the game; {1}: the size, e.g. 1920x1080.</comment>
+  </data>
+  <data name="GraphicsWindowSizeUnknownFormat" xml:space="preserve">
+    <value>Window size of {0}: not set yet</value>
+    <comment>Like the line above when the game has no window size in the registry yet. {0}: the game.</comment>
+  </data>
+  <data name="GraphicsWindowSizeLabel" xml:space="preserve">
+    <value>Resolution:</value>
+    <comment>Label of the list of sizes; at most about 12 characters.</comment>
+  </data>
+  <data name="GraphicsWindowSizeApplyButton" xml:space="preserve">
+    <value>Use this size</value>
+    <comment>Button that saves the chosen size; at most about 28 characters.</comment>
+  </data>
+  <data name="GraphicsRecommendedTag" xml:space="preserve">
+    <value>recommended</value>
+    <comment>Added in brackets to the size of the list that fits this computer best, e.g. 1920x1080 (16:9, recommended).</comment>
+  </data>
+  <data name="GraphicsWindowSizeScalingFormat" xml:space="preserve">
+    <value>Windows scales this screen to {0} %. The game then sees a smaller screen; if the window does not fit, the Settings page offers the compatibility option HIGHDPIAWARE.</value>
+    <comment>Note on the Graphics page when the screen is scaled (ADR 0011). {0}: the scaling in percent. HIGHDPIAWARE is a compatibility option of Windows, not translated.</comment>
+  </data>
+  <data name="GraphicsWindowSizeDoneFormat" xml:space="preserve">
+    <value>The game window is set to {0}. The previous values are saved in {1}.</value>
+    <comment>Result of the button of the Graphics page. {0}: the size; {1}: the backup folder.</comment>
+  </data>
+  <data name="GraphicsWindowSizeUnchangedFormat" xml:space="preserve">
+    <value>The game window already has the size {0}; nothing was changed.</value>
+    <comment>Result of the button of the Graphics page when every game has the size already. {0}: the size.</comment>
+  </data>
+  <data name="GraphicsWrapperHeading" xml:space="preserve">
+    <value>DirectX wrapper</value>
+    <comment>Heading of the DirectX wrapper section of the Graphics page.</comment>
+  </data>
+  <data name="GraphicsWrapperInstalledFormat" xml:space="preserve">
+    <value>Installed: {0}</value>
+    <comment>The wrapper the setup installed. {0}: its name from the texts below.</comment>
+  </data>
+  <data name="GraphicsWrapperNone" xml:space="preserve">
+    <value>Native (no wrapper)</value>
+    <comment>Name of the case without a DirectX wrapper; the setup calls it Native.</comment>
+  </data>
+  <data name="GraphicsWrapperDirectX7" xml:space="preserve">
+    <value>DirectX 7 (DDrawCompat)</value>
+    <comment>Name of the wrapper of the setup component dx7.</comment>
+  </data>
+  <data name="GraphicsWrapperDirectX9" xml:space="preserve">
+    <value>DirectX 9</value>
+    <comment>Name of the wrapper of the setup component dx9.</comment>
+  </data>
+  <data name="GraphicsWrapperDgVoodooFormat" xml:space="preserve">
+    <value>DirectX {0} (dgVoodoo), API level {1}</value>
+    <comment>Name of a dgVoodoo component of the setup, worded like the setup. {0}: the DirectX version (11 or 12); {1}: the API level (10, 10.1, 11 or 12).</comment>
+  </data>
+  <data name="GraphicsWrapperUnknownFormat" xml:space="preserve">
+    <value>a wrapper this launcher does not know ({0})</value>
+    <comment>Name of a wrapper component of the setup that the launcher does not know. {0}: the component name.</comment>
+  </data>
+  <data name="GraphicsWrapperUnnamed" xml:space="preserve">
+    <value>a DirectX wrapper</value>
+    <comment>Name of a wrapper whose component the setup record does not name.</comment>
+  </data>
+  <data name="GraphicsWrapperFileFormat" xml:space="preserve">
+    <value>a wrapper file ({0})</value>
+    <comment>Name of a wrapper that was recognized by a file in the game folder only. {0}: the file name, e.g. DDraw.dll.</comment>
+  </data>
+  <data name="GraphicsWrapperGuessed" xml:space="preserve">
+    <value>No setup record names the components; this is judged from the files in the game folder.</value>
+    <comment>Added below the wrapper when it was judged from files.</comment>
+  </data>
+  <data name="GraphicsConfHeadingFormat" xml:space="preserve">
+    <value>dgVoodoo.conf of {0} (shown only):</value>
+    <comment>Heading of the screen mode keys of one game. {0}: the game.</comment>
+  </data>
+  <data name="GraphicsConfVirtualStore" xml:space="preserve">
+    <value>The game reads the copy in the VirtualStore.</value>
+    <comment>Added to the heading above when the file was read from the VirtualStore copy.</comment>
+  </data>
+  <data name="GraphicsConfNotSet" xml:space="preserve">
+    <value>not set</value>
+    <comment>Value of a key that dgVoodoo.conf does not have.</comment>
+  </data>
+  <data name="GraphicsConfMissingFormat" xml:space="preserve">
+    <value>dgVoodoo.conf of {0} was not found.</value>
+    <comment>{0}: the game.</comment>
+  </data>
+  <data name="GraphicsConfOutdatedFormat" xml:space="preserve">
+    <value>The dgVoodoo.conf of {0} still has the settings of an older setup ({1}). With them there may be problems with the mouse, the multiplayer lobby or Alt+Tab. Repair or update the installation with the setup (Empire Earth Community Setup): it writes the current settings, and a repair replaces changes you made to the file yourself. The launcher does not change the file.</value>
+    <comment>Hint below the dgVoodoo.conf keys, one paragraph per game. {0}: the game; {1}: the keys that still have the value of a setup before 1.1.0, like "Version = 0x282, DeferredScreenModeSwitch = true". The launcher never changes the file; "Empire Earth Community Setup" is the name of the setup.</comment>
+  </data>
+  <data name="GraphicsConfOutdatedVirtualStoreFormat" xml:space="preserve">
+    <value>The copy of dgVoodoo.conf in the VirtualStore that {0} reads has the settings of an older setup ({1}). A repair with the setup does not replace this copy: close the game, then rename or delete the copy yourself (the Tools page shows where it is). The launcher does not change the file.</value>
+    <comment>Like GraphicsConfOutdatedFormat, for the copy of dgVoodoo.conf in the VirtualStore that the game reads. {0}: the game; {1}: the keys. "VirtualStore" is the Windows name; the Tools page shows where the copy is.</comment>
+  </data>
+  <data name="GraphicsConfUnreadableFormat" xml:space="preserve">
+    <value>dgVoodoo.conf of {0} could not be read.</value>
+    <comment>{0}: the game.</comment>
+  </data>
+  <data name="GraphicsWrapperNote" xml:space="preserve">
+    <value>The launcher only shows the wrapper and its screen mode keys. Changing the wrapper means adding or removing game files, and the setup writes dgVoodoo.conf, so only the setup does either.</value>
+    <comment>Explanation below the wrapper. The launcher does not change game files (contract 2.5, ADR 0014).</comment>
+  </data>
+  <data name="GraphicsWrapperChangeInfo" xml:space="preserve">
+    <value>To change the wrapper, run the setup again: in the suite choose "Advanced: go through the setup of each game myself", then "Custom install settings", and pick the wrapper under "DirectX Wrapper". For no wrapper at all choose "Recommended settings" and then "Native" on the graphics card page. A repair or update with the setup also sets the game resolution back to the recommended size.</value>
+    <comment>Hand-off to the setup. The quoted names are the texts of the suite and of the setup wizard in the same language (suite_messages.iss SuiteAdvanced, messages.iss MIQP_Custom, CompDxWrapper, MIQP_Recommended, GPUIQP_Native).</comment>
+  </data>
+  <data name="NavigationMods" xml:space="preserve">
+    <value>Mods</value>
+    <comment>Navigation button of the Mods page; at most about 14 characters.</comment>
+  </data>
+  <data name="ModsHeading" xml:space="preserve">
+    <value>dreXmod presets</value>
+    <comment>Heading of the Mods page.</comment>
+  </data>
+  <data name="ModsInfo" xml:space="preserve">
+    <value>dreXmod 3 comes with presets: folders in Data\dxm\mods with sounds, textures, fonts and a lobby theme. The file dreXmod.config chooses one of them as the active mod (block Mod: the sounds and textures of the game) and one as the active lobby theme (block LobbyTheme: the look of the lobby), independently of each other. This page only shows the presets and the choice; the launcher changes nothing.</value>
+    <comment>Explanation at the top of the Mods page (launcher 1.1.0, read-only).</comment>
+  </data>
+  <data name="ModsHowTo" xml:space="preserve">
+    <value>To switch by hand: click "Open dreXmod.config" for the game, set Enabled to 1 and Name to the name of a folder (the name at the beginning of each entry above) in the block Mod or LobbyTheme, save the file and start the game. What dreXmod does with a name that is no folder has not been verified.</value>
+    <comment>How to switch the preset by hand (the launcher does not). The quoted words are the caption of ModsOpenConfigButton.</comment>
+  </data>
+  <data name="ModsNote" xml:space="preserve">
+    <value>A setup run (installation, update or repair) installs dreXmod.config anew, so the choice goes back to the shipped default (mod off, lobby theme dxm). Presets you made yourself in Data\dxm\mods stay; the setup does not delete them. Whether an active mod has an effect in multiplayer or ranked games has not been verified: use one there only if you know it is accepted.</value>
+    <comment>Note at the bottom of the Mods page: the setup resets the choice but keeps self-made presets; the multiplayer effect is unverified.</comment>
+  </data>
+  <data name="ModsShowTemplates" xml:space="preserve">
+    <value>Also show the template folder</value>
+    <comment>Check box of the Mods page: the folder template is the skeleton for authors of presets.</comment>
+  </data>
+  <data name="ModsOpenFolderButton" xml:space="preserve">
+    <value>Open mods folder</value>
+    <comment>Button of the Mods page: opens Data\dxm\mods of the game in the Explorer.</comment>
+  </data>
+  <data name="ModsOpenConfigButton" xml:space="preserve">
+    <value>Open dreXmod.config</value>
+    <comment>Button of the Mods page: opens dreXmod.config of the game in its program.</comment>
+  </data>
+  <data name="ModsSetupRunningFormat" xml:space="preserve">
+    <value>The {0} setup is running. Until it has ended, this page reads and opens nothing in the game folders.</value>
+    <comment>Mods page while EE_Setup, NeoEE_Setup or EmpireEarthCommunity_Suite exists (contract 4.2). {0}: Empire Earth, NeoEE or Empire Earth Community.</comment>
+  </data>
+  <data name="ModsActiveModFormat" xml:space="preserve">
+    <value>Active mod: {0}</value>
+    <comment>Mods page. {0}: a folder name, ModsSelectorOff or ModsSelectorUnknown.</comment>
+  </data>
+  <data name="ModsActiveLobbyFormat" xml:space="preserve">
+    <value>Active lobby theme: {0}</value>
+    <comment>Mods page. {0}: a folder name, ModsSelectorOff or ModsSelectorUnknown.</comment>
+  </data>
+  <data name="ModsSelectorOff" xml:space="preserve">
+    <value>none (switched off)</value>
+    <comment>Mods page: the Mod or LobbyTheme block of dreXmod.config has Enabled 0.</comment>
+  </data>
+  <data name="ModsSelectorUnknown" xml:space="preserve">
+    <value>unknown</value>
+    <comment>Mods page: the block has no usable Enabled or Name.</comment>
+  </data>
+  <data name="ModsSelectedMissingFormat" xml:space="preserve">
+    <value>dreXmod.config names the folder {0}, which does not exist in Data\dxm\mods.</value>
+    <comment>Mods page. {0}: the name in the Mod or LobbyTheme block.</comment>
+  </data>
+  <data name="ModsConfigVirtualStore" xml:space="preserve">
+    <value>The game reads the copy of dreXmod.config in the VirtualStore.</value>
+    <comment>Mods page (ADR 0016).</comment>
+  </data>
+  <data name="ModsConfigMissingFormat" xml:space="preserve">
+    <value>dreXmod.config was not found ({0}).</value>
+    <comment>Mods page. {0}: the path of the file.</comment>
+  </data>
+  <data name="ModsConfigUnreadable" xml:space="preserve">
+    <value>dreXmod.config could not be read.</value>
+    <comment>Mods page.</comment>
+  </data>
+  <data name="ModsConfigNoSelectors" xml:space="preserve">
+    <value>dreXmod.config has no Mod and no LobbyTheme block, so no preset is chosen in it.</value>
+    <comment>Mods page.</comment>
+  </data>
+  <data name="ModsFolderMissingFormat" xml:space="preserve">
+    <value>The folder {0} does not exist.</value>
+    <comment>Mods page and message of the button "Open mods folder". {0}: the path.</comment>
+  </data>
+  <data name="ModsFolderUnreadableFormat" xml:space="preserve">
+    <value>The folder {0} could not be read.</value>
+    <comment>Mods page. {0}: the path.</comment>
+  </data>
+  <data name="ModsNoPresets" xml:space="preserve">
+    <value>There are no presets in this folder.</value>
+    <comment>Mods page.</comment>
+  </data>
+  <data name="ModsPresetNameFormat" xml:space="preserve">
+    <value>{0} ({1})</value>
+    <comment>Mods page: the folder name and, if it says more, the name from the CREDITS file.</comment>
+  </data>
+  <data name="ModsPresetBadgesFormat" xml:space="preserve">
+    <value>{0}  [{1}]</value>
+    <comment>Mods page: a preset and its badges. {1}: ModsBadgeMod, ModsBadgeLobby, ModsBadgeTemplate, separated by commas.</comment>
+  </data>
+  <data name="ModsBadgeMod" xml:space="preserve">
+    <value>active mod</value>
+    <comment>Badge of a preset that dreXmod.config names in the block Mod.</comment>
+  </data>
+  <data name="ModsBadgeLobby" xml:space="preserve">
+    <value>active lobby theme</value>
+    <comment>Badge of a preset that dreXmod.config names in the block LobbyTheme.</comment>
+  </data>
+  <data name="ModsBadgeTemplate" xml:space="preserve">
+    <value>template for authors</value>
+    <comment>Badge of the folder template.</comment>
+  </data>
+  <data name="ModsPresetLastEditFormat" xml:space="preserve">
+    <value>last edit {0}</value>
+    <comment>Mods page. {0}: the date of the CREDITS file in the format of the language, or its text.</comment>
+  </data>
+  <data name="ModsPresetCreatedByFormat" xml:space="preserve">
+    <value>created by {0}</value>
+    <comment>Mods page. {0}: the text of the CREDITS file.</comment>
+  </data>
+  <data name="ModsPresetSizeFormat" xml:space="preserve">
+    <value>size {0}</value>
+    <comment>Mods page. {0}: ModsSizeKilobytesFormat or ModsSizeMegabytesFormat.</comment>
+  </data>
+  <data name="ModsSizeKilobytesFormat" xml:space="preserve">
+    <value>{0} KB</value>
+    <comment>Size of a preset below 1 MB.</comment>
+  </data>
+  <data name="ModsSizeMegabytesFormat" xml:space="preserve">
+    <value>{0} MB</value>
+    <comment>Size of a preset.</comment>
+  </data>
+  <data name="ModsSizeMoreThanFormat" xml:space="preserve">
+    <value>more than {0}</value>
+    <comment>A size that is only a lower bound: the folder has more files than the page counts.</comment>
+  </data>
+  <data name="ModsNothingToOpen" xml:space="preserve">
+    <value>There is nothing to open now.</value>
+    <comment>Message of the buttons of the Mods page when no state is read or a setup runs.</comment>
+  </data>
+  <data name="ModsOpenFailedFormat" xml:space="preserve">
+    <value>It could not be opened: {0}</value>
+    <comment>Message of the Mods page when the Explorer or the program of the file cannot open it. {0}: the error.</comment>
+  </data>
+  <data name="PlayEntryEmpireEarth" xml:space="preserve">
+    <value>Empire Earth</value>
+    <comment>Play page, first game of the list: Empire Earth of the product EE. The name of a game is not translated.</comment>
+  </data>
+  <data name="PlayEntryEmpireEarthAoc" xml:space="preserve">
+    <value>Empire Earth – The Art of Conquest</value>
+    <comment>Play page, second game of the list: The Art of Conquest of the product EE. The name is not translated; the en dash (U+2013) is where the name is split into two lines when it does not fit.</comment>
+  </data>
+  <data name="PlayEntryNeoEE" xml:space="preserve">
+    <value>Neo Empire Earth</value>
+    <comment>Play page, third game of the list: Empire Earth of the product NeoEE. The name of a game is not translated.</comment>
+  </data>
+  <data name="PlayEntryNeoEEAoc" xml:space="preserve">
+    <value>Neo Empire Earth – The Art of Conquest</value>
+    <comment>Play page, fourth game of the list: The Art of Conquest of the product NeoEE. The name is not translated; the en dash (U+2013) is where the name is split into two lines when it does not fit.</comment>
+  </data>
+  <data name="PlayEntriesNotInstalledHint" xml:space="preserve">
+    <value>Greyed out games are not installed. Empire Earth Community Setup installs Empire Earth with The Art of Conquest and Neo Empire Earth; another installation (CD, GOG) is chosen on the Launcher page.</value>
+    <comment>Play page, below the list of the four games; shown only if a game is greyed out because it is not installed. „Launcher“ is the name of the page (NavigationLauncher).</comment>
+  </data>
 </root>

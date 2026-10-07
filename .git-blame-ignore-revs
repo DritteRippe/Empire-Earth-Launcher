@@ -1,0 +1,6 @@
+# Commits that only reformat files (no functional change).
+# GitHub uses this file automatically; locally run:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# Normalize line endings to the .gitattributes policy
+dc9e325c3740e8a9c3779927079e3f8789631456

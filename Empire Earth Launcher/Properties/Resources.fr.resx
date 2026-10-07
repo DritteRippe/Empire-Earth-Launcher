@@ -1,0 +1,1480 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="LauncherTitle" xml:space="preserve">
+    <value>Empire Earth Launcher</value>
+  </data>
+  <data name="UnexpectedErrorClosing" xml:space="preserve">
+    <value>Une erreur inattendue s'est produite et le launcher doit se fermer.</value>
+  </data>
+  <data name="UnexpectedErrorContinuing" xml:space="preserve">
+    <value>Une erreur inattendue s'est produite. Le launcher va essayer de continuer.</value>
+  </data>
+  <data name="UnknownError" xml:space="preserve">
+    <value>Erreur inconnue.</value>
+  </data>
+  <data name="DetailsWrittenToLogFormat" xml:space="preserve">
+    <value>Les détails ont été écrits dans {0}.</value>
+  </data>
+  <data name="OnlinePlayersFormat" xml:space="preserve">
+    <value>Joueurs en ligne ({0})</value>
+  </data>
+  <data name="OnlinePlayersLoading" xml:space="preserve">
+    <value>Joueurs en ligne (...)</value>
+  </data>
+  <data name="OnlinePlayersUnavailable" xml:space="preserve">
+    <value>Joueurs en ligne (indisponible)</value>
+  </data>
+  <data name="OnlinePlayersUnavailableSeeLog" xml:space="preserve">
+    <value>Joueurs en ligne (indisponible, voir le journal)</value>
+  </data>
+  <data name="OnlinePlayersNeoOnly" xml:space="preserve">
+    <value>Joueurs en ligne (NeoEE uniquement)</value>
+  </data>
+  <data name="OnlinePlayersInvalidSettings" xml:space="preserve">
+    <value>Joueurs en ligne (paramètres du serveur invalides, voir le journal)</value>
+  </data>
+  <data name="GameDirectoryNotFound" xml:space="preserve">
+    <value>Installation d'Empire Earth introuvable</value>
+  </data>
+  <data name="NoLobbyProfileFound" xml:space="preserve">
+    <value>Aucun profil de lobby trouvé</value>
+  </data>
+  <data name="LobbyProfilesUnreadable" xml:space="preserve">
+    <value>Impossible de lire les profils du lobby (voir le journal)</value>
+  </data>
+  <data name="FriendsFormat" xml:space="preserve">
+    <value>Amis ({0})</value>
+  </data>
+  <data name="FriendsUnreadable" xml:space="preserve">
+    <value>Impossible de lire les amis (voir le journal)</value>
+  </data>
+  <data name="PlayerStateLobby" xml:space="preserve">
+    <value>Lobby</value>
+  </data>
+  <data name="PlayerStateRoom" xml:space="preserve">
+    <value>Salon</value>
+  </data>
+  <data name="PlayerStatePlaying" xml:space="preserve">
+    <value>En jeu</value>
+  </data>
+  <data name="PlayerStateUnknownFormat" xml:space="preserve">
+    <value>Inconnu ({0})</value>
+  </data>
+  <data name="ThemeFileFilter" xml:space="preserve">
+    <value>Fichier de thème (*.xml)|*.xml|Tous les fichiers (*.*)|*.*</value>
+  </data>
+  <data name="ThemeNotLoadedFormat" xml:space="preserve">
+    <value>Impossible de charger le thème. Les détails ont été écrits dans {0}.</value>
+  </data>
+  <data name="GameDirectorySourceUser" xml:space="preserve">
+    <value>Choisi manuellement</value>
+  </data>
+  <data name="GameDirectorySourceUserMissing" xml:space="preserve">
+    <value>Choisi manuellement, mais le dossier n'existe pas</value>
+  </data>
+  <data name="GameDirectorySourceRegistry" xml:space="preserve">
+    <value>Détecté à partir de l'installation du jeu</value>
+  </data>
+  <data name="GameDirectorySourceLauncherFolder" xml:space="preserve">
+    <value>Détecté dans le dossier du launcher</value>
+  </data>
+  <data name="GameDirectoryNotFoundHintFormat" xml:space="preserve">
+    <value>Introuvable, veuillez choisir le dossier de {0}</value>
+  </data>
+  <data name="SelectGameDirectoryFormat" xml:space="preserve">
+    <value>Sélectionnez le dossier d'Empire Earth (le dossier de {0}).</value>
+  </data>
+  <data name="GameExecutableMissingFormat" xml:space="preserve">
+    <value>Ce dossier ne contient pas {0} :
+{1}
+
+L'utiliser quand même ?</value>
+  </data>
+  <data name="CompatibilityHintTitle" xml:space="preserve">
+    <value>Options de compatibilité</value>
+  </data>
+  <data name="CompatibilityHintMessage" xml:space="preserve">
+    <value>Modifiez une option à la fois et lancez le jeu pour la vérifier.
+Si le jeu fonctionne moins bien, annulez la dernière modification.</value>
+  </data>
+  <data name="NavigationPlay" xml:space="preserve">
+    <value>Jouer</value>
+  </data>
+  <data name="NavigationSettings" xml:space="preserve">
+    <value>Paramètres</value>
+  </data>
+  <data name="NavigationLauncher" xml:space="preserve">
+    <value>Launcher</value>
+  </data>
+  <data name="PlayButton" xml:space="preserve">
+    <value>Jouer</value>
+  </data>
+  <data name="GameChoiceHeading" xml:space="preserve">
+    <value>Jeu</value>
+  </data>
+  <data name="GameEmpireEarth" xml:space="preserve">
+    <value>Empire Earth</value>
+  </data>
+  <data name="GameArtOfConquest" xml:space="preserve">
+    <value>The Art of Conquest</value>
+  </data>
+  <data name="LobbyProfileLabel" xml:space="preserve">
+    <value>Profil :</value>
+  </data>
+  <data name="PlayerListNameColumn" xml:space="preserve">
+    <value>Joueur</value>
+  </data>
+  <data name="PlayerListStateColumn" xml:space="preserve">
+    <value>État</value>
+  </data>
+  <data name="CompatibilityWarningText" xml:space="preserve">
+    <value>Vous trouverez ici des options de compatibilité avancées. Elles peuvent résoudre des problèmes de compatibilité ou rendre le jeu plus rapide, mais aussi le rendre instable ou inutilisable.
+
+Empire Earth est un jeu ancien : bien qu'il demande très peu de puissance, il fonctionne mal sur de nombreux ordinateurs, surtout les portables.
+
+Ces options permettent de résoudre de nombreux problèmes, mais trouver la bonne combinaison peut prendre du temps.</value>
+  </data>
+  <data name="CompatibilityWarningConfirm" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="LauncherSettingsHeading" xml:space="preserve">
+    <value>Paramètres du launcher</value>
+  </data>
+  <data name="ThemeLabel" xml:space="preserve">
+    <value>Thème</value>
+  </data>
+  <data name="ThemeBuiltIn" xml:space="preserve">
+    <value>Couleurs intégrées</value>
+  </data>
+  <data name="ThemeBuiltInNextStart" xml:space="preserve">
+    <value>Les couleurs intégrées seront utilisées au prochain démarrage du launcher.</value>
+  </data>
+  <data name="ThemeCustom" xml:space="preserve">
+    <value>Fichier personnalisé...</value>
+  </data>
+  <data name="GameDirectoryLabel" xml:space="preserve">
+    <value>Dossier d'Empire Earth :</value>
+  </data>
+  <data name="DetectGameDirectoryButton" xml:space="preserve">
+    <value>Détecter</value>
+  </data>
+  <data name="DialogOk" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="DialogYes" xml:space="preserve">
+    <value>Oui</value>
+  </data>
+  <data name="DialogNo" xml:space="preserve">
+    <value>Non</value>
+  </data>
+  <data name="UiLanguageLabel" xml:space="preserve">
+    <value>Langue</value>
+  </data>
+  <data name="UiLanguageWindows" xml:space="preserve">
+    <value>Langue de Windows</value>
+  </data>
+  <data name="UiLanguageRestartHint" xml:space="preserve">
+    <value>La nouvelle langue sera utilisée au prochain démarrage du launcher.</value>
+  </data>
+  <data name="InstallationsLabel" xml:space="preserve">
+    <value>Installations trouvées :</value>
+  </data>
+  <data name="InstallationsSearching" xml:space="preserve">
+    <value>Recherche des installations d'Empire Earth...</value>
+  </data>
+  <data name="InstallationProductColumn" xml:space="preserve">
+    <value>Produit</value>
+  </data>
+  <data name="InstallationRootColumn" xml:space="preserve">
+    <value>Dossier d'installation</value>
+  </data>
+  <data name="InstallationGameFolderColumn" xml:space="preserve">
+    <value>Dossier d'Empire Earth</value>
+  </data>
+  <data name="InstallationKindColumn" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="InstallationStateColumn" xml:space="preserve">
+    <value>État</value>
+  </data>
+  <data name="InstallationKindCommunity" xml:space="preserve">
+    <value>Setup communautaire</value>
+  </data>
+  <data name="InstallationKindCommunityLegacy" xml:space="preserve">
+    <value>Ancien setup</value>
+  </data>
+  <data name="InstallationKindForeign" xml:space="preserve">
+    <value>Autre</value>
+  </data>
+  <data name="InstallationKindCommunityHint" xml:space="preserve">
+    <value>Installée avec le setup communautaire actuel.</value>
+  </data>
+  <data name="InstallationKindCommunityLegacyHint" xml:space="preserve">
+    <value>Installée avec le setup communautaire 1.7.2 ou plus ancien. Lancez le setup actuel pour la mettre à jour.</value>
+  </data>
+  <data name="InstallationKindForeignHint" xml:space="preserve">
+    <value>Pas installée avec le setup communautaire, par exemple depuis le CD, par GOG ou copiée.</value>
+  </data>
+  <data name="InstallationStateOk" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="InstallationStateDamaged" xml:space="preserve">
+    <value>Endommagée</value>
+  </data>
+  <data name="InstallationStateFolderMissing" xml:space="preserve">
+    <value>Introuvable</value>
+  </data>
+  <data name="InstallationMissingProgramsFormat" xml:space="preserve">
+    <value>Manquant : {0}</value>
+  </data>
+  <data name="InstallationDamagedFormat" xml:space="preserve">
+    <value>{0} manque dans {1}. Les antivirus suppriment ou mettent souvent en quarantaine des fichiers du jeu : restaurez le fichier depuis la quarantaine ou réparez l'installation avec son setup.</value>
+  </data>
+  <data name="InstallationsSharedSettingsFormat" xml:space="preserve">
+    <value>{0} installations de {1} utilisent les mêmes paramètres de jeu ({2}) : ces paramètres, y compris le dossier du jeu qui y est enregistré, sont les mêmes pour toutes.</value>
+  </data>
+  <data name="InstallationSharedRootFormat" xml:space="preserve">
+    <value>Empire Earth et NeoEE sont installés dans le même dossier ({0}). Le launcher utilise {1}, installé en dernier ; désinstaller l'un supprime aussi des fichiers de l'autre.</value>
+  </data>
+  <data name="InstallationNewerSetupFormat" xml:space="preserve">
+    <value>{0} a été installée par un setup plus récent que ce que ce launcher connaît. Veuillez mettre à jour le launcher.</value>
+  </data>
+  <data name="GameSettingsDefaultsHeading" xml:space="preserve">
+    <value>Valeurs par défaut du jeu</value>
+  </data>
+  <data name="GameSettingsInstallationFormat" xml:space="preserve">
+    <value>{0} dans {1}</value>
+  </data>
+  <data name="DefaultsStatusAppliedFormat" xml:space="preserve">
+    <value>{0} : les paramètres recommandés sont configurés pour votre compte Windows.</value>
+  </data>
+  <data name="DefaultsStatusAppliedByNewerFormat" xml:space="preserve">
+    <value>{0} : configurés par un launcher ou un setup plus récent ; le launcher n'y touche pas.</value>
+  </data>
+  <data name="DefaultsStatusPendingFormat" xml:space="preserve">
+    <value>{0} : les paramètres recommandés ne sont pas encore configurés pour votre compte Windows.</value>
+  </data>
+  <data name="DefaultsStatusWaitingForPlayFormat" xml:space="preserve">
+    <value>{0} : pas encore configurés, car plusieurs installations partagent ces paramètres. « Réinitialiser les paramètres » les configure pour cette installation.</value>
+  </data>
+  <data name="DefaultsStatusNewerContractFormat" xml:space="preserve">
+    <value>{0} : installée par un setup plus récent que ce que ce launcher connaît. Le launcher ne modifie aucun paramètre ; veuillez le mettre à jour.</value>
+  </data>
+  <data name="BlockedBySetupFormat" xml:space="preserve">
+    <value>Impossible tant que le setup de {0} est en cours.</value>
+  </data>
+  <data name="BlockedByGameFormat" xml:space="preserve">
+    <value>Impossible tant que {0} est en cours d'exécution.</value>
+  </data>
+  <data name="DisplayQuestionFormat" xml:space="preserve">
+    <value>Vos paramètres d'affichage diffèrent de ceux recommandés : {0}. Appliquer les paramètres d'affichage recommandés ? Vos valeurs actuelles sont d'abord enregistrées dans un fichier .reg.</value>
+  </data>
+  <data name="DisplayDifferenceFormat" xml:space="preserve">
+    <value>{0} {1} {2} au lieu de {3}</value>
+  </data>
+  <data name="DisplayQuestionApply" xml:space="preserve">
+    <value>Appliquer</value>
+  </data>
+  <data name="DisplayQuestionKeep" xml:space="preserve">
+    <value>Garder les miens</value>
+  </data>
+  <data name="ApplyDisplayButton" xml:space="preserve">
+    <value>Affichage recommandé</value>
+  </data>
+  <data name="ResetGameSettingsButton" xml:space="preserve">
+    <value>Réinitialiser les paramètres</value>
+  </data>
+  <data name="ResetConfirmFormat" xml:space="preserve">
+    <value>Remettre les paramètres de {0} aux valeurs recommandées pour votre compte Windows ?
+
+Vos paramètres actuels sont d'abord enregistrés dans des fichiers .reg dans {1} ; double-cliquez sur un tel fichier pour les restaurer. Les noms des joueurs et les autres valeurs du jeu sont conservés.</value>
+  </data>
+  <data name="ResultDoneFormat" xml:space="preserve">
+    <value>Terminé. Vos paramètres précédents sont enregistrés dans : {0}</value>
+  </data>
+  <data name="ResultDone" xml:space="preserve">
+    <value>Terminé.</value>
+  </data>
+  <data name="ResultBackupFailed" xml:space="preserve">
+    <value>Rien n'a été modifié : la sauvegarde n'a pas pu être écrite (détails dans le journal).</value>
+  </data>
+  <data name="ResultFailedFormat" xml:space="preserve">
+    <value>Les paramètres n'ont pas pu être entièrement modifiés (détails dans le journal). Double-cliquez sur la sauvegarde pour restaurer les valeurs précédentes : {0}</value>
+  </data>
+  <data name="ResultFailed" xml:space="preserve">
+    <value>Les paramètres n'ont pas pu être modifiés (détails dans le journal).</value>
+  </data>
+  <data name="ResultNewerContract" xml:space="preserve">
+    <value>Impossible : cette installation provient d'un setup plus récent que ce que ce launcher connaît. Veuillez mettre à jour le launcher.</value>
+  </data>
+  <data name="HintsHeading" xml:space="preserve">
+    <value>Remarques</value>
+  </data>
+  <data name="HintsNone" xml:space="preserve">
+    <value>Aucune remarque : les paramètres du jeu sont cohérents.</value>
+  </data>
+  <data name="HintShowColumn" xml:space="preserve">
+    <value>Page Jouer</value>
+  </data>
+  <data name="FindingBitDepthMismatchFormat" xml:space="preserve">
+    <value>{0} : Game Bit Depth ({1}) diffère de Texture Bit Depth ({2}) ; le menu principal peut devenir blanc et illisible. « Affichage recommandé » règle les deux sur 32.</value>
+  </data>
+  <data name="FindingSixteenBitFormat" xml:space="preserve">
+    <value>{0} : les couleurs 16 bits figent souvent le jeu sous Windows 8 et plus récent. « Affichage recommandé » règle 32 bits ; masquez la remarque si 16 bits fonctionne chez vous.</value>
+  </data>
+  <data name="FindingRasterizerFormat" xml:space="preserve">
+    <value>{0} : le moteur de rendu est « {1} » ; pour cette installation, « {2} » est recommandé. Masquez la remarque si vous l'avez choisi exprès.</value>
+  </data>
+  <data name="FindingWindowLargerFormat" xml:space="preserve">
+    <value>{0} : la fenêtre du jeu ({1}) est plus grande que l'écran tel que le jeu le voit ({2}). « Affichage recommandé » règle {3}.</value>
+  </data>
+  <data name="FindingWindowHighDpiFormat" xml:space="preserve">
+    <value>{0} : la fenêtre du jeu ({1}) ne tient à l'écran qu'avec l'option de compatibilité HIGHDPIAWARE ; sans elle, le jeu voit {2} à cette mise à l'échelle. Activez l'option ci-dessous ou réglez la mise à l'échelle de Windows sur 100 %.</value>
+  </data>
+  <data name="FindingScreenTooLowFormat" xml:space="preserve">
+    <value>L'écran ne fait que {0} pixels de haut ; les menus du jeu en demandent au moins 768. Certains menus risquent de ne pas tenir.</value>
+  </data>
+  <data name="FindingNotOnADriveFormat" xml:space="preserve">
+    <value>{0} : le dossier {1} n'est pas sur une lettre de lecteur, les valeurs « Installed From » ne peuvent donc pas le désigner. Connectez le dossier réseau comme lecteur, par ex. Z:.</value>
+  </data>
+  <data name="CompatibilityDwmOption" xml:space="preserve">
+    <value>Corriger les couleurs 8/16 bits (DWM8And16BitMitigation)</value>
+  </data>
+  <data name="CompatibilityHighDpiOption" xml:space="preserve">
+    <value>Pas de mise à l'échelle par Windows (HIGHDPIAWARE)</value>
+  </data>
+  <data name="CompatibilityHeapOption" xml:space="preserve">
+    <value>Effacer les allocations mémoire (HeapClearAllocation)</value>
+  </data>
+  <data name="CompatibilityWindows7Option" xml:space="preserve">
+    <value>Mode de compatibilité Windows 7 (WIN7RTM)</value>
+  </data>
+  <data name="CompatibilityAppliesToFormat" xml:space="preserve">
+    <value>Les options s'appliquent à {0} pour votre compte Windows.</value>
+  </data>
+  <data name="CompatibilityAllUsersFormat" xml:space="preserve">
+    <value>Défini par le setup pour tous les utilisateurs (seul le setup le modifie) : {0}</value>
+  </data>
+  <data name="CompatibilityVersionModeSet" xml:space="preserve">
+    <value>Un mode de compatibilité Windows est déjà défini, aucun deuxième n'est donc proposé. Si le setup l'a défini pour tous les utilisateurs, une installation personnalisée du setup sans « Activer le mode de compatibilité avec une version antérieure de Windows » le retire.</value>
+  </data>
+  <data name="CompatibilityNotOffered" xml:space="preserve">
+    <value>Sous Windows 7 et sous Wine, le launcher ne propose aucune option de compatibilité. Sous Windows 7, le setup actuel peut les définir si vous les choisissez lors de l'installation.</value>
+  </data>
+  <data name="CompatibilityLegacyFormat" xml:space="preserve">
+    <value>Valeurs de compatibilité d'un ancien setup ({0}), qui peuvent provoquer des écrans noirs sous Windows 7. Lancez le setup communautaire actuel : il les supprime.</value>
+  </data>
+  <data name="RemoveRunAsAdminButton" xml:space="preserve">
+    <value>Retirer « Exécuter en tant qu'administrateur »</value>
+  </data>
+  <data name="CompatibilityRunAsAdminHint" xml:space="preserve">
+    <value>Un ancien setup a défini « Exécuter en tant qu'administrateur » pour votre compte (~ RUNASADMIN). Le lobby en ligne ne devrait pas tourner en administrateur.</value>
+  </data>
+  <data name="HighDpiOffConfirmFormat" xml:space="preserve">
+    <value>L'écran est mis à l'échelle à {0} %. Sans HIGHDPIAWARE, le jeu voit un écran plus petit et sa fenêtre risque de ne plus tenir. Désactiver l'option quand même ?</value>
+  </data>
+  <data name="HintBarHide" xml:space="preserve">
+    <value>Masquer</value>
+  </data>
+  <data name="HintBarDetails" xml:space="preserve">
+    <value>Détails</value>
+  </data>
+  <data name="HintBarMoreFormat" xml:space="preserve">
+    <value>Autres remarques sur la page Paramètres : {0}</value>
+  </data>
+  <data name="ResetConfirmButton" xml:space="preserve">
+    <value>Réinitialiser maintenant</value>
+  </data>
+  <data name="ConfirmCancel" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="HighDpiOffConfirmButton" xml:space="preserve">
+    <value>Désactiver</value>
+  </data>
+  <data name="FindingFolderNotAnsiFormat" xml:space="preserve">
+    <value>{0} : le dossier {1} contient des caractères que Windows ne connaît pas pour les programmes non Unicode comme le jeu ; le jeu risque de ne pas trouver ses fichiers. S'il ne démarre pas, copiez-le dans un dossier dont le nom ne contient que les lettres A à Z et des chiffres.</value>
+  </data>
+  <data name="LauncherAlreadyRunning" xml:space="preserve">
+    <value>Empire Earth Launcher est déjà ouvert. Utilisez la fenêtre ouverte (elle est peut-être réduite ou cachée par d'autres fenêtres).</value>
+  </data>
+  <data name="PlayVersionFormat" xml:space="preserve">
+    <value>{0} : version {1}</value>
+  </data>
+  <data name="PlayVersionMissingFormat" xml:space="preserve">
+    <value>{0} : absent</value>
+  </data>
+  <data name="PlayVersionUnknownFormat" xml:space="preserve">
+    <value>{0} : aucune information de version</value>
+  </data>
+  <data name="PlayStartedFormat" xml:space="preserve">
+    <value>{0} a été lancé.</value>
+  </data>
+  <data name="SetupRunningFormat" xml:space="preserve">
+    <value>Le setup de {0} est en cours. Tant qu'il n'est pas terminé, le launcher ne lance aucun jeu et ne modifie aucun paramètre du jeu.</value>
+  </data>
+  <data name="InstallationsWaitingForSetup" xml:space="preserve">
+    <value>Un setup est en cours. Les installations seront recherchées dès qu'il sera terminé.</value>
+  </data>
+  <data name="StartAlreadyRunningFormat" xml:space="preserve">
+    <value>{0} est déjà en cours d'exécution. Le launcher ne le lance pas une deuxième fois.</value>
+  </data>
+  <data name="StartHangingHintFormat" xml:space="preserve">
+    <value>Si vous ne voyez pas sa fenêtre, il est peut-être bloqué : ouvrez le Gestionnaire des tâches (Ctrl+Maj+Échap), sélectionnez {0} dans l'onglet « Détails », cliquez sur « Fin de tâche » puis relancez le jeu. Le launcher ne ferme jamais un programme lui-même.</value>
+  </data>
+  <data name="StartOtherGameRunningFormat" xml:space="preserve">
+    <value>{0} est en cours d'exécution. Lancer quand même {1} ? Les deux jeux en même temps peuvent devenir instables.</value>
+  </data>
+  <data name="StartFolderMissingFormat" xml:space="preserve">
+    <value>Le dossier {0} n'existe pas. Choisissez le dossier du jeu sur la page « Launcher ».</value>
+  </data>
+  <data name="StartElevationCancelled" xml:space="preserve">
+    <value>Le jeu n'a pas été lancé car la demande de droits d'administrateur a été annulée. Windows les demande parce que « Exécuter en tant qu'administrateur » est activé pour le jeu.</value>
+  </data>
+  <data name="StartAccessDeniedFormat" xml:space="preserve">
+    <value>Windows n'a pas autorisé le lancement de {0} (erreur {1}). Vérifiez les paramètres de sécurité du fichier et votre antivirus.</value>
+  </data>
+  <data name="StartFailedFormat" xml:space="preserve">
+    <value>Impossible de lancer {0} (erreur Windows {1}) : {2}</value>
+  </data>
+  <data name="StartDamagedFormat" xml:space="preserve">
+    <value>{0} est absent. L'installation est endommagée ; Windows ou un antivirus a probablement supprimé le fichier ou l'a mis en quarantaine.</value>
+  </data>
+  <data name="StartBlockedByAntivirusFormat" xml:space="preserve">
+    <value>Windows n'a pas lancé {0} car un antivirus le signale comme une menace (erreur {1}).</value>
+  </data>
+  <data name="RepairAdviceTitle" xml:space="preserve">
+    <value>Réparer l'installation</value>
+  </data>
+  <data name="RepairStepAntivirusFormat" xml:space="preserve">
+    <value>Ajoutez d'abord une exception pour le dossier {0} dans votre antivirus ; sinon il supprimera de nouveau les fichiers.</value>
+  </data>
+  <data name="RepairStepRunSetup" xml:space="preserve">
+    <value>Fermez le jeu. Téléchargez le setup communautaire actuel et exécutez-le : il trouve l'installation et propose de la mettre à jour ou de la réparer.</value>
+  </data>
+  <data name="RepairStepRunSuiteFormat" xml:space="preserve">
+    <value>Fermez le jeu. Relancez « Empire Earth Community Setup » depuis le dossier où vous l'avez décompressé ({0}) : il répare ou met à jour les jeux qu'il a installés.</value>
+  </data>
+  <data name="RepairStepKeepFolderAllUsersFormat" xml:space="preserve">
+    <value>Conservez le dossier {0} et choisissez de nouveau « Installer pour tous les utilisateurs ».</value>
+  </data>
+  <data name="RepairStepKeepFolderCurrentUserFormat" xml:space="preserve">
+    <value>Conservez le dossier {0} et choisissez de nouveau « Installer seulement pour moi ».</value>
+  </data>
+  <data name="RepairStepKeepFolderPortableFormat" xml:space="preserve">
+    <value>Exécutez de nouveau le setup portable depuis le même emplacement, afin qu'il utilise de nouveau le dossier {0}.</value>
+  </data>
+  <data name="RepairStepKeepFolderFormat" xml:space="preserve">
+    <value>Conservez le dossier {0}.</value>
+  </data>
+  <data name="RepairStepCdKeys" xml:space="preserve">
+    <value>Laissez la tâche « Enregistrer les clés CD NeoEE » cochée : elle répare aussi les clés CD.</value>
+  </data>
+  <data name="RepairStepForeignFormat" xml:space="preserve">
+    <value>L'installation dans {0} n'a pas été faite avec le setup communautaire (par exemple depuis le CD ou par GOG). Le setup ne la répare pas ; il installe sa propre copie du jeu dans un nouveau dossier.</value>
+  </data>
+  <data name="RepairDownloadPageLabel" xml:space="preserve">
+    <value>Page de téléchargement du setup communautaire :</value>
+  </data>
+  <data name="RepairDownloadPageSuiteLabel" xml:space="preserve">
+    <value>Si ce dossier n'existe plus, téléchargez plutôt le setup communautaire :</value>
+  </data>
+  <data name="RepairOpenPageButton" xml:space="preserve">
+    <value>Ouvrir la page</value>
+  </data>
+  <data name="RepairOpenSuiteFolderButton" xml:space="preserve">
+    <value>Ouvrir le dossier</value>
+  </data>
+  <data name="RepairCloseButton" xml:space="preserve">
+    <value>Fermer</value>
+  </data>
+  <data name="RepairPageNotOpenedFormat" xml:space="preserve">
+    <value>Impossible d'ouvrir la page. Copiez l'adresse dans votre navigateur : {0}</value>
+  </data>
+  <data name="RepairSuiteFolderNotOpenedFormat" xml:space="preserve">
+    <value>Le dossier n'a pas pu être ouvert : {0}</value>
+  </data>
+  <data name="NavigationTools" xml:space="preserve">
+    <value>Outils</value>
+  </data>
+  <data name="ToolsFilesHeading" xml:space="preserve">
+    <value>Fichiers de l'installation</value>
+  </data>
+  <data name="ToolsUpdatesHeading" xml:space="preserve">
+    <value>Mises à jour</value>
+  </data>
+  <data name="FullCheckButton" xml:space="preserve">
+    <value>Vérifier tous les fichiers</value>
+  </data>
+  <data name="CancelCheckButton" xml:space="preserve">
+    <value>Annuler la vérification</value>
+  </data>
+  <data name="RepairAdviceButton" xml:space="preserve">
+    <value>Conseils de réparation</value>
+  </data>
+  <data name="IntegrityRepairButton" xml:space="preserve">
+    <value>Réparer...</value>
+  </data>
+  <data name="IntegrityDetailsButton" xml:space="preserve">
+    <value>Détails</value>
+  </data>
+  <data name="IntegrityCheckInfo" xml:space="preserve">
+    <value>La vérification rapide s'exécute à chaque démarrage et après un setup et contrôle les fichiers de programme. « Vérifier tous les fichiers » compare aussi les données du jeu ; cela peut prendre quelques minutes. Le launcher ne fait que lire les fichiers.</value>
+  </data>
+  <data name="IntegrityBadgeChecking" xml:space="preserve">
+    <value>Fichiers : vérification...</value>
+  </data>
+  <data name="IntegrityBadgeOk" xml:space="preserve">
+    <value>Fichiers : OK</value>
+  </data>
+  <data name="IntegrityBadgeModified" xml:space="preserve">
+    <value>Fichiers : OK, données du jeu modifiées</value>
+  </data>
+  <data name="IntegrityBadgeIncomplete" xml:space="preserve">
+    <value>Fichiers : incomplets</value>
+  </data>
+  <data name="IntegrityBadgeDamaged" xml:space="preserve">
+    <value>Fichiers : endommagés</value>
+  </data>
+  <data name="IntegrityBadgeChanged" xml:space="preserve">
+    <value>Fichiers : modifiés depuis l'installation</value>
+  </data>
+  <data name="IntegrityBadgeLegacy" xml:space="preserve">
+    <value>Fichiers : pas de vérification (ancien setup)</value>
+  </data>
+  <data name="IntegrityBadgeUnknown" xml:space="preserve">
+    <value>Fichiers : vérification impossible</value>
+  </data>
+  <data name="IntegrityBadgeCancelled" xml:space="preserve">
+    <value>Fichiers : vérification annulée</value>
+  </data>
+  <data name="IntegrityBadgeUnreliableFormat" xml:space="preserve">
+    <value>{0} (peu fiable)</value>
+  </data>
+  <data name="IntegrityNotChecked" xml:space="preserve">
+    <value>Non vérifiée : cette installation ne provient pas du setup communautaire, qui écrit la liste des fichiers pour la vérification.</value>
+  </data>
+  <data name="IntegrityOkQuickFormat" xml:space="preserve">
+    <value>Les {0} fichiers de la liste du setup sont tous présents et les {1} fichiers de programme sont inchangés (vérification rapide).</value>
+  </data>
+  <data name="IntegrityOkFullFormat" xml:space="preserve">
+    <value>Les {0} fichiers de la liste du setup sont tous présents et les {1} fichiers comparés à leur somme de contrôle sont inchangés (vérification complète).</value>
+  </data>
+  <data name="IntegrityModifiedFormat" xml:space="preserve">
+    <value>{0} fichiers des données du jeu diffèrent de l'installation, par exemple à cause de mods, de packs HD ou de civilisations modifiées. C'est seulement une information : les fichiers de programme sont inchangés.</value>
+  </data>
+  <data name="IntegrityFilesIntro" xml:space="preserve">
+    <value>Des fichiers de l'installation sont manquants ou endommagés. Les antivirus suppriment souvent des fichiers du jeu ou les mettent en quarantaine.</value>
+  </data>
+  <data name="IntegrityChangedIntro" xml:space="preserve">
+    <value>Des fichiers de programme ont changé depuis l'installation. Le programme de mise à jour de NeoEE peut remplacer des fichiers de NeoEE ; si le jeu ne fonctionne pas, réparez l'installation avec le setup.</value>
+  </data>
+  <data name="IntegrityUnknownLegacy" xml:space="preserve">
+    <value>Installée avec le setup communautaire 1.7.2 ou plus ancien, qui n'écrit pas de liste des fichiers. Lancez le setup actuel pour activer la vérification.</value>
+  </data>
+  <data name="IntegrityUnknownNewerContract" xml:space="preserve">
+    <value>Installée par un setup plus récent que ce que ce launcher connaît. Veuillez mettre à jour le launcher.</value>
+  </data>
+  <data name="IntegrityUnknownOlderSetup" xml:space="preserve">
+    <value>Un setup plus ancien a été exécuté après le setup actuel, ou le dernier setup n'a pas pu remplacer ses informations. Lancez le setup actuel.</value>
+  </data>
+  <data name="IntegrityUnknownNoRecords" xml:space="preserve">
+    <value>La dernière exécution du setup ne s'est pas terminée, ou le setup n'a pas pu écrire sa liste des fichiers. Lancez de nouveau le setup pour réparer l'installation.</value>
+  </data>
+  <data name="IntegrityUnknownUnreadable" xml:space="preserve">
+    <value>Certains fichiers n'ont pas pu être lus (utilisés ou accès refusé). Fermez le jeu et vérifiez de nouveau.</value>
+  </data>
+  <data name="IntegrityCancelledSetup" xml:space="preserve">
+    <value>La vérification a été annulée parce qu'un setup a démarré. Elle sera relancée à la fin du setup.</value>
+  </data>
+  <data name="IntegrityCancelledRequested" xml:space="preserve">
+    <value>La vérification a été annulée.</value>
+  </data>
+  <data name="IntegrityUnreliableFormat" xml:space="preserve">
+    <value>Empire Earth et NeoEE sont installés dans le même dossier : le setup de {0} a pu remplacer des fichiers de {1}, cette vérification n'est donc pas fiable.</value>
+  </data>
+  <data name="IntegrityChecking" xml:space="preserve">
+    <value>Vérification des fichiers de l'installation...</value>
+  </data>
+  <data name="IntegrityProgressFormat" xml:space="preserve">
+    <value>Vérification : {0} fichiers sur {1}</value>
+  </data>
+  <data name="IntegrityFileMissingFormat" xml:space="preserve">
+    <value>{0} : manquant</value>
+  </data>
+  <data name="IntegrityFileMissingAfterInstallFormat" xml:space="preserve">
+    <value>{0} : manquant depuis l'installation</value>
+  </data>
+  <data name="IntegrityFileDamagedFormat" xml:space="preserve">
+    <value>{0} : endommagé ou remplacé</value>
+  </data>
+  <data name="IntegrityFileChangedFormat" xml:space="preserve">
+    <value>{0} : modifié depuis l'installation</value>
+  </data>
+  <data name="IntegrityFileModifiedFormat" xml:space="preserve">
+    <value>{0} : modifié</value>
+  </data>
+  <data name="IntegrityFileUnreadableFormat" xml:space="preserve">
+    <value>{0} : illisible</value>
+  </data>
+  <data name="IntegrityMoreFilesFormat" xml:space="preserve">
+    <value>et {0} autres fichiers</value>
+  </data>
+  <data name="VersionCheckPlayButton" xml:space="preserve">
+    <value>Vérifier la version</value>
+  </data>
+  <data name="VersionCheckToolsButton" xml:space="preserve">
+    <value>Rechercher des mises à jour</value>
+  </data>
+  <data name="VersionCheckInfo" xml:space="preserve">
+    <value>Demande à api.empireearth.eu si le jeu et le setup installés sont à jour. Seuls l'AppId de l'installation et la version sont envoyés.</value>
+  </data>
+  <data name="VersionChecking" xml:space="preserve">
+    <value>Interrogation du serveur de mises à jour...</value>
+  </data>
+  <data name="VersionGameUpToDateFormat" xml:space="preserve">
+    <value>Version du jeu {0} : à jour.</value>
+  </data>
+  <data name="VersionGameUpdateFormat" xml:space="preserve">
+    <value>Version du jeu {0} : la version {1} est disponible.</value>
+  </data>
+  <data name="VersionSetupUpToDateFormat" xml:space="preserve">
+    <value>Version du setup {0} : à jour.</value>
+  </data>
+  <data name="VersionSetupUpdateFormat" xml:space="preserve">
+    <value>Version du setup {0} : la version {1} est disponible.</value>
+  </data>
+  <data name="VersionNotPossible" xml:space="preserve">
+    <value>Pas de vérification de version : seules les installations du setup communautaire avec une version enregistrée peuvent être vérifiées.</value>
+  </data>
+  <data name="VersionFailedFormat" xml:space="preserve">
+    <value>Le serveur de mises à jour n'a pas pu être interrogé ({0}) ; détails dans le journal.</value>
+  </data>
+  <data name="FailureTimeout" xml:space="preserve">
+    <value>pas de réponse en 10 secondes</value>
+  </data>
+  <data name="FailureTls" xml:space="preserve">
+    <value>la connexion sécurisée a échoué</value>
+  </data>
+  <data name="FailureNetwork" xml:space="preserve">
+    <value>pas de connexion</value>
+  </data>
+  <data name="FailureStatus" xml:space="preserve">
+    <value>réponse inattendue du serveur</value>
+  </data>
+  <data name="ToolsCleanupHeading" xml:space="preserve">
+    <value>Anciennes entrées du registre</value>
+  </data>
+  <data name="CleanupInfo" xml:space="preserve">
+    <value>Les restes d'installations supprimées (SSSI, Mad Doc, NeoEE) peuvent perturber une nouvelle installation. Le launcher ne supprime que des entrées de votre compte Windows, seulement si aucune installation ne les utilise et que leur dossier de jeu n'existe plus, et seulement après les avoir exportées dans le dossier de sauvegarde. Les entrées pour tous les utilisateurs sont seulement affichées, avec un conseil. Software\Sierra n'est jamais supprimé : il contient les clés CD de NeoEE.</value>
+  </data>
+  <data name="CleanupNothingToCleanUp" xml:space="preserve">
+    <value>Rien à nettoyer : aucune entrée de votre compte n'est un reste.</value>
+  </data>
+  <data name="CleanupCandidatesFormat" xml:space="preserve">
+    <value>{0} entrées de votre compte sont des restes d'une installation supprimée. Sélectionnez celles à supprimer.</value>
+  </data>
+  <data name="CleanupDeleteButton" xml:space="preserve">
+    <value>Supprimer la sélection...</value>
+  </data>
+  <data name="CleanupConfirmFormat" xml:space="preserve">
+    <value>Supprimer ces entrées du registre ?
+
+{0}
+
+Elles sont d'abord exportées dans un fichier .reg dans {1} ; double-cliquez dessus pour les restaurer.</value>
+  </data>
+  <data name="CleanupOfferedFormat" xml:space="preserve">
+    <value>{0} (le dossier {1} n'existe plus)</value>
+  </data>
+  <data name="CleanupAdviceExportFormat" xml:space="preserve">
+    <value>{0} : reste d'une installation supprimée (le dossier {1} n'existe plus). Elle s'applique à tous les utilisateurs, le launcher ne la modifie donc pas. Pour la supprimer : lancez l'Éditeur du Registre en tant qu'administrateur, cliquez avec le bouton droit sur la clé, choisissez Exporter et enregistrez le fichier, puis supprimez la clé.</value>
+  </data>
+  <data name="CleanupAdviceDoNotDeleteFormat" xml:space="preserve">
+    <value>{0} : ne pas supprimer, elle contient les clés CD de NeoEE ({1}).</value>
+  </data>
+  <data name="CleanupCdKeysExist" xml:space="preserve">
+    <value>clés CD présentes</value>
+  </data>
+  <data name="CleanupCdKeysMissing" xml:space="preserve">
+    <value>aucune clé CD</value>
+  </data>
+  <data name="CleanupCdKeysUnknown" xml:space="preserve">
+    <value>clés CD illisibles</value>
+  </data>
+  <data name="CleanupKeepInstallationFormat" xml:space="preserve">
+    <value>{0} : conservée, une installation de {1} a été trouvée.</value>
+  </data>
+  <data name="CleanupKeepFolderFormat" xml:space="preserve">
+    <value>{0} : conservée, son dossier {1} existe.</value>
+  </data>
+  <data name="CleanupKeepDriveFormat" xml:space="preserve">
+    <value>{0} : conservée, son dossier {1} se trouve sur un lecteur non connecté ou qui n'est pas un disque local.</value>
+  </data>
+  <data name="CleanupKeepNoFolderFormat" xml:space="preserve">
+    <value>{0} : conservée, elle n'indique aucun dossier de jeu.</value>
+  </data>
+  <data name="CleanupKeepUnreadableFormat" xml:space="preserve">
+    <value>{0} : conservée, elle ne peut pas être lue.</value>
+  </data>
+  <data name="CleanupDoneFormat" xml:space="preserve">
+    <value>{0} entrées supprimées. La sauvegarde se trouve dans : {1}</value>
+  </data>
+  <data name="CleanupNoLongerStale" xml:space="preserve">
+    <value>Rien n'a été supprimé : une entrée est de nouveau utilisée (une installation ou son lecteur est de retour). La liste a été mise à jour.</value>
+  </data>
+  <data name="CleanupFailedFormat" xml:space="preserve">
+    <value>Toutes les entrées n'ont pas pu être supprimées (détails dans le journal). La sauvegarde {0} restaure celles qui ont été supprimées.</value>
+  </data>
+  <data name="ToolsWonHeading" xml:space="preserve">
+    <value>Connexion WON</value>
+  </data>
+  <data name="WonInfo" xml:space="preserve">
+    <value>Si la connexion en ligne échoue, par exemple avec WS_GetCert_InvalidPubKeyBlock, réinitialiser la connexion WON aide (forum) : les fichiers _wonkver.pub et _wonlogin.ks des deux jeux sont déplacés dans le dossier de sauvegarde, et le jeu en crée de nouveaux à la prochaine connexion. Le dossier de sauvegarde contient alors des données de connexion : ne le transmettez jamais.</value>
+  </data>
+  <data name="WonFilesFormat" xml:space="preserve">
+    <value>Fichiers de connexion WON : {0}</value>
+  </data>
+  <data name="WonNoFiles" xml:space="preserve">
+    <value>Aucun fichier de connexion WON trouvé.</value>
+  </data>
+  <data name="WonResetButton" xml:space="preserve">
+    <value>Réinitialiser la connexion WON</value>
+  </data>
+  <data name="WonDoneFormat" xml:space="preserve">
+    <value>{0} fichiers déplacés dans {1}. Ce dossier contient des données de connexion : ne le transmettez jamais. Si la connexion échoue encore, réparez l'installation avec le setup.</value>
+  </data>
+  <data name="WonPartialFormat" xml:space="preserve">
+    <value>Copiés dans {0}, mais ces fichiers n'ont pas pu être supprimés (accès refusé). Fermez le jeu et réessayez, ou supprimez-les dans l'Explorateur :
+{1}</value>
+  </data>
+  <data name="WonNothingToReset" xml:space="preserve">
+    <value>Aucun fichier de connexion WON n'a été trouvé ; il n'y a rien à réinitialiser.</value>
+  </data>
+  <data name="WonManifestUnusable" xml:space="preserve">
+    <value>Rien n'a été déplacé : la liste des fichiers du setup ne peut pas être lue, le launcher ne peut donc pas reconnaître les fichiers de l'installation. Réparez l'installation avec le setup.</value>
+  </data>
+  <data name="ToolsVirtualStoreHeading" xml:space="preserve">
+    <value>VirtualStore</value>
+  </data>
+  <data name="VirtualStoreInfo" xml:space="preserve">
+    <value>Quand un jeu situé sous Program Files s'exécute sans droits d'administrateur, Windows conserve les fichiers qu'il modifie sous forme de copies dans %LOCALAPPDATA%\VirtualStore. Le jeu peut alors utiliser d'autres fichiers que l'installation, par exemple une autre version avec et sans droits d'administrateur (forum).</value>
+  </data>
+  <data name="VirtualStoreNotVirtualized" xml:space="preserve">
+    <value>Non concerné : les dossiers du jeu ne se trouvent pas sous Program Files, ProgramData ou le dossier Windows.</value>
+  </data>
+  <data name="VirtualStoreNone" xml:space="preserve">
+    <value>Aucune copie dans le VirtualStore.</value>
+  </data>
+  <data name="VirtualStoreSeriousFormat" xml:space="preserve">
+    <value>{0} fichiers de l'installation ou fichiers de programme sont utilisés depuis le VirtualStore au lieu du dossier du jeu, le jeu peut donc exécuter une autre version. Fermez le jeu, déplacez ces copies hors du dossier VirtualStore et réparez l'installation avec le setup si le jeu ne démarre pas.</value>
+  </data>
+  <data name="VirtualStoreRuntimeFormat" xml:space="preserve">
+    <value>{0} autres fichiers (profils du lobby, journaux, parties sauvegardées) se trouvent dans le VirtualStore ; c'est normal pour un jeu sans droits d'administrateur.</value>
+  </data>
+  <data name="VirtualStoreSeriousLineFormat" xml:space="preserve">
+    <value>{0} (utilisé à la place de {1})</value>
+  </data>
+  <data name="VirtualStoreTruncatedFormat" xml:space="preserve">
+    <value>Seuls les {0} premiers fichiers sont listés.</value>
+  </data>
+  <data name="ToolsSavesHeading" xml:space="preserve">
+    <value>Parties sauvegardées et scénarios</value>
+  </data>
+  <data name="SavesInfo" xml:space="preserve">
+    <value>L'export copie toutes les parties sauvegardées (.ees) et tous les scénarios (.scn) des deux jeux dans un nouveau dossier, y compris ceux du VirtualStore. Pour une partie multijoueur sauvegardée, chaque joueur a besoin du même fichier avec exactement le même nom, et l'hôte doit rediriger ses ports (par défaut 33334 et 33336 en TCP et UDP, 33335 en TCP ; la vérification du réseau plus bas indique ceux de cette installation).</value>
+  </data>
+  <data name="SavesCountFormat" xml:space="preserve">
+    <value>{0} parties sauvegardées et {1} scénarios trouvés.</value>
+  </data>
+  <data name="SavesShadowedFormat" xml:space="preserve">
+    <value>Masqués par une copie du même nom dans le VirtualStore (le jeu utilise la copie, l'export prend la copie) : {0}</value>
+  </data>
+  <data name="ExportSavesButton" xml:space="preserve">
+    <value>Exporter...</value>
+  </data>
+  <data name="ImportEeSavesButton" xml:space="preserve">
+    <value>Importer dans Empire Earth...</value>
+  </data>
+  <data name="ImportAocSavesButton" xml:space="preserve">
+    <value>Importer dans The Art of Conquest...</value>
+  </data>
+  <data name="ExportFolderDescription" xml:space="preserve">
+    <value>Choisissez le dossier de l'export ; le launcher y crée un nouveau dossier.</value>
+  </data>
+  <data name="ImportDialogTitle" xml:space="preserve">
+    <value>Parties sauvegardées et scénarios à importer</value>
+  </data>
+  <data name="ImportFileFilter" xml:space="preserve">
+    <value>Parties sauvegardées et scénarios (*.ees;*.scn)|*.ees;*.scn</value>
+  </data>
+  <data name="ExportDoneFormat" xml:space="preserve">
+    <value>{0} fichiers exportés dans : {1}</value>
+  </data>
+  <data name="ExportPartialFormat" xml:space="preserve">
+    <value>{0} fichiers exportés dans {1} ; non exportés (détails dans le journal) : {2}</value>
+  </data>
+  <data name="ExportNothing" xml:space="preserve">
+    <value>Il n'y a aucune partie sauvegardée ni aucun scénario à exporter.</value>
+  </data>
+  <data name="ExportInsideGameFolder" xml:space="preserve">
+    <value>Choisissez un dossier en dehors des dossiers du jeu.</value>
+  </data>
+  <data name="ExportFailed" xml:space="preserve">
+    <value>Le dossier d'export n'a pas pu être créé (détails dans le journal).</value>
+  </data>
+  <data name="ImportConfirmFormat" xml:space="preserve">
+    <value>Ces fichiers existent déjà et seraient remplacés :
+
+{0}
+
+Les anciens fichiers sont d'abord copiés dans le dossier de sauvegarde. Les remplacer ?</value>
+  </data>
+  <data name="ImportResultFormat" xml:space="preserve">
+    <value>{0} fichiers sur {1} importés.</value>
+  </data>
+  <data name="ImportFileProblemFormat" xml:space="preserve">
+    <value>{0} : {1}</value>
+  </data>
+  <data name="ImportCheckNotFound" xml:space="preserve">
+    <value>introuvable</value>
+  </data>
+  <data name="ImportCheckWrongExtension" xml:space="preserve">
+    <value>seuls les fichiers .ees et .scn peuvent être importés</value>
+  </data>
+  <data name="ImportCheckNotAPlainName" xml:space="preserve">
+    <value>nom de fichier non valide</value>
+  </data>
+  <data name="ImportCheckNameOutsideAnsi" xml:space="preserve">
+    <value>le nom contient des caractères que le jeu ne peut pas lire</value>
+  </data>
+  <data name="ImportCheckTooLarge" xml:space="preserve">
+    <value>plus de 64 Mio</value>
+  </data>
+  <data name="ImportCheckAlreadyInPlace" xml:space="preserve">
+    <value>déjà dans le dossier du jeu</value>
+  </data>
+  <data name="ImportCheckManifestFile" xml:space="preserve">
+    <value>un fichier de l'installation, jamais remplacé</value>
+  </data>
+  <data name="ImportCheckDuplicateName" xml:space="preserve">
+    <value>un autre fichier sélectionné porte le même nom</value>
+  </data>
+  <data name="ImportNotConfirmed" xml:space="preserve">
+    <value>non remplacé</value>
+  </data>
+  <data name="ImportAccessDenied" xml:space="preserve">
+    <value>accès refusé</value>
+  </data>
+  <data name="ImportFailed" xml:space="preserve">
+    <value>n'a pas pu être écrit (détails dans le journal)</value>
+  </data>
+  <data name="ImportNameNoteFormat" xml:space="preserve">
+    <value>{0} : le nom contient des caractères hors ASCII simple ; en multijoueur, chaque joueur a besoin exactement de ce nom.</value>
+  </data>
+  <data name="ImportBackupFormat" xml:space="preserve">
+    <value>Les fichiers remplacés se trouvent dans : {0}</value>
+  </data>
+  <data name="ToolsNamesHeading" xml:space="preserve">
+    <value>Noms des joueurs</value>
+  </data>
+  <data name="NamesInfo" xml:space="preserve">
+    <value>Les caractères spéciaux dans les noms posent problème en multijoueur : avec des symboles dans un nom de joueur, une partie sauvegardée ne peut pas être chargée, et des caractères Unicode dans un nom ont fait planter le jeu (forum). Utilisez les lettres A à Z, des chiffres et une ponctuation simple.</value>
+  </data>
+  <data name="NamesOkFormat" xml:space="preserve">
+    <value>Les {0} profils du lobby et noms de joueurs utilisent tous des caractères simples.</value>
+  </data>
+  <data name="NamesNone" xml:space="preserve">
+    <value>Aucun profil du lobby ni aucun joueur trouvé.</value>
+  </data>
+  <data name="NamesWarningFormat" xml:space="preserve">
+    <value>{0} noms contiennent des caractères hors ASCII simple :</value>
+  </data>
+  <data name="NameLobbyProfileFormat" xml:space="preserve">
+    <value>{0}, profil du lobby : {1}</value>
+  </data>
+  <data name="NamePlayerFormat" xml:space="preserve">
+    <value>{0}, joueur : {1}</value>
+  </data>
+  <data name="ToolsBackupsHeading" xml:space="preserve">
+    <value>Sauvegardes</value>
+  </data>
+  <data name="BackupFolderInfoFormat" xml:space="preserve">
+    <value>Le launcher conserve ses sauvegardes dans {0} : fichiers .reg des entrées du registre modifiées ou supprimées, fichiers de connexion WON déplacés et parties sauvegardées remplacées. Le dossier contient des données de connexion ; ne le transmettez jamais.</value>
+  </data>
+  <data name="OpenBackupFolderButton" xml:space="preserve">
+    <value>Ouvrir le dossier de sauvegarde</value>
+  </data>
+  <data name="OpenBackupFolderFailedFormat" xml:space="preserve">
+    <value>Le dossier de sauvegarde n'a pas pu être ouvert : {0}</value>
+  </data>
+  <data name="ToolsChecking" xml:space="preserve">
+    <value>Vérification...</value>
+  </data>
+  <data name="ToolsNetworkHeading" xml:space="preserve">
+    <value>Réseau</value>
+  </data>
+  <data name="NetworkInfo" xml:space="preserve">
+    <value>À la demande, le launcher vérifie ce que le forum d'assistance demandait sans cesse : les cartes réseau de cet ordinateur, la résolution de noms (DNS) des serveurs NeoEE, le serveur de mises à jour, le serveur d'état NeoEE, NeoEE.cfg et WONLobby.cfg des dossiers de jeu (en lecture seule) et upnp_info.txt. Il n'envoie au serveur de mises à jour que l'AppId de l'installation et la question de la dernière version du jeu, et ne demande votre adresse publique à aucun service.</value>
+  </data>
+  <data name="NetworkCheckButton" xml:space="preserve">
+    <value>Vérifier le réseau</value>
+  </data>
+  <data name="NetworkChecking" xml:space="preserve">
+    <value>Vérification du réseau ...</value>
+  </data>
+  <data name="NetworkVerdictServerAnswersFormat" xml:space="preserve">
+    <value>Le serveur NeoEE répond ({0} joueurs en ligne). Si le lobby ne fonctionne toujours pas, voyez les conseils ci-dessous et la connexion WON sur cette page.</value>
+  </data>
+  <data name="NetworkVerdictOutage" xml:space="preserve">
+    <value>Probablement une panne du serveur, pas votre ordinateur : les noms des serveurs sont résolus et le serveur de mises à jour répond, mais pas le serveur NeoEE. Réessayez plus tard ; rien n'est à changer sur cet ordinateur.</value>
+  </data>
+  <data name="NetworkVerdictNameNotResolvedFormat" xml:space="preserve">
+    <value>Le serveur de mises à jour répond, mais le nom {0} du serveur NeoEE ne peut pas être résolu. Le serveur DNS de votre connexion a peut-être un problème, ou le nom du serveur a changé : réessayez plus tard ou redémarrez le routeur.</value>
+  </data>
+  <data name="NetworkVerdictNoConnection" xml:space="preserve">
+    <value>Cet ordinateur semble ne pas avoir de connexion Internet : le nom du serveur NeoEE ne peut pas être résolu et le serveur de mises à jour ne répond pas. Vérifiez la connexion réseau (câble, Wi-Fi, mode avion).</value>
+  </data>
+  <data name="NetworkVerdictNoServerReached" xml:space="preserve">
+    <value>Aucun serveur ne répond bien que les noms soient résolus. Un pare-feu, un antivirus ou un proxy bloque peut-être le launcher, ou les deux serveurs sont en panne. Vérifiez les exceptions du pare-feu et de l'antivirus, puis réessayez.</value>
+  </data>
+  <data name="NetworkVerdictUndetermined" xml:space="preserve">
+    <value>Le serveur NeoEE ne répond pas. Impossible de dire si le serveur est en panne : le serveur de mises à jour n'est interrogé qu'avec l'AppId d'une installation du setup communautaire, et il n'y en a aucune.</value>
+  </data>
+  <data name="NetworkVerdictNotConfigured" xml:space="preserve">
+    <value>Le serveur NeoEE n'est pas configuré (les paramètres du serveur dans Empire Earth Launcher.exe.config ne sont pas valides) ; il n'a donc pas été interrogé.</value>
+  </data>
+  <data name="NetworkHintNoConnection" xml:space="preserve">
+    <value>Aucune carte réseau connectée n'a de passerelle IPv4 : l'ordinateur semble hors ligne.</value>
+  </data>
+  <data name="NetworkHintIPv6Only" xml:space="preserve">
+    <value>Votre connexion a l'IPv6 mais aucune passerelle IPv4. Empire Earth a besoin de l'IPv4 : demandez une connexion IPv4 à votre fournisseur.</value>
+  </data>
+  <data name="NetworkHintVirtualAdaptersFormat" xml:space="preserve">
+    <value>{0} cartes réseau virtuelles ou VPN sont connectées (par exemple Hamachi, un VPN ou une machine virtuelle). Dans les options du lobby et dans les options multijoueur du jeu, choisissez la même carte réelle avec l'adresse IPv4 de votre réseau domestique ; une carte virtuelle peut masquer les parties hébergées ou faire planter le jeu.</value>
+  </data>
+  <data name="NetworkHintSeveralAdaptersFormat" xml:space="preserve">
+    <value>{0} cartes réseau sont connectées avec une passerelle (par exemple câble et Wi-Fi). Choisissez la même dans les options du lobby et dans les options multijoueur du jeu.</value>
+  </data>
+  <data name="NetworkHintCgnat" xml:space="preserve">
+    <value>Le routeur indique une adresse de NAT de l'opérateur (100.64.0.0/10) : votre fournisseur partage une adresse publique avec d'autres clients, la redirection de ports ne peut donc pas fonctionner. L'hébergement RIP de NeoEE fonctionne toujours pour les parties normales ; pour les scénarios et les parties sauvegardées, demandez une adresse IPv4 publique à votre fournisseur.</value>
+  </data>
+  <data name="NetworkHintDsLite" xml:space="preserve">
+    <value>Le routeur n'a pas d'adresse IPv4 publique propre et l'ordinateur utilise l'IPv6 : probablement du DS-Lite. La redirection de ports IPv4 ne peut pas fonctionner ; l'hébergement RIP de NeoEE fonctionne toujours pour les parties normales. Pour les scénarios et les parties sauvegardées, demandez une adresse IPv4 publique à votre fournisseur (sur le forum, cela a résolu le problème).</value>
+  </data>
+  <data name="NetworkHintNoExternalIPv4" xml:space="preserve">
+    <value>Le routeur n'indique aucune adresse IPv4 externe (0.0.0.0). La redirection de ports en a besoin ; vérifiez la connexion Internet du routeur.</value>
+  </data>
+  <data name="NetworkHintPrivateExternal" xml:space="preserve">
+    <value>L'adresse externe du routeur est une adresse privée : un deuxième routeur ou modem se trouve devant lui (double NAT). Redirigez les ports sur les deux appareils, ou passez le modem en mode routeur ou pont.</value>
+  </data>
+  <data name="NetworkHintRipOffFormat" xml:space="preserve">
+    <value>NeoEE.cfg de {0} : l'hébergement RIP est désactivé (Active: false). Sans lui, chaque partie hébergée a besoin d'une redirection de ports ; le setup installe le fichier avec l'hébergement RIP activé.</value>
+  </data>
+  <data name="NetworkHintCdKeyCheckFormat" xml:space="preserve">
+    <value>WONLobby.cfg de {0} : CDKeyCheck n'est pas à true. NeoEE en a besoin ; exécutez le setup communautaire en réparation pour réinstaller le fichier (le launcher ne le modifie pas).</value>
+  </data>
+  <data name="NetworkAdaptersUnreadable" xml:space="preserve">
+    <value>Les cartes réseau n'ont pas pu être listées.</value>
+  </data>
+  <data name="NetworkAdapterFormat" xml:space="preserve">
+    <value>{0} « {1} » : IPv4 {2}, passerelle {3}, IPv6 {4}</value>
+  </data>
+  <data name="NetworkAdapterVirtual" xml:space="preserve">
+    <value>, virtuelle ou VPN</value>
+  </data>
+  <data name="NetworkAdapterDisconnected" xml:space="preserve">
+    <value>, non connectée</value>
+  </data>
+  <data name="NetworkKindEthernet" xml:space="preserve">
+    <value>Ethernet</value>
+  </data>
+  <data name="NetworkKindWireless" xml:space="preserve">
+    <value>Wi-Fi</value>
+  </data>
+  <data name="NetworkKindTunnel" xml:space="preserve">
+    <value>Tunnel (VPN)</value>
+  </data>
+  <data name="NetworkKindPpp" xml:space="preserve">
+    <value>Accès à distance (PPP)</value>
+  </data>
+  <data name="NetworkKindMobile" xml:space="preserve">
+    <value>Haut débit mobile</value>
+  </data>
+  <data name="NetworkKindOther" xml:space="preserve">
+    <value>Autre carte</value>
+  </data>
+  <data name="NetworkNone" xml:space="preserve">
+    <value>aucune</value>
+  </data>
+  <data name="NetworkIPv6None" xml:space="preserve">
+    <value>aucune</value>
+  </data>
+  <data name="NetworkIPv6LinkLocal" xml:space="preserve">
+    <value>liaison locale uniquement</value>
+  </data>
+  <data name="NetworkIPv6Global" xml:space="preserve">
+    <value>disponible</value>
+  </data>
+  <data name="NetworkClassPrivate" xml:space="preserve">
+    <value>adresse privée</value>
+  </data>
+  <data name="NetworkClassLinkLocal" xml:space="preserve">
+    <value>adresse de liaison locale</value>
+  </data>
+  <data name="NetworkClassCgnat" xml:space="preserve">
+    <value>adresse CGNAT</value>
+  </data>
+  <data name="NetworkClassPublic" xml:space="preserve">
+    <value>adresse publique</value>
+  </data>
+  <data name="NetworkClassUnspecified" xml:space="preserve">
+    <value>aucune (0.0.0.0)</value>
+  </data>
+  <data name="NetworkClassSpecial" xml:space="preserve">
+    <value>adresse spéciale</value>
+  </data>
+  <data name="NetworkDnsResolvedFormat" xml:space="preserve">
+    <value>Résolution de {0} : OK</value>
+  </data>
+  <data name="NetworkDnsNotFoundFormat" xml:space="preserve">
+    <value>Résolution de {0} : nom introuvable</value>
+  </data>
+  <data name="NetworkDnsTimeoutFormat" xml:space="preserve">
+    <value>Résolution de {0} : aucune réponse</value>
+  </data>
+  <data name="NetworkDnsFailedFormat" xml:space="preserve">
+    <value>Résolution de {0} : échec</value>
+  </data>
+  <data name="NetworkApiAnsweredFormat" xml:space="preserve">
+    <value>Serveur de mises à jour : répond (HTTP {0})</value>
+  </data>
+  <data name="NetworkApiNoAnswerFormat" xml:space="preserve">
+    <value>Serveur de mises à jour : aucune réponse ({0})</value>
+  </data>
+  <data name="NetworkApiNotAsked" xml:space="preserve">
+    <value>Serveur de mises à jour : non interrogé (aucune installation du setup communautaire avec une AppId)</value>
+  </data>
+  <data name="NetworkStatusAnsweredFormat" xml:space="preserve">
+    <value>Serveur d'état NeoEE {0} : répond, {1} joueurs en ligne</value>
+  </data>
+  <data name="NetworkStatusNoAnswerFormat" xml:space="preserve">
+    <value>Serveur d'état NeoEE {0} : aucune réponse</value>
+  </data>
+  <data name="NetworkStatusNotConfigured" xml:space="preserve">
+    <value>Serveur d'état NeoEE : non configuré</value>
+  </data>
+  <data name="NetworkNeoEeCfgFormat" xml:space="preserve">
+    <value>{0}, NeoEE.cfg : hébergement RIP {1}, serveur {2}, port de jeu {3}, ports relais {4}, vérification des ports {5}, UPnP {6}</value>
+  </data>
+  <data name="NetworkOn" xml:space="preserve">
+    <value>activé</value>
+  </data>
+  <data name="NetworkOff" xml:space="preserve">
+    <value>désactivé</value>
+  </data>
+  <data name="NetworkFileMissingFormat" xml:space="preserve">
+    <value>{0}, {1} : introuvable</value>
+  </data>
+  <data name="NetworkFileUnreadableFormat" xml:space="preserve">
+    <value>{0}, {1} : illisible</value>
+  </data>
+  <data name="NetworkWonLobbyFormat" xml:space="preserve">
+    <value>{0}, WONLobby.cfg : CDKeyCheck {1}, port de transfert de fichiers {2}, port du lobby {3}</value>
+  </data>
+  <data name="NetworkInvalid" xml:space="preserve">
+    <value>non valide</value>
+  </data>
+  <data name="NetworkUpnpMissingFormat" xml:space="preserve">
+    <value>{0}, upnp_info.txt : introuvable (NeoEE peut l'écrire pendant que vous hébergez)</value>
+  </data>
+  <data name="NetworkUpnpUnknownFormat" xml:space="preserve">
+    <value>{0}, upnp_info.txt : format inconnu</value>
+  </data>
+  <data name="NetworkUpnpFormat" xml:space="preserve">
+    <value>{0}, upnp_info.txt : adresse externe {1}, adresse locale {2}</value>
+  </data>
+  <data name="NetworkPortsFormat" xml:space="preserve">
+    <value>Redirection de ports pour héberger ({0}) : {1} vers {2}. Seul l'hôte en a besoin ; avec l'hébergement RIP, la plupart des parties normales fonctionnent sans.</value>
+  </data>
+  <data name="NetworkPortsThisComputer" xml:space="preserve">
+    <value>l'adresse IPv4 de cet ordinateur</value>
+  </data>
+  <data name="ToolsReportHeading" xml:space="preserve">
+    <value>Rapport de diagnostic</value>
+  </data>
+  <data name="ReportInfo" xml:space="preserve">
+    <value>Un texte avec tout ce que le launcher a trouvé, pour un message sur le forum ou à une personne qui vous aide. Il est en anglais, la langue de l'assistance, et ne contient ni clés CD, ni données de connexion, ni noms de joueurs, ni adresse MAC ou IP publique, ni nom d'utilisateur ou d'ordinateur. Le launcher ne l'envoie jamais ; lisez-le avant de le publier.</value>
+  </data>
+  <data name="CopyReportButton" xml:space="preserve">
+    <value>Copier le rapport</value>
+  </data>
+  <data name="SaveReportButton" xml:space="preserve">
+    <value>Enregistrer le rapport...</value>
+  </data>
+  <data name="ReportCopied" xml:space="preserve">
+    <value>Le rapport a été copié dans le presse-papiers ; il est affiché ci-dessous.</value>
+  </data>
+  <data name="ReportCopyFailedFormat" xml:space="preserve">
+    <value>Le rapport n'a pas pu être copié dans le presse-papiers : {0}. Il est affiché ci-dessous ; sélectionnez-le et copiez-le.</value>
+  </data>
+  <data name="ReportSavedFormat" xml:space="preserve">
+    <value>Le rapport a été enregistré : {0}</value>
+  </data>
+  <data name="ReportSaveFailedFormat" xml:space="preserve">
+    <value>Le rapport n'a pas pu être enregistré : {0}</value>
+  </data>
+  <data name="ReportSaveRefused" xml:space="preserve">
+    <value>Le rapport n'est pas enregistré dans un dossier de jeu ni dans le dossier d'installation ; choisissez un autre dossier.</value>
+  </data>
+  <data name="ReportSaveDialogTitle" xml:space="preserve">
+    <value>Enregistrer le rapport de diagnostic</value>
+  </data>
+  <data name="ReportFileFilter" xml:space="preserve">
+    <value>Fichier texte (*.txt)|*.txt</value>
+  </data>
+  <data name="ReportFileNameFormat" xml:space="preserve">
+    <value>Rapport Empire Earth Launcher {0}</value>
+  </data>
+  <data name="PlayerListCheckNetworkLink" xml:space="preserve">
+    <value>Pourquoi ? Vérifier le réseau</value>
+  </data>
+  <data name="ImportCheckManifestUnusable" xml:space="preserve">
+    <value>la liste des fichiers du setup ne peut pas être lue, le launcher ne peut donc pas reconnaître les fichiers de l'installation ; réparez l'installation avec le setup</value>
+  </data>
+  <data name="CleanupKeepFolderUnknownFormat" xml:space="preserve">
+    <value>{0} : conservée, le launcher n'a pas le droit de regarder dans le dossier {1} ou dans son dossier parent, il ne peut donc pas savoir si le dossier existe encore.</value>
+  </data>
+  <data name="VirtualStoreWrapperConfigFormat" xml:space="preserve">
+    <value>Le VirtualStore contient sa propre copie de dgVoodoo.conf, qui diffère du fichier du dossier du jeu : {0}. Le jeu lit la copie, les modifications du fichier du dossier du jeu n'ont donc aucun effet. Fermez le jeu, puis renommez ou supprimez vous-même la copie ; le launcher ne la supprime pas.</value>
+  </data>
+  <data name="OpenVirtualStoreFolderButton" xml:space="preserve">
+    <value>Ouvrir le dossier VirtualStore</value>
+  </data>
+  <data name="OpenVirtualStoreFolderFailedFormat" xml:space="preserve">
+    <value>Le dossier VirtualStore n'a pas pu être ouvert : {0}</value>
+  </data>
+  <data name="NavigationGraphics" xml:space="preserve">
+    <value>Graphismes</value>
+  </data>
+  <data name="GraphicsWindowSizeHeading" xml:space="preserve">
+    <value>Résolution du jeu</value>
+  </data>
+  <data name="GraphicsWindowSizeInfo" xml:space="preserve">
+    <value>Choisissez la taille de la fenêtre du jeu. Le Launcher l'enregistre, après une sauvegarde, dans les paramètres de votre compte Windows (Game Window Width et Game Window Height) ; rien d'autre ne change. Les tailles jusqu'à 1920x1200 sont proposées (1920x1200 seulement sur un écran au moins aussi haut), car le jeu peut planter au-delà. Les menus du jeu sont conçus pour le 4:3 (1024x768) ; avec une taille grand écran, l'image peut y être coupée. Une réparation ou une mise à jour avec le programme d'installation réécrit la taille recommandée ; choisissez-la alors de nouveau. Le jeu a aussi sa propre option de résolution ; la dernière enregistrée s'applique.</value>
+  </data>
+  <data name="GraphicsWindowSizeCurrentFormat" xml:space="preserve">
+    <value>Taille de la fenêtre de {0} : {1}</value>
+  </data>
+  <data name="GraphicsWindowSizeUnknownFormat" xml:space="preserve">
+    <value>Taille de la fenêtre de {0} : pas encore définie</value>
+  </data>
+  <data name="GraphicsWindowSizeLabel" xml:space="preserve">
+    <value>Résolution :</value>
+  </data>
+  <data name="GraphicsWindowSizeApplyButton" xml:space="preserve">
+    <value>Utiliser cette taille</value>
+  </data>
+  <data name="GraphicsRecommendedTag" xml:space="preserve">
+    <value>recommandée</value>
+  </data>
+  <data name="GraphicsWindowSizeScalingFormat" xml:space="preserve">
+    <value>Windows met cet écran à l'échelle {0} %. Le jeu voit alors un écran plus petit ; si la fenêtre n'y tient pas, la page Paramètres propose l'option de compatibilité HIGHDPIAWARE.</value>
+  </data>
+  <data name="GraphicsWindowSizeDoneFormat" xml:space="preserve">
+    <value>La fenêtre du jeu a maintenant la taille {0}. Les valeurs précédentes sont sauvegardées dans {1}.</value>
+  </data>
+  <data name="GraphicsWindowSizeUnchangedFormat" xml:space="preserve">
+    <value>La fenêtre du jeu a déjà la taille {0} ; rien n'a été modifié.</value>
+  </data>
+  <data name="GraphicsWrapperHeading" xml:space="preserve">
+    <value>Wrapper DirectX</value>
+  </data>
+  <data name="GraphicsWrapperInstalledFormat" xml:space="preserve">
+    <value>Installé : {0}</value>
+  </data>
+  <data name="GraphicsWrapperNone" xml:space="preserve">
+    <value>Natif (aucun wrapper)</value>
+  </data>
+  <data name="GraphicsWrapperDirectX7" xml:space="preserve">
+    <value>DirectX 7 (DDrawCompat)</value>
+  </data>
+  <data name="GraphicsWrapperDirectX9" xml:space="preserve">
+    <value>DirectX 9</value>
+  </data>
+  <data name="GraphicsWrapperDgVoodooFormat" xml:space="preserve">
+    <value>DirectX {0} (dgVoodoo), niveau d'API {1}</value>
+  </data>
+  <data name="GraphicsWrapperUnknownFormat" xml:space="preserve">
+    <value>un wrapper que ce Launcher ne connaît pas ({0})</value>
+  </data>
+  <data name="GraphicsWrapperUnnamed" xml:space="preserve">
+    <value>un wrapper DirectX</value>
+  </data>
+  <data name="GraphicsWrapperFileFormat" xml:space="preserve">
+    <value>un fichier de wrapper ({0})</value>
+  </data>
+  <data name="GraphicsWrapperGuessed" xml:space="preserve">
+    <value>Aucun enregistrement du programme d'installation ne nomme les composants ; cela se déduit des fichiers du dossier du jeu.</value>
+  </data>
+  <data name="GraphicsConfHeadingFormat" xml:space="preserve">
+    <value>dgVoodoo.conf de {0} (affichage seulement) :</value>
+  </data>
+  <data name="GraphicsConfVirtualStore" xml:space="preserve">
+    <value>Le jeu lit la copie du VirtualStore.</value>
+  </data>
+  <data name="GraphicsConfNotSet" xml:space="preserve">
+    <value>non défini</value>
+  </data>
+  <data name="GraphicsConfMissingFormat" xml:space="preserve">
+    <value>dgVoodoo.conf de {0} est introuvable.</value>
+  </data>
+  <data name="GraphicsConfOutdatedFormat" xml:space="preserve">
+    <value>Le fichier dgVoodoo.conf du jeu {0} contient encore les réglages d'un ancien programme d'installation ({1}). Avec eux, il peut y avoir des problèmes avec la souris, le salon multijoueur ou Alt+Tab. Réparez ou mettez à jour l'installation avec le programme d'installation (Empire Earth Community Setup) : il écrit les réglages actuels, et une réparation remplace les modifications que vous avez apportées vous-même au fichier. Le Launcher ne modifie pas ce fichier.</value>
+  </data>
+  <data name="GraphicsConfOutdatedVirtualStoreFormat" xml:space="preserve">
+    <value>La copie de dgVoodoo.conf dans le VirtualStore que lit {0} contient les réglages d'un ancien programme d'installation ({1}). Une réparation avec le programme d'installation ne remplace pas cette copie : fermez le jeu, puis renommez ou supprimez vous-même la copie (la page « Outils » indique où elle se trouve). Le Launcher ne modifie pas ce fichier.</value>
+  </data>
+  <data name="GraphicsConfUnreadableFormat" xml:space="preserve">
+    <value>dgVoodoo.conf de {0} n'a pas pu être lue.</value>
+  </data>
+  <data name="GraphicsWrapperNote" xml:space="preserve">
+    <value>Le Launcher affiche seulement le wrapper et ses clés de mode d'écran. Changer le wrapper revient à ajouter ou supprimer des fichiers du jeu, et le programme d'installation écrit dgVoodoo.conf ; seul ce dernier fait l'un ou l'autre.</value>
+  </data>
+  <data name="GraphicsWrapperChangeInfo" xml:space="preserve">
+    <value>Pour changer le wrapper, relancez le programme d'installation : dans la suite, choisissez « Avancé : parcourir moi-même le programme d'installation de chaque jeu », puis « Paramètres d'installation personnalisés », et sélectionnez le wrapper sous « Wrapper DirectX ». Pour n'avoir aucun wrapper, choisissez « Paramètres recommandés » puis « Natif » sur la page de la carte graphique. Une réparation ou une mise à jour avec le programme d'installation remet aussi la résolution du jeu à la taille recommandée.</value>
+  </data>
+  <data name="NavigationMods" xml:space="preserve">
+    <value>Mods</value>
+  </data>
+  <data name="ModsHeading" xml:space="preserve">
+    <value>Préréglages dreXmod</value>
+  </data>
+  <data name="ModsInfo" xml:space="preserve">
+    <value>dreXmod 3 fournit des préréglages : des dossiers dans Data\dxm\mods avec des sons, des textures, des polices et un thème de lobby. Le fichier dreXmod.config en choisit un comme mod actif (bloc Mod : les sons et textures du jeu) et un comme thème de lobby actif (bloc LobbyTheme : l'apparence du lobby), indépendamment l'un de l'autre. Cette page affiche seulement les préréglages et le choix ; le Launcher ne modifie rien.</value>
+  </data>
+  <data name="ModsHowTo" xml:space="preserve">
+    <value>Pour changer à la main : cliquez sur « Ouvrir dreXmod.config » pour le jeu, mettez Enabled à 1 et Name au nom d'un dossier (le nom au début de chaque entrée ci-dessus) dans le bloc Mod ou LobbyTheme, enregistrez le fichier et lancez le jeu. Ce que dreXmod fait d'un nom qui n'est pas un dossier n'a pas été vérifié.</value>
+  </data>
+  <data name="ModsNote" xml:space="preserve">
+    <value>Une exécution du setup (installation, mise à jour ou réparation) réinstalle dreXmod.config ; le choix revient alors à la valeur livrée (mod désactivé, thème de lobby dxm). Les préréglages que vous avez créés vous-même dans Data\dxm\mods sont conservés ; le setup ne les supprime pas. L'effet d'un mod actif dans les parties multijoueur ou classées n'a pas été vérifié : n'en utilisez un que si vous savez qu'il est accepté.</value>
+  </data>
+  <data name="ModsShowTemplates" xml:space="preserve">
+    <value>Afficher aussi le dossier template</value>
+  </data>
+  <data name="ModsOpenFolderButton" xml:space="preserve">
+    <value>Ouvrir le dossier des mods</value>
+  </data>
+  <data name="ModsOpenConfigButton" xml:space="preserve">
+    <value>Ouvrir dreXmod.config</value>
+  </data>
+  <data name="ModsSetupRunningFormat" xml:space="preserve">
+    <value>Le setup de {0} est en cours. Tant qu'il n'est pas terminé, cette page ne lit ni n'ouvre rien dans les dossiers du jeu.</value>
+  </data>
+  <data name="ModsActiveModFormat" xml:space="preserve">
+    <value>Mod actif : {0}</value>
+  </data>
+  <data name="ModsActiveLobbyFormat" xml:space="preserve">
+    <value>Thème de lobby actif : {0}</value>
+  </data>
+  <data name="ModsSelectorOff" xml:space="preserve">
+    <value>aucun (désactivé)</value>
+  </data>
+  <data name="ModsSelectorUnknown" xml:space="preserve">
+    <value>inconnu</value>
+  </data>
+  <data name="ModsSelectedMissingFormat" xml:space="preserve">
+    <value>dreXmod.config désigne le dossier {0}, qui n'existe pas dans Data\dxm\mods.</value>
+  </data>
+  <data name="ModsConfigVirtualStore" xml:space="preserve">
+    <value>Le jeu lit la copie de dreXmod.config dans le VirtualStore.</value>
+  </data>
+  <data name="ModsConfigMissingFormat" xml:space="preserve">
+    <value>dreXmod.config est introuvable ({0}).</value>
+  </data>
+  <data name="ModsConfigUnreadable" xml:space="preserve">
+    <value>dreXmod.config n'a pas pu être lue.</value>
+  </data>
+  <data name="ModsConfigNoSelectors" xml:space="preserve">
+    <value>dreXmod.config n'a ni bloc Mod ni bloc LobbyTheme ; aucun préréglage n'y est donc choisi.</value>
+  </data>
+  <data name="ModsFolderMissingFormat" xml:space="preserve">
+    <value>Le dossier {0} n'existe pas.</value>
+  </data>
+  <data name="ModsFolderUnreadableFormat" xml:space="preserve">
+    <value>Le dossier {0} n'a pas pu être lu.</value>
+  </data>
+  <data name="ModsNoPresets" xml:space="preserve">
+    <value>Il n'y a aucun préréglage dans ce dossier.</value>
+  </data>
+  <data name="ModsPresetNameFormat" xml:space="preserve">
+    <value>{0} ({1})</value>
+  </data>
+  <data name="ModsPresetBadgesFormat" xml:space="preserve">
+    <value>{0}  [{1}]</value>
+  </data>
+  <data name="ModsBadgeMod" xml:space="preserve">
+    <value>mod actif</value>
+  </data>
+  <data name="ModsBadgeLobby" xml:space="preserve">
+    <value>thème de lobby actif</value>
+  </data>
+  <data name="ModsBadgeTemplate" xml:space="preserve">
+    <value>modèle pour les auteurs</value>
+  </data>
+  <data name="ModsPresetLastEditFormat" xml:space="preserve">
+    <value>dernière modification {0}</value>
+  </data>
+  <data name="ModsPresetCreatedByFormat" xml:space="preserve">
+    <value>créé par {0}</value>
+  </data>
+  <data name="ModsPresetSizeFormat" xml:space="preserve">
+    <value>taille {0}</value>
+  </data>
+  <data name="ModsSizeKilobytesFormat" xml:space="preserve">
+    <value>{0} Ko</value>
+  </data>
+  <data name="ModsSizeMegabytesFormat" xml:space="preserve">
+    <value>{0} Mo</value>
+  </data>
+  <data name="ModsSizeMoreThanFormat" xml:space="preserve">
+    <value>plus de {0}</value>
+  </data>
+  <data name="ModsNothingToOpen" xml:space="preserve">
+    <value>Il n'y a rien à ouvrir pour le moment.</value>
+  </data>
+  <data name="ModsOpenFailedFormat" xml:space="preserve">
+    <value>L'ouverture a échoué : {0}</value>
+  </data>
+  <data name="PlayEntryEmpireEarth" xml:space="preserve">
+    <value>Empire Earth</value>
+  </data>
+  <data name="PlayEntryEmpireEarthAoc" xml:space="preserve">
+    <value>Empire Earth – The Art of Conquest</value>
+  </data>
+  <data name="PlayEntryNeoEE" xml:space="preserve">
+    <value>Neo Empire Earth</value>
+  </data>
+  <data name="PlayEntryNeoEEAoc" xml:space="preserve">
+    <value>Neo Empire Earth – The Art of Conquest</value>
+  </data>
+  <data name="PlayEntriesNotInstalledHint" xml:space="preserve">
+    <value>Les jeux grisés ne sont pas installés. Empire Earth Community Setup installe Empire Earth avec The Art of Conquest et Neo Empire Earth ; une autre installation (CD, GOG) se choisit sur la page « Launcher ».</value>
+  </data>
+</root>

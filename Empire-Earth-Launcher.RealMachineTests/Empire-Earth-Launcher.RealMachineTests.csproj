@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{06C3CE48-099D-4FB4-9CE0-CA677FCCD7D7}</ProjectGuid>
+    <!-- A console program that runs the checks of the launcher core against a real installation (category RealMachine,
+         explicit and switched off unless EE_LAUNCHER_REAL_MACHINE_TESTS=1 on a GitHub-hosted Windows runner) and the
+         self-tests of that harness (category SelfTest) with NUnitLite. It is a program of its own, not a part of
+         Empire-Earth-Launcher.Tests, so that the Tests\ folder of the laptop package never contains code that reads the
+         real registry or writes game settings (ADR 0012, amendment of the CI end-to-end test). -->
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Empire_Earth_Launcher.RealMachineTests</RootNamespace>
+    <!-- The name ends with "Tests": CI and the build scripts run every *Tests.exe without a filter, which runs the
+         self-tests and skips the explicit RealMachine fixtures. -->
+    <AssemblyName>Empire-Earth-Launcher.RealMachineTests</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <LangVersion>8.0</LangVersion>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>Empire_Earth_Launcher.RealMachineTests.Program</StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="nunit.framework, Version=3.14.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.3.14.0\lib\net45\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="nunitlite, Version=3.14.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnitLite.3.14.0\lib\net45\nunitlite.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Checks\DefaultsCheck.cs" />
+    <Compile Include="Checks\DiscoveryCheck.cs" />
+    <Compile Include="Checks\GameSettingsCheck.cs" />
+    <Compile Include="Checks\IntegrityCheck.cs" />
+    <Compile Include="Checks\SettingValues.cs" />
+    <Compile Include="Expectations\Expectation.cs" />
+    <Compile Include="Expectations\ExpectationFile.cs" />
+    <Compile Include="Harness\FileLogger.cs" />
+    <Compile Include="Harness\HarnessSession.cs" />
+    <Compile Include="Harness\HarnessViolations.cs" />
+    <Compile Include="Harness\MachineSnapshot.cs" />
+    <Compile Include="Harness\PickTargets.cs" />
+    <Compile Include="Harness\ReadOnlyFileSystem.cs" />
+    <Compile Include="Harness\ReadOnlyRegistry.cs" />
+    <Compile Include="Harness\RealAdapters.cs" />
+    <Compile Include="Harness\RealMachineGate.cs" />
+    <Compile Include="Harness\RecordingRegistry.cs" />
+    <Compile Include="Harness\SafeText.cs" />
+    <Compile Include="Harness\WorkFolderFileSystem.cs" />
+    <Compile Include="Json\JsonReader.cs" />
+    <Compile Include="Json\JsonWriter.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RealMachine\DiscoveryTests.cs" />
+    <Compile Include="RealMachine\GameDefaultsTests.cs" />
+    <Compile Include="RealMachine\GameSettingsStateTests.cs" />
+    <Compile Include="RealMachine\IntegrityTests.cs" />
+    <Compile Include="RealMachine\MachineStateTests.cs" />
+    <Compile Include="RealMachine\RealMachineRun.cs" />
+    <Compile Include="RealMachineCategories.cs" />
+    <Compile Include="SelfTest\DecoratorTests.cs" />
+    <Compile Include="SelfTest\DefaultsCheckTests.cs" />
+    <Compile Include="SelfTest\ExpectationFileTests.cs" />
+    <Compile Include="SelfTest\HarnessSessionTests.cs" />
+    <Compile Include="SelfTest\HarnessWorld.cs" />
+    <Compile Include="SelfTest\JsonTests.cs" />
+    <Compile Include="SelfTest\MachineSnapshotTests.cs" />
+    <Compile Include="SelfTest\PickTargetsTests.cs" />
+    <Compile Include="SelfTest\RealMachineGateTests.cs" />
+    <Compile Include="SelfTest\SettingValuesTests.cs" />
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <!-- The in-memory fakes of the unit tests, for the self-tests of the harness (compiled into this program too; the
+       files stay in the test project, where TestIsolationTests and FixtureProvenanceTests check them). -->
+  <ItemGroup>
+    <Compile Include="..\Empire-Earth-Launcher.Tests\Fakes\FakeClock.cs">
+      <Link>Linked\Fakes\FakeClock.cs</Link>
+    </Compile>
+    <Compile Include="..\Empire-Earth-Launcher.Tests\Fakes\FakeMutexProbe.cs">
+      <Link>Linked\Fakes\FakeMutexProbe.cs</Link>
+    </Compile>
+    <Compile Include="..\Empire-Earth-Launcher.Tests\Fakes\FakeSystemInfo.cs">
+      <Link>Linked\Fakes\FakeSystemInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Empire-Earth-Launcher.Tests\Fakes\InMemoryFileSystem.cs">
+      <Link>Linked\Fakes\InMemoryFileSystem.cs</Link>
+    </Compile>
+    <Compile Include="..\Empire-Earth-Launcher.Tests\Fakes\InMemoryRegistry.cs">
+      <Link>Linked\Fakes\InMemoryRegistry.cs</Link>
+    </Compile>
+    <Compile Include="..\Empire-Earth-Launcher.Tests\Fakes\RecordingLogger.cs">
+      <Link>Linked\Fakes\RecordingLogger.cs</Link>
+    </Compile>
+    <Compile Include="..\Empire-Earth-Launcher.Tests\Fakes\WriteForbiddingFileSystem.cs">
+      <Link>Linked\Fakes\WriteForbiddingFileSystem.cs</Link>
+    </Compile>
+    <Compile Include="..\Empire-Earth-Launcher.Tests\Fakes\WriteForbiddingRegistry.cs">
+      <Link>Linked\Fakes\WriteForbiddingRegistry.cs</Link>
+    </Compile>
+    <Compile Include="..\Empire-Earth-Launcher.Tests\TestSupport\InstallationWorld.cs">
+      <Link>Linked\TestSupport\InstallationWorld.cs</Link>
+    </Compile>
+    <Compile Include="..\Empire-Earth-Launcher.Tests\TestSupport\SampleHashes.cs">
+      <Link>Linked\TestSupport\SampleHashes.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Empire-Earth-Launcher-Core\Empire-Earth-Launcher-Core.csproj">
+      <Project>{9DBBDAAD-668E-423A-8185-46B7772CA18B}</Project>
+      <Name>Empire-Earth-Launcher-Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

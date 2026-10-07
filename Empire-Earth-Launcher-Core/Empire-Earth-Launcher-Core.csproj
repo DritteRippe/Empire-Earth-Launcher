@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{9DBBDAAD-668E-423A-8185-46B7772CA18B}</ProjectGuid>
+    <!-- The UI-free core of the launcher (docs/adr/0003): no WinForms, no System.Drawing, no Krypton. Only the
+         BCL and the WON library may be referenced; Architecture/CoreDependencyTests checks that. -->
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Empire_Earth_Launcher.Core</RootNamespace>
+    <AssemblyName>Empire_Earth_Launcher_Core</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Backup\BackupLocations.cs" />
+    <Compile Include="Backup\FileBackup.cs" />
+    <Compile Include="Backup\RegFileWriter.cs" />
+    <Compile Include="Backup\RegistryExport.cs" />
+    <Compile Include="Contract\CompatibilityLayers.cs" />
+    <Compile Include="Contract\ContractNames.cs" />
+    <Compile Include="Contract\Game.cs" />
+    <Compile Include="Contract\Product.cs" />
+    <Compile Include="Contract\SetupKind.cs" />
+    <Compile Include="Diagnostics\AddressClassifier.cs" />
+    <Compile Include="Diagnostics\DiagnosticsReport.cs" />
+    <Compile Include="Diagnostics\KeyValueFile.cs" />
+    <Compile Include="Diagnostics\NeoEeConfigReader.cs" />
+    <Compile Include="Diagnostics\NetworkDiagnostics.cs" />
+    <Compile Include="Diagnostics\OutageHint.cs" />
+    <Compile Include="Diagnostics\ReportAnonymizer.cs" />
+    <Compile Include="Diagnostics\UpnpInfoParser.cs" />
+    <Compile Include="Diagnostics\WonLobbyConfigReader.cs" />
+    <Compile Include="GameSettings\CompatibilityOptions.cs" />
+    <Compile Include="GameSettings\ComputedValues.cs" />
+    <Compile Include="GameSettings\ConsistencyChecks.cs" />
+    <Compile Include="GameSettings\GameDefaultsModel.cs" />
+    <Compile Include="GameSettings\GameDefaultsService.cs" />
+    <Compile Include="GameSettings\GameSettingsTable.cs" />
+    <Compile Include="GameSettings\HintVisibility.cs" />
+    <Compile Include="GameSettings\LauncherWritePolicy.cs" />
+    <Compile Include="GameSettings\RecommendedValues.cs" />
+    <Compile Include="GameSettings\ResolutionOptions.cs" />
+    <Compile Include="Graphics\DgVoodooConfReader.cs" />
+    <Compile Include="Graphics\DgVoodooPreset.cs" />
+    <Compile Include="Graphics\WrapperInfo.cs" />
+    <Compile Include="Installations\DiscoveryResult.cs" />
+    <Compile Include="Installations\EffectivePathResolver.cs" />
+    <Compile Include="Installations\GameFolders.cs" />
+    <Compile Include="Installations\Installation.cs" />
+    <Compile Include="Installations\InstallationDiscovery.cs" />
+    <Compile Include="Installations\InstallationEnums.cs" />
+    <Compile Include="Installations\InstalledFromReader.cs" />
+    <Compile Include="Installations\InstallInfoFile.cs" />
+    <Compile Include="Installations\InstallRecordReader.cs" />
+    <Compile Include="Installations\ProductChoices.cs" />
+    <Compile Include="Installations\SuiteRecordReader.cs" />
+    <Compile Include="Installations\RegistryReads.cs" />
+    <Compile Include="Installations\SetupNameList.cs" />
+    <Compile Include="Installations\UninstallKeyScanner.cs" />
+    <Compile Include="Installations\UserChoice.cs" />
+    <Compile Include="Integrity\FileClassifier.cs" />
+    <Compile Include="Integrity\IntegrityChecker.cs" />
+    <Compile Include="Integrity\IntegrityReport.cs" />
+    <Compile Include="Integrity\ManifestReader.cs" />
+    <Compile Include="Lobby\LobbyProfileRepository.cs" />
+    <Compile Include="Maintenance\CleanupAdvice.cs" />
+    <Compile Include="Maintenance\CleanupCandidates.cs" />
+    <Compile Include="Maintenance\ManifestFiles.cs" />
+    <Compile Include="Maintenance\NameChecks.cs" />
+    <Compile Include="Maintenance\RegistryCleanup.cs" />
+    <Compile Include="Maintenance\SavedGames.cs" />
+    <Compile Include="Maintenance\VirtualStoreScanner.cs" />
+    <Compile Include="Maintenance\WonLoginReset.cs" />
+    <Compile Include="Mods\CreditsParser.cs" />
+    <Compile Include="Mods\DreXmodConfigReader.cs" />
+    <Compile Include="Mods\DreXmodInfo.cs" />
+    <Compile Include="Mods\ModFolderScanner.cs" />
+    <Compile Include="Lobby\PlayerListPoller.cs" />
+    <Compile Include="Lobby\PlayerListPolling.cs" />
+    <Compile Include="Logging\ILogger.cs" />
+    <Compile Include="Logging\TraceFileLogger.cs" />
+    <Compile Include="Platform\FileSystemExtensions.cs" />
+    <Compile Include="Platform\HttpsClient.cs" />
+    <Compile Include="Platform\IClock.cs" />
+    <Compile Include="Platform\IFileSystem.cs" />
+    <Compile Include="Platform\IFileVersionReader.cs" />
+    <Compile Include="Platform\IHttpsClient.cs" />
+    <Compile Include="Platform\IMutexOwner.cs" />
+    <Compile Include="Platform\IMutexProbe.cs" />
+    <Compile Include="Platform\INetworkInfo.cs" />
+    <Compile Include="Platform\IProcessList.cs" />
+    <Compile Include="Platform\IProcessStarter.cs" />
+    <Compile Include="Platform\IRegistry.cs" />
+    <Compile Include="Platform\ISystemInfo.cs" />
+    <Compile Include="Platform\IWindowSystem.cs" />
+    <Compile Include="Platform\LocalFileSystem.cs" />
+    <Compile Include="Platform\PolicyCheckedRegistry.cs" />
+    <Compile Include="Platform\RegistryLocation.cs" />
+    <Compile Include="Platform\RegistryPath.cs" />
+    <Compile Include="Platform\RegistryValue.cs" />
+    <Compile Include="Platform\RegistryWritePolicy.cs" />
+    <Compile Include="Platform\ShellProcessStarter.cs" />
+    <Compile Include="Platform\WindowsFileVersionReader.cs" />
+    <Compile Include="Platform\WindowsInstanceChannel.cs" />
+    <Compile Include="Platform\WindowsMutexOwner.cs" />
+    <Compile Include="Platform\WindowsMutexProbe.cs" />
+    <Compile Include="Platform\WindowsNetworkInfo.cs" />
+    <Compile Include="Platform\WindowsProcessList.cs" />
+    <Compile Include="Platform\WindowsRegistry.cs" />
+    <Compile Include="Platform\WindowsSystemInfo.cs" />
+    <Compile Include="Platform\WindowState.cs" />
+    <Compile Include="Platform\WindowsWindowSystem.cs" />
+    <Compile Include="Platform\WinPath.cs" />
+    <Compile Include="Play\GameStarter.cs" />
+    <Compile Include="Play\ActivationSignal.cs" />
+    <Compile Include="Play\GameWindowActivator.cs" />
+    <Compile Include="Play\InstanceForwarding.cs" />
+    <Compile Include="Play\IGameStartPreparation.cs" />
+    <Compile Include="Play\LauncherArguments.cs" />
+    <Compile Include="Play\MutationGuard.cs" />
+    <Compile Include="Play\PlayEntry.cs" />
+    <Compile Include="Play\ProgramVersions.cs" />
+    <Compile Include="Play\RunningGameDetector.cs" />
+    <Compile Include="Play\SetupWatcher.cs" />
+    <Compile Include="Play\SingleInstance.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repair\RepairAdvice.cs" />
+    <Compile Include="Repair\SetupDownloadPage.cs" />
+    <Compile Include="Repair\SuiteRepairLocator.cs" />
+    <Compile Include="Repair\UpdateApi.cs" />
+    <Compile Include="Repair\UpdateChecker.cs" />
+    <Compile Include="Settings\LauncherPaths.cs" />
+    <Compile Include="Settings\LauncherSettings.cs" />
+    <Compile Include="Settings\SettingsStore.cs" />
+    <Compile Include="Settings\UiLanguage.cs" />
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Empire-Earth-WON\Empire-Earth-WON.csproj">
+      <Project>{8434796D-A702-4665-BD95-F5FB6106E825}</Project>
+      <Name>Empire-Earth-WON</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

@@ -114,4 +114,140 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ModCreatorTitle" xml:space="preserve">
+    <value>Mod Creator</value>
+    <comment>Caption of the mod creator's message boxes.</comment>
+  </data>
+  <data name="WarningTitle" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="InfoTitle" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="WaitForBuild" xml:space="preserve">
+    <value>Please wait until the mod has been built.</value>
+  </data>
+  <data name="DeleteWorkingFolderFormat" xml:space="preserve">
+    <value>Delete the working folder of this mod, including the files you copied into it?
+
+{0}
+
+Choose "No" to keep the folder.</value>
+    <comment>{0}: folder.</comment>
+  </data>
+  <data name="WorkingFolderNotDeletedFormat" xml:space="preserve">
+    <value>The working folder could not be deleted:
+{0}
+
+{1}</value>
+    <comment>{0}: folder, {1}: error message.</comment>
+  </data>
+  <data name="NextButton" xml:space="preserve">
+    <value>Next &gt;</value>
+  </data>
+  <data name="BuildButton" xml:space="preserve">
+    <value>Build &gt;</value>
+  </data>
+  <data name="BuildingButton" xml:space="preserve">
+    <value>Building...</value>
+  </data>
+  <data name="CloseButton" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="EnterModName" xml:space="preserve">
+    <value>Please enter a name for the mod.</value>
+  </data>
+  <data name="EnterValidVersion" xml:space="preserve">
+    <value>Please enter a valid version, e.g. 1.0 or 1.0.0.0.</value>
+  </data>
+  <data name="VariantNameMissing" xml:space="preserve">
+    <value>Every variant needs a name.</value>
+  </data>
+  <data name="VariantNameDuplicateFormat" xml:space="preserve">
+    <value>The variant name "{0}" is used more than once.</value>
+    <comment>{0}: variant name.</comment>
+  </data>
+  <data name="VariantExists" xml:space="preserve">
+    <value>Variant already exists</value>
+  </data>
+  <data name="ConfirmRemoveVariant" xml:space="preserve">
+    <value>Are you sure you want to remove this variant?
+If you need to simply rename it double click on the variant name cell.</value>
+  </data>
+  <data name="VariantNotRemovedFormat" xml:space="preserve">
+    <value>The variant cannot be removed: {0}</value>
+    <comment>{0}: error message.</comment>
+  </data>
+  <data name="VariantRemovedWithData" xml:space="preserve">
+    <value>Variant removed, some related data to that variant (banners, files, etc...) has been deleted.</value>
+  </data>
+  <data name="IconFileFilter" xml:space="preserve">
+    <value>Image Files|*.bmp;*.jpg;*.jpeg;*.png</value>
+    <comment>File dialog filter: keep the | separator and the patterns.</comment>
+  </data>
+  <data name="BannerFileFilter" xml:space="preserve">
+    <value>Image Files|*.jpg;*.jpeg;*.png</value>
+    <comment>File dialog filter: keep the | separator and the patterns.</comment>
+  </data>
+  <data name="IconNotLoadedFormat" xml:space="preserve">
+    <value>Error while loading icon: {0}</value>
+    <comment>{0}: error message.</comment>
+  </data>
+  <data name="SelectVariantForBanner" xml:space="preserve">
+    <value>Please select a variant to add a banner for it</value>
+  </data>
+  <data name="BannerNotAddedFormat" xml:space="preserve">
+    <value>Error while adding banner: {0}</value>
+    <comment>{0}: error message.</comment>
+  </data>
+  <data name="VariantFilesUnreadableFormat" xml:space="preserve">
+    <value>The files of the variant could not be read: {0}</value>
+    <comment>{0}: error message.</comment>
+  </data>
+  <data name="IgnoredFilesFormat" xml:space="preserve">
+    <value>These files are ignored because they are not inside one of the folders {0}:
+
+{1}</value>
+    <comment>{0}: product folders, {1}: one file per line.</comment>
+  </data>
+  <data name="SelectIconBeforeBuild" xml:space="preserve">
+    <value>Please select an icon for the mod before building it.</value>
+  </data>
+  <data name="ModArchiveFilterFormat" xml:space="preserve">
+    <value>Empire Earth Mod ({0})|{0}</value>
+    <comment>File dialog filter, {0}: file pattern. Keep the | separator.</comment>
+  </data>
+  <data name="BuildStatusBuilding" xml:space="preserve">
+    <value>Building Mod...</value>
+  </data>
+  <data name="BuildStatusFailed" xml:space="preserve">
+    <value>Build failed</value>
+  </data>
+  <data name="BuildStatusDone" xml:space="preserve">
+    <value>Mod built</value>
+  </data>
+  <data name="BuildFailedFormat" xml:space="preserve">
+    <value>The mod could not be built:
+
+{0}</value>
+    <comment>{0}: error message.</comment>
+  </data>
+  <data name="ModCreatorNotStartedFormat" xml:space="preserve">
+    <value>The mod creator could not create its working folder:
+
+{0}</value>
+    <comment>{0}: error message.</comment>
+  </data>
+  <data name="UseBuildButton" xml:space="preserve">
+    <value>Use the "Build" button of the files page to build the mod.</value>
+    <comment>Shown when the build page is chosen through its tab header before the mod was built.</comment>
+  </data>
+  <data name="ModSavedFormat" xml:space="preserve">
+    <value>The mod has been saved to:
+{0}</value>
+    <comment>{0}: path of the mod archive.</comment>
+  </data>
 </root>

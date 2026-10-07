@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6CB9BF29-C53C-4C49-9B34-BC672786B7A5}</ProjectGuid>
+    <!-- A console program that runs its own tests with NUnitLite (see Program.cs): no test adapter or
+         nunit3-console is needed, and the exit code is non-zero when a test fails. -->
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Empire_Earth_Launcher.Tests</RootNamespace>
+    <!-- The name must end with "Tests": CI and the build scripts run every *Tests.exe. The launcher grants
+         InternalsVisibleTo to this name. -->
+    <AssemblyName>Empire-Earth-Launcher.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <LangVersion>8.0</LangVersion>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>Empire_Earth_Launcher.Tests.Program</StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Krypton.Toolkit, Version=5.550.2108.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Krypton.Toolkit.5.550.2108.1\lib\net48\Krypton.Toolkit.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework, Version=3.14.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.3.14.0\lib\net45\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="nunitlite, Version=3.14.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnitLite.3.14.0\lib\net45\nunitlite.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Architecture\ApplyTextsTests.cs" />
+    <Compile Include="Architecture\ContractChecklistTests.cs" />
+    <Compile Include="Architecture\CoreDependencyTests.cs" />
+    <Compile Include="Architecture\FixtureProvenanceTests.cs" />
+    <Compile Include="Architecture\ForegroundRulesTests.cs" />
+    <Compile Include="Architecture\MainWindowLayoutTests.cs" />
+    <Compile Include="Architecture\NetworkDestinationTests.cs" />
+    <Compile Include="Architecture\ModsPageRulesTests.cs" />
+    <Compile Include="Architecture\NoCertificateOverrideTests.cs" />
+    <Compile Include="Architecture\PlaceholderControlsTests.cs" />
+    <Compile Include="Architecture\ProcessRulesTests.cs" />
+    <Compile Include="Architecture\ProjectConventionsTests.cs" />
+    <Compile Include="Architecture\RealMachineTestRulesTests.cs" />
+    <Compile Include="Architecture\RegistryAliasPolicyTests.cs" />
+    <Compile Include="Architecture\ResourceParityTests.cs" />
+    <Compile Include="Architecture\SuiteRulesTests.cs" />
+    <Compile Include="Architecture\TestIsolationTests.cs" />
+    <Compile Include="Architecture\TestPlanTests.cs" />
+    <Compile Include="Architecture\TlsSettingTests.cs" />
+    <Compile Include="Architecture\WindowMessageRulesTests.cs" />
+    <Compile Include="Architecture\UiOperationRestoreTests.cs" />
+    <Compile Include="Architecture\WrapLabelRulesTests.cs" />
+    <Compile Include="Core\Backup\BackupLocationsTests.cs" />
+    <Compile Include="Core\Backup\FileBackupTests.cs" />
+    <Compile Include="Core\Backup\RegFileWriterTests.cs" />
+    <Compile Include="Core\Backup\RegistryExportTests.cs" />
+    <Compile Include="Core\Contract\CompatibilityLayersTests.cs" />
+    <Compile Include="Core\Contract\ContractSampleTests.cs" />
+    <Compile Include="Core\Contract\ContractNamesTests.cs" />
+    <Compile Include="Core\Contract\GameTests.cs" />
+    <Compile Include="Core\Contract\SetupKindTests.cs" />
+    <Compile Include="Core\Diagnostics\AddressClassifierTests.cs" />
+    <Compile Include="Core\Diagnostics\DiagnosticsReportTests.cs" />
+    <Compile Include="Core\Diagnostics\GameConfigReadersTests.cs" />
+    <Compile Include="Core\Diagnostics\NetworkDiagnosticsTests.cs" />
+    <Compile Include="Core\Diagnostics\OutageHintTests.cs" />
+    <Compile Include="Core\Diagnostics\ReportAnonymizerTests.cs" />
+    <Compile Include="Core\Diagnostics\UpnpInfoParserTests.cs" />
+    <Compile Include="Core\GameSettings\CompatibilityOptionsTests.cs" />
+    <Compile Include="Core\GameSettings\ComputedValuesTests.cs" />
+    <Compile Include="Core\GameSettings\ConsistencyChecksTests.cs" />
+    <Compile Include="Core\GameSettings\DisplayQuestionTests.cs" />
+    <Compile Include="Core\GameSettings\GameDefaultsServiceTests.cs" />
+    <Compile Include="Core\GameSettings\GameSettingsTableContractTests.cs" />
+    <Compile Include="Core\GameSettings\HintVisibilityTests.cs" />
+    <Compile Include="Core\GameSettings\LauncherWritePolicyTests.cs" />
+    <Compile Include="Core\GameSettings\ResolutionOptionsTests.cs" />
+    <Compile Include="Core\Graphics\DgVoodooConfReaderTests.cs" />
+    <Compile Include="Core\Graphics\DgVoodooPresetTests.cs" />
+    <Compile Include="Core\Graphics\WrapperInfoTests.cs" />
+    <Compile Include="Core\Installations\ProductChoicesTests.cs" />
+    <Compile Include="Core\Mods\CreditsParserTests.cs" />
+    <Compile Include="Core\Mods\DreXmodConfigReaderTests.cs" />
+    <Compile Include="Core\Mods\DreXmodInfoTests.cs" />
+    <Compile Include="Core\Mods\ModFolderScannerTests.cs" />
+    <Compile Include="Core\Installations\DiscoveryContractTests.cs" />
+    <Compile Include="Core\Installations\DiscoveryResultSessionProductTests.cs" />
+    <Compile Include="Core\Installations\EffectivePathResolverTests.cs" />
+    <Compile Include="Core\Installations\GameDirectoryLocatorPortTests.cs" />
+    <Compile Include="Core\Installations\GameFoldersTests.cs" />
+    <Compile Include="Core\Installations\InstallationDiscoveryTests.cs" />
+    <Compile Include="Core\Installations\InstalledFromReaderTests.cs" />
+    <Compile Include="Core\Installations\InstallInfoFileTests.cs" />
+    <Compile Include="Core\Installations\InstallRecordReaderTests.cs" />
+    <Compile Include="Core\Installations\SuiteRecordReaderTests.cs" />
+    <Compile Include="Core\Installations\UninstallKeyScannerTests.cs" />
+    <Compile Include="Core\Integrity\FileClassifierTests.cs" />
+    <Compile Include="Core\Integrity\IntegrityCheckerTests.cs" />
+    <Compile Include="Core\Integrity\ManifestReaderTests.cs" />
+    <Compile Include="Core\Lobby\LobbyProfileRepositoryTests.cs" />
+    <Compile Include="Core\Lobby\PlayerListPollerTests.cs" />
+    <Compile Include="Core\Lobby\PlayerListPollingTests.cs" />
+    <Compile Include="Core\Logging\LogTrimmingTests.cs" />
+    <Compile Include="Core\Maintenance\CleanupAdviceTests.cs" />
+    <Compile Include="Core\Maintenance\CleanupCandidatesTests.cs" />
+    <Compile Include="Core\Maintenance\NameChecksTests.cs" />
+    <Compile Include="Core\Maintenance\RegistryCleanupTests.cs" />
+    <Compile Include="Core\Maintenance\SavedGamesTests.cs" />
+    <Compile Include="Core\Maintenance\VirtualStoreScannerTests.cs" />
+    <Compile Include="Core\Maintenance\WonLoginResetTests.cs" />
+    <Compile Include="Core\Logging\TraceFileLoggerTests.cs" />
+    <Compile Include="Core\Platform\ClockTests.cs" />
+    <Compile Include="Core\Platform\FileSystemExtensionsTests.cs" />
+    <Compile Include="Core\Platform\HttpsClientTests.cs" />
+    <Compile Include="Core\Platform\LocalFileSystemTests.cs" />
+    <Compile Include="Core\Platform\NetworkInfoTests.cs" />
+    <Compile Include="Core\Platform\PolicyCheckedRegistryTests.cs" />
+    <Compile Include="Core\Platform\RegistryLocationTests.cs" />
+    <Compile Include="Core\Platform\RegistryPathTests.cs" />
+    <Compile Include="Core\Platform\RegistryValueTests.cs" />
+    <Compile Include="Core\Platform\RegistryWritePolicyTests.cs" />
+    <Compile Include="Core\Platform\ShellProcessStarterTests.cs" />
+    <Compile Include="Core\Platform\SystemInfoTests.cs" />
+    <Compile Include="Core\Platform\WindowsFileVersionReaderTests.cs" />
+    <Compile Include="Core\Platform\WindowsMutexOwnerTests.cs" />
+    <Compile Include="Core\Platform\WindowsMutexProbeTests.cs" />
+    <Compile Include="Core\Platform\WindowsProcessListTests.cs" />
+    <Compile Include="Core\Platform\WindowRulesTests.cs" />
+    <Compile Include="Core\Platform\WindowsWindowSystemTests.cs" />
+    <Compile Include="Core\Platform\WindowStateTests.cs" />
+    <Compile Include="Core\Platform\WinPathTests.cs" />
+    <Compile Include="Core\Play\GameStarterTests.cs" />
+    <Compile Include="Core\Play\ActivationSignalTests.cs" />
+    <Compile Include="Core\Play\GameWindowActivatorTests.cs" />
+    <Compile Include="Core\Play\InstanceForwardingTests.cs" />
+    <Compile Include="Core\Play\LauncherArgumentsTests.cs" />
+    <Compile Include="Core\Play\MutationGuardTests.cs" />
+    <Compile Include="Core\Play\PlayEntryTests.cs" />
+    <Compile Include="Core\Play\ProgramVersionsTests.cs" />
+    <Compile Include="Core\Play\RunningGameDetectorTests.cs" />
+    <Compile Include="Core\Play\SetupWatcherTests.cs" />
+    <Compile Include="Core\Play\SingleInstanceTests.cs" />
+    <Compile Include="Core\Repair\RepairAdviceTests.cs" />
+    <Compile Include="Core\Repair\SetupDownloadPageTests.cs" />
+    <Compile Include="Core\Repair\SuiteRepairTests.cs" />
+    <Compile Include="Core\Repair\UpdateApiTests.cs" />
+    <Compile Include="Core\Repair\UpdateCheckerTests.cs" />
+    <Compile Include="Core\Settings\LauncherPathsTests.cs" />
+    <Compile Include="Core\Settings\SettingsStoreTests.cs" />
+    <Compile Include="Core\Settings\UiLanguageTests.cs" />
+    <Compile Include="Fakes\BlockingRegistry.cs" />
+    <Compile Include="Fakes\CountingFileSystem.cs" />
+    <Compile Include="Fakes\FakeClock.cs" />
+    <Compile Include="Fakes\FakeFileVersionReader.cs" />
+    <Compile Include="Fakes\FakeHttpsClient.cs" />
+    <Compile Include="Fakes\FakeMutexProbe.cs" />
+    <Compile Include="Fakes\FakeNetworkInfo.cs" />
+    <Compile Include="Fakes\FakeProcessList.cs" />
+    <Compile Include="Fakes\FakeProcessStarter.cs" />
+    <Compile Include="Fakes\FakeSystemInfo.cs" />
+    <Compile Include="Fakes\FakeThemeService.cs" />
+    <Compile Include="Fakes\FakeWindowSystem.cs" />
+    <Compile Include="Fakes\InMemoryFileSystem.cs" />
+    <Compile Include="Fakes\InMemoryFileSystemTests.cs" />
+    <Compile Include="Fakes\InMemoryRegistry.cs" />
+    <Compile Include="Fakes\InMemoryRegistryTests.cs" />
+    <Compile Include="Fakes\RecordingLogger.cs" />
+    <Compile Include="Fakes\WriteForbiddingFileSystem.cs" />
+    <Compile Include="Fakes\WriteForbiddingRegistry.cs" />
+    <Compile Include="Launcher\CleanupViewTests.cs" />
+    <Compile Include="Launcher\DiagnosticsModelTests.cs" />
+    <Compile Include="Launcher\GameSettingsModelTests.cs" />
+    <Compile Include="Launcher\GraphicsModelTests.cs" />
+    <Compile Include="Launcher\GraphicsTextsTests.cs" />
+    <Compile Include="Launcher\GraphicsViewTests.cs" />
+    <Compile Include="Launcher\InstallationServiceTests.cs" />
+    <Compile Include="Launcher\LauncherInstanceTargetTests.cs" />
+    <Compile Include="Launcher\LauncherSettingsInstallationsTests.cs" />
+    <Compile Include="Launcher\LauncherWrapLabelTests.cs" />
+    <Compile Include="Launcher\LayoutCheckerTests.cs" />
+    <Compile Include="Launcher\LobbyStatusTests.cs" />
+    <Compile Include="Launcher\IntegrityModelTests.cs" />
+    <Compile Include="Launcher\MaintenanceModelTests.cs" />
+    <Compile Include="Launcher\MaintenanceTextsTests.cs" />
+    <Compile Include="Launcher\ModsModelTests.cs" />
+    <Compile Include="Launcher\ModsTextsTests.cs" />
+    <Compile Include="Launcher\ModsViewTests.cs" />
+    <Compile Include="Launcher\NavigationStackTests.cs" />
+    <Compile Include="Launcher\NetworkTextsTests.cs" />
+    <Compile Include="Launcher\PageLayoutTests.cs" />
+    <Compile Include="Launcher\PageScreenshotTests.cs" />
+    <Compile Include="Launcher\PlayEntryTextsTests.cs" />
+    <Compile Include="Launcher\PlayModelTests.cs" />
+    <Compile Include="Launcher\PlayPageEntriesTests.cs" />
+    <Compile Include="Launcher\ScrollPageLayoutTests.cs" />
+    <Compile Include="Launcher\SingleInstanceStartupTests.cs" />
+    <Compile Include="Launcher\TextsTests.cs" />
+    <Compile Include="Launcher\ThemeChoiceTests.cs" />
+    <Compile Include="Launcher\UiLanguageStartupTests.cs" />
+    <Compile Include="Launcher\UiOperationTests.cs" />
+    <Compile Include="Launcher\UnexpectedErrorTests.cs" />
+    <Compile Include="Launcher\UpdateModelTests.cs" />
+    <Compile Include="Launcher\WrapLabelPaintTests.cs" />
+    <Compile Include="Mod\ModArchiveTests.cs" />
+    <Compile Include="Mod\ModAssetsTests.cs" />
+    <Compile Include="Mod\ModDataTests.cs" />
+    <Compile Include="Mod\ModFileTests.cs" />
+    <Compile Include="Mod\ModPackageBuilderTests.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="TestSupport\ChunkedReadStream.cs" />
+    <Compile Include="TestSupport\GameSettingsWorld.cs" />
+    <Compile Include="TestSupport\GraphicsModelWorld.cs" />
+    <Compile Include="TestSupport\GraphicsPageWorld.cs" />
+    <Compile Include="TestSupport\LauncherPageWorld.cs" />
+    <Compile Include="TestSupport\LauncherPages.cs" />
+    <Compile Include="TestSupport\LayoutChecker.cs" />
+    <Compile Include="TestSupport\ModsModelWorld.cs" />
+    <Compile Include="TestSupport\ModsPageWorld.cs" />
+    <Compile Include="TestSupport\PlayModelWorld.cs" />
+    <Compile Include="TestSupport\PlayPageWorld.cs" />
+    <Compile Include="TestSupport\ProductionSources.cs" />
+    <Compile Include="TestSupport\InstallationWorld.cs" />
+    <Compile Include="TestSupport\MappedFileSystem.cs" />
+    <Compile Include="TestSupport\ProjectFile.cs" />
+    <Compile Include="TestSupport\RegFileImporter.cs" />
+    <Compile Include="TestSupport\RepositoryRoot.cs" />
+    <Compile Include="TestSupport\SampleHashes.cs" />
+    <Compile Include="TestSupport\SettingsPageWorld.cs" />
+    <Compile Include="TestSupport\TemporaryDirectory.cs" />
+    <Compile Include="TestSupport\TestCategories.cs" />
+    <Compile Include="TestSupport\TestUiLanguage.cs" />
+    <Compile Include="TestSupport\UiThread.cs" />
+    <Compile Include="TestSupport\WinForms.cs" />
+    <Compile Include="Won\DeadlineStreamTests.cs" />
+    <Compile Include="Won\LobbyFileBuilder.cs" />
+    <Compile Include="Won\LobbyPersistentDataTests.cs" />
+    <Compile Include="Won\NeoApiClientTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Core\Backup\Golden\Binary.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\Backup\Golden\DefaultValueAndNames.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\Backup\Golden\DeleteLines.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\Backup\Golden\DWord.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\Backup\Golden\ExpandString.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\Backup\Golden\MultiString.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\Backup\Golden\None.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\Backup\Golden\QWord.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\Backup\Golden\RegSzEscaping.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\Backup\Golden\StringWithLineBreaks.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\Backup\Golden\UnknownTypes.reg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Core\Diagnostics\Golden\DiagnosticsReport.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\docs\contract-samples\files.sha256">
+      <Link>ContractSamples\files.sha256</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\docs\contract-samples\install-admin.ini">
+      <Link>ContractSamples\install-admin.ini</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\docs\contract-samples\install-portable.ini">
+      <Link>ContractSamples\install-portable.ini</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\docs\contract-samples\install-user.ini">
+      <Link>ContractSamples\install-user.ini</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\docs\contract-samples\record.reg">
+      <Link>ContractSamples\record.reg</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Empire Earth Launcher\Empire Earth Launcher.csproj">
+      <Project>{71CA6797-5F6D-4DEF-8F1F-9E7D87A76268}</Project>
+      <Name>Empire Earth Launcher</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Empire-Earth-Launcher-Core\Empire-Earth-Launcher-Core.csproj">
+      <Project>{9DBBDAAD-668E-423A-8185-46B7772CA18B}</Project>
+      <Name>Empire-Earth-Launcher-Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Empire-Earth-Mod\Empire-Earth-Mod-Lib\Empire-Earth-Mod-Lib.csproj">
+      <Project>{DF1CF00A-454B-4ECE-911A-CBB577D7360C}</Project>
+      <Name>Empire-Earth-Mod-Lib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Empire-Earth-WON\Empire-Earth-WON.csproj">
+      <Project>{8434796D-A702-4665-BD95-F5FB6106E825}</Project>
+      <Name>Empire-Earth-WON</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

@@ -8,8 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Empire_Earth_Mod.Properties
-{
+namespace Empire_Earth_Mod.Properties {
+    using System;
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -17,53 +19,362 @@ namespace Empire_Earth_Mod.Properties
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder",
-        "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources
-    {
+    internal class Resources {
+        
         private static global::System.Resources.ResourceManager resourceMan;
-
+        
         private static global::System.Globalization.CultureInfo resourceCulture;
-
-        [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance",
-            "CA1811:AvoidUncalledPrivateCode")]
-        internal Resources()
-        {
+        
+        [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        internal Resources() {
         }
-
+        
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState
-            .Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager
-        {
-            get
-            {
-                if ((resourceMan == null))
-                {
-                    global::System.Resources.ResourceManager temp =
-                        new global::System.Resources.ResourceManager("Empire_Earth_Mod.Properties.Resources",
-                            typeof(Resources).Assembly);
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
+        internal static global::System.Resources.ResourceManager ResourceManager {
+            get {
+                if (object.ReferenceEquals(resourceMan, null)) {
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Empire_Earth_Mod.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
-
                 return resourceMan;
             }
         }
-
+        
         /// <summary>
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
-        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState
-            .Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture
-        {
-            get { return resourceCulture; }
-            set { resourceCulture = value; }
+        [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
+        internal static global::System.Globalization.CultureInfo Culture {
+            get {
+                return resourceCulture;
+            }
+            set {
+                resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Image Files|*.jpg;*.jpeg;*.png.
+        /// </summary>
+        internal static string BannerFileFilter {
+            get {
+                return ResourceManager.GetString("BannerFileFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error while adding banner: {0}.
+        /// </summary>
+        internal static string BannerNotAddedFormat {
+            get {
+                return ResourceManager.GetString("BannerNotAddedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Build &gt;.
+        /// </summary>
+        internal static string BuildButton {
+            get {
+                return ResourceManager.GetString("BuildButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The mod could not be built:  {0}.
+        /// </summary>
+        internal static string BuildFailedFormat {
+            get {
+                return ResourceManager.GetString("BuildFailedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Building....
+        /// </summary>
+        internal static string BuildingButton {
+            get {
+                return ResourceManager.GetString("BuildingButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Building Mod....
+        /// </summary>
+        internal static string BuildStatusBuilding {
+            get {
+                return ResourceManager.GetString("BuildStatusBuilding", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mod built.
+        /// </summary>
+        internal static string BuildStatusDone {
+            get {
+                return ResourceManager.GetString("BuildStatusDone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Build failed.
+        /// </summary>
+        internal static string BuildStatusFailed {
+            get {
+                return ResourceManager.GetString("BuildStatusFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close.
+        /// </summary>
+        internal static string CloseButton {
+            get {
+                return ResourceManager.GetString("CloseButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Are you sure you want to remove this variant? If you need to simply rename it double click on the va[rest of string was truncated].
+        /// </summary>
+        internal static string ConfirmRemoveVariant {
+            get {
+                return ResourceManager.GetString("ConfirmRemoveVariant", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete the working folder of this mod, including the files you copied into it?  {0}  Choose "No" to [rest of string was truncated].
+        /// </summary>
+        internal static string DeleteWorkingFolderFormat {
+            get {
+                return ResourceManager.GetString("DeleteWorkingFolderFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please enter a name for the mod..
+        /// </summary>
+        internal static string EnterModName {
+            get {
+                return ResourceManager.GetString("EnterModName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please enter a valid version, e.g. 1.0 or 1.0.0.0..
+        /// </summary>
+        internal static string EnterValidVersion {
+            get {
+                return ResourceManager.GetString("EnterValidVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error.
+        /// </summary>
+        internal static string ErrorTitle {
+            get {
+                return ResourceManager.GetString("ErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Image Files|*.bmp;*.jpg;*.jpeg;*.png.
+        /// </summary>
+        internal static string IconFileFilter {
+            get {
+                return ResourceManager.GetString("IconFileFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error while loading icon: {0}.
+        /// </summary>
+        internal static string IconNotLoadedFormat {
+            get {
+                return ResourceManager.GetString("IconNotLoadedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to These files are ignored because they are not inside one of the folders {0}:  {1}.
+        /// </summary>
+        internal static string IgnoredFilesFormat {
+            get {
+                return ResourceManager.GetString("IgnoredFilesFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Info.
+        /// </summary>
+        internal static string InfoTitle {
+            get {
+                return ResourceManager.GetString("InfoTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Empire Earth Mod ({0})|{0}.
+        /// </summary>
+        internal static string ModArchiveFilterFormat {
+            get {
+                return ResourceManager.GetString("ModArchiveFilterFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The mod creator could not create its working folder:
+        ///
+        ///{0}.
+        /// </summary>
+        internal static string ModCreatorNotStartedFormat {
+            get {
+                return ResourceManager.GetString("ModCreatorNotStartedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mod Creator.
+        /// </summary>
+        internal static string ModCreatorTitle {
+            get {
+                return ResourceManager.GetString("ModCreatorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The mod has been saved to: {0}.
+        /// </summary>
+        internal static string ModSavedFormat {
+            get {
+                return ResourceManager.GetString("ModSavedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Next &gt;.
+        /// </summary>
+        internal static string NextButton {
+            get {
+                return ResourceManager.GetString("NextButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please select an icon for the mod before building it..
+        /// </summary>
+        internal static string SelectIconBeforeBuild {
+            get {
+                return ResourceManager.GetString("SelectIconBeforeBuild", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please select a variant to add a banner for it.
+        /// </summary>
+        internal static string SelectVariantForBanner {
+            get {
+                return ResourceManager.GetString("SelectVariantForBanner", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use the &quot;Build&quot; button of the files page to build the mod..
+        /// </summary>
+        internal static string UseBuildButton {
+            get {
+                return ResourceManager.GetString("UseBuildButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Variant already exists.
+        /// </summary>
+        internal static string VariantExists {
+            get {
+                return ResourceManager.GetString("VariantExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The files of the variant could not be read: {0}.
+        /// </summary>
+        internal static string VariantFilesUnreadableFormat {
+            get {
+                return ResourceManager.GetString("VariantFilesUnreadableFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The variant name "{0}" is used more than once..
+        /// </summary>
+        internal static string VariantNameDuplicateFormat {
+            get {
+                return ResourceManager.GetString("VariantNameDuplicateFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Every variant needs a name..
+        /// </summary>
+        internal static string VariantNameMissing {
+            get {
+                return ResourceManager.GetString("VariantNameMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The variant cannot be removed: {0}.
+        /// </summary>
+        internal static string VariantNotRemovedFormat {
+            get {
+                return ResourceManager.GetString("VariantNotRemovedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Variant removed, some related data to that variant (banners, files, etc...) has been deleted..
+        /// </summary>
+        internal static string VariantRemovedWithData {
+            get {
+                return ResourceManager.GetString("VariantRemovedWithData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please wait until the mod has been built..
+        /// </summary>
+        internal static string WaitForBuild {
+            get {
+                return ResourceManager.GetString("WaitForBuild", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Warning.
+        /// </summary>
+        internal static string WarningTitle {
+            get {
+                return ResourceManager.GetString("WarningTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The working folder could not be deleted: {0}  {1}.
+        /// </summary>
+        internal static string WorkingFolderNotDeletedFormat {
+            get {
+                return ResourceManager.GetString("WorkingFolderNotDeletedFormat", resourceCulture);
+            }
         }
     }
 }

@@ -1,0 +1,237 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ModCreatorTitle" xml:space="preserve">
+    <value>Créateur de mod</value>
+  </data>
+  <data name="WarningTitle" xml:space="preserve">
+    <value>Avertissement</value>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>Erreur</value>
+  </data>
+  <data name="InfoTitle" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="WaitForBuild" xml:space="preserve">
+    <value>Veuillez attendre la fin de la création du mod.</value>
+  </data>
+  <data name="DeleteWorkingFolderFormat" xml:space="preserve">
+    <value>Supprimer le dossier de travail de ce mod, y compris les fichiers que vous y avez copiés ?
+
+{0}
+
+Choisissez « Non » pour conserver le dossier.</value>
+  </data>
+  <data name="WorkingFolderNotDeletedFormat" xml:space="preserve">
+    <value>Impossible de supprimer le dossier de travail :
+{0}
+
+{1}</value>
+  </data>
+  <data name="NextButton" xml:space="preserve">
+    <value>Suivant &gt;</value>
+  </data>
+  <data name="BuildButton" xml:space="preserve">
+    <value>Créer &gt;</value>
+  </data>
+  <data name="BuildingButton" xml:space="preserve">
+    <value>Création...</value>
+  </data>
+  <data name="CloseButton" xml:space="preserve">
+    <value>Fermer</value>
+  </data>
+  <data name="EnterModName" xml:space="preserve">
+    <value>Veuillez saisir un nom pour le mod.</value>
+  </data>
+  <data name="EnterValidVersion" xml:space="preserve">
+    <value>Veuillez saisir une version valide, par ex. 1.0 ou 1.0.0.0.</value>
+  </data>
+  <data name="VariantNameMissing" xml:space="preserve">
+    <value>Chaque variante a besoin d'un nom.</value>
+  </data>
+  <data name="VariantNameDuplicateFormat" xml:space="preserve">
+    <value>Le nom de variante « {0} » est utilisé plusieurs fois.</value>
+  </data>
+  <data name="VariantExists" xml:space="preserve">
+    <value>Cette variante existe déjà</value>
+  </data>
+  <data name="ConfirmRemoveVariant" xml:space="preserve">
+    <value>Voulez-vous vraiment supprimer cette variante ?
+Pour simplement la renommer, double-cliquez sur la cellule de son nom.</value>
+  </data>
+  <data name="VariantNotRemovedFormat" xml:space="preserve">
+    <value>Impossible de supprimer la variante : {0}</value>
+  </data>
+  <data name="VariantRemovedWithData" xml:space="preserve">
+    <value>Variante supprimée, des données liées à cette variante (bannières, fichiers, etc.) ont été supprimées.</value>
+  </data>
+  <data name="IconFileFilter" xml:space="preserve">
+    <value>Fichiers image|*.bmp;*.jpg;*.jpeg;*.png</value>
+  </data>
+  <data name="BannerFileFilter" xml:space="preserve">
+    <value>Fichiers image|*.jpg;*.jpeg;*.png</value>
+  </data>
+  <data name="IconNotLoadedFormat" xml:space="preserve">
+    <value>Erreur lors du chargement de l'icône : {0}</value>
+  </data>
+  <data name="SelectVariantForBanner" xml:space="preserve">
+    <value>Veuillez sélectionner une variante pour lui ajouter une bannière</value>
+  </data>
+  <data name="BannerNotAddedFormat" xml:space="preserve">
+    <value>Erreur lors de l'ajout de la bannière : {0}</value>
+  </data>
+  <data name="VariantFilesUnreadableFormat" xml:space="preserve">
+    <value>Impossible de lire les fichiers de la variante : {0}</value>
+  </data>
+  <data name="IgnoredFilesFormat" xml:space="preserve">
+    <value>Ces fichiers sont ignorés car ils ne se trouvent dans aucun des dossiers {0} :
+
+{1}</value>
+  </data>
+  <data name="SelectIconBeforeBuild" xml:space="preserve">
+    <value>Veuillez sélectionner une icône pour le mod avant de le créer.</value>
+  </data>
+  <data name="ModArchiveFilterFormat" xml:space="preserve">
+    <value>Mod Empire Earth ({0})|{0}</value>
+  </data>
+  <data name="BuildStatusBuilding" xml:space="preserve">
+    <value>Création du mod...</value>
+  </data>
+  <data name="BuildStatusFailed" xml:space="preserve">
+    <value>Échec de la création</value>
+  </data>
+  <data name="BuildStatusDone" xml:space="preserve">
+    <value>Mod créé</value>
+  </data>
+  <data name="BuildFailedFormat" xml:space="preserve">
+    <value>Impossible de créer le mod :
+
+{0}</value>
+  </data>
+  <data name="ModCreatorNotStartedFormat" xml:space="preserve">
+    <value>Le créateur de mod n'a pas pu créer son dossier de travail :
+
+{0}</value>
+  </data>
+  <data name="UseBuildButton" xml:space="preserve">
+    <value>Utilisez le bouton « Créer » de la page des fichiers pour créer le mod.</value>
+  </data>
+  <data name="ModSavedFormat" xml:space="preserve">
+    <value>Le mod a été enregistré dans :
+{0}</value>
+  </data>
+</root>

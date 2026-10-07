@@ -1,0 +1,174 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build (Release) and run tests
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      SOLUTION: Empire-Earth.sln
+      CONFIGURATION: Release
+      REFASM_PACKAGE: Microsoft.NETFramework.ReferenceAssemblies.net48
+      REFASM_VERSION: 1.0.3
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore NuGet packages
+        run: nuget restore $env:SOLUTION -NonInteractive
+
+      # All projects target .NET Framework 4.8 (see README, Requirements, and
+      # docs/adr/0001). The build uses Microsoft's reference assemblies from
+      # NuGet instead of the targeting packs of the runner image, so the result
+      # does not depend on what the image happens to ship. Nothing is installed
+      # into the projects; the path is only passed to MSBuild below.
+      - name: Fetch .NET Framework 4.8 reference assemblies
+        run: |
+          nuget install $env:REFASM_PACKAGE -Version $env:REFASM_VERSION -OutputDirectory "$env:RUNNER_TEMP\refasm" -NonInteractive
+          $root = Join-Path $env:RUNNER_TEMP "refasm\$env:REFASM_PACKAGE.$env:REFASM_VERSION\build"
+          if (-not (Test-Path -LiteralPath (Join-Path $root '.NETFramework\v4.8\mscorlib.dll'))) {
+            throw "Reference assemblies not found under $root"
+          }
+          "REFASM_ROOT=$root" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Build
+        run: >-
+          msbuild $env:SOLUTION /nologo /m /v:minimal
+          "/p:Configuration=$env:CONFIGURATION"
+          "/p:TargetFrameworkRootPath=$env:REFASM_ROOT"
+          "/p:FrameworkPathOverride=$env:REFASM_ROOT\.NETFramework\v4.8"
+
+      # Pictures of the four launcher pages (PageScreenshotTests, ADR 0012 amendment): each page, as the launcher fills
+      # it, is shown for a moment in a borderless window and saved as PNG, the pages of the Game settings in each of their
+      # states, in English and German. They are the visual evidence for the geometry tests that follow and replace a
+      # player's screenshot when a layout has to be judged by eye. The step runs before the tests, so that the pictures
+      # exist when a geometry test fails, and it never fails the build: without a desktop the pictures are missing, which
+      # the warning says.
+      - name: Render page pictures
+        continue-on-error: true
+        env:
+          EE_LAUNCHER_PAGE_PNG_DIR: ${{ runner.temp }}\page-pictures
+        run: |
+          $test = Get-ChildItem -Path . -Recurse -File -Filter 'Empire-Earth-Launcher.Tests.exe' |
+            Where-Object { $_.FullName -like "*\bin\$env:CONFIGURATION\*" } | Select-Object -First 1
+          if (-not $test) { throw "Empire-Earth-Launcher.Tests.exe not found below bin\$env:CONFIGURATION." }
+          Push-Location -LiteralPath $test.DirectoryName
+          try {
+            & $test.FullName --where "class =~ PageScreenshotTests" --noresult
+            $code = $LASTEXITCODE
+          } finally {
+            Pop-Location
+          }
+          if ($code -ne 0) {
+            Write-Host "::warning title=Page pictures::The picture tests exited with code $code."
+          }
+          exit 0
+
+      # Test projects are console programs named *Tests.exe (the unit tests
+      # Empire-Earth-Launcher.Tests and the self-tests of
+      # Empire-Earth-Launcher.RealMachineTests, NUnitLite) that return a
+      # non-zero exit code on failure. The RealMachine fixtures are explicit
+      # and stay skipped here: they need EE_LAUNCHER_REAL_MACHINE_TESTS=1 and
+      # run only in the setup repository's end-to-end workflow. Finding none means the test project was not built,
+      # which fails the job. Each program writes an NUnit 3 result file that
+      # is kept as the test-results artifact.
+      - name: Run tests
+        run: |
+          $tests = @(Get-ChildItem -Path . -Recurse -File -Filter '*Tests.exe' |
+            Where-Object { $_.FullName -like "*\bin\$env:CONFIGURATION\*" })
+          if ($tests.Count -eq 0) {
+            Write-Host "::error title=No tests::No *Tests.exe found below bin\$env:CONFIGURATION."
+            exit 1
+          }
+          $resultDir = Join-Path $env:RUNNER_TEMP 'test-results'
+          New-Item -ItemType Directory -Force -Path $resultDir | Out-Null
+          $failed = @()
+          foreach ($test in $tests) {
+            Write-Host "::group::$($test.Name)"
+            Push-Location -LiteralPath $test.DirectoryName
+            try {
+              & $test.FullName "--result=$(Join-Path $resultDir ($test.BaseName + '.xml'))"
+              $code = $LASTEXITCODE
+            } finally {
+              Pop-Location
+            }
+            Write-Host '::endgroup::'
+            if ($code -ne 0) {
+              Write-Host "::error title=Tests failed::$($test.Name) exited with code $code"
+              $failed += $test.Name
+            }
+          }
+          if ($failed.Count -gt 0) { exit 1 }
+          exit 0
+
+      # Test builds for manual testing, only when all tests passed: the Release
+      # output of both applications, together with the license texts that
+      # binary copies must carry. Prototype builds, not releases (see README).
+      - name: Package test builds
+        run: |
+          $dist = Join-Path $env:RUNNER_TEMP 'dist'
+          $apps = @(
+            @{ Name = 'Empire-Earth-Launcher';    Bin = "Empire Earth Launcher\bin\$env:CONFIGURATION" },
+            @{ Name = 'Empire-Earth-Mod-Creator'; Bin = "Empire-Earth-Mod\Empire-Earth-Mod\bin\$env:CONFIGURATION" }
+          )
+          foreach ($app in $apps) {
+            if (-not (Test-Path -LiteralPath $app.Bin -PathType Container)) {
+              throw "Build output not found: $($app.Bin)"
+            }
+            $target = Join-Path $dist $app.Name
+            New-Item -ItemType Directory -Force -Path $target | Out-Null
+            Copy-Item -Path (Join-Path $app.Bin '*') -Destination $target -Recurse
+            Copy-Item -LiteralPath 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'licenses\THIRD-PARTY-LICENSES.txt' -Destination $target
+            if (-not @(Get-ChildItem -LiteralPath $target -Filter '*.exe' -File)) {
+              throw "No executable in $target"
+            }
+          }
+
+      - name: Upload launcher test build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Empire-Earth-Launcher-testbuild
+          path: ${{ runner.temp }}/dist/Empire-Earth-Launcher/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload mod creator test build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Empire-Earth-Mod-Creator-testbuild
+          path: ${{ runner.temp }}/dist/Empire-Earth-Mod-Creator/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ${{ runner.temp }}/test-results/
+          if-no-files-found: ignore
+
+      - name: Upload page pictures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: page-pictures
+          path: ${{ runner.temp }}/page-pictures/
+          if-no-files-found: warn
+          retention-days: 14
