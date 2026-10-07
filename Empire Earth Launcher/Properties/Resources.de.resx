@@ -778,15 +778,6 @@ Ihre jetzigen Einstellungen werden vorher als .reg-Dateien in {1} gesichert; ein
   <data name="FailureStatus" xml:space="preserve">
     <value>unerwartete Antwort des Servers</value>
   </data>
-  <data name="FailureUrlRejected" xml:space="preserve">
-    <value>der Server nannte eine nicht erlaubte Adresse</value>
-  </data>
-  <data name="RepairLocating" xml:space="preserve">
-    <value>Der Update-Server wird nach dem aktuellen Setup gefragt ...</value>
-  </data>
-  <data name="RepairFallbackFormat" xml:space="preserve">
-    <value>Keine Adresse vom Update-Server ({0}); dies ist die allgemeine Downloadseite.</value>
-  </data>
   <data name="ToolsCleanupHeading" xml:space="preserve">
     <value>Alte Registry-Einträge</value>
   </data>

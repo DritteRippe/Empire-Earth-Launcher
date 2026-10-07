@@ -55,7 +55,7 @@ namespace Empire_Earth_Launcher.Tests.Architecture
             new Rule("the real adapters outside RealMachine/ and Program.cs", @"\bRealAdapters\s*\.", Adapters),
             new Rule("a program start", @"\bProcess\s*\.\s*Start\b|\bProcessStartInfo\b|\bGameStarter\b|\bPlayModel\b|\bShellProcessStarter\b"),
             new Rule("a request to a server",
-                @"\b(HttpsClient|NeoApiClient|UpdateChecker|SetupDownloadLocator|PlayerListPoller|NetworkDiagnostics|WindowsNetworkInfo)\b"),
+                @"\b(HttpsClient|NeoApiClient|UpdateChecker|PlayerListPoller|NetworkDiagnostics|WindowsNetworkInfo)\b"),
             new Rule("the CD-key registration", @"authtools"),
             new Rule("a maintenance action of the launcher", @"\b(RegistryCleanup|WonLoginReset|SavedGames|CompatibilityOptions|FileBackup)\b"),
             new Rule("a hash read out of a finding or the manifest", @"\b(ExpectedHash|ActualHash)\b|\.\s*Hash\b"),

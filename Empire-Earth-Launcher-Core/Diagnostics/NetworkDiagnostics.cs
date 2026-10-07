@@ -301,8 +301,8 @@ namespace Empire_Earth_Launcher.Core.Diagnostics
     /// </summary>
     /// <remarks>
     /// <para>
-    /// It connects to nothing but what the launcher already asks (ADR 0008, ARCHITECTURE 10): DNS, the update API with the
-    /// request of contract 4.3 (only the AppId is sent) and the status server with the request of the player list. No "what is
+    /// It connects to nothing but what the launcher already asks (ADR 0008, ARCHITECTURE 10): DNS, the update API with a
+    /// request of contract 4.5 (the latest game version: only the AppId and <c>&amp;type=game</c> are sent) and the status server with the request of the player list. No "what is
     /// my IP" service, no connection to the auth or firewall ports of NeoEE (10002, 10003). The lookups and both requests run
     /// at the same time.
     /// </para>
@@ -353,7 +353,7 @@ namespace Empire_Earth_Launcher.Core.Diagnostics
 
         /// <summary>Runs the network diagnostics once; never throws for a network or file problem.</summary>
         /// <param name="installation">The installation whose game folders are read; null without one.</param>
-        /// <param name="appId">The AppId for the request to the update API (contract 4.3); null if no installation has one.</param>
+        /// <param name="appId">The AppId for the request to the update API (contract 4.5); null if no installation has one.</param>
         /// <param name="cancellationToken">Ends the check with <see cref="OperationCanceledException"/>.</param>
         /// <remarks>
         /// The whole check runs on the thread pool (ADR 0004): the adapter list of Windows (slow with VPN and virtual
@@ -396,7 +396,8 @@ namespace Empire_Earth_Launcher.Core.Diagnostics
             // The name lookups, the update API and the status server at the same time.
             List<string> hosts = HostsToLookUp(neoEeConfigs);
             Task<DnsLookup[]> lookups = Task.WhenAll(hosts.Select(host => network.ResolveAsync(host, cancellationToken)));
-            string query = string.IsNullOrWhiteSpace(appId) ? null : SetupDownloadLocator.QueryUrl(appId);
+            // A request of contract 4.5 (the latest game version); the query without &type= is no longer sent (contract 4.3).
+            string query = string.IsNullOrWhiteSpace(appId) ? null : UpdateApi.QueryUrl(appId, UpdateChecker.TypeName(VersionKind.Game));
             Task<HttpsResponse> updateApi = query == null
                 ? Task.FromResult<HttpsResponse>(null)
                 : https.GetAsync(new Uri(query), cancellationToken);

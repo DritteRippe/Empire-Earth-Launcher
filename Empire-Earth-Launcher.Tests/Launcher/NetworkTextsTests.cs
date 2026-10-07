@@ -38,7 +38,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             world.AddCommunityInstallation(Root, Product.NeoEE);
             installation = InstallationWorld.ByRoot(world.Discover(), Root);
             network = new FakeNetworkInfo().WithHomeEthernet().Resolve(NetworkDiagnosticsTests.StatusHost, "192.0.2.10");
-            https = new FakeHttpsClient().Answer(SetupDownloadLocator.QueryUrl(InstallationWorld.NeoEEAppId), 200, SetupDownloadLocator.FixedPageUrl);
+            https = new FakeHttpsClient().Answer(UpdateApi.QueryUrl(InstallationWorld.NeoEEAppId, "game"), 200, "2.0.1.0");
             statusServer = new FakeNeoStatusServer();
         }
 
@@ -74,7 +74,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             string noServer = Texts.NetworkVerdict(Run());
             network.FailLookup(NetworkDiagnosticsTests.StatusHost, DnsOutcome.Failed);
             string noConnection = Texts.NetworkVerdict(Run());
-            https = new FakeHttpsClient().Answer(SetupDownloadLocator.QueryUrl(InstallationWorld.NeoEEAppId), 404, "");
+            https = new FakeHttpsClient().Answer(UpdateApi.QueryUrl(InstallationWorld.NeoEEAppId, "game"), 404, "");
             string notResolved = Texts.NetworkVerdict(Run());
             network.Resolve(NetworkDiagnosticsTests.StatusHost, "192.0.2.10");
             string undetermined = Texts.NetworkVerdict(Run(appId: null));

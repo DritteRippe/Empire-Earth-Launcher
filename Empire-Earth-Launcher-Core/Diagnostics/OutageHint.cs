@@ -16,7 +16,7 @@ namespace Empire_Earth_Launcher.Core.Diagnostics
         NotConfigured
     }
 
-    /// <summary>What the update API did when the network diagnostics asked it (the request of contract 4.3, ADR 0008).</summary>
+    /// <summary>What the update API did when the network diagnostics asked it (a request of contract 4.5, ADR 0008).</summary>
     public enum UpdateApiAnswer
     {
         /// <summary>It answered with any HTTP status: the computer reaches the internet over HTTPS.</summary>

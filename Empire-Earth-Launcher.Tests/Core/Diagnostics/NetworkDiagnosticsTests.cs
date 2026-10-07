@@ -93,8 +93,8 @@ namespace Empire_Earth_Launcher.Tests.Core.Diagnostics
             }
             network = new FakeNetworkInfo().WithHomeEthernet().Resolve(StatusHost, "192.0.2.10").Resolve("rip.neoee.example", "192.0.2.11");
             statusServer = new FakeNeoStatusServer();
-            query = SetupDownloadLocator.QueryUrl(InstallationWorld.NeoEEAppId);
-            https = new FakeHttpsClient().Answer(query, 200, SetupDownloadLocator.FixedPageUrl);
+            query = UpdateApi.QueryUrl(InstallationWorld.NeoEEAppId, "game");
+            https = new FakeHttpsClient().Answer(query, 200, "2.0.1.0");
             logger = new RecordingLogger();
         }
 
@@ -133,14 +133,15 @@ namespace Empire_Earth_Launcher.Tests.Core.Diagnostics
             Assert.That(report.CheckedAt, Is.EqualTo(world.Clock.Now));
         }
 
-        /// <summary>ADR 0008, ARCHITECTURE 10: DNS of the NeoEE servers, the request of contract 4.3, the player list; nothing else.</summary>
+        /// <summary>ADR 0008, ARCHITECTURE 10: DNS of the NeoEE servers, a request of contract 4.5 (the latest game version), the player list; nothing else.</summary>
         [Test]
         public void ItAsks_OnlyDnsTheUpdateApiAndTheStatusServer()
         {
             Run();
 
             Assert.That(network.Lookups, Is.EqualTo(new[] { StatusHost, "rip.neoee.example" }), "each server once, the status server first");
-            Assert.That(https.Requests, Is.EqualTo(new[] { "https://api.empireearth.eu/setup/?product=" + InstallationWorld.NeoEEAppId }));
+            Assert.That(https.Requests, Is.EqualTo(new[] { "https://api.empireearth.eu/setup/?product=" + InstallationWorld.NeoEEAppId + "&type=game" }),
+                "the query without &type= is no longer sent (contract 4.3, 4.5)");
             Assert.That(statusServer.Requests, Is.EqualTo(1));
             Assert.That(network.AdapterReads, Is.EqualTo(1));
         }

@@ -278,7 +278,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
         }
 
         [Test]
-        public void Rev11_AMissingProgram_IsDamagedWithTheRepairAdviceAndTheFixedPage()
+        public void Rev11_AMissingProgram_IsDamagedWithTheRepairAdviceAndTheDownloadPageOfTheProduct()
         {
             fileSystem.DeleteFile(AocProgram);
 
@@ -286,7 +286,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Play
 
             Assert.That(result.Outcome, Is.EqualTo(StartOutcome.Damaged));
             Assert.That(result.RepairAdvice, Is.Not.Null);
-            Assert.That(result.RepairAdvice.DownloadUrl, Is.EqualTo("https://empireearth.eu/download"));
+            Assert.That(result.RepairAdvice.DownloadUrl, Is.EqualTo(SetupDownloadPage.For(installation)));
             Assert.That(result.RepairAdvice.MissingPrograms, Is.EqualTo(new[] { Game.ArtOfConquest }));
             Assert.That(result.RepairAdvice.Steps.First(), Is.EqualTo(RepairStep.AddAntivirusException));
             Assert.That(result.RepairAdvice.Steps, Does.Contain(RepairStep.KeepCdKeysTask));

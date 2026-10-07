@@ -111,10 +111,10 @@ namespace Empire_Earth_Launcher.Tests.Core.Repair
             Assert.That(client.Requests, Is.Empty);
         }
 
-        [TestCase(HttpsOutcome.Timeout, FallbackReason.Timeout)]
-        [TestCase(HttpsOutcome.TlsError, FallbackReason.TlsError)]
-        [TestCase(HttpsOutcome.NetworkError, FallbackReason.NetworkError)]
-        public async Task NoAnswer_IsFailed_NeverUpToDate(HttpsOutcome outcome, FallbackReason reason)
+        [TestCase(HttpsOutcome.Timeout, UpdateApiFailure.Timeout)]
+        [TestCase(HttpsOutcome.TlsError, UpdateApiFailure.TlsError)]
+        [TestCase(HttpsOutcome.NetworkError, UpdateApiFailure.NetworkError)]
+        public async Task NoAnswer_IsFailed_NeverUpToDate(HttpsOutcome outcome, UpdateApiFailure reason)
         {
             client.Fail(Api + "&type=game&version=2.0.0.5", outcome);
 
@@ -132,7 +132,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Repair
             VersionCheckResult result = await checker.CheckAsync(Community(), VersionKind.Game);
 
             Assert.That(result.Outcome, Is.EqualTo(VersionCheckOutcome.Failed));
-            Assert.That(result.Failure, Is.EqualTo(FallbackReason.StatusNotOk));
+            Assert.That(result.Failure, Is.EqualTo(UpdateApiFailure.StatusNotOk));
         }
 
         [Test]

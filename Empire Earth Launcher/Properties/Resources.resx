@@ -1020,31 +1020,19 @@ Your current settings are saved first as .reg files in {1}; double-click such a 
   </data>
   <data name="FailureTimeout" xml:space="preserve">
     <value>no answer within 10 seconds</value>
-    <comment>Reason in VersionFailedFormat and RepairFallbackFormat.</comment>
+    <comment>Reason in VersionFailedFormat.</comment>
   </data>
   <data name="FailureTls" xml:space="preserve">
     <value>the secure connection failed</value>
-    <comment>Reason in VersionFailedFormat and RepairFallbackFormat (TLS handshake or certificate).</comment>
+    <comment>Reason in VersionFailedFormat (TLS handshake or certificate).</comment>
   </data>
   <data name="FailureNetwork" xml:space="preserve">
     <value>no connection</value>
-    <comment>Reason in VersionFailedFormat and RepairFallbackFormat (offline, DNS, proxy).</comment>
+    <comment>Reason in VersionFailedFormat (offline, DNS, proxy).</comment>
   </data>
   <data name="FailureStatus" xml:space="preserve">
     <value>unexpected answer of the server</value>
-    <comment>Reason in VersionFailedFormat and RepairFallbackFormat (an HTTP status other than 200).</comment>
-  </data>
-  <data name="FailureUrlRejected" xml:space="preserve">
-    <value>the server named an address that is not allowed</value>
-    <comment>Reason in RepairFallbackFormat (the URL policy refused the answer, contract 4.3).</comment>
-  </data>
-  <data name="RepairLocating" xml:space="preserve">
-    <value>Asking the update server for the current setup...</value>
-    <comment>Repair advice while the update API is asked (contract 4.3).</comment>
-  </data>
-  <data name="RepairFallbackFormat" xml:space="preserve">
-    <value>No address from the update server ({0}); this is the general download page.</value>
-    <comment>Repair advice when the fixed download page is used (contract 4.3 step 3). {0}: the reason, one of the Failure texts.</comment>
+    <comment>Reason in VersionFailedFormat (an HTTP status other than 200).</comment>
   </data>
   <data name="ToolsCleanupHeading" xml:space="preserve">
     <value>Old registry entries</value>

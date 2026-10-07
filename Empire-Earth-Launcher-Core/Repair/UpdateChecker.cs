@@ -37,7 +37,7 @@ namespace Empire_Earth_Launcher.Core.Repair
     public sealed class VersionCheckResult
     {
         internal VersionCheckResult(Installation installation, VersionKind kind, string installedVersion,
-            VersionCheckOutcome outcome, string latestVersion, FallbackReason failure)
+            VersionCheckOutcome outcome, string latestVersion, UpdateApiFailure failure)
         {
             Installation = installation;
             Kind = kind;
@@ -62,14 +62,14 @@ namespace Empire_Earth_Launcher.Core.Repair
         /// </summary>
         public string LatestVersion { get; }
 
-        /// <summary>For <see cref="VersionCheckOutcome.Failed"/>: why there is no answer; else <see cref="FallbackReason.None"/>.</summary>
-        public FallbackReason Failure { get; }
+        /// <summary>For <see cref="VersionCheckOutcome.Failed"/>: why there is no answer; else <see cref="UpdateApiFailure.None"/>.</summary>
+        public UpdateApiFailure Failure { get; }
 
         public override string ToString()
         {
             return Kind + " version " + (InstalledVersion ?? "unknown") + " of " + Installation.Root + ": " + Outcome +
                    (LatestVersion == null ? string.Empty : ", latest " + LatestVersion) +
-                   (Failure == FallbackReason.None ? string.Empty : " (" + Failure + ")");
+                   (Failure == UpdateApiFailure.None ? string.Empty : " (" + Failure + ")");
         }
     }
 
@@ -136,22 +136,22 @@ namespace Empire_Earth_Launcher.Core.Repair
             string version = kind == VersionKind.Game ? installation.GameVersion : installation.SetupVersion;
             if (string.IsNullOrWhiteSpace(installation.AppId) || string.IsNullOrWhiteSpace(version))
                 return Done(new VersionCheckResult(installation, kind, version, VersionCheckOutcome.NotPossible, null,
-                    FallbackReason.None));
+                    UpdateApiFailure.None));
 
             string type = TypeName(kind);
-            HttpsResponse answer = await GetAsync(SetupDownloadLocator.QueryUrl(installation.AppId, type, version),
+            HttpsResponse answer = await GetAsync(UpdateApi.QueryUrl(installation.AppId, type, version),
                 cancellationToken).ConfigureAwait(false);
-            FallbackReason? failure = SetupDownloadLocator.FailureOf(answer);
+            UpdateApiFailure? failure = UpdateApi.FailureOf(answer);
             if (failure != null)
                 return Done(new VersionCheckResult(installation, kind, version, VersionCheckOutcome.Failed, null, failure.Value));
             if (!string.Equals(answer.Body.Trim(), OutdatedAnswer, StringComparison.Ordinal))
-                return Done(new VersionCheckResult(installation, kind, version, VersionCheckOutcome.UpToDate, null, FallbackReason.None));
+                return Done(new VersionCheckResult(installation, kind, version, VersionCheckOutcome.UpToDate, null, UpdateApiFailure.None));
 
-            HttpsResponse latest = await GetAsync(SetupDownloadLocator.QueryUrl(installation.AppId, type), cancellationToken)
+            HttpsResponse latest = await GetAsync(UpdateApi.QueryUrl(installation.AppId, type), cancellationToken)
                 .ConfigureAwait(false);
-            string latestVersion = SetupDownloadLocator.FailureOf(latest) == null ? DisplayableVersion(latest.Body) : "?";
+            string latestVersion = UpdateApi.FailureOf(latest) == null ? DisplayableVersion(latest.Body) : "?";
             return Done(new VersionCheckResult(installation, kind, version, VersionCheckOutcome.UpdateAvailable, latestVersion,
-                FallbackReason.None));
+                UpdateApiFailure.None));
         }
 
         private async Task<HttpsResponse> GetAsync(string url, CancellationToken cancellationToken)

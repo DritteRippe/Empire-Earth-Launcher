@@ -175,12 +175,11 @@ namespace Empire_Earth_Launcher
                 : new PlayerListPolling(() => new PlayerListPoller(new NeoPlayerListSource(neoClient),
                     TimeSpan.FromMilliseconds(playerListPollIntervalMilliseconds), logger));
 
-            // The update API (contract 4.3, 4.5, ADR 0008): only on request, HTTPS with the certificate check of Windows, no
-            // redirects, 10 s, at most 4 KiB; the fixed download page for every failure.
+            // The version check of the update API (contract 4.5, ADR 0008): only on request, HTTPS with the certificate check of
+            // Windows, no redirects, 10 s, at most 4 KiB. The download page of contract 4.3 opens in the browser without a request.
             using (var https = new HttpsClient())
             {
-                var updates = new UpdateModel(new SetupDownloadLocator(https, logger), new UpdateChecker(https, logger),
-                    installations, shell, logger, suiteRepair);
+                var updates = new UpdateModel(new UpdateChecker(https, logger), installations, shell, logger, suiteRepair);
 
                 // Network diagnostics and the diagnostics report (L-WP9, R7): only on request; DNS, the update API with the
                 // AppId and the status server, nothing else (ADR 0008). The report and the log lines of the check follow the

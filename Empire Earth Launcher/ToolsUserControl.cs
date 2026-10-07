@@ -436,13 +436,13 @@ namespace Empire_Earth_Launcher
             if (advice == null)
                 return;
             RepairAdviceDialog.ShowAdvice(FindForm(), themeService, advice, Texts.RepairReasonText(advice, integrity.Report),
-                updates, uiOperation);
+                updates);
         }
 
         /// <summary>The version check of the game and the setup (contract 4.5); an available update opens the hand-off.</summary>
         private void versionCheckKryptonButton_Click(object sender, EventArgs e)
         {
-            uiOperation.Run(versionCheckKryptonButton, () => CheckVersionsAsync(this, true, updates, themeService, uiOperation),
+            uiOperation.Run(versionCheckKryptonButton, () => CheckVersionsAsync(this, true, updates, themeService),
                 ShowState);
         }
 
@@ -641,13 +641,12 @@ namespace Empire_Earth_Launcher
         /// as its reason (contract 4.5). Shared by the Tools and the Play page.
         /// </summary>
         internal static async Task CheckVersionsAsync(Control page, bool includeSetup, UpdateModel updates,
-            IThemeService themeService, UiOperation uiOperation)
+            IThemeService themeService)
         {
             await updates.CheckAsync(includeSetup);
             RepairAdvice advice = updates.UpdateAdvice;
             if (advice != null && !page.IsDisposed)
-                RepairAdviceDialog.ShowAdvice(page.FindForm(), themeService, advice, Texts.RepairReasonText(advice, null), updates,
-                    uiOperation);
+                RepairAdviceDialog.ShowAdvice(page.FindForm(), themeService, advice, Texts.RepairReasonText(advice, null), updates);
         }
     }
 }

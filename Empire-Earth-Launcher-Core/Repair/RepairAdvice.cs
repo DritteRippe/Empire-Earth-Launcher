@@ -89,18 +89,13 @@ namespace Empire_Earth_Launcher.Core.Repair
     /// elevates anything for the repair, it opens the download page in the browser with its own rights.
     /// </summary>
     /// <remarks>
-    /// An advice starts with the fixed page of contract 4.3 step 3 (<see cref="SetupDownloadLocation.NotAsked"/>); the
-    /// launcher asks the update API through <see cref="SetupDownloadLocator"/> when it shows the advice and continues with
-    /// <see cref="WithLocation"/> (contract 4.3 steps 1 and 2, L-WP7).
+    /// The download page is the one of the installation's product (<see cref="SetupDownloadPage.For"/>, contract 4.3): it is
+    /// known from the start and needs no request to the update API.
     /// </remarks>
     public sealed class RepairAdvice
     {
-        /// <summary>The fixed download page of the community setup (contract 4.3 step 3).</summary>
-        public const string DownloadPageUrl = SetupDownloadLocator.FixedPageUrl;
-
         private RepairAdvice(Installation installation, RepairReason reason, IEnumerable<Game> missingPrograms,
-            IEnumerable<RepairStep> steps, IEnumerable<IntegrityFinding> files, VersionCheckResult update,
-            SetupDownloadLocation location, string suiteFolder)
+            IEnumerable<RepairStep> steps, IEnumerable<IntegrityFinding> files, VersionCheckResult update, string suiteFolder)
         {
             SuiteFolder = suiteFolder;
             Installation = installation;
@@ -109,7 +104,6 @@ namespace Empire_Earth_Launcher.Core.Repair
             Steps = new ReadOnlyCollection<RepairStep>(steps.ToList());
             Files = new ReadOnlyCollection<IntegrityFinding>(files.ToList());
             Update = update;
-            Location = location;
         }
 
         /// <summary>The installation the advice is for.</summary>
@@ -148,19 +142,10 @@ namespace Empire_Earth_Launcher.Core.Repair
         /// <summary>For <see cref="RepairReason.UpdateAvailable"/>: the result of the version check; null otherwise.</summary>
         public VersionCheckResult Update { get; }
 
-        /// <summary>Where the setup is downloaded: the fixed page until the update API answered (contract 4.3).</summary>
-        public SetupDownloadLocation Location { get; }
-
-        /// <summary>The page with the setup download (contract 4.3).</summary>
+        /// <summary>The page with the setup download: the one of the product of the installation (contract 4.3).</summary>
         public string DownloadUrl
         {
-            get { return Location.Url; }
-        }
-
-        /// <summary>True if the page is the fixed one of contract 4.3 step 3 (the update API was not asked or gave no URL).</summary>
-        public bool IsFixedPage
-        {
-            get { return !Location.IsFromUpdateApi; }
+            get { return SetupDownloadPage.For(Installation); }
         }
 
         /// <summary>
@@ -187,7 +172,7 @@ namespace Empire_Earth_Launcher.Core.Repair
                 reason == RepairReason.UpdateAvailable)
                 throw new ArgumentException("The advice of " + reason + " is made by ForIntegrity or ForUpdate.", nameof(reason));
             return new RepairAdvice(installation, reason, missing, StepsFor(installation, reason, suiteFolder),
-                new IntegrityFinding[0], null, SetupDownloadLocation.NotAsked, SuiteFolderOf(installation, suiteFolder));
+                new IntegrityFinding[0], null, SuiteFolderOf(installation, suiteFolder));
         }
 
         /// <summary>
@@ -205,7 +190,7 @@ namespace Empire_Earth_Launcher.Core.Repair
                 throw new ArgumentException("The report " + report + " offers no repair.", nameof(report));
             RepairReason reason = report.State == IntegrityState.Unknown ? RepairReason.IntegrityUnknown : RepairReason.IntegrityFindings;
             return new RepairAdvice(report.Installation, reason, new Game[0], StepsFor(report.Installation, reason, suiteFolder),
-                report.SeriousFindings, null, SetupDownloadLocation.NotAsked, SuiteFolderOf(report.Installation, suiteFolder));
+                report.SeriousFindings, null, SuiteFolderOf(report.Installation, suiteFolder));
         }
 
         /// <summary>The hand-off for an available update (contract 4.5: "An available update uses the hand-off of 4.3").</summary>
@@ -219,15 +204,7 @@ namespace Empire_Earth_Launcher.Core.Repair
                 throw new ArgumentException("No update is available: " + update, nameof(update));
             return new RepairAdvice(update.Installation, RepairReason.UpdateAvailable, new Game[0],
                 StepsFor(update.Installation, RepairReason.UpdateAvailable, suiteFolder), new IntegrityFinding[0], update,
-                SetupDownloadLocation.NotAsked, SuiteFolderOf(update.Installation, suiteFolder));
-        }
-
-        /// <summary>The same advice with the download of <paramref name="location"/> (the answer of the update API).</summary>
-        public RepairAdvice WithLocation(SetupDownloadLocation location)
-        {
-            if (location == null)
-                throw new ArgumentNullException(nameof(location));
-            return new RepairAdvice(Installation, Reason, MissingPrograms, Steps, Files, Update, location, SuiteFolder);
+                SuiteFolderOf(update.Installation, suiteFolder));
         }
 
         /// <summary>The suite folder that counts: none for a foreign installation, which the setups do not repair.</summary>
@@ -263,7 +240,8 @@ namespace Empire_Earth_Launcher.Core.Repair
 
         /// <summary>
         /// Opens <see cref="DownloadUrl"/> in the default browser through <paramref name="starter"/> (shell, no verb: not
-        /// elevated, contract 4.3 step 4). A failure is logged and returned, never thrown.
+        /// elevated, contract 4.3 point 2). No request is made; the browser follows the redirect of the website to the setup.
+        /// A failure is logged and returned, never thrown.
         /// </summary>
         public DownloadPageResult OpenDownloadPage(IProcessStarter starter, ILogger logger)
         {
@@ -271,8 +249,8 @@ namespace Empire_Earth_Launcher.Core.Repair
                 throw new ArgumentNullException(nameof(starter));
             if (logger == null)
                 throw new ArgumentNullException(nameof(logger));
-            logger.Info("Repair advice for " + Installation.Root + ": opening the download page " + DownloadUrl + " (" +
-                        (IsFixedPage ? "the fixed page of contract 4.3: " + Location.Reason : "named by the update API") + ").");
+            logger.Info("Repair advice for " + Installation.Root + ": opening the download page " + DownloadUrl +
+                        " (contract 4.3, " + SetupDownloadPage.NameOf(DownloadUrl) + " page).");
             try
             {
                 starter.OpenUrl(DownloadUrl);

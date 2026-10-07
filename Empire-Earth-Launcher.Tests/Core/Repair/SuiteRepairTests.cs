@@ -180,8 +180,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Repair
                 RepairStep.RunSuiteSetupAgain, RepairStep.KeepFolderAndMode, RepairStep.KeepCdKeysTask
             }));
             Assert.That(advice.SuiteFolder, Is.EqualTo(Source));
-            Assert.That(advice.DownloadUrl, Is.EqualTo(RepairAdvice.DownloadPageUrl), "the official download stays, as the second option");
-            Assert.That(advice.IsFixedPage, Is.True);
+            Assert.That(advice.DownloadUrl, Is.EqualTo(SetupDownloadPage.NeoEE), "the download page of the product stays, as the second option");
         }
 
         [Test]
@@ -228,22 +227,11 @@ namespace Empire_Earth_Launcher.Tests.Core.Repair
         }
 
         [Test]
-        public void TheSuiteFolder_IsKeptByWithLocation()
-        {
-            RepairAdvice advice = RepairAdvice.For(Community(Product.EE, EERoot), RepairReason.Requested, suiteFolder: Source);
-
-            RepairAdvice located = advice.WithLocation(SetupDownloadLocation.NotAsked);
-
-            Assert.That(located.SuiteFolder, Is.EqualTo(Source));
-            Assert.That(located.Steps, Is.EqualTo(advice.Steps));
-        }
-
-        [Test]
         public void ForIntegrity_And_ForUpdate_TakeTheSuiteFolderToo()
         {
             Installation installation = Community(Product.NeoEE, NeoRoot);
             var update = new VersionCheckResult(installation, VersionKind.Game, "2.0.0.5", VersionCheckOutcome.UpdateAvailable, "2.1.0",
-                FallbackReason.None);
+                UpdateApiFailure.None);
 
             RepairAdvice advice = RepairAdvice.ForUpdate(update, Source);
 

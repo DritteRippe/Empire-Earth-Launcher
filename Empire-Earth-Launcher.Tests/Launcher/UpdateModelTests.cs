@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Threading;
+using System.Linq;
 using System.Threading.Tasks;
 using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.Platform;
@@ -15,7 +15,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
     /// <summary>
     /// <see cref="UpdateModel"/>, the update API for the pages and the repair advice (L-WP7, contract 4.3 and 4.5, ADR 0008):
     /// the game version check of the Play page, the game and setup version check of the Tools page, the hand-off of an
-    /// available update, the download URL of the advice, and the download page through the shell. With the fake HTTPS
+    /// available update, and the download page of the product through the shell (no request). With the fake HTTPS
     /// client: no test uses the network.
     /// </summary>
     [TestFixture]
@@ -45,8 +45,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             var watcher = new SetupWatcher(new FakeMutexProbe(), world.Clock, world.Logger);
             installations = new InstallationService(world.Logger, settings, world.CreateDiscovery(), world.FileSystem, null,
                 watcher);
-            model = new UpdateModel(new SetupDownloadLocator(client, world.Logger), new UpdateChecker(client, world.Logger),
-                installations, shell, world.Logger);
+            model = new UpdateModel(new UpdateChecker(client, world.Logger), installations, shell, world.Logger);
             model.Changed += (sender, e) => changed++;
         }
 
@@ -109,7 +108,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             VersionCheckResult game = await model.CheckAsync(false);
 
             Assert.That(game.Outcome, Is.EqualTo(VersionCheckOutcome.Failed));
-            Assert.That(game.Failure, Is.EqualTo(FallbackReason.TlsError));
+            Assert.That(game.Failure, Is.EqualTo(UpdateApiFailure.TlsError));
             Assert.That(model.UpdateAdvice, Is.Null);
         }
 
@@ -144,50 +143,33 @@ namespace Empire_Earth_Launcher.Tests.Launcher
         }
 
         [Test]
-        public async Task Contract_4_3_TheAdviceGetsTheUrlOfTheApi_AndOpensIt()
+        public async Task Contract_4_3_OpenDownloadPage_OpensThePageOfTheProduct_WithoutARequest()
         {
             world.AddCommunityInstallation(Root, Product.NeoEE);
             await installations.RefreshAsync();
-            client.Answer(Api, 200, " https://empireearth.eu/files/NeoEE-Setup.exe \n");
             RepairAdvice advice = RepairAdvice.For(installations.Selected, RepairReason.Requested);
 
-            RepairAdvice located = await model.LocateAsync(advice);
+            Assert.That(model.OpenDownloadPage(advice), Is.EqualTo(DownloadPageResult.Opened));
 
-            Assert.That(located.DownloadUrl, Is.EqualTo("https://empireearth.eu/files/NeoEE-Setup.exe"));
-            Assert.That(located.IsFixedPage, Is.False);
-            Assert.That(located.Steps, Is.EqualTo(advice.Steps));
-            Assert.That(model.OpenDownloadPage(located), Is.EqualTo(DownloadPageResult.Opened));
-            Assert.That(shell.OpenedUrls, Is.EqualTo(new[] { "https://empireearth.eu/files/NeoEE-Setup.exe" }));
+            Assert.That(shell.OpenedUrls, Is.EqualTo(new[] { "https://empireearth.eu/download/neo/" }));
+            Assert.That(client.Requests, Is.Empty, "the page is chosen by the installation alone, the update API is not asked");
         }
 
         [Test]
-        public async Task Contract_4_3_NoAnswer_TheFixedPage_WithTheReason()
+        public async Task Contract_4_3_AnUpdateAdvice_OpensThePageOfTheProduct_AfterTheVersionRequestsOnly()
         {
             world.AddCommunityInstallation(Root, Product.NeoEE);
             await installations.RefreshAsync();
-            client.Fail(Api, HttpsOutcome.Timeout);
+            client.Answer(Api + "&type=game&version=2.0.0.5", 200, "false").Answer(Api + "&type=game", 200, "2.0.1.0");
+            await model.CheckAsync(false);
+            RepairAdvice advice = model.UpdateAdvice;
+            string[] versionRequests = client.Requests.ToArray();
 
-            RepairAdvice located = await model.LocateAsync(RepairAdvice.For(installations.Selected, RepairReason.Requested));
+            model.OpenDownloadPage(advice);
 
-            Assert.That(located.DownloadUrl, Is.EqualTo("https://empireearth.eu/download"));
-            Assert.That(located.Location.Reason, Is.EqualTo(FallbackReason.Timeout));
-            Assert.That(world.Logger.Messages, Has.Some.Contains("the fixed download page https://empireearth.eu/download is used (Timeout"));
-        }
-
-        [Test]
-        public async Task Contract_4_3_ClosingTheAdvice_CancelsTheRequest()
-        {
-            world.AddCommunityInstallation(Root, Product.NeoEE);
-            await installations.RefreshAsync();
-            client.Hold();
-            using (var closing = new CancellationTokenSource())
-            {
-                Task<RepairAdvice> locate = model.LocateAsync(RepairAdvice.For(installations.Selected, RepairReason.Requested),
-                    closing.Token);
-                closing.Cancel();
-
-                Assert.That(async () => await locate, Throws.InstanceOf<OperationCanceledException>());
-            }
+            Assert.That(shell.OpenedUrls, Is.EqualTo(new[] { "https://empireearth.eu/download/neo/" }));
+            Assert.That(client.Requests, Is.EqualTo(versionRequests), "opening the page sends no request");
+            Assert.That(client.Requests, Has.All.Contain("&type=game"), "the update API gets only the questions of contract 4.5");
         }
     }
 }

@@ -72,7 +72,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(model.Network, Is.Not.Null);
             Assert.That(model.IsChecking, Is.False);
             Assert.That(changed, Is.EqualTo(2), "started and finished");
-            Assert.That(https.Requests, Is.EqualTo(new[] { SetupDownloadLocator.QueryUrl(InstallationWorld.NeoEEAppId) }));
+            Assert.That(https.Requests, Is.EqualTo(new[] { UpdateApi.QueryUrl(InstallationWorld.NeoEEAppId, "game") }));
             Assert.That(model.Network.Installation.Root, Is.EqualTo(Root));
         }
 

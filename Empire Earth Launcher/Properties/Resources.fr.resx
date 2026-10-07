@@ -778,15 +778,6 @@ Vos paramètres actuels sont d'abord enregistrés dans des fichiers .reg dans {1
   <data name="FailureStatus" xml:space="preserve">
     <value>réponse inattendue du serveur</value>
   </data>
-  <data name="FailureUrlRejected" xml:space="preserve">
-    <value>le serveur a indiqué une adresse non autorisée</value>
-  </data>
-  <data name="RepairLocating" xml:space="preserve">
-    <value>Recherche du setup actuel auprès du serveur de mises à jour...</value>
-  </data>
-  <data name="RepairFallbackFormat" xml:space="preserve">
-    <value>Pas d'adresse du serveur de mises à jour ({0}) ; voici la page de téléchargement générale.</value>
-  </data>
   <data name="ToolsCleanupHeading" xml:space="preserve">
     <value>Anciennes entrées du registre</value>
   </data>

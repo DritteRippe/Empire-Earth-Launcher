@@ -131,7 +131,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Diagnostics
                 .AddAdapter(NetworkAdapterKind.Ethernet, "Sample Hamachi Virtual Ethernet Adapter", new[] { "25.10.20.30/8" },
                     id: persona.AdapterId + "2", name: persona.AdapterName + " 2", mac: persona.Mac + "2")
                 .Resolve(NetworkDiagnosticsTests.StatusHost, "192.0.2.10").Resolve("rip.neoee.example", "192.0.2.11");
-            var https = new FakeHttpsClient().Answer(SetupDownloadLocator.QueryUrl(selected.AppId), 200, SetupDownloadLocator.FixedPageUrl);
+            var https = new FakeHttpsClient().Answer(UpdateApi.QueryUrl(selected.AppId, "game"), 200, "2.0.1.0");
             var statusServer = new FakeNeoStatusServer { Failure = new TimeoutException("injected") };
             NetworkReport networkReport = new NetworkDiagnostics(network, statusServer, https, fileSystem, paths, anonymizer,
                 world.Clock, new RecordingLogger()).RunAsync(selected, selected.AppId, CancellationToken.None).GetAwaiter().GetResult();

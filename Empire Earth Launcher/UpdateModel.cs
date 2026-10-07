@@ -9,36 +9,33 @@ using Empire_Earth_Launcher.Core.Repair;
 namespace Empire_Earth_Launcher
 {
     /// <summary>
-    /// The update API for the Play and Tools pages and the repair advice (contract 4.3, 4.5, ADR 0008, L-WP7): where the
-    /// setup is downloaded, opening that page in the browser, and the version check of the selected installation.
+    /// The update API for the Play and Tools pages and the repair advice (contract 4.3, 4.5, ADR 0008, L-WP7): the version
+    /// check of the selected installation, and opening the download page of the advice in the browser.
     /// </summary>
     /// <remarks>
-    /// Created once by <see cref="Program"/>; use it on the UI thread. Every request runs only when the player asks for it
-    /// (the repair advice is shown, a version check is clicked), never at start (ADR 0008). The game version check is
-    /// always asked; the setup version check only on the Tools page. The results belong to the installation they were
-    /// asked for and are dropped when another one is selected.
+    /// Created once by <see cref="Program"/>; use it on the UI thread. A request runs only when the player asks for it (a
+    /// version check is clicked), never at start (ADR 0008). The game version check is always asked; the setup version check
+    /// only on the Tools page. The results belong to the installation they were asked for and are dropped when another one
+    /// is selected. The download page of the advice is the product's page of contract 4.3 and needs no request.
     /// </remarks>
     internal sealed class UpdateModel
     {
-        private readonly SetupDownloadLocator locator;
         private readonly UpdateChecker checker;
         private readonly InstallationService installations;
         private readonly IProcessStarter shell;
         private readonly SuiteRepairLocator suiteRepair;
         private readonly ILogger logger;
 
-        /// <param name="locator">Asks the update API for the setup download (contract 4.3).</param>
         /// <param name="checker">Asks the update API for the versions (contract 4.5).</param>
         /// <param name="installations">The selected installation.</param>
-        /// <param name="shell">Opens the download page in the default browser, not elevated (contract 4.3 step 4).</param>
+        /// <param name="shell">Opens the download page in the default browser, not elevated (contract 4.3 point 2).</param>
         /// <param name="logger">Log of the launcher.</param>
         /// <param name="suiteRepair">Where the suite can be run again for the repair advice (contract 4.4, revision 4); null
         /// for the download advice only.</param>
-        public UpdateModel(SetupDownloadLocator locator, UpdateChecker checker, InstallationService installations,
-            IProcessStarter shell, ILogger logger, SuiteRepairLocator suiteRepair = null)
+        public UpdateModel(UpdateChecker checker, InstallationService installations, IProcessStarter shell, ILogger logger,
+            SuiteRepairLocator suiteRepair = null)
         {
             this.suiteRepair = suiteRepair;
-            this.locator = locator ?? throw new ArgumentNullException(nameof(locator));
             this.checker = checker ?? throw new ArgumentNullException(nameof(checker));
             this.installations = installations ?? throw new ArgumentNullException(nameof(installations));
             this.shell = shell ?? throw new ArgumentNullException(nameof(shell));
@@ -118,20 +115,7 @@ namespace Empire_Earth_Launcher
             }
         }
 
-        /// <summary>
-        /// Asks the update API where the current setup of the advice's installation is downloaded (contract 4.3 steps 1 to
-        /// 3): the answer if <see cref="UpdateUrlPolicy"/> allows it, else the fixed page with the reason; never throws for
-        /// network problems.
-        /// </summary>
-        public async Task<RepairAdvice> LocateAsync(RepairAdvice advice, CancellationToken cancellationToken = default)
-        {
-            if (advice == null)
-                throw new ArgumentNullException(nameof(advice));
-            SetupDownloadLocation location = await locator.LocateAsync(advice.Installation.AppId, cancellationToken);
-            return advice.WithLocation(location);
-        }
-
-        /// <summary>Opens the download page of the advice in the default browser (contract 4.3 step 4).</summary>
+        /// <summary>Opens the download page of the advice in the default browser (contract 4.3 point 2), without a request.</summary>
         public DownloadPageResult OpenDownloadPage(RepairAdvice advice)
         {
             if (advice == null)

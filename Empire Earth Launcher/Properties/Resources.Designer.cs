@@ -785,15 +785,6 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to the server named an address that is not allowed.
-        /// </summary>
-        internal static string FailureUrlRejected {
-            get {
-                return ResourceManager.GetString("FailureUrlRejected", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to {0}: Game Bit Depth ({1}) differs from Texture Bit Depth ({2}); the main menu can turn white and unr[rest of string was truncated].
         /// </summary>
         internal static string FindingBitDepthMismatchFormat {
@@ -3344,24 +3335,6 @@ namespace Empire_Earth_Launcher.Properties {
             }
         }
 
-        /// <summary>
-        ///   Looks up a localized string similar to No address from the update server ({0}); this is the general download page..
-        /// </summary>
-        internal static string RepairFallbackFormat {
-            get {
-                return ResourceManager.GetString("RepairFallbackFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Asking the update server for the current setup....
-        /// </summary>
-        internal static string RepairLocating {
-            get {
-                return ResourceManager.GetString("RepairLocating", resourceCulture);
-            }
-        }
-        
         /// <summary>
         ///   Looks up a localized string similar to Open download page.
         /// </summary>

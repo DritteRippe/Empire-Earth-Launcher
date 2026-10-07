@@ -769,35 +769,19 @@ namespace Empire_Earth_Launcher
         }
 
         /// <summary>Why the update API gave no usable answer, as a part of a sentence.</summary>
-        internal static string Failure(FallbackReason reason)
+        internal static string Failure(UpdateApiFailure reason)
         {
             switch (reason)
             {
-                case FallbackReason.Timeout:
+                case UpdateApiFailure.Timeout:
                     return Resources.FailureTimeout;
-                case FallbackReason.TlsError:
+                case UpdateApiFailure.TlsError:
                     return Resources.FailureTls;
-                case FallbackReason.StatusNotOk:
+                case UpdateApiFailure.StatusNotOk:
                     return Resources.FailureStatus;
-                case FallbackReason.UrlRejected:
-                    return Resources.FailureUrlRejected;
                 default:
                     return Resources.FailureNetwork;
             }
-        }
-
-        /// <summary>
-        /// The note of the repair advice when the fixed download page is used because the update API gave no address
-        /// (contract 4.3 step 3, "no silent fallbacks"); null for an address of the API, for an installation without an
-        /// AppId (the fixed page is its page) and before the API was asked.
-        /// </summary>
-        internal static string DownloadFallback(SetupDownloadLocation location)
-        {
-            if (location == null)
-                throw new ArgumentNullException(nameof(location));
-            if (location.IsFromUpdateApi || location.Reason == FallbackReason.NoAppId || location.Reason == FallbackReason.NotAsked)
-                return null;
-            return string.Format(CultureInfo.CurrentCulture, Resources.RepairFallbackFormat, Failure(location.Reason));
         }
 
         // --- Maintenance tools (L-WP8) -------------------------------------------------------------------------------
@@ -1259,8 +1243,8 @@ namespace Empire_Earth_Launcher
                 return Resources.NetworkApiNotAsked;
             if (response.Outcome == HttpsOutcome.Answered)
                 return string.Format(CultureInfo.CurrentCulture, Resources.NetworkApiAnsweredFormat, response.StatusCode);
-            FallbackReason reason = response.Outcome == HttpsOutcome.Timeout ? FallbackReason.Timeout
-                : response.Outcome == HttpsOutcome.TlsError ? FallbackReason.TlsError : FallbackReason.NetworkError;
+            UpdateApiFailure reason = response.Outcome == HttpsOutcome.Timeout ? UpdateApiFailure.Timeout
+                : response.Outcome == HttpsOutcome.TlsError ? UpdateApiFailure.TlsError : UpdateApiFailure.NetworkError;
             return string.Format(CultureInfo.CurrentCulture, Resources.NetworkApiNoAnswerFormat, Failure(reason));
         }
 

@@ -127,8 +127,7 @@ namespace Empire_Earth_Launcher
         /// The repair advice for the selected installation (contract 4.4): with the files and the antivirus exception
         /// first when the latest report offers the repair (Damaged, Incomplete, Unknown of a community installation); for a
         /// missing program the advice of a damaged installation; otherwise the advice on request. Null without an
-        /// installation. The download location is the fixed page until <see cref="UpdateModel.LocateAsync"/> asked the
-        /// update API.
+        /// installation. The download page is the one of the installation's product (contract 4.3, no request).
         /// </summary>
         public RepairAdvice CreateRepairAdvice()
         {

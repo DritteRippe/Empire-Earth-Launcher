@@ -649,7 +649,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Installation installation = PlayInstallation();
             IntegrityReport unknown = IntegrityReport.Unknown(installation, IntegrityCheckKind.Quick, UnknownReason.NoManifest);
             var update = new VersionCheckResult(installation, VersionKind.Game, "2.0.0.5", VersionCheckOutcome.UpdateAvailable, "2.0.1",
-                FallbackReason.None);
+                UpdateApiFailure.None);
 
             Assert.That(Texts.RepairReasonText(RepairAdvice.ForIntegrity(unknown), unknown), Does.StartWith("The last run of the setup"));
             Assert.That(Texts.RepairReasonText(RepairAdvice.ForUpdate(update), null), Is.EqualTo("Game version 2.0.0.5: version 2.0.1 is available."));
@@ -669,7 +669,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
         {
             Installation installation = PlayInstallation();
             VersionCheckResult Result(VersionKind kind, VersionCheckOutcome outcome, string latest = null,
-                FallbackReason failure = FallbackReason.None)
+                UpdateApiFailure failure = UpdateApiFailure.None)
             {
                 return new VersionCheckResult(installation, kind, kind == VersionKind.Game ? "2.0.0.5" : "2.0.0", outcome, latest, failure);
             }
@@ -681,30 +681,20 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(Texts.VersionResult(Result(VersionKind.Setup, VersionCheckOutcome.UpdateAvailable, "2.1.0")),
                 Is.EqualTo("Setup version 2.0.0: version 2.1.0 is available."));
             Assert.That(Texts.VersionResult(Result(VersionKind.Game, VersionCheckOutcome.NotPossible)), Does.StartWith("No version check:"));
-            Assert.That(Texts.VersionResult(Result(VersionKind.Game, VersionCheckOutcome.Failed, null, FallbackReason.TlsError)),
+            Assert.That(Texts.VersionResult(Result(VersionKind.Game, VersionCheckOutcome.Failed, null, UpdateApiFailure.TlsError)),
                 Is.EqualTo("The update server could not be asked (the secure connection failed); details in the log."));
             Assert.That(Texts.VersionResults(Result(VersionKind.Game, VersionCheckOutcome.NotPossible),
                 Result(VersionKind.Setup, VersionCheckOutcome.NotPossible)), Does.Not.Contain(Environment.NewLine), "said once");
             Assert.That(Texts.VersionResults(null, null), Is.Empty);
         }
 
-        [TestCase(FallbackReason.Timeout, "no answer within 10 seconds")]
-        [TestCase(FallbackReason.TlsError, "the secure connection failed")]
-        [TestCase(FallbackReason.NetworkError, "no connection")]
-        [TestCase(FallbackReason.StatusNotOk, "unexpected answer of the server")]
-        [TestCase(FallbackReason.UrlRejected, "the server named an address that is not allowed")]
-        public void DownloadFallback_Contract_4_3_SaysWhyTheFixedPageIsUsed(FallbackReason reason, string expected)
+        [TestCase(UpdateApiFailure.Timeout, "no answer within 10 seconds")]
+        [TestCase(UpdateApiFailure.TlsError, "the secure connection failed")]
+        [TestCase(UpdateApiFailure.NetworkError, "no connection")]
+        [TestCase(UpdateApiFailure.StatusNotOk, "unexpected answer of the server")]
+        public void Failure_Contract_4_5_SaysWhyTheUpdateApiGaveNoAnswer(UpdateApiFailure reason, string expected)
         {
-            Assert.That(Texts.DownloadFallback(SetupDownloadLocation.FixedPage(reason, "detail")), Is.EqualTo(
-                "No address from the update server (" + expected + "); this is the general download page."));
-        }
-
-        [Test]
-        public void DownloadFallback_NoNoteForTheAddressOfTheApi_NoAppId_OrBeforeAsking()
-        {
-            Assert.That(Texts.DownloadFallback(SetupDownloadLocation.FromUpdateApi("https://empireearth.eu/files/setup.exe")), Is.Null);
-            Assert.That(Texts.DownloadFallback(SetupDownloadLocation.FixedPage(FallbackReason.NoAppId, null)), Is.Null);
-            Assert.That(Texts.DownloadFallback(SetupDownloadLocation.NotAsked), Is.Null);
+            Assert.That(Texts.Failure(reason), Is.EqualTo(expected));
         }
     }
 }

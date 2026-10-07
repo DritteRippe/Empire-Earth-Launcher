@@ -259,7 +259,7 @@ namespace Empire_Earth_Launcher
         private void versionCheckKryptonButton_Click(object sender, EventArgs e)
         {
             uiOperation.Run(versionCheckKryptonButton,
-                () => ToolsUserControl.CheckVersionsAsync(this, false, updates, themeService, uiOperation), ShowChecks);
+                () => ToolsUserControl.CheckVersionsAsync(this, false, updates, themeService), ShowChecks);
         }
 
         /// <summary>"Repair..." opens the repair advice with the files of the report; "Details" the Tools page.</summary>
@@ -272,8 +272,7 @@ namespace Empire_Earth_Launcher
                 return;
             }
             RepairAdvice advice = integrity.CreateRepairAdvice();
-            RepairAdviceDialog.ShowAdvice(FindForm(), themeService, advice, Texts.RepairReasonText(advice, report), updates,
-                uiOperation);
+            RepairAdviceDialog.ShowAdvice(FindForm(), themeService, advice, Texts.RepairReasonText(advice, report), updates);
         }
 
         // --- Play (L-WP6) ----------------------------------------------------------------------------------------------
@@ -373,7 +372,7 @@ namespace Empire_Earth_Launcher
                 case StartOutcome.Damaged:
                 case StartOutcome.BlockedByAntivirus:
                     RepairAdviceDialog.ShowAdvice(FindForm(), themeService, result.RepairAdvice, Texts.StartMessage(result),
-                        updates, uiOperation);
+                        updates);
                     return;
                 case StartOutcome.ElevationCancelled:
                 case StartOutcome.SetupRunning:

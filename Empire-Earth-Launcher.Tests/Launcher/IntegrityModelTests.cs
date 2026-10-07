@@ -159,7 +159,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(advice.Reason, Is.EqualTo(RepairReason.IntegrityFindings));
             Assert.That(advice.Files.Select(file => file.Path), Is.EqualTo(new[] { "Empire Earth/Data/file0001.dat" }));
             Assert.That(advice.Steps.First(), Is.EqualTo(RepairStep.AddAntivirusException));
-            Assert.That(advice.IsFixedPage, Is.True, "the update API is asked when the advice is shown");
+            Assert.That(advice.DownloadUrl, Is.EqualTo(SetupDownloadPage.For(advice.Installation)), "the page of the product, no request");
         }
 
         [Test]

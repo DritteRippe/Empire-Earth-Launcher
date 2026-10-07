@@ -11,8 +11,8 @@ using NUnit.Framework;
 namespace Empire_Earth_Launcher.Tests.Core.Repair
 {
     /// <summary>
-    /// <see cref="RepairAdvice"/>: the steps of contract 4.4 per kind, product and reason, the fixed download page of contract
-    /// 4.3 step 3, and opening it through the shell without elevation (R9, REV-11).
+    /// <see cref="RepairAdvice"/>: the steps of contract 4.4 per kind, product and reason, the download page of the product
+    /// (contract 4.3), and opening it through the shell without elevation and without a request (R9, REV-11).
     /// </summary>
     [TestFixture]
     public class RepairAdviceTests
@@ -118,15 +118,34 @@ namespace Empire_Earth_Launcher.Tests.Core.Repair
         }
 
         [Test]
-        public void Contract_4_3_TheDownloadPageIsTheFixedHttpsPage()
+        public void Contract_4_3_TheDownloadPageIsTheHttpsPageOfTheProduct()
         {
-            RepairAdvice advice = RepairAdvice.For(Community(Product.NeoEE, NeoRoot, InstallMode.Admin), RepairReason.Requested);
+            RepairAdvice neo = RepairAdvice.For(Community(Product.NeoEE, NeoRoot, InstallMode.Admin), RepairReason.Requested);
+            RepairAdvice ee = RepairAdvice.For(Community(Product.EE, EERoot, InstallMode.User), RepairReason.Requested);
+            RepairAdvice foreign = RepairAdvice.For(Foreign(), RepairReason.Requested);
 
-            Assert.That(advice.DownloadUrl, Is.EqualTo("https://empireearth.eu/download"));
-            Assert.That(advice.IsFixedPage, Is.True);
-            var uri = new Uri(advice.DownloadUrl);
-            Assert.That(uri.Scheme, Is.EqualTo(Uri.UriSchemeHttps));
-            Assert.That(uri.Host, Is.EqualTo("empireearth.eu"));
+            Assert.That(neo.DownloadUrl, Is.EqualTo("https://empireearth.eu/download/neo/"));
+            Assert.That(ee.DownloadUrl, Is.EqualTo("https://empireearth.eu/download/ee/"));
+            Assert.That(foreign.DownloadUrl, Is.EqualTo("https://empireearth.eu/download/"));
+            foreach (RepairAdvice advice in new[] { neo, ee, foreign })
+            {
+                var uri = new Uri(advice.DownloadUrl);
+                Assert.That(uri.Scheme, Is.EqualTo(Uri.UriSchemeHttps));
+                Assert.That(uri.Host, Is.EqualTo("empireearth.eu"));
+            }
+        }
+
+        [Test]
+        public void Contract_4_3_EveryReason_HasThePageAtOnce()
+        {
+            Installation installation = Community(Product.EE, EERoot, InstallMode.User);
+            var update = new VersionCheckResult(installation, VersionKind.Game, "2.0.0.5", VersionCheckOutcome.UpdateAvailable,
+                "2.0.1.0", UpdateApiFailure.None);
+
+            Assert.That(RepairAdvice.For(installation, RepairReason.Requested).DownloadUrl, Is.EqualTo(SetupDownloadPage.EmpireEarth));
+            Assert.That(RepairAdvice.ForUpdate(update).DownloadUrl, Is.EqualTo(SetupDownloadPage.EmpireEarth));
+            Assert.That(RepairAdvice.ForIntegrity(IntegrityReport.Unknown(installation, IntegrityCheckKind.Quick,
+                UnknownReason.OlderSetupRanAfter)).DownloadUrl, Is.EqualTo(SetupDownloadPage.EmpireEarth));
         }
 
         [Test]
@@ -139,10 +158,10 @@ namespace Empire_Earth_Launcher.Tests.Core.Repair
             DownloadPageResult result = advice.OpenDownloadPage(starter, logger);
 
             Assert.That(result, Is.EqualTo(DownloadPageResult.Opened));
-            Assert.That(starter.OpenedUrls, Is.EqualTo(new[] { RepairAdvice.DownloadPageUrl }));
+            Assert.That(starter.OpenedUrls, Is.EqualTo(new[] { "https://empireearth.eu/download/neo/" }));
             Assert.That(starter.Started, Is.Empty, "the launcher never starts the setup itself (contract 4.1)");
-            Assert.That(logger.Messages.Single(), Does.Contain("opening the download page https://empireearth.eu/download")
-                                                      .And.Contain("fixed page"));
+            Assert.That(logger.Messages.Single(), Does.Contain("opening the download page https://empireearth.eu/download/neo/")
+                                                      .And.Contain("contract 4.3, NeoEE page"));
         }
 
         [TestCase(1155, TestName = "OpenDownloadPage_NoBrowser_IsAResult")]
@@ -223,7 +242,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Repair
         public void Contract_4_5_AnAvailableUpdate_UsesTheHandOff()
         {
             var update = new VersionCheckResult(Community(Product.NeoEE, NeoRoot, InstallMode.Admin), VersionKind.Game, "2.0.0.5",
-                VersionCheckOutcome.UpdateAvailable, "2.0.1.0", FallbackReason.None);
+                VersionCheckOutcome.UpdateAvailable, "2.0.1.0", UpdateApiFailure.None);
 
             RepairAdvice advice = RepairAdvice.ForUpdate(update);
 
@@ -234,7 +253,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Repair
                 RepairStep.CloseGameAndRunSetup, RepairStep.KeepFolderAndMode, RepairStep.KeepCdKeysTask
             }));
             Assert.Throws<ArgumentException>(() => RepairAdvice.ForUpdate(new VersionCheckResult(update.Installation,
-                VersionKind.Game, "2.0.0.5", VersionCheckOutcome.UpToDate, null, FallbackReason.None)));
+                VersionKind.Game, "2.0.0.5", VersionCheckOutcome.UpToDate, null, UpdateApiFailure.None)));
         }
 
         [Test]
@@ -247,26 +266,16 @@ namespace Empire_Earth_Launcher.Tests.Core.Repair
         }
 
         [Test]
-        public void Contract_4_3_WithLocation_UsesTheUrlOfTheUpdateApi()
+        public void Contract_4_3_ThePageOfAnInstallationWithoutAnAppId_NeedsNoRequestEither()
         {
-            var client = new FakeHttpsClient().Answer(
-                "https://api.empireearth.eu/setup/?product=00000000-0000-0000-0000-000000000AEE", 200,
-                "https://files.empireearth.eu/setup.exe");
-            var logger = new RecordingLogger();
-            RepairAdvice advice = RepairAdvice.For(Community(Product.NeoEE, NeoRoot, InstallMode.Admin), RepairReason.Requested);
-            Assert.That(advice.Location.Reason, Is.EqualTo(FallbackReason.NotAsked));
-
-            RepairAdvice located = advice.WithLocation(
-                new SetupDownloadLocator(client, logger).LocateAsync("00000000-0000-0000-0000-000000000AEE").Result);
             var starter = new FakeProcessStarter();
-            located.OpenDownloadPage(starter, logger);
+            var logger = new RecordingLogger();
+            RepairAdvice advice = RepairAdvice.For(Foreign(), RepairReason.Requested);
 
-            Assert.That(located.DownloadUrl, Is.EqualTo("https://files.empireearth.eu/setup.exe"));
-            Assert.That(located.IsFixedPage, Is.False);
-            Assert.That(located.Steps, Is.EqualTo(advice.Steps));
-            Assert.That(starter.OpenedUrls, Is.EqualTo(new[] { "https://files.empireearth.eu/setup.exe" }));
-            Assert.That(logger.Messages.Last(), Does.Contain("named by the update API"));
-            Assert.That(advice.DownloadUrl, Is.EqualTo(RepairAdvice.DownloadPageUrl), "the original advice is unchanged");
+            advice.OpenDownloadPage(starter, logger);
+
+            Assert.That(starter.OpenedUrls, Is.EqualTo(new[] { "https://empireearth.eu/download/" }));
+            Assert.That(logger.Messages.Last(), Does.Contain("contract 4.3, general page"));
         }
 
         [Test]
@@ -277,7 +286,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Repair
 
             Assert.That(advice.ToString(), Is.EqualTo("ProgramMissing for EE " + EERoot + " (missing Empire Earth.exe): " +
                                                       "AddAntivirusException, CloseGameAndRunSetup, KeepFolderAndMode; " +
-                                                      "https://empireearth.eu/download"));
+                                                      "https://empireearth.eu/download/ee/"));
         }
     }
 }
