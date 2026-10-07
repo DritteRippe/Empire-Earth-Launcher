@@ -1279,4 +1279,88 @@ Die alten Dateien werden vorher in den Sicherungsordner kopiert. Ersetzen?</valu
   <data name="OpenVirtualStoreFolderFailedFormat" xml:space="preserve">
     <value>Der VirtualStore-Ordner konnte nicht geöffnet werden: {0}</value>
   </data>
+  <data name="NavigationGraphics" xml:space="preserve">
+    <value>Grafik</value>
+  </data>
+  <data name="GraphicsWindowSizeHeading" xml:space="preserve">
+    <value>Spielauflösung</value>
+  </data>
+  <data name="GraphicsWindowSizeInfo" xml:space="preserve">
+    <value>Wählen Sie die Größe des Spielfensters. Der Launcher speichert sie nach einer Sicherung in den Einstellungen Ihres Windows-Kontos (Game Window Width und Game Window Height); sonst ändert sich nichts. Es werden Größen bis 1920x1080 angeboten, weil das Spiel darüber abstürzen kann. Die Menüs des Spiels sind für 4:3 (1024x768) gemacht; bei einer Breitbildgröße kann das Bild dort abgeschnitten sein. Eine Reparatur oder Aktualisierung mit dem Setup schreibt wieder die Größe Ihres Bildschirms; wählen Sie dann erneut. Das Spiel hat außerdem eine eigene Auflösungsoption; es gilt, was zuletzt gespeichert wurde.</value>
+  </data>
+  <data name="GraphicsWindowSizeCurrentFormat" xml:space="preserve">
+    <value>Fenstergröße von {0}: {1}</value>
+  </data>
+  <data name="GraphicsWindowSizeUnknownFormat" xml:space="preserve">
+    <value>Fenstergröße von {0}: noch nicht gesetzt</value>
+  </data>
+  <data name="GraphicsWindowSizeLabel" xml:space="preserve">
+    <value>Auflösung:</value>
+  </data>
+  <data name="GraphicsWindowSizeApplyButton" xml:space="preserve">
+    <value>Diese Größe verwenden</value>
+  </data>
+  <data name="GraphicsRecommendedTag" xml:space="preserve">
+    <value>empfohlen</value>
+  </data>
+  <data name="GraphicsWindowSizeScalingFormat" xml:space="preserve">
+    <value>Windows skaliert diesen Bildschirm auf {0} %. Das Spiel sieht dann einen kleineren Bildschirm; passt das Fenster nicht, bietet die Seite Einstellungen die Kompatibilitätsoption HIGHDPIAWARE an.</value>
+  </data>
+  <data name="GraphicsWindowSizeDoneFormat" xml:space="preserve">
+    <value>Das Spielfenster hat jetzt die Größe {0}. Die bisherigen Werte sind gesichert in {1}.</value>
+  </data>
+  <data name="GraphicsWindowSizeUnchangedFormat" xml:space="preserve">
+    <value>Das Spielfenster hat schon die Größe {0}; es wurde nichts geändert.</value>
+  </data>
+  <data name="GraphicsWrapperHeading" xml:space="preserve">
+    <value>DirectX-Wrapper</value>
+  </data>
+  <data name="GraphicsWrapperInstalledFormat" xml:space="preserve">
+    <value>Installiert: {0}</value>
+  </data>
+  <data name="GraphicsWrapperNone" xml:space="preserve">
+    <value>Nativ (kein Wrapper)</value>
+  </data>
+  <data name="GraphicsWrapperDirectX7" xml:space="preserve">
+    <value>DirectX 7 (DDrawCompat)</value>
+  </data>
+  <data name="GraphicsWrapperDirectX9" xml:space="preserve">
+    <value>DirectX 9</value>
+  </data>
+  <data name="GraphicsWrapperDgVoodooFormat" xml:space="preserve">
+    <value>DirectX {0} (dgVoodoo), API-Level {1}</value>
+  </data>
+  <data name="GraphicsWrapperUnknownFormat" xml:space="preserve">
+    <value>ein Wrapper, den dieser Launcher nicht kennt ({0})</value>
+  </data>
+  <data name="GraphicsWrapperUnnamed" xml:space="preserve">
+    <value>ein DirectX-Wrapper</value>
+  </data>
+  <data name="GraphicsWrapperFileFormat" xml:space="preserve">
+    <value>eine Wrapper-Datei ({0})</value>
+  </data>
+  <data name="GraphicsWrapperGuessed" xml:space="preserve">
+    <value>Kein Setup-Eintrag nennt die Komponenten; das wird aus den Dateien im Spielordner geschlossen.</value>
+  </data>
+  <data name="GraphicsConfHeadingFormat" xml:space="preserve">
+    <value>dgVoodoo.conf von {0} (nur zur Anzeige):</value>
+  </data>
+  <data name="GraphicsConfVirtualStore" xml:space="preserve">
+    <value>Das Spiel liest die Kopie im VirtualStore.</value>
+  </data>
+  <data name="GraphicsConfNotSet" xml:space="preserve">
+    <value>nicht gesetzt</value>
+  </data>
+  <data name="GraphicsConfMissingFormat" xml:space="preserve">
+    <value>dgVoodoo.conf von {0} wurde nicht gefunden.</value>
+  </data>
+  <data name="GraphicsConfUnreadableFormat" xml:space="preserve">
+    <value>dgVoodoo.conf von {0} konnte nicht gelesen werden.</value>
+  </data>
+  <data name="GraphicsWrapperNote" xml:space="preserve">
+    <value>Der Launcher zeigt den Wrapper und seine Bildschirmmodus-Schlüssel nur an. Den Wrapper zu wechseln heißt, Spieldateien hinzuzufügen oder zu entfernen, und dgVoodoo.conf schreibt das Setup; beides macht nur das Setup.</value>
+  </data>
+  <data name="GraphicsWrapperChangeInfo" xml:space="preserve">
+    <value>Um den Wrapper zu wechseln, führen Sie das Setup erneut aus: Wählen Sie in der Suite „Erweitert: Das Setup jedes Spiels selbst durchgehen“, dann „Benutzerdefinierte Installationseinstellungen“ und unter „DirectX-Wrapper“ den Wrapper. Für gar keinen Wrapper wählen Sie „Empfohlene Einstellungen“ und auf der Seite der Grafikkarte „Nativ“. Eine Reparatur oder Aktualisierung mit dem Setup setzt auch die Spielauflösung auf die empfohlene Größe zurück.</value>
+  </data>
 </root>

@@ -1699,4 +1699,116 @@ The old files are copied to the backup folder first. Replace them?</value>
     <value>The VirtualStore folder could not be opened: {0}</value>
     <comment>Message when the Explorer cannot open it. {0}: the error.</comment>
   </data>
+  <data name="NavigationGraphics" xml:space="preserve">
+    <value>Graphics</value>
+    <comment>Navigation button of the Graphics page; at most about 14 characters.</comment>
+  </data>
+  <data name="GraphicsWindowSizeHeading" xml:space="preserve">
+    <value>Game resolution</value>
+    <comment>Heading of the game window size on the Graphics page.</comment>
+  </data>
+  <data name="GraphicsWindowSizeInfo" xml:space="preserve">
+    <value>Choose the size of the game window. The launcher saves it in the settings of your Windows account (Game Window Width and Game Window Height) after a backup; nothing else changes. Sizes up to 1920x1080 are offered because the game can crash above that. The menus of the game are made for 4:3 (1024x768); with a widescreen size the picture can be cut off there. A repair or update with the setup writes the size of your screen again, then choose it again. The game also has its own resolution option; the one saved last counts.</value>
+    <comment>Explanation under the heading of the Graphics page. 1920x1080 is the limit of contract 3.3; the registry value names are not translated.</comment>
+  </data>
+  <data name="GraphicsWindowSizeCurrentFormat" xml:space="preserve">
+    <value>Window size of {0}: {1}</value>
+    <comment>One line per game of the selected installation. {0}: the game; {1}: the size, e.g. 1920x1080.</comment>
+  </data>
+  <data name="GraphicsWindowSizeUnknownFormat" xml:space="preserve">
+    <value>Window size of {0}: not set yet</value>
+    <comment>Like the line above when the game has no window size in the registry yet. {0}: the game.</comment>
+  </data>
+  <data name="GraphicsWindowSizeLabel" xml:space="preserve">
+    <value>Resolution:</value>
+    <comment>Label of the list of sizes; at most about 12 characters.</comment>
+  </data>
+  <data name="GraphicsWindowSizeApplyButton" xml:space="preserve">
+    <value>Use this size</value>
+    <comment>Button that saves the chosen size; at most about 28 characters.</comment>
+  </data>
+  <data name="GraphicsRecommendedTag" xml:space="preserve">
+    <value>recommended</value>
+    <comment>Added in brackets to the size of the list that fits this computer best, e.g. 1920x1080 (16:9, recommended).</comment>
+  </data>
+  <data name="GraphicsWindowSizeScalingFormat" xml:space="preserve">
+    <value>Windows scales this screen to {0} %. The game then sees a smaller screen; if the window does not fit, the Settings page offers the compatibility option HIGHDPIAWARE.</value>
+    <comment>Note on the Graphics page when the screen is scaled (ADR 0011). {0}: the scaling in percent. HIGHDPIAWARE is a compatibility option of Windows, not translated.</comment>
+  </data>
+  <data name="GraphicsWindowSizeDoneFormat" xml:space="preserve">
+    <value>The game window is set to {0}. The previous values are saved in {1}.</value>
+    <comment>Result of the button of the Graphics page. {0}: the size; {1}: the backup folder.</comment>
+  </data>
+  <data name="GraphicsWindowSizeUnchangedFormat" xml:space="preserve">
+    <value>The game window already has the size {0}; nothing was changed.</value>
+    <comment>Result of the button of the Graphics page when every game has the size already. {0}: the size.</comment>
+  </data>
+  <data name="GraphicsWrapperHeading" xml:space="preserve">
+    <value>DirectX wrapper</value>
+    <comment>Heading of the DirectX wrapper section of the Graphics page.</comment>
+  </data>
+  <data name="GraphicsWrapperInstalledFormat" xml:space="preserve">
+    <value>Installed: {0}</value>
+    <comment>The wrapper the setup installed. {0}: its name from the texts below.</comment>
+  </data>
+  <data name="GraphicsWrapperNone" xml:space="preserve">
+    <value>Native (no wrapper)</value>
+    <comment>Name of the case without a DirectX wrapper; the setup calls it Native.</comment>
+  </data>
+  <data name="GraphicsWrapperDirectX7" xml:space="preserve">
+    <value>DirectX 7 (DDrawCompat)</value>
+    <comment>Name of the wrapper of the setup component dx7.</comment>
+  </data>
+  <data name="GraphicsWrapperDirectX9" xml:space="preserve">
+    <value>DirectX 9</value>
+    <comment>Name of the wrapper of the setup component dx9.</comment>
+  </data>
+  <data name="GraphicsWrapperDgVoodooFormat" xml:space="preserve">
+    <value>DirectX {0} (dgVoodoo), API level {1}</value>
+    <comment>Name of a dgVoodoo component of the setup, worded like the setup. {0}: the DirectX version (11 or 12); {1}: the API level (10, 10.1, 11 or 12).</comment>
+  </data>
+  <data name="GraphicsWrapperUnknownFormat" xml:space="preserve">
+    <value>a wrapper this launcher does not know ({0})</value>
+    <comment>Name of a wrapper component of the setup that the launcher does not know. {0}: the component name.</comment>
+  </data>
+  <data name="GraphicsWrapperUnnamed" xml:space="preserve">
+    <value>a DirectX wrapper</value>
+    <comment>Name of a wrapper whose component the setup record does not name.</comment>
+  </data>
+  <data name="GraphicsWrapperFileFormat" xml:space="preserve">
+    <value>a wrapper file ({0})</value>
+    <comment>Name of a wrapper that was recognized by a file in the game folder only. {0}: the file name, e.g. DDraw.dll.</comment>
+  </data>
+  <data name="GraphicsWrapperGuessed" xml:space="preserve">
+    <value>No setup record names the components; this is judged from the files in the game folder.</value>
+    <comment>Added below the wrapper when it was judged from files.</comment>
+  </data>
+  <data name="GraphicsConfHeadingFormat" xml:space="preserve">
+    <value>dgVoodoo.conf of {0} (shown only):</value>
+    <comment>Heading of the screen mode keys of one game. {0}: the game.</comment>
+  </data>
+  <data name="GraphicsConfVirtualStore" xml:space="preserve">
+    <value>The game reads the copy in the VirtualStore.</value>
+    <comment>Added to the heading above when the file was read from the VirtualStore copy.</comment>
+  </data>
+  <data name="GraphicsConfNotSet" xml:space="preserve">
+    <value>not set</value>
+    <comment>Value of a key that dgVoodoo.conf does not have.</comment>
+  </data>
+  <data name="GraphicsConfMissingFormat" xml:space="preserve">
+    <value>dgVoodoo.conf of {0} was not found.</value>
+    <comment>{0}: the game.</comment>
+  </data>
+  <data name="GraphicsConfUnreadableFormat" xml:space="preserve">
+    <value>dgVoodoo.conf of {0} could not be read.</value>
+    <comment>{0}: the game.</comment>
+  </data>
+  <data name="GraphicsWrapperNote" xml:space="preserve">
+    <value>The launcher only shows the wrapper and its screen mode keys. Changing the wrapper means adding or removing game files, and the setup writes dgVoodoo.conf, so only the setup does either.</value>
+    <comment>Explanation below the wrapper. The launcher does not change game files (contract 2.5, ADR 0014).</comment>
+  </data>
+  <data name="GraphicsWrapperChangeInfo" xml:space="preserve">
+    <value>To change the wrapper, run the setup again: in the suite choose "Advanced: go through the setup of each game myself", then "Custom install settings", and pick the wrapper under "DirectX Wrapper". For no wrapper at all choose "Recommended settings" and then "Native" on the graphics card page. A repair or update with the setup also sets the game resolution back to the recommended size.</value>
+    <comment>Hand-off to the setup. The quoted names are the texts of the suite and of the setup wizard in the same language (suite_messages.iss SuiteAdvanced, messages.iss MIQP_Custom, CompDxWrapper, MIQP_Recommended, GPUIQP_Native).</comment>
+  </data>
 </root>

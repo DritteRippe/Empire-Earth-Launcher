@@ -5,6 +5,7 @@ using System.Linq;
 using Empire_Earth_Launcher.Core.Contract;
 using Empire_Earth_Launcher.Core.Diagnostics;
 using Empire_Earth_Launcher.Core.GameSettings;
+using Empire_Earth_Launcher.Core.Graphics;
 using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Backup;
 using Empire_Earth_Launcher.Core.Integrity;
@@ -1328,6 +1329,130 @@ namespace Empire_Earth_Launcher
                 default:
                     return string.Format(CultureInfo.CurrentCulture, Resources.ReportSaveFailedFormat, result.Problem);
             }
+        }
+
+        // --- Graphics page (launcher 1.1.0, ADR 0014) -------------------------------------------------------------------
+
+        /// <summary>
+        /// A size of the list of the graphics page: <c>1600x900 (16:9, recommended)</c>; the shape only for the usual ones
+        /// (they are ratios, not words), "recommended" in the UI language for the size that fits this computer best.
+        /// </summary>
+        internal static string ResolutionChoice(ResolutionOption option)
+        {
+            if (option == null)
+                throw new ArgumentNullException(nameof(option));
+            var tags = new List<string>();
+            switch (option.Aspect)
+            {
+                case AspectKind.FourByThree:
+                    tags.Add("4:3");
+                    break;
+                case AspectKind.FiveByFour:
+                    tags.Add("5:4");
+                    break;
+                case AspectKind.SixteenByTen:
+                    tags.Add("16:10");
+                    break;
+                case AspectKind.SixteenByNine:
+                    tags.Add("16:9");
+                    break;
+            }
+            if (option.IsRecommended)
+                tags.Add(Resources.GraphicsRecommendedTag);
+            return tags.Count == 0 ? option.Size.ToString() : option.Size + " (" + string.Join(", ", tags) + ")";
+        }
+
+        /// <summary>The window size of one game, or "not set yet" if the registry has none.</summary>
+        internal static string WindowSize(Game game, ScreenSize size)
+        {
+            if (game == null)
+                throw new ArgumentNullException(nameof(game));
+            return size.IsEmpty
+                ? string.Format(CultureInfo.CurrentCulture, Resources.GraphicsWindowSizeUnknownFormat, GameName(game))
+                : string.Format(CultureInfo.CurrentCulture, Resources.GraphicsWindowSizeCurrentFormat, GameName(game), size);
+        }
+
+        /// <summary>The result of "Use this size": what was set (and where the backup is), that nothing changed, or why not.</summary>
+        internal static string WindowSizeResult(GameSettingsResult result, ScreenSize size)
+        {
+            if (result == null)
+                throw new ArgumentNullException(nameof(result));
+            if (!result.IsDone)
+                return GameSettingsResult(result);
+            return result.Changes.Count == 0 || result.BackupFolder == null
+                ? string.Format(CultureInfo.CurrentCulture, Resources.GraphicsWindowSizeUnchangedFormat, size)
+                : string.Format(CultureInfo.CurrentCulture, Resources.GraphicsWindowSizeDoneFormat, size, result.BackupFolder);
+        }
+
+        /// <summary>The name of the wrapper the setup installed, worded like the setup's own component captions.</summary>
+        internal static string WrapperName(WrapperInfo wrapper)
+        {
+            if (wrapper == null)
+                throw new ArgumentNullException(nameof(wrapper));
+            switch (wrapper.Kind)
+            {
+                case WrapperKind.None:
+                    return Resources.GraphicsWrapperNone;
+                case WrapperKind.DirectX7:
+                    return Resources.GraphicsWrapperDirectX7;
+                case WrapperKind.DirectX9:
+                    return Resources.GraphicsWrapperDirectX9;
+                case WrapperKind.DgVoodoo:
+                    return string.Format(CultureInfo.CurrentCulture, Resources.GraphicsWrapperDgVoodooFormat, wrapper.DirectXVersion,
+                        wrapper.ApiLevel);
+                default:
+                    return wrapper.WrapperFile != null
+                        ? string.Format(CultureInfo.CurrentCulture, Resources.GraphicsWrapperFileFormat, wrapper.WrapperFile)
+                        : wrapper.Component != null
+                            ? string.Format(CultureInfo.CurrentCulture, Resources.GraphicsWrapperUnknownFormat, wrapper.Component)
+                            : Resources.GraphicsWrapperUnnamed;
+            }
+        }
+
+        /// <summary>"Installed: ..." and, if the answer was judged from files, the remark that no setup record names it.</summary>
+        internal static string WrapperInstalled(WrapperInfo wrapper)
+        {
+            if (wrapper == null)
+                throw new ArgumentNullException(nameof(wrapper));
+            string text = string.Format(CultureInfo.CurrentCulture, Resources.GraphicsWrapperInstalledFormat, WrapperName(wrapper));
+            return wrapper.Source == WrapperSource.GameFolder ? text + Environment.NewLine + Resources.GraphicsWrapperGuessed : text;
+        }
+
+        /// <summary>
+        /// The <c>dgVoodoo.conf</c> of each game as lines of the output API and the screen mode keys (<c>FullScreenMode = true</c>);
+        /// a key the file does not have is "not set". Empty without a game to show.
+        /// </summary>
+        internal static string WrapperConfigs(IReadOnlyList<WrapperConfLine> configs)
+        {
+            if (configs == null)
+                throw new ArgumentNullException(nameof(configs));
+            var blocks = new List<string>();
+            foreach (WrapperConfLine line in configs)
+            {
+                string game = GameName(line.Game);
+                var lines = new List<string>();
+                switch (line.File.Status)
+                {
+                    case ConfigFileStatus.Missing:
+                        lines.Add(string.Format(CultureInfo.CurrentCulture, Resources.GraphicsConfMissingFormat, game));
+                        break;
+                    case ConfigFileStatus.Unreadable:
+                        lines.Add(string.Format(CultureInfo.CurrentCulture, Resources.GraphicsConfUnreadableFormat, game));
+                        break;
+                    default:
+                        lines.Add(string.Format(CultureInfo.CurrentCulture, Resources.GraphicsConfHeadingFormat, game));
+                        if (line.File.IsVirtualStoreCopy)
+                            lines.Add(Resources.GraphicsConfVirtualStore);
+                        foreach (string key in new[] { DgVoodooConf.OutputApiKey }.Concat(DgVoodooConf.ScreenModeKeys))
+                        {
+                            DgVoodooConfEntry entry = line.File.Conf.Find(key);
+                            lines.Add(key + " = " + (entry == null ? Resources.GraphicsConfNotSet : entry.Value));
+                        }
+                        break;
+                }
+                blocks.Add(string.Join(Environment.NewLine, lines));
+            }
+            return string.Join(Environment.NewLine + Environment.NewLine, blocks);
         }
     }
 }

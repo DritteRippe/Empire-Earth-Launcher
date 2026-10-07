@@ -88,6 +88,8 @@
     <Compile Include="ForegroundWindow.cs" />
     <Compile Include="DiagnosticsModel.cs" />
     <Compile Include="GameSettingsModel.cs" />
+    <Compile Include="GraphicsModel.cs" />
+    <Compile Include="GraphicsView.cs" />
     <Compile Include="InstallationService.cs" />
     <Compile Include="InstanceMessageWindow.cs" />
     <Compile Include="IntegrityModel.cs" />

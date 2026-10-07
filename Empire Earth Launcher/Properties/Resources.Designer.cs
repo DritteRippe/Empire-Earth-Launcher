@@ -1010,6 +1010,249 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to dgVoodoo.conf of {0} (shown only):.
+        /// </summary>
+        internal static string GraphicsConfHeadingFormat {
+            get {
+                return ResourceManager.GetString("GraphicsConfHeadingFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to dgVoodoo.conf of {0} was not found..
+        /// </summary>
+        internal static string GraphicsConfMissingFormat {
+            get {
+                return ResourceManager.GetString("GraphicsConfMissingFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to not set.
+        /// </summary>
+        internal static string GraphicsConfNotSet {
+            get {
+                return ResourceManager.GetString("GraphicsConfNotSet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to dgVoodoo.conf of {0} could not be read..
+        /// </summary>
+        internal static string GraphicsConfUnreadableFormat {
+            get {
+                return ResourceManager.GetString("GraphicsConfUnreadableFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The game reads the copy in the VirtualStore..
+        /// </summary>
+        internal static string GraphicsConfVirtualStore {
+            get {
+                return ResourceManager.GetString("GraphicsConfVirtualStore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to recommended.
+        /// </summary>
+        internal static string GraphicsRecommendedTag {
+            get {
+                return ResourceManager.GetString("GraphicsRecommendedTag", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use this size.
+        /// </summary>
+        internal static string GraphicsWindowSizeApplyButton {
+            get {
+                return ResourceManager.GetString("GraphicsWindowSizeApplyButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Window size of {0}: {1}.
+        /// </summary>
+        internal static string GraphicsWindowSizeCurrentFormat {
+            get {
+                return ResourceManager.GetString("GraphicsWindowSizeCurrentFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The game window is set to {0}. The previous values are saved in {1}..
+        /// </summary>
+        internal static string GraphicsWindowSizeDoneFormat {
+            get {
+                return ResourceManager.GetString("GraphicsWindowSizeDoneFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game resolution.
+        /// </summary>
+        internal static string GraphicsWindowSizeHeading {
+            get {
+                return ResourceManager.GetString("GraphicsWindowSizeHeading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Choose the size of the game window. The launcher saves it in the settings of your Windows account (G[rest of string was truncated].
+        /// </summary>
+        internal static string GraphicsWindowSizeInfo {
+            get {
+                return ResourceManager.GetString("GraphicsWindowSizeInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resolution:.
+        /// </summary>
+        internal static string GraphicsWindowSizeLabel {
+            get {
+                return ResourceManager.GetString("GraphicsWindowSizeLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows scales this screen to {0} %. The game then sees a smaller screen; if the window does not fit[rest of string was truncated].
+        /// </summary>
+        internal static string GraphicsWindowSizeScalingFormat {
+            get {
+                return ResourceManager.GetString("GraphicsWindowSizeScalingFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The game window already has the size {0}; nothing was changed..
+        /// </summary>
+        internal static string GraphicsWindowSizeUnchangedFormat {
+            get {
+                return ResourceManager.GetString("GraphicsWindowSizeUnchangedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Window size of {0}: not set yet.
+        /// </summary>
+        internal static string GraphicsWindowSizeUnknownFormat {
+            get {
+                return ResourceManager.GetString("GraphicsWindowSizeUnknownFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To change the wrapper, run the setup again: in the suite choose "Advanced: go through the setup of e[rest of string was truncated].
+        /// </summary>
+        internal static string GraphicsWrapperChangeInfo {
+            get {
+                return ResourceManager.GetString("GraphicsWrapperChangeInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DirectX {0} (dgVoodoo), API level {1}.
+        /// </summary>
+        internal static string GraphicsWrapperDgVoodooFormat {
+            get {
+                return ResourceManager.GetString("GraphicsWrapperDgVoodooFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DirectX 7 (DDrawCompat).
+        /// </summary>
+        internal static string GraphicsWrapperDirectX7 {
+            get {
+                return ResourceManager.GetString("GraphicsWrapperDirectX7", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DirectX 9.
+        /// </summary>
+        internal static string GraphicsWrapperDirectX9 {
+            get {
+                return ResourceManager.GetString("GraphicsWrapperDirectX9", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to a wrapper file ({0}).
+        /// </summary>
+        internal static string GraphicsWrapperFileFormat {
+            get {
+                return ResourceManager.GetString("GraphicsWrapperFileFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No setup record names the components; this is judged from the files in the game folder..
+        /// </summary>
+        internal static string GraphicsWrapperGuessed {
+            get {
+                return ResourceManager.GetString("GraphicsWrapperGuessed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DirectX wrapper.
+        /// </summary>
+        internal static string GraphicsWrapperHeading {
+            get {
+                return ResourceManager.GetString("GraphicsWrapperHeading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Installed: {0}.
+        /// </summary>
+        internal static string GraphicsWrapperInstalledFormat {
+            get {
+                return ResourceManager.GetString("GraphicsWrapperInstalledFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Native (no wrapper).
+        /// </summary>
+        internal static string GraphicsWrapperNone {
+            get {
+                return ResourceManager.GetString("GraphicsWrapperNone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The launcher only shows the wrapper and its screen mode keys. Changing the wrapper means adding or r[rest of string was truncated].
+        /// </summary>
+        internal static string GraphicsWrapperNote {
+            get {
+                return ResourceManager.GetString("GraphicsWrapperNote", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to a wrapper this launcher does not know ({0}).
+        /// </summary>
+        internal static string GraphicsWrapperUnknownFormat {
+            get {
+                return ResourceManager.GetString("GraphicsWrapperUnknownFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to a DirectX wrapper.
+        /// </summary>
+        internal static string GraphicsWrapperUnnamed {
+            get {
+                return ResourceManager.GetString("GraphicsWrapperUnnamed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Switch off.
         /// </summary>
         internal static string HighDpiOffConfirmButton {
@@ -1888,6 +2131,15 @@ namespace Empire_Earth_Launcher.Properties {
         internal static string NamesWarningFormat {
             get {
                 return ResourceManager.GetString("NamesWarningFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Graphics.
+        /// </summary>
+        internal static string NavigationGraphics {
+            get {
+                return ResourceManager.GetString("NavigationGraphics", resourceCulture);
             }
         }
         

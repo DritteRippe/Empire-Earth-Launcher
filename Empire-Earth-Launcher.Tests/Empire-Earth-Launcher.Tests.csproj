@@ -189,6 +189,9 @@
     <Compile Include="Launcher\CleanupViewTests.cs" />
     <Compile Include="Launcher\DiagnosticsModelTests.cs" />
     <Compile Include="Launcher\GameSettingsModelTests.cs" />
+    <Compile Include="Launcher\GraphicsModelTests.cs" />
+    <Compile Include="Launcher\GraphicsTextsTests.cs" />
+    <Compile Include="Launcher\GraphicsViewTests.cs" />
     <Compile Include="Launcher\InstallationServiceTests.cs" />
     <Compile Include="Launcher\LauncherInstanceTargetTests.cs" />
     <Compile Include="Launcher\LauncherSettingsInstallationsTests.cs" />
@@ -223,6 +226,7 @@
     </Compile>
     <Compile Include="TestSupport\ChunkedReadStream.cs" />
     <Compile Include="TestSupport\GameSettingsWorld.cs" />
+    <Compile Include="TestSupport\GraphicsModelWorld.cs" />
     <Compile Include="TestSupport\LauncherPageWorld.cs" />
     <Compile Include="TestSupport\LauncherPages.cs" />
     <Compile Include="TestSupport\LayoutChecker.cs" />
