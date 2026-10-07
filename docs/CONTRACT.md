@@ -10,7 +10,7 @@ repositories at once (same text, same commit subject), see [5. Versioning](#5-ve
 |---|---|
 | Contract version | **1** |
 | Status | **Draft**: specified for setup v2 and launcher v2, not implemented by a release yet |
-| Based on | setup `setup_is6.iss`, `config_ee.iss`, `config_neoee.iss`, `utils.iss` (branch `v2` at 2ce68ee, plus the task `compatibility_legacy` that revision 2 adds) and the setup's decision records 0004, 0005, 0007, 0008 and 0010 (`docs/adr`, branch `v2` at 2ce68ee), launcher `GameDirectoryLocator.cs` (branch `v2` at 79464d4) and the launcher's decision record 0016 (branch `v2` at ec02afa), the official setups 1.7.2; revision 3 also on setup `environment.iss` (branch `v2` at 3a9498d) and the launcher v2 core library with its decision records 0015 and 0016 (branch `v2` at 1b49410); revision 4 also on the setup's decision record 0013 (suite installer) and `setup_is6.iss` (branch `v2` at 332d877) and launcher `SingleInstance.cs` (branch `v2` at 19386bb); revision 5 also on the suite `suite/suite_record.iss` (branch `v2` at 85736cf), launcher `UninstallKeyScanner.cs` (branch `v2` at d454079) and the laptop test TP-93 of the setup's test plan; revision 6 also on the suite `suite/suite_common.iss` (branch `v2` at 36b0e09) and launcher `ResolutionOptions.cs` and `GameDefaultsService.cs` (branch `v2` at e392d01), and on the suite `suite/suite_shortcuts.iss` and the setup `utils.iss` (branch `v2` at `<parent of setup commit S3>`) and launcher `InstallationService.cs`, `DiscoveryResult.cs` and `SetupDownloadPage.cs` (branch `v2` at `132bbd4`) |
+| Based on | setup `setup_is6.iss`, `config_ee.iss`, `config_neoee.iss`, `utils.iss` (branch `v2` at 2ce68ee, plus the task `compatibility_legacy` that revision 2 adds) and the setup's decision records 0004, 0005, 0007, 0008 and 0010 (`docs/adr`, branch `v2` at 2ce68ee), launcher `GameDirectoryLocator.cs` (branch `v2` at 79464d4) and the launcher's decision record 0016 (branch `v2` at ec02afa), the official setups 1.7.2; revision 3 also on setup `environment.iss` (branch `v2` at 3a9498d) and the launcher v2 core library with its decision records 0015 and 0016 (branch `v2` at 1b49410); revision 4 also on the setup's decision record 0013 (suite installer) and `setup_is6.iss` (branch `v2` at 332d877) and launcher `SingleInstance.cs` (branch `v2` at 19386bb); revision 5 also on the suite `suite/suite_record.iss` (branch `v2` at 85736cf), launcher `UninstallKeyScanner.cs` (branch `v2` at d454079) and the laptop test TP-93 of the setup's test plan; revision 6 also on the suite `suite/suite_common.iss` and `suite/suite_run.iss` (branch `v2`: the log parser at 826525a, the process runner at 0bf9681, the progress display at db8be16, the runner fixes at 04f80ac), the line `Install step: ...` of setup `setup_is6.iss` and the suite's point of no return (branch `v2` at 83f4528), the download lines of setup `downloads.iss` and `utils.iss` (branch `v2` at cbd64c8), the download pages of setup `utils.iss` and `setup_is6.iss` (branch `v2` at ed5584d), the one shortcut of the suite `suite/suite_shortcuts.iss` (branch `v2` at 53d145d, its helpers in `suite/suite_common.iss` at 8c14f54), launcher `ResolutionOptions.cs` and `GameDefaultsService.cs` (branch `v2` at e8f7f98) and launcher `ProductChoices.cs`, `DiscoveryResult.cs`, `InstallationService.cs`, `InstanceForwarding.cs`, `PlayModel.cs` and `SetupDownloadPage.cs` (branch `v2` at 132bbd4) |
 
 The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. "Setup" means the EE and the
 NeoEE setup of every build variant, including their uninstallers; "launcher" means the Empire Earth
@@ -375,14 +375,26 @@ run, the products the user selects and the launcher:
    and size with the values fixed at build time (a mismatch stops the suite before any product setup
    runs); run it and wait until it ends; delete it. Since revision 6 the suite starts the product setup with a
    process handle and keeps its window alive while it waits (informative): until the product setup has logged
-   `Starting the installation process.` (point 5) the user can cancel; the suite then stops the product setup
-   and everything it started (the setup program is only the loader of the real setup), starts no further
-   product setup and ends with exit code 3. A product that finished before stays installed, and the next run
-   adopts it ([4.1](#41-principle)). From that line on the suite does not offer to cancel, because a stopped
-   product setup would leave a half installed game. A product setup whose log does not grow for 10 minutes is
-   reported to the user once (a silent run keeps waiting), one that runs for more than 90 minutes is stopped
-   and counts as failed like any other failure, so the suite goes on with the next product. The advanced mode
-   (point 3) has no limits and no cancel of the suite: the user cancels in the product setup.
+   the line `Install step: the game folder is changed from here on` (point 5) the user can cancel; the suite
+   then stops the product setup and everything it started (the setup program is only the loader of the real
+   setup) and starts no further product setup. A product that finished before stays installed: the suite then
+   finishes its own part for it (the launcher, the shortcuts and the record of point 8 and
+   [1.6](#16-suite-record-optional), written for the products that succeeded) and the last page says that the
+   user cancelled the other one; only if no product succeeded in the run, nothing of the run is installed, and
+   the suite ends with exit code 3 without writing anything of its own. A cancelled repair or update leaves the
+   product exactly as it was (the next run adopts or repairs it, [4.1](#41-principle)); what the stopped product
+   setup had downloaded stays in its own `%TEMP%\is-*.tmp` folder. From that line on the suite does not offer to
+   cancel, because a stopped product setup would leave a game without install state or half installed: the
+   product setup logs that line as the first statement of its installation step, before it deletes
+   `install.ini` and `files.sha256`, moves the downloads and replaces the shipped random maps, so until then a
+   repair or an update has changed nothing in the game folder (it only downloaded into its own `%TEMP%`). A
+   product setup whose log does not grow for 10 minutes is reported to the user once (a silent run keeps
+   waiting; "stop" is checked against the log again, and a product setup that has ended or has meanwhile logged
+   the line above is not stopped for the first question). One that runs for more than 90 minutes (the downloads
+   count) before it has logged the line above is stopped and counts as failed like any other failure, so the
+   suite goes on with the next product; after that line the 90 minutes are only logged, because a killed
+   installation would leave a half installed game. The advanced mode (point 3) has no limits and no cancel of
+   the suite: the user cancels in the product setup.
 3. **Parameters**, default: `/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /ALLUSERS /LANG=<suite language>
    /NOICONS /MERGETASKS="!desktopicon" /LOG="<suite root>\Logs\<Product>-<yyyyMMdd-HHmm>.log"`, plus
    `/TYPE=full` for the first installation of a product. Since revision 6 the suite passes `/VERYSILENT`
@@ -427,11 +439,13 @@ run, the products the user selects and the launcher:
    | `Online files server <URL>: ...` | `downloads.iss` | the setup asks its online files servers |
    | `English language selected, no need to download online files.` | `setup_is6.iss` | no downloads in this run |
    | `Downloading <N> online files, one at a time` | `downloads.iss` | the downloads start, N files |
-   | `Downloading pinned online file ... from <URL>: <target>` | `downloads.iss` | the file being downloaded (the last part of the URL) |
-   | `<X> of <Y> bytes done.` (two blanks before X) | `downloads.iss` | bytes of the file being downloaded |
+   | `Downloading pinned online file ... from <URL>: <target>` | `downloads.iss` | the file being downloaded (the last part of the URL), WinHTTP transport of the pinned files from a server with an invalid certificate |
+   | `Downloading temporary file from <URL>: <target>` | Inno Setup | the same for a file of the validated TLS transport (Inno Setup's own wording, written when its download page starts a file) |
+   | `<X> of <Y> bytes done.` (two blanks before X) | `downloads.iss` | bytes of the file being downloaded, written at every 10 percent by both transports (the callback of the download page for the validated one, the read loop for WinHTTP) |
    | `Online file downloaded, ...`, `Online file not downloaded, it failed on both servers: ...`, `Online file not downloaded, not retried: ...`, `Online file not downloaded, unexpected error: ...`, `Online file skipped, downloads stopped by the user: ...` | `downloads.iss` | one file is finished |
    | `Online files: <n> downloaded with validated TLS ...`, `All <n> online files accepted`, `<m> of <k> selected online files are missing ...` | `downloads.iss` | the downloads are over and checked |
-   | `Starting the installation process.` | Inno Setup | the setup starts to write the game files; from here on it cannot be stopped without leaving a half installed game (before, it only downloaded into its own `%TEMP%`) |
+   | `Install step: the game folder is changed from here on` | `setup_is6.iss` | the point of no return: the first statement of `CurStepChanged(ssInstall)` of the product script, before it deletes `install.ini` and `files.sha256`, checks and moves the downloads and replaces the shipped random maps; from here on the setup cannot be stopped without leaving a game without install state or half installed (before, it only downloaded into its own `%TEMP%` and changed nothing in the game folder) |
+   | `Starting the installation process.` | Inno Setup | Inno Setup starts to write the game files, after the line above; the suite takes it as the point of no return only for a product setup that logs no line above |
    | `Dest filename: ...` | Inno Setup | one file entry of the installation, counted against an estimate per product |
    | `Installation process succeeded.` | Inno Setup | the files are installed; the rest are the entries of `[Run]`, the registry and the CD keys |
    | `Register NeoEE CD Keys ...` and `CD Keys generation result: <n>` | `setup_is6.iss` (NeoEE) | the CD key step; the number is read as text, as above |
@@ -1030,7 +1044,7 @@ hand-off of [4.3](#43-where-the-user-gets-the-setup): the download page of the p
 | 1 (draft) | 2026-10-02 | revision 3 (compatible clarifications after the reviews of setup v2 and launcher v2, which already behave so): source 4 reads key before hive, the EE and AoC folders of `foreign` installations are the real folders (the AoC folder from the same hive and view), the user choice may be the AoC folder, a registry record without `install.ini` also means `community` (1.4); Modified gets no message and no repair offer, the state may be shown (2.5); at the launcher start class S is only created, and the first run only for an installation that is unambiguous for its game settings key; class S before every game start while no other game runs; the display question until the user answers (3.2, 3.5, 3.6); a request without an answer of HTTP 200 is no statement about the version (4.5); O11 also names the `<AppId>` setup data folder of setups up to 1.7.2 | v2 (planned) | v2 (planned) |
 | 1 (draft) | 2026-10-05 | revision 4 (suite installer "Empire Earth Community", setup decision record 0013; optional additions only, no MUST or MUST NOT relaxed, 4.1 and 4.3 unchanged): names and mutexes of the suite and the launcher (0); `--product=EE` or `--product=NeoEE` selects for one session (1.4); suite record (1.6); how the suite runs a product setup, the log line `CD Keys generation result: <n>` as an interface, the guard for products installed for one user only, the removal of old product shortcuts before the suite shortcuts `Empire Earth` and `Neo Empire Earth`, the launcher outside the product roots (1.7, O10 answered); the suite mutex is a setup mutex (4.2); advice with `SourceDir` (4.4); checklist of the additions (7) | suite 1.0.0 (planned) | 1.0.0 (planned) |
 | 1 (draft) | 2026-10-06 | revision 5 (laptop test TP-93: the launcher listed the suite's own uninstall key, whose `Publisher` is that of EE, as a damaged installation of EE; optional additions only, no MUST or MUST NOT relaxed): the marker `Empire Earth Community: Suite` in the suite's uninstall key (0, 1.3); source 3 skips a key with that value, and for a suite built before revision 5 a key in HKLM with the root `InstallPath` of the suite record and no AppId the record embeds (1.4, 1.6); checklist of the additions (7) | suite 1.0.0 (planned) | 1.0.0 (planned) |
-| 1 (draft) | 2026-10-07 | revision 6 (suite 1.1.0, one window during the installation, one shortcut, and launcher 1.1.0, graphics page, one launcher for the four games; compatible, `ContractVersion` stays 1, optional additions and compatible clarifications only, no MUST or MUST NOT relaxed): the suite starts the product setups with `/VERYSILENT` instead of `/SILENT`, so that they show no progress window of their own (1.7 point 3); the lines of the product logs the suite reads for its progress display are an interface like the CD key line (1.7 point 5); the suite waits for a product setup with a process handle: Cancel before the installation starts, a stall and a time limit (1.7 point 2); one suite shortcut `Empire Earth Community` that starts the launcher without an argument (without .NET Framework 4.8 the game program of NeoEE, else EE), no game and no Diagnostic shortcuts, the shortcuts of suite 1.0.0 deleted (1.7 point 8); the launcher MAY save one chosen folder per product and the chosen product, and a second launcher without an argument MAY bring the running one to the front (1.4); the setup and the launcher open the download page of the product (`https://empireearth.eu/download/ee/`, `.../neo/`, `.../download/` for foreign installations) and no longer ask the update API for a download URL (4.3, 4.5, 1.1 `AppId`); the user's explicit choice of the game window size in the launcher is the consent of 3.2 to overwrite the class D values `Game Window Width` and `Game Window Height`, within the limits of 3.3, after the guard and the `.reg` backup of 3.6, without touching the marker (3.2, 3.3, 3.6); checklist of the additions (7) | suite 1.1.0 (planned) | 1.1.0 (planned) |
+| 1 (draft) | 2026-10-07 | revision 6 (suite 1.1.0, one window during the installation, one shortcut, and launcher 1.1.0, graphics page, one launcher for the four games; compatible, `ContractVersion` stays 1, optional additions and compatible clarifications only, no MUST or MUST NOT relaxed): the suite starts the product setups with `/VERYSILENT` instead of `/SILENT`, so that they show no progress window of their own (1.7 point 3); the lines of the product logs the suite reads for its progress display are an interface like the CD key line, among them Inno Setup's line of a file of the validated TLS transport and the new line `Install step: the game folder is changed from here on` that the product setups log as the first statement of their installation step (1.7 point 5); the suite waits for a product setup with a process handle: Cancel until that line (a product that finished before stays installed and keeps the suite's launcher, shortcut and record), a stall and a time limit that stops a product setup only before that line (1.7 point 2); one suite shortcut `Empire Earth Community` that starts the launcher without an argument (without .NET Framework 4.8 the game program of NeoEE, else EE), no game and no Diagnostic shortcuts, the shortcuts of suite 1.0.0 deleted (1.7 point 8); the launcher MAY save one chosen folder per product and the chosen product, and a second launcher without an argument MAY bring the running one to the front (1.4); the setup and the launcher open the download page of the product (`https://empireearth.eu/download/ee/`, `.../neo/`, `.../download/` for foreign installations) and no longer ask the update API for a download URL (4.3, 4.5, 1.1 `AppId`); the user's explicit choice of the game window size in the launcher is the consent of 3.2 to overwrite the class D values `Game Window Width` and `Game Window Height`, within the limits of 3.3, after the guard and the `.reg` backup of 3.6, without touching the marker (3.2, 3.3, 3.6); checklist of the additions (7) | suite 1.1.0 (planned) | 1.1.0 (planned) |
 
 ## 6. Open questions
 
@@ -1178,11 +1192,13 @@ Suite 1.1.0 (revision 6; no registry value of the suite or of the product setups
   [1.7](#17-how-the-suite-runs-a-product-setup-informative) point 5; the product scripts mark each of them
   with the comment "suite parses this line", and `ci/check_suite.py` checks that they are still written;
 - the suite waits for a product setup with a process handle: Cancel of the suite works until the product setup
-  has logged `Starting the installation process.` and stops the product setup with everything it started
-  (exit code 3 of the suite, a finished first product stays installed), a stall of 10 minutes is reported
-  once, 90 minutes stop the product setup as a failure ([1.7](#17-how-the-suite-runs-a-product-setup-informative) point 2);
+  has logged `Install step: the game folder is changed from here on` (the first statement of its installation
+  step, `setup_is6.iss`) and stops the product setup with everything it started (exit code 3 of the suite if
+  no product succeeded in the run; a product that finished before stays installed and the suite finishes its
+  launcher, shortcuts and record for it), a stall of 10 minutes is reported once, 90 minutes stop the product
+  setup as a failure, but only before that line ([1.7](#17-how-the-suite-runs-a-product-setup-informative) point 2);
 - `ci/check_suite.py`, the unit tests of `SuiteProductArguments` and the suite scenarios of CI expect
-  `/VERYSILENT` and no `/SILENT`.
+  `/VERYSILENT` and no `/SILENT`;
 - one shortcut `Empire Earth Community` on the desktop and in the start menu folder `Empire Earth
   Community`, to the launcher without an argument, without .NET Framework 4.8 to the game program of
   NeoEE, else EE; the Mod Creator and the uninstaller in the start menu folder; no game and no Diagnostic
@@ -1195,8 +1211,10 @@ Suite 1.1.0 (revision 6; no registry value of the suite or of the product setups
 
 Product setups (revision 6): the update question opens the download page of the setup's own product
 ([4.3](#43-where-the-user-gets-the-setup)), and the update API gets only the requests of
-[4.5](#45-update-check-optional); they overwrite `Game Window Width` and `Game Window Height` at every run
-as before (class D, `deletevalue`, [3.2](#32-values)), which ends a size the user chose in the launcher.
+[4.5](#45-update-check-optional); they log the line `Install step: the game folder is changed from here on` as
+the first statement of their installation step ([1.7](#17-how-the-suite-runs-a-product-setup-informative)
+point 5); they overwrite `Game Window Width` and `Game Window Height` at every run as before (class D,
+`deletevalue`, [3.2](#32-values)), which ends a size the user chose in the launcher.
 
 Launcher 1.1.0 (revision 6; the launcher does not start or watch the product setups of the suite, so the
 suite part asks nothing of it):
@@ -1211,7 +1229,7 @@ suite part asks nothing of it):
 - before it writes: the guard of [4.2](#42-running-setup) (no setup and no game running) and the `.reg`
   backup of [3.6](#36-launcher-procedures); if a backup fails, nothing is changed;
 - the page says that the next run of a setup (repair, update) writes the recommended size again
-  ([3.2](#32-values)).
+  ([3.2](#32-values));
 - the Play page lists the four games (Empire Earth and The Art of Conquest of each product); choosing one
   selects the installation of its product for every page, a game that is not installed is shown disabled,
   and the choice is saved with one chosen folder per product ([1.4](#14-discovery-by-the-launcher), default
