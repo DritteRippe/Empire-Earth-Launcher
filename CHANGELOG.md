@@ -54,7 +54,7 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
 - `settings.json` keeps the folder you chose per product (`ProductFolders`) and the product chosen last (`LastProduct`), both
   optional members, so `SchemaVersion` stays 1. `GameDirectory` repeats the folder of the last product, so that launcher 1.0.0
   reads the same installation, and a `GameDirectory` that is not the folder of the last product is read as the choice of an
-  older launcher (contract 1.4 rule 3; [ADR 0005](docs/adr/0005-own-settings-file-instead-of-user-config.md), amendment of
+  older launcher (ADR 0005 amendment, rule 3; [ADR 0005](docs/adr/0005-own-settings-file-instead-of-user-config.md), amendment of
   2026-10-07; test plan WP13-02, WP13-03).
 - `docs/CONTRACT.md`, revision 6, extended (still unreleased, contract version still 1): the one shortcut of suite 1.1.0
   that starts the launcher without an argument (1.7), the choice per product in the default selection (1.4), the
@@ -81,6 +81,13 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
   the rectangle and styles of the main window with the time since the start (`Watch t+10.0 s: ...`, `WindowState`). That is a
   measurement of when a wrapper such as dgVoodoo switches the display mode; A1 does not fix the dgVoodoo case, and the
   `WM_ACTIVATE` of A1b is not part of 1.1.0 (test plan WP6-18).
+- "Auto-detect" on the *Launcher* page keeps the product the player is looking at also when the launcher was started with
+  `--product=` (an old shortcut, the hand-over of a second launcher): the product is saved as the product chosen last, so no
+  page jumps to the product chosen before (`InstallationService.UseAutomaticDetectionAsync`; test plan WP10-01).
+- `settings.json` after a downgrade and back: launcher 1.0.0 empties `GameDirectory` with its "Auto-detect" and does not know
+  `ProductFolders`; an empty `GameDirectory` next to a folder of the product chosen last is read as that automatic detection
+  and the folder is dropped in memory (`ProductChoices.DropFolderClearedByOlderLauncher`, ADR 0005 amendment; test plan
+  WP13-07).
 - Game settings page: the header, the description and the "NeoEE in ..." line lay on top of each other, and the book picture
   of the compatibility warning lay over the buttons "Apply recommended display" and "Reset game settings". The page is
   created hidden and filled before the window is shown, and its layout skipped the header, the installation line and

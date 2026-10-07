@@ -355,6 +355,29 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(Saved().GameDirectory, Is.EqualTo(RetailFolder));
         }
 
+        /// <summary>
+        /// Launcher 1.0.0 ran in between: its "Auto-detect" emptied <c>GameDirectory</c> but left the folder of EE in
+        /// <c>ProductFolders</c>. The choice of 1.0.0 counts: the first installation is used, in memory, and the file is
+        /// written with the next choice.
+        /// </summary>
+        [Test]
+        public async Task AutoDetectOfAnOlderLauncher_DropsTheFolderOfTheProductChosenLast_InMemory()
+        {
+            UseCountingSettings();
+            ProductChoices.Choose(settings.Current, Product.EE, @"D:\Removed\Empire Earth");
+            settings.Current.GameDirectory = string.Empty;
+
+            await service.RefreshAsync();
+
+            Assert.That(ProductChoices.FolderOf(settings.Current, Product.EE), Is.Empty);
+            Assert.That(service.Selected.Product, Is.SameAs(Product.EE));
+            Assert.That(service.Selected.EeFolder, Is.EqualTo(RetailFolder).IgnoreCase, "the first EE installation, not the removed folder");
+            Assert.That(service.Result.IsSelectedByUser, Is.False);
+            Assert.That(counting.Written, Is.Empty, "the launcher writes settings.json only after a choice of the player");
+            Assert.That(world.LogLinesAbout("an older launcher emptied the game folder (Auto-detect); the folder chosen for EE is dropped"),
+                Has.Length.EqualTo(1));
+        }
+
         [Test]
         public async Task TheSessionProduct_WinsOverTheProductChosenLast_AndIsNotSaved()
         {
@@ -455,6 +478,29 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             service.SelectProduct(Product.NeoEE);
 
             Assert.That(service.Result.IsSelectedByUser, Is.True, "NeoEE still has its chosen folder");
+        }
+
+        /// <summary>
+        /// Started with <c>--product=NeoEE</c> (an old shortcut, the hand-off of a second launcher) while EE was the product chosen
+        /// last: "Auto-detect" keeps the NeoEE the player is looking at, and saves it, so that the next start opens with it.
+        /// </summary>
+        [Test]
+        public async Task AutoDetect_WithTheSessionProductOfTheOtherProduct_KeepsTheSessionProduct_AndSavesItAsTheProductChosenLast()
+        {
+            await service.RefreshAsync();
+            Installation retail = service.Result.Installations.Single(installation => installation.Kind == InstallationKind.Foreign);
+            await service.SelectAsync(retail);
+            Assert.That(settings.Current.LastProduct, Is.EqualTo("EE"));
+            service.SelectProductForSession(Product.NeoEE);
+            Assert.That(service.Selected.Product, Is.SameAs(Product.NeoEE), "the session shows NeoEE");
+
+            await service.UseAutomaticDetectionAsync();
+
+            Assert.That(service.Selected.Product, Is.SameAs(Product.NeoEE), "NeoEE stays selected, no page jumps to EE");
+            Assert.That(service.SessionProduct, Is.Null, "the click of the player ended the argument");
+            Assert.That(Saved().LastProduct, Is.EqualTo("NeoEE"), "and it is the product chosen last");
+            Assert.That(Saved().GameDirectory, Is.Empty, "the mirror follows NeoEE, which has no chosen folder");
+            Assert.That(Saved().ProductFolders.Select(entry => entry.Product), Is.EqualTo(new[] { "EE" }), "the folder chosen for EE stays");
         }
 
         [Test]

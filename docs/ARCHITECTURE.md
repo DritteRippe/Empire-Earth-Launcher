@@ -248,7 +248,7 @@ Empire_Earth_Mod.exe ──> Empire_Earth_Mod_Lib.dll ──> BCL only
      saves its EE folder. Since 1.1.0 there is one choice per product (`ProductChoices`, `UserChoice`;
      `InstallationDiscovery.DiscoverChoices`): the folder chosen for EE and the one chosen for NeoEE are both source 1;
      a `GameDirectory` that is not the folder of the last product is the choice of launcher 1.0.0 and is migrated in
-     memory to the product of the installation it selects (contract 1.4 rule 3, ADR 0005 amendment).
+     memory to the product of the installation it selects (ADR 0005 amendment, rule 3).
    - **Order of the list**: by the most specific source of each installation (the chosen one first), then by the
      order in which they were found; without a choice the first one is used. On 32-bit Windows a value read through
      both HKLM views is one candidate.

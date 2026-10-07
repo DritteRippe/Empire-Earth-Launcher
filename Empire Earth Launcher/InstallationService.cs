@@ -198,6 +198,13 @@ namespace Empire_Earth_Launcher
             Changed?.Invoke(this, EventArgs.Empty);
             try
             {
+                Product cleared = ProductChoices.LastProduct(settings.Current);
+                if (ProductChoices.DropFolderClearedByOlderLauncher(settings.Current))
+                {
+                    logger.Info("settings.json: an older launcher emptied the game folder (Auto-detect); the folder chosen for " +
+                                cleared.Id + " is dropped.");
+                    migratedChoice = true;
+                }
                 DiscoveryResult result = await discovery.DiscoverChoicesAsync(ProductChoices.UserChoices(settings.Current),
                     launcherFolder, cancellationToken);
                 if (current != generation)
@@ -264,15 +271,21 @@ namespace Empire_Earth_Launcher
         }
 
         /// <summary>
-        /// Removes the folder chosen for the current product: its first installation found is used. The product stays, and so do
-        /// the folders chosen for the other product.
+        /// Removes the folder chosen for the current product: its first installation found is used. The product the player was
+        /// looking at stays (also when it is the product of <c>--product=</c> for this session, which the click ends), so it is
+        /// saved as the product chosen last and every page keeps it; so do the folders chosen for the other product.
         /// </summary>
         public Task UseAutomaticDetectionAsync()
         {
             EndSessionProduct();
             Product current = Selected?.Product ?? ProductChoices.LastProduct(settings.Current);
             if (current != null)
+            {
                 ProductChoices.ClearFolder(settings.Current, current);
+                // The product of the session is not the product chosen last: without this the mirror would be reset to the
+                // folder of the other product and every page would jump to it (design 2.4: the current product is kept).
+                ProductChoices.ChooseProduct(settings.Current, current);
+            }
             else
                 settings.Current.GameDirectory = string.Empty;
             settings.Save();

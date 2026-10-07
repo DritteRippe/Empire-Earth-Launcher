@@ -176,6 +176,51 @@ namespace Empire_Earth_Launcher.Tests.Core.Installations
             Assert.That(ProductChoices.HasChoiceOfOlderLauncher(settings), Is.True);
         }
 
+        // --- A downgrade and back ---------------------------------------------------------------------------------------
+
+        [Test]
+        public void AnEmptyGameDirectory_NextToAFolderOfTheProductChosenLast_IsTheAutoDetectOfAnOlderLauncher_AndDropsTheFolder()
+        {
+            ProductChoices.Choose(settings, Product.EE, EEFolder);
+            ProductChoices.Choose(settings, Product.NeoEE, NeoRoot);
+            ProductChoices.ChooseProduct(settings, Product.EE);
+            settings.GameDirectory = string.Empty; // launcher 1.0.0: "Auto-detect"
+
+            Assert.That(ProductChoices.DropFolderClearedByOlderLauncher(settings), Is.True);
+
+            Assert.That(ProductChoices.FolderOf(settings, Product.EE), Is.Empty, "the choice of 1.0.0 counts");
+            Assert.That(ProductChoices.FolderOf(settings, Product.NeoEE), Is.EqualTo(NeoRoot), "the other product keeps its folder");
+            Assert.That(settings.LastProduct, Is.EqualTo("EE"));
+            Assert.That(settings.GameDirectory, Is.Empty);
+            Assert.That(ProductChoices.UserChoices(settings).Select(choice => choice.Folder + "|" + choice.Product.Id),
+                Is.EqualTo(new[] { NeoRoot + "|NeoEE" }));
+        }
+
+        [Test]
+        public void TheMirrorOfThisLauncher_IsNeverTakenForTheAutoDetectOfAnOlderLauncher()
+        {
+            ProductChoices.Choose(settings, Product.EE, EEFolder);
+            Assert.That(ProductChoices.DropFolderClearedByOlderLauncher(settings), Is.False, "the mirror names the folder");
+
+            ProductChoices.ClearFolder(settings, Product.EE);
+            Assert.That(ProductChoices.DropFolderClearedByOlderLauncher(settings), Is.False, "nothing chosen for the product");
+
+            ProductChoices.Choose(settings, Product.NeoEE, NeoRoot);
+            ProductChoices.ChooseProduct(settings, Product.EE);
+            Assert.That(settings.GameDirectory, Is.Empty, "EE has no folder: the mirror is empty");
+            Assert.That(ProductChoices.DropFolderClearedByOlderLauncher(settings), Is.False);
+            Assert.That(ProductChoices.FolderOf(settings, Product.NeoEE), Is.EqualTo(NeoRoot));
+        }
+
+        [Test]
+        public void WithoutAProductChosenLast_AnEmptyGameDirectory_DropsNothing()
+        {
+            settings.ProductFolders.Add(new ProductFolder { Product = "EE", Folder = EEFolder });
+
+            Assert.That(ProductChoices.DropFolderClearedByOlderLauncher(settings), Is.False);
+            Assert.That(ProductChoices.FolderOf(settings, Product.EE), Is.EqualTo(EEFolder));
+        }
+
         // --- The choices for the discovery ------------------------------------------------------------------------------
 
         [Test]
@@ -211,6 +256,7 @@ namespace Empire_Earth_Launcher.Tests.Core.Installations
             Assert.That(() => ProductChoices.Choose(settings, null, EEFolder), Throws.ArgumentNullException);
             Assert.That(() => ProductChoices.ChooseProduct(settings, null), Throws.ArgumentNullException);
             Assert.That(() => ProductChoices.UserChoices(null), Throws.ArgumentNullException);
+            Assert.That(() => ProductChoices.DropFolderClearedByOlderLauncher(null), Throws.ArgumentNullException);
             Assert.That(() => new UserChoice(" ", Product.EE), Throws.InstanceOf<ArgumentException>());
         }
     }

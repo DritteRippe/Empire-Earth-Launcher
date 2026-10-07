@@ -86,6 +86,25 @@ namespace Empire_Earth_Launcher.Core.Installations
         }
 
         /// <summary>
+        /// Takes back the folder chosen for the product chosen last if <see cref="LauncherSettings.GameDirectory"/> is empty: launcher
+        /// 1.1.0 writes the mirror with every change, so an empty one next to a folder of the last product means that launcher 1.0.0
+        /// ran in between and its "Auto-detect" emptied <see cref="LauncherSettings.GameDirectory"/> without knowing the entry
+        /// (ADR 0005 amendment, a downgrade and back). The entry is removed in memory, so that the choice of 1.0.0 counts; the
+        /// file is written with the next save.
+        /// </summary>
+        /// <returns>True if an entry was removed.</returns>
+        public static bool DropFolderClearedByOlderLauncher(LauncherSettings settings)
+        {
+            if (settings == null)
+                throw new ArgumentNullException(nameof(settings));
+            Product last = LastProduct(settings);
+            if (last == null || (settings.GameDirectory ?? string.Empty).Trim().Length > 0 || FolderOf(settings, last).Length == 0)
+                return false;
+            SetFolder(settings, last, string.Empty);
+            return true;
+        }
+
+        /// <summary>
         /// The folders to hand to the discovery as source 1, in this order: <see cref="LauncherSettings.GameDirectory"/> first (for
         /// the product chosen last, or without a product if it is the choice of an older launcher), then the folder of every other
         /// product. A folder named twice (the same path) is named once.

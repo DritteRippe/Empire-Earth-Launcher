@@ -101,10 +101,15 @@ keeps unknown members, so it neither fails nor loses them):
   means no product chosen.
 - **`GameDirectory` stays and is the mirror** of the folder of the last product, written with every save, so launcher 1.0.0
   reads the same installation and a downgrade loses nothing.
-- **Rule 3 of contract 1.4**: a `GameDirectory` that is not the folder of the `LastProduct` (or of any entry) is the choice of
+- **Rule 3 (of this amendment, not a rule of contract 1.4)**: a `GameDirectory` that is not the folder of the `LastProduct` is the choice of
   an older launcher. Its product comes from the installation it resolves to, and it is migrated in memory to
   `ProductFolders`/`LastProduct`; the file is written again at the first save (`InstallationService.ChooseFolderAsync` saves a
   second time after the migration). Nothing is deleted or rewritten at the start.
+- **A downgrade and back**: launcher 1.0.0's "Auto-detect" empties `GameDirectory` and does not know `ProductFolders`. Launcher
+  1.1.0 writes the mirror with every change, so an empty `GameDirectory` next to a folder of the `LastProduct` can only come
+  from that: the folder is dropped in memory (`ProductChoices.DropFolderClearedByOlderLauncher`, called before every search) and
+  the choice of 1.0.0, the automatic detection, counts; the file is written with the next choice. The folders of the other
+  product stay.
 - `LastGame` keeps its meaning (`EE` or `AoC`); the Art of Conquest is chosen with the entry of the list and is used only
   while the installation has an AoC folder.
 
