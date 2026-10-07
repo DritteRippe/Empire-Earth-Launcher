@@ -202,13 +202,13 @@ namespace Empire_Earth_Launcher
             // 
             this.windowSizeKryptonComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
             this.windowSizeKryptonComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.windowSizeKryptonComboBox.DropDownWidth = 260;
+            this.windowSizeKryptonComboBox.DropDownWidth = 240;
             this.windowSizeKryptonComboBox.IntegralHeight = false;
             this.windowSizeKryptonComboBox.Location = new System.Drawing.Point(98, 202);
             this.windowSizeKryptonComboBox.Name = "windowSizeKryptonComboBox";
             this.windowSizeKryptonComboBox.Palette = this.launcherKryptonPalette;
             this.windowSizeKryptonComboBox.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
-            this.windowSizeKryptonComboBox.Size = new System.Drawing.Size(260, 23);
+            this.windowSizeKryptonComboBox.Size = new System.Drawing.Size(240, 23);
             this.windowSizeKryptonComboBox.TabIndex = 2;
             this.windowSizeKryptonComboBox.SelectedIndexChanged += new System.EventHandler(this.windowSizeKryptonComboBox_SelectedIndexChanged);
             // 

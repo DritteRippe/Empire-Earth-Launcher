@@ -29,7 +29,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
     /// </para>
     /// <para>
     /// The rules are in <see cref="LayoutChecker"/>. Under Mono they are logic checks on the fonts of Mono; only the Game settings
-    /// page can be created there, the other three are ignored (<see cref="WinForms.CreateOrIgnore{T}"/>) and run on Windows (CI,
+    /// page can be created there, the other four are ignored (<see cref="WinForms.CreateOrIgnore{T}"/>) and run on Windows (CI,
     /// laptop). The authoritative run is the one on Windows. The pictures of the pages are made by
     /// <see cref="PageScreenshotTests"/>.
     /// </para>
