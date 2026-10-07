@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -111,6 +112,31 @@ namespace Empire_Earth_Launcher.Tests.Launcher
                 Assert.That(LayoutChecker.IsSelfVisible(hint), Is.True);
                 Assert.That(hint.Text, Is.EqualTo(Resources.PlayEntriesNotInstalledHint));
                 Assert.That(hint.Top, Is.GreaterThanOrEqualTo(radios.Max(radio => radio.Bottom)), "below the list");
+            }
+        }
+
+        [Test]
+        public void AGameThatIsNotInstalled_IsDrawnInTheDisabledGrey_AndAnInstalledOneInTheNormalColour()
+        {
+            // CI pictures of 1.1.0: only the circle of a disabled radio button was grey, the name looked like an enabled one.
+            // The colour is resolved the way Krypton draws the text: through the state of the radio button and the palette.
+            using (PlayPageWorld world = WinForms.CreateOrIgnore(() => PlayPageWorld.In(PlayPageState.EntriesWithHint)))
+            {
+                KryptonRadioButton[] radios = Radios(world.Page);
+                var normal = Color.FromArgb(64, 64, 64);
+
+                Assert.That(radios.Select(radio => radio.Enabled), Is.EqualTo(new[] { false, false, true, true }));
+                foreach (KryptonRadioButton radio in radios.Where(radio => !radio.Enabled))
+                {
+                    Assert.That(((IPaletteContent)radio.StateDisabled).GetContentShortTextColor1(PaletteState.Disabled),
+                        Is.EqualTo(GeneralUserControl.DisabledEntryTextColor), radio.Name);
+                }
+                foreach (KryptonRadioButton radio in radios.Where(radio => radio.Enabled))
+                {
+                    Assert.That(((IPaletteContent)radio.StateNormal).GetContentShortTextColor1(PaletteState.Normal),
+                        Is.EqualTo(normal), radio.Name);
+                }
+                Assert.That(GeneralUserControl.DisabledEntryTextColor, Is.Not.EqualTo(normal));
             }
         }
 

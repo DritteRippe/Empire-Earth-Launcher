@@ -91,6 +91,9 @@ namespace Empire_Earth_Launcher
         /// <summary>The space left and right of the controls in the game group and in the info bar.</summary>
         private const int GroupMargin = 12;
 
+        /// <summary>The colour of the name of a game that is not installed (a disabled radio button); the normal one is (64, 64, 64).</summary>
+        internal static readonly Color DisabledEntryTextColor = Color.FromArgb(150, 150, 150);
+
         /// <summary>The height the room of the player list and the state line has without the profile line (set by the layout).</summary>
         private int playerListHeight;
 
@@ -129,6 +132,17 @@ namespace Empire_Earth_Launcher
         public GeneralUserControl()
         {
             InitializeComponent();
+            // A game that is not installed is a disabled radio button: Krypton draws its name with the disabled text colour of
+            // the palette. LabelCommon.StateCommon sets one colour for every state, so without this the name looked enabled
+            // and only the circle was grey (CI pictures of 1.1.0). A theme file the player picks still decides (it is imported
+            // after this, by the theme service). The radio buttons use the style NormalControl, which inherits from the common
+            // one; it gets the colour as well, so that no change of the inheritance of Krypton shows the old look again.
+            foreach (Krypton.Toolkit.KryptonPaletteLabel style in new[]
+                { launcherKryptonPalette.LabelStyles.LabelCommon, launcherKryptonPalette.LabelStyles.LabelNormalControl })
+            {
+                style.StateDisabled.ShortText.Color1 = DisabledEntryTextColor;
+                style.StateDisabled.LongText.Color1 = DisabledEntryTextColor;
+            }
             entryRadios = new[]
             {
                 empireEarthKryptonRadioButton, empireEarthAocKryptonRadioButton, neoEmpireEarthKryptonRadioButton,
