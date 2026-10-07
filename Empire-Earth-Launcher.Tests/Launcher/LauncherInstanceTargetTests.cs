@@ -64,6 +64,36 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(installations.SessionProduct, Is.SameAs(Product.EE));
         }
 
+        /// <summary>The one shortcut of suite 1.1.0 starts the launcher without an argument (contract 1.4 and 1.7 point 8, revision 6).</summary>
+        [Test]
+        public async Task Show_OnlyBringsTheWindowToTheFront_TheSelectionOfTheRunningLauncherStays()
+        {
+            installations.SelectProduct(Product.EE);
+            Assert.That(installations.Selected.Product, Is.SameAs(Product.EE));
+
+            Assert.That(Handle(null), Is.True);
+            await installations.RefreshAsync();
+
+            Assert.That(calls, Is.EqualTo(new[] { "front" }));
+            Assert.That(installations.Selected.Product, Is.SameAs(Product.EE), "the game the player chose stays");
+            Assert.That(installations.SessionProduct, Is.Null, "no session product either");
+            Assert.That(world.LogLinesAbout("asked the launcher to come to the front; the selection stays"), Has.Length.EqualTo(1));
+        }
+
+        [Test]
+        public void Show_WhileTheLauncherIsBusy_IsTheSame_AndNeverCallsSelectProduct()
+        {
+            busy = true;
+
+            Assert.That(Handle(null), Is.True);
+            busy = false;
+            receiver.ApplyPending();
+
+            Assert.That(calls, Is.EqualTo(new[] { "front" }));
+            Assert.That(installations.Selected.Product, Is.SameAs(Product.NeoEE));
+            Assert.That(installations.SessionProduct, Is.Null);
+        }
+
         [Test]
         public void DuringAGameStart_TheSelectionStays_ButTheWindowComesToTheFront()
         {

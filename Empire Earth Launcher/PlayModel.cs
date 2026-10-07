@@ -13,10 +13,10 @@ using Empire_Earth_Launcher.Core.Settings;
 namespace Empire_Earth_Launcher
 {
     /// <summary>
-    /// The state and the actions of the Play page (L-WP6, ADR 0010, ARCHITECTURE 4.2): the game chosen (saved as
-    /// <see cref="LauncherSettings.LastGame"/>), the file versions of the programs, whether Play is possible (an
-    /// installation, no running setup), and the start and its result. The repair advice of a start opens the download page
-    /// through <see cref="UpdateModel"/> (L-WP7).
+    /// The state and the actions of the Play page (L-WP6, ADR 0010, ARCHITECTURE 4.2): the four games and the one chosen (saved
+    /// as <see cref="LauncherSettings.LastProduct"/> and <see cref="LauncherSettings.LastGame"/>), the file versions of the
+    /// programs, whether Play is possible (an installation, no running setup), and the start and its result. The repair advice
+    /// of a start opens the download page through <see cref="UpdateModel"/> (L-WP7).
     /// </summary>
     /// <remarks>
     /// Created once by <see cref="Program"/>; use it on the UI thread. The work runs on the thread pool through the core
@@ -105,16 +105,48 @@ namespace Empire_Earth_Launcher
             windowHandOverCancellation.Cancel();
         }
 
+        /// <summary>The four games of the page in its order (Empire Earth and The Art of Conquest of each product).</summary>
+        public IReadOnlyList<PlayEntry> Entries
+        {
+            get { return PlayEntry.All; }
+        }
+
+        /// <summary>
+        /// True if the player can choose <paramref name="entry"/> now: the game has an installation (a game that is not installed
+        /// is shown disabled), the first search has a result and no start runs.
+        /// </summary>
+        public bool IsAvailable(PlayEntry entry)
+        {
+            if (entry == null)
+                throw new ArgumentNullException(nameof(entry));
+            return !IsStarting && PlayEntry.IsAvailable(installations.Result, entry);
+        }
+
+        /// <summary>
+        /// The game chosen: the product of the selected installation (until the first search has a result, the product chosen
+        /// last, else EE) with <see cref="SelectedGame"/>.
+        /// </summary>
+        public PlayEntry SelectedEntry
+        {
+            get
+            {
+                Product product = Selected?.Product ?? ProductChoices.LastProduct(settings.Current) ?? Product.EE;
+                return PlayEntry.For(product, SelectedGame);
+            }
+        }
+
         /// <summary>
         /// The game Play starts: the last game of settings.json; The Art of Conquest only if the selected installation has
-        /// an AoC folder, else Empire Earth.
+        /// an AoC folder, else Empire Earth. Before the first search has a result the last game is the saved one.
         /// </summary>
         public Game SelectedGame
         {
             get
             {
                 Game game = Game.FromId(settings.Current.LastGame);
-                return game == Game.ArtOfConquest && Selected?.HasArtOfConquest == true ? game : Game.EmpireEarth;
+                if (game != Game.ArtOfConquest)
+                    return Game.EmpireEarth;
+                return Selected?.HasArtOfConquest == true || installations.Result == null ? game : Game.EmpireEarth;
             }
         }
 
@@ -135,6 +167,28 @@ namespace Empire_Earth_Launcher
                 return Selected != null && Selected.State != InstallationState.FolderMissing && !setupWatcher.IsSetupRunning &&
                        !installations.IsWaitingForSetup && !IsStarting;
             }
+        }
+
+        /// <summary>
+        /// The player chose <paramref name="entry"/> on the Play page: the installation of its product becomes the selected one
+        /// of every page (<see cref="InstallationService.SelectProduct"/>), and the product and the game are saved as the last
+        /// ones in settings.json, with one save.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The game is not available (<see cref="IsAvailable"/>).</exception>
+        public void SelectEntry(PlayEntry entry)
+        {
+            if (entry == null)
+                throw new ArgumentNullException(nameof(entry));
+            if (!IsAvailable(entry))
+                throw new InvalidOperationException("The game " + entry.EnglishName + " is not available.");
+            if (entry == SelectedEntry && ProductChoices.LastProduct(settings.Current) == entry.Product &&
+                string.Equals(settings.Current.LastGame, entry.Game.Id, StringComparison.Ordinal))
+                return;
+            settings.Current.LastGame = entry.Game.Id;
+            // The product is saved by the installations (one save for both); they raise Changed if the selection moved.
+            installations.SelectProduct(entry.Product);
+            logger.Info("Play: the player chose " + entry.EnglishName + " (" + entry.Product.Id + ", " + entry.Game.Id + ").");
+            RaiseChanged();
         }
 
         /// <summary>Chooses the game for Play and saves it as the last game in settings.json.</summary>

@@ -110,12 +110,6 @@ namespace Empire_Earth_Launcher.Core.Installations
             return new DiscoveryResult(installations, selection, chosen != null, UserChoice, Choices);
         }
 
-        /// <summary>The selection of <c>--product=</c> for one session (contract 1.4, revision 4): <see cref="ForProduct"/>.</summary>
-        public DiscoveryResult ForSessionProduct(Product product)
-        {
-            return ForProduct(product);
-        }
-
         /// <summary>
         /// The other installations that use the same game settings keys as <paramref name="installation"/>: those of the
         /// same product (contract 3.1). Retail, GOG and older installations use the SSSI key of EE (contract 1.4).

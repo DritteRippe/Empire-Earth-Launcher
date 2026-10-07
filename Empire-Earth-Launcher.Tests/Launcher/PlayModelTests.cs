@@ -31,6 +31,7 @@ namespace Empire_Earth_Launcher.Tests.Launcher
         private const int LauncherPid = 100;
 
         private GameSettingsWorld w;
+        private CountingFileSystem counting;
         private SettingsStore settings;
         private SetupWatcher watcher;
         private InstallationService installations;
@@ -45,7 +46,8 @@ namespace Empire_Earth_Launcher.Tests.Launcher
         {
             w = new GameSettingsWorld();
             addInstallations(w);
-            settings = new SettingsStore(w.FileSystem, SettingsFile, w.Logger);
+            counting = new CountingFileSystem(w.FileSystem);
+            settings = new SettingsStore(counting, SettingsFile, w.Logger);
             settings.Load();
             watcher = new SetupWatcher(w.Mutexes, w.World.Clock, w.Logger);
             installations = new InstallationService(w.Logger, settings, w.World.CreateDiscovery(), w.FileSystem, null, watcher);
@@ -121,6 +123,198 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(model.CanChooseArtOfConquest, Is.False);
             Assert.That(model.SelectedGame, Is.SameAs(Game.EmpireEarth), "the last game AoC counts only with an AoC folder");
             Assert.That(() => model.SelectGame(Game.ArtOfConquest), Throws.InvalidOperationException);
+        }
+
+        // --- The four games (launcher 1.1.0, contract 1.4 revision 6) -------------------------------------------------------
+
+        private void CreateWithBothProducts(string eeComponents = "game,gameaoc")
+        {
+            Create(world =>
+            {
+                world.AddAdminInstallationOfAnotherAccount(GameSettingsWorld.NeoRoot, Product.NeoEE);
+                world.AddAdminInstallationOfAnotherAccount(GameSettingsWorld.EERoot, Product.EE, eeComponents);
+            });
+        }
+
+        private string SavedSettings()
+        {
+            return w.FileSystem.GetText(SettingsFile);
+        }
+
+        [Test]
+        public void TheFourGames_AreListedInTheOrderOfThePage()
+        {
+            Assert.That(model.Entries, Is.SameAs(PlayEntry.All));
+            Assert.That(model.Entries.Select(entry => entry.EnglishName), Is.EqualTo(new[]
+            {
+                "Empire Earth", "Empire Earth - The Art of Conquest", "Neo Empire Earth", "Neo Empire Earth - The Art of Conquest"
+            }));
+        }
+
+        [Test]
+        public async Task EntriesAreDisabled_UntilTheFirstSearchHasAResult_AndForEveryGameThatIsNotInstalled()
+        {
+            CreateWithBothProducts(eeComponents: "game");
+            Assert.That(model.Entries.Select(model.IsAvailable), Is.EqualTo(new[] { false, false, false, false }), "searching");
+
+            await installations.RefreshAsync();
+
+            Assert.That(model.Entries.Select(model.IsAvailable), Is.EqualTo(new[] { true, false, true, true }), "EE has no Art of Conquest");
+        }
+
+        [Test]
+        public async Task OnlyNeoEE_TheEntriesOfEEAreDisabled()
+        {
+            await installations.RefreshAsync();
+
+            Assert.That(model.Entries.Select(model.IsAvailable), Is.EqualTo(new[] { false, false, true, true }));
+        }
+
+        [Test]
+        public async Task WhileAStartRuns_NoEntryCanBeChosen()
+        {
+            CreateWithBothProducts();
+            await installations.RefreshAsync();
+            var duringTheStart = new System.Collections.Generic.List<bool[]>();
+            model.Changed += (sender, e) => duringTheStart.Add(model.Entries.Select(model.IsAvailable).ToArray());
+
+            await model.StartAsync(false);
+
+            Assert.That(duringTheStart.First(), Is.EqualTo(new[] { false, false, false, false }), "the first change is the start itself");
+            Assert.That(model.Entries.Select(model.IsAvailable), Is.EqualTo(new[] { true, true, true, true }), "free again");
+        }
+
+        [Test]
+        public async Task TheSelectedEntry_IsNeoEmpireEarth_ForTwoCommunityInstallationsWithoutAChoice()
+        {
+            CreateWithBothProducts();
+            await installations.RefreshAsync();
+
+            Assert.That(model.SelectedEntry, Is.SameAs(PlayEntry.NeoEmpireEarth), "contract 1.4: NeoEE comes first; the game is Empire Earth");
+        }
+
+        [Test]
+        public async Task TheSelectedEntry_IsTheRememberedOne()
+        {
+            CreateWithBothProducts();
+            settings.Current.LastProduct = "EE";
+            settings.Current.LastGame = "AoC";
+
+            Assert.That(model.SelectedEntry, Is.SameAs(PlayEntry.EmpireEarthArtOfConquest), "while the first search runs");
+            await installations.RefreshAsync();
+
+            Assert.That(model.SelectedEntry, Is.SameAs(PlayEntry.EmpireEarthArtOfConquest));
+        }
+
+        [Test]
+        public async Task TheArtOfConquestOfAnInstallationWithoutIt_FallsBackToEmpireEarth()
+        {
+            CreateWithBothProducts(eeComponents: "game");
+            settings.Current.LastProduct = "EE";
+            settings.Current.LastGame = "AoC";
+
+            await installations.RefreshAsync();
+
+            Assert.That(model.SelectedEntry, Is.SameAs(PlayEntry.EmpireEarth));
+            Assert.That(model.SelectedGame, Is.SameAs(Game.EmpireEarth));
+        }
+
+        [Test]
+        public async Task SelectEntry_SwitchesTheProductAndTheGame_WithOneSave_AndEveryPageFollows()
+        {
+            CreateWithBothProducts();
+            await installations.RefreshAsync();
+            int before = counting.Saves(SettingsFile);
+            changed = 0;
+
+            model.SelectEntry(PlayEntry.EmpireEarthArtOfConquest);
+
+            Assert.That(counting.Saves(SettingsFile) - before, Is.EqualTo(1));
+            Assert.That(model.SelectedEntry, Is.SameAs(PlayEntry.EmpireEarthArtOfConquest));
+            Assert.That(installations.Selected.Product, Is.SameAs(Product.EE), "the selected installation of every page");
+            Assert.That(installations.Selected.Root, Is.EqualTo(GameSettingsWorld.EERoot));
+            Assert.That(SavedSettings(), Does.Contain("\"LastProduct\": \"EE\"").And.Contain("\"LastGame\": \"AoC\""));
+            Assert.That(changed, Is.GreaterThan(0));
+            Assert.That(w.Logger.Messages, Has.Some.Contains("Play: the player chose Empire Earth - The Art of Conquest (EE, AoC)."));
+        }
+
+        [Test]
+        public async Task SelectEntry_OfTheSameProduct_ChangesOnlyTheGame()
+        {
+            CreateWithBothProducts();
+            await installations.RefreshAsync();
+            model.SelectEntry(PlayEntry.NeoEmpireEarth);
+            DiscoveryResult result = installations.Result;
+
+            model.SelectEntry(PlayEntry.NeoEmpireEarthArtOfConquest);
+
+            Assert.That(installations.Result, Is.SameAs(result), "the installation stays");
+            Assert.That(model.SelectedEntry, Is.SameAs(PlayEntry.NeoEmpireEarthArtOfConquest));
+            Assert.That(SavedSettings(), Does.Contain("\"LastProduct\": \"NeoEE\"").And.Contain("\"LastGame\": \"AoC\""));
+        }
+
+        [Test]
+        public async Task SelectEntry_OfTheEntryThatIsChosenAndSaved_SavesNothing()
+        {
+            CreateWithBothProducts();
+            await installations.RefreshAsync();
+            model.SelectEntry(PlayEntry.EmpireEarth);
+            int saves = counting.Saves(SettingsFile);
+
+            model.SelectEntry(PlayEntry.EmpireEarth);
+
+            Assert.That(counting.Saves(SettingsFile), Is.EqualTo(saves));
+        }
+
+        [Test]
+        public async Task SelectEntry_RefusesAGameThatIsNotAvailable()
+        {
+            await installations.RefreshAsync();
+
+            Assert.That(() => model.SelectEntry(PlayEntry.EmpireEarth), Throws.InvalidOperationException);
+            Assert.That(() => model.SelectEntry(null), Throws.ArgumentNullException);
+            Assert.That(installations.Selected.Product, Is.SameAs(Product.NeoEE));
+            Assert.That(counting.Written, Is.Empty);
+        }
+
+        [Test]
+        public async Task SelectEntry_RefusesEveryGameWhileAStartRuns()
+        {
+            CreateWithBothProducts();
+            await installations.RefreshAsync();
+            InvalidOperationException refused = null;
+            model.Changed += (sender, e) =>
+            {
+                if (model.IsStarting && refused == null)
+                {
+                    try
+                    {
+                        model.SelectEntry(PlayEntry.EmpireEarth);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        refused = ex;
+                    }
+                }
+            };
+
+            await model.StartAsync(false);
+
+            Assert.That(refused, Is.Not.Null);
+        }
+
+        [Test]
+        public async Task Start_StartsTheGameOfTheChosenEntry_InTheFolderOfItsProduct()
+        {
+            CreateWithBothProducts();
+            await installations.RefreshAsync();
+            model.SelectEntry(PlayEntry.EmpireEarthArtOfConquest);
+
+            StartResult result = await model.StartAsync(false);
+
+            string folder = GameSettingsWorld.EERoot + @"\Empire Earth - The Art of Conquest";
+            Assert.That(result.Outcome, Is.EqualTo(StartOutcome.Started));
+            Assert.That(shell.Started, Is.EqualTo(new[] { Tuple.Create(folder + @"\EE-AOC.exe", folder) }));
         }
 
         [Test]

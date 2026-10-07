@@ -8,7 +8,8 @@ namespace Empire_Earth_Launcher
     /// <summary>
     /// What the running launcher does when a second launcher hands it a product (contract 1.4, revision 4): the window comes to
     /// the front and, while the launcher is idle (no game start, no running operation, no open dialog), <see cref="InstallationService.SelectProductForSession"/> selects
-    /// the first installation of that product for this session. Nothing is saved.
+    /// the installation of that product for this session. Nothing is saved. A second launcher without an argument (revision 6)
+    /// only brings the window to the front: the receiver calls <see cref="BringToFront"/> and never <see cref="SelectProduct"/>.
     /// </summary>
     /// <remarks>Used on the UI thread (the message window lives there). No window is touched here, so it is tested without one.</remarks>
     internal sealed class LauncherInstanceTarget : IInstanceTarget

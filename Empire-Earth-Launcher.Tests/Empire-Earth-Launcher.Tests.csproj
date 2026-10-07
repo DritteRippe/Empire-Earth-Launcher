@@ -176,6 +176,7 @@
     <Compile Include="Core\Settings\SettingsStoreTests.cs" />
     <Compile Include="Core\Settings\UiLanguageTests.cs" />
     <Compile Include="Fakes\BlockingRegistry.cs" />
+    <Compile Include="Fakes\CountingFileSystem.cs" />
     <Compile Include="Fakes\FakeClock.cs" />
     <Compile Include="Fakes\FakeFileVersionReader.cs" />
     <Compile Include="Fakes\FakeHttpsClient.cs" />

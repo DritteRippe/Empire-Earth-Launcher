@@ -44,6 +44,15 @@ namespace Empire_Earth_Launcher.Core.Play
         /// <summary>The game: Empire Earth or The Art of Conquest.</summary>
         public Game Game { get; }
 
+        /// <summary>
+        /// The name of the game for the log, in English: <c>Empire Earth</c>, <c>Empire Earth - The Art of Conquest</c>, <c>Neo Empire
+        /// Earth</c> or <c>Neo Empire Earth - The Art of Conquest</c>. The page shows the texts of the resources (en, de, fr).
+        /// </summary>
+        public string EnglishName
+        {
+            get { return Product.DefaultInstallFolderName + (Game == Game.ArtOfConquest ? " - The Art of Conquest" : string.Empty); }
+        }
+
         /// <summary>The entry of <paramref name="game"/> of <paramref name="product"/>.</summary>
         public static PlayEntry For(Product product, Game game)
         {

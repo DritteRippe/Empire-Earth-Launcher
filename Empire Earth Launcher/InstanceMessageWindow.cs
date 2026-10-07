@@ -7,7 +7,7 @@ using Empire_Earth_Launcher.Core.Play;
 namespace Empire_Earth_Launcher
 {
     /// <summary>
-    /// The hidden window of the running launcher that a second launcher sends <c>WM_COPYDATA</c> to (contract 1.4, revision 4):
+    /// The hidden window of the running launcher that a second launcher sends <c>WM_COPYDATA</c> to (contract 1.4, revision 4 and 6):
     /// a message-only window named <see cref="InstanceMessage.WindowName"/>, created on the UI thread before the main window
     /// runs, so the message loop of <c>Application.Run</c> delivers its messages. The content goes to an
     /// <see cref="InstanceReceiver"/>. Checked on real Windows by the test plan; the logic is in the core and tested there.
@@ -30,7 +30,7 @@ namespace Empire_Earth_Launcher
         }
 
         /// <summary>
-        /// Creates the window; null if Windows refuses (logged): the launcher then runs without taking a product from a second
+        /// Creates the window; null if Windows refuses (logged): the launcher then runs without taking a message from a second
         /// launcher, which then shows its usual message.
         /// </summary>
         public static InstanceMessageWindow TryCreate(string name, InstanceReceiver receiver, ILogger logger)
@@ -53,8 +53,8 @@ namespace Empire_Earth_Launcher
         /// <summary>
         /// Lets <c>WM_COPYDATA</c> through UIPI, so that a second launcher that is not elevated reaches a launcher that is (the
         /// compatibility option "Run as administrator"). The content is validated strictly (id, at most
-        /// <see cref="InstanceMessage.MaxBytes"/> bytes, exactly <c>product=EE</c> or <c>product=NeoEE</c>). A failure is only
-        /// logged: the second launcher then shows its usual message.
+        /// <see cref="InstanceMessage.MaxBytes"/> bytes, exactly <c>product=EE</c>, <c>product=NeoEE</c> or <c>show</c>). A failure
+        /// is only logged: the second launcher then shows its usual message.
         /// </summary>
         private void AllowCopyDataFromLowerIntegrity()
         {

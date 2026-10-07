@@ -221,6 +221,258 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(service.Selected.EeFolder, Is.EqualTo(RetailFolder).IgnoreCase);
         }
 
+        // --- One folder per product and the product chosen last (contract 1.4, revision 6) ----------------------------------
+
+        private CountingFileSystem counting;
+
+        /// <summary>The service with a settings store on a file system that counts the saves.</summary>
+        private void UseCountingSettings()
+        {
+            counting = new CountingFileSystem(world.FileSystem);
+            settings = new SettingsStore(counting, SettingsFolder + @"\settings.json", world.Logger);
+            settings.Load();
+            service = new InstallationService(world.Logger, settings, world.CreateDiscovery(), world.FileSystem, null);
+            events.Clear();
+            service.Changed += (sender, e) => events.Add(service.IsSearching ? "searching" : "done");
+        }
+
+        private LauncherSettings Saved()
+        {
+            return new SettingsStore(world.FileSystem, SettingsFolder + @"\settings.json", world.Logger).LoadAndGet();
+        }
+
+        private int Discoveries()
+        {
+            return world.LogLinesAbout("installation(s) found").Length;
+        }
+
+        [Test]
+        public async Task SelectProduct_SelectsTheInstallationOfTheProductForEveryPage_SavesOnce_AndRunsNoDiscovery()
+        {
+            UseCountingSettings();
+            await service.RefreshAsync();
+            Assert.That(service.Selected.Product, Is.SameAs(Product.NeoEE), "the default selection");
+            int discoveries = Discoveries();
+            events.Clear();
+
+            bool selected = service.SelectProduct(Product.EE);
+
+            Assert.That(selected, Is.True);
+            Assert.That(service.Selected.Product, Is.SameAs(Product.EE));
+            Assert.That(service.Selected.EeFolder, Is.EqualTo(RetailFolder).IgnoreCase);
+            Assert.That(events, Is.EqualTo(new[] { "done" }), "the pages hear of it once");
+            Assert.That(Discoveries(), Is.EqualTo(discoveries), "the installations are known: no discovery");
+            Assert.That(counting.Saves(SettingsFolder + @"\settings.json"), Is.EqualTo(1));
+            Assert.That(Saved().LastProduct, Is.EqualTo("EE"));
+            Assert.That(Saved().GameDirectory, Is.Empty, "no folder is chosen for EE: nothing for launcher 1.0.0 to select");
+            Assert.That(world.LogLinesAbout("Selection: EE installation"), Has.Length.EqualTo(1));
+        }
+
+        [Test]
+        public async Task SelectProduct_TheProductAlreadySelected_RaisesNoChange_ButRemembersIt()
+        {
+            await service.RefreshAsync();
+            events.Clear();
+
+            Assert.That(service.SelectProduct(Product.NeoEE), Is.True);
+
+            Assert.That(events, Is.Empty);
+            Assert.That(Saved().LastProduct, Is.EqualTo("NeoEE"), "the click is a choice, also if it changes nothing on the screen");
+        }
+
+        [Test]
+        public async Task SelectProduct_WithoutAnInstallationOfIt_ChangesNothing()
+        {
+            world = new InstallationWorld();
+            world.AddCommunityInstallation(NeoRoot, Product.NeoEE);
+            world.FileSystem.AddDirectory(SettingsFolder);
+            UseCountingSettings();
+            Assert.That(service.SelectProduct(Product.NeoEE), Is.False, "before the first search nothing is known");
+            await service.RefreshAsync();
+
+            Assert.That(service.SelectProduct(Product.EE), Is.False);
+
+            Assert.That(service.Selected.Product, Is.SameAs(Product.NeoEE));
+            Assert.That(counting.Written, Is.Empty, "nothing is saved");
+            Assert.That(() => service.SelectProduct(null), Throws.ArgumentNullException);
+        }
+
+        [Test]
+        public async Task TheProductChosenLast_IsAppliedAfterTheNextSearch()
+        {
+            settings.Current.LastProduct = "EE";
+
+            await service.RefreshAsync();
+
+            Assert.That(service.Selected.Product, Is.SameAs(Product.EE), "not NeoEE, which the default selection prefers");
+            Assert.That(world.LogLinesAbout("Selection: EE installation"), Has.Length.EqualTo(1));
+            Assert.That(world.LogLinesAbout("the product chosen last"), Has.Length.EqualTo(1));
+            Assert.That(world.FileSystem.FileExists(SettingsFolder + @"\settings.json"), Is.False, "a search saves nothing");
+        }
+
+        [Test]
+        public async Task TheProductChosenLast_WithoutAnInstallation_FallsBackToTheDefaultSelection()
+        {
+            world = new InstallationWorld();
+            world.AddCommunityInstallation(NeoRoot, Product.NeoEE);
+            world.FileSystem.AddDirectory(SettingsFolder);
+            UseCountingSettings();
+            settings.Current.LastProduct = "EE";
+
+            await service.RefreshAsync();
+
+            Assert.That(service.Selected.Product, Is.SameAs(Product.NeoEE));
+            Assert.That(counting.Written, Is.Empty, "the remembered product is kept as it is, nothing is written");
+            Assert.That(world.LogLinesAbout("the default selection"), Has.Length.EqualTo(1));
+        }
+
+        [Test]
+        public async Task TheChoiceOfAnOlderLauncher_BecomesTheChoiceOfItsProduct_InMemory_AndIsWrittenWithTheNextChoice()
+        {
+            UseCountingSettings();
+            settings.Current.GameDirectory = RetailFolder;
+
+            await service.RefreshAsync();
+
+            Assert.That(service.Selected.EeFolder, Is.EqualTo(RetailFolder).IgnoreCase);
+            Assert.That(settings.Current.LastProduct, Is.EqualTo("EE"));
+            Assert.That(ProductChoices.FolderOf(settings.Current, Product.EE), Is.EqualTo(RetailFolder));
+            Assert.That(settings.Current.GameDirectory, Is.EqualTo(RetailFolder), "the mirror stays");
+            Assert.That(counting.Written, Is.Empty, "the launcher writes settings.json only after a choice of the player");
+            Assert.That(world.LogLinesAbout("the folder chosen by an older launcher, " + RetailFolder + ", is the choice for EE"),
+                Has.Length.EqualTo(1));
+
+            service.SelectProduct(Product.NeoEE);
+
+            Assert.That(Saved().ProductFolders.Single().Folder, Is.EqualTo(RetailFolder), "the folder of the older launcher is kept");
+            Assert.That(Saved().LastProduct, Is.EqualTo("NeoEE"));
+            Assert.That(Saved().GameDirectory, Is.Empty);
+
+            service.SelectProduct(Product.EE);
+
+            Assert.That(service.Selected.EeFolder, Is.EqualTo(RetailFolder).IgnoreCase, "the folder chosen for EE");
+            Assert.That(service.Result.IsSelectedByUser, Is.True);
+            Assert.That(Saved().GameDirectory, Is.EqualTo(RetailFolder));
+        }
+
+        [Test]
+        public async Task TheSessionProduct_WinsOverTheProductChosenLast_AndIsNotSaved()
+        {
+            UseCountingSettings();
+            settings.Current.LastProduct = "NeoEE";
+            service.SelectProductForSession(Product.EE);
+
+            await service.RefreshAsync();
+
+            Assert.That(service.Selected.Product, Is.SameAs(Product.EE));
+            Assert.That(settings.Current.LastProduct, Is.EqualTo("NeoEE"), "the choice stays as it was");
+            Assert.That(counting.Written, Is.Empty);
+        }
+
+        [Test]
+        public async Task TheChoiceOfThePlayer_EndsTheSessionProduct_AndIsSaved()
+        {
+            UseCountingSettings();
+            service.SelectProductForSession(Product.EE);
+            await service.RefreshAsync();
+
+            service.SelectProduct(Product.NeoEE);
+
+            Assert.That(service.SessionProduct, Is.Null);
+            Assert.That(service.Selected.Product, Is.SameAs(Product.NeoEE));
+            Assert.That(Saved().LastProduct, Is.EqualTo("NeoEE"));
+            Assert.That(world.LogLinesAbout("replaces the product of the command line (EE)"), Has.Length.EqualTo(1));
+
+            await service.RefreshAsync();
+
+            Assert.That(service.Selected.Product, Is.SameAs(Product.NeoEE), "also after the next search");
+        }
+
+        [Test]
+        public async Task Select_OfARowOfAnotherProduct_ChoosesItsFolder_KeepsTheOther_AndSwitchesTheProduct()
+        {
+            await service.RefreshAsync();
+            Installation retail = service.Result.Installations.Single(installation => installation.Kind == InstallationKind.Foreign);
+            Installation neo = service.Result.Installations.Single(installation => installation.Kind == InstallationKind.Community);
+
+            await service.SelectAsync(retail);
+
+            Assert.That(Saved().LastProduct, Is.EqualTo("EE"));
+            Assert.That(Saved().ProductFolders.Single().Folder, Is.EqualTo(retail.EeFolder));
+            Assert.That(service.Selected.Root, Is.EqualTo(retail.Root).IgnoreCase);
+
+            await service.SelectAsync(neo);
+
+            Assert.That(Saved().LastProduct, Is.EqualTo("NeoEE"));
+            Assert.That(Saved().ProductFolders.Select(entry => entry.Product), Is.EquivalentTo(new[] { "EE", "NeoEE" }), "one folder per product");
+            Assert.That(Saved().GameDirectory, Is.EqualTo(neo.EeFolder), "the mirror is the folder of the product chosen last");
+            Assert.That(service.Selected.Root, Is.EqualTo(NeoRoot));
+
+            Assert.That(service.SelectProduct(Product.EE), Is.True);
+
+            Assert.That(service.Selected.EeFolder, Is.EqualTo(retail.EeFolder).IgnoreCase, "the folder chosen for EE comes back");
+            Assert.That(service.Result.IsSelectedByUser, Is.True);
+        }
+
+        [Test]
+        public async Task ChooseFolder_IsResolvedToItsProduct_AndSavedTwice()
+        {
+            UseCountingSettings();
+            string file = SettingsFolder + @"\settings.json";
+
+            await service.ChooseFolderAsync(RetailFolder);
+
+            Assert.That(service.Selected.EeFolder, Is.EqualTo(RetailFolder).IgnoreCase);
+            Assert.That(counting.Saves(file), Is.EqualTo(2), "the folder, then the product it turned out to belong to");
+            Assert.That(Saved().LastProduct, Is.EqualTo("EE"));
+            Assert.That(Saved().ProductFolders.Single().Folder, Is.EqualTo(RetailFolder));
+            Assert.That(Saved().GameDirectory, Is.EqualTo(RetailFolder));
+
+            await service.ChooseFolderAsync(NeoRoot);
+
+            Assert.That(Saved().LastProduct, Is.EqualTo("NeoEE"));
+            Assert.That(Saved().ProductFolders.Select(entry => entry.Product), Is.EquivalentTo(new[] { "EE", "NeoEE" }));
+            Assert.That(service.Selected.Root, Is.EqualTo(NeoRoot));
+        }
+
+        [Test]
+        public async Task AutoDetect_KeepsTheProduct_AndTheFolderOfTheOther_AndUsesTheFirstInstallationOfTheProduct()
+        {
+            await service.RefreshAsync();
+            Installation retail = service.Result.Installations.Single(installation => installation.Kind == InstallationKind.Foreign);
+            Installation neo = service.Result.Installations.Single(installation => installation.Kind == InstallationKind.Community);
+            await service.SelectAsync(neo);
+            await service.SelectAsync(retail);
+
+            await service.UseAutomaticDetectionAsync();
+
+            Assert.That(Saved().LastProduct, Is.EqualTo("EE"), "the product stays");
+            Assert.That(Saved().ProductFolders.Select(entry => entry.Product), Is.EqualTo(new[] { "NeoEE" }), "the folder of NeoEE stays");
+            Assert.That(Saved().GameDirectory, Is.Empty);
+            Assert.That(service.Selected.Product, Is.SameAs(Product.EE));
+            Assert.That(service.Result.IsSelectedByUser, Is.False);
+
+            service.SelectProduct(Product.NeoEE);
+
+            Assert.That(service.Result.IsSelectedByUser, Is.True, "NeoEE still has its chosen folder");
+        }
+
+        [Test]
+        public async Task AFolderChosenForAProductThatIsGone_StaysItsChoice_AndTheProductCanBeSelected()
+        {
+            UseCountingSettings();
+            ProductChoices.Choose(settings.Current, Product.EE, @"D:\Removed\Empire Earth");
+            ProductChoices.ChooseProduct(settings.Current, Product.NeoEE);
+
+            await service.RefreshAsync();
+
+            Assert.That(service.Selected.Product, Is.SameAs(Product.NeoEE));
+            Assert.That(service.Result.Has(Product.EE), Is.True, "the missing folder is listed as an installation of EE");
+            Assert.That(service.SelectProduct(Product.EE), Is.True);
+            Assert.That(service.Selected.State, Is.EqualTo(InstallationState.FolderMissing));
+            Assert.That(Saved().ProductFolders.Single().Folder, Is.EqualTo(@"D:\Removed\Empire Earth"));
+        }
+
         // --- --product=EE|NeoEE for one session (contract 1.4, revision 4) ---------------------------------------------
 
         [Test]

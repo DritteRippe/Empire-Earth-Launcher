@@ -38,8 +38,9 @@ namespace Empire_Earth_Launcher
         /// theme, registry, installations, Neo client) are created here, once, and passed to the windows that need them.
         /// </summary>
         /// <param name="args">
-        /// <c>--product=EE</c> or <c>--product=NeoEE</c> (the shortcuts of the suite, contract 1.4): selects that product for this
-        /// session; another value is ignored and logged.
+        /// <c>--product=EE</c> or <c>--product=NeoEE</c> (the shortcuts of suite 1.0.0 and of players, contract 1.4): selects that
+        /// product for this session; another value is ignored and logged. The one shortcut of suite 1.1.0 passes no argument: the
+        /// launcher opens with the game chosen last.
         /// </param>
         [STAThread]
         static void Main(string[] args)
@@ -72,9 +73,10 @@ namespace Empire_Earth_Launcher
             LauncherArguments arguments = LauncherArguments.Parse(args, logger);
             int sessionId = Process.GetCurrentProcess().SessionId;
 
-            // One launcher per Windows session (ADR 0010). A second one that was started with --product hands the product to the
-            // running one and ends silently; otherwise it says so in the UI language and ends. The handle is kept until the
-            // launcher ends.
+            // One launcher per Windows session (ADR 0010). A second one hands its command line to the running one and ends silently:
+            // the product of --product, or without it (the one shortcut of the suite) the request to come to the front, which keeps
+            // the selection. If the running one does not take it (a launcher 1.0.0, no window), the second one says so in the UI
+            // language and ends. The handle is kept until the launcher ends.
             Func<bool> handOver = () => new InstanceForwarder(new WindowsInstanceChannel(logger), delay => Thread.Sleep(delay), logger)
                 .TryForward(arguments, sessionId);
             using (IDisposable singleInstance = ClaimSingleInstance(new WindowsMutexOwner(logger), logger, ShowAlreadyRunning, handOver))
@@ -252,9 +254,9 @@ namespace Empire_Earth_Launcher
 
         /// <summary>
         /// Claims the single-instance mutex <see cref="SingleInstance.MutexName"/> (ADR 0010); if another launcher holds it,
-        /// first tries <paramref name="handOver"/> (the product of <c>--product=</c> goes to the running launcher, which comes to
-        /// the front) and, if that did not work or there is none, shows <see cref="Resources.LauncherAlreadyRunning"/>; returns
-        /// null then, and the launcher ends.
+        /// first tries <paramref name="handOver"/> (the product of <c>--product=</c>, or the request to come to the front, goes to
+        /// the running launcher, which comes to the front) and, if that did not work or there is none, shows
+        /// <see cref="Resources.LauncherAlreadyRunning"/>; returns null then, and the launcher ends.
         /// </summary>
         /// <param name="handOver">Hands the command line to the running launcher; true if it took it. Null for none.</param>
         internal static IDisposable ClaimSingleInstance(IMutexOwner owner, ILogger log, Action<string> showMessage,
