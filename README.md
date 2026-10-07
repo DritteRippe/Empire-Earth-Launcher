@@ -99,8 +99,8 @@ controls of the old mock-up were removed and the features behind them are listed
   your screen, up to 1920x1200 (the game can crash above that; 1920x1200 only on a screen that is at least that tall), with
   a backup of the game settings first; only the two values of the window size are written, never a file, and a repair or
   update with the setup sets the recommended size again. The page tells you when `dgVoodoo.conf` still has the settings of a
-  setup before 1.1.0 (a dead mouse after the start, a lobby that minimizes the game) and that a repair or update with the
-  setup replaces them. It also shows which DirectX wrapper the setup installed (native, DirectX 7, DirectX 9, dgVoodoo with its API
+  setup before 1.1.0 (problems with the mouse, the lobby or Alt+Tab) and that a repair or update with the
+  setup replaces them (and with them any change you made to the file yourself). It also shows which DirectX wrapper the setup installed (native, DirectX 7, DirectX 9, dgVoodoo with its API
   level) and, for dgVoodoo, the keys of `dgVoodoo.conf` that decide the screen mode (read only: the launcher changes neither
   the wrapper nor that file), and tells how to change the wrapper in the setup
   ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md), amendment of 2026-10-07)
@@ -239,7 +239,9 @@ Empire Earth takes its mouse and keyboard through DirectInput only when its wind
 dgVoodoo of the community setup no activation reaches the game after it has created these devices, unless the start
 changed the display mode; on a screen of the game's own size it does not. Since 1.1.0 the launcher sends the main window
 of a game it started **one** activation (`WM_ACTIVATE`) as soon as that window has been in front, unchanged, for five
-seconds, at the latest three minutes after the start; with the intro videos the mouse can then skip the intro.
+seconds, at the latest three minutes after the start. That **should** give the game its mouse without Alt+Tab, so that a
+click skips the intro videos; this is **to be confirmed by test plan WP6-21** on a real machine (a real Alt+Tab also brings
+the activation of the whole application and a real change of the foreground window, which one posted message cannot).
 So: **start the game through the launcher** (the desktop icon "Empire Earth Community" of the suite opens it) and keep the
 launcher open until the main menu shows; closing it earlier cancels the signal. A start of `Empire Earth.exe` or
 `EE-AOC.exe` without the launcher still needs one Alt+Tab, out and back.
@@ -261,6 +263,8 @@ help when a report comes in:
 
 If the mouse is dead although the log says `activation signal sent`, note whether Alt+Tab (or a click on the taskbar button
 of the game) revives it, and send the lines of `log.txt` from `Game started:` on (see "What do I send with a report?").
+The next step in that case is to send the application activation (`WM_ACTIVATEAPP`) as well; that would be a decision of a
+later version ([ADR 0010](docs/adr/0010-game-start-and-mutex-probing.md), amendment of A1b).
 A game with the compatibility setting "Run as administrator" may also refuse the foreground from the launcher, which does not
 run as administrator (`SetForegroundWindow was refused` in the log); the launcher tries three more times and then gives up
 without changing anything else.

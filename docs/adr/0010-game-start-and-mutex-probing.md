@@ -289,8 +289,8 @@ never later than 180 seconds after the start.
 `Core/Platform/WindowsWindowSystemTests`, `Launcher/PlayModelTests`; test plan WP6-21 and setup test plan TP-25 (to be recorded
 on the laptop). The signal itself is a hypothesis on this laptop until WP6-21 ran.
 
-**Consequences.** A start through the launcher (the desktop icon of the suite starts it) gets a live mouse after about five
-seconds of a quiet window; closing the launcher earlier cancels the signal; a direct start of the game program still needs one
+**Consequences.** A start through the launcher (the desktop icon of the suite starts it) should get a live mouse after about five
+seconds of a quiet window (to be confirmed by WP6-21); closing the launcher earlier cancels the signal; a direct start of the game program still needs one
 Alt+Tab (README); a game started as administrator refuses the message (logged, Alt+Tab); the game centres its cursor once on the
 signal, as on every real activation. If the mouse stays dead after `activation signal sent`, the watch lines show whether
 something changed after the signal; the next step would be `WM_ACTIVATEAPP(TRUE)` as well (an amendment).
@@ -299,3 +299,36 @@ something changed after the signal; the next step would be `WM_ACTIVATEAPP(TRUE)
 minimize and restore (changes the window: forbidden); `SetForegroundWindow` on a window that is in front (sends nothing);
 `AttachThreadInput` or simulated key presses (input faking, forbidden by `ForegroundRulesTests` in spirit); a patched game
 program (never).
+
+### Review of A1b (2026-10-07): guards right before the post, the identity of the main window, the clock
+
+A review of the first implementation found five gaps. The decision above stays; these are the changes and what is still open.
+
+- **Right before the post** (`GameWindowActivator.SendSignal`). The look that decides to send read the foreground a few
+  milliseconds earlier, and `PostMessage` only queues the message. The activator now reads `GetForegroundWindow()` again and
+  requires it to equal the main window; it asks whether the main window responds; and it checks the cancellation token. A
+  failed check calls `ActivationSignal.Withdraw`: the decision is taken back, the quiet time starts again, the log says
+  `activation signal held back right before the post: ...`. A closing launcher posts nothing.
+- **A window that does not respond** (`IWindowSystem.IsWindowResponding`, `IsHungAppWindow`: no message processed for about 5 s)
+  is not quiet (`SignalWait.NotResponding`, the quiet time starts again). A game that is loading does not read its queue; the
+  message would wait, and if the player switched away meanwhile, Empire Earth would minimize itself first and then handle a
+  `WA_ACTIVE` in the background. This closes the case for loads of more than about 5 s. **Not closed:** a stall of less than
+  5 s, and the delay between the post and the game reading it; neither can be tested under Mono. WP6-21 (a) and (c) watch for it.
+- **Which window is the main window.** The signal is armed with the class of the main window that the hand-over found
+  (`SSSI Empire Earth`); a window of another class, or of another process (a reused process id), counts as missing (10 s: `WindowGone`).
+  If the class cannot be read at arming, the signal is not armed (logged).
+- **Time.** Quiet time, deadline, search for the window and the watch use `IClock.Elapsed` (a `Stopwatch`), not the wall clock; a
+  forward or backward setting of the clock of the computer no longer sends the signal early or ends the wait before 180 s.
+- **A watch that fails** after a successful hand-over keeps the outcome of the hand-over (it was reported as `GaveUp`); a
+  pending signal ends as `WatchFailed` with the line `The activation signal for ... was not sent: the watch failed.`. A main
+  window that is gone before the post (error 1400, reported by the adapter without calling `PostMessage`) ends as `WindowGone`
+  with its own wording.
+- **Open (for the laptop, before the release).** The 5-second rule measures that rectangle and styles do not change. If, at
+  1920x1200, the window already has its final size and style when it appears, dgVoodoo's late window work may not show in them,
+  and 5 quiet seconds prove nothing about it. Without intro videos the loading window may also be quiet before that work and
+  the one signal would be wasted. No real `Watch t+` line from the laptop exists yet. WP6-21 (a) and (f) therefore asks for the
+  complete watch log of a start at 1200, with and without the intro videos. **If the late work is invisible in the log, the
+  decision must use something observable instead, for example a minimum time since the main window became the foreground
+  window (and the first presented picture), and this amendment is updated with the log.** WP6-21 (g) separates the two possible
+  reasons for a dead mouse (the activation itself, or a resume that a posted message cannot give: `WM_ACTIVATEAPP(TRUE)` and a
+  real change of the foreground window).
