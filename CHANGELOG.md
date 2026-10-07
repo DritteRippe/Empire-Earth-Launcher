@@ -4,10 +4,19 @@ All notable changes to Empire Earth Launcher, its libraries and the mod creator 
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). All assemblies carry the version of
-`SharedAssemblyInfo.cs`: 1.0.0 since the optional additions for the suite installer, `0.1.0-alpha` before. The fixes of
-the code review that preceded v2 (branch `refactor/quality-fixes`) are described in the git history.
+`SharedAssemblyInfo.cs`: 1.1.0 since the one launcher for the four games, 1.0.0 since the optional additions for the suite
+installer, `0.1.0-alpha` before. The fixes of the code review that preceded v2 (branch `refactor/quality-fixes`) are
+described in the git history.
 
 ## [Unreleased]
+
+## [1.1.0] - 2026-10-07
+
+Version 1.1.0 is the launcher of the suite installer "Empire Earth Community" 1.1.0 (setup repository, contract
+revision 6): one launcher for Empire Earth, Neo Empire Earth and their expansions, the *Graphics* and *Mods* pages, a
+window that can be resized, the download pages of the website and the activation signal against the dead mouse at the
+start of a game. It is tagged `v1.1.0` only after its laptop test cases have passed
+([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), L-WP11 to L-WP14, WP6-13, WP6-18 to WP6-21).
 
 ### Changed
 

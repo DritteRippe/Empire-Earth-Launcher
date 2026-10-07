@@ -66,17 +66,18 @@ features that work.
 - Settings of earlier test builds (`user.config`) are not taken over. Saved games are exported into a folder; there is
   no zip export or import.
 
-**Status**: version 1.0.0 (`SharedAssemblyInfo.cs`, CHANGELOG 2026-10-05); not available as a release yet, only test
-builds. The next step is the test on real Windows computers ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md)); the French
-translation review and the German proof-reading are still open.
+**Status**: version 1.1.0 (`SharedAssemblyInfo.cs`, CHANGELOG 2026-10-07); not available as a release yet, only test
+builds. Version 1.1.0 is tagged `v1.1.0` only after its test cases on a real Windows computer have passed
+([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), L-WP11 to L-WP14, WP6-13, WP6-18 to WP6-21); the French translation review
+and the German proof-reading are still open.
 
 ## 🧾 Features
 
 Launcher v2 was built in nine work packages on branch `v2` ([docs/ARCHITECTURE.md](docs/ARCHITECTURE.md),
-section 15; what each one did is in the [CHANGELOG](CHANGELOG.md)). All of them are done; the launcher is version 1.0.0,
-which adds the optional parts for the suite installer "Empire Earth Community" (below). The next step is the test on
-real Windows computers ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md)). The UI
-shows only controls that work ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md)): the placeholder
+section 15; what each one did is in the [CHANGELOG](CHANGELOG.md)). All of them are done; the launcher is version 1.1.0
+(one launcher for the four games, the *Graphics* and *Mods* pages, the optional parts for the suite installer "Empire Earth
+Community" below, which 1.0.0 added). The next step is the test on real Windows computers
+([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md)). The UI shows only controls that work ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md)): the placeholder
 controls of the old mock-up were removed and the features behind them are listed below as planned.
 
 **Available now**
@@ -648,7 +649,7 @@ testing, not releases. The manual test on a real Windows computer is described i
 [docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md).
 
 **Versioning**: the version of all assemblies is maintained in one place, `SharedAssemblyInfo.cs`
-(currently `1.0.0`, the version the suite installer packages).
+(currently `1.1.0`, the version the suite installer 1.1.0 packages).
 
 **Line endings**: `.gitattributes` stores text files with LF and checks C#, `.resx` and other Visual Studio
 files out with CRLF, so no extra `core.autocrlf` configuration is needed.
