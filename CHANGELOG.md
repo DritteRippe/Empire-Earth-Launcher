@@ -91,6 +91,8 @@ the code review that preceded v2 (branch `refactor/quality-fixes`) are described
 - "Open dreXmod.config" on a Windows with no program for `.config` ended with an error message (error 1155); the launcher now
   asks Windows for the "Open with" dialog (`openas`). `IProcessStarter.OpenFile` is an allow-list now (`.config`, `.conf`,
   `.txt`, `.ini`, `.log`) instead of a list of what Windows runs (test plan WP12-04).
+- The size chosen in the list of the *Graphics* page is kept only for the installation it was chosen for; every click on the
+  Play list can switch the product, and the other installation starts from its own sizes (`GraphicsView.KeepChoice`).
 - Game settings page: the header, the description and the "NeoEE in ..." line lay on top of each other, and the book picture
   of the compatibility warning lay over the buttons "Apply recommended display" and "Reset game settings". The page is
   created hidden and filled before the window is shown, and its layout skipped the header, the installation line and

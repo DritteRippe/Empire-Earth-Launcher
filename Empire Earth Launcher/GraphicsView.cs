@@ -57,6 +57,21 @@ namespace Empire_Earth_Launcher
         /// <summary>The <c>dgVoodoo.conf</c> lines of the games; empty if there is nothing to show.</summary>
         public string WrapperConfig { get; private set; }
 
+        /// <summary>
+        /// The size the player chose, if it was chosen for the installation <paramref name="snapshot"/> is about, else none: another
+        /// installation (every click on the Play list can switch the product) starts from the sizes it has now. Nothing is decided
+        /// while no state is read (<paramref name="snapshot"/> is null); the choice is kept for the next one.
+        /// </summary>
+        /// <param name="chosen">The size chosen in the list; empty for none.</param>
+        /// <param name="chosenRoot">The install root of the installation the size was chosen for; null if it was chosen for none.</param>
+        /// <param name="snapshot">The state that is shown now; null while none is read.</param>
+        public static ScreenSize KeepChoice(ScreenSize chosen, string chosenRoot, GraphicsSnapshot snapshot)
+        {
+            if (chosen.IsEmpty || snapshot == null)
+                return chosen;
+            return chosenRoot != null && WinPath.IsSamePath(chosenRoot, snapshot.Installation.Root) ? chosen : ScreenSize.Empty;
+        }
+
         /// <summary>The view of <paramref name="model"/>; <paramref name="chosen"/> is the size the player chose in the list, if any.</summary>
         public static GraphicsView Of(GraphicsModel model, SetupWatcher setupWatcher, ScreenSize chosen)
         {

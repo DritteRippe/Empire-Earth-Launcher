@@ -41,8 +41,11 @@ namespace Empire_Earth_Launcher
         /// <summary>The sizes of the list, in its order.</summary>
         private IReadOnlyList<ResolutionOption> offered = new ResolutionOption[0];
 
-        /// <summary>The size the player chose in the list; kept when the list is filled again.</summary>
+        /// <summary>The size the player chose in the list; kept when the list is filled again, but only for the installation it was chosen for.</summary>
         private ScreenSize chosenSize;
+
+        /// <summary>The install root of the installation <see cref="chosenSize"/> was chosen for.</summary>
+        private string chosenRoot;
 
         /// <summary>True while the list is filled by code, so that no choice is taken from it then.</summary>
         private bool updatingList;
@@ -132,6 +135,8 @@ namespace Empire_Earth_Launcher
         {
             if (model == null)
                 return;
+            // Another installation (a click on the Play list switches the product) starts from its own sizes.
+            chosenSize = GraphicsView.KeepChoice(chosenSize, chosenRoot, model.Snapshot);
             GraphicsView view = GraphicsView.Of(model, setupWatcher, chosenSize);
 
             windowSizeInstallationKryptonWrapLabel.Text = view.Installation;
@@ -222,7 +227,10 @@ namespace Empire_Earth_Launcher
                 return;
             int index = windowSizeKryptonComboBox.SelectedIndex;
             if (index >= 0 && index < offered.Count)
+            {
                 chosenSize = offered[index].Size;
+                chosenRoot = model.Snapshot?.Installation.Root;
+            }
             ShowState();
         }
 

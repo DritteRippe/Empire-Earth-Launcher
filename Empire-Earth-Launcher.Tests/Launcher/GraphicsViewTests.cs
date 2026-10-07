@@ -130,6 +130,25 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(view.ApplyEnabled, Is.False);
         }
 
+        /// <summary>The Play list switches the installation with every click: a size chosen for one is not carried to the other.</summary>
+        [Test]
+        public async Task AChosenSize_IsKeptForItsInstallationOnly()
+        {
+            g.AddInstallation();
+            await g.Search();
+            GraphicsSnapshot snapshot = g.Model.Snapshot;
+            var chosen = new ScreenSize(1600, 900);
+
+            Assert.That(GraphicsView.KeepChoice(chosen, snapshot.Installation.Root, snapshot), Is.EqualTo(chosen));
+            Assert.That(GraphicsView.KeepChoice(chosen, snapshot.Installation.Root.ToUpperInvariant() + @"\", snapshot), Is.EqualTo(chosen),
+                "the same folder in another spelling");
+            Assert.That(GraphicsView.KeepChoice(chosen, @"D:\Another\Neo Empire Earth", snapshot).IsEmpty, Is.True);
+            Assert.That(GraphicsView.KeepChoice(chosen, null, snapshot).IsEmpty, Is.True, "chosen for no installation");
+            Assert.That(GraphicsView.KeepChoice(chosen, @"D:\Another\Neo Empire Earth", null), Is.EqualTo(chosen),
+                "no state is shown: nothing to compare with, the choice waits");
+            Assert.That(GraphicsView.KeepChoice(ScreenSize.Empty, @"D:\Another", snapshot).IsEmpty, Is.True);
+        }
+
         [Test]
         public async Task WhileTheFirstReadRuns_ThePageSaysChecking_AndOffersNothing()
         {
