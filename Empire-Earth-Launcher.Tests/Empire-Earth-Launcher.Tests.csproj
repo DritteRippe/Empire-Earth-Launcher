@@ -249,6 +249,7 @@
     <Compile Include="TestSupport\LayoutChecker.cs" />
     <Compile Include="TestSupport\ModsModelWorld.cs" />
     <Compile Include="TestSupport\ModsPageWorld.cs" />
+    <Compile Include="TestSupport\PlayModelWorld.cs" />
     <Compile Include="TestSupport\PlayPageWorld.cs" />
     <Compile Include="TestSupport\ProductionSources.cs" />
     <Compile Include="TestSupport\InstallationWorld.cs" />
