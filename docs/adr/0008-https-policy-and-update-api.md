@@ -207,10 +207,12 @@ installation in place, undoes fixes of the package and leaves the installation U
   the page nor to the GitHub API) and follows no redirect; GitHub answers `/releases/latest` with the release marked
   "Latest", so the address never has to change with a version.
 - **Chosen by the suite record, not by the installation alone**: `SetupDownloadPage.For` keeps the table of contract 4.3,
-  and `RepairAdvice.DownloadUrl` takes the release page when `InstalledBySuite`. The contract has no row for it yet (a
-  proposal for its next revision, made in both repositories at once); until then the launcher departs from the wording
-  of 4.3 and 4.4 ("the download of 4.3 stays the second option") in this one case. No MUST or MUST NOT of 4.1 changes:
-  the launcher still downloads, starts and elevates nothing.
+  and `RepairAdvice.DownloadUrl` takes the release page when `InstalledBySuite`. When this amendment was written, the
+  contract had no row for it, and the launcher departed from the wording of 4.3 and 4.4 ("the download of 4.3 stays the
+  second option") in this one case. Contract revision 7 (the same day, in both repositories) adopted it: a paragraph
+  "Installation of the suite" in 4.3 (not a row of its table) with a MUST NOT for the product pages, and 4.4 and 4.5
+  match, so the launcher keeps to the contract again. No MUST or MUST NOT of 4.1 changes: the launcher still downloads,
+  starts and elevates nothing.
 - **`NetworkDestinationTests`** allow the update API, the three pages of contract 4.3 and the release page as URL literals
   and nothing else; new self-tests show that a download of the ZIP file and the GitHub API are found.
 

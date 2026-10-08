@@ -101,8 +101,9 @@ namespace Empire_Earth_Launcher.Tests.Core.Repair
         }
 
         /// <summary>
-        /// The table of <c>docs/CONTRACT.md</c> 4.3 and the constants of the launcher name the same pages: the three pages of the
-        /// community website, and, once the contract has a row for an installation of the suite, the release page of the package.
+        /// The table of <c>docs/CONTRACT.md</c> 4.3 and the constants of the launcher name the same three pages of the community
+        /// website. Since revision 7 the contract names the release page of the package for an installation of the suite in a
+        /// paragraph of 4.3, not in the table; a row for it is still accepted, at most one.
         /// </summary>
         [Test]
         [Category(TestCategories.SourceTree)]
