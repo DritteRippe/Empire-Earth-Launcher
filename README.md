@@ -74,8 +74,9 @@ in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 > [!NOTE]
 > **Version 1.1.0** is the current release (tag `v1.1.0`, 2026-10-07). It ships inside the package
-> "Empire Earth Community" 1.1.0; no binaries are published here. **1.1.1** is prepared on `main`: see *Unreleased* in
-> the [CHANGELOG](CHANGELOG.md).
+> "Empire Earth Community" 1.1.0; no binaries are published here. **1.1.1** is the version of the code
+> (`SharedAssemblyInfo.cs`), for the package "Empire Earth Community" 1.1.1: see *Unreleased* in the
+> [CHANGELOG](CHANGELOG.md).
 
 <details>
 <summary>What was tested on real Windows, and what is open</summary>
@@ -178,9 +179,10 @@ features that work.
 ## 🧾 Features
 
 Launcher v2 was built in nine work packages (developed on the branch `v2`, now merged into `main`;
-[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), section 15; what each one did is in the [CHANGELOG](CHANGELOG.md)). All of them are done; the launcher is version 1.1.0
-(one launcher for the four games, the *Graphics* and *Mods* pages, the optional parts for the suite installer "Empire Earth
-Community" below, which 1.0.0 added). Session 1 of the test on a real Windows computer ran before the release of 1.1.0;
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), section 15; what each one did is in the [CHANGELOG](CHANGELOG.md)). All of them are done; the launcher is version 1.1.1
+(the fixes of the review after 1.1.0, among them the repair advice that sends an installation of the suite to the release
+page of the package; 1.1.0 brought one launcher for the four games and the *Graphics* and *Mods* pages, 1.0.0 the optional
+parts for the suite installer "Empire Earth Community" below). Session 1 of the test on a real Windows computer ran before the release of 1.1.0;
 the next step is session 2, before or with 1.1.1 ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), section 4.1 lists what
 it covers). The UI shows only controls that work ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md)): the placeholder
 controls of the old mock-up were removed and the features behind them are listed below as planned.
@@ -820,7 +822,7 @@ testing, not releases. The manual test on a real Windows computer is described i
 [docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md).
 
 **Versioning**: the version of all assemblies is maintained in one place, `SharedAssemblyInfo.cs`
-(currently `1.1.0`, the version the suite installer 1.1.0 packages). How a version is released, from the version
+(currently `1.1.1`, the version the suite installer 1.1.1 packages). How a version is released, from the version
 commit to the package: [docs/RELEASING.md](docs/RELEASING.md).
 
 **Line endings**: `.gitattributes` stores text files with LF and checks C#, `.resx` and other Visual Studio

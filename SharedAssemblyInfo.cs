@@ -6,11 +6,14 @@
 // carry one version number. Change it here and only here; every project
 // links this file as Properties\SharedAssemblyInfo.cs.
 //
-// 1.1.0 is the launcher that the suite installer "Empire Earth Community"
-// 1.1.0 (setup repository, folder suite/) packages: one launcher for the four
-// games, the Graphics and Mods pages and the optional additions of contract
-// revision 6. 1.0.0 was the first launcher of the suite (contract revision 4:
-// --product, suite mutex, suite record).
+// 1.1.1 is the launcher that the suite installer "Empire Earth Community"
+// 1.1.1 (setup repository, folder suite/) packages: the fixes of the review
+// after 1.1.0 and contract revision 7 (an installation of the suite is sent
+// to the release page of the package). A patch version, so AssemblyVersion
+// stays 1.1.0.0. 1.1.0 brought one launcher for the four games, the Graphics
+// and Mods pages and the optional additions of contract revision 6; 1.0.0 was
+// the first launcher of the suite (contract revision 4: --product, suite
+// mutex, suite record).
 // "Empire Earth Launcher v3" in the git history means the third rewrite of
 // the launcher, not a release number.
 //
@@ -24,5 +27,5 @@
 using System.Reflection;
 
 [assembly: AssemblyVersion("1.1.0.0")]
-[assembly: AssemblyFileVersion("1.1.0.0")]
-[assembly: AssemblyInformationalVersion("1.1.0")]
+[assembly: AssemblyFileVersion("1.1.1.0")]
+[assembly: AssemblyInformationalVersion("1.1.1")]

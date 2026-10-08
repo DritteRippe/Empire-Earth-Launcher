@@ -26,7 +26,7 @@ body:
     attributes:
       label: Version of the launcher and of the package
       description: The version of the launcher and, if you installed it with it, of the package "Empire Earth Community".
-      placeholder: "Launcher 1.1.0, package Empire Earth Community 1.1.0"
+      placeholder: "Launcher 1.1.1, package Empire Earth Community 1.1.1"
     validations:
       required: true
   - type: input
