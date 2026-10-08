@@ -1,8 +1,8 @@
 # 0012 Test strategy
 
 Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review; implementation in L-WP5, L-WP6,
-L-WP7, L-WP8 and L-WP9), 2026-10-03 (CI end-to-end test; WinForms tests) and 2026-10-06 (geometry tests; resizable layout;
-Play and Launcher pages) and 2026-10-07 (the Graphics and Mods pages), see the
+L-WP7, L-WP8 and L-WP9), 2026-10-03 (CI end-to-end test; WinForms tests), 2026-10-06 (geometry tests; resizable layout;
+Play and Launcher pages), 2026-10-07 (the Graphics and Mods pages) and 2026-10-08 (review of the mod library), see the
 Amendment sections
 
 ## Context
