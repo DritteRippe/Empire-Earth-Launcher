@@ -32,7 +32,8 @@ namespace Empire_Earth_Launcher.Core.Repair
 
         /// <summary>
         /// The integrity state of a community installation is Unknown because its records are missing, unusable or outdated
-        /// (no manifest, an older setup ran afterwards, ...): run the current setup (contract 2.5).
+        /// (no manifest, an older setup ran afterwards, ...): run the current setup (contract 2.5), for an installation of the
+        /// suite the suite of the package.
         /// </summary>
         IntegrityUnknown,
 

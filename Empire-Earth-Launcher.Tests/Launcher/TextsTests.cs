@@ -631,7 +631,8 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(Texts.IntegrityExplanation(IntegrityReport.Unknown(community, IntegrityCheckKind.Quick, UnknownReason.LegacySetup)),
                 Is.EqualTo("Installed by the community setup 1.7.2 or older, which writes no list of files. Run the current setup to enable the check."));
             Assert.That(Texts.IntegrityExplanation(IntegrityReport.Unknown(community, IntegrityCheckKind.Quick, UnknownReason.OlderSetupRanAfter)),
-                Is.EqualTo("An older setup ran after the current one, or the last setup could not replace its records. Run the current setup."));
+                Is.EqualTo("An older setup ran after the current one, or the last setup could not replace its records. Repair the " +
+                           "installation with the steps of the repair advice."));
             foreach (UnknownReason reason in new[] { UnknownReason.NoInstallInfo, UnknownReason.NoManifest,
                          UnknownReason.ManifestUnreadable, UnknownReason.InvalidManifest })
                 Assert.That(Texts.IntegrityExplanation(IntegrityReport.Unknown(community, IntegrityCheckKind.Quick, reason)),

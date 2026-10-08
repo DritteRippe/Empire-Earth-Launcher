@@ -2018,7 +2018,7 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An older setup ran after the current one, or the last setup could not replace its records. Run the c[rest of string was truncated].
+        ///   Looks up a localized string similar to An older setup ran after the current one, or the last setup could not replace its records. Repair th[rest of string was truncated].
         /// </summary>
         internal static string IntegrityUnknownOlderSetup {
             get {

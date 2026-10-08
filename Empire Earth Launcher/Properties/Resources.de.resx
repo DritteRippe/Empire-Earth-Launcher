@@ -701,7 +701,7 @@ Ihre jetzigen Einstellungen werden vorher als .reg-Dateien in {1} gesichert; ein
     <value>Mit einem neueren Setup installiert, als dieser Launcher kennt. Bitte aktualisieren Sie den Launcher.</value>
   </data>
   <data name="IntegrityUnknownOlderSetup" xml:space="preserve">
-    <value>Nach dem aktuellen Setup lief ein älteres Setup, oder das letzte Setup konnte seine Einträge nicht ersetzen. Führen Sie das aktuelle Setup aus.</value>
+    <value>Nach dem aktuellen Setup lief ein älteres Setup, oder das letzte Setup konnte seine Einträge nicht ersetzen. Reparieren Sie die Installation mit den Schritten der Reparatur-Hinweise.</value>
   </data>
   <data name="IntegrityUnknownNoRecords" xml:space="preserve">
     <value>Der letzte Lauf des Setups wurde nicht beendet, oder das Setup konnte seine Liste der Dateien nicht schreiben. Führen Sie das Setup erneut aus, um die Installation zu reparieren.</value>

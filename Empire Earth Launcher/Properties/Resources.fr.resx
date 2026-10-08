@@ -701,7 +701,7 @@ Vos paramètres actuels sont d'abord enregistrés dans des fichiers .reg dans {1
     <value>Installée par un setup plus récent que ce que ce launcher connaît. Veuillez mettre à jour le launcher.</value>
   </data>
   <data name="IntegrityUnknownOlderSetup" xml:space="preserve">
-    <value>Un setup plus ancien a été exécuté après le setup actuel, ou le dernier setup n'a pas pu remplacer ses informations. Lancez le setup actuel.</value>
+    <value>Un setup plus ancien a été exécuté après le setup actuel, ou le dernier setup n'a pas pu remplacer ses informations. Réparez l'installation en suivant les étapes des conseils de réparation.</value>
   </data>
   <data name="IntegrityUnknownNoRecords" xml:space="preserve">
     <value>La dernière exécution du setup ne s'est pas terminée, ou le setup n'a pas pu écrire sa liste des fichiers. Lancez de nouveau le setup pour réparer l'installation.</value>

@@ -931,8 +931,8 @@ Your current settings are saved first as .reg files in {1}; double-click such a 
     <comment>Tools page, state Unknown (contract 5: a newer contract version).</comment>
   </data>
   <data name="IntegrityUnknownOlderSetup" xml:space="preserve">
-    <value>An older setup ran after the current one, or the last setup could not replace its records. Run the current setup.</value>
-    <comment>Tools page, state Unknown: the uninstall key lacks the contract version (contract 2.5).</comment>
+    <value>An older setup ran after the current one, or the last setup could not replace its records. Repair the installation with the steps of the repair advice.</value>
+    <comment>Tools page and repair advice, state Unknown: the uninstall key lacks the contract version (contract 2.5), typically after an older setup ran over the installation. Since launcher 1.1.1 it refers to the steps of the repair advice (RepairAdviceButton), which for an installation of the suite lead to the package, not to "the current setup", which may be taken for the setup of empireearth.eu.</comment>
   </data>
   <data name="IntegrityUnknownNoRecords" xml:space="preserve">
     <value>The last run of the setup did not finish, or the setup could not write its list of files. Run the setup again to repair the installation.</value>
