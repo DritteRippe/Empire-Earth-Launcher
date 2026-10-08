@@ -11,7 +11,7 @@ release notes and no binaries. The binaries are built from that tag and go into 
 
 | Step | Where | Result |
 |---|---|---|
-| [1. Ready to release?](#1-ready-to-release) | this repository | the scope and the tests are clear |
+| [1. Ready to release?](#1-ready-to-release) | this repository | the scope and the tests are clear, reports can reach the project |
 | [2. Version commit](#2-version-commit) | a release branch | every file names the new version |
 | [3. Merge and a green build](#3-merge-and-a-green-build) | `main` | a commit with a green run of *Build* |
 | [4. Tag](#4-tag) | `main` | `vX.Y.Z` on exactly that commit |
@@ -34,6 +34,11 @@ release notes and no binaries. The binaries are built from that tag and go into 
 - [ ] If the version completes a revision of [CONTRACT.md](CONTRACT.md): both copies are identical
       (`python ci/compare_contract.py <launcher clone>` in the setup repository), and the setup releases its part at the
       same time.
+- [ ] Issues and private vulnerability reporting are switched on in the settings of this repository (*Settings* >
+      *General* > *Features* > *Issues*, and *Private vulnerability reporting* in the security settings); both are off in
+      a new fork. Then the links of the README, [SECURITY.md](../SECURITY.md), [CONTRIBUTING.md](../CONTRIBUTING.md) and
+      the issue forms open a form instead of a 404: *New issue* offers the bug report, the feature request and the
+      private contact for a security report, and *Security* > *Report a vulnerability* opens the private form.
 
 ## 2. Version commit
 

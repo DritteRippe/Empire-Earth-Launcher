@@ -47,8 +47,9 @@ are still to be run on real Windows ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md
   and "Documentation". The long reference parts (the test coverage, the real-machine checks, the project layout, files
   and settings, the answers of the FAQ) are folded; every heading that other pages link keeps its anchor, and "What do I
   send with a report?" has its own anchor.
-- `docs/RELEASING.md`: the release checklist, from the version commit (every file with the version number) through the
-  green build on `main`, the tag and the release notes to the binaries and the hand-over to the setup and the package.
+- `docs/RELEASING.md`: the release checklist, from the settings that let reports reach the project (issues and private
+  vulnerability reporting) and the version commit (every file with the version number) through the green build on
+  `main`, the tag and the release notes to the binaries and the hand-over to the setup and the package.
 
 ### Changed
 
