@@ -74,16 +74,19 @@ WP13-06, WP13-07, WP14-01 and WP14-02. He reported only the overall verdict, "pa
 without Alt+Tab" (WP6-21), and no results for single cases; session 2 was not run. Not run on real hardware are WP11-04 (b),
 WP11-05, WP11-07 to WP11-09, WP12-01 (b) and (c), WP12-03, WP12-05 to WP12-09, WP13-03 to WP13-05, WP13-08, WP14-03,
 WP6-19 (b) to (d), WP6-20 and WP6-21 (e), (f) and (h)
-([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md)); they are to be run before or with 1.1.1, and a problem found there is fixed in
-1.1.1. The French translation review and the German proof-reading are still open.
+([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), section 4.1); they are to be run before or with 1.1.1, and a problem found there
+is fixed in 1.1.1. The French translation review and the German proof-reading are still open
+([docs/TRANSLATING.md](docs/TRANSLATING.md#status)). The fixes for 1.1.1 are on `main` and listed under *Unreleased* in the
+[CHANGELOG](CHANGELOG.md).
 
 ## 🧾 Features
 
 Launcher v2 was built in nine work packages (developed on the branch `v2`, now merged into `main`;
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), section 15; what each one did is in the [CHANGELOG](CHANGELOG.md)). All of them are done; the launcher is version 1.1.0
 (one launcher for the four games, the *Graphics* and *Mods* pages, the optional parts for the suite installer "Empire Earth
-Community" below, which 1.0.0 added). The next step is the test on real Windows computers
-([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md)). The UI shows only controls that work ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md)): the placeholder
+Community" below, which 1.0.0 added). Session 1 of the test on a real Windows computer ran before the release of 1.1.0;
+the next step is session 2, before or with 1.1.1 ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), section 4.1 lists what
+it covers). The UI shows only controls that work ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md)): the placeholder
 controls of the old mock-up were removed and the features behind them are listed below as planned.
 
 **Available now**
@@ -358,8 +361,14 @@ about this number). A `PeakMB` below about 1200 MB makes the limit an unlikely c
   minimized itself, whether the game comes back in full size, the Windows version and the display scaling.
 
 ## 🌐 Download
-Sorry, at the moment the launcher is **ABSOLUTELY NOT** available for download in its current state.\
-To use the Launcher you will only need the .NET Framework 4.8 on your computer (see [Requirements](#requirements)).
+
+The launcher is not offered as a download of its own: it ships inside the package **Empire Earth Community**, which
+installs the games, the community fixes and this launcher in one go. Get the package from its release page:
+https://github.com/DritteRippe/Empire-Earth-Community/releases/latest. The releases of this repository are tags with
+release notes; they have no binaries.
+
+To try a change before a release, every green CI run keeps a test build (see *Test builds* under [Dev](#dev)). The
+launcher needs the .NET Framework 4.8 (see [Requirements](#requirements)).
 
 ## Requirements
 
@@ -815,11 +824,12 @@ packages/                         NuGet packages, restored on build (not committ
   Empire Earth folder of the selected installation; for a game folder below `Program Files`, `ProgramData` or the
   Windows folder it reads the copy in `%LOCALAPPDATA%\VirtualStore\...` first when one exists, because the game
   (a program without a manifest) reads and writes there, the launcher not.
-- **Contract with the setup**: [docs/CONTRACT.md](docs/CONTRACT.md) (shared with the Empire Earth Setup
-  repository, draft) specifies the install record, the integrity manifest, the per-user default game settings
-  and the repair hand-off that launcher v2 is built on. `docs/contract-samples/` holds synthetic byte samples of
-  `install.ini` (admin, user with `[MissingAfterInstall]`, portable), `files.sha256` and the install record as a `.reg`
-  file, which the launcher's readers are tested against; the setup repository is to take the same folder over.
+- **Contract with the setup**: [docs/CONTRACT.md](docs/CONTRACT.md) (shared with the
+  [Empire Earth Setup](https://github.com/DritteRippe/Empire-Earth-Setup) repository; contract version 1, released,
+  revision 7) specifies the install record, the integrity manifest, the per-user default game settings and the repair
+  hand-off that the launcher is built on. `docs/contract-samples/` holds synthetic byte samples of `install.ini` (admin,
+  user with `[MissingAfterInstall]`, portable), `files.sha256` and the install record as a `.reg` file, which the
+  launcher's readers are tested against; the setup repository keeps the same folder and checks its writers against it.
 - **Integrity check** ([contract 2](docs/CONTRACT.md#2-integrity-manifest)): after every search of the installations
   the launcher reads `_setupdata_<Product>\files.sha256` and `install.ini` of the selected community installation (setup
   v2 or later) and checks in the background that every listed file exists and that the program files (`exe dll asi
@@ -927,7 +937,7 @@ see [SECURITY.md](SECURITY.md).\
 For major changes, please open an issue first to discuss what you would like to change or discuss with us on Discord.
 
 ## 📖 License
-[GNU General Public License v3.0](https://github.com/EE-modders/Empire-Earth-Launcher/blob/main/LICENSE)
+[GNU General Public License v3.0](LICENSE)
 
 Third-party components are listed in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). The launcher neither contains nor downloads
 dgVoodoo (dgVoodoo's terms do not allow bundling it in launchers); the community setup installs it into the game folders.
