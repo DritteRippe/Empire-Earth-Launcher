@@ -10,7 +10,9 @@ namespace Empire_Earth_Launcher.Tests.Mod
 {
     /// <summary>
     /// The local modifications of the vendored ZipStorer (<c>Empire-Earth-Mod/Empire-Earth-Mod-Lib/ZipStorer.cs</c>,
-    /// third-party code, listed in its header and in THIRD-PARTY-NOTICES.md). Each test fails without its modification.
+    /// third-party code, listed in its header and in THIRD-PARTY-NOTICES.md). Each test fails without its modification,
+    /// except the case <c>Open_NegativeCentralDirectorySize_IsRejected</c>: the unmodified ZipStorer rejected a negative
+    /// size of the central directory as well (see <see cref="Open_CentralDirectoryOutsideTheArchive_IsRejected"/>).
     /// </summary>
     [TestFixture]
     public class ZipStorerTests
@@ -122,7 +124,10 @@ namespace Empire_Earth_Launcher.Tests.Mod
         /// is. ZipStorer allocated the declared size as it was (up to 2 GB from a classic record, more from a ZIP64 one, for a
         /// file of a few hundred bytes), read what was there and opened the archive. Now a directory that does not lie
         /// between the start of the archive and that record makes the archive invalid. ZipStorer always writes a ZIP64
-        /// record, whose values it reads; this test changes them.
+        /// record, whose values it reads; this test changes them. The first three cases opened without the modification.
+        /// The negative size did not: allocating it threw an <see cref="OverflowException"/>, which the catch-all of
+        /// ReadFileInfo turned into an invalid archive. The case stays as a regression test of that behavior; now the check
+        /// rejects a negative size before anything is allocated.
         /// </summary>
         [TestCase(64L * 1024 * 1024, 0L, TestName = "Open_CentralDirectoryLargerThanTheArchive_IsRejected")]
         [TestCase(0L, 64L * 1024 * 1024, TestName = "Open_CentralDirectoryBehindTheEndOfTheArchive_IsRejected")]

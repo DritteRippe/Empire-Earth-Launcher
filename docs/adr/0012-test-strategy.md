@@ -434,7 +434,8 @@ The launcher's part of that job is to run its core against the real installation
   modification listed in the header of `ZipStorer.cs` and in `THIRD-PARTY-NOTICES.md`, and each fails without it: the extra
   fields of an entry are read only up to their end (backport of upstream issue #71; an archive whose name lengths sent the old
   parser to the times of another entry, and a comment that starts like a ZIP64 field at the end of the directory), and a central
-  directory that does not lie before the end records is rejected (the ZIP64 end record of a written archive is changed). A local
+  directory that does not lie before the end records is rejected (the ZIP64 end record of a written archive is changed; only
+  its case of a negative size was rejected before as well, by the catch-all of `ReadFileInfo`). A local
   simulation of 3000 archives laid out like the ones of the mod creator, not committed, found 9 that the unchanged version could
   not read back and none after the backport.
 - **Damaged and crafted archives.** `ModArchiveTests` change single fields of archives that ZipStorer wrote (a time of 31:00, a
