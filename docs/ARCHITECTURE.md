@@ -745,7 +745,9 @@ Decided in [ADR 0013](adr/0013-error-handling-and-logging.md):
 ## 7. Logging
 
 - `%LOCALAPPDATA%\Empire Earth Launcher\log.txt`, timestamped ISO 8601 lines, levels Info/Warning/Error,
-  trimmed to the last 500 lines above 1 MiB with `log.txt.old` kept (existing behaviour).
+  trimmed to the last 500 lines above 1 MiB with `log.txt.old` kept (existing behaviour). One file for every launcher
+  of the user: it is opened shared and with the right to append only, so a second start that hands over and ends (4.7)
+  appends its lines to the file the running launcher keeps open (since 1.1.1, ADR 0013 amendment).
 - Logged: start with version, Windows version and culture; every discovery candidate and why it was taken
   or dropped; integrity findings with path, class, expected and actual hash; every registry value the
   launcher writes or deletes with old and new value (a deleted key of the cleanup with its id, the missing folder and

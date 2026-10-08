@@ -53,6 +53,8 @@ namespace Empire_Earth_Launcher
             Application.ThreadException += OnUiThreadException;
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 
+            // One log for every launcher of the user: a second start (below) appends its hand-over to the log.txt the running
+            // launcher keeps open (ADR 0013 amendment of 1.1.1).
             logger = new TraceFileLogger(LauncherPaths.LogFile);
             logger.Info("Starting Empire Earth Launcher v" + Application.ProductVersion);
             // A failed task whose exception nobody awaited would otherwise vanish silently (ADR 0004).

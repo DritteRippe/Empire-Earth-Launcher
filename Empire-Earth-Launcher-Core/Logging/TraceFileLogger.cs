@@ -3,13 +3,16 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Security.AccessControl;
+using System.Text;
 using Empire_Earth_Launcher.Core.Platform;
 
 namespace Empire_Earth_Launcher.Core.Logging
 {
     /// <summary>
     /// <see cref="ILogger"/> that writes timestamped lines to a log file (and the console) through
-    /// <see cref="Trace"/>.
+    /// <see cref="Trace"/>. The log file is shared: every launcher of the user appends to the same file (ADR 0013
+    /// amendment of 1.1.1).
     /// </summary>
     public sealed class TraceFileLogger : ILogger
     {
@@ -22,6 +25,14 @@ namespace Empire_Earth_Launcher.Core.Logging
         /// Number of most recent lines that are kept when the log file is trimmed.
         /// </summary>
         internal const int LinesKeptAfterTrim = 500;
+
+        /// <summary>
+        /// The characters the writer of the log file buffers: an entry up to this length (an exception with its stack trace
+        /// fits easily) reaches the file in one write, so the line of another launcher never lands in the middle of it.
+        /// </summary>
+        internal const int EntryBufferChars = 16 * 1024;
+
+        private const string FileListenerName = "Empire Earth Launcher Logger";
 
         private readonly IClock clock;
 
@@ -45,13 +56,13 @@ namespace Empire_Earth_Launcher.Core.Logging
             CreateLogDirectory(logFile);
             TrimLogFile(logFile);
 
-            var fileListener = new TextWriterTraceListener(logFile);
-            fileListener.Name = "Empire Earth Launcher Logger";
+            TraceListener fileListener = CreateFileListener(logFile);
 
             var consoleListener = new ConsoleTraceListener(false);
             consoleListener.TraceOutputOptions = TraceOptions.DateTime;
 
-            Trace.Listeners.Add(fileListener);
+            if (fileListener != null)
+                Trace.Listeners.Add(fileListener);
             Trace.Listeners.Add(consoleListener);
             Trace.AutoFlush = true;
 
@@ -71,6 +82,46 @@ namespace Empire_Earth_Launcher.Core.Logging
             {
                 // The trace listeners are not set up yet, so the console is the only place to report this.
                 Console.Error.WriteLine("Unable to create the folder of the log file " + logFile + ": " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// The listener that appends to <paramref name="logFile"/>, or null when the file cannot be opened (reported on the
+        /// console): logging must not prevent the launcher from starting.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Several launchers write into the same file: a second start logs its hand-over to the running launcher and ends
+        /// (ADR 0010) while the first one keeps the file open. <c>TextWriterTraceListener(path)</c> opened the file shared for
+        /// reading only, so the second launcher could not open it and wrote into a new file "&lt;GUID&gt;log.txt" next to it.
+        /// The file is therefore opened here, shared for reading, writing and deleting, and with the right to append only
+        /// (<c>FILE_APPEND_DATA</c>): Windows writes every block at the end of the file as it is at that moment, so the lines
+        /// of two launchers follow each other instead of overwriting each other.
+        /// </para>
+        /// <para>
+        /// The file stream has no buffer of its own (size 1) and the writer flushes after every entry, so each entry up to
+        /// <see cref="EntryBufferChars"/> characters is one write. The text is UTF-8 without a byte order mark, as before.
+        /// Internal for the unit tests, which open two listeners on one file: the constructor would replace the trace
+        /// listeners of the whole process.
+        /// </para>
+        /// </remarks>
+        internal static TraceListener CreateFileListener(string logFile)
+        {
+            FileStream stream = null;
+            try
+            {
+                stream = new FileStream(logFile, FileMode.Append, FileSystemRights.AppendData,
+                    FileShare.ReadWrite | FileShare.Delete, 1, FileOptions.None);
+                var writer = new StreamWriter(stream, new UTF8Encoding(false), EntryBufferChars) { AutoFlush = true };
+                return new TextWriterTraceListener(writer, FileListenerName);
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException ||
+                                       ex is NotSupportedException || ex is ArgumentException)
+            {
+                stream?.Dispose();
+                // The trace listeners are not set up yet, so the console is the only place to report this.
+                Console.Error.WriteLine("Unable to open the log file " + logFile + ": " + ex.Message);
+                return null;
             }
         }
 
