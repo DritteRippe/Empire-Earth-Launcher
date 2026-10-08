@@ -114,5 +114,56 @@ namespace Empire_Earth_Launcher.Tests.Mod
                 Assert.That(Encoding.UTF8.GetString(content), Is.EqualTo("content of data"));
             }
         }
+
+        /* ReadFileInfo checks where the central directory is */
+
+        /// <summary>
+        /// The end of central directory record of an archive declares where the central directory starts and how large it
+        /// is. ZipStorer allocated the declared size as it was (up to 2 GB from a classic record, more from a ZIP64 one, for a
+        /// file of a few hundred bytes), read what was there and opened the archive. Now a directory that does not lie
+        /// between the start of the archive and that record makes the archive invalid. ZipStorer always writes a ZIP64
+        /// record, whose values it reads; this test changes them.
+        /// </summary>
+        [TestCase(64L * 1024 * 1024, 0L, TestName = "Open_CentralDirectoryLargerThanTheArchive_IsRejected")]
+        [TestCase(0L, 64L * 1024 * 1024, TestName = "Open_CentralDirectoryBehindTheEndOfTheArchive_IsRejected")]
+        [TestCase(1L, 0L, TestName = "Open_CentralDirectoryOverlappingTheEndRecords_IsRejected")]
+        [TestCase(-1L - 64L * 1024 * 1024, 0L, TestName = "Open_NegativeCentralDirectorySize_IsRejected")]
+        public void Open_CentralDirectoryOutsideTheArchive_IsRejected(long addToSize, long addToOffset)
+        {
+            byte[] bytes;
+            using (MemoryStream archive = CreateArchive(new[] { Tuple.Create("data", new DateTime(2024, 6, 10, 12, 0, 2), (string)null) }))
+            {
+                bytes = archive.ToArray();
+            }
+            // ZIP64 end of central directory record: signature 0x06064b50, directory size at offset 40, its start at 48.
+            int record = -1;
+            for (int i = 0; i + 56 <= bytes.Length; i++)
+            {
+                if (BitConverter.ToUInt32(bytes, i) == 0x06064b50)
+                    record = i;
+            }
+            Assert.That(record, Is.GreaterThan(0), "ZIP64 end of central directory record");
+            BitConverter.GetBytes(BitConverter.ToInt64(bytes, record + 40) + addToSize).CopyTo(bytes, record + 40);
+            BitConverter.GetBytes(BitConverter.ToInt64(bytes, record + 48) + addToOffset).CopyTo(bytes, record + 48);
+
+            using (var damaged = new MemoryStream(bytes))
+            {
+                Assert.That(() => ZipStorer.Open(damaged, FileAccess.Read, true), Throws.TypeOf<InvalidDataException>());
+            }
+        }
+
+        [Test]
+        public void Open_ArchiveWithSeveralEntries_ReadsTheWholeCentralDirectory()
+        {
+            var entries = Enumerable.Range(0, 20)
+                .Select(i => Tuple.Create(Guid.Empty + "/all/Data/file" + i + ".xml", new DateTime(2024, 6, 10, 12, 0, 2), (string)null))
+                .ToList();
+
+            using (MemoryStream archive = CreateArchive(entries))
+            using (ZipStorer zip = ZipStorer.Open(archive, FileAccess.Read, true))
+            {
+                Assert.That(zip.ReadCentralDir().Select(entry => entry.FilenameInZip), Is.EqualTo(entries.Select(entry => entry.Item1)));
+            }
+        }
     }
 }

@@ -8,6 +8,8 @@
 //   (commit 1948dcf, ZipStorer 4.x). It used to go on into the following records of the central directory, so an
 //   entry could get the times of another entry, and some archives that ZipStorer had written itself could not be
 //   read (ArgumentException).
+// - ReadFileInfo rejects an archive whose central directory does not lie before its end records. It used to allocate
+//   the size declared there as it was (up to 2 GB, more with ZIP64), also for a damaged or crafted file of a few bytes.
 
 #if NET45_OR_GREATER
     using System.Threading.Tasks;
@@ -1079,6 +1081,7 @@ namespace System.IO.Compression
                         UInt16 commentSize = br.ReadUInt16();
 
                         var commentPosition = ZipFileStream.Position;
+                        long directoryEnd = dirPosition; // Modified: the central directory ends before this
 
                         if (centralDirOffset == 0xffffffff) // It is a Zip64 file
                         {                            
@@ -1103,10 +1106,17 @@ namespace System.IO.Compression
                             entries = br.ReadInt64();
                             centralSize = br.ReadInt64();
                             centralDirOffset = br.ReadInt64();
+                            directoryEnd = dir64Position; // Modified
                         }
 
                         // check if comment field is the very last data in file
                         if (commentPosition + commentSize != this.ZipFileStream.Length)
+                            return false;
+
+                        // Modified: the central directory lies between the start of the file and the end records, so
+                        // that a damaged or crafted size or offset is rejected before anything is allocated for it.
+                        if (centralDirOffset < 0 || centralDirOffset > directoryEnd ||
+                            centralSize < 0 || centralSize > directoryEnd - centralDirOffset)
                             return false;
 
                         // Copy entire central directory to a memory buffer
