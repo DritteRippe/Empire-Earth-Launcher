@@ -468,18 +468,26 @@ namespace Empire_Earth_Launcher.Tests.Launcher
                 foreach (KryptonButton button in buttons)
                     stack.Place(button);
             };
+            // The .NET Framework scrolls only a panel whose window exists (ScrollableControl.AutoScrollPosition does nothing
+            // until Created), so on Windows the panel gets its window, without being shown; Mono scrolls a panel without one.
+            // Whether Windows moves the controls of a window that is not shown does not matter: the top is taken before the
+            // scrolling, and the layout places every control by the scroll position.
+            bool windows = Environment.OSVersion.Platform == PlatformID.Win32NT;
+            if (windows)
+                panel.CreateControl();
             stack.Run(place);
             panel.PerformLayout();
-            panel.AutoScrollPosition = new Point(0, 200);
-            if (panel.AutoScrollPosition.Y == 0)
-                Assert.Ignore("This system does not scroll a panel that was never shown.");
-            int scrolled = panel.AutoScrollPosition.Y;
-            int tops = buttons[10].Top;
+            int top = buttons[10].Top;
 
+            panel.AutoScrollPosition = new Point(0, 200);
+            int scrolled = panel.AutoScrollPosition.Y;
+            if (!windows && scrolled == 0)
+                Assert.Ignore("This system does not scroll a panel without a window.");
+            Assert.That(scrolled, Is.LessThan(0), "the page is scrolled down");
             stack.Run(place);
 
-            Assert.That(panel.AutoScrollPosition.Y, Is.EqualTo(scrolled));
-            Assert.That(buttons[10].Top, Is.EqualTo(tops), "the content is where it was, relative to the screen");
+            Assert.That(panel.AutoScrollPosition.Y, Is.EqualTo(scrolled), "the scroll position is kept");
+            Assert.That(buttons[10].Top, Is.EqualTo(top + scrolled), "the content stays where the scroll bar shows it");
         }
     }
 }
