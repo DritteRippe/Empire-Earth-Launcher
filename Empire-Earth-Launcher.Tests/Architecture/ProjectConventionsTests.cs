@@ -29,6 +29,16 @@ namespace Empire_Earth_Launcher.Tests.Architecture
         private const string TestProject = @"Empire-Earth-Launcher.Tests\Empire-Earth-Launcher.Tests.csproj";
         private const string WorkflowFile = ".github/workflows/build.yml";
 
+        /// <summary>A step of the workflow that runs an action: <c>uses: ...</c> or <c>- uses: ...</c>.</summary>
+        private static readonly Regex ActionStep = new Regex(@"^(?:-\s+)?uses:", RegexOptions.CultureInvariant);
+
+        /// <summary>
+        /// An action pinned to the full commit SHA of a release, with its version as a comment, the form Dependabot keeps up to
+        /// date: <c>uses: owner/repo@&lt;40 hexadecimal digits&gt; # v1.2.3</c>.
+        /// </summary>
+        private static readonly Regex PinnedAction = new Regex(
+            @"^(?:-\s+)?uses:\s+[\w.-]+/[\w.-]+(?:/[\w.-]+)*@[0-9a-f]{40} # v\d+(?:\.\d+){0,2}$", RegexOptions.CultureInvariant);
+
         private static readonly XNamespace AsmV3 = "urn:schemas-microsoft-com:asm.v3";
         private static readonly XNamespace Compatibility = "urn:schemas-microsoft-com:compatibility.v1";
 
@@ -237,6 +247,37 @@ namespace Empire_Earth_Launcher.Tests.Architecture
             Assert.That(workflow, Does.Contain("REFASM_PACKAGE: Microsoft.NETFramework.ReferenceAssemblies.net48"));
             Assert.That(workflow, Does.Contain(@"/p:FrameworkPathOverride=$env:REFASM_ROOT\.NETFramework\v4.8"));
             Assert.That(workflow, Does.Not.Contain("ReferenceAssemblies.net40").And.Not.Contain(@".NETFramework\v4.0"));
+        }
+
+        /// <summary>
+        /// Every action of the workflow is pinned to the commit of a release (review after the release of 1.1.0): a tag can be moved
+        /// to other code, a commit cannot, and the job builds the test builds that are offered for download.
+        /// </summary>
+        [Test]
+        public void Workflow_PinsEveryActionToTheCommitOfARelease()
+        {
+            List<string> steps = File.ReadAllLines(RepositoryRoot.GetFullPath(WorkflowFile))
+                                     .Select(line => line.Trim())
+                                     .Where(line => ActionStep.IsMatch(line))
+                                     .ToList();
+
+            Assert.That(steps, Is.Not.Empty, "the workflow runs actions");
+            Assert.That(steps.Where(step => !PinnedAction.IsMatch(step)), Is.Empty,
+                "pin with the full commit SHA and the version as a comment: uses: owner/repo@<SHA> # vX.Y.Z");
+        }
+
+        [TestCase("uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1", true)]
+        [TestCase("- uses: NuGet/setup-nuget@fd55a6f3b34392fa83fde1454582407d8c714123 # v4.0", true)]
+        [TestCase("uses: github/codeql-action/init@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4", true)]
+        [TestCase("uses: actions/checkout@v4", false)]
+        [TestCase("uses: actions/checkout@main", false)]
+        [TestCase("uses: actions/checkout@3d3c42e # v7.0.1", false)]
+        [TestCase("uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1", false)]
+        [TestCase("uses: actions/checkout@3D3C42E5AAC5BA805825DA76410C181273BA90B1 # v7.0.1", false)]
+        public void Workflow_PinRule_TellsACommitFromAMovableReference(string step, bool pinned)
+        {
+            Assert.That(ActionStep.IsMatch(step), Is.True);
+            Assert.That(PinnedAction.IsMatch(step), Is.EqualTo(pinned));
         }
 
         private static bool IsBuildOrPackageFolder(string folderName)
