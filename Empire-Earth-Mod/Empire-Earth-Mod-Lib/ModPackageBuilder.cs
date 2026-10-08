@@ -20,6 +20,12 @@ namespace Empire_Earth_Mod_Lib
     /// </remarks>
     public sealed class ModPackageBuilder : IDisposable
     {
+        /// <summary>
+        /// Largest mod archive, and largest file in it, in bytes (4 GB minus one byte). The vendored ZipStorer keeps the
+        /// sizes and offsets of what it writes in 32 bits: beyond this it would write a damaged archive without an error.
+        /// </summary>
+        public const long MaxArchiveBytes = uint.MaxValue;
+
         private readonly ModData mod;
         private readonly ModAssets assets;
         private bool disposed;
@@ -91,6 +97,9 @@ namespace Empire_Earth_Mod_Lib
 
         /// <summary>Full path of the working directory created by this instance.</summary>
         public string WorkingDirectory { get; }
+
+        /// <summary><see cref="MaxArchiveBytes"/>; smaller in tests, which cannot write 4 GB.</summary>
+        internal long ArchiveSizeLimit { get; set; } = MaxArchiveBytes;
 
         /// <summary>
         /// Ends the session. With <see cref="EraseDataOnDispose"/> the working directory created by this
@@ -232,6 +241,8 @@ namespace Empire_Earth_Mod_Lib
         /// <param name="eemPath">Path of the mod archive to create.</param>
         /// <exception cref="InvalidOperationException">The mod is not complete (no icon, name or version), or the path of a
         /// mod file breaks <see cref="EemFormat.IsValidFilePath"/>.</exception>
+        /// <exception cref="IOException">A file cannot be read or written, or a file or the archive would be larger than
+        /// <see cref="MaxArchiveBytes"/>.</exception>
         public void Build(string eemPath)
         {
             ThrowIfDisposed();
@@ -308,6 +319,8 @@ namespace Empire_Earth_Mod_Lib
         /// destroys an existing one.
         /// </summary>
         /// <exception cref="ArgumentException"><paramref name="eemPath"/> is empty or inside the working directory.</exception>
+        /// <exception cref="IOException">A file cannot be read or written, or a file or the archive would be larger than
+        /// <see cref="MaxArchiveBytes"/>.</exception>
         public void ExportToZip(string eemPath)
         {
             ThrowIfDisposed();
@@ -322,6 +335,8 @@ namespace Empire_Earth_Mod_Lib
             try
             {
                 WriteArchive(temporaryPath);
+                if (new FileInfo(temporaryPath).Length > ArchiveSizeLimit)
+                    throw new IOException("The mod archive would be 4 GB or larger, more than a mod archive can hold.");
                 if (File.Exists(archivePath))
                     File.Replace(temporaryPath, archivePath, null);
                 else
@@ -336,6 +351,18 @@ namespace Empire_Earth_Mod_Lib
 
         private void WriteArchive(string archivePath)
         {
+            List<string> relativePaths = Directory.GetFiles(WorkingDirectory, "*", SearchOption.AllDirectories)
+                .Select(file => GetRelativePath(WorkingDirectory, file))
+                .Where(BelongsToArchive)
+                .OrderBy(path => path, StringComparer.Ordinal)
+                .ToList();
+            // Checked before anything is written. The size of the whole archive is known only afterwards (ExportToZip).
+            foreach (string relativePath in relativePaths)
+            {
+                if (new FileInfo(Path.Combine(WorkingDirectory, relativePath)).Length > ArchiveSizeLimit)
+                    throw new IOException("The file " + relativePath + " is 4 GB or larger, more than a mod archive can hold.");
+            }
+
             using (ZipStorer zipStore = ZipStorer.Create(archivePath,
                        "Created with Launcher v" + BuildInfo.InformationalVersion))
             {
@@ -344,10 +371,7 @@ namespace Empire_Earth_Mod_Lib
                 // put everything below the name of the working directory ("creator/data"), where the import
                 // does not look. Only the files of the format: whatever else the author left in the working
                 // directory (ReloadModFiles reports it as ignored) is not published with the mod.
-                foreach (string relativePath in Directory.GetFiles(WorkingDirectory, "*", SearchOption.AllDirectories)
-                             .Select(file => GetRelativePath(WorkingDirectory, file))
-                             .Where(BelongsToArchive)
-                             .OrderBy(path => path, StringComparer.Ordinal))
+                foreach (string relativePath in relativePaths)
                 {
                     zipStore.AddFile(ZipStorer.Compression.Deflate, Path.Combine(WorkingDirectory, relativePath),
                         EemFormat.ToEntryName(relativePath), string.Empty);

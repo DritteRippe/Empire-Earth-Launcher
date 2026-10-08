@@ -256,6 +256,66 @@ namespace Empire_Earth_Launcher.Tests.Mod
             Assert.That(ModArchiveReader.ReadModData(eemPath).ModFiles.Count, Is.EqualTo(1));
         }
 
+        /// <summary>
+        /// The vendored ZipStorer keeps sizes and offsets in 32 bits and wrote a damaged archive, without an error, for a file
+        /// or an archive of 4 GB or more; the mod creator then reported the mod as built. The tests lower the limit, which
+        /// stands for ModPackageBuilder.MaxArchiveBytes.
+        /// </summary>
+        [TestCase(20000, 1, TestName = "ExportToZip_FileLargerThanTheLimit_KeepsTheExistingArchive")]
+        [TestCase(6000, 2, TestName = "ExportToZip_ArchiveLargerThanTheLimit_KeepsTheExistingArchive")]
+        public void ExportToZip_LargerThanTheLimit_KeepsTheExistingArchive(int fileBytes, int files)
+        {
+            string eemPath = directory.Combine("large" + EemFormat.Extension);
+            ExportWithoutImages(new ModData { Name = "Before", Version = new Version(1, 0) }, eemPath);
+            byte[] before = File.ReadAllBytes(eemPath);
+
+            var mod = new ModData { Name = "Large", Version = new Version(2, 0) };
+            using (var builder = new ModPackageBuilder(mod, new ModAssets(), directory.Combine("workspace"), true))
+            {
+                var random = new Random(1);
+                for (int i = 0; i < files; i++)
+                {
+                    // Random bytes do not compress: the archive is at least as large as the files.
+                    var content = new byte[fileBytes];
+                    random.NextBytes(content);
+                    string path = Path.Combine(builder.WorkingDirectory, Guid.Empty.ToString(), "EEC", "Data", "Movies",
+                        "movie" + i + ".bik");
+                    Directory.CreateDirectory(Path.GetDirectoryName(path));
+                    File.WriteAllBytes(path, content);
+                }
+                builder.ReloadModFiles(Guid.Empty);
+                builder.ExportModInfos();
+                builder.ArchiveSizeLimit = 10000;
+
+                Assert.That(() => builder.ExportToZip(eemPath),
+                    Throws.TypeOf<IOException>().With.Message.Contains("4 GB or larger"));
+            }
+
+            Assert.That(File.ReadAllBytes(eemPath), Is.EqualTo(before));
+            Assert.That(Directory.GetFiles(directory.Path), Is.EqualTo(new[] { eemPath }), "no temporary archive is left");
+        }
+
+        [Test]
+        public void ExportToZip_ArchiveOfTheLimit_IsWritten()
+        {
+            string eemPath = directory.Combine("limit" + EemFormat.Extension);
+            using (var builder = new ModPackageBuilder(new ModData { Name = "Limit", Version = new Version(1, 0) },
+                       new ModAssets(), directory.Combine("workspace"), true))
+            {
+                AddModFile(builder, Guid.Empty, "EEC/Data/units.xml", "<units/>");
+                builder.ReloadModFiles(Guid.Empty);
+                builder.ExportModInfos();
+                builder.ExportToZip(eemPath);
+                long size = new FileInfo(eemPath).Length;
+
+                builder.ArchiveSizeLimit = size;
+                builder.ExportToZip(eemPath);
+
+                Assert.That(new FileInfo(eemPath).Length, Is.EqualTo(size));
+            }
+            Assert.That(ModPackageBuilder.MaxArchiveBytes, Is.EqualTo(4L * 1024 * 1024 * 1024 - 1));
+        }
+
         [Test]
         public void Build_WithoutIcon_FailsWithoutWritingAnArchive()
         {
