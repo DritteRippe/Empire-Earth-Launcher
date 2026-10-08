@@ -37,10 +37,11 @@ are still to be run on real Windows ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md
 - `.github/dependabot.yml`: monthly version updates for the GitHub Actions of the workflow only, all of them in one
   pull request (prefix `CI`); NuGet packages stay pinned.
 - Community files: issue forms for bug reports (with the log locations of the launcher, the suite installer and the
-  setups) and feature requests, an issue chooser that sends questions about the package, the setups and security
-  problems to the right place, `SECURITY.md` (supported versions and the direct link for a private report),
-  `CONTRIBUTING.md` (ways to help, the rules of the code, the workflow, the local checks, the commit style and the
-  CHANGELOG), a pull request template and `.github/CODEOWNERS`.
+  setups), feature requests and a private contact for a security report (`security_contact.yml`, which asks for no
+  details: the fallback of `SECURITY.md`, which needs a form because blank issues are off), an issue chooser that sends
+  questions about the package, the setups and security problems to the right place, `SECURITY.md` (supported versions
+  and the direct link for a private report), `CONTRIBUTING.md` (ways to help, the rules of the code, the workflow, the
+  local checks, the commit style and the CHANGELOG), a pull request template and `.github/CODEOWNERS`.
 - README: a banner for light and dark mode, badges (release, build, license, platform, .NET Framework), a navigation line,
   "Just want to play?" with the link to the package, "At a glance", "Quick start" for players and developers, "Status"
   and "Documentation". The long reference parts (the test coverage, the real-machine checks, the project layout, files

@@ -22,8 +22,9 @@ Report it privately instead:
 - the steps to reproduce it,
 - what an attacker gains.
 
-If that link does not work for you, open an issue that says only that you have a security report, without any
-details, and a private way is arranged with you.
+If that link does not work for you, use the issue form
+[Private contact for a security report](https://github.com/DritteRippe/Empire-Earth-Launcher/issues/new?template=security_contact.yml).
+It asks for no details, and a private way is arranged with you.
 
 This is a volunteer project: you get an answer as soon as the maintainer can. If the report is confirmed, the fix comes
 in a new release, and the advisory credits you if you wish.
