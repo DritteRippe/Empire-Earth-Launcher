@@ -60,8 +60,10 @@ namespace Empire_Earth_Mod_Lib
                 }
                 catch (Exception ex) when (!(ex is OutOfMemoryException))
                 {
-                    // Deliberately broad: besides the documented IOException/InvalidDataException, a damaged
-                    // archive can make the vendored ZipStorer throw almost anything (e.g. index errors).
+                    // Deliberately broad: ReadModData reports damaged archives as InvalidDataException (also the
+                    // ArgumentException of a damaged ZIP directory) and a file it cannot open as IOException or
+                    // UnauthorizedAccessException, but the vendored ZipStorer is not hardened against every
+                    // possible archive, and one bad file must not keep the other mods from loading.
                     loadErrors.Add(fi.Name + ": " + ex.Message);
                 }
             }
