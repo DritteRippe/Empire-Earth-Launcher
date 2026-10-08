@@ -7,7 +7,7 @@ von Krypton und die Texte der Oberfläche ([ADR 0012](adr/0012-test-strategy.md)
 
 | | |
 |---|---|
-| Stand | Fälle von L-WP1 bis L-WP14; der Plan ist vollständig: Jede Anforderung und jeder Forum-Testfall ist zugeordnet (Abschnitt 7), kein Paket ist offen |
+| Stand | Fälle von L-WP1 bis L-WP15; der Plan ist vollständig: Jede Anforderung und jeder Forum-Testfall ist zugeordnet (Abschnitt 7), kein Paket ist offen |
 | Sprache | Deutsch (die Programmtexte gibt es auf Englisch, Deutsch und Französisch) |
 | Gehört zu | [ARCHITECTURE.md](ARCHITECTURE.md), Abschnitt 11 und 15 |
 
@@ -71,7 +71,7 @@ seinen Bibliotheken (ohne Quelltexte), damit die automatischen Tests einmal unte
 laufen (WP1-11; [ADR 0012](adr/0012-test-strategy.md), Ergänzung nach der Planprüfung). Das Paket für den Laptop-Test nach
 L-WP9 heißt `Empire-Earth-Launcher-v2-L-WP9.zip`; sein Inhalt wird in WP9-15 geprüft.
 
-Beide Dateien kommen als Dateianhang aus der Claude-Sitzung (oder per USB-Stick) auf den Laptop. Vor dem
+Beide Dateien kommen als Dateianhang (oder per USB-Stick) auf den Laptop. Vor dem
 Entpacken die Prüfsumme vergleichen:
 
 ```powershell
@@ -180,6 +180,27 @@ Vorlage:
 Fall | Ergebnis | Notiz
 WP1-01 | OK |
 ```
+
+### 4.1 Stand der Sitzungen
+
+Was auf echter Hardware gelaufen ist und was nicht. Nach jeder Sitzung hier eine Zeile ergänzen und die Ergebnisse je Fall
+(Vorlage oben) beilegen.
+
+| Sitzung | Datum | Stand | Ergebnis |
+|---|---|---|---|
+| 1 | 2026-10-07 | Launcher 1.1.0 (Tag `v1.1.0`, Commit `5d256c8`), Laptop mit Windows 11 | Gelaufen sind WP6-13, WP6-18, WP6-19 (a), WP6-21 (a) bis (d) und (g), WP11-01 bis WP11-04 (a), WP11-06, WP11-10, WP12-01 (a), WP12-02, WP12-04, WP13-01, WP13-02, WP13-06, WP13-07, WP14-01 und WP14-02. Festgehalten ist nur das Gesamturteil „bestanden, die Maus geht direkt nach dem Start ohne Alt+Tab“ (WP6-21), keine Ergebnisse je Fall. Auf dieser Grundlage wurde 1.1.0 freigegeben. |
+| 2 | **noch nicht gelaufen** | Launcher 1.1.1 | Geplant vor der Freigabe von 1.1.1, siehe unten. |
+
+**Für Sitzung 2 offen** (vor oder mit 1.1.1; ein Fehler, der dabei auftaucht, wird in 1.1.1 behoben):
+
+- aus 1.1.0 nicht gelaufen: WP11-04 (b), WP11-05, WP11-07 bis WP11-09, WP12-01 (b) und (c), WP12-03, WP12-05 bis WP12-09,
+  WP13-03 bis WP13-05, WP13-08, WP14-03, WP6-19 (b) bis (d), WP6-20 und WP6-21 (e), (f) und (h);
+- neu oder geändert in 1.1.1: WP10-03 (zweiter Start, alle Zeilen in `log.txt`, keine Datei `<GUID>log.txt`), WP10-05,
+  WP10-06 und WP10-11 (Reparaturhinweis einer Suite-Installation mit und ohne Paketordner), WP7-09 bis WP7-11
+  (älteres Setup, Versionsprüfung), WP14-04 (Abschnitt „Updates“, „Release-Seite öffnen“), WP1-07 (Scrollposition) und
+  WP15-01 bis WP15-03 (Mod-Creator);
+- das Korrekturlesen der deutschen Texte (Fälle WP3-*, WP4-17, WP5-17, WP6-14, WP7-14, WP8-15, WP9-14; siehe
+  [TRANSLATING.md](TRANSLATING.md), Abschnitt *Status*).
 
 ## 5. Testfälle je Arbeitspaket
 
@@ -618,6 +639,21 @@ Versionsprüfung das Paket nicht prüft (WP14-04; ADR 0008, Nachtrag vom 2026-10
 | WP14-02 | NeoEE: dasselbe; danach eine fremde Installation (GOG, CD). | NeoEE: `https://empireearth.eu/download/neo/` und `NeoEE_Setup.exe`; fremde Installation: `https://empireearth.eu/download/`. |
 | WP14-03 | Ohne Netz (Flugmodus): Reparatur-Hinweise öffnen, „Version prüfen“. | Die Adresse steht trotzdem sofort da; „Version prüfen“ meldet „konnte nicht fragen“; das Protokoll enthält kein `GET https://api.empireearth.eu/setup/?product=…` ohne `&type=`. |
 | WP14-04 | Seit Launcher 1.1.1: *Werkzeuge*, Abschnitt „Updates“ auf Deutsch, Englisch und Französisch lesen; „Release-Seite öffnen“ klicken, auch ohne gewählte Installation und ohne Netz; danach „Nach Updates suchen“. | Der Text sagt, dass nur das Spiel und das Setup des Spiels (Empire Earth oder NeoEE) geprüft werden und das Paket „Empire Earth Community“ (sein Setup und der Launcher) nicht, und dass neue Versionen des Pakets auf seiner Release-Seite erscheinen. „Release-Seite öffnen“ steht neben „Nach Updates suchen“ (in schmalen Fenstern darunter), ist immer bedienbar und öffnet `https://github.com/DritteRippe/Empire-Earth-Community/releases/latest` im Standardbrowser, ohne UAC-Abfrage; ohne Netz meldet der Browser den Fehler. `log.txt`: `Opening the release page of the package https://github.com/DritteRippe/Empire-Earth-Community/releases/latest (the version check does not cover the package).`, keine Anfrage an GitHub. Die Ergebniszeile der Setup-Version nennt das Produkt (WP7-11). Nichts abgeschnitten (Schrift 100 % und 150 %). |
+
+### L-WP15 – Mod-Creator (Launcher 1.1.1)
+
+Der Mod-Creator 1.1.1 lädt Icon und Banner in den Speicher, statt die Bilddateien bis zum Programmende zu sperren, und meldet
+eine Datei, die kein Bild ist. Beim Bauen packt er nur, was das Format `.eem` vorsieht (die Daten, das Icon, je Variante ihre
+Banner `Banner<n>.png` und die Dateien in den Produktordnern `all`, `EEC`, `AOC`), und löscht vor dem Export nur die Banner,
+die er selbst geschrieben hat. Die automatischen Tests dazu (`ModAssetsTests`, `ModPackageBuilderTests`) brauchen GDI+ und
+laufen nur in der Windows-CI. Der Arbeitsordner ist `%LOCALAPPDATA%\Empire Earth Launcher\Mod Creator\`, darin ein Ordner je
+Variante (Name: die GUID der Variante).
+
+| Fall | Schritte | Erwartet |
+|---|---|---|
+| WP15-01 | Mod-Creator starten, eine Mod anlegen, ein Icon (128x128) und für eine Variante einen Banner (16:9, z. B. 1280x720) wählen. Bei offenem Creator die beiden Bilddateien im Explorer umbenennen und danach in einem Bildprogramm überschreiben. | Umbenennen und Speichern gehen ohne „Die Datei wird von einem anderen Prozess verwendet“; Icon und Banner bleiben im Creator sichtbar. |
+| WP15-02 | Eine Textdatei in `test.png` umbenennen und als Icon wählen; dasselbe als Banner. | Warnung „Error while loading icon: The file is not an image that Windows can read: …“ bzw. „Error while adding banner: …“, nicht „Out of memory.“; das vorherige Icon bleibt. |
+| WP15-03 | In den Ordner einer Variante im Arbeitsordner (neben `all`, `EEC`, `AOC`) die Dateien `notes.txt` und `BannerSource.png` legen. Auf der Dateiseite des Creators diese Variante wählen, dann die Mod bauen und das `.eem` mit 7-Zip öffnen (vorher in `.zip` umbenennen oder „Archiv öffnen“). | Beim Wählen der Variante meldet der Creator beide Dateien als ignoriert. Im Archiv fehlen beide; es enthält `data`, `Icon.png`, je Variante `Banner<n>.png` und die Dateien der Produktordner. `BannerSource.png` liegt nach dem Bauen weiter im Arbeitsordner. |
 
 ## 6. Optional: Windows 7 SP1 in einer VM
 

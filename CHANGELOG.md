@@ -29,8 +29,11 @@ are still to be run on real Windows ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md
   the test; `ZipStorerTests` (one test per local modification of the vendored ZipStorer); `ZipStorerUseTests` (only
   `ModArchiveReader` extracts ZIP entries, nothing uses `RemoveEntries`); `ProjectConventionsTests.Workflow_PinsEveryActionToTheCommitOfARelease`;
   `NetworkDestinationTests` allow the release page of the package as the one new URL literal. Test plan: WP10-11 (an older
-  setup over an installation of the suite, with and without the package folder) and WP14-04 (the section "Updates" of the
-  *Tools* page). [ADR 0012](docs/adr/0012-test-strategy.md) has an amendment for the review of the mod library.
+  setup over an installation of the suite, with and without the package folder), WP14-04 (the section "Updates" of the
+  *Tools* page), L-WP15 with WP15-01 to WP15-03 (the mod creator: image files not locked, a file that is no image, only the
+  files of the format in the archive) and section 4.1, which records what session 1 of the laptop test covered and what
+  is left for session 2, which has not run yet. [ADR 0012](docs/adr/0012-test-strategy.md) has an amendment for the
+  review of the mod library.
 - `.github/dependabot.yml`: monthly version updates for the GitHub Actions of the workflow only, all of them in one
   pull request (prefix `CI`); NuGet packages stay pinned.
 - Issue form for bug reports (`.github/ISSUE_TEMPLATE/`, with the log locations of the launcher, the suite installer and
@@ -108,7 +111,7 @@ are still to be run on real Windows ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md
 - Mod creator: files and archives of 4 GB or more gave a damaged archive without an error. The build now stops with a
   message, and an existing archive stays as it was.
 - `licenses/THIRD-PARTY-LICENSES.txt`, which every binary copy carries (the CI test builds and the package), named
-  `EE-modders/Empire-Earth-Launcher` as the place of the source code; that repository has not the code of these
+  `EE-modders/Empire-Earth-Launcher` as the place of the source code; that repository does not have the code of these
   binaries. It now names the fork `DritteRippe/Empire-Earth-Launcher`, where every release is a tag, and EE-modders as the
   original project.
 - Mod creator: the chosen icon and banner files stayed locked until the program ended. They are loaded into memory now,
