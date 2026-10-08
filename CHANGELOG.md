@@ -342,13 +342,15 @@ WP6-18 to WP6-21).
 - `DiscoveryResult.ForSessionProduct`, `PlayModel.SelectGame` and `CanChooseArtOfConquest`, and three texts of the repair
   window (`FailureUrlRejected`, `RepairLocating`, `RepairFallbackFormat`), in all three languages.
 
-## [1.0.0] - 2026-10-05
+## [1.0.0] - 2026-10-06
 
 Launcher v2 was built on branch `v2` in the work packages L-WP1 to L-WP9 ([docs/ARCHITECTURE.md](docs/ARCHITECTURE.md),
 section 15); all of them are done, newest first below. Version 1.0.0 adds the optional additions of contract revision 4
 for the suite installer "Empire Earth Community" of the setup repository (setup ADR 0013), which installs the launcher
 and the games in one run; the launcher works as before without it. The test on real Windows follows
-([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), L-WP10 for the suite additions).
+([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), L-WP10 for the suite additions). The version was set on 2026-10-05; the
+release is the tag `v1.0.0` on the commit `b4fd570` of 2026-10-06, which also contains the skip of the suite's own
+uninstall key (contract revision 5, below). A first build of 1.0.0 without that change was replaced and never released.
 
 ### Added
 
@@ -1052,3 +1054,7 @@ and the games in one run; the launcher works as before without it. The test on r
   `REG_OPTION_OPEN_LINK`; `RegistryExport` refuses a tree with a link, so the backup fails and nothing changes, and the
   cleanup reads the tree once more right before each deletion. Test plan: WP8-17 (link, optional) and WP8-18 (a folder
   the launcher may not look at).
+
+[Unreleased]: https://github.com/DritteRippe/Empire-Earth-Launcher/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/DritteRippe/Empire-Earth-Launcher/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/DritteRippe/Empire-Earth-Launcher/releases/tag/v1.0.0
