@@ -83,6 +83,7 @@
     <Compile Include="Architecture\WindowMessageRulesTests.cs" />
     <Compile Include="Architecture\UiOperationRestoreTests.cs" />
     <Compile Include="Architecture\WrapLabelRulesTests.cs" />
+    <Compile Include="Architecture\ZipStorerUseTests.cs" />
     <Compile Include="Core\Backup\BackupLocationsTests.cs" />
     <Compile Include="Core\Backup\FileBackupTests.cs" />
     <Compile Include="Core\Backup\RegFileWriterTests.cs" />
