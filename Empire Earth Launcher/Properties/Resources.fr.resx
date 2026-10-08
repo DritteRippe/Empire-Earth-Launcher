@@ -571,6 +571,9 @@ Vos paramètres actuels sont d'abord enregistrés dans des fichiers .reg dans {1
   <data name="RepairStepRunSuiteFormat" xml:space="preserve">
     <value>Fermez le jeu. Relancez « Empire Earth Community Setup » depuis le dossier où vous l'avez décompressé ({0}) : il répare ou met à jour les jeux qu'il a installés.</value>
   </data>
+  <data name="RepairStepDownloadPackage" xml:space="preserve">
+    <value>Fermez le jeu. Téléchargez de nouveau le paquet « Empire Earth Community » depuis sa page des versions ci-dessous, décompressez le fichier ZIP et lancez « Empire Earth Community Setup » depuis le dossier décompressé : il répare ou met à jour les jeux qu'il a installés. N'utilisez pas pour cela le setup d'empireearth.eu : c'est un autre setup, qui annulerait les correctifs du paquet.</value>
+  </data>
   <data name="RepairStepKeepFolderAllUsersFormat" xml:space="preserve">
     <value>Conservez le dossier {0} et choisissez de nouveau « Installer pour tous les utilisateurs ».</value>
   </data>
@@ -593,7 +596,10 @@ Vos paramètres actuels sont d'abord enregistrés dans des fichiers .reg dans {1
     <value>Page de téléchargement du setup communautaire :</value>
   </data>
   <data name="RepairDownloadPageSuiteLabel" xml:space="preserve">
-    <value>Si ce dossier n'existe plus, téléchargez plutôt le setup communautaire :</value>
+    <value>Si ce dossier n'existe plus, téléchargez de nouveau le paquet « Empire Earth Community » depuis sa page des versions :</value>
+  </data>
+  <data name="RepairPackagePageLabel" xml:space="preserve">
+    <value>Page des versions du paquet « Empire Earth Community » :</value>
   </data>
   <data name="RepairOpenPageButton" xml:space="preserve">
     <value>Ouvrir la page</value>

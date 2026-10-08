@@ -418,7 +418,8 @@ namespace Empire_Earth_Launcher.Tests.Launcher
         public void RepairSteps_Contract_4_4_WithTheSuiteFolder_TheSuiteStepComesFirst()
         {
             const string Folder = @"C:\Users\Anna\Downloads\Empire Earth Community";
-            RepairAdvice advice = RepairAdvice.For(PlayInstallation(), RepairReason.ProgramMissing, new[] { Game.EmpireEarth }, Folder);
+            RepairAdvice advice = RepairAdvice.For(PlayInstallation(), RepairReason.ProgramMissing, new[] { Game.EmpireEarth },
+                new SuitePackage(Folder));
 
             Assert.That(Texts.RepairSteps(advice).Split(new[] { Environment.NewLine }, StringSplitOptions.None), Is.EqualTo(new[]
             {
@@ -430,6 +431,22 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             }));
             Assert.That(Texts.RepairSteps(advice), Does.Not.Contain("Download the current community setup"),
                 "the download is the second option below the steps, not a step");
+        }
+
+        [Test]
+        public void RepairSteps_TheSuiteWithoutItsFolder_DownloadsThePackageAgain_NotTheCommunitySetup()
+        {
+            RepairAdvice advice = RepairAdvice.For(PlayInstallation(), RepairReason.Requested, suite: new SuitePackage(null));
+
+            Assert.That(Texts.RepairSteps(advice).Split(new[] { Environment.NewLine }, StringSplitOptions.None), Is.EqualTo(new[]
+            {
+                "1. Close the game. Download the package \"Empire Earth Community\" again from its release page below, unpack the " +
+                "ZIP file and run \"Empire Earth Community Setup\" from the unpacked folder: it repairs or updates the games it " +
+                "installed. Do not use the setup from empireearth.eu for this: it is a different setup and would undo the fixes " +
+                "of the package.",
+                "2. Keep the folder " + PlayRoot + " and choose \"Install for all users\" again.",
+                "3. Keep the task \"Register NeoEE CDKeys\" selected: it also repairs the CD keys."
+            }));
         }
 
         [Test]

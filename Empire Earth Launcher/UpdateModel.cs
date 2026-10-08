@@ -16,7 +16,8 @@ namespace Empire_Earth_Launcher
     /// Created once by <see cref="Program"/>; use it on the UI thread. A request runs only when the player asks for it (a
     /// version check is clicked), never at start (ADR 0008). The game version check is always asked; the setup version check
     /// only on the Tools page. The results belong to the installation they were asked for and are dropped when another one
-    /// is selected. The download page of the advice is the product's page of contract 4.3 and needs no request.
+    /// is selected. The download page of the advice is the product's page of contract 4.3, or the release page of the package
+    /// for an installation of the suite (<see cref="RepairAdvice.DownloadUrl"/>), and needs no request.
     /// </remarks>
     internal sealed class UpdateModel
     {
@@ -73,9 +74,9 @@ namespace Empire_Earth_Launcher
             get
             {
                 if (GameResult?.Outcome == VersionCheckOutcome.UpdateAvailable)
-                    return RepairAdvice.ForUpdate(GameResult, suiteRepair?.FolderFor(GameResult.Installation));
+                    return RepairAdvice.ForUpdate(GameResult, suiteRepair?.PackageFor(GameResult.Installation));
                 if (SetupResult?.Outcome == VersionCheckOutcome.UpdateAvailable)
-                    return RepairAdvice.ForUpdate(SetupResult, suiteRepair?.FolderFor(SetupResult.Installation));
+                    return RepairAdvice.ForUpdate(SetupResult, suiteRepair?.PackageFor(SetupResult.Installation));
                 return null;
             }
         }

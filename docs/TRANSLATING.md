@@ -155,6 +155,14 @@ Changing the English text of an existing key means checking the German and Frenc
 
 ## Status
 
+Launcher 1.1.1 sends an installation of the suite to the release page of the package "Empire Earth Community" instead of the
+download page of the product setup, also when the unpacked folder of the package is gone. The repair window got two texts,
+`RepairStepDownloadPackage` (the step that downloads the package again, unpacks it and runs "Empire Earth Community Setup",
+with the warning not to use the setup from empireearth.eu) and `RepairPackagePageLabel` (above the address of the release
+page), and `RepairDownloadPageSuiteLabel` changed in all three languages (the second option below the suite step is now the
+package). The French texts call the package « paquet » and its release page « page des versions »; they are not in the
+counts below and belong to the French review (test plan WP10-06).
+
 Launcher 1.1.0 (contract revision 6, one launcher for four games) removed three texts of the repair window (`FailureUrlRejected`,
 `RepairLocating`, `RepairFallbackFormat`: the update API no longer chooses the download page) and added five for the *Play* page:
 the four entries of the list of games (`PlayEntryEmpireEarth`, `PlayEntryEmpireEarthAoc`, `PlayEntryNeoEE`, `PlayEntryNeoEEAoc`:

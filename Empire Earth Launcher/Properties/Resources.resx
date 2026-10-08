@@ -758,6 +758,10 @@ Your current settings are saved first as .reg files in {1}; double-click such a 
     <value>Close the game. Run "Empire Earth Community Setup" again from the folder you unpacked it to ({0}): it repairs or updates the games it installed.</value>
     <comment>Step of the repair advice when the suite record lists the product and its folder exists (contract 4.4, revision 4). {0}: the folder the suite was started from (SourceDir). The quoted text is the name of the suite setup file.</comment>
   </data>
+  <data name="RepairStepDownloadPackage" xml:space="preserve">
+    <value>Close the game. Download the package "Empire Earth Community" again from its release page below, unpack the ZIP file and run "Empire Earth Community Setup" from the unpacked folder: it repairs or updates the games it installed. Do not use the setup from empireearth.eu for this: it is a different setup and would undo the fixes of the package.</value>
+    <comment>Step of the repair advice when the suite record lists the product but the folder the suite was started from is gone (since launcher 1.1.1). The first quoted text is the name of the package, the second the name of the suite setup file; the release page is the GitHub page of the package shown below the steps. empireearth.eu is not translated.</comment>
+  </data>
   <data name="RepairStepKeepFolderAllUsersFormat" xml:space="preserve">
     <value>Keep the folder {0} and choose "Install for all users" again.</value>
     <comment>Step of the repair advice for an installation in the mode admin (contract 4.4). {0}: the install root. The quoted text is the option of Inno Setup in this language (PrivilegesRequiredOverrideAllUsers without the &amp;).</comment>
@@ -787,8 +791,12 @@ Your current settings are saved first as .reg files in {1}; double-click such a 
     <comment>Repair advice, above the address of the download page (contract 4.3).</comment>
   </data>
   <data name="RepairDownloadPageSuiteLabel" xml:space="preserve">
-    <value>If that folder is gone, download the community setup instead:</value>
-    <comment>Repair advice with the suite step, above the address of the download page, which stays the second option (contract 4.4, revision 4).</comment>
+    <value>If that folder is gone, download the package "Empire Earth Community" again from its release page:</value>
+    <comment>Repair advice with the suite step, above the address of the release page of the package, which stays the second option (contract 4.4, revision 4; up to launcher 1.1.0 the download page of the product setup).</comment>
+  </data>
+  <data name="RepairPackagePageLabel" xml:space="preserve">
+    <value>Release page of the package "Empire Earth Community":</value>
+    <comment>Repair advice of an installation of the suite whose folder is gone, above the address of the release page of the package (since launcher 1.1.1).</comment>
   </data>
   <data name="RepairOpenPageButton" xml:space="preserve">
     <value>Open download page</value>

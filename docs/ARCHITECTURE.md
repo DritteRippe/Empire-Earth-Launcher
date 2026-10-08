@@ -98,7 +98,8 @@ Empire-Earth.sln
 │  ├─ Repair/          SetupDownloadPage (the three download pages, contract 4.3), UpdateApi (the query and the
 │  │                   failures of 4.5), UpdateChecker, RepairAdvice (contract 4; RepairAdvice since L-WP6, the rest
 │  │                   L-WP7); since 1.0.0 SuiteRepairLocator (the folder of the suite for the advice, contract 4.4);
-│  │                   since 1.1.0 no request for a download address (U1)
+│  │                   since 1.1.0 no request for a download address (U1); since 1.1.1 SuitePackage (the suite
+│  │                   installed the installation, with or without its folder) and the release page of the package
 │  ├─ Maintenance/     CleanupCandidates (the list of 4.6), CleanupAdvice, RegistryCleanup, ManifestFiles,
 │  │                   WonLoginReset, VirtualStoreScanner, SavedGames (folder export, import), NameChecks
 │  │                   (L-WP8)
@@ -310,7 +311,7 @@ Click Play -> button disabled -> `GameStarter.StartAsync(installation, game)`:
    if a process of that name exists, the hint that it may hang and how to end it in the Task Manager (the
    launcher never kills a process). The other game running -> warning with "start anyway".
 3. Program file missing -> refused, "damaged" with the repair advice (`RepairAdvice`, with the download page of the
-   product, contract 4.3).
+   product, contract 4.3, or the release page of the package for an installation of the suite, 4.5).
 4. Class S values synchronized for the game started, computed from the **real game folder** (ADR 0015);
    written only if different after normalization; changed values are logged with old and new value. Then the
    first run of the defaults if the marker is missing.
@@ -412,9 +413,27 @@ Since 1.0.0 (contract 4.4 revision 4): if the suite record ([1.6](CONTRACT.md#16
 and its `SourceDir` exists, `SuiteRepairLocator` gives that folder to `RepairAdvice`. The first step is then
 `RunSuiteSetupAgain` ("Close the game. Run "Empire Earth Community Setup" again from the folder you unpacked it to ...")
 instead of `CloseGameAndRunSetup`; the dialog gets a button "Open setup folder", which opens the folder in the Explorer
-through `IProcessStarter.OpenFolder` and never starts a program from it (contract 4.1), and the download page stays below as
-the second option ("If that folder is gone, ..."). A foreign installation never gets the suite step; without a record, a
-product in `Products` or the folder the advice is the download as before.
+through `IProcessStarter.OpenFolder` and never starts a program from it (contract 4.1), and a download stays below as
+the second option ("If that folder is gone, ..."). A foreign installation never gets the suite step; without a record or a
+product in `Products` the advice is the download of the product setup as before.
+
+Since 1.1.1 an installation of the suite is never sent to the product setup of the community website. The product pages
+of contract 4.3 redirect to the official setup (in October 2026 version 1.7.2), another build with the AppId of the
+setup the suite embeds: it updates the installation in place, undoes fixes of the package (among them an older dgVoodoo
+with the old window settings and "Run as administrator" by default; it also deletes the player's own random map scripts,
+setup README) and recreates the uninstall key without `ContractVersion`, so the launcher reports Unknown
+(`OlderSetupRanAfter`) and, up to 1.1.0, sent the player to the same page again. Now `SuiteRepairLocator.PackageFor`
+answers whether the suite installed the installation (the record lists its product; the mode is `admin`; the AppId the
+record embeds, if both are known, is the installation's; not foreign), with `SuitePackage.Folder` set only if
+`SourceDir` exists. For such an installation `RepairAdvice.InstalledBySuite` is true and `DownloadUrl` is the release
+page of the package (`SetupDownloadPage.PackageRelease`,
+`https://github.com/DritteRippe/Empire-Earth-Community/releases/latest`, ADR 0008 amendment of 1.1.1): below the suite
+step as the second option ("If that folder is gone, download the package "Empire Earth Community" again ..."), and
+without the folder as the only download, with the step `DownloadPackageAndRunSuite` ("Download the package ... again,
+unpack it and run "Empire Earth Community Setup" ...; do not use the setup from empireearth.eu"). The same holds for
+every reason, also for Unknown after an older setup ran over the installation, which ends the loop. An installation the
+suite did not install (no record, the product not in `Products`, another mode or AppId) keeps the download page of its
+product.
 
 ### 4.6 Tools
 
@@ -812,8 +831,10 @@ Decided in [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md):
   privacy rules of ADR 0013 (plan review) through `ReportAnonymizer`, and so do the log lines of the network check
   (4.6, 7).
 - **URLs opened in the browser**: only the three download pages of contract 4.3 (`SetupDownloadPage`: `empireearth.eu/download/ee/`,
-  `/neo/` and `/download/`), chosen by the installation alone; the launcher opens no address that came from the network, and
-  `NetworkDestinationTests` allow the update API and these pages as URL literals and nothing else.
+  `/neo/` and `/download/`), chosen by the installation alone, and since 1.1.1 the release page of the package
+  (`github.com/DritteRippe/Empire-Earth-Community/releases/latest`, chosen by the suite record, 4.5); the launcher opens no
+  address that came from the network, sends no request to GitHub, and `NetworkDestinationTests` allow the update API and
+  these pages as URL literals and nothing else.
 - **Files from outside**: imported saves are untrusted (plain file names only, `.ees`/`.scn` only, characters of the
   ANSI code page, 64 MiB at most, never onto a file of the manifest and nothing at all while the manifest exists but
   cannot be used, no overwrite without confirmation and a copy of the old file); there is no zip import (dropped in L-WP8); the manifest never makes the launcher open a file outside

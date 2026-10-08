@@ -23,7 +23,7 @@ Rules:
 | [0005](0005-own-settings-file-instead-of-user-config.md) | Own settings file instead of user.config | Accepted, amended 2026-10-02 (twice) |
 | [0006](0006-platform-abstractions-and-windows-path-logic.md) | Platform abstractions and Windows path logic | Accepted, amended 2026-10-02 (twice) |
 | [0007](0007-registry-write-scope-and-reg-backups.md) | Registry write scope, protected keys and .reg backups | Accepted, amended 2026-10-02 (six times) |
-| [0008](0008-https-policy-and-update-api.md) | HTTPS policy and use of the update API | Accepted, amended 2026-10-02 (four times) |
+| [0008](0008-https-policy-and-update-api.md) | HTTPS policy and use of the update API | Accepted, amended 2026-10-02 (four times), 2026-10-07 and 2026-10-08 |
 | [0009](0009-localization-with-resx-en-de-fr.md) | Localization with resx: English, German, French | Accepted, amended 2026-10-02 (twice) |
 | [0010](0010-game-start-and-mutex-probing.md) | Game start, mutex probing and single instance | Accepted, amended 2026-10-02 (twice) |
 | [0011](0011-screen-size-in-physical-pixels.md) | Screen size in physical pixels | Accepted, amended 2026-10-02 (twice) |

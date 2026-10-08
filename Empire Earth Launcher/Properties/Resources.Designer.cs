@@ -3390,7 +3390,7 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to If that folder is gone, download the community setup instead:.
+        ///   Looks up a localized string similar to If that folder is gone, download the package "Empire Earth Community" again from its release page:.
         /// </summary>
         internal static string RepairDownloadPageSuiteLabel {
             get {
@@ -3417,6 +3417,15 @@ namespace Empire_Earth_Launcher.Properties {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Release page of the package "Empire Earth Community":.
+        /// </summary>
+        internal static string RepairPackagePageLabel {
+            get {
+                return ResourceManager.GetString("RepairPackagePageLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The page could not be opened. Copy the address into your browser: {0}.
         /// </summary>
         internal static string RepairPageNotOpenedFormat {
@@ -3440,6 +3449,15 @@ namespace Empire_Earth_Launcher.Properties {
         internal static string RepairStepCdKeys {
             get {
                 return ResourceManager.GetString("RepairStepCdKeys", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close the game. Download the package "Empire Earth Community" again from its release page below, unp[rest of string was truncated].
+        /// </summary>
+        internal static string RepairStepDownloadPackage {
+            get {
+                return ResourceManager.GetString("RepairStepDownloadPackage", resourceCulture);
             }
         }
         

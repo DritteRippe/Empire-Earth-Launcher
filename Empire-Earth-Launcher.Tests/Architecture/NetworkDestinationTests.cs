@@ -10,10 +10,11 @@ namespace Empire_Earth_Launcher.Tests.Architecture
     /// <summary>
     /// The launcher contacts three destinations only (ARCHITECTURE 10, ADR 0008 "no further destinations", L-WP9): the NeoEE
     /// status server (<c>NeoApiClient</c>), the update API (<c>HttpsClient</c>, one fixed URL) and DNS (<c>WindowsNetworkInfo</c>).
-    /// The only other URLs in the code are the three download pages of contract 4.3, which only open in the browser. Checked on
-    /// the production sources: name lookups, sockets and HTTP clients exist only in their one adapter, no other URL is written
-    /// in the code (no "what is my IP" service, no download host such as the retired <c>cdn.empireearth.eu</c>), and the auth
-    /// and firewall ports of NeoEE (10002, 10003) appear nowhere.
+    /// The only other URLs in the code are the three download pages of contract 4.3 and, since launcher 1.1.1, the release page
+    /// of the package "Empire Earth Community" (ADR 0008 amendment of 1.1.1), which only open in the browser. Checked on the
+    /// production sources: name lookups, sockets and HTTP clients exist only in their one adapter, no other URL is written in
+    /// the code (no "what is my IP" service, no download host such as the retired <c>cdn.empireearth.eu</c>), and the auth and
+    /// firewall ports of NeoEE (10002, 10003) appear nowhere.
     /// </summary>
     [TestFixture]
     [Category(TestCategories.SourceTree)]
@@ -46,11 +47,14 @@ namespace Empire_Earth_Launcher.Tests.Architecture
             new Rule("the auth or firewall port of NeoEE", @"(?<![\w.])1000[23](?![\w.])"),
         };
 
-        /// <summary>The URL literals the launcher may contain: the update API and the three download pages of contract 4.3.</summary>
+        /// <summary>
+        /// The URL literals the launcher may contain: the update API, the three download pages of contract 4.3 and the release
+        /// page of the package; the pages are only opened in the browser.
+        /// </summary>
         private static readonly string[] AllowedUrls =
         {
             "https://api.empireearth.eu/setup/", "https://empireearth.eu/download/", "https://empireearth.eu/download/ee/",
-            "https://empireearth.eu/download/neo/"
+            "https://empireearth.eu/download/neo/", "https://github.com/DritteRippe/Empire-Earth-Community/releases/latest"
         };
 
         private static readonly Regex UrlLiteral = new Regex("\"(https?://[^\"]*)\"", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -91,6 +95,12 @@ namespace Empire_Earth_Launcher.Tests.Architecture
             Description = "the retired download host that the update API named")]
         [TestCase("Empire-Earth-Launcher-Core/Repair/UpdateUrlPolicy.cs", "private const string HttpsPrefix = \"https://\";",
             Description = "the URL policy of the update API's download URL is gone")]
+        [TestCase("Empire-Earth-Launcher-Core/Repair/SetupDownloadPage.cs",
+            "public const string PackageRelease = \"https://github.com/DritteRippe/Empire-Earth-Community/releases/download/v1.1.0/Empire-Earth-Community-1.1.0.zip\";",
+            Description = "a download of the package itself: the launcher never downloads, it opens the release page")]
+        [TestCase("Empire-Earth-Launcher-Core/Repair/SetupDownloadPage.cs",
+            "public const string PackageRelease = \"https://api.github.com/repos/DritteRippe/Empire-Earth-Community/releases/latest\";",
+            Description = "the API of GitHub: a request for the newest version would be a new destination")]
         public void TheRules_FindEveryOtherDestination(string file, string text)
         {
             Assert.That(Offenders(new[] { new SourceLine(file, 1, text) }), Is.Not.Empty);
@@ -103,6 +113,8 @@ namespace Empire_Earth_Launcher.Tests.Architecture
         [TestCase("Empire-Earth-Launcher-Core/Repair/SetupDownloadPage.cs", "public const string General = \"https://empireearth.eu/download/\";")]
         [TestCase("Empire-Earth-Launcher-Core/Repair/SetupDownloadPage.cs", "public const string EmpireEarth = \"https://empireearth.eu/download/ee/\";")]
         [TestCase("Empire-Earth-Launcher-Core/Repair/SetupDownloadPage.cs", "public const string NeoEE = \"https://empireearth.eu/download/neo/\";")]
+        [TestCase("Empire-Earth-Launcher-Core/Repair/SetupDownloadPage.cs",
+            "public const string PackageRelease = \"https://github.com/DritteRippe/Empire-Earth-Community/releases/latest\";")]
         [TestCase("Empire-Earth-Launcher-Core/Diagnostics/NetworkDiagnostics.cs", "int port = 100020;")]
         public void TheRules_AllowTheThreeDestinationsAndTheDownloadPages(string file, string text)
         {
