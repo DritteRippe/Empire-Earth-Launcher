@@ -22,12 +22,12 @@ features that work.
 | Finding the game | Fixed paths (lobby file in the working directory, friends in `C:\Program Files (x86)\Neo Empire Earth\...`) | Finds community setups (since v2 and up to 1.7.2; admin, user, portable) by their records, and other installations (CD, GOG, copies) through the game's "Installed From" values, the launcher's own folder or a folder you pick; choose one on the *Launcher* page |
 | Visible controls | Many placeholders (Repair CD-Keys, Clear Registry, DirectX wrapper, resolution, ...) | Only controls that work; a test keeps placeholders out ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md)) |
 | Damaged game files | Not implemented yet | For installations of the community setup since v2: read-only integrity check against the setup's file list, naming the missing or changed files |
-| Repair and updates | Listed as planned | Repair advice and a version check on request; the launcher never downloads or starts a setup itself |
+| Repair and updates | Listed as planned | Repair advice and a version check on request; an installation of the suite package is sent to the package's release page, never to a setup that would undo its fixes; the launcher never downloads or starts a setup itself |
 | Maintenance | Not implemented yet | *Tools* page: registry cleanup with `.reg` backup, WON login reset, VirtualStore check, saved games export/import, player name check |
 | Support | Not implemented yet | Network check and a diagnostics report for forum posts, anonymized and never sent by the launcher |
 | Game settings | Placeholder page | Recommended defaults, consistency hints, reset with `.reg` backup, compatibility options (Windows 8 and later) |
 | Privacy | Unwired "collect diagnostic data" checkbox; the *Play* page polls the NeoEE server every 5 s | No telemetry; the player list only while a NeoEE installation is selected; everything else only on click: HTTPS to the update API, plus name lookups and one status request to the NeoEE server in the network check |
-| Suite installer | None | Optional integration with "Empire Earth Community": its one desktop icon opens the launcher (the suite 1.0.0 icons with `--product=EE` or `NeoEE` still work), a second start brings the running launcher to the front, repair advice points to the suite |
+| Suite installer | None | Optional integration with "Empire Earth Community": its one desktop icon opens the launcher (the suite 1.0.0 icons with `--product=EE` or `NeoEE` still work), a second start brings the running launcher to the front, repair advice points to the suite and its release page |
 | Languages | English only | English, German and French, with automated checks that all three have the same texts |
 | Runtime | .NET Framework 4.0 | .NET Framework 4.8 for launcher and mod creator, one solution; Windows 7 SP1, 8.1, 10 (1607 or later) and 11 ([Requirements](#requirements)) |
 | Log and settings | `log.txt` in the working directory; theme choice not saved; no handler for unexpected errors | Log and `settings.json` in `%LOCALAPPDATA%\Empire Earth Launcher`, damaged settings recovered, unexpected errors logged and shown |
@@ -130,11 +130,20 @@ controls of the old mock-up were removed and the features behind them are listed
   setup (forum: antivirus programs that delete game files)
 - Repair advice when a program is missing, files are damaged or an update is available: what to do with the community
   setup (antivirus exception first, same folder and install mode, keep the NeoEE CD-key task), the files concerned, and
-  the download page of the product (`https://empireearth.eu/download/ee/` or `/neo/`, `https://empireearth.eu/download/`
-  for a foreign installation), shown at once and opened in the browser only on a click, without a request to the update
-  API; the launcher never downloads, starts or elevates the setup itself
+  where to get the setup, shown at once and opened in the browser only on a click, without a request to the update API:
+  - for an installation that the suite "Empire Earth Community" installed (its record lists the product), the release
+    page of the package, https://github.com/DritteRippe/Empire-Earth-Community/releases/latest (1.1.1). This holds also
+    when the unpacked folder of the package is gone: the advice is then to download the package again, unpack it and
+    run "Empire Earth Community Setup", not the setup of empireearth.eu, which is a different build and would undo the
+    fixes of the package. For an available update it says that the package updates only with a new release;
+  - for other installations the download page of the product (`https://empireearth.eu/download/ee/` or `/neo/`,
+    `https://empireearth.eu/download/` for a foreign installation);
+  - the launcher never downloads, starts or elevates the setup itself
 - Version check on request (*Play* page: the game; *Tools* page: game and setup) against the update API of the
-  community setup, for community installations also of setups up to 1.7.2 (forum: version conflicts in multiplayer)
+  community setup, for community installations also of setups up to 1.7.2 (forum: version conflicts in multiplayer).
+  "Check for updates" asks only about the game and the setup of the product (EE or NeoEE), not about the package
+  "Empire Earth Community", and its result names the product ("Version 1.7.2 of the Empire Earth setup: up to date.").
+  For new versions of the package, the button "Open release page" next to it opens the package's release page (1.1.1)
 - Maintenance tools on the *Tools* page, none of which runs while a setup or a game runs:
   - Registry cleanup: cleanup of HKCU entries; HKLM entries are only shown, with advice. The launcher offers a key of
     your Windows account from its fixed list only when no installation of its product is found and the game folder it
@@ -191,8 +200,9 @@ controls of the old mock-up were removed and the features behind them are listed
   - The suite counts as a running setup like the EE and NeoEE setups: while it runs, even in the moment between the two
     product setups, the launcher starts no game and changes nothing
   - If the suite installed a product and the folder you unpacked it to is still there, the repair advice says to run
-    "Empire Earth Community Setup" again from that folder (with a button that opens the folder, never the program) and
-    keeps the download page of the product setup as the second option. The launcher only reads the suite's record
+    "Empire Earth Community Setup" again from that folder (with a button that opens the folder, never the program); the
+    release page of the package is the second option, and without the folder it is the only download (launcher 1.1.1;
+    before, the advice named the download page of the product setup). The launcher only reads the suite's record
     (`HKLM\SOFTWARE\Empire Earth Community\Suite`) for this
 - Detection of every Empire Earth installation: community setups (current and up to 1.7.2, admin, user and
   portable), retail, GOG and copies with their real folders; the *Launcher* page lists them with their state
@@ -231,7 +241,8 @@ usage or diagnostic data. Its connections are the request for the NeoEE player l
 (version check, network check), an HTTPS request to `api.empireearth.eu` that sends nothing but the AppId of the
 installation, the kind of the question (game or setup) and, for the version check, the version, and the name lookups of the network check; it asks no service
 for your public address. The download page of the community setup (`empireearth.eu/download/ee/`, `/neo/` or
-`/download/`) opens in your browser only when you click its button; the launcher sends no request for it. The
+`/download/`) and the release page of the package "Empire Earth Community" on GitHub open in your browser only when you
+click their button; the launcher sends no request for them. The
 diagnostics report is
 made only when you click, stays on your computer until you paste or send it yourself, and replaces your user and
 computer name, public addresses, MAC addresses and player names; read it before you post it. CD keys are repaired by
@@ -343,7 +354,8 @@ about this number). A `PeakMB` below about 1200 MB makes the limit an unlikely c
   adapter, installations, file versions, DirectX wrapper, integrity, game defaults and hints, VirtualStore, the network
   check). It contains no CD keys, login data, player names, MAC or public IP address and no user or computer name; read it
   before you post it, the launcher never sends it.
-- The lines of `%LOCALAPPDATA%\Empire Earth Launcher\log.txt` around the start. `Game started: ..., pid <number>` is the
+- The lines of `%LOCALAPPDATA%\Empire Earth Launcher\log.txt` around the start (every launcher start writes into this one
+  file, so the lines of a second start that hands over to the running launcher are there too). `Game started: ..., pid <number>` is the
   start; the line about the hand-over of the foreground follows: `Game window 0x... of Empire Earth.exe (pid <number>)
   brought to the foreground after <N> ms (the foreground was pid <number> (the launcher)).` is the normal case.
   `... not brought to the foreground: skipped, user switched to pid <number>.` means another program was in front,
@@ -515,7 +527,8 @@ cover:
   (`DiagnosticsModel`: only on request, saving never into an installation), and the message of a second launcher;
 - the WON lobby file parser, the NeoEE protocol framing, reply parsing and request deadline (`Won/`), and the mod
   library (`Mod/`: product folders, file types, versions, the working directory of the mod creator, `.eem`
-  export/import including damaged archives);
+  export/import including damaged and crafted archives, the paths of mod files, the size limit of the archives, and the
+  local modifications of the vendored ZipStorer);
 - architecture rules (`Architecture/`): the shared build settings of every project, the core's dependencies (no
   WinForms, `System.Drawing` or Krypton; only the BCL and the WON library), a table test that the registry
   write policy refuses `Software\Sierra\CDKeys`, the install records and the uninstall keys under every alias
@@ -530,8 +543,9 @@ cover:
   (`TestIsolationTests`), and only the shell starter starts programs, never without the shell or elevated, and
   nothing ends a process (`ProcessRulesTests`); no source overrides the certificate check
   (`NoCertificateOverrideTests`), names an old or explicit TLS version or sets it outside `Program`
-  (`TlsSettingTests`), and every SHA-256 in the fixtures and the contract samples is the hash of a synthetic text
-  (`FixtureProvenanceTests`).
+  (`TlsSettingTests`), every SHA-256 in the fixtures and the contract samples is the hash of a synthetic text
+  (`FixtureProvenanceTests`), only the mod archive reader extracts ZIP entries (`ZipStorerUseTests`), and every action
+  of the CI workflow is pinned to the commit of a release (`ProjectConventionsTests`).
 
 Architecture tests read the project files, `packages.config`, `App.config`, `app.manifest`, the core's sources,
 the launcher's designer files, code and `.resx` files, `docs/CONTRACT.md`, ADR 0014, the test plan and the other
@@ -541,7 +555,8 @@ documents, the CI workflow and the built satellite assemblies (the tests that re
 `Tests\` folder of the laptop package) runs the others with `--where "cat != SourceTree"`. The tests use fakes
 (`Fakes/`: in-memory registry with both HKLM views and a 32-bit Windows mode, in-memory file system with Windows
 path rules, mutex probe and owner, clock, logger, system information with Windows version, Wine, screen and code
-page, process starter, process list, file versions, an HTTPS client that answers from a table, network adapters and
+page, process starter, process list, file versions, an HTTPS client that answers from a table (and, in `HttpsClientTests`,
+a handler that answers the real client from memory, so no request leaves the test), network adapters and
 name lookups from a table; `TestSupport/` also has `MappedFileSystem`, the real file system behind a drive letter that
 stands for a temporary folder) and
 only write below the temporary folder; they never contact a server, never touch the real registry or
@@ -653,7 +668,10 @@ console output and the result file hold no hash (every message is redacted) and 
 the `bin/Release` folders (a test program reports failure through a non-zero exit code; finding no test
 program fails the build): the unit tests and the self-tests of the real-machine checks, whose `RealMachine` fixtures
 stay skipped there. The NUnit result files are kept as the `test-results` artifact. Dependabot (`.github/dependabot.yml`)
-proposes a monthly pull request for the GitHub Actions the workflow uses; NuGet packages stay pinned on purpose. On a fork,
+proposes a monthly pull request for the GitHub Actions the workflow uses, all of them in one pull request; NuGet packages
+stay pinned on purpose. Every action in `build.yml` is pinned to the full commit SHA of a release with the version as a
+comment (`uses: owner/repo@<SHA> # vX.Y.Z`), the form Dependabot updates, and an architecture test
+(`ProjectConventionsTests`) fails on an action that is not pinned this way; the checkout keeps no credentials. On a fork,
 version updates must be enabled once under *Insights* > *Dependency graph* > *Dependabot*.
 
 **Test builds**: when all tests pass, the CI run also keeps the Release output of both applications for 30 days,
@@ -767,14 +785,15 @@ Empire-Earth-WON/                 WON/NeoEE library, no UI (used by the launcher
 └─ LobbyPersistentData.cs         Parser for the WON lobby files (_wonlobbypersistent.dat, _wonuser*.dat)
 Empire-Earth-Mod/
 ├─ Empire-Earth-Mod-Lib/          Mod library: ModData (mod description), ModAssets (icon/banners),
-│                                 ModPackageBuilder/ModArchiveReader (.eem packages), Windows version detection
-│                                 (ZipStorer.cs is a vendored third-party ZIP library)
+│                                 ModPackageBuilder/ModArchiveReader (.eem packages), EemFormat (layout and rules
+│                                 of .eem archives), Windows version detection; ZipStorer.cs is the vendored
+│                                 ZipStorer 3.7.0 with local fixes, see THIRD-PARTY-NOTICES.md
 └─ Empire-Earth-Mod/              Mod creator (WinForms), uses Empire-Earth-Mod-Lib
 Empire-Earth-Launcher.Tests/      Unit tests (NUnitLite console program), one folder per tested project:
 ├─ Architecture/                  Rules for the whole solution (project settings, core dependencies, registry aliases,
 │                                 placeholder controls, ApplyTexts, resource parity, test plan, contract checklist,
 │                                 test isolation, network destinations, process starts, TLS and certificate rules,
-│                                 synthetic fixture hashes)
+│                                 synthetic fixture hashes, ZIP extraction only in the mod archive reader)
 ├─ Core/                          The core library, one folder per area
 ├─ Launcher/                      UI helpers, installation service, page models, start of a second launcher
 ├─ Won/                           WON lobby files, NeoEE protocol
@@ -846,8 +865,10 @@ packages/                         NuGet packages, restored on build (not committ
   https://api.empireearth.eu/setup/?product=<AppId>&type=game|setup&version=<version>` for the version check (and
   `&type=game` as the reference of the network check) over HTTPS with the certificate check of Windows, no redirects,
   10 seconds and at most 4 KiB; on Windows 7 TLS 1.2 is requested explicitly, elsewhere Windows chooses. The launcher
-  no longer asks it for a download address: the repair window opens the download page of the product (contract 4.3)
-  without a request, and a failed version check says why in the window and the log.
+  no longer asks it for a download address: the repair window opens the download page of the product, or for an
+  installation of the suite the release page of the package (contract 4.3, revision 7), without a request, and a failed
+  version check says why in the window and the log. The answer is decoded by the launcher itself (the character set of
+  the answer if Windows knows it, else the one of a byte order mark, else UTF-8), so an unusual `charset` is no error (1.1.1).
 - **Architecture of v2**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) describes the structure as built (UI-free
   core library, thin WinForms UI on .NET Framework 4.8), data flows, threading, error handling, logging,
   localization and tests, and ticks the launcher items of the contract checklist; the decisions behind it are recorded
