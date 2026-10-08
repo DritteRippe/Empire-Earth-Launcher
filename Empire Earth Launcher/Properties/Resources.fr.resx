@@ -751,8 +751,11 @@ Vos paramètres actuels sont d'abord enregistrés dans des fichiers .reg dans {1
   <data name="VersionCheckToolsButton" xml:space="preserve">
     <value>Rechercher des mises à jour</value>
   </data>
+  <data name="PackageReleasePageButton" xml:space="preserve">
+    <value>Ouvrir la page des versions</value>
+  </data>
   <data name="VersionCheckInfo" xml:space="preserve">
-    <value>Demande à api.empireearth.eu si le jeu et le setup installés sont à jour. Seuls l'AppId de l'installation et la version sont envoyés.</value>
+    <value>Demande à api.empireearth.eu si le jeu installé et le setup du jeu (Empire Earth ou NeoEE) sont à jour. Seuls l'AppId de l'installation et la version sont envoyés. Le paquet « Empire Earth Community », avec son setup et ce launcher, n'est pas vérifié : ses nouvelles versions sont publiées sur sa page des versions.</value>
   </data>
   <data name="VersionChecking" xml:space="preserve">
     <value>Interrogation du serveur de mises à jour...</value>
@@ -764,10 +767,10 @@ Vos paramètres actuels sont d'abord enregistrés dans des fichiers .reg dans {1
     <value>Version du jeu {0} : la version {1} est disponible.</value>
   </data>
   <data name="VersionSetupUpToDateFormat" xml:space="preserve">
-    <value>Version du setup {0} : à jour.</value>
+    <value>Version {0} du setup « {1} » : à jour.</value>
   </data>
   <data name="VersionSetupUpdateFormat" xml:space="preserve">
-    <value>Version du setup {0} : la version {1} est disponible.</value>
+    <value>Version {0} du setup « {1} » : la version {2} est disponible.</value>
   </data>
   <data name="VersionNotPossible" xml:space="preserve">
     <value>Pas de vérification de version : seules les installations du setup communautaire avec une version enregistrée peuvent être vérifiées.</value>

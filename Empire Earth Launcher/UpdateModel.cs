@@ -10,7 +10,8 @@ namespace Empire_Earth_Launcher
 {
     /// <summary>
     /// The update API for the Play and Tools pages and the repair advice (contract 4.3, 4.5, ADR 0008, L-WP7): the version
-    /// check of the selected installation, and opening the download page of the advice in the browser.
+    /// check of the selected installation, and opening the download page of the advice, or the release page of the package,
+    /// in the browser.
     /// </summary>
     /// <remarks>
     /// Created once by <see cref="Program"/>; use it on the UI thread. A request runs only when the player asks for it (a
@@ -122,6 +123,18 @@ namespace Empire_Earth_Launcher
             if (advice == null)
                 throw new ArgumentNullException(nameof(advice));
             return advice.OpenDownloadPage(shell, logger);
+        }
+
+        /// <summary>
+        /// Opens the release page of the package "Empire Earth Community" in the default browser, without a request (the Tools
+        /// page, since 1.1.1): the version check asks the update API about the game and its setup, never about the package,
+        /// whose new versions appear on that page.
+        /// </summary>
+        public DownloadPageResult OpenPackageReleasePage()
+        {
+            logger.Info("Opening the release page of the package " + SetupDownloadPage.PackageRelease +
+                        " (the version check does not cover the package).");
+            return SetupDownloadPage.Open(SetupDownloadPage.PackageRelease, shell, logger);
         }
 
         /// <summary>Opens the folder of the suite setup of the advice in the Explorer (contract 4.4); false if it could not.</summary>

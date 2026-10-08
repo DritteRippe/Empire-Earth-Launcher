@@ -711,9 +711,10 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(Texts.VersionResult(Result(VersionKind.Game, VersionCheckOutcome.UpToDate)), Is.EqualTo("Game version 2.0.0.5: up to date."));
             Assert.That(Texts.VersionResult(Result(VersionKind.Game, VersionCheckOutcome.UpdateAvailable, "?")),
                 Is.EqualTo("Game version 2.0.0.5: version ? is available."));
-            Assert.That(Texts.VersionResult(Result(VersionKind.Setup, VersionCheckOutcome.UpToDate)), Is.EqualTo("Setup version 2.0.0: up to date."));
+            Assert.That(Texts.VersionResult(Result(VersionKind.Setup, VersionCheckOutcome.UpToDate)),
+                Is.EqualTo("Version 2.0.0 of the NeoEE setup: up to date."), "the setup of the game, not the package");
             Assert.That(Texts.VersionResult(Result(VersionKind.Setup, VersionCheckOutcome.UpdateAvailable, "2.1.0")),
-                Is.EqualTo("Setup version 2.0.0: version 2.1.0 is available."));
+                Is.EqualTo("Version 2.0.0 of the NeoEE setup: version 2.1.0 is available."));
             Assert.That(Texts.VersionResult(Result(VersionKind.Game, VersionCheckOutcome.NotPossible)), Does.StartWith("No version check:"));
             Assert.That(Texts.VersionResult(Result(VersionKind.Game, VersionCheckOutcome.Failed, null, UpdateApiFailure.TlsError)),
                 Is.EqualTo("The update server could not be asked (the secure connection failed); details in the log."));

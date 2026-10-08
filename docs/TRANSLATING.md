@@ -161,8 +161,12 @@ download page of the product setup, also when the unpacked folder of the package
 with the warning not to use the setup from empireearth.eu), `RepairStepUpdateWithNewPackage` (the step of an available
 update: the version comes from the update server of empireearth.eu, the package updates only with a new release) and
 `RepairPackagePageLabel` (above the address of the release page), and `RepairDownloadPageSuiteLabel` changed in all three
-languages (the second option below the suite step is now the package). The French texts call the package « paquet » and its release page « page des versions »; they are not in the
-counts below and belong to the French review (test plan WP10-06, WP7-10).
+languages (the second option below the suite step is now the package). The *Tools* page got the button
+`PackageReleasePageButton` ("Open release page", next to "Check for updates", at most about 30 characters), and
+`VersionCheckInfo` (what the version check covers and what not) and the two setup lines of its result
+(`VersionSetupUpToDateFormat`, `VersionSetupUpdateFormat`, now with the product in `{1}`, the latest version in `{2}`)
+changed in all three languages. The French texts call the package « paquet » and its release page « page des versions »;
+they are not in the counts below and belong to the French review (test plan WP10-06, WP7-10, WP7-11, WP14-04).
 
 Launcher 1.1.0 (contract revision 6, one launcher for four games) removed three texts of the repair window (`FailureUrlRejected`,
 `RepairLocating`, `RepairFallbackFormat`: the update API no longer chooses the download page) and added five for the *Play* page:

@@ -200,5 +200,25 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(shell.OpenedUrls, Is.EqualTo(new[] { SetupDownloadPage.PackageRelease }));
             Assert.That(shell.OpenedFolders, Is.Empty);
         }
+
+        [Test]
+        public void ThePackageReleasePage_OpensThroughTheShell_WithoutARequest_AlsoWithoutAnInstallation()
+        {
+            Assert.That(model.OpenPackageReleasePage(), Is.EqualTo(DownloadPageResult.Opened));
+
+            Assert.That(shell.OpenedUrls, Is.EqualTo(new[] { "https://github.com/DritteRippe/Empire-Earth-Community/releases/latest" }));
+            Assert.That(shell.Started, Is.Empty, "the launcher downloads and starts nothing");
+            Assert.That(client.Requests, Is.Empty, "no request to the update API or to GitHub");
+            Assert.That(world.Logger.Messages.Last(), Does.Contain("Opening the release page of the package " + SetupDownloadPage.PackageRelease));
+        }
+
+        [Test]
+        public void ThePackageReleasePage_AFailureIsAResult()
+        {
+            shell.OpenException = new System.ComponentModel.Win32Exception(1155);
+
+            Assert.That(model.OpenPackageReleasePage(), Is.EqualTo(DownloadPageResult.Failed));
+            Assert.That(world.Logger.Entries.Last().Exception, Is.SameAs(shell.OpenException));
+        }
     }
 }

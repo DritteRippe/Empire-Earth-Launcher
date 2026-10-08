@@ -3152,6 +3152,15 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Open release page.
+        /// </summary>
+        internal static string PackageReleasePageButton {
+            get {
+                return ResourceManager.GetString("PackageReleasePageButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Play.
         /// </summary>
         internal static string PlayButton {
@@ -4057,7 +4066,7 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Asks api.empireearth.eu whether the installed game and setup are current. Only the AppId of the inst[rest of string was truncated].
+        ///   Looks up a localized string similar to Asks api.empireearth.eu whether the installed game and the setup of the game (Empire Earth or NeoEE)[rest of string was truncated].
         /// </summary>
         internal static string VersionCheckInfo {
             get {
@@ -4129,7 +4138,7 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Setup version {0}: version {1} is available..
+        ///   Looks up a localized string similar to Version {0} of the {1} setup: version {2} is available..
         /// </summary>
         internal static string VersionSetupUpdateFormat {
             get {
@@ -4138,7 +4147,7 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Setup version {0}: up to date..
+        ///   Looks up a localized string similar to Version {0} of the {1} setup: up to date..
         /// </summary>
         internal static string VersionSetupUpToDateFormat {
             get {

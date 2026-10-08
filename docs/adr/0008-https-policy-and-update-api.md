@@ -197,6 +197,11 @@ installation in place, undoes fixes of the package and leaves the installation U
   setups of the community website, and the suite of the folder installs only the versions it embeds. The package gets
   newer versions only as a new release; the step says so and names the release page, and the window offers no
   "Open setup folder" for it.
+- **The version check does not cover the package**: it asks about the game and the product setup, which a new release of
+  the package may keep (1.7.2), so it can say "up to date" while a newer package exists. The *Tools* page says so and has
+  a button "Open release page" next to "Check for updates" (`UpdateModel.OpenPackageReleasePage`); the setup line of the
+  result names the product ("Version 1.7.2 of the Empire Earth setup: up to date."). The launcher does not ask for the
+  newest release: that would be a new destination.
 - **No new destination**: the page opens like the download pages, after a click, through the shell and not elevated
   (`SetupDownloadPage.Open`, also used for the pages of contract 4.3). The launcher sends no request to GitHub (neither to
   the page nor to the GitHub API) and follows no redirect; GitHub answers `/releases/latest` with the release marked
@@ -210,4 +215,5 @@ installation in place, undoes fixes of the package and leaves the installation U
   and nothing else; new self-tests show that a download of the ZIP file and the GitHub API are found.
 
 Evidence: `Core/Repair/SuiteRepairTests`, `Core/Repair/SetupDownloadPageTests`, `Launcher/TextsTests`,
-`Launcher/UpdateModelTests`, `Architecture/NetworkDestinationTests`; test plan WP7-10, WP10-05, WP10-06, WP10-11.
+`Launcher/UpdateModelTests`, `Architecture/NetworkDestinationTests`; test plan WP7-10, WP7-11, WP10-05, WP10-06, WP10-11,
+WP14-04.

@@ -751,8 +751,11 @@ Ihre jetzigen Einstellungen werden vorher als .reg-Dateien in {1} gesichert; ein
   <data name="VersionCheckToolsButton" xml:space="preserve">
     <value>Nach Updates suchen</value>
   </data>
+  <data name="PackageReleasePageButton" xml:space="preserve">
+    <value>Release-Seite öffnen</value>
+  </data>
   <data name="VersionCheckInfo" xml:space="preserve">
-    <value>Fragt api.empireearth.eu, ob das installierte Spiel und das Setup aktuell sind. Gesendet werden nur die AppId der Installation und die Version.</value>
+    <value>Fragt api.empireearth.eu, ob das installierte Spiel und das Setup des Spiels (Empire Earth oder NeoEE) aktuell sind. Gesendet werden nur die AppId der Installation und die Version. Das Paket „Empire Earth Community“ mit seinem Setup und diesem Launcher wird nicht geprüft: Neue Versionen des Pakets erscheinen auf seiner Release-Seite.</value>
   </data>
   <data name="VersionChecking" xml:space="preserve">
     <value>Der Update-Server wird gefragt ...</value>
@@ -764,10 +767,10 @@ Ihre jetzigen Einstellungen werden vorher als .reg-Dateien in {1} gesichert; ein
     <value>Spielversion {0}: Version {1} ist verfügbar.</value>
   </data>
   <data name="VersionSetupUpToDateFormat" xml:space="preserve">
-    <value>Setup-Version {0}: aktuell.</value>
+    <value>Version {0} des Setups von {1}: aktuell.</value>
   </data>
   <data name="VersionSetupUpdateFormat" xml:space="preserve">
-    <value>Setup-Version {0}: Version {1} ist verfügbar.</value>
+    <value>Version {0} des Setups von {1}: Version {2} ist verfügbar.</value>
   </data>
   <data name="VersionNotPossible" xml:space="preserve">
     <value>Keine Versionsprüfung: Prüfen lassen sich nur Installationen des Community-Setups mit eingetragener Version.</value>

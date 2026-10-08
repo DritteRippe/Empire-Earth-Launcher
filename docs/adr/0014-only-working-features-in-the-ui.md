@@ -1,7 +1,8 @@
 # 0014 Only working features in the UI
 
 Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review and implementation in L-WP3; implementation in
-L-WP6, L-WP7, L-WP8 and L-WP9) and 2026-10-07 (launcher 1.1.0: the Graphics page and the Mods page), see the Amendment sections
+L-WP6, L-WP7, L-WP8 and L-WP9), 2026-10-07 (launcher 1.1.0: the Graphics page and the Mods page) and 2026-10-08 (launcher
+1.1.1: the release page of the package), see the Amendment sections
 
 ## Context
 
@@ -275,3 +276,22 @@ Two changes to the *Graphics* page, both within the rule of this ADR:
 Evidence: `Core/GameSettings/ResolutionOptionsTests`, `ComputedValuesTests`, `GameDefaultsServiceTests`,
 `Core/Graphics/DgVoodooPresetTests`, `Launcher/GraphicsViewTests`, `GraphicsTextsTests`, `PageLayoutTests` and `PageScreenshotTests`
 (state `OldPreset`); test plan WP11-02, WP11-09, WP11-10.
+
+## Amendment 2026-10-08 (launcher 1.1.1: the release page of the package)
+
+"Check for updates" on the *Tools* page asks the update API about the game and its product setup (contract 4.5), not
+about the package "Empire Earth Community" the player installed: after a new release of the package that keeps both
+versions, it says "up to date". Within the rule of this record the page now says what is checked and what is not, and
+offers what works instead of a check it cannot make:
+
+- **One new button**, `packageReleasesKryptonButton` ("Open release page"), next to `versionCheckKryptonButton` in one row.
+  It opens the release page of the package in the browser (ADR 0008 amendment of 2026-10-08) and is always enabled: it
+  needs no installation and no request. If the browser cannot be opened, a message gives the address to copy. The name is
+  not on the list of removed placeholders (`PlaceholderControlsTests`), and its text is set in `ApplyTexts()`
+  (`ApplyTextsTests`).
+- **Honest texts**: `VersionCheckInfo` says that the package (its setup and the launcher) is not checked and where its new
+  versions appear; the setup line of the result names the product ("Version 1.7.2 of the Empire Earth setup: up to date.").
+- **Still not in the UI**: a check of the package version or an update of the launcher by itself (README, "Planned"); both
+  need a version source the maintainers control and a request this launcher does not make.
+
+Evidence: `Launcher/UpdateModelTests`, `Launcher/TextsTests`, `ApplyTextsTests`, `PageLayoutTests`; test plan WP7-11, WP14-04.

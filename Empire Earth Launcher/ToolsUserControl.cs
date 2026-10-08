@@ -23,9 +23,10 @@ namespace Empire_Earth_Launcher
     /// <summary>
     /// The Tools page: the integrity check of the selected installation with its explanation and files (contract 2.5), the
     /// full check with progress and cancel, the repair advice (contract 4.4), and the version check of the game and the setup
-    /// (contract 4.5) (L-WP7); the maintenance tools of L-WP8: the registry cleanup (R5), the WON login reset (R6), the
-    /// VirtualStore check (R8), saved games and scenarios and the name check (R10), and "Open backup folder" (ADR 0007); the
-    /// network diagnostics with the outage hint (R7) and the diagnostics report, copied or saved, never sent (L-WP9).
+    /// (contract 4.5) (L-WP7) with, since 1.1.1, the release page of the package, which the version check does not cover; the
+    /// maintenance tools of L-WP8: the registry cleanup (R5), the WON login reset (R6), the VirtualStore check (R8), saved
+    /// games and scenarios and the name check (R10), and "Open backup folder" (ADR 0007); the network diagnostics with the
+    /// outage hint (R7) and the diagnostics report, copied or saved, never sent (L-WP9).
     /// </summary>
     /// <remarks>
     /// The controls are stacked in <see cref="LayoutPage"/> by <see cref="ScrollPageLayout"/> from the texts they show and the
@@ -93,6 +94,7 @@ namespace Empire_Earth_Launcher
             updatesHeadingKryptonLabel.Values.Text = Resources.ToolsUpdatesHeading;
             versionInfoKryptonWrapLabel.Text = Resources.VersionCheckInfo;
             versionCheckKryptonButton.Values.Text = Resources.VersionCheckToolsButton;
+            packageReleasesKryptonButton.Values.Text = Resources.PackageReleasePageButton;
 
             cleanupHeadingKryptonLabel.Values.Text = Resources.ToolsCleanupHeading;
             cleanupInfoKryptonWrapLabel.Text = Resources.CleanupInfo;
@@ -353,7 +355,7 @@ namespace Empire_Earth_Launcher
             stack.Place(updatesHeadingKryptonLabel);
             stack.Place(versionInfoKryptonWrapLabel);
             stack.Place(versionResultKryptonWrapLabel);
-            stack.Place(versionCheckKryptonButton);
+            stack.PlaceRow(versionCheckKryptonButton, packageReleasesKryptonButton);
 
             stack.Space(Gap);
             stack.Place(cleanupHeadingKryptonLabel);
@@ -444,6 +446,17 @@ namespace Empire_Earth_Launcher
         {
             uiOperation.Run(versionCheckKryptonButton, () => CheckVersionsAsync(this, true, updates, themeService),
                 ShowState);
+        }
+
+        /// <summary>
+        /// The release page of the package "Empire Earth Community" in the browser (since 1.1.1): its new versions appear there,
+        /// the version check does not ask about them. If the browser cannot be opened, the address is to be copied.
+        /// </summary>
+        private void packageReleasesKryptonButton_Click(object sender, EventArgs e)
+        {
+            if (updates.OpenPackageReleasePage() != DownloadPageResult.Opened)
+                MessageBox.Show(FindForm(), string.Format(CultureInfo.CurrentCulture, Resources.RepairPageNotOpenedFormat,
+                    SetupDownloadPage.PackageRelease), Resources.LauncherTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         // --- Maintenance tools (L-WP8) ---------------------------------------------------------------------------------

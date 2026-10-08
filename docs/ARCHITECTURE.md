@@ -439,6 +439,16 @@ empireearth.eu reports this version for its own setups. Your installation comes 
 page below whether there is a newer one ..."). An installation the suite did not install (no record, the product not in
 `Products`, another mode or AppId) keeps the download page of its product.
 
+The version check (contract 4.5) asks the update API about the game and the setup of the product, never about the
+package "Empire Earth Community": the suite, the product setups it embeds and the launcher have no version source of
+their own, and after a new release of the package that keeps the version of the game and of the product setup (1.7.2)
+the check still reports both as up to date. Since 1.1.1 the *Tools* page says so below "Updates" and has a button "Open
+release page" next to "Check for updates", which opens the release page of the package in the browser
+(`UpdateModel.OpenPackageReleasePage`, the address to copy in a message if the browser cannot be opened), and the setup
+line of the result names the product ("Version 1.7.2 of the Empire Earth setup: up to date."), so that it is not read as
+the version of the package. Asking for the newest release of the package (for example from GitHub) would be a new
+destination under ADR 0008 and a request beyond the table of contract 4.5; the launcher does not do it.
+
 ### 4.6 Tools
 
 - **Registry cleanup** (R5): scan of an explicit list of keys of old and foreign installations; each key
