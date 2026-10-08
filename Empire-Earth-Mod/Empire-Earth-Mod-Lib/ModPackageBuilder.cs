@@ -342,14 +342,36 @@ namespace Empire_Earth_Mod_Lib
                 zipStore.EncodeUTF8 = true;
                 // One entry per file, named relative to the working directory. ZipStorer.AddDirectory would
                 // put everything below the name of the working directory ("creator/data"), where the import
-                // does not look.
-                foreach (string file in Directory.GetFiles(WorkingDirectory, "*", SearchOption.AllDirectories)
-                             .OrderBy(file => file, StringComparer.Ordinal))
+                // does not look. Only the files of the format: whatever else the author left in the working
+                // directory (ReloadModFiles reports it as ignored) is not published with the mod.
+                foreach (string relativePath in Directory.GetFiles(WorkingDirectory, "*", SearchOption.AllDirectories)
+                             .Select(file => GetRelativePath(WorkingDirectory, file))
+                             .Where(BelongsToArchive)
+                             .OrderBy(path => path, StringComparer.Ordinal))
                 {
-                    zipStore.AddFile(ZipStorer.Compression.Deflate, file,
-                        EemFormat.ToEntryName(GetRelativePath(WorkingDirectory, file)), string.Empty);
+                    zipStore.AddFile(ZipStorer.Compression.Deflate, Path.Combine(WorkingDirectory, relativePath),
+                        EemFormat.ToEntryName(relativePath), string.Empty);
                 }
             }
+        }
+
+        /// <summary>
+        /// True for a file of the working directory (path relative to it) that is part of a mod archive (see
+        /// <see cref="EemFormat"/>): the mod data, the icon, and the banners and the files in the product folders of a
+        /// variant of the mod.
+        /// </summary>
+        private bool BelongsToArchive(string relativePath)
+        {
+            string[] parts = relativePath.Split(Path.DirectorySeparatorChar);
+            if (parts.Length == 1)
+                return parts[0] == EemFormat.DataEntryName || parts[0] == EemFormat.IconEntryName;
+
+            Guid variant;
+            if (!Guid.TryParseExact(parts[0], "D", out variant) || !mod.DoesVariantExist(variant))
+                return false;
+            return parts.Length == 2
+                ? EemFormat.IsBannerFileName(parts[1])
+                : EemFormat.GetProductFolder(relativePath.Substring(parts[0].Length + 1)) != null;
         }
 
         /// <summary>

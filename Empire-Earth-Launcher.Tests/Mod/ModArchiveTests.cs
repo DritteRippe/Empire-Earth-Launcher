@@ -225,6 +225,38 @@ namespace Empire_Earth_Launcher.Tests.Mod
         }
 
         [Test]
+        public void ExportToZip_PacksOnlyTheFilesOfTheFormat()
+        {
+            // Everything in the working directory was packed, also files that ReloadModFiles reports as ignored, such as
+            // notes of the author next to the product folders, which then were published with the mod.
+            var mod = new ModData { Name = "Clean", Version = new Version(1, 0) };
+            string eemPath = directory.Combine("clean" + EemFormat.Extension);
+            using (var builder = new ModPackageBuilder(mod, new ModAssets(), directory.Combine("workspace"), true))
+            {
+                AddModFile(builder, Guid.Empty, "EEC/Data/units.xml", "<units/>");
+                AddModFile(builder, Guid.Empty, EemFormat.GetBannerFileName(0), "banner");
+                AddModFile(builder, Guid.Empty, "notes.txt", "private notes");
+                AddModFile(builder, Guid.Empty, "Data/misplaced.xml", "<misplaced/>");
+                AddModFile(builder, Guid.Empty, "BannerSource.png", "source image");
+                Assert.That(builder.ReloadModFiles(Guid.Empty), Has.Count.EqualTo(3), "files reported as ignored");
+                // Left next to the variants, and the folder of a variant that is not (or no longer) part of the mod.
+                File.WriteAllText(Path.Combine(builder.WorkingDirectory, "todo.txt"), "next steps");
+                AddModFile(builder, Guid.NewGuid(), "EEC/Data/old.xml", "<old/>");
+                builder.ExportModInfos();
+
+                builder.ExportToZip(eemPath);
+            }
+
+            Assert.That(EntryNames(eemPath), Is.EquivalentTo(new[]
+            {
+                EemFormat.DataEntryName,
+                Guid.Empty + "/" + EemFormat.GetBannerFileName(0),
+                Guid.Empty + "/EEC/Data/units.xml"
+            }));
+            Assert.That(ModArchiveReader.ReadModData(eemPath).ModFiles.Count, Is.EqualTo(1));
+        }
+
+        [Test]
         public void Build_WithoutIcon_FailsWithoutWritingAnArchive()
         {
             var mod = new ModData { Name = "No icon" };
