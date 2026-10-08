@@ -189,15 +189,24 @@ Was auf echter Hardware gelaufen ist und was nicht. Nach jeder Sitzung hier eine
 | Sitzung | Datum | Stand | Ergebnis |
 |---|---|---|---|
 | 1 | 2026-10-07 | Launcher 1.1.0 (Tag `v1.1.0`, Commit `5d256c8`), Laptop mit Windows 11 | Gelaufen sind WP6-13, WP6-18, WP6-19 (a), WP6-21 (a) bis (d) und (g), WP11-01 bis WP11-04 (a), WP11-06, WP11-10, WP12-01 (a), WP12-02, WP12-04, WP13-01, WP13-02, WP13-06, WP13-07, WP14-01 und WP14-02. Festgehalten ist nur das Gesamturteil „bestanden, die Maus geht direkt nach dem Start ohne Alt+Tab“ (WP6-21), keine Ergebnisse je Fall. Auf dieser Grundlage wurde 1.1.0 freigegeben. |
-| 2 | **noch nicht gelaufen** | Launcher 1.1.1 | Geplant vor der Freigabe von 1.1.1, siehe unten. |
+| 2 | **noch nicht gelaufen** | Launcher 1.1.1 (Tag `v1.1.1`) | Lief nicht vor der Freigabe von 1.1.1; offen, siehe unten. |
 
-**Für Sitzung 2 offen** (vor oder mit 1.1.1; ein Fehler, der dabei auftaucht, wird in 1.1.1 behoben):
+**Freigabe von 1.1.1 ohne Test auf echter Hardware:** Der Launcher 1.1.1 wurde am 2026-10-08 als Tag `v1.1.1` freigegeben,
+für das Paket „Empire Earth Community“ 1.1.1, auf Entscheidung des Maintainers. Zum Zeitpunkt des Tags lief **kein** Fall
+dieses Plans mit 1.1.1 auf echter Hardware: weder die neuen oder geänderten Fälle von 1.1.1 (darunter WP1-04, WP1-06 und
+WP2-10 mit der Version 1.1.1) noch die Fälle, die bei 1.1.0 offen blieben (beides in der Liste unten); die Fälle der
+Sitzung 1 liefen nur mit 1.1.0. Sitzung 2 ist weiter offen. Die Ergebnisse kommen in diese Tabelle, wenn die Fälle
+gelaufen sind.
+
+**Für Sitzung 2 offen** (mit dem freigegebenen Launcher 1.1.1; der Tag `v1.1.1` wird nie verschoben, die Korrektur eines
+Fehlers, der dabei auftaucht, bekäme eine neue Patch-Version, [RELEASING.md](RELEASING.md), Schritt 4):
 
 - aus 1.1.0 nicht gelaufen: WP11-04 (b), WP11-05, WP11-07 bis WP11-09, WP12-01 (b) und (c), WP12-03, WP12-05 bis WP12-09,
   WP13-03 bis WP13-05, WP13-08, WP14-03, WP6-19 (b) bis (d), WP6-20 und WP6-21 (e), (f) und (h);
-- neu oder geändert in 1.1.1: WP10-03 (zweiter Start, alle Zeilen in `log.txt`, keine Datei `<GUID>log.txt`), WP10-05,
-  WP10-06 und WP10-11 (Reparaturhinweis einer Suite-Installation mit und ohne Paketordner), WP7-09 bis WP7-11
-  (älteres Setup, Versionsprüfung), WP14-04 (Abschnitt „Updates“, „Release-Seite öffnen“), WP1-07 (Scrollposition) und
+- neu oder geändert in 1.1.1: WP1-04, WP1-06 und WP2-10 (Version 1.1.1 in `log.txt` und in den Dateieigenschaften),
+  WP10-03 (zweiter Start, alle Zeilen in `log.txt`, keine Datei `<GUID>log.txt`), WP10-05, WP10-06 und WP10-11
+  (Reparaturhinweis einer Suite-Installation mit und ohne Paketordner), WP7-09 bis WP7-11 (älteres Setup,
+  Versionsprüfung), WP14-04 (Abschnitt „Updates“, „Release-Seite öffnen“), WP1-07 (Scrollposition) und
   WP15-01 bis WP15-03 (Mod-Creator);
 - das Korrekturlesen der deutschen Texte (Fälle WP3-*, WP4-17, WP5-17, WP6-14, WP7-14, WP8-15, WP9-14; siehe
   [TRANSLATING.md](TRANSLATING.md), Abschnitt *Status*).
@@ -211,9 +220,9 @@ Was auf echter Hardware gelaufen ist und was nicht. Nach jeder Sitzung hier eine
 | WP1-01 | .NET-Wert prüfen (Abschnitt 1). | Release-Wert ab 528040. |
 | WP1-02 | Paket nach 2.1 holen, Prüfsumme vergleichen, entsperren, entpacken (oder selbst bauen nach 2.2). | Prüfsummen gleich; beim eigenen Build alle Tests grün. |
 | WP1-03 | `Empire Earth Launcher.exe` als normaler Benutzer per Doppelklick starten. | Keine Rückfrage der Benutzerkontensteuerung (UAC), kein Fehlerdialog, das Hauptfenster erscheint. Alle Seiten der Navigation lassen sich öffnen. |
-| WP1-04 | `log.txt` öffnen (Abschnitt 3). | Neue Zeilen `Starting Empire Earth Launcher v1.1.0` und `Starting Empire Earth Launcher Form`. Keine Zeile mit `Error`, außer `The online player list of … is unavailable` (Statusserver nicht erreichbar, kein Fehler von L-WP1). `Warning : No Empire Earth installation found` ist ohne installiertes Spiel normal. |
+| WP1-04 | `log.txt` öffnen (Abschnitt 3). | Neue Zeilen `Starting Empire Earth Launcher v1.1.1` und `Starting Empire Earth Launcher Form`. Keine Zeile mit `Error`, außer `The online player list of … is unavailable` (Statusserver nicht erreichbar, kein Fehler von L-WP1). `Warning : No Empire Earth installation found` ist ohne installiertes Spiel normal. |
 | WP1-05 | Launcher läuft. Task-Manager → Details → Rechtsklick auf eine Spaltenüberschrift → Spalten auswählen → „UAC-Virtualisierung“ und „Plattform“ bzw. „Architektur“ (je nach Windows-Version) einblenden. | Beim Launcher: UAC-Virtualisierung **Deaktiviert**; auf 64-Bit-Windows „64 Bit“ bzw. „x64“, nicht 32 Bit. |
-| WP1-06 | Rechtsklick auf `Empire Earth Launcher.exe` → Eigenschaften → Details. | Dateiversion 1.1.0.0, Produktversion 1.1.0. |
+| WP1-06 | Rechtsklick auf `Empire Earth Launcher.exe` → Eigenschaften → Details. | Dateiversion 1.1.1.0, Produktversion 1.1.1. |
 | WP1-07 | Darstellung bei Skalierung 100 % ansehen und einen Screenshot machen. Danach das Fenster auf *Spielen*, *Einstellungen*, *Grafik*, *Werkzeuge* und *Launcher* mit der Maus größer ziehen, dann maximieren (Doppelklick auf die Titelleiste), und wieder verkleinern; dabei einmal ans Ende der Seite scrollen. Das Fenster lässt sich nicht kleiner ziehen, als es beim Start war (ADR 0017). | Krypton-Oberfläche vollständig: Bilder, goldene Schaltflächen, Kontrollkästchen und Texte wie bisher; nichts abgeschnitten. Die Navigationsknöpfe bleiben links in unveränderter Größe; die fünf Seiten nutzen die neue Breite (Texte, Textfelder und Listen werden breiter, Texte brechen später um, Knöpfe behalten ihre Größe), nichts überlappt, auch nicht nach einem Seitenwechsel, nach dem Scrollen oder beim Verkleinern; die Scrollposition bleibt erhalten. Auf *Spielen* bleiben die Spielerliste und „Spielen“ rechts in unveränderter Breite und füllen die Höhe (die Spielerliste wird höher, „Spielen“ sitzt unten rechts), die Gruppe „Spiel“ wird breiter und nur so hoch wie ihre Texte; auf *Launcher* werden das Textfeld des Spielordners und die Liste der Installationen breiter, die Liste wird höher und füllt das Fenster bis zu den Hinweisen darunter. |
 | WP1-08 | Skalierung auf 125 % oder 150 % stellen (Einstellungen → System → Bildschirm), Launcher neu starten, Screenshot. | Fenster von Windows vergrößert (darf etwas unscharf sein), Anordnung wie bei 100 %, keine überlappenden oder abgeschnittenen Elemente. Danach Skalierung zurückstellen. |
 | WP1-09 | Mod-Creator `Empire_Earth_Mod.exe` starten. | Startet ohne UAC-Rückfrage; oben steht „You are using: “ mit der **richtigen** Windows-Version (Windows 10 bzw. Windows 11, nicht „Windows 8“). |
@@ -240,7 +249,7 @@ Sprache auf „English“ (WP3-10 und WP3-11).
 | WP2-07 | In `settings.json` `"SchemaVersion": 1` in `"SchemaVersion": 2` ändern, speichern. Launcher starten, auf der Seite *Launcher* „Auto-detect“ klicken, Launcher schließen. | Standard-Einstellungen. `log.txt`: Warnung `… were written by a newer launcher (schema 2 …)` und beim Klick `The launcher settings are not saved …`. Die Datei ist unverändert (`"SchemaVersion": 2`). Danach die Datei löschen. |
 | WP2-08 | Eine gültige `settings.json` in Notepad mit „Speichern unter“ → Codierung **UTF-8 mit BOM** speichern, Launcher starten. | Einstellungen werden gelesen, keine `settings.json.damaged`. |
 | WP2-09 | Nur wenn eine `user.config` eines älteren Testpakets existiert (Abschnitt 3): Launcher starten. | Kein Fehler; der Launcher ignoriert die Datei (die Einstellungen von dort werden nicht übernommen). |
-| WP2-10 | Im entpackten Ordner `Empire-Earth-Launcher\` nachsehen; Rechtsklick auf `Empire_Earth_Launcher_Core.dll` → Eigenschaften → Details. | Die Datei liegt neben `Empire Earth Launcher.exe` (ohne sie startet der Launcher nicht); Dateiversion 1.1.0.0, Produktversion 1.1.0. |
+| WP2-10 | Im entpackten Ordner `Empire-Earth-Launcher\` nachsehen; Rechtsklick auf `Empire_Earth_Launcher_Core.dll` → Eigenschaften → Details. | Die Datei liegt neben `Empire Earth Launcher.exe` (ohne sie startet der Launcher nicht); Dateiversion 1.1.1.0, Produktversion 1.1.1. |
 | WP2-11 | Nach allen Fällen `log.txt` durchsehen. | Keine Zeile `Unhandled exception` und keine `A background task failed`; `Error`-Zeilen nur die erwarteten aus WP2-05 und die des Statusservers (WP1-04). |
 
 Was L-WP2 sonst noch enthält, hat noch keine Oberfläche und wird mit den Paketen getestet, die es benutzen: das

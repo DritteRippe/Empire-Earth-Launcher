@@ -1,0 +1,66 @@
+# Publishes the GitHub release of a tag that already exists (docs/RELEASING.md, step 5), so that a release needs no click in
+# the web interface: Actions > Publish release > Run workflow, with the tag, the title and the notes. It refuses a tag
+# whose commit has no successful run of the workflow Build for a push to main (tags do not start a build), and it attaches
+# nothing: the launcher ships in the package "Empire Earth Community".
+name: Publish release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'The existing release tag, for example v1.1.1'
+        required: true
+        type: string
+      title:
+        description: 'The title of the release, for example Empire Earth Launcher 1.1.1'
+        required: true
+        type: string
+      notes:
+        description: 'The release notes (Markdown)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: Publish the release of the tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # The inputs reach the scripts only as environment variables, never as ${{ }} in the script text.
+      - name: Check the tag and the green build of its commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]]; then
+            echo "::error title=Tag::'$TAG' is not a release tag vX.Y.Z"
+            exit 1
+          fi
+          sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/$TAG" --jq .sha)
+          runs=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/build.yml/runs?head_sha=$sha&branch=main&event=push&status=success" --jq .total_count)
+          if [ "$runs" -lt 1 ]; then
+            echo "::error title=No green build::The commit $sha of $TAG has no successful run of Build for a push to main."
+            exit 1
+          fi
+          echo "$TAG is $sha, with $runs successful run(s) of Build for a push to main."
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+          TITLE: ${{ inputs.title }}
+          NOTES: ${{ inputs.notes }}
+        run: |
+          set -euo pipefail
+          printf '%s\n' "$NOTES" > "$RUNNER_TEMP/notes.md"
+          if [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+- ]]; then
+            latest=(--prerelease --latest=false)
+          else
+            latest=(--latest)
+          fi
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --verify-tag --title "$TITLE" \
+            --notes-file "$RUNNER_TEMP/notes.md" "${latest[@]}"

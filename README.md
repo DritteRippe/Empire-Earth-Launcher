@@ -73,22 +73,31 @@ in [CONTRIBUTING.md](CONTRIBUTING.md).
 ## Status
 
 > [!NOTE]
-> **Version 1.1.0** is the current release (tag `v1.1.0`, 2026-10-07). It ships inside the package
-> "Empire Earth Community" 1.1.0; no binaries are published here. **1.1.1** is prepared on `main`: see *Unreleased* in
-> the [CHANGELOG](CHANGELOG.md).
+> **Version 1.1.1** is the current release (tag `v1.1.1`, 2026-10-08). It is the launcher of the package
+> "Empire Earth Community" 1.1.1; no binaries are published here. **No case of the test on real Windows had run with
+> 1.1.1 at the time of its tag**; below is what ran and what is open.
 
 <details>
 <summary>What was tested on real Windows, and what is open</summary>
 
-Version 1.1.0 (`SharedAssemblyInfo.cs`, CHANGELOG 2026-10-07) was released on 2026-10-07 as the tag `v1.1.0`
-on the commit 5d256c8. The maintainer released it after session 1 of the laptop test only, which covers WP6-13, WP6-18, WP6-19 (a),
+Version 1.1.1 (`SharedAssemblyInfo.cs`, CHANGELOG 2026-10-08) was released on 2026-10-08 as the tag `v1.1.1`. The
+maintainer released it without a test on real hardware: at the time of the tag no case of the test plan had run with
+1.1.1, and session 2 of the laptop test had not run. Not run on real hardware are the cases new or changed in 1.1.1,
+WP1-04, WP1-06 and WP2-10 (the version), WP1-07 (the scroll position), WP7-09 to WP7-11 (an older setup, the version
+check), WP10-03 (a second start, one log file), WP10-05, WP10-06 and WP10-11 (the repair advice of an installation of the
+suite), WP14-04 (the section "Updates" of the *Tools* page) and WP15-01 to WP15-03 (the mod creator), and the cases of
+1.1.0 below that session 1 did not cover. The test plan records the results when they ran
+([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), section 4.1).
+
+Version 1.1.0 (CHANGELOG 2026-10-07) was released on 2026-10-07 as the tag `v1.1.0` on the commit 5d256c8. The
+maintainer released it after session 1 of the laptop test only, which covers WP6-13, WP6-18, WP6-19 (a),
 WP6-21 (a) to (d) and (g), WP11-01 to WP11-04 (a), WP11-06, WP11-10, WP12-01 (a), WP12-02, WP12-04, WP13-01, WP13-02,
 WP13-06, WP13-07, WP14-01 and WP14-02. He reported only the overall verdict, "passed, the mouse works right after the start
 without Alt+Tab" (WP6-21), and no results for single cases; session 2 was not run. Not run on real hardware are WP11-04 (b),
 WP11-05, WP11-07 to WP11-09, WP12-01 (b) and (c), WP12-03, WP12-05 to WP12-09, WP13-03 to WP13-05, WP13-08, WP14-03,
 WP6-19 (b) to (d), WP6-20 and WP6-21 (e), (f) and (h)
-([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), section 4.1); they are to be run before or with 1.1.1, and a problem found there
-is fixed in 1.1.1. The French translation review and the German proof-reading are still open
+([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), section 4.1); they had not run by the release of 1.1.1 either. The French
+translation review and the German proof-reading are still open
 ([docs/TRANSLATING.md](docs/TRANSLATING.md#status)).
 
 </details>
@@ -178,11 +187,12 @@ features that work.
 ## 🧾 Features
 
 Launcher v2 was built in nine work packages (developed on the branch `v2`, now merged into `main`;
-[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), section 15; what each one did is in the [CHANGELOG](CHANGELOG.md)). All of them are done; the launcher is version 1.1.0
-(one launcher for the four games, the *Graphics* and *Mods* pages, the optional parts for the suite installer "Empire Earth
-Community" below, which 1.0.0 added). Session 1 of the test on a real Windows computer ran before the release of 1.1.0;
-the next step is session 2, before or with 1.1.1 ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), section 4.1 lists what
-it covers). The UI shows only controls that work ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md)): the placeholder
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), section 15; what each one did is in the [CHANGELOG](CHANGELOG.md)). All of them are done; the launcher is version 1.1.1
+(the fixes of the review after 1.1.0, among them the repair advice that sends an installation of the suite to the release
+page of the package; 1.1.0 brought one launcher for the four games and the *Graphics* and *Mods* pages, 1.0.0 the optional
+parts for the suite installer "Empire Earth Community" below). Session 1 of the test on a real Windows computer ran with
+1.1.0 before its release; 1.1.1 was released before any case ran with it on real hardware, and session 2 has not run yet
+([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), section 4.1 lists what it covers). The UI shows only controls that work ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md)): the placeholder
 controls of the old mock-up were removed and the features behind them are listed below as planned.
 
 **Available now**
@@ -808,7 +818,9 @@ proposes a monthly pull request for the GitHub Actions the workflow uses, all of
 stay pinned on purpose. Every action in `build.yml` is pinned to the full commit SHA of a release with the version as a
 comment (`uses: owner/repo@<SHA> # vX.Y.Z`), the form Dependabot updates, and an architecture test
 (`ProjectConventionsTests`) fails on an action that is not pinned this way; the checkout keeps no credentials. On a fork,
-version updates must be enabled once under *Insights* > *Dependency graph* > *Dependabot*.
+version updates must be enabled once under *Insights* > *Dependency graph* > *Dependabot*. `.github/workflows/publish-release.yml`
+publishes the release of a tag by hand, only if its commit has a green *Build* on `main` ([docs/RELEASING.md](docs/RELEASING.md),
+step 5).
 
 **Test builds**: when all tests pass, the CI run also keeps the Release output of both applications for 30 days,
 as the artifacts `Empire-Earth-Launcher-testbuild` and `Empire-Earth-Mod-Creator-testbuild` (open the run under
@@ -820,7 +832,7 @@ testing, not releases. The manual test on a real Windows computer is described i
 [docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md).
 
 **Versioning**: the version of all assemblies is maintained in one place, `SharedAssemblyInfo.cs`
-(currently `1.1.0`, the version the suite installer 1.1.0 packages). How a version is released, from the version
+(currently `1.1.1`, the version the suite installer 1.1.1 packages). How a version is released, from the version
 commit to the package: [docs/RELEASING.md](docs/RELEASING.md).
 
 **Line endings**: `.gitattributes` stores text files with LF and checks C#, `.resx` and other Visual Studio
