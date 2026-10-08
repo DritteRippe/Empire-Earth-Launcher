@@ -406,6 +406,45 @@ namespace Empire_Earth_Launcher.Tests.Mod
             }
         }
 
+        [TestCase("not a zip archive, but longer than the end record of one", TestName = "ReadModData_TextFile_SaysItIsNoZipArchive")]
+        [TestCase("PK", TestName = "ReadModData_FileShorterThanAnEndRecord_SaysItIsNoZipArchive")]
+        public void ReadModData_NoZipArchive_SaysSo(string content)
+        {
+            // ZipStorer's own exception has no message of its own: "Found invalid data while decoding."
+            using (var archive = new MemoryStream(Encoding.UTF8.GetBytes(content)))
+            {
+                Assert.That(() => ModArchiveReader.ReadModData(archive),
+                    Throws.TypeOf<InvalidDataException>().With.Message.Contains("not a ZIP archive"));
+            }
+        }
+
+        /// <summary>
+        /// A damaged record in the central directory: a time such as 31:00, a name longer than the directory. The vendored
+        /// ZipStorer threw ArgumentOutOfRangeException for both, not the documented InvalidDataException.
+        /// </summary>
+        [TestCase(12, 0xF800, TestName = "ReadModData_InvalidTimeInTheCentralDirectory_ThrowsInvalidData")]
+        [TestCase(28, 0xFFFF, TestName = "ReadModData_NameLongerThanTheCentralDirectory_ThrowsInvalidData")]
+        public void ReadModData_DamagedCentralDirectory_ThrowsInvalidData(int offset, int value)
+        {
+            string json = new ModData { Name = "Damaged", Version = new Version(1, 0) }.ToString();
+            byte[] bytes;
+            using (MemoryStream archive = CreateArchive(Entry(EemFormat.DataEntryName, json)))
+            {
+                bytes = archive.ToArray();
+            }
+            // Central directory file header: signature 0x02014b50, time at offset 12, length of the name at 28.
+            List<int> records = Enumerable.Range(0, bytes.Length - 3)
+                .Where(i => BitConverter.ToUInt32(bytes, i) == 0x02014b50).ToList();
+            Assert.That(records.Count, Is.EqualTo(1), "central directory entries");
+            BitConverter.GetBytes((ushort)value).CopyTo(bytes, records[0] + offset);
+
+            using (var damaged = new MemoryStream(bytes))
+            {
+                Assert.That(() => ModArchiveReader.ReadModData(damaged),
+                    Throws.TypeOf<InvalidDataException>().With.Message.Contains("directory of the ZIP archive is damaged"));
+            }
+        }
+
         /* ModManager */
 
         [Test]
