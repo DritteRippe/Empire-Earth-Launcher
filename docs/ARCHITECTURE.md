@@ -977,7 +977,7 @@ Decided in [ADR 0001](adr/0001-target-dotnet-framework-4-8.md) and
 | R6 | WON login reset | Maintenance, Backup | | L-WP8 |
 | R7 | network diagnostics; partly: the comparison with the adapter the game uses waits for where EE stores it (14, WP9-02) | Diagnostics | | L-WP9 |
 | R8 | VirtualStore detection | Installations, Maintenance | | L-WP4 (effective paths), L-WP8 |
-| R9 | repair hand-off, pending setup | Repair, Play | 4 | L-WP6 (`RepairAdvice`), L-WP7 (API), 1.1.0 (the download pages of the products, U1) |
+| R9 | repair hand-off, pending setup | Repair, Play | 4 | L-WP6 (`RepairAdvice`), L-WP7 (API), 1.1.0 (the download pages of the products, U1), 1.1.1 (the release page of the package for installations of the suite, 4.5) |
 | R10 | saves/scenarios export and import, name checks | Maintenance | | L-WP8 |
 | R17 | en/de/fr | UI resources | | L-WP3 and every later package |
 | R18 | docs, ADRs, README/CHANGELOG, test plan | | | every package; test plan from L-WP1, final check L-WP9 |
@@ -1145,7 +1145,7 @@ one above (ticked, and the test classes exist); the real-Windows cases are WP10-
 |---|---|---|---|
 | [x] | `--product=EE` and `--product=NeoEE` for one session, not saved, an invalid value ignored and logged, handed to a running launcher (1.4) (4.7) | `LauncherArgumentsTests`, `InstanceForwardingTests`, `LauncherInstanceTargetTests`, `DiscoveryResultSessionProductTests`, `InstallationServiceTests` | WP10-01, WP10-02, WP10-03 |
 | [x] | `EmpireEarthCommunity_Suite` as a setup mutex (4.2): no game start, no search, no change, no integrity check, also between two product setups | `SetupKindTests`, `RunningGameDetectorTests`, `MutationGuardTests`, `SetupWatcherTests`, `GameStarterTests`, `InstallationServiceTests` | WP10-04 |
-| [x] | the suite record read-only (1.6) and the advice with `SourceDir`, the official download as the second option (4.4) | `SuiteRecordReaderTests`, `SuiteRepairTests`, `TextsTests` | WP10-05, WP10-06 |
+| [x] | the suite record read-only (1.6) and the advice with `SourceDir`, a download as the second option (4.4): up to 1.1.0 the official download, since 1.1.1 the release page of the package, also as the only download when the folder is gone | `SuiteRecordReaderTests`, `SuiteRepairTests`, `TextsTests` | WP10-05, WP10-06, WP10-11 |
 | [x] | the player list is polled for NeoEE only (launcher 1.0.0) | `PlayerListPollingTests` | WP10-07 |
 
 ### Launcher checklist of CONTRACT 7, revision 5 additions
@@ -1173,7 +1173,7 @@ real-Windows cases are WP11-01 to WP11-05, WP13-01 to WP13-07 and WP14-01 to WP1
 | [x] | the page says that the next run of a setup writes the recommended size again (3.2) | `GraphicsTextsTests` | WP11-01, WP11-05 |
 | [x] | the Play page lists the four games, choosing one selects the installation of its product for every page, a game that is not installed is disabled, the choice is saved with one chosen folder per product (1.4, default selection, revision 6) | `PlayEntryTests`, `ProductChoicesTests`, `InstallationServiceTests`, `PlayModelTests`, `DiscoveryResultSessionProductTests` | WP13-01, WP13-02, WP13-03, WP13-04, WP13-05, WP13-07 |
 | [x] | a second launcher started without an argument brings the running one to the front instead of showing a message (1.4, revision 6) | `InstanceForwardingTests`, `LauncherInstanceTargetTests` | WP13-06 |
-| [x] | the repair advice and an available update open the download page of the product without a request, the update API gets only the requests of 4.5, also from the network check (4.3, 4.5, revision 6) | `SetupDownloadPageTests`, `UpdateApiTests`, `NetworkDestinationTests`, `UpdateModelTests` | WP14-01, WP14-02, WP14-03 |
+| [x] | the repair advice and an available update open the download page of the product without a request (since 1.1.1 an installation of the suite the release page of the package instead, 4.5), the update API gets only the requests of 4.5, also from the network check (4.3, 4.5, revision 6) | `SetupDownloadPageTests`, `UpdateApiTests`, `NetworkDestinationTests`, `UpdateModelTests` | WP14-01, WP14-02, WP14-03 |
 
 ## 16. Not in v2
 
