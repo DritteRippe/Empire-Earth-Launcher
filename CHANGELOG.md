@@ -22,8 +22,8 @@ are still to be run on real Windows ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md
   browser. Like the download pages it is opened only on a click and the launcher sends no request to GitHub; when the
   browser cannot be opened, the message names the address to copy (`UpdateModel.OpenPackageReleasePage`;
   [ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md) amendment of 2026-10-08; test plan WP14-04).
-- Mod library: `EemFormat` (the layout and rules of `.eem` archives, with `IsValidFilePath` and `IsBannerFileName`),
-  `ModPackageBuilder.MaxArchiveBytes` (4 GB minus one byte) and `ModAssets.LoadImageFile` (see Fixed and Security).
+- Mod library: `EemFormat.IsValidFilePath` and `EemFormat.IsBannerFileName`, `ModPackageBuilder.MaxArchiveBytes` (4 GB
+  minus one byte) and `ModAssets.LoadImageFile` (see Fixed and Security).
 - Tests: `LogFileSharingTests` (two launchers write one log file); `HttpsClientTests` cases that send the launcher's
   request through a client of `HttpsClient.CreateClient` over a handler that answers from memory, so no request leaves
   the test; `ZipStorerTests` (one test per local modification of the vendored ZipStorer); `ZipStorerUseTests` (only
