@@ -574,6 +574,9 @@ Ihre jetzigen Einstellungen werden vorher als .reg-Dateien in {1} gesichert; ein
   <data name="RepairStepDownloadPackage" xml:space="preserve">
     <value>Schließen Sie das Spiel. Laden Sie das Paket „Empire Earth Community“ unten von seiner Release-Seite neu herunter, entpacken Sie die ZIP-Datei und starten Sie „Empire Earth Community Setup“ aus dem entpackten Ordner: Es repariert oder aktualisiert die Spiele, die es installiert hat. Nehmen Sie dafür nicht das Setup von empireearth.eu: Es ist ein anderes Setup und würde die Korrekturen des Pakets rückgängig machen.</value>
   </data>
+  <data name="RepairStepUpdateWithNewPackage" xml:space="preserve">
+    <value>Diese Version meldet der Update-Server von empireearth.eu für seine eigenen Setups. Ihre Installation stammt aus dem Paket „Empire Earth Community“, das eigene Setups mitbringt und neuere Versionen nur als neues Release bekommt: Sehen Sie unten auf seiner Release-Seite nach, ob es ein neueres gibt. Wenn ja, schließen Sie das Spiel, entpacken Sie das neue Paket und starten Sie daraus „Empire Earth Community Setup“. Ein Setup von empireearth.eu würde die Korrekturen des Pakets rückgängig machen.</value>
+  </data>
   <data name="RepairStepKeepFolderAllUsersFormat" xml:space="preserve">
     <value>Behalten Sie den Ordner {0} bei und wählen Sie wieder „Installation für alle Benutzer“.</value>
   </data>

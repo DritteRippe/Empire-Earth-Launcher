@@ -3525,6 +3525,15 @@ namespace Empire_Earth_Launcher.Properties {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to The update server of empireearth.eu reports this version for its own setups. Your installation comes[rest of string was truncated].
+        /// </summary>
+        internal static string RepairStepUpdateWithNewPackage {
+            get {
+                return ResourceManager.GetString("RepairStepUpdateWithNewPackage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The folder could not be opened: {0}.
         /// </summary>
         internal static string RepairSuiteFolderNotOpenedFormat {

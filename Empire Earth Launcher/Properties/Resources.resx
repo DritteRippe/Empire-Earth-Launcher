@@ -762,6 +762,10 @@ Your current settings are saved first as .reg files in {1}; double-click such a 
     <value>Close the game. Download the package "Empire Earth Community" again from its release page below, unpack the ZIP file and run "Empire Earth Community Setup" from the unpacked folder: it repairs or updates the games it installed. Do not use the setup from empireearth.eu for this: it is a different setup and would undo the fixes of the package.</value>
     <comment>Step of the repair advice when the suite record lists the product but the folder the suite was started from is gone (since launcher 1.1.1). The first quoted text is the name of the package, the second the name of the suite setup file; the release page is the GitHub page of the package shown below the steps. empireearth.eu is not translated.</comment>
   </data>
+  <data name="RepairStepUpdateWithNewPackage" xml:space="preserve">
+    <value>The update server of empireearth.eu reports this version for its own setups. Your installation comes from the package "Empire Earth Community", which brings its own setups and gets newer versions only as a new release: look on its release page below whether there is a newer one. If there is, close the game, unpack the new package and run "Empire Earth Community Setup" from it. A setup from empireearth.eu would undo the fixes of the package.</value>
+    <comment>The only setup step of the advice of an available update when the suite installed the product (since launcher 1.1.1): the version above comes from the update server, which knows the setups of empireearth.eu, not the package; running the suite of the unpacked folder again would install the same versions. The first quoted text is the name of the package, the second the name of the suite setup file; the release page is the GitHub page of the package shown below the steps. empireearth.eu is not translated.</comment>
+  </data>
   <data name="RepairStepKeepFolderAllUsersFormat" xml:space="preserve">
     <value>Keep the folder {0} and choose "Install for all users" again.</value>
     <comment>Step of the repair advice for an installation in the mode admin (contract 4.4). {0}: the install root. The quoted text is the option of Inno Setup in this language (PrivilegesRequiredOverrideAllUsers without the &amp;).</comment>
@@ -796,7 +800,7 @@ Your current settings are saved first as .reg files in {1}; double-click such a 
   </data>
   <data name="RepairPackagePageLabel" xml:space="preserve">
     <value>Release page of the package "Empire Earth Community":</value>
-    <comment>Repair advice of an installation of the suite whose folder is gone, above the address of the release page of the package (since launcher 1.1.1).</comment>
+    <comment>Repair advice of an installation of the suite whose folder is gone, and the advice of an available update of an installation of the suite, above the address of the release page of the package (since launcher 1.1.1).</comment>
   </data>
   <data name="RepairOpenPageButton" xml:space="preserve">
     <value>Open download page</value>

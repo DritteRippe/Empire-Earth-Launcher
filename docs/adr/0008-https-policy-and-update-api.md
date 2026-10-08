@@ -192,6 +192,11 @@ installation in place, undoes fixes of the package and leaves the installation U
   `SuiteRepairLocator.PackageFor`, `SuitePackage`): the second option below the step that runs the suite from its folder
   again, and the only download when that folder is gone. An installation the suite did not install keeps the page of its
   product.
+- **An available update of an installation of the suite** (contract 4.5) leads to the release page as well, with its own
+  step (`RepairStep.UpdateWithNewPackage`) instead of the run of the suite from its folder: the update API answers for the
+  setups of the community website, and the suite of the folder installs only the versions it embeds. The package gets
+  newer versions only as a new release; the step says so and names the release page, and the window offers no
+  "Open setup folder" for it.
 - **No new destination**: the page opens like the download pages, after a click, through the shell and not elevated
   (`SetupDownloadPage.Open`, also used for the pages of contract 4.3). The launcher sends no request to GitHub (neither to
   the page nor to the GitHub API) and follows no redirect; GitHub answers `/releases/latest` with the release marked
@@ -205,4 +210,4 @@ installation in place, undoes fixes of the package and leaves the installation U
   and nothing else; new self-tests show that a download of the ZIP file and the GitHub API are found.
 
 Evidence: `Core/Repair/SuiteRepairTests`, `Core/Repair/SetupDownloadPageTests`, `Launcher/TextsTests`,
-`Architecture/NetworkDestinationTests`; test plan WP10-05, WP10-06, WP10-11.
+`Launcher/UpdateModelTests`, `Architecture/NetworkDestinationTests`; test plan WP7-10, WP10-05, WP10-06, WP10-11.

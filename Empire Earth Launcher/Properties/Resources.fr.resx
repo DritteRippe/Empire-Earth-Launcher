@@ -574,6 +574,9 @@ Vos paramètres actuels sont d'abord enregistrés dans des fichiers .reg dans {1
   <data name="RepairStepDownloadPackage" xml:space="preserve">
     <value>Fermez le jeu. Téléchargez de nouveau le paquet « Empire Earth Community » depuis sa page des versions ci-dessous, décompressez le fichier ZIP et lancez « Empire Earth Community Setup » depuis le dossier décompressé : il répare ou met à jour les jeux qu'il a installés. N'utilisez pas pour cela le setup d'empireearth.eu : c'est un autre setup, qui annulerait les correctifs du paquet.</value>
   </data>
+  <data name="RepairStepUpdateWithNewPackage" xml:space="preserve">
+    <value>Le serveur de mises à jour d'empireearth.eu signale cette version pour ses propres setups. Votre installation provient du paquet « Empire Earth Community », qui apporte ses propres setups et n'est mis à jour que par une nouvelle publication du paquet : vérifiez sur sa page des versions ci-dessous s'il en existe une plus récente. Si c'est le cas, fermez le jeu, décompressez le nouveau paquet et lancez-en « Empire Earth Community Setup ». Un setup d'empireearth.eu annulerait les correctifs du paquet.</value>
+  </data>
   <data name="RepairStepKeepFolderAllUsersFormat" xml:space="preserve">
     <value>Conservez le dossier {0} et choisissez de nouveau « Installer pour tous les utilisateurs ».</value>
   </data>

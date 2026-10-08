@@ -431,9 +431,13 @@ page of the package (`SetupDownloadPage.PackageRelease`,
 step as the second option ("If that folder is gone, download the package "Empire Earth Community" again ..."), and
 without the folder as the only download, with the step `DownloadPackageAndRunSuite` ("Download the package ... again,
 unpack it and run "Empire Earth Community Setup" ...; do not use the setup from empireearth.eu"). The same holds for
-every reason, also for Unknown after an older setup ran over the installation, which ends the loop. An installation the
-suite did not install (no record, the product not in `Products`, another mode or AppId) keeps the download page of its
-product.
+every reason of a repair, also for Unknown after an older setup ran over the installation, which ends the loop. An
+available update of such an installation (contract 4.5) gets the step `UpdateWithNewPackage` instead of the run of the
+suite, and no "Open setup folder": the suite of the folder installs the versions it embeds, and the update API knows the
+setups of the community website, not the package, which gets newer versions only as a new release ("The update server of
+empireearth.eu reports this version for its own setups. Your installation comes from the package ... look on its release
+page below whether there is a newer one ..."). An installation the suite did not install (no record, the product not in
+`Products`, another mode or AppId) keeps the download page of its product.
 
 ### 4.6 Tools
 

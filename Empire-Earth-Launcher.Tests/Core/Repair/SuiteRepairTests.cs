@@ -365,17 +365,50 @@ namespace Empire_Earth_Launcher.Tests.Core.Repair
         }
 
         [Test]
-        public void ForIntegrity_And_ForUpdate_TakeTheSuiteFolderToo()
+        public void ForIntegrity_TakesTheSuiteFolderToo()
         {
+            Installation installation = Community(Product.NeoEE, NeoRoot);
+            IntegrityReport report = IntegrityReport.Unknown(installation, IntegrityCheckKind.Quick, UnknownReason.NoManifest);
+
+            RepairAdvice advice = RepairAdvice.ForIntegrity(report, Package());
+
+            Assert.That(advice.Steps.First(), Is.EqualTo(RepairStep.RunSuiteSetupAgain));
+            Assert.That(advice.SuiteFolder, Is.EqualTo(Source));
+        }
+
+        [TestCase(Source)]
+        [TestCase(null)]
+        public void AnUpdateOfTheSuiteInstallation_IsANewReleaseOfThePackage_NeverTheSuiteAgain(string folder)
+        {
+            // The suite of the folder embeds the product setups it was built with and cannot install a newer version that the
+            // update API reports for the setups of the community website.
             Installation installation = Community(Product.NeoEE, NeoRoot);
             var update = new VersionCheckResult(installation, VersionKind.Game, "2.0.0.5", VersionCheckOutcome.UpdateAvailable, "2.1.0",
                 UpdateApiFailure.None);
 
-            RepairAdvice advice = RepairAdvice.ForUpdate(update, Package());
+            RepairAdvice advice = RepairAdvice.ForUpdate(update, Package(folder));
 
-            Assert.That(advice.Steps.First(), Is.EqualTo(RepairStep.RunSuiteSetupAgain));
-            Assert.That(advice.SuiteFolder, Is.EqualTo(Source));
-            Assert.That(RepairAdvice.ForUpdate(update).Steps.First(), Is.EqualTo(RepairStep.CloseGameAndRunSetup));
+            Assert.That(advice.Steps, Is.EqualTo(new[]
+            {
+                RepairStep.UpdateWithNewPackage, RepairStep.KeepFolderAndMode, RepairStep.KeepCdKeysTask
+            }));
+            Assert.That(advice.Steps, Has.No.Member(RepairStep.RunSuiteSetupAgain));
+            Assert.That(advice.SuiteFolder, Is.Null, "no button that opens the folder of the old package");
+            Assert.That(advice.InstalledBySuite, Is.True);
+            Assert.That(advice.DownloadUrl, Is.EqualTo(SetupDownloadPage.PackageRelease));
+        }
+
+        [Test]
+        public void AnUpdateOfAnotherInstallation_KeepsTheProductSetup()
+        {
+            Installation installation = Community(Product.NeoEE, NeoRoot);
+            var update = new VersionCheckResult(installation, VersionKind.Setup, "1.7.2", VersionCheckOutcome.UpdateAvailable, "1.8.0",
+                UpdateApiFailure.None);
+
+            RepairAdvice advice = RepairAdvice.ForUpdate(update);
+
+            Assert.That(advice.Steps.First(), Is.EqualTo(RepairStep.CloseGameAndRunSetup));
+            Assert.That(advice.DownloadUrl, Is.EqualTo(SetupDownloadPage.NeoEE));
         }
 
         // --- Opening the folder (contract 4.1, 4.4) ----------------------------------------------------------------------

@@ -68,6 +68,15 @@ namespace Empire_Earth_Launcher.Core.Repair
         /// </summary>
         DownloadPackageAndRunSuite,
 
+        /// <summary>
+        /// An available update of an installation of the suite (<see cref="RepairReason.UpdateAvailable"/>, since launcher
+        /// 1.1.1): the update API reports a newer version of the setups of the community website, which the suite does not
+        /// install; the package gets newer versions only as a new release, so the player looks on its release page whether
+        /// there is one. Replaces <see cref="RunSuiteSetupAgain"/>, which would install the same versions again, and
+        /// <see cref="CloseGameAndRunSetup"/>, whose setup would replace the installation of the package.
+        /// </summary>
+        UpdateWithNewPackage,
+
         /// <summary>Keep the same folder (the install root) and the same install mode ("for all users" if it is <c>admin</c>).</summary>
         KeepFolderAndMode,
 
@@ -108,7 +117,8 @@ namespace Empire_Earth_Launcher.Core.Repair
         {
             suite = SuitePackageOf(installation, suite);
             InstalledBySuite = suite != null;
-            SuiteFolder = suite?.Folder;
+            // The suite of the folder installs the versions it embeds; for an update it has nothing to offer.
+            SuiteFolder = reason == RepairReason.UpdateAvailable ? null : suite?.Folder;
             Installation = installation;
             Reason = reason;
             MissingPrograms = new ReadOnlyCollection<Game>(missingPrograms.ToList());
@@ -146,8 +156,9 @@ namespace Empire_Earth_Launcher.Core.Repair
 
         /// <summary>
         /// The folder to run the suite from again (<see cref="RepairStep.RunSuiteSetupAgain"/>, contract 4.4): the
-        /// <c>SourceDir</c> of the suite record, which lists the product and exists; null if the advice is the download only.
-        /// The launcher may open the folder in the Explorer and never starts a program from it (contract 4.1).
+        /// <c>SourceDir</c> of the suite record, which lists the product and exists; null if the advice is the download only,
+        /// and for an available update, which the suite of that folder cannot install. The launcher may open the folder in the
+        /// Explorer and never starts a program from it (contract 4.1).
         /// </summary>
         public string SuiteFolder { get; }
 
@@ -216,7 +227,11 @@ namespace Empire_Earth_Launcher.Core.Repair
             return new RepairAdvice(report.Installation, reason, new Game[0], report.SeriousFindings, null, suite);
         }
 
-        /// <summary>The hand-off for an available update (contract 4.5: "An available update uses the hand-off of 4.3").</summary>
+        /// <summary>
+        /// The hand-off for an available update (contract 4.5: "An available update uses the hand-off of 4.3"). For an
+        /// installation of the suite it is the release page of the package with <see cref="RepairStep.UpdateWithNewPackage"/>:
+        /// the update API knows the setups of the community website, not the package (since launcher 1.1.1).
+        /// </summary>
         /// <param name="update">The result of the version check.</param>
         /// <param name="suite">As for <see cref="For"/>.</param>
         public static RepairAdvice ForUpdate(VersionCheckResult update, SuitePackage suite = null)
@@ -240,7 +255,8 @@ namespace Empire_Earth_Launcher.Core.Repair
         /// were deleted or changed; community installations (also those of setups up to 1.7.2) get the run of the setup, and
         /// since revision 4 the run of the suite from its folder first, when the suite record lists the product (the download of
         /// the package stays as the second option). An installation of the suite whose folder is gone gets the download of the
-        /// package (since launcher 1.1.1), never the product setup of the community website.
+        /// package, and an available update of it the hint that the package updates only with a new release (both since launcher
+        /// 1.1.1), never the product setup of the community website.
         /// </summary>
         private static IEnumerable<RepairStep> StepsFor(Installation installation, RepairReason reason, SuitePackage suite)
         {
@@ -251,14 +267,22 @@ namespace Empire_Earth_Launcher.Core.Repair
                 steps.Add(RepairStep.AddAntivirusException);
             if (installation.Kind != InstallationKind.Foreign)
             {
-                steps.Add(suite == null ? RepairStep.CloseGameAndRunSetup
-                    : suite.Folder != null ? RepairStep.RunSuiteSetupAgain
-                    : RepairStep.DownloadPackageAndRunSuite);
+                steps.Add(SetupStepFor(reason, suite));
                 steps.Add(RepairStep.KeepFolderAndMode);
                 if (installation.Product == Product.NeoEE)
                     steps.Add(RepairStep.KeepCdKeysTask);
             }
             return steps;
+        }
+
+        /// <summary>The step that runs a setup: the product setup, the suite from its folder, or the package.</summary>
+        private static RepairStep SetupStepFor(RepairReason reason, SuitePackage suite)
+        {
+            if (suite == null)
+                return RepairStep.CloseGameAndRunSetup;
+            if (reason == RepairReason.UpdateAvailable)
+                return RepairStep.UpdateWithNewPackage;
+            return suite.Folder != null ? RepairStep.RunSuiteSetupAgain : RepairStep.DownloadPackageAndRunSuite;
         }
 
         /// <summary>

@@ -450,6 +450,23 @@ namespace Empire_Earth_Launcher.Tests.Launcher
         }
 
         [Test]
+        public void RepairSteps_AnUpdateOfTheSuite_IsANewReleaseOfThePackage_NotTheSuiteAgain()
+        {
+            var update = new VersionCheckResult(PlayInstallation(), VersionKind.Game, "2.0.0.5", VersionCheckOutcome.UpdateAvailable,
+                "2.0.1", UpdateApiFailure.None);
+            RepairAdvice advice = RepairAdvice.ForUpdate(update, new SuitePackage(@"C:\Users\Anna\Downloads\Empire Earth Community"));
+
+            string first = Texts.RepairSteps(advice).Split(new[] { Environment.NewLine }, StringSplitOptions.None)[0];
+
+            Assert.That(first, Is.EqualTo("1. The update server of empireearth.eu reports this version for its own setups. Your " +
+                                          "installation comes from the package \"Empire Earth Community\", which brings its own setups " +
+                                          "and gets newer versions only as a new release: look on its release page below whether there " +
+                                          "is a newer one. If there is, close the game, unpack the new package and run \"Empire Earth " +
+                                          "Community Setup\" from it. A setup from empireearth.eu would undo the fixes of the package."));
+            Assert.That(Texts.RepairSteps(advice), Does.Not.Contain("again from the folder you unpacked it to"));
+        }
+
+        [Test]
         public void StartMessage_HasATextForEveryOutcome()
         {
             foreach (StartOutcome outcome in Enum.GetValues(typeof(StartOutcome)))
