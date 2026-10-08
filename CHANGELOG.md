@@ -62,6 +62,8 @@ are still to be run on real Windows ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md
 - Tests: `ScrollPageLayoutTests.Run_KeepsTheScrollPosition` runs on the Windows CI instead of being ignored there (the
   panel gets its window with `CreateControl`, without being shown), so that the promise of 1.1.0 that a page keeps its
   scroll position is checked automatically; WP1-07 stays the manual case.
+- `THIRD-PARTY-NOTICES.md` names the version of the vendored ZipStorer (3.7.0, upstream commit `8443b65`), lists every
+  local modification with its commit and the known issues of that version with the guard of the mod library for each.
 - `docs/TRANSLATING.md` starts its status with the real state: 451 texts in each language, the German texts not
   proof-read and the French texts not reviewed by a native speaker yet (the table still counted the 378 texts of 1.0.0).
 - Development moved to the single main line `main`: README, test plan and notices name `main` instead of the branch `v2`
