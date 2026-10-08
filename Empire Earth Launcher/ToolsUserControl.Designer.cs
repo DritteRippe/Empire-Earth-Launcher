@@ -46,6 +46,7 @@ namespace Empire_Earth_Launcher
             this.versionInfoKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             this.versionResultKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             this.versionCheckKryptonButton = new Krypton.Toolkit.KryptonButton();
+            this.packageReleasesKryptonButton = new Krypton.Toolkit.KryptonButton();
             this.cleanupHeadingKryptonLabel = new Krypton.Toolkit.KryptonLabel();
             this.cleanupInfoKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
             this.cleanupStateKryptonWrapLabel = new Empire_Earth_Launcher.LauncherWrapLabel();
@@ -169,6 +170,7 @@ namespace Empire_Earth_Launcher
             this.toolsScrollPanel.Controls.Add(this.versionInfoKryptonWrapLabel);
             this.toolsScrollPanel.Controls.Add(this.versionResultKryptonWrapLabel);
             this.toolsScrollPanel.Controls.Add(this.versionCheckKryptonButton);
+            this.toolsScrollPanel.Controls.Add(this.packageReleasesKryptonButton);
             this.toolsScrollPanel.Controls.Add(this.cleanupHeadingKryptonLabel);
             this.toolsScrollPanel.Controls.Add(this.cleanupInfoKryptonWrapLabel);
             this.toolsScrollPanel.Controls.Add(this.cleanupStateKryptonWrapLabel);
@@ -373,6 +375,17 @@ namespace Empire_Earth_Launcher
             this.versionCheckKryptonButton.Values.Text = "Check for updates";
             this.versionCheckKryptonButton.Click += new System.EventHandler(this.versionCheckKryptonButton_Click);
             // 
+            // packageReleasesKryptonButton
+            // 
+            this.packageReleasesKryptonButton.Location = new System.Drawing.Point(267, 436);
+            this.packageReleasesKryptonButton.Name = "packageReleasesKryptonButton";
+            this.packageReleasesKryptonButton.Palette = this.launcherKryptonPalette;
+            this.packageReleasesKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
+            this.packageReleasesKryptonButton.Size = new System.Drawing.Size(250, 28);
+            this.packageReleasesKryptonButton.TabIndex = 9;
+            this.packageReleasesKryptonButton.Values.Text = "Open release page";
+            this.packageReleasesKryptonButton.Click += new System.EventHandler(this.packageReleasesKryptonButton_Click);
+            // 
             // cleanupHeadingKryptonLabel
             // 
             this.cleanupHeadingKryptonLabel.AutoSize = false;
@@ -382,7 +395,7 @@ namespace Empire_Earth_Launcher
             this.cleanupHeadingKryptonLabel.Palette = this.launcherKryptonPalette;
             this.cleanupHeadingKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.cleanupHeadingKryptonLabel.Size = new System.Drawing.Size(505, 20);
-            this.cleanupHeadingKryptonLabel.TabIndex = 9;
+            this.cleanupHeadingKryptonLabel.TabIndex = 10;
             this.cleanupHeadingKryptonLabel.Values.Text = "Old registry entries";
             // 
             // cleanupInfoKryptonWrapLabel
@@ -419,7 +432,7 @@ namespace Empire_Earth_Launcher
             this.cleanupKryptonCheckedListBox.Palette = this.launcherKryptonPalette;
             this.cleanupKryptonCheckedListBox.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.cleanupKryptonCheckedListBox.Size = new System.Drawing.Size(505, 76);
-            this.cleanupKryptonCheckedListBox.TabIndex = 10;
+            this.cleanupKryptonCheckedListBox.TabIndex = 11;
             this.cleanupKryptonCheckedListBox.Visible = false;
             this.cleanupKryptonCheckedListBox.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.cleanupKryptonCheckedListBox_ItemCheck);
             // 
@@ -433,7 +446,7 @@ namespace Empire_Earth_Launcher
             this.cleanupReadOnlyKryptonTextBox.ReadOnly = true;
             this.cleanupReadOnlyKryptonTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.cleanupReadOnlyKryptonTextBox.Size = new System.Drawing.Size(505, 90);
-            this.cleanupReadOnlyKryptonTextBox.TabIndex = 11;
+            this.cleanupReadOnlyKryptonTextBox.TabIndex = 12;
             this.cleanupReadOnlyKryptonTextBox.Text = "";
             this.cleanupReadOnlyKryptonTextBox.Visible = false;
             this.cleanupReadOnlyKryptonTextBox.WordWrap = true;
@@ -445,7 +458,7 @@ namespace Empire_Earth_Launcher
             this.cleanupDeleteKryptonButton.Palette = this.launcherKryptonPalette;
             this.cleanupDeleteKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.cleanupDeleteKryptonButton.Size = new System.Drawing.Size(248, 28);
-            this.cleanupDeleteKryptonButton.TabIndex = 12;
+            this.cleanupDeleteKryptonButton.TabIndex = 13;
             this.cleanupDeleteKryptonButton.Values.Text = "Delete selected...";
             this.cleanupDeleteKryptonButton.Click += new System.EventHandler(this.cleanupDeleteKryptonButton_Click);
             // 
@@ -471,7 +484,7 @@ namespace Empire_Earth_Launcher
             this.wonHeadingKryptonLabel.Palette = this.launcherKryptonPalette;
             this.wonHeadingKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.wonHeadingKryptonLabel.Size = new System.Drawing.Size(505, 20);
-            this.wonHeadingKryptonLabel.TabIndex = 13;
+            this.wonHeadingKryptonLabel.TabIndex = 14;
             this.wonHeadingKryptonLabel.Values.Text = "WON login";
             // 
             // wonInfoKryptonWrapLabel
@@ -507,7 +520,7 @@ namespace Empire_Earth_Launcher
             this.wonResetKryptonButton.Palette = this.launcherKryptonPalette;
             this.wonResetKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.wonResetKryptonButton.Size = new System.Drawing.Size(248, 28);
-            this.wonResetKryptonButton.TabIndex = 14;
+            this.wonResetKryptonButton.TabIndex = 15;
             this.wonResetKryptonButton.Values.Text = "Reset WON login";
             this.wonResetKryptonButton.Click += new System.EventHandler(this.wonResetKryptonButton_Click);
             // 
@@ -533,7 +546,7 @@ namespace Empire_Earth_Launcher
             this.virtualStoreHeadingKryptonLabel.Palette = this.launcherKryptonPalette;
             this.virtualStoreHeadingKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.virtualStoreHeadingKryptonLabel.Size = new System.Drawing.Size(505, 20);
-            this.virtualStoreHeadingKryptonLabel.TabIndex = 15;
+            this.virtualStoreHeadingKryptonLabel.TabIndex = 16;
             this.virtualStoreHeadingKryptonLabel.Values.Text = "VirtualStore";
             // 
             // virtualStoreInfoKryptonWrapLabel
@@ -572,7 +585,7 @@ namespace Empire_Earth_Launcher
             this.virtualStoreFilesKryptonTextBox.ReadOnly = true;
             this.virtualStoreFilesKryptonTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.virtualStoreFilesKryptonTextBox.Size = new System.Drawing.Size(505, 90);
-            this.virtualStoreFilesKryptonTextBox.TabIndex = 16;
+            this.virtualStoreFilesKryptonTextBox.TabIndex = 17;
             this.virtualStoreFilesKryptonTextBox.Text = "";
             this.virtualStoreFilesKryptonTextBox.Visible = false;
             this.virtualStoreFilesKryptonTextBox.WordWrap = false;
@@ -584,7 +597,7 @@ namespace Empire_Earth_Launcher
             this.openVirtualStoreFolderKryptonButton.Palette = this.launcherKryptonPalette;
             this.openVirtualStoreFolderKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.openVirtualStoreFolderKryptonButton.Size = new System.Drawing.Size(248, 28);
-            this.openVirtualStoreFolderKryptonButton.TabIndex = 17;
+            this.openVirtualStoreFolderKryptonButton.TabIndex = 18;
             this.openVirtualStoreFolderKryptonButton.Values.Text = "Open VirtualStore folder";
             this.openVirtualStoreFolderKryptonButton.Visible = false;
             this.openVirtualStoreFolderKryptonButton.Click += new System.EventHandler(this.openVirtualStoreFolderKryptonButton_Click);
@@ -598,7 +611,7 @@ namespace Empire_Earth_Launcher
             this.savesHeadingKryptonLabel.Palette = this.launcherKryptonPalette;
             this.savesHeadingKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.savesHeadingKryptonLabel.Size = new System.Drawing.Size(505, 20);
-            this.savesHeadingKryptonLabel.TabIndex = 18;
+            this.savesHeadingKryptonLabel.TabIndex = 19;
             this.savesHeadingKryptonLabel.Values.Text = "Saved games and scenarios";
             // 
             // savesInfoKryptonWrapLabel
@@ -634,7 +647,7 @@ namespace Empire_Earth_Launcher
             this.exportSavesKryptonButton.Palette = this.launcherKryptonPalette;
             this.exportSavesKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.exportSavesKryptonButton.Size = new System.Drawing.Size(248, 28);
-            this.exportSavesKryptonButton.TabIndex = 19;
+            this.exportSavesKryptonButton.TabIndex = 20;
             this.exportSavesKryptonButton.Values.Text = "Export...";
             this.exportSavesKryptonButton.Click += new System.EventHandler(this.exportSavesKryptonButton_Click);
             // 
@@ -645,7 +658,7 @@ namespace Empire_Earth_Launcher
             this.importEeSavesKryptonButton.Palette = this.launcherKryptonPalette;
             this.importEeSavesKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.importEeSavesKryptonButton.Size = new System.Drawing.Size(250, 28);
-            this.importEeSavesKryptonButton.TabIndex = 20;
+            this.importEeSavesKryptonButton.TabIndex = 21;
             this.importEeSavesKryptonButton.Values.Text = "Import into Empire Earth...";
             this.importEeSavesKryptonButton.Click += new System.EventHandler(this.importEeSavesKryptonButton_Click);
             // 
@@ -656,7 +669,7 @@ namespace Empire_Earth_Launcher
             this.importAocSavesKryptonButton.Palette = this.launcherKryptonPalette;
             this.importAocSavesKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.importAocSavesKryptonButton.Size = new System.Drawing.Size(250, 28);
-            this.importAocSavesKryptonButton.TabIndex = 21;
+            this.importAocSavesKryptonButton.TabIndex = 22;
             this.importAocSavesKryptonButton.Values.Text = "Import into The Art of Conquest...";
             this.importAocSavesKryptonButton.Click += new System.EventHandler(this.importAocSavesKryptonButton_Click);
             // 
@@ -682,7 +695,7 @@ namespace Empire_Earth_Launcher
             this.namesHeadingKryptonLabel.Palette = this.launcherKryptonPalette;
             this.namesHeadingKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.namesHeadingKryptonLabel.Size = new System.Drawing.Size(505, 20);
-            this.namesHeadingKryptonLabel.TabIndex = 22;
+            this.namesHeadingKryptonLabel.TabIndex = 23;
             this.namesHeadingKryptonLabel.Values.Text = "Player names";
             // 
             // namesInfoKryptonWrapLabel
@@ -720,7 +733,7 @@ namespace Empire_Earth_Launcher
             this.backupsHeadingKryptonLabel.Palette = this.launcherKryptonPalette;
             this.backupsHeadingKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.backupsHeadingKryptonLabel.Size = new System.Drawing.Size(505, 20);
-            this.backupsHeadingKryptonLabel.TabIndex = 23;
+            this.backupsHeadingKryptonLabel.TabIndex = 24;
             this.backupsHeadingKryptonLabel.Values.Text = "Backups";
             // 
             // backupsInfoKryptonWrapLabel
@@ -743,7 +756,7 @@ namespace Empire_Earth_Launcher
             this.openBackupFolderKryptonButton.Palette = this.launcherKryptonPalette;
             this.openBackupFolderKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.openBackupFolderKryptonButton.Size = new System.Drawing.Size(248, 28);
-            this.openBackupFolderKryptonButton.TabIndex = 24;
+            this.openBackupFolderKryptonButton.TabIndex = 25;
             this.openBackupFolderKryptonButton.Values.Text = "Open backup folder";
             this.openBackupFolderKryptonButton.Click += new System.EventHandler(this.openBackupFolderKryptonButton_Click);
             // 
@@ -756,7 +769,7 @@ namespace Empire_Earth_Launcher
             this.networkHeadingKryptonLabel.Palette = this.launcherKryptonPalette;
             this.networkHeadingKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.networkHeadingKryptonLabel.Size = new System.Drawing.Size(505, 20);
-            this.networkHeadingKryptonLabel.TabIndex = 25;
+            this.networkHeadingKryptonLabel.TabIndex = 26;
             this.networkHeadingKryptonLabel.Values.Text = "Network";
             // 
             // networkInfoKryptonWrapLabel
@@ -779,7 +792,7 @@ namespace Empire_Earth_Launcher
             this.networkCheckKryptonButton.Palette = this.launcherKryptonPalette;
             this.networkCheckKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.networkCheckKryptonButton.Size = new System.Drawing.Size(248, 28);
-            this.networkCheckKryptonButton.TabIndex = 26;
+            this.networkCheckKryptonButton.TabIndex = 27;
             this.networkCheckKryptonButton.Values.Text = "Check network";
             this.networkCheckKryptonButton.Click += new System.EventHandler(this.networkCheckKryptonButton_Click);
             // 
@@ -819,7 +832,7 @@ namespace Empire_Earth_Launcher
             this.networkDetailsKryptonTextBox.ReadOnly = true;
             this.networkDetailsKryptonTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.networkDetailsKryptonTextBox.Size = new System.Drawing.Size(505, 120);
-            this.networkDetailsKryptonTextBox.TabIndex = 27;
+            this.networkDetailsKryptonTextBox.TabIndex = 28;
             this.networkDetailsKryptonTextBox.Text = "";
             this.networkDetailsKryptonTextBox.Visible = false;
             this.networkDetailsKryptonTextBox.WordWrap = false;
@@ -833,7 +846,7 @@ namespace Empire_Earth_Launcher
             this.reportHeadingKryptonLabel.Palette = this.launcherKryptonPalette;
             this.reportHeadingKryptonLabel.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.reportHeadingKryptonLabel.Size = new System.Drawing.Size(505, 20);
-            this.reportHeadingKryptonLabel.TabIndex = 28;
+            this.reportHeadingKryptonLabel.TabIndex = 29;
             this.reportHeadingKryptonLabel.Values.Text = "Diagnostics report";
             // 
             // reportInfoKryptonWrapLabel
@@ -856,7 +869,7 @@ namespace Empire_Earth_Launcher
             this.copyReportKryptonButton.Palette = this.launcherKryptonPalette;
             this.copyReportKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.copyReportKryptonButton.Size = new System.Drawing.Size(248, 28);
-            this.copyReportKryptonButton.TabIndex = 29;
+            this.copyReportKryptonButton.TabIndex = 30;
             this.copyReportKryptonButton.Values.Text = "Copy report";
             this.copyReportKryptonButton.Click += new System.EventHandler(this.copyReportKryptonButton_Click);
             // 
@@ -867,7 +880,7 @@ namespace Empire_Earth_Launcher
             this.saveReportKryptonButton.Palette = this.launcherKryptonPalette;
             this.saveReportKryptonButton.PaletteMode = Krypton.Toolkit.PaletteMode.Custom;
             this.saveReportKryptonButton.Size = new System.Drawing.Size(250, 28);
-            this.saveReportKryptonButton.TabIndex = 30;
+            this.saveReportKryptonButton.TabIndex = 31;
             this.saveReportKryptonButton.Values.Text = "Save report...";
             this.saveReportKryptonButton.Click += new System.EventHandler(this.saveReportKryptonButton_Click);
             // 
@@ -894,7 +907,7 @@ namespace Empire_Earth_Launcher
             this.reportKryptonTextBox.ReadOnly = true;
             this.reportKryptonTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.reportKryptonTextBox.Size = new System.Drawing.Size(505, 160);
-            this.reportKryptonTextBox.TabIndex = 31;
+            this.reportKryptonTextBox.TabIndex = 32;
             this.reportKryptonTextBox.Text = "";
             this.reportKryptonTextBox.Visible = false;
             this.reportKryptonTextBox.WordWrap = false;
@@ -928,6 +941,7 @@ namespace Empire_Earth_Launcher
         private Empire_Earth_Launcher.LauncherWrapLabel versionInfoKryptonWrapLabel;
         private Empire_Earth_Launcher.LauncherWrapLabel versionResultKryptonWrapLabel;
         private Krypton.Toolkit.KryptonButton versionCheckKryptonButton;
+        private Krypton.Toolkit.KryptonButton packageReleasesKryptonButton;
         private Krypton.Toolkit.KryptonLabel cleanupHeadingKryptonLabel;
         private Empire_Earth_Launcher.LauncherWrapLabel cleanupInfoKryptonWrapLabel;
         private Empire_Earth_Launcher.LauncherWrapLabel cleanupStateKryptonWrapLabel;

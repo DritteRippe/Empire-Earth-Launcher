@@ -10,17 +10,138 @@ described in the git history.
 
 ## [Unreleased]
 
+The fixes of the review after the release of 1.1.0, planned as launcher 1.1.1 for the suite package "Empire Earth
+Community" 1.1.1 (contract revision 7). The most visible change: an installation of the package is never sent to the
+setup of empireearth.eu again, which would undo the fixes of the package. Session 2 of the laptop test and the new cases
+are still to be run on real Windows ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md)).
+
+### Added
+
+- *Tools* page, section "Updates": the button "Open release page" next to "Check for updates" opens the release page of
+  the package "Empire Earth Community" (`https://github.com/DritteRippe/Empire-Earth-Community/releases/latest`) in the
+  browser. Like the download pages it is opened only on a click and the launcher sends no request to GitHub; when the
+  browser cannot be opened, the message names the address to copy (`UpdateModel.OpenPackageReleasePage`;
+  [ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md) amendment of 2026-10-08; test plan WP14-04).
+- Mod library: `EemFormat.IsValidFilePath` and `EemFormat.IsBannerFileName`, `ModPackageBuilder.MaxArchiveBytes` (4 GB
+  minus one byte) and `ModAssets.LoadImageFile` (see Fixed and Security).
+- Tests: `LogFileSharingTests` (two launchers write one log file); `HttpsClientTests` cases that send the launcher's
+  request through a client of `HttpsClient.CreateClient` over a handler that answers from memory, so no request leaves
+  the test; `ZipStorerTests` (one test per local modification of the vendored ZipStorer); `ZipStorerUseTests` (only
+  `ModArchiveReader` extracts ZIP entries, nothing uses `RemoveEntries`); `ProjectConventionsTests.Workflow_PinsEveryActionToTheCommitOfARelease`;
+  `NetworkDestinationTests` allow the release page of the package as the one new URL literal. Test plan: WP10-11 (an older
+  setup over an installation of the suite, with and without the package folder), WP14-04 (the section "Updates" of the
+  *Tools* page), L-WP15 with WP15-01 to WP15-03 (the mod creator: image files not locked, a file that is no image, only the
+  files of the format in the archive) and section 4.1, which records what session 1 of the laptop test covered and what
+  is left for session 2, which has not run yet. [ADR 0012](docs/adr/0012-test-strategy.md) has an amendment for the
+  review of the mod library.
+- `.github/dependabot.yml`: monthly version updates for the GitHub Actions of the workflow only, all of them in one
+  pull request (prefix `CI`); NuGet packages stay pinned.
+- Community files: issue forms for bug reports (with the log locations of the launcher, the suite installer and the
+  setups), feature requests and a private contact for a security report (`security_contact.yml`, which asks for no
+  details: the fallback of `SECURITY.md`, which needs a form because blank issues are off), an issue chooser that sends
+  questions about the package, the setups and security problems to the right place, `SECURITY.md` (supported versions
+  and the direct link for a private report), `CONTRIBUTING.md` (ways to help, the rules of the code, the workflow, the
+  local checks, the commit style and the CHANGELOG), a pull request template and `.github/CODEOWNERS`.
+- README: a banner for light and dark mode, badges (release, build, license, platform, .NET Framework), a navigation line,
+  "Just want to play?" with the link to the package, "At a glance", "Quick start" for players and developers, "Status"
+  and "Documentation". The long reference parts (the test coverage, the real-machine checks, the project layout, files
+  and settings, the answers of the FAQ) are folded; every heading that other pages link keeps its anchor, and "What do I
+  send with a report?" has its own anchor.
+- `docs/RELEASING.md`: the release checklist, from the settings that let reports reach the project (issues and private
+  vulnerability reporting) and the version commit (every file with the version number) through the green build on
+  `main`, the tag and the release notes to the binaries and the hand-over to the setup and the package.
+
 ### Changed
 
+- *Tools* page, section "Updates": the explanation says what "Check for updates" checks: the installed game and the
+  setup of the game (Empire Earth or NeoEE) on `api.empireearth.eu`, not the package "Empire Earth Community" with its
+  setup and this launcher, whose new versions appear on its release page. The setup line of the result names the product
+  ("Version 1.7.2 of the Empire Earth setup: up to date."), so that it is not read as the state of the package
+  ([ADR 0008](docs/adr/0008-https-policy-and-update-api.md) and ADR 0014 amendments of 2026-10-08; test plan WP7-11,
+  WP14-04).
+- Integrity state *Unknown* after an older setup: the explanation says to repair the installation with the steps of the
+  repair advice instead of "Run the current setup.", which for an installation of the suite read like the setup of
+  empireearth.eu that had just caused the state (test plan WP7-09).
+- `docs/CONTRACT.md`, revision 7 (identical to the copy in the setup repository; contract version still 1, compatible, no
+  MUST or MUST NOT relaxed): an installation of the suite goes to the release page of the package, never to the product
+  pages (4.3 adds a MUST NOT; 1.6, 4.4 and 4.5 match). The status is *Released* and the history names the release tags,
+  the links at the top lead to the forks `DritteRippe/Empire-Earth-Setup` and `DritteRippe/Empire-Earth-Launcher`, and
+  "Based on" names `61797e6` instead of `ab4451e`, which exists in neither repository. ARCHITECTURE section 15 has the
+  table "revision 7 additions", which `ContractChecklistTests` checks; its other checklists and the requirements map name
+  the release page.
+- CI: every action of `.github/workflows/build.yml` is pinned to the full commit SHA of a release, with the version as a
+  comment: `actions/checkout` v7.0.1, `actions/upload-artifact` v7.0.1, `NuGet/setup-nuget` v4.0 and
+  `microsoft/setup-msbuild` v3.0.0, all on Node.js 24 (the warning "Node.js 20 is deprecated" is gone). A tag can be moved
+  to other code, a commit cannot, and this job builds the test builds that are offered for download. The checkout keeps no
+  credentials (`persist-credentials: false`), and `ProjectConventionsTests` fails on an action that is not pinned this way.
+- Tests: `ScrollPageLayoutTests.Run_KeepsTheScrollPosition` runs on the Windows CI instead of being ignored there (the
+  panel gets its window with `CreateControl`, without being shown), so that the promise of 1.1.0 that a page keeps its
+  scroll position is checked automatically; WP1-07 stays the manual case.
+- README and ARCHITECTURE no longer say what stopped being true with the release of 1.1.0: the section "Download" said
+  that the launcher is "absolutely not" available (it ships in the package "Empire Earth Community", which the section
+  now links), the next step was "the test on real Windows" (session 1 ran; session 2 is next), the contract was a
+  "draft" and the license linked the upstream repository; the status of ARCHITECTURE names 1.1.0 and the changes for
+  1.1.1.
+- `THIRD-PARTY-NOTICES.md` names the version of the vendored ZipStorer (3.7.0, upstream commit `8443b65`), lists every
+  local modification with its commit and the known issues of that version with the guard of the mod library for each.
+- `docs/TRANSLATING.md` starts its status with the real state: 451 texts in each language, the German texts not
+  proof-read and the French texts not reviewed by a native speaker yet (the table still counted the 378 texts of 1.0.0).
 - Development moved to the single main line `main`: README, test plan and notices name `main` instead of the branch `v2`
   (`LAUNCHER_BRANCH` of the setup workflow is `main`); the CI workflow watches pushes to `main`, as before. The link to
   the `THIRD-PARTY-NOTICES.md` of the setup points to the fork `DritteRippe/Empire-Earth-Setup` (upstream has no such file).
 
-### Added
+### Fixed
 
-- `.github/dependabot.yml`: monthly version updates for the GitHub Actions of the workflow only (NuGet packages stay pinned).
-- Issue form for bug reports (`.github/ISSUE_TEMPLATE/`, with the log locations of the launcher, the suite installer and
-  the setups) and `SECURITY.md` (private vulnerability reporting, with a fallback while it is switched off).
+- Repair advice for an installation of the suite whose unpacked folder is gone: it named
+  `https://empireearth.eu/download/ee/` (or `/neo/`). That page leads to the official setup 1.7.2, a different build with
+  the same AppId, which installs over the package and undoes its fixes; afterwards the launcher showed *Unknown* and the
+  same page again. For every installation the suite installed (its record lists the product) the advice now names the
+  release page of the package, for every reason, and without the folder it says to download the package again, unpack it
+  and run "Empire Earth Community Setup" (`SuiteRepairLocator.PackageFor`, `RepairStep.DownloadPackageAndRunSuite`;
+  ADR 0008 amendment of 2026-10-08; test plan WP10-05, WP10-06, WP10-11). With the folder, running the suite from it stays
+  the first step and the release page is the second option. Installations the suite did not install keep the download
+  page of their product.
+- Repair advice for an available update of an installation of the suite: it said to run "Empire Earth Community Setup"
+  again from its folder, which installs the same versions again, and offered the setup of the website as the second way.
+  It now says that the package gets newer versions only as a new release and names its release page
+  (`RepairStep.UpdateWithNewPackage`; test plan WP7-10).
+- Log file: a second start of the launcher (the icon of the suite, or `--product=` while a launcher runs) could not open
+  `log.txt` and wrote its lines into a new file `<GUID>log.txt` next to it, so the lines of the hand-over (`this one ends`,
+  `did not answer`) were missing from `log.txt` and every second start left a file behind. Every launcher now appends to
+  the one `log.txt` (`TraceFileLogger` opens it shared and append-only); trimming and its limits are unchanged. Files of
+  the form `<GUID>log.txt` that 1.1.0 left in `%LOCALAPPDATA%\Empire Earth Launcher\` can be deleted
+  ([ADR 0013](docs/adr/0013-error-handling-and-logging.md) amendment of 2026-10-08; test plan WP10-03).
+- "Check for updates", "Check version" and the network check ended with "unexpected error" when the answer of the update
+  API, or of a proxy in between, named a character set that Windows does not know, or a quoted one (`charset="utf-8"`).
+  `HttpsClient` now decodes the answer itself: with the character set of the answer if Windows knows it, else the one a
+  byte order mark names, else UTF-8. The 4 KiB limit is unchanged (ADR 0008 amendment of 2026-10-08).
+- Mod library: archives of the mod creator that the library could not read back. The vendored ZipStorer read the extra
+  field of an entry beyond its end; about 3 in 1000 archives laid out like the creator's were rejected
+  (`ArgumentException`), and entries got the times of other entries. Backport of the upstream fix (ZipStorer issue #71).
+- Mod library: clear errors for bad archives. A file that is no ZIP archive is reported as "not a ZIP archive, or it is
+  damaged", and a damaged ZIP directory gives `InvalidDataException` instead of `ArgumentOutOfRangeException`.
+- Mod creator: the export deleted every `Banner*.png` of a variant folder, also files of the author such as
+  `BannerSource.png`. It now deletes only the banners it writes (`Banner<n>.png`) and reports the other files there as
+  ignored.
+- Mod creator: files reported as ignored (notes, misplaced files, files next to the variant folders) still went into the
+  published archive. The archive now holds only the documented layout.
+- Mod creator: files and archives of 4 GB or more gave a damaged archive without an error. The build now stops with a
+  message, and an existing archive stays as it was.
+- `licenses/THIRD-PARTY-LICENSES.txt`, which every binary copy carries (the CI test builds and the package), named
+  `EE-modders/Empire-Earth-Launcher` as the place of the source code; that repository does not have the code of these
+  binaries. It now names the fork `DritteRippe/Empire-Earth-Launcher`, where every release is a tag, and EE-modders as the
+  original project.
+- Mod creator: the chosen icon and banner files stayed locked until the program ended. They are loaded into memory now,
+  and a file that is not an image is reported as such instead of "Out of memory.".
+
+### Security
+
+- Mod library: a damaged or crafted `.eem` of a few bytes could make the reader allocate up to 2 GB, because the size of
+  its central directory was taken as given. Such archives are rejected now.
+- Mod library: the paths of the files of a mod must stay inside their product folder (`EemFormat.IsValidFilePath`: no
+  `..`, no drive, root or UNC path, no device name and no character that Windows forbids). The reader rejects other
+  archives and the mod creator does not write them: a protection against path traversal for a later mod installer
+  (installing mods is not implemented yet).
 
 ## [1.1.0] - 2026-10-07
 
@@ -249,13 +370,15 @@ WP6-18 to WP6-21).
 - `DiscoveryResult.ForSessionProduct`, `PlayModel.SelectGame` and `CanChooseArtOfConquest`, and three texts of the repair
   window (`FailureUrlRejected`, `RepairLocating`, `RepairFallbackFormat`), in all three languages.
 
-## [1.0.0] - 2026-10-05
+## [1.0.0] - 2026-10-06
 
 Launcher v2 was built on branch `v2` in the work packages L-WP1 to L-WP9 ([docs/ARCHITECTURE.md](docs/ARCHITECTURE.md),
 section 15); all of them are done, newest first below. Version 1.0.0 adds the optional additions of contract revision 4
 for the suite installer "Empire Earth Community" of the setup repository (setup ADR 0013), which installs the launcher
 and the games in one run; the launcher works as before without it. The test on real Windows follows
-([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), L-WP10 for the suite additions).
+([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), L-WP10 for the suite additions). The version was set on 2026-10-05; the
+release is the tag `v1.0.0` on the commit `b4fd570` of 2026-10-06, which also contains the skip of the suite's own
+uninstall key (contract revision 5, below). A first build of 1.0.0 without that change was replaced and never released.
 
 ### Added
 
@@ -959,3 +1082,7 @@ and the games in one run; the launcher works as before without it. The test on r
   `REG_OPTION_OPEN_LINK`; `RegistryExport` refuses a tree with a link, so the backup fails and nothing changes, and the
   cleanup reads the tree once more right before each deletion. Test plan: WP8-17 (link, optional) and WP8-18 (a folder
   the launcher may not look at).
+
+[Unreleased]: https://github.com/DritteRippe/Empire-Earth-Launcher/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/DritteRippe/Empire-Earth-Launcher/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/DritteRippe/Empire-Earth-Launcher/releases/tag/v1.0.0

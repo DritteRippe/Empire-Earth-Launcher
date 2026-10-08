@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Empire_Earth_Launcher.Core.Contract;
+using Empire_Earth_Launcher.Core.Installations;
 using Empire_Earth_Launcher.Core.Platform;
 using Empire_Earth_Launcher.Core.Play;
 using Empire_Earth_Launcher.Core.Repair;
@@ -15,8 +16,8 @@ namespace Empire_Earth_Launcher.Tests.Launcher
     /// <summary>
     /// <see cref="UpdateModel"/>, the update API for the pages and the repair advice (L-WP7, contract 4.3 and 4.5, ADR 0008):
     /// the game version check of the Play page, the game and setup version check of the Tools page, the hand-off of an
-    /// available update, and the download page of the product through the shell (no request). With the fake HTTPS
-    /// client: no test uses the network.
+    /// available update (for an installation of the suite the release page of the package, since launcher 1.1.1), and the
+    /// download page of the product through the shell (no request). With the fake HTTPS client: no test uses the network.
     /// </summary>
     [TestFixture]
     public class UpdateModelTests
@@ -170,6 +171,54 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(shell.OpenedUrls, Is.EqualTo(new[] { "https://empireearth.eu/download/neo/" }));
             Assert.That(client.Requests, Is.EqualTo(versionRequests), "opening the page sends no request");
             Assert.That(client.Requests, Has.All.Contain("&type=game"), "the update API gets only the questions of contract 4.5");
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task AnUpdateOfAnInstallationOfTheSuite_LeadsToTheReleasePageOfThePackage_NeverToTheSuiteAgain(bool folderExists)
+        {
+            const string source = @"C:\Users\Player\Downloads\Empire-Earth-Community-1.1.0";
+            world.AddCommunityInstallation(Root, Product.NeoEE);
+            RegistryLocation record = world.AddSuiteRecord();
+            world.Registry.Seed(record, ContractNames.SuiteSourceDirName, RegistryValue.FromString(source));
+            if (folderExists)
+                world.FileSystem.AddDirectory(source);
+            var suiteModel = new UpdateModel(new UpdateChecker(client, world.Logger), installations, shell, world.Logger,
+                new SuiteRepairLocator(new SuiteRecordReader(world.Registry, world.Logger), world.FileSystem, world.Logger));
+            await installations.RefreshAsync();
+            client.Answer(Api + "&type=game&version=2.0.0.5", 200, "false").Answer(Api + "&type=game", 200, "2.0.1.0");
+
+            await suiteModel.CheckAsync(false);
+            RepairAdvice advice = suiteModel.UpdateAdvice;
+            suiteModel.OpenDownloadPage(advice);
+
+            Assert.That(advice.Steps, Is.EqualTo(new[]
+            {
+                RepairStep.UpdateWithNewPackage, RepairStep.KeepFolderAndMode, RepairStep.KeepCdKeysTask
+            }), "the suite of the folder installs the versions it embeds, not the one the update API reports");
+            Assert.That(advice.SuiteFolder, Is.Null);
+            Assert.That(shell.OpenedUrls, Is.EqualTo(new[] { SetupDownloadPage.PackageRelease }));
+            Assert.That(shell.OpenedFolders, Is.Empty);
+        }
+
+        [Test]
+        public void ThePackageReleasePage_OpensThroughTheShell_WithoutARequest_AlsoWithoutAnInstallation()
+        {
+            Assert.That(model.OpenPackageReleasePage(), Is.EqualTo(DownloadPageResult.Opened));
+
+            Assert.That(shell.OpenedUrls, Is.EqualTo(new[] { "https://github.com/DritteRippe/Empire-Earth-Community/releases/latest" }));
+            Assert.That(shell.Started, Is.Empty, "the launcher downloads and starts nothing");
+            Assert.That(client.Requests, Is.Empty, "no request to the update API or to GitHub");
+            Assert.That(world.Logger.Messages.Last(), Does.Contain("Opening the release page of the package " + SetupDownloadPage.PackageRelease));
+        }
+
+        [Test]
+        public void ThePackageReleasePage_AFailureIsAResult()
+        {
+            shell.OpenException = new System.ComponentModel.Win32Exception(1155);
+
+            Assert.That(model.OpenPackageReleasePage(), Is.EqualTo(DownloadPageResult.Failed));
+            Assert.That(world.Logger.Entries.Last().Exception, Is.SameAs(shell.OpenException));
         }
     }
 }

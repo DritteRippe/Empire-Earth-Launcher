@@ -155,6 +155,35 @@ Changing the English text of an existing key means checking the German and Frenc
 
 ## Status
 
+**In short (launcher 1.1.1):** English, German and French have the same 451 texts (`ResourceParityTests` checks that
+the keys and placeholders match). English is the source. **No German text has been proof-read by a native speaker yet,
+and the French texts, apart from two, were written without a native speaker.** Both reviews are open; help is welcome,
+see [Help wanted](#help-wanted).
+
+| Language | Texts | Review |
+|---|---|---|
+| English | 451 | source |
+| German `de` | 451 | **not proof-read yet**: a native speaker is to read them in the laptop test ([TEST-PLAN.de.md](TEST-PLAN.de.md), cases WP3-*, WP4-17, WP5-17, WP6-14, WP7-14, WP8-15, WP9-14, WP10-05, WP11-01, WP12-07, WP13-08 and WP14-04); session 1 of the test of 1.1.0 recorded no result for them |
+| French `fr` | 451 | **not reviewed**: only `NavigationPlay` ("Jouer") and `NavigationSettings` ("Paramètres") come from the original French authors; all other French texts were written during the review fixes, v2 and the later versions without a native speaker |
+
+How the count grew: 378 texts in 1.0.0; 1.1.0 added 72 (the *Graphics* and *Mods* pages, the list of games of the *Play*
+page, the VirtualStore copy of `dgVoodoo.conf`) and removed 3 (447); 1.1.1 added 4 (451). The paragraphs below say what
+each version changed.
+
+Launcher 1.1.1 sends an installation of the suite to the release page of the package "Empire Earth Community" instead of the
+download page of the product setup, also when the unpacked folder of the package is gone. The repair window got three texts,
+`RepairStepDownloadPackage` (the step that downloads the package again, unpacks it and runs "Empire Earth Community Setup",
+with the warning not to use the setup from empireearth.eu), `RepairStepUpdateWithNewPackage` (the step of an available
+update: the version comes from the update server of empireearth.eu, the package updates only with a new release) and
+`RepairPackagePageLabel` (above the address of the release page), and `RepairDownloadPageSuiteLabel` changed in all three
+languages (the second option below the suite step is now the package). The *Tools* page got the button
+`PackageReleasePageButton` ("Open release page", next to "Check for updates", at most about 30 characters), and
+`VersionCheckInfo` (what the version check covers and what not) and the two setup lines of its result
+(`VersionSetupUpToDateFormat`, `VersionSetupUpdateFormat`, now with the product in `{1}`, the latest version in `{2}`)
+changed in all three languages, and so did `IntegrityUnknownOlderSetup`, which now refers to the steps of the repair advice
+instead of "the current setup". The French texts call the package « paquet » and its release page « page des versions »;
+they belong to the French review (test plan WP7-09, WP7-10, WP7-11, WP10-06, WP14-04).
+
 Launcher 1.1.0 (contract revision 6, one launcher for four games) removed three texts of the repair window (`FailureUrlRejected`,
 `RepairLocating`, `RepairFallbackFormat`: the update API no longer chooses the download page) and added five for the *Play* page:
 the four entries of the list of games (`PlayEntryEmpireEarth`, `PlayEntryEmpireEarthAoc`, `PlayEntryNeoEE`, `PlayEntryNeoEEAoc`:
@@ -165,9 +194,9 @@ intro of the network check on the *Tools* page) changed in all three languages: 
 question for the latest game version (`&type=game`).
 
 After 1.0.0 the hint about a differing VirtualStore copy of `dgVoodoo.conf` added three texts (`VirtualStoreWrapperConfigFormat`,
-`OpenVirtualStoreFolderButton`, `OpenVirtualStoreFolderFailedFormat`, A5; test plan WP8-19); they are not in the counts below.
+`OpenVirtualStoreFolderButton`, `OpenVirtualStoreFolderFailedFormat`, A5; test plan WP8-19); they came with 1.1.0.
 
-378 texts (launcher 1.0.0, the suite additions of contract revision 4, added 5: `RepairStepRunSuiteFormat`,
+Launcher 1.0.0 had 378 texts (the suite additions of contract revision 4 added 5: `RepairStepRunSuiteFormat`,
 `RepairDownloadPageSuiteLabel`, `RepairOpenSuiteFolderButton`, `RepairSuiteFolderNotOpenedFormat` of the repair advice that names the
 folder of the suite setup, and `OnlinePlayersNeoOnly` of the player list; state before that, of the fixes of the laptop test: `ThemeBuiltIn` and `ThemeBuiltInNextStart` of the theme list; the review
 fixes after L-WP9 added `ImportCheckManifestUnusable` and `CleanupKeepFolderUnknownFormat` of the
@@ -176,23 +205,23 @@ maintenance tools, and changed `SavesInfo` to the port table of the network chec
 integrity check, the *Tools* page, the version check and the download of the update API, L-WP6 29 for Play, the repair
 advice, a running setup and a second launcher, L-WP5 51 for the game settings, L-WP4 21 for the list of installations).
 
-| Language | Translated | Review |
-|---|---|---|
-| English | 378 | source |
-| German `de` | 378 | proof-reading by a native speaker in the laptop test ([TEST-PLAN.de.md](TEST-PLAN.de.md), cases WP3-*, WP4-17, WP5-17, WP6-14, WP7-14, WP8-15, WP9-14 and WP10-05); open until that test |
-| French `fr` | 378 | **open**: only `NavigationPlay` ("Jouer") and `NavigationSettings` ("Paramètres") come from the original French authors; all other French texts were written during the review fixes and v2 without a native speaker |
-
 ### Help wanted
 
-- **French**: a native speaker who reads the 376 French texts other than the two navigation texts in
-  `Resources.fr.resx`, ideally while looking at each page. The two texts of the theme list (`ThemeBuiltIn`,
-  `ThemeBuiltInNextStart`, next to `ThemeCustom`) are the newest; then the 76 texts of the network check and the diagnostics
+- **French**: a native speaker who reads the 449 French texts other than the two navigation texts in
+  `Resources.fr.resx`, ideally while looking at each page. The newest are the texts of 1.1.1 (the repair advice and the
+  release page of the package, listed above, with « paquet » and « page des versions »), then those of 1.1.0 (`Graphics*`,
+  `Mods*`, `PlayEntry*`, `OpenVirtualStoreFolder*` and `VirtualStoreWrapperConfigFormat`). Before them: the two texts of
+  the theme list (`ThemeBuiltIn`, `ThemeBuiltInNextStart`, next to `ThemeCustom`), then the 76 texts of the network check and the diagnostics
   report (keys from `ToolsNetworkHeading` to `PlayerListCheckNetworkLink`) and the two texts of the review fixes after them
-(`ImportCheckManifestUnusable`, `CleanupKeepFolderUnknownFormat`, at the end of the file) are the newest;
-  before them come the 80 texts of the maintenance tools (from `ToolsCleanupHeading` to `ToolsChecking`), the 59 texts of
+  (`ImportCheckManifestUnusable`, `CleanupKeepFolderUnknownFormat`); before them come the 80 texts of the maintenance tools (from `ToolsCleanupHeading` to `ToolsChecking`), the 59 texts of
   the integrity check and the update API (from `NavigationTools`, without the three texts removed in 1.1.0) and the 29 texts of Play
   and the repair advice (from `LauncherAlreadyRunning` to `RepairPageNotOpenedFormat`); the 51 texts of the game
   settings (from `GameSettingsDefaultsHeading` to `FindingFolderNotAnsiFormat`) and the explanations of the
   maintenance tools are the longest.
+- **German**: a native speaker who reads the German texts on the pages of the launcher, best during the cases of the laptop
+  test named in the table above, and notes what sounds wrong.
 - **Other languages**: Portuguese (Brazil), Chinese, Spanish, Italian, Polish, Russian and Korean are game
   languages of the setup; the launcher shows English for them. See [Adding a language](#adding-a-language).
+
+Send corrections as a pull request that changes the `.resx` files, or as an issue that lists the key, the current text
+and your proposal ([CONTRIBUTING.md](../CONTRIBUTING.md)).

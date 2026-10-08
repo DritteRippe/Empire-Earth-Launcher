@@ -32,7 +32,8 @@ namespace Empire_Earth_Launcher.Core.Repair
 
         /// <summary>
         /// The integrity state of a community installation is Unknown because its records are missing, unusable or outdated
-        /// (no manifest, an older setup ran afterwards, ...): run the current setup (contract 2.5).
+        /// (no manifest, an older setup ran afterwards, ...): run the current setup (contract 2.5), for an installation of the
+        /// suite the suite of the package.
         /// </summary>
         IntegrityUnknown,
 
@@ -55,10 +56,27 @@ namespace Empire_Earth_Launcher.Core.Repair
         /// <summary>
         /// The suite "Empire Earth Community" installed the product (contract 1.6, revision 4) and its folder is still there:
         /// close the game, then run <c>Empire Earth Community Setup.exe</c> from that folder again; it repairs or updates the
-        /// products it installed. Replaces <see cref="CloseGameAndRunSetup"/>, which the download of the product setup keeps as
-        /// the second option (contract 4.4).
+        /// products it installed. Replaces <see cref="CloseGameAndRunSetup"/>; the download of the package stays the second
+        /// option (contract 4.4; up to launcher 1.1.0 the download of the product setup).
         /// </summary>
         RunSuiteSetupAgain,
+
+        /// <summary>
+        /// The suite "Empire Earth Community" installed the product, but the folder it was started from is gone (since launcher
+        /// 1.1.1): close the game, download the package again from its release page, unpack it and run
+        /// <c>Empire Earth Community Setup.exe</c>. Replaces <see cref="CloseGameAndRunSetup"/>: the product setup of the
+        /// community website is not the one the package installed and, with the same AppId, would replace it.
+        /// </summary>
+        DownloadPackageAndRunSuite,
+
+        /// <summary>
+        /// An available update of an installation of the suite (<see cref="RepairReason.UpdateAvailable"/>, since launcher
+        /// 1.1.1): the update API reports a newer version of the setups of the community website, which the suite does not
+        /// install; the package gets newer versions only as a new release, so the player looks on its release page whether
+        /// there is one. Replaces <see cref="RunSuiteSetupAgain"/>, which would install the same versions again, and
+        /// <see cref="CloseGameAndRunSetup"/>, whose setup would replace the installation of the package.
+        /// </summary>
+        UpdateWithNewPackage,
 
         /// <summary>Keep the same folder (the install root) and the same install mode ("for all users" if it is <c>admin</c>).</summary>
         KeepFolderAndMode,
@@ -89,19 +107,23 @@ namespace Empire_Earth_Launcher.Core.Repair
     /// elevates anything for the repair, it opens the download page in the browser with its own rights.
     /// </summary>
     /// <remarks>
-    /// The download page is the one of the installation's product (<see cref="SetupDownloadPage.For"/>, contract 4.3): it is
-    /// known from the start and needs no request to the update API.
+    /// The download page is the one of the installation's product (<see cref="SetupDownloadPage.For"/>, contract 4.3), or the
+    /// release page of the package for an installation of the suite (<see cref="InstalledBySuite"/>): it is known from the
+    /// start and needs no request to the update API.
     /// </remarks>
     public sealed class RepairAdvice
     {
         private RepairAdvice(Installation installation, RepairReason reason, IEnumerable<Game> missingPrograms,
-            IEnumerable<RepairStep> steps, IEnumerable<IntegrityFinding> files, VersionCheckResult update, string suiteFolder)
+            IEnumerable<IntegrityFinding> files, VersionCheckResult update, SuitePackage suite)
         {
-            SuiteFolder = suiteFolder;
+            suite = SuitePackageOf(installation, suite);
+            InstalledBySuite = suite != null;
+            // The suite of the folder installs the versions it embeds; for an update it has nothing to offer.
+            SuiteFolder = reason == RepairReason.UpdateAvailable ? null : suite?.Folder;
             Installation = installation;
             Reason = reason;
             MissingPrograms = new ReadOnlyCollection<Game>(missingPrograms.ToList());
-            Steps = new ReadOnlyCollection<RepairStep>(steps.ToList());
+            Steps = new ReadOnlyCollection<RepairStep>(StepsFor(installation, reason, suite).ToList());
             Files = new ReadOnlyCollection<IntegrityFinding>(files.ToList());
             Update = update;
         }
@@ -127,9 +149,17 @@ namespace Empire_Earth_Launcher.Core.Repair
         public IReadOnlyList<RepairStep> Steps { get; }
 
         /// <summary>
+        /// True if the suite "Empire Earth Community" installed the installation (its record lists the product, contract 1.6;
+        /// <see cref="SuitePackage"/>): the advice leads to the package, with or without its folder, and
+        /// <see cref="DownloadUrl"/> is the release page of the package instead of the page of the product setup.
+        /// </summary>
+        public bool InstalledBySuite { get; }
+
+        /// <summary>
         /// The folder to run the suite from again (<see cref="RepairStep.RunSuiteSetupAgain"/>, contract 4.4): the
-        /// <c>SourceDir</c> of the suite record, which lists the product and exists; null if the advice is the download only.
-        /// The launcher may open the folder in the Explorer and never starts a program from it (contract 4.1).
+        /// <c>SourceDir</c> of the suite record, which lists the product and exists; null if the advice is the download only,
+        /// and for an available update, which the suite of that folder cannot install. The launcher may open the folder in the
+        /// Explorer and never starts a program from it (contract 4.1).
         /// </summary>
         public string SuiteFolder { get; }
 
@@ -142,10 +172,16 @@ namespace Empire_Earth_Launcher.Core.Repair
         /// <summary>For <see cref="RepairReason.UpdateAvailable"/>: the result of the version check; null otherwise.</summary>
         public VersionCheckResult Update { get; }
 
-        /// <summary>The page with the setup download: the one of the product of the installation (contract 4.3).</summary>
+        /// <summary>
+        /// The page with the setup download: the one of the product of the installation (contract 4.3), or, for an
+        /// installation of the suite, the release page of the package (<see cref="SetupDownloadPage.PackageRelease"/>). The
+        /// product page of the community website leads to the official product setup (in October 2026 version 1.7.2, contract
+        /// 4.3 point 3), another build with the same AppId, which would replace the setups and fixes of the package; the advice
+        /// of a suite installation never leads there.
+        /// </summary>
         public string DownloadUrl
         {
-            get { return SetupDownloadPage.For(Installation); }
+            get { return InstalledBySuite ? SetupDownloadPage.PackageRelease : SetupDownloadPage.For(Installation); }
         }
 
         /// <summary>
@@ -157,10 +193,11 @@ namespace Empire_Earth_Launcher.Core.Repair
         /// <param name="reason">Why the advice is given.</param>
         /// <param name="missingPrograms">With <see cref="RepairReason.ProgramMissing"/>: the games whose program is missing;
         /// null for those of <see cref="Installations.Installation.MissingPrograms"/>.</param>
-        /// <param name="suiteFolder">The folder the suite can be run from again (<see cref="SuiteRepairLocator.FolderFor"/>);
-        /// null if the record of the suite does not list the product or there is none.</param>
+        /// <param name="suite">The package whose suite installed the installation, with the folder it can be run from again
+        /// (<see cref="SuiteRepairLocator.PackageFor"/>); null if the record of the suite does not list the product or there
+        /// is none.</param>
         public static RepairAdvice For(Installation installation, RepairReason reason, IEnumerable<Game> missingPrograms = null,
-            string suiteFolder = null)
+            SuitePackage suite = null)
         {
             if (installation == null)
                 throw new ArgumentNullException(nameof(installation));
@@ -171,8 +208,7 @@ namespace Empire_Earth_Launcher.Core.Repair
             if (reason == RepairReason.IntegrityFindings || reason == RepairReason.IntegrityUnknown ||
                 reason == RepairReason.UpdateAvailable)
                 throw new ArgumentException("The advice of " + reason + " is made by ForIntegrity or ForUpdate.", nameof(reason));
-            return new RepairAdvice(installation, reason, missing, StepsFor(installation, reason, suiteFolder),
-                new IntegrityFinding[0], null, SuiteFolderOf(installation, suiteFolder));
+            return new RepairAdvice(installation, reason, missing, new IntegrityFinding[0], null, suite);
         }
 
         /// <summary>
@@ -181,45 +217,49 @@ namespace Empire_Earth_Launcher.Core.Repair
         /// the current setup (contract 2.5).
         /// </summary>
         /// <param name="report">The report that offers the repair.</param>
-        /// <param name="suiteFolder">As for <see cref="For"/>.</param>
-        public static RepairAdvice ForIntegrity(IntegrityReport report, string suiteFolder = null)
+        /// <param name="suite">As for <see cref="For"/>.</param>
+        public static RepairAdvice ForIntegrity(IntegrityReport report, SuitePackage suite = null)
         {
             if (report == null)
                 throw new ArgumentNullException(nameof(report));
             if (!report.OffersRepair)
                 throw new ArgumentException("The report " + report + " offers no repair.", nameof(report));
             RepairReason reason = report.State == IntegrityState.Unknown ? RepairReason.IntegrityUnknown : RepairReason.IntegrityFindings;
-            return new RepairAdvice(report.Installation, reason, new Game[0], StepsFor(report.Installation, reason, suiteFolder),
-                report.SeriousFindings, null, SuiteFolderOf(report.Installation, suiteFolder));
+            return new RepairAdvice(report.Installation, reason, new Game[0], report.SeriousFindings, null, suite);
         }
 
-        /// <summary>The hand-off for an available update (contract 4.5: "An available update uses the hand-off of 4.3").</summary>
+        /// <summary>
+        /// The hand-off for an available update (contract 4.5: "An available update uses the hand-off of 4.3"). For an
+        /// installation of the suite it is the release page of the package with <see cref="RepairStep.UpdateWithNewPackage"/>:
+        /// the update API knows the setups of the community website, not the package (since launcher 1.1.1).
+        /// </summary>
         /// <param name="update">The result of the version check.</param>
-        /// <param name="suiteFolder">As for <see cref="For"/>.</param>
-        public static RepairAdvice ForUpdate(VersionCheckResult update, string suiteFolder = null)
+        /// <param name="suite">As for <see cref="For"/>.</param>
+        public static RepairAdvice ForUpdate(VersionCheckResult update, SuitePackage suite = null)
         {
             if (update == null)
                 throw new ArgumentNullException(nameof(update));
             if (update.Outcome != VersionCheckOutcome.UpdateAvailable)
                 throw new ArgumentException("No update is available: " + update, nameof(update));
-            return new RepairAdvice(update.Installation, RepairReason.UpdateAvailable, new Game[0],
-                StepsFor(update.Installation, RepairReason.UpdateAvailable, suiteFolder), new IntegrityFinding[0], update,
-                SuiteFolderOf(update.Installation, suiteFolder));
+            return new RepairAdvice(update.Installation, RepairReason.UpdateAvailable, new Game[0], new IntegrityFinding[0], update,
+                suite);
         }
 
-        /// <summary>The suite folder that counts: none for a foreign installation, which the setups do not repair.</summary>
-        private static string SuiteFolderOf(Installation installation, string suiteFolder)
+        /// <summary>The suite package that counts: none for a foreign installation, which the setups do not repair.</summary>
+        private static SuitePackage SuitePackageOf(Installation installation, SuitePackage suite)
         {
-            return installation.Kind == InstallationKind.Foreign || string.IsNullOrWhiteSpace(suiteFolder) ? null : suiteFolder;
+            return installation.Kind == InstallationKind.Foreign ? null : suite;
         }
 
         /// <summary>
         /// The steps of contract 4.4: foreign installations are not repaired; the antivirus exception comes first when files
         /// were deleted or changed; community installations (also those of setups up to 1.7.2) get the run of the setup, and
         /// since revision 4 the run of the suite from its folder first, when the suite record lists the product (the download of
-        /// the product setup stays as the second option).
+        /// the package stays as the second option). An installation of the suite whose folder is gone gets the download of the
+        /// package, and an available update of it the hint that the package updates only with a new release (both since launcher
+        /// 1.1.1), never the product setup of the community website.
         /// </summary>
-        private static IEnumerable<RepairStep> StepsFor(Installation installation, RepairReason reason, string suiteFolder)
+        private static IEnumerable<RepairStep> StepsFor(Installation installation, RepairReason reason, SuitePackage suite)
         {
             var steps = new List<RepairStep>();
             if (installation.Kind == InstallationKind.Foreign)
@@ -228,9 +268,7 @@ namespace Empire_Earth_Launcher.Core.Repair
                 steps.Add(RepairStep.AddAntivirusException);
             if (installation.Kind != InstallationKind.Foreign)
             {
-                steps.Add(SuiteFolderOf(installation, suiteFolder) != null
-                    ? RepairStep.RunSuiteSetupAgain
-                    : RepairStep.CloseGameAndRunSetup);
+                steps.Add(SetupStepFor(reason, suite));
                 steps.Add(RepairStep.KeepFolderAndMode);
                 if (installation.Product == Product.NeoEE)
                     steps.Add(RepairStep.KeepCdKeysTask);
@@ -238,10 +276,20 @@ namespace Empire_Earth_Launcher.Core.Repair
             return steps;
         }
 
+        /// <summary>The step that runs a setup: the product setup, the suite from its folder, or the package.</summary>
+        private static RepairStep SetupStepFor(RepairReason reason, SuitePackage suite)
+        {
+            if (suite == null)
+                return RepairStep.CloseGameAndRunSetup;
+            if (reason == RepairReason.UpdateAvailable)
+                return RepairStep.UpdateWithNewPackage;
+            return suite.Folder != null ? RepairStep.RunSuiteSetupAgain : RepairStep.DownloadPackageAndRunSuite;
+        }
+
         /// <summary>
         /// Opens <see cref="DownloadUrl"/> in the default browser through <paramref name="starter"/> (shell, no verb: not
         /// elevated, contract 4.3 point 2). No request is made; the browser follows the redirect of the website to the setup.
-        /// A failure is logged and returned, never thrown.
+        /// A failure is logged and returned, never thrown (<see cref="SetupDownloadPage.Open"/>).
         /// </summary>
         public DownloadPageResult OpenDownloadPage(IProcessStarter starter, ILogger logger)
         {
@@ -251,16 +299,7 @@ namespace Empire_Earth_Launcher.Core.Repair
                 throw new ArgumentNullException(nameof(logger));
             logger.Info("Repair advice for " + Installation.Root + ": opening the download page " + DownloadUrl +
                         " (contract 4.3, " + SetupDownloadPage.NameOf(DownloadUrl) + " page).");
-            try
-            {
-                starter.OpenUrl(DownloadUrl);
-                return DownloadPageResult.Opened;
-            }
-            catch (Exception ex) when (ex is Win32Exception || ex is FileNotFoundException || ex is InvalidOperationException)
-            {
-                logger.Warning("The download page " + DownloadUrl + " could not be opened.", ex);
-                return DownloadPageResult.Failed;
-            }
+            return SetupDownloadPage.Open(DownloadUrl, starter, logger);
         }
 
         /// <summary>

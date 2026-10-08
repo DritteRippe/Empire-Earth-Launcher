@@ -7,8 +7,8 @@ contract shared with the Empire Earth Setup.
 
 | | |
 |---|---|
-| Status | **Built**: describes v2 as built on branch `v2` in the work packages L-WP1 to L-WP9 (section 15, all done; the launcher items of the contract checklist are ticked there) and, as launcher 1.0.0, the optional additions of contract revision 4 for the suite installer (4.7 and the second table of section 15); what is still open is in section 14 and in the test plan for real Windows. The README describes the launcher as it is |
-| Based on | branch `v2` at `2dc6c43` (refactor/quality-fixes plus the contract), contract version 1 (draft); revised after the design review (ADR amendments of 2026-10-02, ADR 0015, 0016) and after the plan review before L-WP5 (amendments "plan review" of ADR 0007, 0008, 0011, 0012, 0013, 0015, 0016); implementation notes of L-WP2 to L-WP9 in the sections and the ADR amendments |
+| Status | **Built** and released: describes v2 as built in the work packages L-WP1 to L-WP9 (on the branch `v2`, now merged into `main`; section 15, all done; the launcher items of the contract checklist are ticked there); launcher 1.0.0 (tag `v1.0.0`) with the optional additions of contract revisions 4 and 5 for the suite installer (4.7 and the tables of section 15); launcher 1.1.0 (tag `v1.1.0`, 2026-10-07, contract revision 6: one launcher for the four games, 4.8 Graphics page, 4.9 Mods page); and the changes on `main` for 1.1.1 (contract revision 7: an installation of the suite is sent to the release page of the package, 4.5). What is still open is in section 14 and in the test plan for real Windows (session 2 has not run yet, test plan section 4.1). The README describes the launcher as it is |
+| Based on | branch `v2` at `2dc6c43` (refactor/quality-fixes plus the contract), contract version 1 (a draft then, released with launcher 1.0.0; the checklists of section 15 follow its revision 7); revised after the design review (ADR amendments of 2026-10-02, ADR 0015, 0016) and after the plan review before L-WP5 (amendments "plan review" of ADR 0007, 0008, 0011, 0012, 0013, 0015, 0016); implementation notes of L-WP2 to L-WP9 in the sections and the ADR amendments |
 | Scope | the launcher, its UI-free core library, the WON library, the mod library and mod creator, the tests, the build |
 
 Contents: [1. Goals and constraints](#1-goals-and-constraints) · [2. Module map](#2-module-map) ·
@@ -98,7 +98,8 @@ Empire-Earth.sln
 │  ├─ Repair/          SetupDownloadPage (the three download pages, contract 4.3), UpdateApi (the query and the
 │  │                   failures of 4.5), UpdateChecker, RepairAdvice (contract 4; RepairAdvice since L-WP6, the rest
 │  │                   L-WP7); since 1.0.0 SuiteRepairLocator (the folder of the suite for the advice, contract 4.4);
-│  │                   since 1.1.0 no request for a download address (U1)
+│  │                   since 1.1.0 no request for a download address (U1); since 1.1.1 SuitePackage (the suite
+│  │                   installed the installation, with or without its folder) and the release page of the package
 │  ├─ Maintenance/     CleanupCandidates (the list of 4.6), CleanupAdvice, RegistryCleanup, ManifestFiles,
 │  │                   WonLoginReset, VirtualStoreScanner, SavedGames (folder export, import), NameChecks
 │  │                   (L-WP8)
@@ -310,7 +311,7 @@ Click Play -> button disabled -> `GameStarter.StartAsync(installation, game)`:
    if a process of that name exists, the hint that it may hang and how to end it in the Task Manager (the
    launcher never kills a process). The other game running -> warning with "start anyway".
 3. Program file missing -> refused, "damaged" with the repair advice (`RepairAdvice`, with the download page of the
-   product, contract 4.3).
+   product, contract 4.3, or the release page of the package for an installation of the suite, 4.5).
 4. Class S values synchronized for the game started, computed from the **real game folder** (ADR 0015);
    written only if different after normalization; changed values are logged with old and new value. Then the
    first run of the defaults if the marker is missing.
@@ -412,9 +413,41 @@ Since 1.0.0 (contract 4.4 revision 4): if the suite record ([1.6](CONTRACT.md#16
 and its `SourceDir` exists, `SuiteRepairLocator` gives that folder to `RepairAdvice`. The first step is then
 `RunSuiteSetupAgain` ("Close the game. Run "Empire Earth Community Setup" again from the folder you unpacked it to ...")
 instead of `CloseGameAndRunSetup`; the dialog gets a button "Open setup folder", which opens the folder in the Explorer
-through `IProcessStarter.OpenFolder` and never starts a program from it (contract 4.1), and the download page stays below as
-the second option ("If that folder is gone, ..."). A foreign installation never gets the suite step; without a record, a
-product in `Products` or the folder the advice is the download as before.
+through `IProcessStarter.OpenFolder` and never starts a program from it (contract 4.1), and a download stays below as
+the second option ("If that folder is gone, ..."). A foreign installation never gets the suite step; without a record or a
+product in `Products` the advice is the download of the product setup as before.
+
+Since 1.1.1 an installation of the suite is never sent to the product setup of the community website. The product pages
+of contract 4.3 redirect to the official setup (in October 2026 version 1.7.2), another build with the AppId of the
+setup the suite embeds: it updates the installation in place, undoes fixes of the package (among them an older dgVoodoo
+with the old window settings and "Run as administrator" by default; it also deletes the player's own random map scripts,
+setup README) and recreates the uninstall key without `ContractVersion`, so the launcher reports Unknown
+(`OlderSetupRanAfter`) and, up to 1.1.0, sent the player to the same page again. Now `SuiteRepairLocator.PackageFor`
+answers whether the suite installed the installation (the record lists its product; the mode is `admin`; the AppId the
+record embeds, if both are known, is the installation's; not foreign), with `SuitePackage.Folder` set only if
+`SourceDir` exists. For such an installation `RepairAdvice.InstalledBySuite` is true and `DownloadUrl` is the release
+page of the package (`SetupDownloadPage.PackageRelease`,
+`https://github.com/DritteRippe/Empire-Earth-Community/releases/latest`, ADR 0008 amendment of 1.1.1): below the suite
+step as the second option ("If that folder is gone, download the package "Empire Earth Community" again ..."), and
+without the folder as the only download, with the step `DownloadPackageAndRunSuite` ("Download the package ... again,
+unpack it and run "Empire Earth Community Setup" ...; do not use the setup from empireearth.eu"). The same holds for
+every reason of a repair, also for Unknown after an older setup ran over the installation, which ends the loop. An
+available update of such an installation (contract 4.5) gets the step `UpdateWithNewPackage` instead of the run of the
+suite, and no "Open setup folder": the suite of the folder installs the versions it embeds, and the update API knows the
+setups of the community website, not the package, which gets newer versions only as a new release ("The update server of
+empireearth.eu reports this version for its own setups. Your installation comes from the package ... look on its release
+page below whether there is a newer one ..."). An installation the suite did not install (no record, the product not in
+`Products`, another mode or AppId) keeps the download page of its product.
+
+The version check (contract 4.5) asks the update API about the game and the setup of the product, never about the
+package "Empire Earth Community": the suite, the product setups it embeds and the launcher have no version source of
+their own, and after a new release of the package that keeps the version of the game and of the product setup (1.7.2)
+the check still reports both as up to date. Since 1.1.1 the *Tools* page says so below "Updates" and has a button "Open
+release page" next to "Check for updates", which opens the release page of the package in the browser
+(`UpdateModel.OpenPackageReleasePage`, the address to copy in a message if the browser cannot be opened), and the setup
+line of the result names the product ("Version 1.7.2 of the Empire Earth setup: up to date."), so that it is not read as
+the version of the package. Asking for the newest release of the package (for example from GitHub) would be a new
+destination under ADR 0008 and a request beyond the table of contract 4.5; the launcher does not do it.
 
 ### 4.6 Tools
 
@@ -712,7 +745,9 @@ Decided in [ADR 0013](adr/0013-error-handling-and-logging.md):
 ## 7. Logging
 
 - `%LOCALAPPDATA%\Empire Earth Launcher\log.txt`, timestamped ISO 8601 lines, levels Info/Warning/Error,
-  trimmed to the last 500 lines above 1 MiB with `log.txt.old` kept (existing behaviour).
+  trimmed to the last 500 lines above 1 MiB with `log.txt.old` kept (existing behaviour). One file for every launcher
+  of the user: it is opened shared and with the right to append only, so a second start that hands over and ends (4.7)
+  appends its lines to the file the running launcher keeps open (since 1.1.1, ADR 0013 amendment).
 - Logged: start with version, Windows version and culture; every discovery candidate and why it was taken
   or dropped; integrity findings with path, class, expected and actual hash; every registry value the
   launcher writes or deletes with old and new value (a deleted key of the cleanup with its id, the missing folder and
@@ -812,8 +847,10 @@ Decided in [ADR 0009](adr/0009-localization-with-resx-en-de-fr.md):
   privacy rules of ADR 0013 (plan review) through `ReportAnonymizer`, and so do the log lines of the network check
   (4.6, 7).
 - **URLs opened in the browser**: only the three download pages of contract 4.3 (`SetupDownloadPage`: `empireearth.eu/download/ee/`,
-  `/neo/` and `/download/`), chosen by the installation alone; the launcher opens no address that came from the network, and
-  `NetworkDestinationTests` allow the update API and these pages as URL literals and nothing else.
+  `/neo/` and `/download/`), chosen by the installation alone, and since 1.1.1 the release page of the package
+  (`github.com/DritteRippe/Empire-Earth-Community/releases/latest`, chosen by the suite record, 4.5); the launcher opens no
+  address that came from the network, sends no request to GitHub, and `NetworkDestinationTests` allow the update API and
+  these pages as URL literals and nothing else.
 - **Files from outside**: imported saves are untrusted (plain file names only, `.ees`/`.scn` only, characters of the
   ANSI code page, 64 MiB at most, never onto a file of the manifest and nothing at all while the manifest exists but
   cannot be used, no overwrite without confirmation and a copy of the old file); there is no zip import (dropped in L-WP8); the manifest never makes the launcher open a file outside
@@ -923,7 +960,11 @@ Decided in [ADR 0001](adr/0001-target-dotnet-framework-4-8.md) and
   `Microsoft.NETFramework.ReferenceAssemblies.net48` 1.0.3 (independent of the image's targeting packs),
   all `*Tests.exe` (the unit tests and the self-tests of the real-machine checks, whose `RealMachine` fixtures stay
   skipped; the setup repository's end-to-end workflow builds the program and runs them), then the test builds of launcher and mod creator as artifacts with `LICENSE`,
-  `THIRD-PARTY-NOTICES.md` and `licenses/THIRD-PARTY-LICENSES.txt`.
+  `THIRD-PARTY-NOTICES.md` and `licenses/THIRD-PARTY-LICENSES.txt`. Every action of the workflow is pinned to the full
+  commit SHA of a release with its version as a comment (`ProjectConventionsTests`); Dependabot proposes newer versions
+  once a month in one pull request (`.github/dependabot.yml`).
+- **Release**: a tag `vX.Y.Z` on a commit of `main` with a green CI run (tags start no build), binaries built with MSBuild
+  from that tag and handed to the suite installer of the setup repository; the steps are in [RELEASING.md](RELEASING.md).
 - Runtime requirement: .NET Framework 4.8 (built into Windows 10 1903 and later and Windows 11; an
   installer for Windows 7 SP1, 8.1 and older 10; **not available for Windows 8.0**). `App.config`:
   `<supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.8" />`.
@@ -942,7 +983,7 @@ Decided in [ADR 0001](adr/0001-target-dotnet-framework-4-8.md) and
 | R6 | WON login reset | Maintenance, Backup | | L-WP8 |
 | R7 | network diagnostics; partly: the comparison with the adapter the game uses waits for where EE stores it (14, WP9-02) | Diagnostics | | L-WP9 |
 | R8 | VirtualStore detection | Installations, Maintenance | | L-WP4 (effective paths), L-WP8 |
-| R9 | repair hand-off, pending setup | Repair, Play | 4 | L-WP6 (`RepairAdvice`), L-WP7 (API), 1.1.0 (the download pages of the products, U1) |
+| R9 | repair hand-off, pending setup | Repair, Play | 4 | L-WP6 (`RepairAdvice`), L-WP7 (API), 1.1.0 (the download pages of the products, U1), 1.1.1 (the release page of the package for installations of the suite, 4.5) |
 | R10 | saves/scenarios export and import, name checks | Maintenance | | L-WP8 |
 | R17 | en/de/fr | UI resources | | L-WP3 and every later package |
 | R18 | docs, ADRs, README/CHANGELOG, test plan | | | every package; test plan from L-WP1, final check L-WP9 |
@@ -1110,7 +1151,7 @@ one above (ticked, and the test classes exist); the real-Windows cases are WP10-
 |---|---|---|---|
 | [x] | `--product=EE` and `--product=NeoEE` for one session, not saved, an invalid value ignored and logged, handed to a running launcher (1.4) (4.7) | `LauncherArgumentsTests`, `InstanceForwardingTests`, `LauncherInstanceTargetTests`, `DiscoveryResultSessionProductTests`, `InstallationServiceTests` | WP10-01, WP10-02, WP10-03 |
 | [x] | `EmpireEarthCommunity_Suite` as a setup mutex (4.2): no game start, no search, no change, no integrity check, also between two product setups | `SetupKindTests`, `RunningGameDetectorTests`, `MutationGuardTests`, `SetupWatcherTests`, `GameStarterTests`, `InstallationServiceTests` | WP10-04 |
-| [x] | the suite record read-only (1.6) and the advice with `SourceDir`, the official download as the second option (4.4) | `SuiteRecordReaderTests`, `SuiteRepairTests`, `TextsTests` | WP10-05, WP10-06 |
+| [x] | the suite record read-only (1.6) and the advice with `SourceDir`, a download as the second option (4.4): up to 1.1.0 the official download, since 1.1.1 the release page of the package, also as the only download when the folder is gone | `SuiteRecordReaderTests`, `SuiteRepairTests`, `TextsTests` | WP10-05, WP10-06, WP10-11 |
 | [x] | the player list is polled for NeoEE only (launcher 1.0.0) | `PlayerListPollingTests` | WP10-07 |
 
 ### Launcher checklist of CONTRACT 7, revision 5 additions
@@ -1138,7 +1179,19 @@ real-Windows cases are WP11-01 to WP11-05, WP13-01 to WP13-07 and WP14-01 to WP1
 | [x] | the page says that the next run of a setup writes the recommended size again (3.2) | `GraphicsTextsTests` | WP11-01, WP11-05 |
 | [x] | the Play page lists the four games, choosing one selects the installation of its product for every page, a game that is not installed is disabled, the choice is saved with one chosen folder per product (1.4, default selection, revision 6) | `PlayEntryTests`, `ProductChoicesTests`, `InstallationServiceTests`, `PlayModelTests`, `DiscoveryResultSessionProductTests` | WP13-01, WP13-02, WP13-03, WP13-04, WP13-05, WP13-07 |
 | [x] | a second launcher started without an argument brings the running one to the front instead of showing a message (1.4, revision 6) | `InstanceForwardingTests`, `LauncherInstanceTargetTests` | WP13-06 |
-| [x] | the repair advice and an available update open the download page of the product without a request, the update API gets only the requests of 4.5, also from the network check (4.3, 4.5, revision 6) | `SetupDownloadPageTests`, `UpdateApiTests`, `NetworkDestinationTests`, `UpdateModelTests` | WP14-01, WP14-02, WP14-03 |
+| [x] | the repair advice and an available update open the download page of the product without a request (since 1.1.1 an installation of the suite the release page of the package instead, 4.5), the update API gets only the requests of 4.5, also from the network check (4.3, 4.5, revision 6) | `SetupDownloadPageTests`, `UpdateApiTests`, `NetworkDestinationTests`, `UpdateModelTests` | WP14-01, WP14-02, WP14-03 |
+
+### Launcher checklist of CONTRACT 7, revision 7 additions
+
+The launcher item of "Additions of revision 7 (launcher 1.1.1)" in section 7 of [CONTRACT.md](CONTRACT.md), built in
+launcher 1.1.1 (the review after the release of 1.1.0: the advice sent an installation of the suite to the product
+setup of the community website; section 4.5 and the ADR 0008 amendment of 2026-10-08). The suite part of revision 7 is
+informative and asks nothing of the launcher. `ContractChecklistTests` checks this table like the ones above; the
+real-Windows cases are WP10-06, WP10-11 and WP7-10.
+
+| Done | Contract 7, additions of revision 7 | Unit tests | Test plan |
+|---|---|---|---|
+| [x] | the advice of an installation of the suite and an available update of it lead to the release page of the package, also without `SourceDir`, never to the product pages (1.6, 4.3, 4.4, 4.5) | `SuiteRepairTests`, `SetupDownloadPageTests`, `UpdateModelTests`, `NetworkDestinationTests` | WP10-06, WP10-11, WP7-10 |
 
 ## 16. Not in v2
 

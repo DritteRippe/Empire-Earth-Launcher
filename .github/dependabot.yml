@@ -1,11 +1,17 @@
 version: 2
 updates:
-  # Only the GitHub Actions of the workflow; NuGet packages are pinned on purpose.
+  # Only the GitHub Actions of the workflow; NuGet packages are pinned on purpose. The workflow pins every action to the
+  # commit SHA of a release with the version as a comment, and Dependabot updates both.
   - package-ecosystem: "github-actions"
     directory: "/"
     target-branch: "main"
     schedule:
       interval: "monthly"
+    # All actions in one pull request a month: the build of that pull request tests them together.
+    groups:
+      github-actions:
+        patterns:
+          - "*"
     open-pull-requests-limit: 3
     commit-message:
       prefix: "CI"

@@ -2,15 +2,18 @@
 
 What the Empire Earth Community Setup leaves on a computer and what the Empire Earth Launcher may rely
 on and change. This file exists twice, identical, as `docs/CONTRACT.md` in
-[Empire-Earth-Setup](https://github.com/EE-modders/Empire-Earth-Setup) and
-[Empire-Earth-Launcher](https://github.com/EE-modders/Empire-Earth-Launcher). Change it only in both
-repositories at once (same text, same commit subject), see [5. Versioning](#5-versioning).
+[DritteRippe/Empire-Earth-Setup](https://github.com/DritteRippe/Empire-Earth-Setup/blob/main/docs/CONTRACT.md) and
+[DritteRippe/Empire-Earth-Launcher](https://github.com/DritteRippe/Empire-Earth-Launcher/blob/main/docs/CONTRACT.md),
+the forks of the EE-modders repositories in which the setup v2, the suite and the launcher v2 are developed (the
+upstream repositories have no copy). Change it only in both repositories at once (same text, same commit subject), see
+[5. Versioning](#5-versioning). The players get both programs in the package "Empire Earth Community", from its
+[release page](https://github.com/DritteRippe/Empire-Earth-Community/releases/latest).
 
 | | |
 |---|---|
 | Contract version | **1** |
-| Status | **Draft**: specified for setup v2 and launcher v2, not implemented by a release yet |
-| Based on | setup `setup_is6.iss`, `config_ee.iss`, `config_neoee.iss`, `utils.iss` (branch `v2` at 2ce68ee, plus the task `compatibility_legacy` that revision 2 adds) and the setup's decision records 0004, 0005, 0007, 0008 and 0010 (`docs/adr`, branch `v2` at 2ce68ee), launcher `GameDirectoryLocator.cs` (branch `v2` at 79464d4) and the launcher's decision record 0016 (branch `v2` at ec02afa), the official setups 1.7.2; revision 3 also on setup `environment.iss` (branch `v2` at 3a9498d) and the launcher v2 core library with its decision records 0015 and 0016 (branch `v2` at 1b49410); revision 4 also on the setup's decision record 0013 (suite installer) and `setup_is6.iss` (branch `v2` at 332d877) and launcher `SingleInstance.cs` (branch `v2` at 19386bb); revision 5 also on the suite `suite/suite_record.iss` (branch `v2` at 85736cf), launcher `UninstallKeyScanner.cs` (branch `v2` at d454079) and the laptop test TP-93 of the setup's test plan; revision 6 also on the suite `suite/suite_common.iss` and `suite/suite_run.iss` (branch `v2`: the log parser at 826525a, the process runner at 0bf9681, the progress display at db8be16, the runner fixes at 04f80ac), the line `Install step: ...` of setup `setup_is6.iss` and the suite's point of no return (branch `v2` at 83f4528), the freeze before every stop of a product setup in `suite/suite_common.iss` and `suite/suite_run.iss` (branch `v2` at ab4451e), the download lines of setup `downloads.iss` and `utils.iss` (branch `v2` at cbd64c8), the download pages of setup `utils.iss` and `setup_is6.iss` (branch `v2` at ed5584d), the one shortcut of the suite `suite/suite_shortcuts.iss` (branch `v2` at 53d145d, its helpers in `suite/suite_common.iss` at 8c14f54), launcher `ResolutionOptions.cs` and `GameDefaultsService.cs` (branch `v2` at e8f7f98) and launcher `ProductChoices.cs`, `DiscoveryResult.cs`, `InstallationService.cs`, `InstanceForwarding.cs`, `PlayModel.cs` and `SetupDownloadPage.cs` (branch `v2` at 132bbd4), the window size limits of setup `utils.iss` (branch `v2` at ae777f5), the record value `ComponentDefaults` of setup `setup_is6.iss` (branch `v2` at 1f0c5eb) and launcher `ComputedValues.cs` and `ResolutionOptions.cs` (branch `v2` at fc46565) |
+| Status | **Released**: version 1 is implemented by suite 1.0.0 and launcher 1.0.0 (revision 5, tags `suite-v1.0.0` and `v1.0.0`, 2026-10-06) and by suite 1.1.0 and launcher 1.1.0 (revision 6, tags `suite-v1.1.0` and `v1.1.0`, 2026-10-07); revision 7 (launcher 1.1.1) is not released yet. Version 1 changes only by the rules of [5. Versioning](#5-versioning) |
+| Based on | setup `setup_is6.iss`, `config_ee.iss`, `config_neoee.iss`, `utils.iss` (branch `v2` at 2ce68ee, plus the task `compatibility_legacy` that revision 2 adds) and the setup's decision records 0004, 0005, 0007, 0008 and 0010 (`docs/adr`, branch `v2` at 2ce68ee), launcher `GameDirectoryLocator.cs` (branch `v2` at 79464d4) and the launcher's decision record 0016 (branch `v2` at ec02afa), the official setups 1.7.2; revision 3 also on setup `environment.iss` (branch `v2` at 3a9498d) and the launcher v2 core library with its decision records 0015 and 0016 (branch `v2` at 1b49410); revision 4 also on the setup's decision record 0013 (suite installer) and `setup_is6.iss` (branch `v2` at 332d877) and launcher `SingleInstance.cs` (branch `v2` at 19386bb); revision 5 also on the suite `suite/suite_record.iss` (branch `v2` at 85736cf), launcher `UninstallKeyScanner.cs` (branch `v2` at d454079) and the laptop test TP-93 of the setup's test plan; revision 6 also on the suite `suite/suite_common.iss` and `suite/suite_run.iss` (branch `v2`: the log parser at 826525a, the process runner at 0bf9681, the progress display at db8be16, the runner fixes at 04f80ac), the line `Install step: ...` of setup `setup_is6.iss` and the suite's point of no return (branch `v2` at 83f4528), the freeze before every stop of a product setup in `suite/suite_common.iss` and `suite/suite_run.iss` (branch `v2` at 61797e6), the download lines of setup `downloads.iss` and `utils.iss` (branch `v2` at cbd64c8), the download pages of setup `utils.iss` and `setup_is6.iss` (branch `v2` at ed5584d), the one shortcut of the suite `suite/suite_shortcuts.iss` (branch `v2` at 53d145d, its helpers in `suite/suite_common.iss` at 8c14f54), launcher `ResolutionOptions.cs` and `GameDefaultsService.cs` (branch `v2` at e8f7f98) and launcher `ProductChoices.cs`, `DiscoveryResult.cs`, `InstallationService.cs`, `InstanceForwarding.cs`, `PlayModel.cs` and `SetupDownloadPage.cs` (branch `v2` at 132bbd4), the window size limits of setup `utils.iss` (branch `v2` at ae777f5), the record value `ComponentDefaults` of setup `setup_is6.iss` (branch `v2` at 1f0c5eb) and launcher `ComputedValues.cs` and `ResolutionOptions.cs` (branch `v2` at fc46565); revision 7 also on launcher `RepairAdvice.cs`, `SuiteRepairLocator.cs`, `SetupDownloadPage.cs` and `UpdateModel.cs` (launcher 1.1.1: the advice of an installation of the suite at d1cbcd9, an available update of it at ad44a56, the release page on the *Tools* page at 23bac0e), the freeze of the suite `suite/suite_common.iss` (suite 1.1.1 at e3fdd82), the `SetupBuild` of the product setups in `suite/build_suite.ps1` (suite 1.1.1 at 1d2aa79), the links of the suite's uninstall key in `suite/suite.iss` (suite 1.1.1 at 6351379) and the byte samples `docs/contract-samples` of both repositories (suite 1.1.1 at 1bf282b and 6f0d468) |
 
 The key words MUST, MUST NOT, SHOULD and MAY are used as in RFC 2119. "Setup" means the EE and the
 NeoEE setup of every build variant, including their uninstallers; "launcher" means the Empire Earth
@@ -131,7 +134,7 @@ Key: `Software\Empire Earth Community\Installations\<Product>`
 | `AppId` | REG_SZ | `00000000-0000-0000-0000-000000000AEE` | AppId without braces: uninstall key `{<AppId>}_is1`, `product` of the update API ([4.5](#45-update-check-optional)) |
 | `GameVersion` | REG_SZ | `2.0.0.5` | `MyAppVersion` of the setup |
 | `SetupVersion` | REG_SZ | `2.0.0` | `MySetupVersion` of the setup |
-| `SetupBuild` | REG_SZ | `a1b2c3d` | optional: build identifier of the setup (build switch `SetupBuild`, e.g. the short Git commit, test builds `test<TestID>-<commit>`); absent if the build sets none; informative only, e.g. to tell test builds of the same `SetupVersion` apart |
+| `SetupBuild` | REG_SZ | `a1b2c3d` | optional: build identifier of the setup (build switch `SetupBuild`, e.g. the short Git commit, test builds `test<TestID>-<commit>`); absent if the build sets none; informative only, e.g. to tell test builds of the same `SetupVersion` apart. The product setups that a suite release embeds always carry one (since suite 1.1.1 `suite/build_suite.ps1` refuses them otherwise, setup decision record 0013); a setup built without it still writes none |
 | `ComponentDefaults` | REG_DWORD | `1` | optional, since revision 6: the revision of the setup's default components that this installation has received; `1` = the intro movies (`additional\movies`) belong to the installation types `full` and `compact`. A setup of 1.1.0 or later that updates an installation of the type `custom` whose record has no value or a lower one selects the components that became defaults since then once (not with `/TYPE` or `/COMPONENTS` on the command line, not for the type `raw`), then writes its own revision. Missing: a setup before 1.1.0. Setup-internal; the launcher ignores it |
 
 - Every run of the setup (first installation, update, repair, change of components) writes the record
@@ -187,6 +190,12 @@ Written=2026-10-02 18:04:31
 - Lifetime: deleted at the start of the installation step (`ssInstall`), written at the end of
   `ssPostInstall` together with the manifest ([2.1](#21-location-and-lifetime)), removed by the
   uninstaller with the setup data folder. Only the setup writes it.
+- **Byte samples** (informative): `docs/contract-samples`, next to this file in both repositories, holds synthetic
+  byte examples of `install.ini` (all three install modes, `install-user.ini` with `[MissingAfterInstall]`,
+  `install-portable.ini` without `SetupBuild`), of the manifest `files.sha256` ([2.2](#22-format)) and of the
+  registry record ([1.1](#11-registry-record), `record.reg`). The launcher tests its readers against them, the setup
+  its writers of `install.ini` and of the manifest (unit test `TestContractSamples`); both copies are compared like
+  this file ([5](#5-versioning), **O12**).
 
 ### 1.3 Uninstall key (informative)
 
@@ -218,7 +227,8 @@ in HKLM64, only if that key exists; its uninstaller removes the value with the k
 `Publisher` of EE, `Empire Earth Community`, which Windows "Apps" shows for the suite and by which
 the EE and NeoEE setups do not report it as a foreign installation (setup decision record 0007); the
 value is what tells it apart from a key of EE. A suite built before revision 5 has no such value
-([1.4](#14-discovery-by-the-launcher), source 3).
+([1.4](#14-discovery-by-the-launcher), source 3). Since suite 1.1.1 the links "Support" and "Updates" of the suite's key
+(`HelpLink`, `URLUpdateInfo`) lead to the repository the package is published in; the launcher reads neither.
 
 Other readers of this key: the setup itself (previous installation, certificate) and Empire Earth
 Diagnostic (its shortcut passes `{<AppId>}_is1`). The launcher MUST NOT write it.
@@ -356,9 +366,10 @@ products).
   uninstall key of a suite built before revision 5). A product in `Products` may have been removed since
   through its own entry in Windows "Apps", and the folder `SourceDir` may be gone.
 - The launcher MAY read the record, read-only and with an explicit view
-  ([Registry views](#registry-views)), for the repair advice ([4.4](#44-what-the-launcher-tells-the-user))
-  and, since revision 5, for source 3 of [1.4](#14-discovery-by-the-launcher). It MUST work without it,
-  also if a value is missing or invalid, and MUST NOT write or delete it.
+  ([Registry views](#registry-views)), for the repair advice ([4.4](#44-what-the-launcher-tells-the-user)),
+  since revision 5 for source 3 of [1.4](#14-discovery-by-the-launcher) and, since revision 7, to choose the
+  download of [4.3](#43-where-the-user-gets-the-setup). It MUST work without it, also if a value is missing or
+  invalid, and MUST NOT write or delete it.
 
 ### 1.7 How the suite runs a product setup (informative)
 
@@ -379,7 +390,9 @@ run, the products the user selects and the launcher:
    the line `Install step: the game folder is changed from here on` (point 5) the user can cancel; the suite
    then stops the product setup and everything it started (the setup program is only the loader of the real
    setup) and starts no further product setup. The suite takes that decision on a frozen product setup: it
-   suspends every process of the product setup, reads its log to the end and stops it only if the log shows
+   suspends every process of the product setup (since suite 1.1.1 a process that Windows reports as ending,
+   `STATUS_PROCESS_IS_TERMINATING`, or that has ended counts as ended, not as one that cannot be frozen: it runs no
+   code of its own any more; setup decision record 0013), reads its log to the end and stops it only if the log shows
    neither that line nor the start of it and Windows confirmed that the stop happened; a product setup that
    logged the line meanwhile is resumed and runs on (the cancel is too late), one that cannot be frozen, whose
    log cannot be read or that was not stopped is resumed and runs on as well (the cancel is not carried out and
@@ -550,6 +563,7 @@ be3f1b44776624b9c37b661e9711ac1d8f51628b80c33e3b60b6a56fea088c9b  Tools/Diagnost
 - **Invalid manifest**: a line of another form, or a path that is absolute, contains a drive, a `:`, a
   `\` or a `..` segment, makes the whole manifest invalid (state Unknown). The launcher never opens a
   file outside the install root because of the manifest.
+- **Byte sample** (informative): `docs/contract-samples/files.sha256` ([1.2](#12-install-info-file)).
 
 ### 2.3 Which files
 
@@ -971,7 +985,8 @@ The other way round, the setup does not install while a game mutex
 ### 4.3 Where the user gets the setup
 
 Since revision 6 the launcher and the setup send the user to the download page of the product on the
-community website, chosen by this table alone:
+community website, chosen by this table (since revision 7 the launcher sends an installation of the suite to the
+release page of the package instead, see below):
 
 | Installation | Page |
 |---|---|
@@ -993,6 +1008,25 @@ community website, chosen by this table alone:
    (informative: the server operators keep that answer pointing to a page that works, setup
    `docs/SERVER-OPERATIONS.md`).
 
+**Installation of the suite** (since revision 7): an installation that the suite installed (the suite record
+[1.6](#16-suite-record-optional) lists its product in `Products`; its install mode is `admin`; its AppId is the one the
+record embeds for that product, `EEAppId` or `NeoEEAppId`, if both are known; it is not `foreign`) is sent by the
+launcher to the release page of the package "Empire Earth Community" instead:
+`https://github.com/DritteRippe/Empire-Earth-Community/releases/latest`. The product pages lead to the official setup
+(informative: 1.7.2 in October 2026), another build with the same AppId, which replaces the installation of the suite
+in place and leaves it Unknown ([1.5](#15-installations-of-setups-up-to-172), [2.5](#25-verification-by-the-launcher)).
+The launcher MUST NOT send an installation of the suite to the product pages (launcher 1.1.0 and earlier still do).
+Points 1 to 3 apply as well: no request is made to choose the page (the record is read from the registry, read-only),
+it opens in the default browser with the rights of the launcher, and the launcher follows no redirect (informative:
+GitHub answers the address with a redirect to the newest release). Without a record, or for an installation the
+record does not cover, the table applies.
+
+The EE and NeoEE setups do not know whether the suite runs them
+([1.7](#17-how-the-suite-runs-a-product-setup-informative)) and keep the row of their own product. In the default
+mode of the suite they run silently and ask no update question; in its advanced mode (1.7 point 3) a product setup
+shows its wizard and asks its update question if the update API reports a newer version, and "Yes" opens the page of
+its product (**O13**).
+
 ### 4.4 What the launcher tells the user
 
 Localized (English, German, French; other languages fall back to English):
@@ -1003,8 +1037,14 @@ Localized (English, German, French; other languages fall back to English):
   installation in `Products` and the folder `SourceDir` exists: first to run `Empire Earth Community
   Setup.exe` again from that folder, which repairs or updates the products it installed. The launcher
   MAY open that folder in Explorer and MUST NOT start a program from it ([4.1](#41-principle)); the
-  download of [4.3](#43-where-the-user-gets-the-setup) stays the second option, e.g. if the folder is
-  gone;
+  release page of the package ([4.3](#43-where-the-user-gets-the-setup), revision 7) stays the second option.
+  If the folder is gone or `SourceDir` is missing, the advice (since revision 7) is to download the package
+  again from that page, unpack it and run `Empire Earth Community Setup.exe`, never the product setup of the
+  community website;
+- since revision 7, an available update ([4.5](#45-update-check-optional)) of an installation of the suite
+  (4.3): the update API knows the setups of the community website, not the package; the advice names the
+  release page of the package (the package gets newer versions only with a new release) and does not offer
+  to run the suite from `SourceDir`, which installs the versions it embeds;
 - keep the same folder (`<root>`) and the same install mode: "for all users" if the mode is `admin`;
 - NeoEE: keep the task "Register NeoEE CDKeys" (`neoee_cdkeys`, message `TaskNeoEECDKeys`) selected;
   this is the way to repair the CD keys;
@@ -1033,7 +1073,12 @@ check, which asks the update API to see whether the internet works, sends a requ
 A request without an answer of HTTP 200 (no connection, timeout, certificate error, another status) is
 no statement about the version: the launcher reports that it could not ask, never that the version is
 current (the setup's `CheckUpdate` then asks no update question). An available update uses the
-hand-off of [4.3](#43-where-the-user-gets-the-setup): the download page of the product.
+hand-off of [4.3](#43-where-the-user-gets-the-setup): the download page of the product, or for an installation of
+the suite the release page of the package (since revision 7, [4.4](#44-what-the-launcher-tells-the-user)).
+
+The update check does not cover the suite, the package or the launcher: after a new release of the package that
+keeps the versions of the game and of the product setups, both are still reported up to date. Since revision 7 the
+launcher says so and links the release page of the package (4.3); it sends no request to GitHub.
 
 ## 5. Versioning
 
@@ -1048,21 +1093,24 @@ hand-off of [4.3](#43-where-the-user-gets-the-setup): the download page of the p
   only the install root, the product and the AppId, reports the integrity state Unknown, offers no reset
   and suggests a launcher update.
 - A setup writes exactly the version this document describes for its release.
-- **Draft**: until the first release implements version 1, version 1 may still change. After that, only
-  by the rules above.
-- **Two copies**: the text is identical in both repositories. A change is committed to both with the same
-  subject and adds a line to the history below; `ci/compare_contract.py` of the setup repository checks
-  that the two copies are identical (**O12**).
+- **Released**: up to the first release version 1 was a draft and could still change in any way (revisions 1
+  to 5). Since suite 1.0.0 and launcher 1.0.0 (2026-10-06) installations carry `ContractVersion` 1, so version 1
+  changes only by the rules above.
+- **Two copies**: the text is identical in both repositories, and so are the byte samples `docs/contract-samples`
+  next to it. A change is committed to both with the same subject and adds a line to the history below;
+  `ci/compare_contract.py` of the setup repository checks that the two copies of this file and of the samples are
+  identical (**O12**).
 
 | Contract version | Date | Change | Setup | Launcher |
 |---|---|---|---|---|
-| 1 (draft) | 2026-10-02 | first version | v2 (planned) | v2 (planned) |
-| 1 (draft) | 2026-10-02 | revision 2026-10-02 (review of the setup v2 plan): optional `SetupBuild` (1.1, 1.2); the setup writes ASCII, the manifest with LF, `install.ini` with CRLF, and no manifest if a path is not ASCII (1.2, 2.2, O3); `Empire Earth Community: ContractVersion` in the uninstall key, Unknown if it is missing after a later run of an older setup (1.3, 1.5, 2.1, 2.5); the manifest lists every processed file (2.3); no defaults marker from portable setups (3.5); table of the compatibility values, none on Windows Vista/7 (3.7, O7); O4, O11 and O12 answered | v2 (planned) | v2 (planned) |
-| 1 (draft) | 2026-10-02 | revision 2 (second review of the setup v2 plan): tables of the window size limits (3.3) and of the GPU preference values (3.4), checked against the script like 3.2 and 3.7; opt-in row `compatibility_legacy` (Windows 7 only, the flags without a Windows version layer) and its exception from the cleanup of the old values, `(opt-in)` in the table, such a value is no leftover for the launcher (3.7, O4, O7, setup ADR 0010); while a setup runs the launcher reads neither `install.ini` nor `files.sha256` and runs no check, and opens them with `FILE_SHARE_READ` and `FILE_SHARE_DELETE` (4.2, 2.5); `Empire Earth Community: ContractVersion` only if the run replaced `install.ini` and the manifest, Unknown otherwise, not detectable for portable installations (1.3, 2.1, 2.5) | v2 (planned) | v2 (planned) |
-| 1 (draft) | 2026-10-02 | revision 3 (compatible clarifications after the reviews of setup v2 and launcher v2, which already behave so): source 4 reads key before hive, the EE and AoC folders of `foreign` installations are the real folders (the AoC folder from the same hive and view), the user choice may be the AoC folder, a registry record without `install.ini` also means `community` (1.4); Modified gets no message and no repair offer, the state may be shown (2.5); at the launcher start class S is only created, and the first run only for an installation that is unambiguous for its game settings key; class S before every game start while no other game runs; the display question until the user answers (3.2, 3.5, 3.6); a request without an answer of HTTP 200 is no statement about the version (4.5); O11 also names the `<AppId>` setup data folder of setups up to 1.7.2 | v2 (planned) | v2 (planned) |
-| 1 (draft) | 2026-10-05 | revision 4 (suite installer "Empire Earth Community", setup decision record 0013; optional additions only, no MUST or MUST NOT relaxed, 4.1 and 4.3 unchanged): names and mutexes of the suite and the launcher (0); `--product=EE` or `--product=NeoEE` selects for one session (1.4); suite record (1.6); how the suite runs a product setup, the log line `CD Keys generation result: <n>` as an interface, the guard for products installed for one user only, the removal of old product shortcuts before the suite shortcuts `Empire Earth` and `Neo Empire Earth`, the launcher outside the product roots (1.7, O10 answered); the suite mutex is a setup mutex (4.2); advice with `SourceDir` (4.4); checklist of the additions (7) | suite 1.0.0 (planned) | 1.0.0 (planned) |
-| 1 (draft) | 2026-10-06 | revision 5 (laptop test TP-93: the launcher listed the suite's own uninstall key, whose `Publisher` is that of EE, as a damaged installation of EE; optional additions only, no MUST or MUST NOT relaxed): the marker `Empire Earth Community: Suite` in the suite's uninstall key (0, 1.3); source 3 skips a key with that value, and for a suite built before revision 5 a key in HKLM with the root `InstallPath` of the suite record and no AppId the record embeds (1.4, 1.6); checklist of the additions (7) | suite 1.0.0 (planned) | 1.0.0 (planned) |
-| 1 (draft) | 2026-10-07 | revision 6 (suite 1.1.0, one window during the installation, one shortcut, and launcher 1.1.0, graphics page, one launcher for the four games; compatible, `ContractVersion` stays 1, optional additions and compatible clarifications only, no MUST or MUST NOT relaxed): the suite starts the product setups with `/VERYSILENT` instead of `/SILENT`, so that they show no progress window of their own (1.7 point 3); the lines of the product logs the suite reads for its progress display are an interface like the CD key line, among them Inno Setup's line of a file of the validated TLS transport and the new line `Install step: the game folder is changed from here on` that the product setups log as the first statement of their installation step (1.7 point 5); the suite waits for a product setup with a process handle: Cancel until that line (a product that finished before stays installed and keeps the suite's launcher, shortcut and record), a stall and a time limit that stops a product setup only before that line, every stop decided on a frozen product setup whose log was read to its end (1.7 point 2); one suite shortcut `Empire Earth Community` that starts the launcher without an argument (without .NET Framework 4.8 the game program of NeoEE, else EE), no game and no Diagnostic shortcuts, the shortcuts of suite 1.0.0 deleted (1.7 point 8); the launcher MAY save one chosen folder per product and the chosen product, and a second launcher without an argument MAY bring the running one to the front (1.4); the setup and the launcher open the download page of the product (`https://empireearth.eu/download/ee/`, `.../neo/`, `.../download/` for foreign installations) and no longer ask the update API for a download URL (4.3, 4.5, 1.1 `AppId`); the user's explicit choice of the game window size in the launcher is the consent of 3.2 to overwrite the class D values `Game Window Width` and `Game Window Height`, within the limits of 3.3, after the guard and the `.reg` backup of 3.6, without touching the marker (3.2, 3.3, 3.6); checklist of the additions (7); the height limit of the game window is 1200 instead of 1080, with a limit for screens wider than 1920 that keeps 1920 x 1080 on screens of the shape 16:9 and wider, also the limit of the user's choice (3.2, 3.3); the optional record value `ComponentDefaults`, with which the setup selects the intro movies once on the first update of a custom installation (1.1) | suite 1.1.0 (planned) | 1.1.0 (planned) |
+| 1 | 2026-10-02 | first version | v2, in suite 1.0.0 (`suite-v1.0.0`) | v2, released as 1.0.0 (`v1.0.0`) |
+| 1 | 2026-10-02 | revision 2026-10-02 (review of the setup v2 plan): optional `SetupBuild` (1.1, 1.2); the setup writes ASCII, the manifest with LF, `install.ini` with CRLF, and no manifest if a path is not ASCII (1.2, 2.2, O3); `Empire Earth Community: ContractVersion` in the uninstall key, Unknown if it is missing after a later run of an older setup (1.3, 1.5, 2.1, 2.5); the manifest lists every processed file (2.3); no defaults marker from portable setups (3.5); table of the compatibility values, none on Windows Vista/7 (3.7, O7); O4, O11 and O12 answered | v2, in suite 1.0.0 (`suite-v1.0.0`) | v2, released as 1.0.0 (`v1.0.0`) |
+| 1 | 2026-10-02 | revision 2 (second review of the setup v2 plan): tables of the window size limits (3.3) and of the GPU preference values (3.4), checked against the script like 3.2 and 3.7; opt-in row `compatibility_legacy` (Windows 7 only, the flags without a Windows version layer) and its exception from the cleanup of the old values, `(opt-in)` in the table, such a value is no leftover for the launcher (3.7, O4, O7, setup ADR 0010); while a setup runs the launcher reads neither `install.ini` nor `files.sha256` and runs no check, and opens them with `FILE_SHARE_READ` and `FILE_SHARE_DELETE` (4.2, 2.5); `Empire Earth Community: ContractVersion` only if the run replaced `install.ini` and the manifest, Unknown otherwise, not detectable for portable installations (1.3, 2.1, 2.5) | v2, in suite 1.0.0 (`suite-v1.0.0`) | v2, released as 1.0.0 (`v1.0.0`) |
+| 1 | 2026-10-02 | revision 3 (compatible clarifications after the reviews of setup v2 and launcher v2, which already behave so): source 4 reads key before hive, the EE and AoC folders of `foreign` installations are the real folders (the AoC folder from the same hive and view), the user choice may be the AoC folder, a registry record without `install.ini` also means `community` (1.4); Modified gets no message and no repair offer, the state may be shown (2.5); at the launcher start class S is only created, and the first run only for an installation that is unambiguous for its game settings key; class S before every game start while no other game runs; the display question until the user answers (3.2, 3.5, 3.6); a request without an answer of HTTP 200 is no statement about the version (4.5); O11 also names the `<AppId>` setup data folder of setups up to 1.7.2 | v2, in suite 1.0.0 (`suite-v1.0.0`) | v2, released as 1.0.0 (`v1.0.0`) |
+| 1 | 2026-10-05 | revision 4 (suite installer "Empire Earth Community", setup decision record 0013; optional additions only, no MUST or MUST NOT relaxed, 4.1 and 4.3 unchanged): names and mutexes of the suite and the launcher (0); `--product=EE` or `--product=NeoEE` selects for one session (1.4); suite record (1.6); how the suite runs a product setup, the log line `CD Keys generation result: <n>` as an interface, the guard for products installed for one user only, the removal of old product shortcuts before the suite shortcuts `Empire Earth` and `Neo Empire Earth`, the launcher outside the product roots (1.7, O10 answered); the suite mutex is a setup mutex (4.2); advice with `SourceDir` (4.4); checklist of the additions (7) | suite 1.0.0 (`suite-v1.0.0`) | 1.0.0 (`v1.0.0`) |
+| 1 | 2026-10-06 | revision 5 (laptop test TP-93: the launcher listed the suite's own uninstall key, whose `Publisher` is that of EE, as a damaged installation of EE; optional additions only, no MUST or MUST NOT relaxed): the marker `Empire Earth Community: Suite` in the suite's uninstall key (0, 1.3); source 3 skips a key with that value, and for a suite built before revision 5 a key in HKLM with the root `InstallPath` of the suite record and no AppId the record embeds (1.4, 1.6); checklist of the additions (7) | suite 1.0.0 (`suite-v1.0.0`) | 1.0.0 (`v1.0.0`) |
+| 1 | 2026-10-07 | revision 6 (suite 1.1.0, one window during the installation, one shortcut, and launcher 1.1.0, graphics page, one launcher for the four games; compatible, `ContractVersion` stays 1, optional additions and compatible clarifications only, no MUST or MUST NOT relaxed): the suite starts the product setups with `/VERYSILENT` instead of `/SILENT`, so that they show no progress window of their own (1.7 point 3); the lines of the product logs the suite reads for its progress display are an interface like the CD key line, among them Inno Setup's line of a file of the validated TLS transport and the new line `Install step: the game folder is changed from here on` that the product setups log as the first statement of their installation step (1.7 point 5); the suite waits for a product setup with a process handle: Cancel until that line (a product that finished before stays installed and keeps the suite's launcher, shortcut and record), a stall and a time limit that stops a product setup only before that line, every stop decided on a frozen product setup whose log was read to its end (1.7 point 2); one suite shortcut `Empire Earth Community` that starts the launcher without an argument (without .NET Framework 4.8 the game program of NeoEE, else EE), no game and no Diagnostic shortcuts, the shortcuts of suite 1.0.0 deleted (1.7 point 8); the launcher MAY save one chosen folder per product and the chosen product, and a second launcher without an argument MAY bring the running one to the front (1.4); the setup and the launcher open the download page of the product (`https://empireearth.eu/download/ee/`, `.../neo/`, `.../download/` for foreign installations) and no longer ask the update API for a download URL (4.3, 4.5, 1.1 `AppId`); the user's explicit choice of the game window size in the launcher is the consent of 3.2 to overwrite the class D values `Game Window Width` and `Game Window Height`, within the limits of 3.3, after the guard and the `.reg` backup of 3.6, without touching the marker (3.2, 3.3, 3.6); checklist of the additions (7); the height limit of the game window is 1200 instead of 1080, with a limit for screens wider than 1920 that keeps 1920 x 1080 on screens of the shape 16:9 and wider, also the limit of the user's choice (3.2, 3.3); the optional record value `ComponentDefaults`, with which the setup selects the intro movies once on the first update of a custom installation (1.1) | suite 1.1.0 (`suite-v1.1.0`) | 1.1.0 (`v1.1.0`) |
+| 1 | 2026-10-08 | revision 7 (launcher 1.1.1, after the review of the release 1.1.0; compatible, `ContractVersion` stays 1, no MUST or MUST NOT relaxed): the launcher sends an installation of the suite (the suite record lists its product, mode `admin`, the AppId the record embeds, not `foreign`) to the release page of the package `https://github.com/DritteRippe/Empire-Earth-Community/releases/latest` instead of the product pages, which lead to the official setup with the same AppId, and MUST NOT send it to the product pages; the launcher may read the suite record for that (4.3, 1.6); without `SourceDir` the advice is to download the package again, an available update of such an installation names the release page and not the run of the suite from `SourceDir`, and the update check does not cover the package (4.4, 4.5); informative: a process of a product setup that is ending counts as ended in the freeze (1.7 point 2), the product setups of a suite release always carry a `SetupBuild` (1.1), the links of the suite's uninstall key (1.3), the byte samples `docs/contract-samples` are compared like this file (1.2, 2.2, 5, O12), the update question of a product setup in the advanced mode of the suite (4.3, O13 added); checklist of the additions (7); status Released with the releases of this table, the links at the top lead to the forks of DritteRippe, the commit of the freeze in "Based on" corrected to 61797e6 | suite 1.1.1 (planned; informative text only) | 1.1.1 (planned) |
 
 ## 6. Open questions
 
@@ -1117,9 +1165,18 @@ hand-off of [4.3](#43-where-the-user-gets-the-setup): the download page of the p
   other) and recommends another folder. "Yes" (default) stays on the folder page, "No" continues.
   Silent installations only log it. The launcher rule of [1.4](#14-discovery-by-the-launcher) stays.
 - **O12 Copy check** (answered locally): CI has no access to the other repository. The setup repository
-  has `ci/compare_contract.py <path of the other clone>`, which compares the SHA-256 of both copies
-  (exit code 0: identical, 1: different, both hashes printed, 2: a file is missing). Every change of
-  this file is one step in both repositories and runs it.
+  has `ci/compare_contract.py <path of the other clone>`, which compares the SHA-256 of both copies of this
+  file and, file by file, both copies of the byte samples `docs/contract-samples` (exit code 0: identical,
+  1: different, the hashes and the first differing line printed, 2: a file or the folder is missing). Every
+  change of this file or of a sample is one step in both repositories and runs it.
+- **O13 Update question in the advanced mode of the suite**: a product setup that does not run silently asks
+  the update API and, if it reports a newer version of the game or of the setup, asks whether to download it;
+  "Yes" opens the page of its product ([4.3](#43-where-the-user-gets-the-setup)) and ends the product setup. In
+  the default mode the suite runs the product setups silently, so they do not ask; in its advanced mode
+  ([1.7](#17-how-the-suite-runs-a-product-setup-informative) point 3) they show their wizard and can ask, which
+  would lead an installation of the suite to the official setup (4.3). Open: should the suite pass a switch in its
+  advanced mode with which a product setup skips that question (the package fixes the versions it installs)? Such a
+  switch changes the product setups and 1.7 point 3 in the same commit, in both copies.
 
 ## 7. Implementation checklist
 
@@ -1261,3 +1318,19 @@ suite part asks nothing of it):
   `https://empireearth.eu/download/` for a foreign one, without a request
   ([4.3](#43-where-the-user-gets-the-setup)); the update API gets only the requests of
   [4.5](#45-update-check-optional), also from the network check.
+
+### Additions of revision 7 (launcher 1.1.1)
+
+Suite 1.1.1 and the product setups (revision 7): no new item. The text of revision 7 about them is informative: a
+process of a product setup that is ending counts as ended in the freeze
+([1.7](#17-how-the-suite-runs-a-product-setup-informative) point 2), the product setups of a suite release carry a
+`SetupBuild` ([1.1](#11-registry-record)), the links of the suite's uninstall key
+([1.3](#13-uninstall-key-informative)) and the byte samples `docs/contract-samples` ([1.2](#12-install-info-file),
+**O12**); the update question of a product setup in the advanced mode of the suite is open (**O13**).
+
+Launcher 1.1.1 (revision 7; the launcher works without the suite record as before):
+
+- the advice of an installation of the suite and an available update of it lead to the release page of the package,
+  also without `SourceDir`, never to the product pages ([1.6](#16-suite-record-optional),
+  [4.3](#43-where-the-user-gets-the-setup), [4.4](#44-what-the-launcher-tells-the-user),
+  [4.5](#45-update-check-optional)).

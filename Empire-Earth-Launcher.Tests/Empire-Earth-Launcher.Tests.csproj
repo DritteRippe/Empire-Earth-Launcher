@@ -83,6 +83,7 @@
     <Compile Include="Architecture\WindowMessageRulesTests.cs" />
     <Compile Include="Architecture\UiOperationRestoreTests.cs" />
     <Compile Include="Architecture\WrapLabelRulesTests.cs" />
+    <Compile Include="Architecture\ZipStorerUseTests.cs" />
     <Compile Include="Core\Backup\BackupLocationsTests.cs" />
     <Compile Include="Core\Backup\FileBackupTests.cs" />
     <Compile Include="Core\Backup\RegFileWriterTests.cs" />
@@ -133,6 +134,7 @@
     <Compile Include="Core\Lobby\LobbyProfileRepositoryTests.cs" />
     <Compile Include="Core\Lobby\PlayerListPollerTests.cs" />
     <Compile Include="Core\Lobby\PlayerListPollingTests.cs" />
+    <Compile Include="Core\Logging\LogFileSharingTests.cs" />
     <Compile Include="Core\Logging\LogTrimmingTests.cs" />
     <Compile Include="Core\Maintenance\CleanupAdviceTests.cs" />
     <Compile Include="Core\Maintenance\CleanupCandidatesTests.cs" />
@@ -239,6 +241,7 @@
     <Compile Include="Mod\ModDataTests.cs" />
     <Compile Include="Mod\ModFileTests.cs" />
     <Compile Include="Mod\ModPackageBuilderTests.cs" />
+    <Compile Include="Mod\ZipStorerTests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\SharedAssemblyInfo.cs">

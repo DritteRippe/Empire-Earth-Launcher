@@ -1,0 +1,32 @@
+name: Feature request
+description: An idea for the launcher or the mod creator
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for the idea. Please check the list "Planned, not in v2" in the
+        [README](https://github.com/DritteRippe/Empire-Earth-Launcher#-features) first; it may be planned already.
+
+        Some limits are on purpose: the launcher never changes game files or the CD keys, never asks for administrator
+        rights, never downloads or starts a setup and shows only features that work
+        ([ADR 0014](https://github.com/DritteRippe/Empire-Earth-Launcher/blob/main/docs/adr/0014-only-working-features-in-the-ui.md)).
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would it solve?
+      description: What do you want to do, and what stops you today?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+      description: How could the launcher or the mod creator help? Screenshots or sketches are welcome.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives or workarounds
+      description: What do you do today instead?

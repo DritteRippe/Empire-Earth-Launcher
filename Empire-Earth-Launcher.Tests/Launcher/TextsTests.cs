@@ -418,7 +418,8 @@ namespace Empire_Earth_Launcher.Tests.Launcher
         public void RepairSteps_Contract_4_4_WithTheSuiteFolder_TheSuiteStepComesFirst()
         {
             const string Folder = @"C:\Users\Anna\Downloads\Empire Earth Community";
-            RepairAdvice advice = RepairAdvice.For(PlayInstallation(), RepairReason.ProgramMissing, new[] { Game.EmpireEarth }, Folder);
+            RepairAdvice advice = RepairAdvice.For(PlayInstallation(), RepairReason.ProgramMissing, new[] { Game.EmpireEarth },
+                new SuitePackage(Folder));
 
             Assert.That(Texts.RepairSteps(advice).Split(new[] { Environment.NewLine }, StringSplitOptions.None), Is.EqualTo(new[]
             {
@@ -430,6 +431,39 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             }));
             Assert.That(Texts.RepairSteps(advice), Does.Not.Contain("Download the current community setup"),
                 "the download is the second option below the steps, not a step");
+        }
+
+        [Test]
+        public void RepairSteps_TheSuiteWithoutItsFolder_DownloadsThePackageAgain_NotTheCommunitySetup()
+        {
+            RepairAdvice advice = RepairAdvice.For(PlayInstallation(), RepairReason.Requested, suite: new SuitePackage(null));
+
+            Assert.That(Texts.RepairSteps(advice).Split(new[] { Environment.NewLine }, StringSplitOptions.None), Is.EqualTo(new[]
+            {
+                "1. Close the game. Download the package \"Empire Earth Community\" again from its release page below, unpack the " +
+                "ZIP file and run \"Empire Earth Community Setup\" from the unpacked folder: it repairs or updates the games it " +
+                "installed. Do not use the setup from empireearth.eu for this: it is a different setup and would undo the fixes " +
+                "of the package.",
+                "2. Keep the folder " + PlayRoot + " and choose \"Install for all users\" again.",
+                "3. Keep the task \"Register NeoEE CDKeys\" selected: it also repairs the CD keys."
+            }));
+        }
+
+        [Test]
+        public void RepairSteps_AnUpdateOfTheSuite_IsANewReleaseOfThePackage_NotTheSuiteAgain()
+        {
+            var update = new VersionCheckResult(PlayInstallation(), VersionKind.Game, "2.0.0.5", VersionCheckOutcome.UpdateAvailable,
+                "2.0.1", UpdateApiFailure.None);
+            RepairAdvice advice = RepairAdvice.ForUpdate(update, new SuitePackage(@"C:\Users\Anna\Downloads\Empire Earth Community"));
+
+            string first = Texts.RepairSteps(advice).Split(new[] { Environment.NewLine }, StringSplitOptions.None)[0];
+
+            Assert.That(first, Is.EqualTo("1. The update server of empireearth.eu reports this version for its own setups. Your " +
+                                          "installation comes from the package \"Empire Earth Community\", which brings its own setups " +
+                                          "and gets newer versions only as a new release: look on its release page below whether there " +
+                                          "is a newer one. If there is, close the game, unpack the new package and run \"Empire Earth " +
+                                          "Community Setup\" from it. A setup from empireearth.eu would undo the fixes of the package."));
+            Assert.That(Texts.RepairSteps(advice), Does.Not.Contain("again from the folder you unpacked it to"));
         }
 
         [Test]
@@ -597,7 +631,8 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(Texts.IntegrityExplanation(IntegrityReport.Unknown(community, IntegrityCheckKind.Quick, UnknownReason.LegacySetup)),
                 Is.EqualTo("Installed by the community setup 1.7.2 or older, which writes no list of files. Run the current setup to enable the check."));
             Assert.That(Texts.IntegrityExplanation(IntegrityReport.Unknown(community, IntegrityCheckKind.Quick, UnknownReason.OlderSetupRanAfter)),
-                Is.EqualTo("An older setup ran after the current one, or the last setup could not replace its records. Run the current setup."));
+                Is.EqualTo("An older setup ran after the current one, or the last setup could not replace its records. Repair the " +
+                           "installation with the steps of the repair advice."));
             foreach (UnknownReason reason in new[] { UnknownReason.NoInstallInfo, UnknownReason.NoManifest,
                          UnknownReason.ManifestUnreadable, UnknownReason.InvalidManifest })
                 Assert.That(Texts.IntegrityExplanation(IntegrityReport.Unknown(community, IntegrityCheckKind.Quick, reason)),
@@ -677,9 +712,10 @@ namespace Empire_Earth_Launcher.Tests.Launcher
             Assert.That(Texts.VersionResult(Result(VersionKind.Game, VersionCheckOutcome.UpToDate)), Is.EqualTo("Game version 2.0.0.5: up to date."));
             Assert.That(Texts.VersionResult(Result(VersionKind.Game, VersionCheckOutcome.UpdateAvailable, "?")),
                 Is.EqualTo("Game version 2.0.0.5: version ? is available."));
-            Assert.That(Texts.VersionResult(Result(VersionKind.Setup, VersionCheckOutcome.UpToDate)), Is.EqualTo("Setup version 2.0.0: up to date."));
+            Assert.That(Texts.VersionResult(Result(VersionKind.Setup, VersionCheckOutcome.UpToDate)),
+                Is.EqualTo("Version 2.0.0 of the NeoEE setup: up to date."), "the setup of the game, not the package");
             Assert.That(Texts.VersionResult(Result(VersionKind.Setup, VersionCheckOutcome.UpdateAvailable, "2.1.0")),
-                Is.EqualTo("Setup version 2.0.0: version 2.1.0 is available."));
+                Is.EqualTo("Version 2.0.0 of the NeoEE setup: version 2.1.0 is available."));
             Assert.That(Texts.VersionResult(Result(VersionKind.Game, VersionCheckOutcome.NotPossible)), Does.StartWith("No version check:"));
             Assert.That(Texts.VersionResult(Result(VersionKind.Game, VersionCheckOutcome.Failed, null, UpdateApiFailure.TlsError)),
                 Is.EqualTo("The update server could not be asked (the secure connection failed); details in the log."));

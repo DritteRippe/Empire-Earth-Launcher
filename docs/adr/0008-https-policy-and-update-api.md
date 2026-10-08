@@ -1,7 +1,8 @@
 # 0008 HTTPS policy and use of the update API
 
 Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review; implementation in L-WP7 and L-WP9),
-see the Amendment sections
+2026-10-07 (launcher 1.1.0: the download pages) and 2026-10-08 (launcher 1.1.1: the release page of the package; the text
+of an answer), see the Amendment sections
 
 ## Context
 
@@ -176,3 +177,66 @@ URL check let it pass because it is a subdomain of `empireearth.eu`. The website
 
 Evidence: `Core/Repair/SetupDownloadPageTests`, `Core/Repair/UpdateApiTests`, `Core/Repair/UpdateCheckerTests`,
 `Launcher/UpdateModelTests`, `Architecture/NetworkDestinationTests`; test plan WP7-12, WP14-01 to WP14-03, W7-05.
+
+## Amendment 2026-10-08 (launcher 1.1.1: the release page of the package)
+
+The review after the release of 1.1.0 found that the repair advice sent an installation of the suite "Empire Earth
+Community" to the download page of its product. The website redirects that page to the official setup (in October 2026
+version 1.7.2, contract 4.3 point 3), another build with the AppId of the setup the suite embeds: it updates the
+installation in place, undoes fixes of the package and leaves the installation Unknown (`OlderSetupRanAfter`, contract
+1.5), for which the advice named the same page again. Since launcher 1.1.1:
+
+- **One more page, opened in the browser only**: the release page of the package,
+  `https://github.com/DritteRippe/Empire-Earth-Community/releases/latest` (`Repair.SetupDownloadPage.PackageRelease`). It is
+  the download for an installation the suite installed (its record lists the product, contract 1.6;
+  `SuiteRepairLocator.PackageFor`, `SuitePackage`): the second option below the step that runs the suite from its folder
+  again, and the only download when that folder is gone. An installation the suite did not install keeps the page of its
+  product.
+- **An available update of an installation of the suite** (contract 4.5) leads to the release page as well, with its own
+  step (`RepairStep.UpdateWithNewPackage`) instead of the run of the suite from its folder: the update API answers for the
+  setups of the community website, and the suite of the folder installs only the versions it embeds. The package gets
+  newer versions only as a new release; the step says so and names the release page, and the window offers no
+  "Open setup folder" for it.
+- **The version check does not cover the package**: it asks about the game and the product setup, which a new release of
+  the package may keep (1.7.2), so it can say "up to date" while a newer package exists. The *Tools* page says so and has
+  a button "Open release page" next to "Check for updates" (`UpdateModel.OpenPackageReleasePage`); the setup line of the
+  result names the product ("Version 1.7.2 of the Empire Earth setup: up to date."). The launcher does not ask for the
+  newest release: that would be a new destination.
+- **No new destination**: the page opens like the download pages, after a click, through the shell and not elevated
+  (`SetupDownloadPage.Open`, also used for the pages of contract 4.3). The launcher sends no request to GitHub (neither to
+  the page nor to the GitHub API) and follows no redirect; GitHub answers `/releases/latest` with the release marked
+  "Latest", so the address never has to change with a version.
+- **Chosen by the suite record, not by the installation alone**: `SetupDownloadPage.For` keeps the table of contract 4.3,
+  and `RepairAdvice.DownloadUrl` takes the release page when `InstalledBySuite`. When this amendment was written, the
+  contract had no row for it, and the launcher departed from the wording of 4.3 and 4.4 ("the download of 4.3 stays the
+  second option") in this one case. Contract revision 7 (the same day, in both repositories) adopted it: a paragraph
+  "Installation of the suite" in 4.3 (not a row of its table) with a MUST NOT for the product pages, and 4.4 and 4.5
+  match, so the launcher keeps to the contract again. No MUST or MUST NOT of 4.1 changes: the launcher still downloads,
+  starts and elevates nothing.
+- **`NetworkDestinationTests`** allow the update API, the three pages of contract 4.3 and the release page as URL literals
+  and nothing else; new self-tests show that a download of the ZIP file and the GitHub API are found.
+
+Evidence: `Core/Repair/SuiteRepairTests`, `Core/Repair/SetupDownloadPageTests`, `Launcher/TextsTests`,
+`Launcher/UpdateModelTests`, `Architecture/NetworkDestinationTests`; test plan WP7-10, WP7-11, WP10-05, WP10-06, WP10-11,
+WP14-04.
+
+## Amendment 2026-10-08 (launcher 1.1.1: the text of an answer)
+
+The review after the release of 1.1.0 found that `HttpsClient.GetAsync` read the body with
+`HttpContent.ReadAsStringAsync`, which throws an `InvalidOperationException` when the `Content-Type` names a character set
+Windows does not know (`charset=foo`; on the .NET Framework also a quoted `charset="utf-8"`, whose quotes it passes on).
+Only cancellations and `HttpRequestException` were caught, so such an answer of the update API, or of a proxy in between,
+ended the version check and the whole network diagnostics (`Task.WhenAll`) as an unexpected error, against the rule of
+the L-WP7 amendment that errors are results, never exceptions. Since launcher 1.1.1:
+
+- **The client decodes the answer itself** (`HttpsClient.DecodeBody`), from the bytes the buffer of the client holds (the
+  4 KiB limit is unchanged): with the character set of the `Content-Type` if Windows knows it (quotes removed), else with
+  the one a byte order mark names, else as UTF-8; the mark is not part of the text. This is what `ReadAsStringAsync` does
+  for every answer it could read, so no such answer changes; an unknown character set counts as none, and invalid bytes
+  become U+FFFD. Nothing in the decoding throws. The update API answers in ASCII.
+- **The tests send requests without a network**: `HttpsClient.GetAsync(HttpClient, ...)` (internal) runs the request of
+  the launcher on a client of `CreateClient` over a handler that answers from memory; the launcher's own client is still
+  never created in a test (`TestIsolationTests`).
+
+Evidence: `Core/Platform/HttpsClientTests` (`GetAsync_WithAnyCharacterSet_GivesTheAnswer`,
+`GetAsync_AnAnswerOfFourKiB_IsRead_ALargerOneIsANetworkError` and the `DecodeBody` cases).

@@ -758,6 +758,14 @@ Your current settings are saved first as .reg files in {1}; double-click such a 
     <value>Close the game. Run "Empire Earth Community Setup" again from the folder you unpacked it to ({0}): it repairs or updates the games it installed.</value>
     <comment>Step of the repair advice when the suite record lists the product and its folder exists (contract 4.4, revision 4). {0}: the folder the suite was started from (SourceDir). The quoted text is the name of the suite setup file.</comment>
   </data>
+  <data name="RepairStepDownloadPackage" xml:space="preserve">
+    <value>Close the game. Download the package "Empire Earth Community" again from its release page below, unpack the ZIP file and run "Empire Earth Community Setup" from the unpacked folder: it repairs or updates the games it installed. Do not use the setup from empireearth.eu for this: it is a different setup and would undo the fixes of the package.</value>
+    <comment>Step of the repair advice when the suite record lists the product but the folder the suite was started from is gone (since launcher 1.1.1). The first quoted text is the name of the package, the second the name of the suite setup file; the release page is the GitHub page of the package shown below the steps. empireearth.eu is not translated.</comment>
+  </data>
+  <data name="RepairStepUpdateWithNewPackage" xml:space="preserve">
+    <value>The update server of empireearth.eu reports this version for its own setups. Your installation comes from the package "Empire Earth Community", which brings its own setups and gets newer versions only as a new release: look on its release page below whether there is a newer one. If there is, close the game, unpack the new package and run "Empire Earth Community Setup" from it. A setup from empireearth.eu would undo the fixes of the package.</value>
+    <comment>The only setup step of the advice of an available update when the suite installed the product (since launcher 1.1.1): the version above comes from the update server, which knows the setups of empireearth.eu, not the package; running the suite of the unpacked folder again would install the same versions. The first quoted text is the name of the package, the second the name of the suite setup file; the release page is the GitHub page of the package shown below the steps. empireearth.eu is not translated.</comment>
+  </data>
   <data name="RepairStepKeepFolderAllUsersFormat" xml:space="preserve">
     <value>Keep the folder {0} and choose "Install for all users" again.</value>
     <comment>Step of the repair advice for an installation in the mode admin (contract 4.4). {0}: the install root. The quoted text is the option of Inno Setup in this language (PrivilegesRequiredOverrideAllUsers without the &amp;).</comment>
@@ -787,8 +795,12 @@ Your current settings are saved first as .reg files in {1}; double-click such a 
     <comment>Repair advice, above the address of the download page (contract 4.3).</comment>
   </data>
   <data name="RepairDownloadPageSuiteLabel" xml:space="preserve">
-    <value>If that folder is gone, download the community setup instead:</value>
-    <comment>Repair advice with the suite step, above the address of the download page, which stays the second option (contract 4.4, revision 4).</comment>
+    <value>If that folder is gone, download the package "Empire Earth Community" again from its release page:</value>
+    <comment>Repair advice with the suite step, above the address of the release page of the package, which stays the second option (contract 4.4, revision 4; up to launcher 1.1.0 the download page of the product setup).</comment>
+  </data>
+  <data name="RepairPackagePageLabel" xml:space="preserve">
+    <value>Release page of the package "Empire Earth Community":</value>
+    <comment>Repair advice of an installation of the suite whose folder is gone, and the advice of an available update of an installation of the suite, above the address of the release page of the package (since launcher 1.1.1).</comment>
   </data>
   <data name="RepairOpenPageButton" xml:space="preserve">
     <value>Open download page</value>
@@ -919,8 +931,8 @@ Your current settings are saved first as .reg files in {1}; double-click such a 
     <comment>Tools page, state Unknown (contract 5: a newer contract version).</comment>
   </data>
   <data name="IntegrityUnknownOlderSetup" xml:space="preserve">
-    <value>An older setup ran after the current one, or the last setup could not replace its records. Run the current setup.</value>
-    <comment>Tools page, state Unknown: the uninstall key lacks the contract version (contract 2.5).</comment>
+    <value>An older setup ran after the current one, or the last setup could not replace its records. Repair the installation with the steps of the repair advice.</value>
+    <comment>Tools page and repair advice, state Unknown: the uninstall key lacks the contract version (contract 2.5), typically after an older setup ran over the installation. Since launcher 1.1.1 it refers to the steps of the repair advice (RepairAdviceButton), which for an installation of the suite lead to the package, not to "the current setup", which may be taken for the setup of empireearth.eu.</comment>
   </data>
   <data name="IntegrityUnknownNoRecords" xml:space="preserve">
     <value>The last run of the setup did not finish, or the setup could not write its list of files. Run the setup again to repair the installation.</value>
@@ -986,9 +998,13 @@ Your current settings are saved first as .reg files in {1}; double-click such a 
     <value>Check for updates</value>
     <comment>Button on the Tools page: asks the update server about the game and the setup version (contract 4.5); at most about 26 characters.</comment>
   </data>
+  <data name="PackageReleasePageButton" xml:space="preserve">
+    <value>Open release page</value>
+    <comment>Button of the Updates section of the Tools page, next to "Check for updates" (since launcher 1.1.1): opens the release page of the package "Empire Earth Community" on GitHub in the browser, because the version check does not cover the package; at most about 30 characters.</comment>
+  </data>
   <data name="VersionCheckInfo" xml:space="preserve">
-    <value>Asks api.empireearth.eu whether the installed game and setup are current. Only the AppId of the installation and the version are sent.</value>
-    <comment>Below the heading of the version check on the Tools page (contract 4.3: no telemetry).</comment>
+    <value>Asks api.empireearth.eu whether the installed game and the setup of the game (Empire Earth or NeoEE) are current. Only the AppId of the installation and the version are sent. The package "Empire Earth Community" with its setup and this launcher is not checked: new versions of the package appear on its release page.</value>
+    <comment>Below the heading of the version check on the Tools page (contract 4.3: no telemetry). Since launcher 1.1.1 it also says that the check does not cover the package "Empire Earth Community" (the suite setup, the launcher), whose release page the button PackageReleasePageButton opens.</comment>
   </data>
   <data name="VersionChecking" xml:space="preserve">
     <value>Asking the update server...</value>
@@ -1003,12 +1019,12 @@ Your current settings are saved first as .reg files in {1}; double-click such a 
     <comment>Result of the version check (contract 4.5). {0}: the installed game version, {1}: the latest version or ?.</comment>
   </data>
   <data name="VersionSetupUpToDateFormat" xml:space="preserve">
-    <value>Setup version {0}: up to date.</value>
-    <comment>Result of the version check (contract 4.5). {0}: the version of the setup that installed the game.</comment>
+    <value>Version {0} of the {1} setup: up to date.</value>
+    <comment>Result of the version check (contract 4.5). {0}: the version of the setup that installed the game; {1}: its product, Empire Earth or NeoEE (not translated). It is the setup of the game, not the package "Empire Earth Community", whose version the update server does not know.</comment>
   </data>
   <data name="VersionSetupUpdateFormat" xml:space="preserve">
-    <value>Setup version {0}: version {1} is available.</value>
-    <comment>Result of the version check (contract 4.5). {0}: the installed setup version, {1}: the latest version or ?.</comment>
+    <value>Version {0} of the {1} setup: version {2} is available.</value>
+    <comment>Result of the version check (contract 4.5). {0}: the installed setup version; {1}: its product, Empire Earth or NeoEE (not translated); {2}: the latest version or ?.</comment>
   </data>
   <data name="VersionNotPossible" xml:space="preserve">
     <value>No version check: only installations of the community setup with a recorded version can be checked.</value>

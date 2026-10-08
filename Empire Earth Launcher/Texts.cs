@@ -489,6 +489,10 @@ namespace Empire_Earth_Launcher
                     return Resources.RepairStepRunSetup;
                 case Core.Repair.RepairStep.RunSuiteSetupAgain:
                     return string.Format(CultureInfo.CurrentCulture, Resources.RepairStepRunSuiteFormat, advice.SuiteFolder);
+                case Core.Repair.RepairStep.DownloadPackageAndRunSuite:
+                    return Resources.RepairStepDownloadPackage;
+                case Core.Repair.RepairStep.UpdateWithNewPackage:
+                    return Resources.RepairStepUpdateWithNewPackage;
                 case Core.Repair.RepairStep.KeepFolderAndMode:
                     string format;
                     switch (advice.Installation.Mode)
@@ -735,7 +739,11 @@ namespace Empire_Earth_Launcher
 
         // --- Update API (L-WP7, contract 4.3 and 4.5) ---------------------------------------------------------------
 
-        /// <summary>The result of a version check in one line (contract 4.5).</summary>
+        /// <summary>
+        /// The result of a version check in one line (contract 4.5). The setup line names the product whose setup installed the
+        /// game ("the Empire Earth setup"), so that it is not taken for the package "Empire Earth Community", whose version the
+        /// update API does not know.
+        /// </summary>
         internal static string VersionResult(VersionCheckResult result)
         {
             if (result == null)
@@ -744,12 +752,16 @@ namespace Empire_Earth_Launcher
             switch (result.Outcome)
             {
                 case VersionCheckOutcome.UpToDate:
-                    return string.Format(CultureInfo.CurrentCulture,
-                        game ? Resources.VersionGameUpToDateFormat : Resources.VersionSetupUpToDateFormat, result.InstalledVersion);
+                    return game
+                        ? string.Format(CultureInfo.CurrentCulture, Resources.VersionGameUpToDateFormat, result.InstalledVersion)
+                        : string.Format(CultureInfo.CurrentCulture, Resources.VersionSetupUpToDateFormat, result.InstalledVersion,
+                            result.Installation.Product.AppName);
                 case VersionCheckOutcome.UpdateAvailable:
-                    return string.Format(CultureInfo.CurrentCulture,
-                        game ? Resources.VersionGameUpdateFormat : Resources.VersionSetupUpdateFormat, result.InstalledVersion,
-                        result.LatestVersion);
+                    return game
+                        ? string.Format(CultureInfo.CurrentCulture, Resources.VersionGameUpdateFormat, result.InstalledVersion,
+                            result.LatestVersion)
+                        : string.Format(CultureInfo.CurrentCulture, Resources.VersionSetupUpdateFormat, result.InstalledVersion,
+                            result.Installation.Product.AppName, result.LatestVersion);
                 case VersionCheckOutcome.NotPossible:
                     return Resources.VersionNotPossible;
                 default:

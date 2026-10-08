@@ -1,8 +1,8 @@
 # 0012 Test strategy
 
 Status: **Accepted** (2026-10-02), amended 2026-10-02 (design review; plan review; implementation in L-WP5, L-WP6,
-L-WP7, L-WP8 and L-WP9), 2026-10-03 (CI end-to-end test; WinForms tests) and 2026-10-06 (geometry tests; resizable layout;
-Play and Launcher pages) and 2026-10-07 (the Graphics and Mods pages), see the
+L-WP7, L-WP8 and L-WP9), 2026-10-03 (CI end-to-end test; WinForms tests), 2026-10-06 (geometry tests; resizable layout;
+Play and Launcher pages), 2026-10-07 (the Graphics and Mods pages) and 2026-10-08 (review of the mod library), see the
 Amendment sections
 
 ## Context
@@ -427,3 +427,29 @@ The launcher's part of that job is to run its core against the real installation
   other files, and allow the model only `OpenFolder` and `OpenFile` of the shell; `ApplyTextsTests` lists `ModsUserControl`,
   `MainWindowLayoutTests` the sixth page and navigation button; `NavigationStackTests` check where the buttons sit when the
   button of the page comes and goes.
+
+## Amendment 2026-10-08 (review of the mod library and the mod creator, launcher 1.1.1)
+
+- **The vendored ZipStorer is tested where the project changed it.** `ZipStorerTests` (`Mod/`) has one test per local
+  modification listed in the header of `ZipStorer.cs` and in `THIRD-PARTY-NOTICES.md`, and each fails without it: the extra
+  fields of an entry are read only up to their end (backport of upstream issue #71; an archive whose name lengths sent the old
+  parser to the times of another entry, and a comment that starts like a ZIP64 field at the end of the directory), and a central
+  directory that does not lie before the end records is rejected (the ZIP64 end record of a written archive is changed; only
+  its case of a negative size was rejected before as well, by the catch-all of `ReadFileInfo`). A local
+  simulation of 3000 archives laid out like the ones of the mod creator, not committed, found 9 that the unchanged version could
+  not read back and none after the backport.
+- **Damaged and crafted archives.** `ModArchiveTests` change single fields of archives that ZipStorer wrote (a time of 31:00, a
+  name length beyond the directory, a declared size larger than the entry) and check that the reader throws the documented
+  `InvalidDataException` with a message that says what is wrong. The paths of the mod files follow `EemFormat.IsValidFilePath`:
+  `ModFileTests` run the rule on valid paths and on every kind of path that could leave the product folder or that Windows
+  does not accept; the reader rejects such an archive and `ModPackageBuilder.ExportModInfos` does not write one.
+- **Limits that cannot be reached in a test.** An archive of 4 GB or more cannot be written by a test: the internal
+  `ModPackageBuilder.ArchiveSizeLimit` lowers the limit for the tests (the mod library grants the test assembly access to its
+  internals, like the core and the WON library), and the tests check that the existing archive survives and no temporary file
+  is left.
+- **Architecture test.** `ZipStorerUseTests` (category `SourceTree`) allow `ExtractFile` only in `ModArchiveReader`, which has the
+  guards this version of ZipStorer needs, and forbid `RemoveEntries`, which deletes the archive before it moves the new copy into
+  place and turns every error into `false`. An installer of mods that extracts entries has to bring the same guards and is then
+  added to the rule.
+- Tests that create images (`ModAssetsTests`, the export of icon and banners) need GDI+ and run on Windows; the other tests of
+  the mod library use no Windows API.

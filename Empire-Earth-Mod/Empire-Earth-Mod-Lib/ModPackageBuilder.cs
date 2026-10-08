@@ -20,6 +20,12 @@ namespace Empire_Earth_Mod_Lib
     /// </remarks>
     public sealed class ModPackageBuilder : IDisposable
     {
+        /// <summary>
+        /// Largest mod archive, and largest file in it, in bytes (4 GB minus one byte). The vendored ZipStorer keeps the
+        /// sizes and offsets of what it writes in 32 bits: beyond this it would write a damaged archive without an error.
+        /// </summary>
+        public const long MaxArchiveBytes = uint.MaxValue;
+
         private readonly ModData mod;
         private readonly ModAssets assets;
         private bool disposed;
@@ -91,6 +97,9 @@ namespace Empire_Earth_Mod_Lib
 
         /// <summary>Full path of the working directory created by this instance.</summary>
         public string WorkingDirectory { get; }
+
+        /// <summary><see cref="MaxArchiveBytes"/>; smaller in tests, which cannot write 4 GB.</summary>
+        internal long ArchiveSizeLimit { get; set; } = MaxArchiveBytes;
 
         /// <summary>
         /// Ends the session. With <see cref="EraseDataOnDispose"/> the working directory created by this
@@ -230,7 +239,10 @@ namespace Empire_Earth_Mod_Lib
         /// GDI+ images are not thread-safe.
         /// </remarks>
         /// <param name="eemPath">Path of the mod archive to create.</param>
-        /// <exception cref="InvalidOperationException">The mod is not complete (no icon, name or version).</exception>
+        /// <exception cref="InvalidOperationException">The mod is not complete (no icon, name or version), or the path of a
+        /// mod file breaks <see cref="EemFormat.IsValidFilePath"/>.</exception>
+        /// <exception cref="IOException">A file cannot be read or written, or a file or the archive would be larger than
+        /// <see cref="MaxArchiveBytes"/>.</exception>
         public void Build(string eemPath)
         {
             ThrowIfDisposed();
@@ -254,7 +266,8 @@ namespace Empire_Earth_Mod_Lib
                 throw new InvalidOperationException("The mod has no icon. Select an icon before building the mod.");
             GenerateVariantsFolders();
 
-            // Delete old banners and icon (only the files written by a previous export)
+            // Delete old banners and icon (only the files written by a previous export). The search pattern alone would
+            // also find files of the author such as "BannerSource.png" (and, on Windows, "Banner1.pngx").
             string iconPath = Path.Combine(WorkingDirectory, EemFormat.IconEntryName);
             if (File.Exists(iconPath))
                 File.Delete(iconPath);
@@ -262,7 +275,8 @@ namespace Empire_Earth_Mod_Lib
             foreach (var variant in mod.Variants)
             {
                 foreach (var banner in new DirectoryInfo(Path.Combine(WorkingDirectory, variant.Key.ToString()))
-                             .GetFiles(EemFormat.BannerFilePrefix + "*" + EemFormat.BannerFileExtension))
+                             .GetFiles(EemFormat.BannerFilePrefix + "*" + EemFormat.BannerFileExtension)
+                             .Where(file => EemFormat.IsBannerFileName(file.Name)))
                 {
                     banner.Delete();
                 }
@@ -281,9 +295,21 @@ namespace Empire_Earth_Mod_Lib
             }
         }
 
+        /// <summary>
+        /// Writes the mod data (<see cref="EemFormat.DataEntryName"/>) into the working directory.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The path of a mod file breaks <see cref="EemFormat.IsValidFilePath"/>:
+        /// <see cref="ModArchiveReader"/> would reject the archive.</exception>
         public void ExportModInfos()
         {
             ThrowIfDisposed();
+            foreach (ModFile modFile in mod.ModFiles)
+            {
+                if (modFile == null || !EemFormat.IsValidFilePath(modFile.RelativeFilePath))
+                    throw new InvalidOperationException("The path of the mod file \"" + modFile?.RelativeFilePath +
+                                                        "\" is not a relative path inside one of the folders " +
+                                                        string.Join(", ", EemFormat.ProductFolders) + ".");
+            }
             File.WriteAllText(Path.Combine(WorkingDirectory, EemFormat.DataEntryName), mod.ToString());
         }
 
@@ -293,6 +319,8 @@ namespace Empire_Earth_Mod_Lib
         /// destroys an existing one.
         /// </summary>
         /// <exception cref="ArgumentException"><paramref name="eemPath"/> is empty or inside the working directory.</exception>
+        /// <exception cref="IOException">A file cannot be read or written, or a file or the archive would be larger than
+        /// <see cref="MaxArchiveBytes"/>.</exception>
         public void ExportToZip(string eemPath)
         {
             ThrowIfDisposed();
@@ -307,6 +335,8 @@ namespace Empire_Earth_Mod_Lib
             try
             {
                 WriteArchive(temporaryPath);
+                if (new FileInfo(temporaryPath).Length > ArchiveSizeLimit)
+                    throw new IOException("The mod archive would be 4 GB or larger, more than a mod archive can hold.");
                 if (File.Exists(archivePath))
                     File.Replace(temporaryPath, archivePath, null);
                 else
@@ -321,20 +351,51 @@ namespace Empire_Earth_Mod_Lib
 
         private void WriteArchive(string archivePath)
         {
+            List<string> relativePaths = Directory.GetFiles(WorkingDirectory, "*", SearchOption.AllDirectories)
+                .Select(file => GetRelativePath(WorkingDirectory, file))
+                .Where(BelongsToArchive)
+                .OrderBy(path => path, StringComparer.Ordinal)
+                .ToList();
+            // Checked before anything is written. The size of the whole archive is known only afterwards (ExportToZip).
+            foreach (string relativePath in relativePaths)
+            {
+                if (new FileInfo(Path.Combine(WorkingDirectory, relativePath)).Length > ArchiveSizeLimit)
+                    throw new IOException("The file " + relativePath + " is 4 GB or larger, more than a mod archive can hold.");
+            }
+
             using (ZipStorer zipStore = ZipStorer.Create(archivePath,
                        "Created with Launcher v" + BuildInfo.InformationalVersion))
             {
                 zipStore.EncodeUTF8 = true;
                 // One entry per file, named relative to the working directory. ZipStorer.AddDirectory would
                 // put everything below the name of the working directory ("creator/data"), where the import
-                // does not look.
-                foreach (string file in Directory.GetFiles(WorkingDirectory, "*", SearchOption.AllDirectories)
-                             .OrderBy(file => file, StringComparer.Ordinal))
+                // does not look. Only the files of the format: whatever else the author left in the working
+                // directory (ReloadModFiles reports it as ignored) is not published with the mod.
+                foreach (string relativePath in relativePaths)
                 {
-                    zipStore.AddFile(ZipStorer.Compression.Deflate, file,
-                        EemFormat.ToEntryName(GetRelativePath(WorkingDirectory, file)), string.Empty);
+                    zipStore.AddFile(ZipStorer.Compression.Deflate, Path.Combine(WorkingDirectory, relativePath),
+                        EemFormat.ToEntryName(relativePath), string.Empty);
                 }
             }
+        }
+
+        /// <summary>
+        /// True for a file of the working directory (path relative to it) that is part of a mod archive (see
+        /// <see cref="EemFormat"/>): the mod data, the icon, and the banners and the files in the product folders of a
+        /// variant of the mod.
+        /// </summary>
+        private bool BelongsToArchive(string relativePath)
+        {
+            string[] parts = relativePath.Split(Path.DirectorySeparatorChar);
+            if (parts.Length == 1)
+                return parts[0] == EemFormat.DataEntryName || parts[0] == EemFormat.IconEntryName;
+
+            Guid variant;
+            if (!Guid.TryParseExact(parts[0], "D", out variant) || !mod.DoesVariantExist(variant))
+                return false;
+            return parts.Length == 2
+                ? EemFormat.IsBannerFileName(parts[1])
+                : EemFormat.GetProductFolder(relativePath.Substring(parts[0].Length + 1)) != null;
         }
 
         /// <summary>
@@ -410,9 +471,7 @@ namespace Empire_Earth_Mod_Lib
         private static bool IsExportedBanner(string relativePath)
         {
             string fileName = Path.GetFileName(relativePath);
-            return fileName == relativePath &&
-                   fileName.StartsWith(EemFormat.BannerFilePrefix, StringComparison.OrdinalIgnoreCase) &&
-                   fileName.EndsWith(EemFormat.BannerFileExtension, StringComparison.OrdinalIgnoreCase);
+            return fileName == relativePath && EemFormat.IsBannerFileName(fileName);
         }
     }
 }

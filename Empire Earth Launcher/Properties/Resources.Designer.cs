@@ -2018,7 +2018,7 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An older setup ran after the current one, or the last setup could not replace its records. Run the c[rest of string was truncated].
+        ///   Looks up a localized string similar to An older setup ran after the current one, or the last setup could not replace its records. Repair th[rest of string was truncated].
         /// </summary>
         internal static string IntegrityUnknownOlderSetup {
             get {
@@ -3152,6 +3152,15 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Open release page.
+        /// </summary>
+        internal static string PackageReleasePageButton {
+            get {
+                return ResourceManager.GetString("PackageReleasePageButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Play.
         /// </summary>
         internal static string PlayButton {
@@ -3390,7 +3399,7 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to If that folder is gone, download the community setup instead:.
+        ///   Looks up a localized string similar to If that folder is gone, download the package "Empire Earth Community" again from its release page:.
         /// </summary>
         internal static string RepairDownloadPageSuiteLabel {
             get {
@@ -3417,6 +3426,15 @@ namespace Empire_Earth_Launcher.Properties {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Release page of the package "Empire Earth Community":.
+        /// </summary>
+        internal static string RepairPackagePageLabel {
+            get {
+                return ResourceManager.GetString("RepairPackagePageLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The page could not be opened. Copy the address into your browser: {0}.
         /// </summary>
         internal static string RepairPageNotOpenedFormat {
@@ -3440,6 +3458,15 @@ namespace Empire_Earth_Launcher.Properties {
         internal static string RepairStepCdKeys {
             get {
                 return ResourceManager.GetString("RepairStepCdKeys", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close the game. Download the package "Empire Earth Community" again from its release page below, unp[rest of string was truncated].
+        /// </summary>
+        internal static string RepairStepDownloadPackage {
+            get {
+                return ResourceManager.GetString("RepairStepDownloadPackage", resourceCulture);
             }
         }
         
@@ -3506,6 +3533,15 @@ namespace Empire_Earth_Launcher.Properties {
             }
         }
 
+        /// <summary>
+        ///   Looks up a localized string similar to The update server of empireearth.eu reports this version for its own setups. Your installation comes[rest of string was truncated].
+        /// </summary>
+        internal static string RepairStepUpdateWithNewPackage {
+            get {
+                return ResourceManager.GetString("RepairStepUpdateWithNewPackage", resourceCulture);
+            }
+        }
+        
         /// <summary>
         ///   Looks up a localized string similar to The folder could not be opened: {0}.
         /// </summary>
@@ -4030,7 +4066,7 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Asks api.empireearth.eu whether the installed game and setup are current. Only the AppId of the inst[rest of string was truncated].
+        ///   Looks up a localized string similar to Asks api.empireearth.eu whether the installed game and the setup of the game (Empire Earth or NeoEE)[rest of string was truncated].
         /// </summary>
         internal static string VersionCheckInfo {
             get {
@@ -4102,7 +4138,7 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Setup version {0}: version {1} is available..
+        ///   Looks up a localized string similar to Version {0} of the {1} setup: version {2} is available..
         /// </summary>
         internal static string VersionSetupUpdateFormat {
             get {
@@ -4111,7 +4147,7 @@ namespace Empire_Earth_Launcher.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Setup version {0}: up to date..
+        ///   Looks up a localized string similar to Version {0} of the {1} setup: up to date..
         /// </summary>
         internal static string VersionSetupUpToDateFormat {
             get {

@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using Empire_Earth_Launcher.Tests.TestSupport;
 using Empire_Earth_Mod_Lib;
 using NUnit.Framework;
 
@@ -12,6 +15,41 @@ namespace Empire_Earth_Launcher.Tests.Mod
     [TestFixture]
     public class ModAssetsTests
     {
+        [Test]
+        public void LoadImageFile_DoesNotKeepTheFileOpen()
+        {
+            // The mod creator loaded the pictures with Image.FromFile, which keeps the file locked while the image lives.
+            using (var directory = new TemporaryDirectory())
+            {
+                string path = directory.Combine("icon.png");
+                using (var bitmap = new Bitmap(ModImageRules.IconSize, ModImageRules.IconSize))
+                {
+                    bitmap.Save(path, ImageFormat.Png);
+                }
+
+                using (Image image = ModAssets.LoadImageFile(path))
+                {
+                    File.Delete(path);
+
+                    Assert.That(path, Does.Not.Exist);
+                    Assert.That(image.Size, Is.EqualTo(new Size(ModImageRules.IconSize, ModImageRules.IconSize)));
+                    Assert.That(() => ModImageRules.ValidateIcon(image), Throws.Nothing);
+                }
+            }
+        }
+
+        [Test]
+        public void LoadImageFile_NoImage_ThrowsFormatException()
+        {
+            // GDI+ reports such a file as "Out of memory.", which the mod creator showed to the author.
+            using (var directory = new TemporaryDirectory())
+            {
+                string path = directory.CreateFile("banner.png", "not an image");
+
+                Assert.That(() => ModAssets.LoadImageFile(path), Throws.TypeOf<FormatException>());
+            }
+        }
+
         [TestCase(128, 128, true)]
         [TestCase(64, 64, false)]
         [TestCase(128, 127, false)]

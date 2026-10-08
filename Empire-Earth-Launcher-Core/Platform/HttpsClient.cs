@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Authentication;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,6 +28,10 @@ namespace Empire_Earth_Launcher.Core.Platform
     /// (<see cref="HttpClient.MaxResponseContentBufferSize"/>), so a larger answer is an error. No header is added: the
     /// request carries nothing but the URL (no telemetry, contract 4.3).
     /// </para>
+    /// <para>
+    /// The text of an answer is decoded here (<see cref="DecodeBody"/>), never by <see cref="HttpContent.ReadAsStringAsync"/>,
+    /// which throws for a character set Windows does not know: an answer is always an answer.
+    /// </para>
     /// </remarks>
     public sealed class HttpsClient : IHttpsClient, IDisposable
     {
@@ -35,6 +40,15 @@ namespace Empire_Earth_Launcher.Core.Platform
 
         /// <summary>The largest answer accepted (4 KiB): the update API answers with one URL or one version.</summary>
         public const int MaxResponseBytes = 4096;
+
+        /// <summary>
+        /// The encodings whose byte order mark names the encoding of an answer without a known character set, in the order
+        /// <see cref="HttpContent.ReadAsStringAsync"/> tries them (UTF-32 before UTF-16, whose mark is its beginning).
+        /// </summary>
+        private static readonly Encoding[] EncodingsWithByteOrderMark =
+        {
+            Encoding.UTF8, Encoding.UTF32, Encoding.Unicode, Encoding.BigEndianUnicode
+        };
 
         private readonly HttpClient client;
 
@@ -74,19 +88,31 @@ namespace Empire_Earth_Launcher.Core.Platform
                 throw new ArgumentException("Only absolute https URLs are requested: " + url, nameof(url));
         }
 
-        public async Task<HttpsResponse> GetAsync(Uri url, CancellationToken cancellationToken)
+        public Task<HttpsResponse> GetAsync(Uri url, CancellationToken cancellationToken)
         {
+            return GetAsync(client, url, cancellationToken);
+        }
+
+        /// <summary>
+        /// <see cref="GetAsync(Uri, CancellationToken)"/> with <paramref name="httpClient"/>. Internal for the unit tests, which
+        /// pass a client of <see cref="CreateClient"/> on a handler that answers from memory: no request leaves the test.
+        /// </summary>
+        internal static async Task<HttpsResponse> GetAsync(HttpClient httpClient, Uri url, CancellationToken cancellationToken)
+        {
+            if (httpClient == null)
+                throw new ArgumentNullException(nameof(httpClient));
             RequireHttps(url);
             Stopwatch watch = Stopwatch.StartNew();
             try
             {
                 // ResponseContentRead: the body is read through the buffer of the client, which enforces the 4 KiB limit.
-                using (HttpResponseMessage response = await client
+                using (HttpResponseMessage response = await httpClient
                            .GetAsync(url, HttpCompletionOption.ResponseContentRead, cancellationToken).ConfigureAwait(false))
                 {
                     string body = response.Content == null
                         ? string.Empty
-                        : await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        : DecodeBody(await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false),
+                            response.Content.Headers.ContentType?.CharSet);
                     return HttpsResponse.Answered((int)response.StatusCode, body, watch.Elapsed);
                 }
             }
@@ -99,6 +125,57 @@ namespace Empire_Earth_Launcher.Core.Platform
             {
                 return HttpsResponse.Failed(Classify(ex), DescribeTypes(ex), InnermostMessage(ex), watch.Elapsed);
             }
+        }
+
+        /// <summary>
+        /// The text of an answer: decoded with the character set of its <c>Content-Type</c> if Windows knows it, else with the
+        /// one its byte order mark names, else as UTF-8 (the update API answers in ASCII); a byte order mark is not part of the
+        /// text. This is what <see cref="HttpContent.ReadAsStringAsync"/> does, except that an unknown character set
+        /// (<c>charset=foo</c>) counts as none instead of throwing an <see cref="InvalidOperationException"/>, which no caller
+        /// expects (<see cref="IHttpsClient.GetAsync"/>: never thrown), and that a quoted name (<c>charset="utf-8"</c>, which the
+        /// .NET Framework passes on with its quotes) is read without them. Bytes that are not valid in the encoding become
+        /// U+FFFD; nothing is thrown.
+        /// </summary>
+        internal static string DecodeBody(byte[] body, string charSet)
+        {
+            if (body == null || body.Length == 0)
+                return string.Empty;
+            Encoding encoding = KnownEncoding(charSet)
+                                ?? EncodingsWithByteOrderMark.FirstOrDefault(candidate => StartsWith(body, candidate.GetPreamble()))
+                                ?? Encoding.UTF8;
+            byte[] byteOrderMark = encoding.GetPreamble();
+            int start = StartsWith(body, byteOrderMark) ? byteOrderMark.Length : 0;
+            return encoding.GetString(body, start, body.Length - start);
+        }
+
+        /// <summary>
+        /// The encoding <paramref name="charSet"/> names (quotes removed), or null for none and for a name Windows does not know.
+        /// </summary>
+        private static Encoding KnownEncoding(string charSet)
+        {
+            string name = charSet?.Trim('"');
+            if (string.IsNullOrEmpty(name))
+                return null;
+            try
+            {
+                return Encoding.GetEncoding(name);
+            }
+            catch (ArgumentException)
+            {
+                return null;
+            }
+        }
+
+        private static bool StartsWith(byte[] data, byte[] prefix)
+        {
+            if (prefix.Length == 0 || data.Length < prefix.Length)
+                return false;
+            for (int i = 0; i < prefix.Length; i++)
+            {
+                if (data[i] != prefix[i])
+                    return false;
+            }
+            return true;
         }
 
         /// <summary>

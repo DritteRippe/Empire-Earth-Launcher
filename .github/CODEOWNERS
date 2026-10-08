@@ -1,0 +1,3 @@
+# Code owners: GitHub asks them for a review of every pull request that touches the matching files.
+# https://docs.github.com/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+* @DritteRippe

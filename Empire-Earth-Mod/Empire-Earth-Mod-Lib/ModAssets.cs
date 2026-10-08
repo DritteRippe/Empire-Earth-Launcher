@@ -19,6 +19,34 @@ namespace Empire_Earth_Mod_Lib
         private readonly Dictionary<Guid, List<Image>> banners = new Dictionary<Guid, List<Image>>();
         private Image icon;
 
+        /// <summary>
+        /// Loads an image file, e.g. the picture the mod author chose for the icon or a banner, into memory.
+        /// </summary>
+        /// <remarks>
+        /// Image.FromFile keeps the file open and locked for as long as the image lives: the author could not save a
+        /// corrected version of the picture while the mod creator was running, also after its window was closed, until the
+        /// garbage collector happened to release the image. The copy returned here holds no file.
+        /// </remarks>
+        /// <exception cref="FormatException">The file is not an image that Windows can read.</exception>
+        /// <exception cref="System.IO.FileNotFoundException">The file does not exist.</exception>
+        public static Image LoadImageFile(string path)
+        {
+            Image image;
+            try
+            {
+                image = Image.FromFile(path);
+            }
+            catch (OutOfMemoryException ex)
+            {
+                // GDI+ reports a file it cannot decode as "Out of memory.", which is what the mod creator showed.
+                throw new FormatException("The file is not an image that Windows can read: " + path, ex);
+            }
+            using (image)
+            {
+                return new Bitmap(image);
+            }
+        }
+
         /// <summary>Icon of the mod; null until one is set.</summary>
         /// <exception cref="FormatException">The new icon does not follow <see cref="ModImageRules.ValidateIcon"/>.</exception>
         public Image Icon

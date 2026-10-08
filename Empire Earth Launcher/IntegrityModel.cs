@@ -127,7 +127,8 @@ namespace Empire_Earth_Launcher
         /// The repair advice for the selected installation (contract 4.4): with the files and the antivirus exception
         /// first when the latest report offers the repair (Damaged, Incomplete, Unknown of a community installation); for a
         /// missing program the advice of a damaged installation; otherwise the advice on request. Null without an
-        /// installation. The download page is the one of the installation's product (contract 4.3, no request).
+        /// installation. The download page is the one of the installation's product (contract 4.3, no request), or the release
+        /// page of the package when the suite installed it (<see cref="SuiteRepairLocator.PackageFor"/>).
         /// </summary>
         public RepairAdvice CreateRepairAdvice()
         {
@@ -136,10 +137,10 @@ namespace Empire_Earth_Launcher
                 return null;
             IntegrityReport report = Report;
             if (report != null && report.Installation == selected && report.OffersRepair)
-                return RepairAdvice.ForIntegrity(report, suiteRepair?.FolderFor(selected));
+                return RepairAdvice.ForIntegrity(report, suiteRepair?.PackageFor(selected));
             return RepairAdvice.For(selected,
                 selected.State == InstallationState.Damaged ? RepairReason.ProgramMissing : RepairReason.Requested,
-                suiteFolder: suiteRepair?.FolderFor(selected));
+                suite: suiteRepair?.PackageFor(selected));
         }
 
         /// <summary>Starts the full check of the selected installation (contract 2.5: on request of the user).</summary>

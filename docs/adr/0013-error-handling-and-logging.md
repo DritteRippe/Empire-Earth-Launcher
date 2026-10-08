@@ -1,7 +1,7 @@
 # 0013 Error handling and logging
 
-Status: **Accepted** (2026-10-02), amended 2026-10-02 (plan review; implementation in L-WP8 and L-WP9), see the
-Amendment sections
+Status: **Accepted** (2026-10-02), amended 2026-10-02 (plan review; implementation in L-WP8 and L-WP9) and 2026-10-08
+(launcher 1.1.1: one log file for every launcher), see the Amendment sections
 
 ## Context
 
@@ -107,3 +107,33 @@ Evidence: `Core/Diagnostics/ReportAnonymizerTests`, `Core/Diagnostics/Diagnostic
 (`TheReport_ContainsNoneOfThePersonalData`), `Core/Diagnostics/NetworkDiagnosticsTests`
 (`TheLogLines_KeepThePrivacyRules`, `AdaptersThatCannotBeListed_GiveNoAdapterHint`), `Launcher/DiagnosticsModelTests`
 (`ACopy_IsLoggedWithoutItsText`); test plan WP9-11 and WP9-13.
+
+## Amendment 2026-10-08 (launcher 1.1.1: one log file for every launcher)
+
+The review after the release of 1.1.0 found that the second start of a session did not write into `log.txt`. Since 1.1.0
+the one shortcut of the suite starts a second launcher that hands its command line to the running one and ends
+(ADR 0010). Both create the logger before the single-instance check, and `TextWriterTraceListener(path)` opened the file
+for writing shared for reading only: the second launcher could not open it and, as the .NET Framework does in that case,
+wrote into a new file `<GUID>log.txt` in the same folder. The lines that explain a hand-over (`this one ends`,
+`did not answer`) were missing from `log.txt` (test plan WP10-03), and every second start left a small file that the
+launcher never removed. Since launcher 1.1.1:
+
+- **One file, appended by every launcher.** `TraceFileLogger.CreateFileListener` opens `log.txt` itself, shared for reading,
+  writing and deleting, with the right to append only (`FileSystemRights.AppendData`, `FILE_APPEND_DATA`): Windows writes
+  every block at the end of the file as it is at that moment, so the lines of two launchers follow each other instead of
+  overwriting each other. The file stream has no buffer of its own and the writer (UTF-8 without a byte order mark, as
+  before) flushes after every entry, so an entry of up to 16 384 characters is one write and is never split by a line of
+  the other launcher.
+- **Trimming stays with the launcher that starts alone.** A second launcher cannot read the file while the first one
+  writes it, so its trimming is skipped (logged on the console, as every trimming problem); the file is never renamed to
+  `log.txt.old` under a running launcher. The limits (1 MiB, the last 500 lines) are unchanged.
+- **No fallback file.** If `log.txt` cannot be opened at all (access denied, another program holds it without sharing it
+  for writing), the launcher runs without a log file and reports the reason on the console only, as every problem before
+  the log is open; logging is never a reason not to start.
+
+Under Mono, which ignores the right to append only, two launchers would overwrite each other's lines; the launcher runs on
+the .NET Framework of Windows, and the tests of two open files are excluded there.
+
+Evidence: `Core/Logging/LogFileSharingTests` (two listeners on one file: every line in order, no other file; the second
+launcher does not trim; an existing log is continued without a byte order mark; a file that cannot be opened gives no
+listener), `Core/Logging/LogTrimmingTests`; test plan WP6-13 and WP10-03.

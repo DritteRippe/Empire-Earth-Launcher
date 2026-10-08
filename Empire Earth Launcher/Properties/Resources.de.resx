@@ -571,6 +571,12 @@ Ihre jetzigen Einstellungen werden vorher als .reg-Dateien in {1} gesichert; ein
   <data name="RepairStepRunSuiteFormat" xml:space="preserve">
     <value>Schließen Sie das Spiel. Starten Sie „Empire Earth Community Setup“ erneut aus dem Ordner, in den Sie es entpackt haben ({0}): Es repariert oder aktualisiert die Spiele, die es installiert hat.</value>
   </data>
+  <data name="RepairStepDownloadPackage" xml:space="preserve">
+    <value>Schließen Sie das Spiel. Laden Sie das Paket „Empire Earth Community“ unten von seiner Release-Seite neu herunter, entpacken Sie die ZIP-Datei und starten Sie „Empire Earth Community Setup“ aus dem entpackten Ordner: Es repariert oder aktualisiert die Spiele, die es installiert hat. Nehmen Sie dafür nicht das Setup von empireearth.eu: Es ist ein anderes Setup und würde die Korrekturen des Pakets rückgängig machen.</value>
+  </data>
+  <data name="RepairStepUpdateWithNewPackage" xml:space="preserve">
+    <value>Diese Version meldet der Update-Server von empireearth.eu für seine eigenen Setups. Ihre Installation stammt aus dem Paket „Empire Earth Community“, das eigene Setups mitbringt und neuere Versionen nur als neues Release bekommt: Sehen Sie unten auf seiner Release-Seite nach, ob es ein neueres gibt. Wenn ja, schließen Sie das Spiel, entpacken Sie das neue Paket und starten Sie daraus „Empire Earth Community Setup“. Ein Setup von empireearth.eu würde die Korrekturen des Pakets rückgängig machen.</value>
+  </data>
   <data name="RepairStepKeepFolderAllUsersFormat" xml:space="preserve">
     <value>Behalten Sie den Ordner {0} bei und wählen Sie wieder „Installation für alle Benutzer“.</value>
   </data>
@@ -593,7 +599,10 @@ Ihre jetzigen Einstellungen werden vorher als .reg-Dateien in {1} gesichert; ein
     <value>Downloadseite des Community-Setups:</value>
   </data>
   <data name="RepairDownloadPageSuiteLabel" xml:space="preserve">
-    <value>Falls dieser Ordner nicht mehr da ist, laden Sie stattdessen das Community-Setup herunter:</value>
+    <value>Falls dieser Ordner nicht mehr da ist, laden Sie das Paket „Empire Earth Community“ von seiner Release-Seite neu herunter:</value>
+  </data>
+  <data name="RepairPackagePageLabel" xml:space="preserve">
+    <value>Release-Seite des Pakets „Empire Earth Community“:</value>
   </data>
   <data name="RepairOpenPageButton" xml:space="preserve">
     <value>Downloadseite öffnen</value>
@@ -692,7 +701,7 @@ Ihre jetzigen Einstellungen werden vorher als .reg-Dateien in {1} gesichert; ein
     <value>Mit einem neueren Setup installiert, als dieser Launcher kennt. Bitte aktualisieren Sie den Launcher.</value>
   </data>
   <data name="IntegrityUnknownOlderSetup" xml:space="preserve">
-    <value>Nach dem aktuellen Setup lief ein älteres Setup, oder das letzte Setup konnte seine Einträge nicht ersetzen. Führen Sie das aktuelle Setup aus.</value>
+    <value>Nach dem aktuellen Setup lief ein älteres Setup, oder das letzte Setup konnte seine Einträge nicht ersetzen. Reparieren Sie die Installation mit den Schritten der Reparatur-Hinweise.</value>
   </data>
   <data name="IntegrityUnknownNoRecords" xml:space="preserve">
     <value>Der letzte Lauf des Setups wurde nicht beendet, oder das Setup konnte seine Liste der Dateien nicht schreiben. Führen Sie das Setup erneut aus, um die Installation zu reparieren.</value>
@@ -742,8 +751,11 @@ Ihre jetzigen Einstellungen werden vorher als .reg-Dateien in {1} gesichert; ein
   <data name="VersionCheckToolsButton" xml:space="preserve">
     <value>Nach Updates suchen</value>
   </data>
+  <data name="PackageReleasePageButton" xml:space="preserve">
+    <value>Release-Seite öffnen</value>
+  </data>
   <data name="VersionCheckInfo" xml:space="preserve">
-    <value>Fragt api.empireearth.eu, ob das installierte Spiel und das Setup aktuell sind. Gesendet werden nur die AppId der Installation und die Version.</value>
+    <value>Fragt api.empireearth.eu, ob das installierte Spiel und das Setup des Spiels (Empire Earth oder NeoEE) aktuell sind. Gesendet werden nur die AppId der Installation und die Version. Das Paket „Empire Earth Community“ mit seinem Setup und diesem Launcher wird nicht geprüft: Neue Versionen des Pakets erscheinen auf seiner Release-Seite.</value>
   </data>
   <data name="VersionChecking" xml:space="preserve">
     <value>Der Update-Server wird gefragt ...</value>
@@ -755,10 +767,10 @@ Ihre jetzigen Einstellungen werden vorher als .reg-Dateien in {1} gesichert; ein
     <value>Spielversion {0}: Version {1} ist verfügbar.</value>
   </data>
   <data name="VersionSetupUpToDateFormat" xml:space="preserve">
-    <value>Setup-Version {0}: aktuell.</value>
+    <value>Version {0} des Setups von {1}: aktuell.</value>
   </data>
   <data name="VersionSetupUpdateFormat" xml:space="preserve">
-    <value>Setup-Version {0}: Version {1} ist verfügbar.</value>
+    <value>Version {0} des Setups von {1}: Version {2} ist verfügbar.</value>
   </data>
   <data name="VersionNotPossible" xml:space="preserve">
     <value>Keine Versionsprüfung: Prüfen lassen sich nur Installationen des Community-Setups mit eingetragener Version.</value>

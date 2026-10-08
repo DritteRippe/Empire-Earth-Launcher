@@ -571,6 +571,12 @@ Vos paramètres actuels sont d'abord enregistrés dans des fichiers .reg dans {1
   <data name="RepairStepRunSuiteFormat" xml:space="preserve">
     <value>Fermez le jeu. Relancez « Empire Earth Community Setup » depuis le dossier où vous l'avez décompressé ({0}) : il répare ou met à jour les jeux qu'il a installés.</value>
   </data>
+  <data name="RepairStepDownloadPackage" xml:space="preserve">
+    <value>Fermez le jeu. Téléchargez de nouveau le paquet « Empire Earth Community » depuis sa page des versions ci-dessous, décompressez le fichier ZIP et lancez « Empire Earth Community Setup » depuis le dossier décompressé : il répare ou met à jour les jeux qu'il a installés. N'utilisez pas pour cela le setup d'empireearth.eu : c'est un autre setup, qui annulerait les correctifs du paquet.</value>
+  </data>
+  <data name="RepairStepUpdateWithNewPackage" xml:space="preserve">
+    <value>Le serveur de mises à jour d'empireearth.eu signale cette version pour ses propres setups. Votre installation provient du paquet « Empire Earth Community », qui apporte ses propres setups et n'est mis à jour que par une nouvelle publication du paquet : vérifiez sur sa page des versions ci-dessous s'il en existe une plus récente. Si c'est le cas, fermez le jeu, décompressez le nouveau paquet et lancez-en « Empire Earth Community Setup ». Un setup d'empireearth.eu annulerait les correctifs du paquet.</value>
+  </data>
   <data name="RepairStepKeepFolderAllUsersFormat" xml:space="preserve">
     <value>Conservez le dossier {0} et choisissez de nouveau « Installer pour tous les utilisateurs ».</value>
   </data>
@@ -593,7 +599,10 @@ Vos paramètres actuels sont d'abord enregistrés dans des fichiers .reg dans {1
     <value>Page de téléchargement du setup communautaire :</value>
   </data>
   <data name="RepairDownloadPageSuiteLabel" xml:space="preserve">
-    <value>Si ce dossier n'existe plus, téléchargez plutôt le setup communautaire :</value>
+    <value>Si ce dossier n'existe plus, téléchargez de nouveau le paquet « Empire Earth Community » depuis sa page des versions :</value>
+  </data>
+  <data name="RepairPackagePageLabel" xml:space="preserve">
+    <value>Page des versions du paquet « Empire Earth Community » :</value>
   </data>
   <data name="RepairOpenPageButton" xml:space="preserve">
     <value>Ouvrir la page</value>
@@ -692,7 +701,7 @@ Vos paramètres actuels sont d'abord enregistrés dans des fichiers .reg dans {1
     <value>Installée par un setup plus récent que ce que ce launcher connaît. Veuillez mettre à jour le launcher.</value>
   </data>
   <data name="IntegrityUnknownOlderSetup" xml:space="preserve">
-    <value>Un setup plus ancien a été exécuté après le setup actuel, ou le dernier setup n'a pas pu remplacer ses informations. Lancez le setup actuel.</value>
+    <value>Un setup plus ancien a été exécuté après le setup actuel, ou le dernier setup n'a pas pu remplacer ses informations. Réparez l'installation en suivant les étapes des conseils de réparation.</value>
   </data>
   <data name="IntegrityUnknownNoRecords" xml:space="preserve">
     <value>La dernière exécution du setup ne s'est pas terminée, ou le setup n'a pas pu écrire sa liste des fichiers. Lancez de nouveau le setup pour réparer l'installation.</value>
@@ -742,8 +751,11 @@ Vos paramètres actuels sont d'abord enregistrés dans des fichiers .reg dans {1
   <data name="VersionCheckToolsButton" xml:space="preserve">
     <value>Rechercher des mises à jour</value>
   </data>
+  <data name="PackageReleasePageButton" xml:space="preserve">
+    <value>Ouvrir la page des versions</value>
+  </data>
   <data name="VersionCheckInfo" xml:space="preserve">
-    <value>Demande à api.empireearth.eu si le jeu et le setup installés sont à jour. Seuls l'AppId de l'installation et la version sont envoyés.</value>
+    <value>Demande à api.empireearth.eu si le jeu installé et le setup du jeu (Empire Earth ou NeoEE) sont à jour. Seuls l'AppId de l'installation et la version sont envoyés. Le paquet « Empire Earth Community », avec son setup et ce launcher, n'est pas vérifié : ses nouvelles versions sont publiées sur sa page des versions.</value>
   </data>
   <data name="VersionChecking" xml:space="preserve">
     <value>Interrogation du serveur de mises à jour...</value>
@@ -755,10 +767,10 @@ Vos paramètres actuels sont d'abord enregistrés dans des fichiers .reg dans {1
     <value>Version du jeu {0} : la version {1} est disponible.</value>
   </data>
   <data name="VersionSetupUpToDateFormat" xml:space="preserve">
-    <value>Version du setup {0} : à jour.</value>
+    <value>Version {0} du setup « {1} » : à jour.</value>
   </data>
   <data name="VersionSetupUpdateFormat" xml:space="preserve">
-    <value>Version du setup {0} : la version {1} est disponible.</value>
+    <value>Version {0} du setup « {1} » : la version {2} est disponible.</value>
   </data>
   <data name="VersionNotPossible" xml:space="preserve">
     <value>Pas de vérification de version : seules les installations du setup communautaire avec une version enregistrée peuvent être vérifiées.</value>

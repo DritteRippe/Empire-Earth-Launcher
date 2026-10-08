@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -18,6 +19,7 @@ namespace Empire_Earth_Mod_Lib
         /// <param name="eemPath">Path to the mod archive</param>
         /// <returns>Mod present in the archive (icon and banners are not loaded)</returns>
         /// <exception cref="IOException">The file cannot be read.</exception>
+        /// <exception cref="UnauthorizedAccessException">The file cannot be opened (no permission).</exception>
         /// <exception cref="InvalidDataException">The file is not a valid mod archive.</exception>
         public static ModData ReadModData(string eemPath)
         {
@@ -31,7 +33,8 @@ namespace Empire_Earth_Mod_Lib
         /// Reads the mod data of a mod archive in a seekable stream. The stream is not closed.
         /// </summary>
         /// <param name="eemStream">Stream containing the mod archive (see <see cref="EemFormat"/>)</param>
-        /// <returns>Mod present in the archive (icon and banners are not loaded)</returns>
+        /// <returns>Mod present in the archive (icon and banners are not loaded); the paths of its files follow
+        /// <see cref="EemFormat.IsValidFilePath"/>.</returns>
         /// <exception cref="IOException">The stream cannot be read.</exception>
         /// <exception cref="InvalidDataException">The stream is not a valid mod archive.</exception>
         public static ModData ReadModData(Stream eemStream)
@@ -40,9 +43,9 @@ namespace Empire_Earth_Mod_Lib
                 throw new ArgumentNullException(nameof(eemStream));
 
             byte[] data;
-            using (var zip = ZipStorer.Open(eemStream, FileAccess.Read, true))
+            using (ZipStorer zip = OpenArchive(eemStream))
             {
-                ZipStorer.ZipFileEntry dataEntry = zip.ReadCentralDir()
+                ZipStorer.ZipFileEntry dataEntry = ReadEntries(zip)
                     .FirstOrDefault(entry => entry.FilenameInZip == EemFormat.DataEntryName);
                 if (dataEntry == null)
                     throw new InvalidDataException("Invalid mod archive: the \"" + EemFormat.DataEntryName + "\" entry is missing.");
@@ -67,7 +70,53 @@ namespace Empire_Earth_Mod_Lib
 
             if (modData == null)
                 throw new InvalidDataException("Invalid mod archive: the \"" + EemFormat.DataEntryName + "\" entry is empty.");
+
+            // The file list comes from whoever made the archive. A path that leaves its product folder ("EEC\..\..",
+            // "C:\Windows\...") would send code that installs the files anywhere on the disk.
+            foreach (ModFile modFile in modData.ModFiles)
+            {
+                if (modFile == null || !EemFormat.IsValidFilePath(modFile.RelativeFilePath))
+                    throw new InvalidDataException("Invalid mod archive: the path of the mod file \"" + modFile?.RelativeFilePath +
+                                                   "\" is not a relative path inside a product folder.");
+            }
             return modData;
+        }
+
+        /// <summary>
+        /// Opens the ZIP archive in <paramref name="eemStream"/>. ZipStorer reports a file that is not a ZIP archive, or
+        /// whose end records are damaged, with an <see cref="InvalidDataException"/> without a message of its own ("Found
+        /// invalid data while decoding."); this one says what is wrong.
+        /// </summary>
+        private static ZipStorer OpenArchive(Stream eemStream)
+        {
+            try
+            {
+                return ZipStorer.Open(eemStream, FileAccess.Read, true);
+            }
+            catch (InvalidDataException ex)
+            {
+                throw new InvalidDataException("Invalid mod archive: the file is not a ZIP archive, or it is damaged.", ex);
+            }
+        }
+
+        /// <summary>
+        /// The entries of the central directory of the archive.
+        /// </summary>
+        /// <remarks>
+        /// The vendored ZipStorer takes the sizes, dates and times of the records as they are: a damaged record makes it
+        /// throw an <see cref="ArgumentException"/> (a name or field beyond the end of the directory, a time such as 31:00).
+        /// It becomes the documented <see cref="InvalidDataException"/>, without changing the third-party code.
+        /// </remarks>
+        private static List<ZipStorer.ZipFileEntry> ReadEntries(ZipStorer zip)
+        {
+            try
+            {
+                return zip.ReadCentralDir();
+            }
+            catch (ArgumentException ex)
+            {
+                throw new InvalidDataException("Invalid mod archive: the directory of the ZIP archive is damaged.", ex);
+            }
         }
 
         /// <summary>

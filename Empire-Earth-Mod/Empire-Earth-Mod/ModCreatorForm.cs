@@ -392,7 +392,7 @@ namespace Empire_Earth_Mod
                     return;
                 try
                 {
-                    assets.Icon = Image.FromFile(ofd.FileName);
+                    assets.Icon = ModAssets.LoadImageFile(ofd.FileName);
                 }
                 catch (Exception ex)
                 {
@@ -420,7 +420,7 @@ namespace Empire_Earth_Mod
                     return;
                 try
                 {
-                    assets.AddBanner(variant.Value, Image.FromFile(ofd.FileName));
+                    assets.AddBanner(variant.Value, ModAssets.LoadImageFile(ofd.FileName));
                 }
                 catch (Exception ex)
                 {

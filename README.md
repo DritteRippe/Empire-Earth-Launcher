@@ -1,11 +1,114 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/banner-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset=".github/assets/banner-light.svg">
+  <img alt="Empire Earth Launcher: One launcher for all four games" src=".github/assets/banner-light.svg" width="100%">
+</picture>
+
 # Empire Earth Launcher
 
-A launcher for Empire Earth and The Art of Conquest: it finds your installations, starts the game, checks the game files and helps with settings, repair advice and support; setups and updates stay with the community setup.\
-Coded in C# with the .NET Framework 4.8 and Krypton UI
+**One launcher for Empire Earth, The Art of Conquest and Neo Empire Earth:** it finds your installations, starts the
+game, checks the game files and helps with settings, repair advice and support; setups and updates stay with the
+community setup. Written in C# for the .NET Framework 4.8, with the Krypton UI.
 
-![image](https://github.com/EE-modders/Empire-Earth-Launcher/blob/main/EEL_MainScreen.png)
+[![Latest release](https://img.shields.io/github/v/release/DritteRippe/Empire-Earth-Launcher?label=release)](https://github.com/DritteRippe/Empire-Earth-Launcher/releases/latest)
+[![Build](https://github.com/DritteRippe/Empire-Earth-Launcher/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/DritteRippe/Empire-Earth-Launcher/actions/workflows/build.yml?query=branch%3Amain)
+[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
+[![Platform: Windows](https://img.shields.io/badge/platform-Windows-0078D6)](#requirements)
+[![.NET Framework 4.8](https://img.shields.io/badge/.NET%20Framework-4.8-512BD4)](#requirements)
 
-*Screenshot of the original mock-up; the v2 pages differ (see [Why this fork?](#why-this-fork)).*
+**[Download](#-download)** · **[Quick start](#quick-start)** · **[Documentation](#documentation)** ·
+**[Contributing](CONTRIBUTING.md)** · **[Security](SECURITY.md)**
+
+> [!TIP]
+> **Just want to play?** You do not need anything from this repository. The package **Empire Earth Community** installs
+> the games, the community fixes and this launcher in one go:
+> **[download the latest release](https://github.com/DritteRippe/Empire-Earth-Community/releases/latest)**.
+
+## At a glance
+
+- 🎮 **All four games in one list**: Empire Earth, The Art of Conquest, Neo Empire Earth and its expansion. *Play* starts
+  the game through Windows and gives it its mouse right after the start, no Alt+Tab needed.
+- 🔍 **Finds every installation**: the community setups (admin, user, portable), CD, GOG and copies.
+- 🩺 **Checks the game files**, read only, and names what is missing or changed; the repair advice names the right
+  setup and opens its page (for the package "Empire Earth Community": its release page).
+- ⚙️ **Safe game settings**: recommended defaults, a game window up to 1920x1200, compatibility options, and a `.reg`
+  backup before every change.
+- 🧰 **Tools for the classic problems of the forum**: registry cleanup, WON login reset, VirtualStore check, saved
+  games export and import, a network check and an anonymized diagnostics report.
+- 🔒 **Respects your computer**: no telemetry, never asks for administrator rights, never changes a game program or the
+  CD keys.
+- 🌍 **English, German and French.**
+
+<p align="center">
+  <img src="EEL_MainScreen.png" alt="The original mock-up of the launcher: navigation on the left, the game choice in the middle, the online players and the Play button on the right" width="560">
+</p>
+<p align="center"><sub>The original mock-up of the upstream project. The pages of today's launcher differ: see
+<a href="#why-this-fork">Why this fork?</a> and <a href="#-features">Features</a>.</sub></p>
+
+## Quick start
+
+**Players**
+
+1. Download the package [Empire Earth Community](https://github.com/DritteRippe/Empire-Earth-Community/releases/latest),
+   unpack it and run **Empire Earth Community Setup**.
+2. Double-click **Empire Earth Community** on the desktop: the launcher opens.
+3. Choose a game in the list of the *Play* page and click **Play**. Keep the launcher open until the main menu of the
+   game shows.
+
+Something wrong? See the [FAQ](#-faq-and-known-issues), or [report a bug](https://github.com/DritteRippe/Empire-Earth-Launcher/issues/new/choose).
+
+**Developers** (Windows, Visual Studio 2019 or newer with ".NET desktop development")
+
+```powershell
+git clone https://github.com/DritteRippe/Empire-Earth-Launcher.git
+cd Empire-Earth-Launcher
+nuget restore Empire-Earth.sln
+msbuild Empire-Earth.sln /p:Configuration=Release
+.\Empire-Earth-Launcher.Tests\bin\Release\Empire-Earth-Launcher.Tests.exe   # 0 = all passed
+```
+
+Or open `Empire-Earth.sln` in Visual Studio and build. More in [Building](#building); the rules for a pull request are
+in [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Status
+
+> [!NOTE]
+> **Version 1.1.0** is the current release (tag `v1.1.0`, 2026-10-07). It ships inside the package
+> "Empire Earth Community" 1.1.0; no binaries are published here. **1.1.1** is prepared on `main`: see *Unreleased* in
+> the [CHANGELOG](CHANGELOG.md).
+
+<details>
+<summary>What was tested on real Windows, and what is open</summary>
+
+Version 1.1.0 (`SharedAssemblyInfo.cs`, CHANGELOG 2026-10-07) was released on 2026-10-07 as the tag `v1.1.0`
+on the commit 5d256c8. The maintainer released it after session 1 of the laptop test only, which covers WP6-13, WP6-18, WP6-19 (a),
+WP6-21 (a) to (d) and (g), WP11-01 to WP11-04 (a), WP11-06, WP11-10, WP12-01 (a), WP12-02, WP12-04, WP13-01, WP13-02,
+WP13-06, WP13-07, WP14-01 and WP14-02. He reported only the overall verdict, "passed, the mouse works right after the start
+without Alt+Tab" (WP6-21), and no results for single cases; session 2 was not run. Not run on real hardware are WP11-04 (b),
+WP11-05, WP11-07 to WP11-09, WP12-01 (b) and (c), WP12-03, WP12-05 to WP12-09, WP13-03 to WP13-05, WP13-08, WP14-03,
+WP6-19 (b) to (d), WP6-20 and WP6-21 (e), (f) and (h)
+([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), section 4.1); they are to be run before or with 1.1.1, and a problem found there
+is fixed in 1.1.1. The French translation review and the German proof-reading are still open
+([docs/TRANSLATING.md](docs/TRANSLATING.md#status)).
+
+</details>
+
+## Documentation
+
+| Read | For |
+|---|---|
+| [Features](#-features) | what the launcher does, and what is planned |
+| [FAQ and known issues](#-faq-and-known-issues) | the mouse at the start, a game that minimizes itself, `dgVoodoo.conf`, the 2 GB limit, what to send with a report |
+| [Requirements](#requirements) | the Windows versions and the .NET Framework 4.8 |
+| [Dev](#dev) | building, tests, CI, project layout, files and settings |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | the structure as built, data flows, threading, error handling, the rules of every change |
+| [docs/adr/](docs/adr/README.md) | the decision records |
+| [docs/CONTRACT.md](docs/CONTRACT.md) | the contract with the community setup: what the launcher reads and may change |
+| [docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md) | the manual test on a real Windows computer (German) |
+| [docs/TRANSLATING.md](docs/TRANSLATING.md) | the languages, their review status and how to translate |
+| [docs/RELEASING.md](docs/RELEASING.md) | the release checklist |
+| [CHANGELOG.md](CHANGELOG.md) | the changes of every version |
+| [CONTRIBUTING.md](CONTRIBUTING.md) · [SECURITY.md](SECURITY.md) | how to help · how to report a vulnerability privately |
 
 ## Why this fork?
 
@@ -22,19 +125,20 @@ features that work.
 | Finding the game | Fixed paths (lobby file in the working directory, friends in `C:\Program Files (x86)\Neo Empire Earth\...`) | Finds community setups (since v2 and up to 1.7.2; admin, user, portable) by their records, and other installations (CD, GOG, copies) through the game's "Installed From" values, the launcher's own folder or a folder you pick; choose one on the *Launcher* page |
 | Visible controls | Many placeholders (Repair CD-Keys, Clear Registry, DirectX wrapper, resolution, ...) | Only controls that work; a test keeps placeholders out ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md)) |
 | Damaged game files | Not implemented yet | For installations of the community setup since v2: read-only integrity check against the setup's file list, naming the missing or changed files |
-| Repair and updates | Listed as planned | Repair advice and a version check on request; the launcher never downloads or starts a setup itself |
+| Repair and updates | Listed as planned | Repair advice and a version check on request; an installation of the suite package is sent to the package's release page, never to a setup that would undo its fixes; the launcher never downloads or starts a setup itself |
 | Maintenance | Not implemented yet | *Tools* page: registry cleanup with `.reg` backup, WON login reset, VirtualStore check, saved games export/import, player name check |
 | Support | Not implemented yet | Network check and a diagnostics report for forum posts, anonymized and never sent by the launcher |
 | Game settings | Placeholder page | Recommended defaults, consistency hints, reset with `.reg` backup, compatibility options (Windows 8 and later) |
 | Privacy | Unwired "collect diagnostic data" checkbox; the *Play* page polls the NeoEE server every 5 s | No telemetry; the player list only while a NeoEE installation is selected; everything else only on click: HTTPS to the update API, plus name lookups and one status request to the NeoEE server in the network check |
-| Suite installer | None | Optional integration with "Empire Earth Community": its one desktop icon opens the launcher (the suite 1.0.0 icons with `--product=EE` or `NeoEE` still work), a second start brings the running launcher to the front, repair advice points to the suite |
+| Suite installer | None | Optional integration with "Empire Earth Community": its one desktop icon opens the launcher (the suite 1.0.0 icons with `--product=EE` or `NeoEE` still work), a second start brings the running launcher to the front, repair advice points to the suite and its release page |
 | Languages | English only | English, German and French, with automated checks that all three have the same texts |
 | Runtime | .NET Framework 4.0 | .NET Framework 4.8 for launcher and mod creator, one solution; Windows 7 SP1, 8.1, 10 (1607 or later) and 11 ([Requirements](#requirements)) |
 | Log and settings | `log.txt` in the working directory; theme choice not saved; no handler for unexpected errors | Log and `settings.json` in `%LOCALAPPDATA%\Empire Earth Launcher`, damaged settings recovered, unexpected errors logged and shown |
 | Tests and CI | None | More than 1,200 automated test methods (NUnit); a Windows workflow builds every pull request and push to `main` and runs all tests |
 | Documentation | README | [Architecture](docs/ARCHITECTURE.md), [decision records](docs/adr/), [setup/launcher contract](docs/CONTRACT.md), [CHANGELOG](CHANGELOG.md), manual [test plan](docs/TEST-PLAN.de.md) (German) with more than 150 cases |
 
-**For maintainers and security**
+<details>
+<summary>For maintainers and security</summary>
 
 - UI-free core library (`Empire-Earth-Launcher-Core`): registry, files, processes, network and mutexes behind
   interfaces, tested with in-memory fakes; an architecture test keeps WinForms and Krypton out of the core.
@@ -50,7 +154,10 @@ features that work.
 - One written contract with the community setup ([docs/CONTRACT.md](docs/CONTRACT.md)), with byte samples the
   launcher's readers are tested against.
 
-**What changed or was dropped**
+</details>
+
+<details>
+<summary>What changed or was dropped</summary>
 
 - Not implemented: DirectX wrapper switch (the *Graphics* page shows the wrapper and tells how to change it in the
   setup), switching the dreXmod preset (the *Mods* page shows the presets and the choice), Discord presence, HD textures,
@@ -66,24 +173,16 @@ features that work.
 - Settings of earlier test builds (`user.config`) are not taken over. Saved games are exported into a folder; there is
   no zip export or import.
 
-**Status**: version 1.1.0 (`SharedAssemblyInfo.cs`, CHANGELOG 2026-10-07) was released on 2026-10-07 as the tag `v1.1.0`
-on the commit 5d256c8. It ships inside the private suite package "Empire Earth Community" 1.1.0; no binaries are published
-here. The maintainer released it after session 1 of the laptop test only, which covers WP6-13, WP6-18, WP6-19 (a),
-WP6-21 (a) to (d) and (g), WP11-01 to WP11-04 (a), WP11-06, WP11-10, WP12-01 (a), WP12-02, WP12-04, WP13-01, WP13-02,
-WP13-06, WP13-07, WP14-01 and WP14-02. He reported only the overall verdict, "passed, the mouse works right after the start
-without Alt+Tab" (WP6-21), and no results for single cases; session 2 was not run. Not run on real hardware are WP11-04 (b),
-WP11-05, WP11-07 to WP11-09, WP12-01 (b) and (c), WP12-03, WP12-05 to WP12-09, WP13-03 to WP13-05, WP13-08, WP14-03,
-WP6-19 (b) to (d), WP6-20 and WP6-21 (e), (f) and (h)
-([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md)); they are to be run before or with 1.1.1, and a problem found there is fixed in
-1.1.1. The French translation review and the German proof-reading are still open.
+</details>
 
 ## 🧾 Features
 
 Launcher v2 was built in nine work packages (developed on the branch `v2`, now merged into `main`;
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), section 15; what each one did is in the [CHANGELOG](CHANGELOG.md)). All of them are done; the launcher is version 1.1.0
 (one launcher for the four games, the *Graphics* and *Mods* pages, the optional parts for the suite installer "Empire Earth
-Community" below, which 1.0.0 added). The next step is the test on real Windows computers
-([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md)). The UI shows only controls that work ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md)): the placeholder
+Community" below, which 1.0.0 added). Session 1 of the test on a real Windows computer ran before the release of 1.1.0;
+the next step is session 2, before or with 1.1.1 ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), section 4.1 lists what
+it covers). The UI shows only controls that work ([ADR 0014](docs/adr/0014-only-working-features-in-the-ui.md)): the placeholder
 controls of the old mock-up were removed and the features behind them are listed below as planned.
 
 **Available now**
@@ -127,11 +226,20 @@ controls of the old mock-up were removed and the features behind them are listed
   setup (forum: antivirus programs that delete game files)
 - Repair advice when a program is missing, files are damaged or an update is available: what to do with the community
   setup (antivirus exception first, same folder and install mode, keep the NeoEE CD-key task), the files concerned, and
-  the download page of the product (`https://empireearth.eu/download/ee/` or `/neo/`, `https://empireearth.eu/download/`
-  for a foreign installation), shown at once and opened in the browser only on a click, without a request to the update
-  API; the launcher never downloads, starts or elevates the setup itself
+  where to get the setup, shown at once and opened in the browser only on a click, without a request to the update API:
+  - for an installation that the suite "Empire Earth Community" installed (its record lists the product), the release
+    page of the package, https://github.com/DritteRippe/Empire-Earth-Community/releases/latest (1.1.1). This holds also
+    when the unpacked folder of the package is gone: the advice is then to download the package again, unpack it and
+    run "Empire Earth Community Setup", not the setup of empireearth.eu, which is a different build and would undo the
+    fixes of the package. For an available update it says that the package updates only with a new release;
+  - for other installations the download page of the product (`https://empireearth.eu/download/ee/` or `/neo/`,
+    `https://empireearth.eu/download/` for a foreign installation);
+  - the launcher never downloads, starts or elevates the setup itself
 - Version check on request (*Play* page: the game; *Tools* page: game and setup) against the update API of the
-  community setup, for community installations also of setups up to 1.7.2 (forum: version conflicts in multiplayer)
+  community setup, for community installations also of setups up to 1.7.2 (forum: version conflicts in multiplayer).
+  "Check for updates" asks only about the game and the setup of the product (EE or NeoEE), not about the package
+  "Empire Earth Community", and its result names the product ("Version 1.7.2 of the Empire Earth setup: up to date.").
+  For new versions of the package, the button "Open release page" next to it opens the package's release page (1.1.1)
 - Maintenance tools on the *Tools* page, none of which runs while a setup or a game runs:
   - Registry cleanup: cleanup of HKCU entries; HKLM entries are only shown, with advice. The launcher offers a key of
     your Windows account from its fixed list only when no installation of its product is found and the game folder it
@@ -188,8 +296,9 @@ controls of the old mock-up were removed and the features behind them are listed
   - The suite counts as a running setup like the EE and NeoEE setups: while it runs, even in the moment between the two
     product setups, the launcher starts no game and changes nothing
   - If the suite installed a product and the folder you unpacked it to is still there, the repair advice says to run
-    "Empire Earth Community Setup" again from that folder (with a button that opens the folder, never the program) and
-    keeps the download page of the product setup as the second option. The launcher only reads the suite's record
+    "Empire Earth Community Setup" again from that folder (with a button that opens the folder, never the program); the
+    release page of the package is the second option, and without the folder it is the only download (launcher 1.1.1;
+    before, the advice named the download page of the product setup). The launcher only reads the suite's record
     (`HKLM\SOFTWARE\Empire Earth Community\Suite`) for this
 - Detection of every Empire Earth installation: community setups (current and up to 1.7.2, admin, user and
   portable), retail, GOG and copies with their real folders; the *Launcher* page lists them with their state
@@ -228,7 +337,8 @@ usage or diagnostic data. Its connections are the request for the NeoEE player l
 (version check, network check), an HTTPS request to `api.empireearth.eu` that sends nothing but the AppId of the
 installation, the kind of the question (game or setup) and, for the version check, the version, and the name lookups of the network check; it asks no service
 for your public address. The download page of the community setup (`empireearth.eu/download/ee/`, `/neo/` or
-`/download/`) opens in your browser only when you click its button; the launcher sends no request for it. The
+`/download/`) and the release page of the package "Empire Earth Community" on GitHub open in your browser only when you
+click their button; the launcher sends no request for them. The
 diagnostics report is
 made only when you click, stays on your computer until you paste or send it yourself, and replaces your user and
 computer name, public addresses, MAC addresses and player names; read it before you post it. CD keys are repaired by
@@ -241,7 +351,9 @@ changes a game program. The NeoEE programs and their CD-key registration stay un
 neither `dgVoodoo.conf` nor `dreXmod.config` (the *Graphics* and *Mods* pages only show them). The answers below say what is
 known, what is only a probable cause and what has not been verified.
 
-**The mouse does not work in the main menu until I switch away and back (Alt+Tab).**
+<details>
+<summary><b>The mouse does not work in the main menu until I switch away and back (Alt+Tab).</b></summary>
+
 Empire Earth takes its mouse and keyboard through DirectInput only when its window is activated. With the DirectX wrapper
 dgVoodoo of the community setup no activation reaches the game after it has created these devices, unless the start
 changed the display mode; on a screen of the game's own size it does not. Since 1.1.0 the launcher sends the main window
@@ -270,14 +382,18 @@ help when a report comes in:
   never takes the foreground away from it.
 
 If the mouse is dead although the log says `activation signal sent`, note whether Alt+Tab (or a click on the taskbar button
-of the game) revives it, and send the lines of `log.txt` from `Game started:` on (see "What do I send with a report?").
+of the game) revives it, and send the lines of `log.txt` from `Game started:` on (see [What do I send with a report?](#what-do-i-send-with-a-report)).
 The next step in that case is to send the application activation (`WM_ACTIVATEAPP`) as well; that would be a decision of a
 later version ([ADR 0010](docs/adr/0010-game-start-and-mutex-probing.md), amendment of A1b).
 A game with the compatibility setting "Run as administrator" may also refuse the foreground from the launcher, which does not
 run as administrator (`SetForegroundWindow was refused` in the log); the launcher tries three more times and then gives up
 without changing anything else.
 
-**The game minimizes itself when another window or a notification appears.**
+</details>
+
+<details>
+<summary><b>The game minimizes itself when another window or a notification appears.</b></summary>
+
 This is a behavior of the game program, not of the launcher or of a DirectX wrapper: `Empire Earth.exe` reacts to
 the loss of the application's activation by minimizing its own window (`CloseWindow`), and an internal flag decides when
 it does not (what sets that flag is not known). Any window that takes the foreground triggers it: the pop-up of a
@@ -305,7 +421,11 @@ What helps, without any promise that the game never minimizes:
   launcher to the front, which takes the foreground from a running game and so minimizes it. Do not start the launcher
   again while a game runs.
 
-**I changed `dgVoodoo.conf` by hand and nothing happened.**
+</details>
+
+<details>
+<summary><b>I changed <code>dgVoodoo.conf</code> by hand and nothing happened.</b></summary>
+
 A game below `Program Files` that Windows virtualizes reads a copy in `%LOCALAPPDATA%\VirtualStore\<game folder>` instead of
 the file in the game folder, if one exists. The *Tools* page ("VirtualStore") warns when such a copy of `dgVoodoo.conf`
 differs from the real file and offers "Open VirtualStore folder"; the launcher never deletes the copy: close the game and
@@ -313,7 +433,11 @@ rename or delete it yourself, then edit the file in the game folder again. The *
 screen-mode keys of the file the game reads (the copy first). To see whether the file is read at all, set
 `dgVoodooWatermark = true` in it: the watermark must appear in the game.
 
-**Is the 2 GB limit a problem? Does the launcher offer a 4 GB patch?**
+</details>
+
+<details>
+<summary><b>Is the 2 GB limit a problem? Does the launcher offer a 4 GB patch?</b></summary>
+
 The game programs are 32-bit programs without the "large address aware" flag, so every game process can use 2 GB of
 address space, whatever the RAM of the computer is; with the flag it would be 4 GB. None of the community's reports we
 know describes running out of memory, and the launcher makes no change here: it never modifies game programs, the NeoEE
@@ -334,13 +458,19 @@ Get-Process 'Empire Earth', 'EE-AOC' -ErrorAction SilentlyContinue |
 about this number). A `PeakMB` below about 1200 MB makes the limit an unlikely cause, but the address space decides: if `PeakAddressSpaceMB` comes near
 2000, send both numbers with the game, whether it was EE, AoC or NeoEE, and the number of players (test plan WP6-20).
 
-**What do I send with a report?**
+</details>
+
+<a id="what-do-i-send-with-a-report"></a>
+<details open>
+<summary><b>What do I send with a report?</b></summary>
+
 
 - The diagnostics report: *Tools* page, "Copy report" or "Save report..." (launcher and Windows version, screen and display
   adapter, installations, file versions, DirectX wrapper, integrity, game defaults and hints, VirtualStore, the network
   check). It contains no CD keys, login data, player names, MAC or public IP address and no user or computer name; read it
   before you post it, the launcher never sends it.
-- The lines of `%LOCALAPPDATA%\Empire Earth Launcher\log.txt` around the start. `Game started: ..., pid <number>` is the
+- The lines of `%LOCALAPPDATA%\Empire Earth Launcher\log.txt` around the start (every launcher start writes into this one
+  file, so the lines of a second start that hands over to the running launcher are there too). `Game started: ..., pid <number>` is the
   start; the line about the hand-over of the foreground follows: `Game window 0x... of Empire Earth.exe (pid <number>)
   brought to the foreground after <N> ms (the foreground was pid <number> (the launcher)).` is the normal case.
   `... not brought to the foreground: skipped, user switched to pid <number>.` means another program was in front,
@@ -357,9 +487,23 @@ about this number). A `PeakMB` below about 1200 MB makes the limit an unlikely c
 - What you saw: whether the mouse worked without minimizing, which window or notification took the focus when the game
   minimized itself, whether the game comes back in full size, the Windows version and the display scaling.
 
+</details>
+
 ## 🌐 Download
-Sorry, at the moment the launcher is **ABSOLUTELY NOT** available for download in its current state.\
-To use the Launcher you will only need the .NET Framework 4.8 on your computer (see [Requirements](#requirements)).
+
+The launcher is not offered as a download of its own: it ships inside the package **Empire Earth Community**, which
+installs the games, the community fixes and this launcher in one go. Get the package from its release page:
+https://github.com/DritteRippe/Empire-Earth-Community/releases/latest. The releases of this repository are tags with
+release notes; they have no binaries.
+
+To try a change before a release, every green CI run keeps a test build for 30 days (see *Test builds* under
+[Dev](#dev)). The launcher needs the .NET Framework 4.8 (see [Requirements](#requirements)).
+
+> [!WARNING]
+> Installed the package "Empire Earth Community"? Repair and update it only with the package: run
+> "Empire Earth Community Setup" again, or get a newer package from its release page. The setup on empireearth.eu is a
+> different build with the same AppId; run over the package, it undoes the package's fixes. The repair advice of the
+> launcher (1.1.1) leads to the right place.
 
 ## Requirements
 
@@ -388,8 +532,11 @@ The launcher and the mod creator need the **.NET Framework 4.8** and run on thes
   the size it opens with) and the content of the pages grows with it.
 
 ## Dev
-You just need to clone the repo and open `Empire-Earth.sln` with Visual Studio **2019** or newer (with the workload ".NET desktop development", which contains the .NET Framework 4.8 targeting pack)\
-Some very critical parts of the Launcher can be censored like WON and NeoEE related important operation but most of the reverse WON C# implementation is available 💪
+
+Clone the repository and open `Empire-Earth.sln` in Visual Studio **2019** or newer, with the workload ".NET desktop
+development" (it contains the .NET Framework 4.8 targeting pack). Some sensitive parts of the WON and NeoEE operations
+may be left out, but most of the reverse-engineered WON implementation in C# is here. 💪 Before a pull request, read
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Building
 
@@ -462,6 +609,9 @@ Empire-Earth-Launcher.Tests\bin\Release\Empire-Earth-Launcher.Tests.exe         
 mono Empire-Earth-Launcher.Tests/bin/Debug/Empire-Earth-Launcher.Tests.exe       # Mono
 ```
 
+<details>
+<summary>What the tests cover, the fakes and the WinForms tests</summary>
+
 NUnitLite options can be passed, e.g. `--where "class =~ LobbyPersistentData"` to run some tests only or
 `--result=TestResult.xml` to write an NUnit 3 result file (by default no result file is written). The tests
 cover:
@@ -506,7 +656,8 @@ cover:
   (`DiagnosticsModel`: only on request, saving never into an installation), and the message of a second launcher;
 - the WON lobby file parser, the NeoEE protocol framing, reply parsing and request deadline (`Won/`), and the mod
   library (`Mod/`: product folders, file types, versions, the working directory of the mod creator, `.eem`
-  export/import including damaged archives);
+  export/import including damaged and crafted archives, the paths of mod files, the size limit of the archives, and the
+  local modifications of the vendored ZipStorer);
 - architecture rules (`Architecture/`): the shared build settings of every project, the core's dependencies (no
   WinForms, `System.Drawing` or Krypton; only the BCL and the WON library), a table test that the registry
   write policy refuses `Software\Sierra\CDKeys`, the install records and the uninstall keys under every alias
@@ -521,8 +672,9 @@ cover:
   (`TestIsolationTests`), and only the shell starter starts programs, never without the shell or elevated, and
   nothing ends a process (`ProcessRulesTests`); no source overrides the certificate check
   (`NoCertificateOverrideTests`), names an old or explicit TLS version or sets it outside `Program`
-  (`TlsSettingTests`), and every SHA-256 in the fixtures and the contract samples is the hash of a synthetic text
-  (`FixtureProvenanceTests`).
+  (`TlsSettingTests`), every SHA-256 in the fixtures and the contract samples is the hash of a synthetic text
+  (`FixtureProvenanceTests`), only the mod archive reader extracts ZIP entries (`ZipStorerUseTests`), and every action
+  of the CI workflow is pinned to the commit of a release (`ProjectConventionsTests`).
 
 Architecture tests read the project files, `packages.config`, `App.config`, `app.manifest`, the core's sources,
 the launcher's designer files, code and `.resx` files, `docs/CONTRACT.md`, ADR 0014, the test plan and the other
@@ -532,7 +684,8 @@ documents, the CI workflow and the built satellite assemblies (the tests that re
 `Tests\` folder of the laptop package) runs the others with `--where "cat != SourceTree"`. The tests use fakes
 (`Fakes/`: in-memory registry with both HKLM views and a 32-bit Windows mode, in-memory file system with Windows
 path rules, mutex probe and owner, clock, logger, system information with Windows version, Wine, screen and code
-page, process starter, process list, file versions, an HTTPS client that answers from a table, network adapters and
+page, process starter, process list, file versions, an HTTPS client that answers from a table (and, in `HttpsClientTests`,
+a handler that answers the real client from memory, so no request leaves the test), network adapters and
 name lookups from a table; `TestSupport/` also has `MappedFileSystem`, the real file system behind a drive letter that
 stands for a temporary folder) and
 only write below the temporary folder; they never contact a server, never touch the real registry or
@@ -547,6 +700,8 @@ driven through their real models in every state ([ADR 0012](docs/adr/0012-test-s
 write PNG files of the pages when `EE_LAUNCHER_PAGE_PNG_DIR` names a folder (the CI build uploads them as the artifact
 `page-pictures`). The core, the launcher and the WON library make their internal helpers
 visible to the test assembly (`InternalsVisibleTo`).
+
+</details>
 
 **Real machine**: `Empire-Earth-Launcher.RealMachineTests` is a second NUnitLite program, for the end-to-end workflow of
 the setup repository, which installs the real setups on a GitHub-hosted Windows runner and throws the runner away
@@ -564,6 +719,9 @@ commit of this repository (`LAUNCHER_COMMIT` in its `e2e-realdata.yml`), never t
 that is not on the branch it names (`LAUNCHER_BRANCH`, today `main`): the program runs as administrator next to the game
 data. A change of the checks therefore reaches that workflow only when the setup repository moves the pin, and that branch
 must never be rewritten (no rebase, no force push), or the pinned commit stops being on it.
+
+<details>
+<summary>Running the checks, and the expectation file of a step</summary>
 
 ```powershell
 $env:EE_LAUNCHER_REAL_MACHINE_TESTS = '1'
@@ -639,12 +797,17 @@ the game settings keys in HKLM and every file below the roots with their state b
 core goes to `core.log` in the work folder, never to the console, because it holds the hashes of the findings; the
 console output and the result file hold no hash (every message is redacted) and no game data.
 
+</details>
+
 **Continuous integration**: `.github/workflows/build.yml` restores and builds the solution in Release on
 `windows-latest` for every push to `main` and every pull request, then runs every `*Tests.exe` it finds in
 the `bin/Release` folders (a test program reports failure through a non-zero exit code; finding no test
 program fails the build): the unit tests and the self-tests of the real-machine checks, whose `RealMachine` fixtures
 stay skipped there. The NUnit result files are kept as the `test-results` artifact. Dependabot (`.github/dependabot.yml`)
-proposes a monthly pull request for the GitHub Actions the workflow uses; NuGet packages stay pinned on purpose. On a fork,
+proposes a monthly pull request for the GitHub Actions the workflow uses, all of them in one pull request; NuGet packages
+stay pinned on purpose. Every action in `build.yml` is pinned to the full commit SHA of a release with the version as a
+comment (`uses: owner/repo@<SHA> # vX.Y.Z`), the form Dependabot updates, and an architecture test
+(`ProjectConventionsTests`) fails on an action that is not pinned this way; the checkout keeps no credentials. On a fork,
 version updates must be enabled once under *Insights* > *Dependency graph* > *Dependabot*.
 
 **Test builds**: when all tests pass, the CI run also keeps the Release output of both applications for 30 days,
@@ -657,7 +820,8 @@ testing, not releases. The manual test on a real Windows computer is described i
 [docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md).
 
 **Versioning**: the version of all assemblies is maintained in one place, `SharedAssemblyInfo.cs`
-(currently `1.1.0`, the version the suite installer 1.1.0 packages).
+(currently `1.1.0`, the version the suite installer 1.1.0 packages). How a version is released, from the version
+commit to the package: [docs/RELEASING.md](docs/RELEASING.md).
 
 **Line endings**: `.gitattributes` stores text files with LF and checks C#, `.resx` and other Visual Studio
 files out with CRLF, so no extra `core.autocrlf` configuration is needed.
@@ -675,13 +839,18 @@ French (`Properties/Resources*.resx` of its project). How to translate, add a te
 
 ### Project layout
 
+<details>
+<summary>Show the folders and files of the solution</summary>
+
 ```
 Empire-Earth.sln                  Root solution containing every project
 SharedAssemblyInfo.cs             Version information shared by all assemblies
 CHANGELOG.md                      Changes of each version (Keep a Changelog)
+CONTRIBUTING.md, SECURITY.md      How to contribute; how to report a vulnerability privately
 THIRD-PARTY-NOTICES.md            Vendored code and NuGet dependencies with their licenses
 docs/                             ARCHITECTURE.md (v2 target), CONTRACT.md (shared with the setup), adr/
-                                  (decision records), TEST-PLAN.de.md (manual test on Windows, German),
+                                  (decision records), RELEASING.md (release checklist),
+                                  TEST-PLAN.de.md (manual test on Windows, German),
                                   TRANSLATING.md (languages, how to translate), contract-samples/ (byte samples
                                   of install.ini, files.sha256 and the install record, shared with the setup)
 Empire-Earth-Launcher-Core/       UI-free core library of the launcher (Empire_Earth_Launcher_Core.dll, ADR 0003):
@@ -758,14 +927,15 @@ Empire-Earth-WON/                 WON/NeoEE library, no UI (used by the launcher
 └─ LobbyPersistentData.cs         Parser for the WON lobby files (_wonlobbypersistent.dat, _wonuser*.dat)
 Empire-Earth-Mod/
 ├─ Empire-Earth-Mod-Lib/          Mod library: ModData (mod description), ModAssets (icon/banners),
-│                                 ModPackageBuilder/ModArchiveReader (.eem packages), Windows version detection
-│                                 (ZipStorer.cs is a vendored third-party ZIP library)
+│                                 ModPackageBuilder/ModArchiveReader (.eem packages), EemFormat (layout and rules
+│                                 of .eem archives), Windows version detection; ZipStorer.cs is the vendored
+│                                 ZipStorer 3.7.0 with local fixes, see THIRD-PARTY-NOTICES.md
 └─ Empire-Earth-Mod/              Mod creator (WinForms), uses Empire-Earth-Mod-Lib
 Empire-Earth-Launcher.Tests/      Unit tests (NUnitLite console program), one folder per tested project:
 ├─ Architecture/                  Rules for the whole solution (project settings, core dependencies, registry aliases,
 │                                 placeholder controls, ApplyTexts, resource parity, test plan, contract checklist,
 │                                 test isolation, network destinations, process starts, TLS and certificate rules,
-│                                 synthetic fixture hashes)
+│                                 synthetic fixture hashes, ZIP extraction only in the mod archive reader)
 ├─ Core/                          The core library, one folder per area
 ├─ Launcher/                      UI helpers, installation service, page models, start of a second launcher
 ├─ Won/                           WON lobby files, NeoEE protocol
@@ -784,9 +954,18 @@ Empire-Earth-Launcher.RealMachineTests/  Checks of the core against a real insta
 └─ SelfTest/                      The same checks on the in-memory fakes of the unit tests
 packages/                         NuGet packages, restored on build (not committed)
 .github/workflows/build.yml       CI build and test run
+.github/                          dependabot.yml (monthly updates of the actions), ISSUE_TEMPLATE/ (issue forms),
+                                  pull_request_template.md, CODEOWNERS
 ```
 
+</details>
+
 ### Configuration and files
+
+Where the launcher looks, what it reads and writes, and why.
+
+<details>
+<summary>Installations, game folder, contract, integrity check, update API, architecture, Play, user and server settings, language, themes, log, registry, game settings, backups, network check, report, exports</summary>
 
 - **Installations** ([contract 1.4](docs/CONTRACT.md#14-discovery-by-the-launcher)): when its window is shown, the
   launcher searches every installation of Empire Earth in the background, from five sources: the folder chosen on
@@ -815,11 +994,12 @@ packages/                         NuGet packages, restored on build (not committ
   Empire Earth folder of the selected installation; for a game folder below `Program Files`, `ProgramData` or the
   Windows folder it reads the copy in `%LOCALAPPDATA%\VirtualStore\...` first when one exists, because the game
   (a program without a manifest) reads and writes there, the launcher not.
-- **Contract with the setup**: [docs/CONTRACT.md](docs/CONTRACT.md) (shared with the Empire Earth Setup
-  repository, draft) specifies the install record, the integrity manifest, the per-user default game settings
-  and the repair hand-off that launcher v2 is built on. `docs/contract-samples/` holds synthetic byte samples of
-  `install.ini` (admin, user with `[MissingAfterInstall]`, portable), `files.sha256` and the install record as a `.reg`
-  file, which the launcher's readers are tested against; the setup repository is to take the same folder over.
+- **Contract with the setup**: [docs/CONTRACT.md](docs/CONTRACT.md) (shared with the
+  [Empire Earth Setup](https://github.com/DritteRippe/Empire-Earth-Setup) repository; contract version 1, released,
+  revision 7) specifies the install record, the integrity manifest, the per-user default game settings and the repair
+  hand-off that the launcher is built on. `docs/contract-samples/` holds synthetic byte samples of `install.ini` (admin,
+  user with `[MissingAfterInstall]`, portable), `files.sha256` and the install record as a `.reg` file, which the
+  launcher's readers are tested against; the setup repository keeps the same folder and checks its writers against it.
 - **Integrity check** ([contract 2](docs/CONTRACT.md#2-integrity-manifest)): after every search of the installations
   the launcher reads `_setupdata_<Product>\files.sha256` and `install.ini` of the selected community installation (setup
   v2 or later) and checks in the background that every listed file exists and that the program files (`exe dll asi
@@ -836,8 +1016,10 @@ packages/                         NuGet packages, restored on build (not committ
   https://api.empireearth.eu/setup/?product=<AppId>&type=game|setup&version=<version>` for the version check (and
   `&type=game` as the reference of the network check) over HTTPS with the certificate check of Windows, no redirects,
   10 seconds and at most 4 KiB; on Windows 7 TLS 1.2 is requested explicitly, elsewhere Windows chooses. The launcher
-  no longer asks it for a download address: the repair window opens the download page of the product (contract 4.3)
-  without a request, and a failed version check says why in the window and the log.
+  no longer asks it for a download address: the repair window opens the download page of the product, or for an
+  installation of the suite the release page of the package (contract 4.3, revision 7), without a request, and a failed
+  version check says why in the window and the log. The answer is decoded by the launcher itself (the character set of
+  the answer if Windows knows it, else the one of a byte order mark, else UTF-8), so an unusual `charset` is no error (1.1.1).
 - **Architecture of v2**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) describes the structure as built (UI-free
   core library, thin WinForms UI on .NET Framework 4.8), data flows, threading, error handling, logging,
   localization and tests, and ticks the launcher items of the contract checklist; the decisions behind it are recorded
@@ -920,14 +1102,23 @@ packages/                         NuGet packages, restored on build (not committ
   page names the other. Imported files go to `Data\Saved Games` or `Data\Scenarios` of the game, or into its
   VirtualStore folder when Windows does not let a standard user write into a game folder below `Program Files`.
 
+</details>
+
 ## 🔨 Contributing
-Pull requests are welcome; work happens on a short-lived branch with a pull request into `main`.\
-Bugs go into an [issue](https://github.com/DritteRippe/Empire-Earth-Launcher/issues/new/choose) (the form asks for the logs); security problems are reported privately,
-see [SECURITY.md](SECURITY.md).\
-For major changes, please open an issue first to discuss what you would like to change or discuss with us on Discord.
+
+Contributions are welcome: bug reports, tests on real Windows computers, translations and code. Work happens on a
+short-lived branch with a pull request into `main`; [CONTRIBUTING.md](CONTRIBUTING.md) explains the rules, the local
+checks, the commit style and the CHANGELOG; [docs/RELEASING.md](docs/RELEASING.md) is the checklist for a release.
+
+- **Bugs**: open an [issue](https://github.com/DritteRippe/Empire-Earth-Launcher/issues/new/choose); the form asks for
+  the logs (see [What do I send with a report?](#what-do-i-send-with-a-report)).
+- **Security problems**: report them privately, see [SECURITY.md](SECURITY.md).
+- **Larger changes**: please open an issue first, so that we can agree on the approach.
 
 ## 📖 License
-[GNU General Public License v3.0](https://github.com/EE-modders/Empire-Earth-Launcher/blob/main/LICENSE)
+
+Empire Earth Launcher is free software under the [GNU General Public License v3.0](LICENSE). It builds on the launcher of
+[EE-modders](https://github.com/EE-modders/Empire-Earth-Launcher) and its contributors; thank you!
 
 Third-party components are listed in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). The launcher neither contains nor downloads
 dgVoodoo (dgVoodoo's terms do not allow bundling it in launchers); the community setup installs it into the game folders.

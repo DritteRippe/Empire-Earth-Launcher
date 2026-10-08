@@ -23,13 +23,13 @@ Rules:
 | [0005](0005-own-settings-file-instead-of-user-config.md) | Own settings file instead of user.config | Accepted, amended 2026-10-02 (twice) |
 | [0006](0006-platform-abstractions-and-windows-path-logic.md) | Platform abstractions and Windows path logic | Accepted, amended 2026-10-02 (twice) |
 | [0007](0007-registry-write-scope-and-reg-backups.md) | Registry write scope, protected keys and .reg backups | Accepted, amended 2026-10-02 (six times) |
-| [0008](0008-https-policy-and-update-api.md) | HTTPS policy and use of the update API | Accepted, amended 2026-10-02 (four times) |
+| [0008](0008-https-policy-and-update-api.md) | HTTPS policy and use of the update API | Accepted, amended 2026-10-02 (four times), 2026-10-07 and 2026-10-08 (twice) |
 | [0009](0009-localization-with-resx-en-de-fr.md) | Localization with resx: English, German, French | Accepted, amended 2026-10-02 (twice) |
 | [0010](0010-game-start-and-mutex-probing.md) | Game start, mutex probing and single instance | Accepted, amended 2026-10-02 (twice) |
 | [0011](0011-screen-size-in-physical-pixels.md) | Screen size in physical pixels | Accepted, amended 2026-10-02 (twice) |
-| [0012](0012-test-strategy.md) | Test strategy | Accepted, amended 2026-10-02 (seven times), 2026-10-03 and 2026-10-06 |
-| [0013](0013-error-handling-and-logging.md) | Error handling and logging | Accepted, amended 2026-10-02 (three times) |
-| [0014](0014-only-working-features-in-the-ui.md) | Only working features in the UI | Accepted, amended 2026-10-02 (six times) and 2026-10-07 (twice) |
+| [0012](0012-test-strategy.md) | Test strategy | Accepted, amended 2026-10-02 (seven times), 2026-10-03 (twice), 2026-10-06 (three times), 2026-10-07 (twice) and 2026-10-08 |
+| [0013](0013-error-handling-and-logging.md) | Error handling and logging | Accepted, amended 2026-10-02 (three times) and 2026-10-08 |
+| [0014](0014-only-working-features-in-the-ui.md) | Only working features in the UI | Accepted, amended 2026-10-02 (six times), 2026-10-07 (four times) and 2026-10-08 |
 | [0015](0015-game-settings-target-folders-and-write-timing.md) | Game settings: target folders and when the launcher writes | Accepted, amended 2026-10-02 (four times) |
 | [0016](0016-mutation-guard-and-effective-game-paths.md) | Mutation guard and effective game paths | Accepted, amended 2026-10-02 (eight times) |
 | [0017](0017-resizable-layout.md) | Resizable layout | Accepted |

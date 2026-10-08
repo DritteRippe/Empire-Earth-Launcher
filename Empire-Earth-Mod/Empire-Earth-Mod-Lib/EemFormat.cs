@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -18,7 +19,8 @@ namespace Empire_Earth_Mod_Lib
     /// {variant}/Banner{i}.png   banners of a variant; {variant} is the variant GUID, {i} starts at 0
     /// {variant}/{product}/...   game files of a variant; {product} is "all", "EEC" or "AOC"
     /// </code>
-    /// The working directory of <see cref="ModPackageBuilder"/> has the same layout on disk.
+    /// The working directory of <see cref="ModPackageBuilder"/> has the same layout on disk. The paths of the game files in
+    /// the data (<see cref="ModFile.RelativeFilePath"/>) follow <see cref="IsValidFilePath"/>.
     /// </remarks>
     public static class EemFormat
     {
@@ -59,12 +61,40 @@ namespace Empire_Earth_Mod_Lib
         public static readonly ReadOnlyCollection<string> ProductFolders =
             new ReadOnlyCollection<string>(new[] { ProductFolderBoth, ProductFolderEec, ProductFolderAoc });
 
+        /// <summary>Separators of the folders in the paths of mod files: '\' as written on Windows, '/' as in entry names.</summary>
+        private static readonly char[] FilePathSeparators = { '\\', '/' };
+
+        /// <summary>Characters Windows does not allow in file names, besides the control characters U+0000 to U+001F.</summary>
+        private const string InvalidFileNameCharacters = "<>:\"|?*";
+
+        /// <summary>Names Windows reserves for devices, also with an extension ("NUL.txt").</summary>
+        private static readonly HashSet<string> ReservedFileNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "CON", "PRN", "AUX", "NUL",
+            "COM0", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "COM\u00B9", "COM\u00B2", "COM\u00B3",
+            "LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9", "LPT\u00B9", "LPT\u00B2", "LPT\u00B3"
+        };
+
         /// <summary>File name of the banner with the given index, e.g. "Banner0.png".</summary>
         public static string GetBannerFileName(int index)
         {
             if (index < 0)
                 throw new ArgumentOutOfRangeException(nameof(index));
             return BannerFilePrefix + index + BannerFileExtension;
+        }
+
+        /// <summary>
+        /// True for a name that <see cref="GetBannerFileName"/> creates: "Banner", a number, ".png", in any case, e.g.
+        /// "Banner0.png", but not "BannerSource.png" or "Banner1.png.bak".
+        /// </summary>
+        public static bool IsBannerFileName(string fileName)
+        {
+            if (fileName == null ||
+                !fileName.StartsWith(BannerFilePrefix, StringComparison.OrdinalIgnoreCase) ||
+                !fileName.EndsWith(BannerFileExtension, StringComparison.OrdinalIgnoreCase))
+                return false;
+            int digits = fileName.Length - BannerFilePrefix.Length - BannerFileExtension.Length;
+            return digits > 0 && fileName.Substring(BannerFilePrefix.Length, digits).All(c => c >= '0' && c <= '9');
         }
 
         /// <summary>
@@ -92,6 +122,40 @@ namespace Empire_Earth_Mod_Lib
             if (parts.Length < 2)
                 return null;
             return ProductFolders.FirstOrDefault(folder => folder.Equals(parts[0], StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// The rule for the path of a mod file (<see cref="ModFile.RelativeFilePath"/>), relative to its variant folder: a
+        /// product folder (<see cref="ProductFolders"/>, any case) and at least one more part, separated by '\' or '/', e.g.
+        /// "EEC\Data\units.xml". Every part is a file name that Windows accepts: not empty, not "." or "..", no ':' (drive
+        /// letters, alternate data streams), none of the other characters Windows forbids in file names, no device name such
+        /// as "CON" or "NUL.txt", no '.' or ' ' at the end (Windows removes them). Such a path stays inside the product
+        /// folder, whatever folder it is combined with.
+        /// </summary>
+        /// <remarks>
+        /// Mod archives come from other people: <see cref="ModArchiveReader"/> rejects an archive with a path that breaks
+        /// this rule, so that code that writes the files of a mod cannot be sent outside the game folder (path traversal,
+        /// "zip slip"), and <see cref="ModPackageBuilder.ExportModInfos"/> does not write such a path into a mod.
+        /// </remarks>
+        public static bool IsValidFilePath(string relativePath)
+        {
+            if (string.IsNullOrEmpty(relativePath))
+                return false;
+            string[] parts = relativePath.Split(FilePathSeparators);
+            return parts.Length >= 2 &&
+                   ProductFolders.Any(folder => folder.Equals(parts[0], StringComparison.OrdinalIgnoreCase)) &&
+                   parts.All(IsValidFileName);
+        }
+
+        private static bool IsValidFileName(string name)
+        {
+            if (name.Length == 0 || name.EndsWith(".", StringComparison.Ordinal) || name.EndsWith(" ", StringComparison.Ordinal))
+                return false;
+            if (name.Any(c => c < ' ' || InvalidFileNameCharacters.IndexOf(c) >= 0))
+                return false;
+            // Windows takes the name up to the first '.', without trailing spaces, for a device: "NUL.txt", "CON .log".
+            int dot = name.IndexOf('.');
+            return !ReservedFileNames.Contains((dot < 0 ? name : name.Substring(0, dot)).TrimEnd(' '));
         }
 
         /// <summary>

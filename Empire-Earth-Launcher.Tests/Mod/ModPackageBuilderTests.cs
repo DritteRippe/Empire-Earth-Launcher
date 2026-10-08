@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -197,6 +198,22 @@ namespace Empire_Earth_Launcher.Tests.Mod
             }
         }
 
+        [TestCase(@"EEC\..\..\evil.dll")]
+        [TestCase(@"C:\Windows\evil.dll")]
+        [TestCase("readme.txt")]
+        public void ExportModInfos_FilePathOutsideTheProductFolders_WritesNoModData(string relativePath)
+        {
+            // The mod archive reader would reject the archive (EemFormat.IsValidFilePath); a caller of the library that
+            // adds such a file to the mod gets the reason when it builds, not a mod that nobody can load.
+            mod.ModFiles.Add(new ModFile(relativePath, ModFile.ModFileType.Data, Guid.Empty, string.Empty));
+            using (ModPackageBuilder builder = CreateBuilder())
+            {
+                Assert.That(() => builder.ExportModInfos(),
+                    Throws.TypeOf<InvalidOperationException>().With.Message.Contains(relativePath));
+                Assert.That(Path.Combine(builder.WorkingDirectory, EemFormat.DataEntryName), Does.Not.Exist);
+            }
+        }
+
         [Test]
         public void GenerateVariantsFolders_RemovesOnlyFoldersOfRemovedVariants()
         {
@@ -293,6 +310,46 @@ namespace Empire_Earth_Launcher.Tests.Mod
                 Assert.That(ignored.Select(path => path.Replace(Path.DirectorySeparatorChar, '/')),
                     Is.EquivalentTo(new[] { "readme.txt", "Data/misplaced.xml" }));
                 Assert.That(IndexedPaths(Guid.Empty), Is.EqualTo(new[] { "EEC/Data/file.xml" }));
+            }
+        }
+
+        [Test]
+        public void ReloadModFiles_ReportsAFileThatOnlyLooksLikeABanner()
+        {
+            using (ModPackageBuilder builder = CreateBuilder())
+            {
+                AddFile(builder, Guid.Empty, EemFormat.GetBannerFileName(1));
+                AddFile(builder, Guid.Empty, "BannerSource.png");
+
+                List<string> ignored = builder.ReloadModFiles(Guid.Empty);
+
+                Assert.That(ignored, Is.EqualTo(new[] { "BannerSource.png" }));
+            }
+        }
+
+        [Test]
+        public void ExportBannersAndIcon_DeletesOnlyTheBannersOfAnEarlierExport()
+        {
+            // All files the search pattern "Banner*.png" found were deleted, also a source image of the author (and, where
+            // Windows matches the pattern against short names, "Banner1.pngx").
+            assets.Icon = new Bitmap(ModImageRules.IconSize, ModImageRules.IconSize);
+            using (ModPackageBuilder builder = CreateBuilder())
+            {
+                builder.GenerateVariantsFolders();
+                string oldBanner = AddFile(builder, Guid.Empty, EemFormat.GetBannerFileName(3));
+                string[] filesOfTheAuthor =
+                {
+                    AddFile(builder, Guid.Empty, "BannerSource.png"),
+                    AddFile(builder, Guid.Empty, "Banner1.png.bak"),
+                    AddFile(builder, Guid.Empty, "Banner1.pngx"),
+                };
+
+                builder.ExportBannersAndIcon();
+
+                Assert.That(oldBanner, Does.Not.Exist);
+                foreach (string file in filesOfTheAuthor)
+                    Assert.That(file, Does.Exist);
+                Assert.That(Path.Combine(builder.WorkingDirectory, EemFormat.IconEntryName), Does.Exist);
             }
         }
 

@@ -1,18 +1,32 @@
 name: Bug report
-description: Something does not work in the launcher or the suite installer
+description: Something does not work in the launcher or the mod creator
 labels: [bug]
 body:
   - type: markdown
     attributes:
       value: |
-        Thank you for the report. **Never attach game files, CD keys or the private package.** Read logs and the
+        Thank you for the report. **Never attach game files, CD keys or the package itself.** Read logs and the
         diagnostics report before you post them.
+
+        - A security problem? Please report it privately, see [SECURITY.md](https://github.com/DritteRippe/Empire-Earth-Launcher/security/policy).
+        - A problem of a setup or of "Empire Earth Community Setup"? Please use the
+          [setup repository](https://github.com/DritteRippe/Empire-Earth-Setup/issues).
+  - type: dropdown
+    id: component
+    attributes:
+      label: Program
+      options:
+        - Empire Earth Launcher
+        - Mod creator
+        - Not sure
+    validations:
+      required: true
   - type: input
     id: version
     attributes:
-      label: Version of the suite and the launcher
-      description: The version of the launcher and, if you used it, of the suite installer.
-      placeholder: "Suite 1.1.0, launcher 1.1.0"
+      label: Version of the launcher and of the package
+      description: The version of the launcher and, if you installed it with it, of the package "Empire Earth Community".
+      placeholder: "Launcher 1.1.0, package Empire Earth Community 1.1.0"
     validations:
       required: true
   - type: input
@@ -48,8 +62,6 @@ body:
           password of an administrator account, it is in that account's `%TEMP%`).
         - Game setups started by the suite installer: `Logs\EE-<yyyyMMdd-HHmm>.log` and `Logs\NeoEE-<yyyyMMdd-HHmm>.log`
           in the folder of the suite (by default `C:\Program Files\Empire Earth Community\Logs`).
-
-        Bugs of the setups themselves belong in the issues of the setup repository.
   - type: checkboxes
     id: owner
     attributes:

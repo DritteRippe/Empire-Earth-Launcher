@@ -12,9 +12,9 @@ namespace Empire_Earth_Launcher.Tests.Architecture
     /// The tests touch nothing of the computer they run on (ADR 0012 plan review, REV-06): the test program also runs from
     /// the <c>Tests\</c> folder of the laptop package on real Windows (test plan WP1-11), so it must not create a
     /// <c>WindowsRegistry</c>, use <c>Microsoft.Win32.Registry</c> directly, create an HTTP client (also the launcher's
-    /// <c>HttpsClient</c>; its handler settings are inspected without a request) or a socket, ask a server
-    /// or write into the launcher's real folder below <c>%LOCALAPPDATA%</c>. Checked on the sources of the test project;
-    /// temporary folders and mutexes with random names are allowed.
+    /// <c>HttpsClient</c>; its settings are inspected, and its requests go to a handler that answers from memory) or a
+    /// socket, ask a server or write into the launcher's real folder below <c>%LOCALAPPDATA%</c>. Checked on the sources
+    /// of the test project; temporary folders and mutexes with random names are allowed.
     /// </summary>
     [TestFixture]
     [Category(TestCategories.SourceTree)]

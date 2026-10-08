@@ -1,0 +1,17 @@
+name: Private contact for a security report
+description: Only if the private form "Report a vulnerability" does not work for you. No details here.
+title: "Security contact request"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **This issue is public. Do not describe the problem here.**
+
+        Please try the private form first: [Report a vulnerability](https://github.com/DritteRippe/Empire-Earth-Launcher/security/advisories/new) ([SECURITY.md](https://github.com/DritteRippe/Empire-Earth-Launcher/security/policy)). If it does not work for you, submit this form: the maintainer answers here and arranges a private way with you.
+  - type: checkboxes
+    id: no-details
+    attributes:
+      label: Confirmation
+      options:
+        - label: This issue contains no details of the security problem.
+          required: true

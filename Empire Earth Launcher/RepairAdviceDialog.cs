@@ -16,8 +16,9 @@ namespace Empire_Earth_Launcher
     /// </summary>
     /// <remarks>
     /// <para>
-    /// The address is the download page of the product (contract 4.3), known from the start: the window shows it at once and
-    /// makes no request; the website redirects the browser to the setup.
+    /// The address is the download page of the product (contract 4.3), or the release page of the package for an installation
+    /// of the suite (<see cref="RepairAdvice.DownloadUrl"/>), known from the start: the window shows it at once and makes no
+    /// request; the website redirects the browser to the setup.
     /// </para>
     /// <para>
     /// Built in code without a designer file: the texts have very different lengths in English, German and French, so the
@@ -44,7 +45,7 @@ namespace Empire_Earth_Launcher
         private readonly RepairAdvice advice;
 
         /// <param name="themeService">Theme of the launcher.</param>
-        /// <param name="advice">The advice of the core, with the download page of the product.</param>
+        /// <param name="advice">The advice of the core, with the download page of the product or of the package.</param>
         /// <param name="reason">Why the advice is shown (already in the UI language), e.g. the missing program or the files of
         /// the integrity check; null for none.</param>
         /// <param name="updates">Opens the download page (contract 4.3).</param>
@@ -139,13 +140,13 @@ namespace Empire_Earth_Launcher
             adviceKryptonWrapLabel.Text = string.IsNullOrEmpty(reason)
                 ? steps
                 : reason + Environment.NewLine + Environment.NewLine + steps;
-            pageKryptonWrapLabel.Text = advice.SuiteFolder != null
-                ? Resources.RepairDownloadPageSuiteLabel
+            pageKryptonWrapLabel.Text = advice.SuiteFolder != null ? Resources.RepairDownloadPageSuiteLabel
+                : advice.InstalledBySuite ? Resources.RepairPackagePageLabel
                 : Resources.RepairDownloadPageLabel;
             pageKryptonTextBox.Text = advice.DownloadUrl;
             openPageKryptonButton.Values.Text = Resources.RepairOpenPageButton;
             // The suite step (contract 4.4, revision 4): the button opens the folder of the suite setup in the Explorer and
-            // starts nothing; the download page below stays the second option.
+            // starts nothing; the release page of the package below stays the second option.
             openSuiteFolderKryptonButton.Values.Text = Resources.RepairOpenSuiteFolderButton;
             openSuiteFolderKryptonButton.Visible = advice.SuiteFolder != null;
             if (advice.SuiteFolder != null)
