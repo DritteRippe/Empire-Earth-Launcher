@@ -255,7 +255,8 @@ namespace Empire_Earth_Mod_Lib
                 throw new InvalidOperationException("The mod has no icon. Select an icon before building the mod.");
             GenerateVariantsFolders();
 
-            // Delete old banners and icon (only the files written by a previous export)
+            // Delete old banners and icon (only the files written by a previous export). The search pattern alone would
+            // also find files of the author such as "BannerSource.png" (and, on Windows, "Banner1.pngx").
             string iconPath = Path.Combine(WorkingDirectory, EemFormat.IconEntryName);
             if (File.Exists(iconPath))
                 File.Delete(iconPath);
@@ -263,7 +264,8 @@ namespace Empire_Earth_Mod_Lib
             foreach (var variant in mod.Variants)
             {
                 foreach (var banner in new DirectoryInfo(Path.Combine(WorkingDirectory, variant.Key.ToString()))
-                             .GetFiles(EemFormat.BannerFilePrefix + "*" + EemFormat.BannerFileExtension))
+                             .GetFiles(EemFormat.BannerFilePrefix + "*" + EemFormat.BannerFileExtension)
+                             .Where(file => EemFormat.IsBannerFileName(file.Name)))
                 {
                     banner.Delete();
                 }
@@ -423,9 +425,7 @@ namespace Empire_Earth_Mod_Lib
         private static bool IsExportedBanner(string relativePath)
         {
             string fileName = Path.GetFileName(relativePath);
-            return fileName == relativePath &&
-                   fileName.StartsWith(EemFormat.BannerFilePrefix, StringComparison.OrdinalIgnoreCase) &&
-                   fileName.EndsWith(EemFormat.BannerFileExtension, StringComparison.OrdinalIgnoreCase);
+            return fileName == relativePath && EemFormat.IsBannerFileName(fileName);
         }
     }
 }

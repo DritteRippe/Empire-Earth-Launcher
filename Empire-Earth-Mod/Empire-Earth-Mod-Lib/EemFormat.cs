@@ -84,6 +84,20 @@ namespace Empire_Earth_Mod_Lib
         }
 
         /// <summary>
+        /// True for a name that <see cref="GetBannerFileName"/> creates: "Banner", a number, ".png", in any case, e.g.
+        /// "Banner0.png", but not "BannerSource.png" or "Banner1.png.bak".
+        /// </summary>
+        public static bool IsBannerFileName(string fileName)
+        {
+            if (fileName == null ||
+                !fileName.StartsWith(BannerFilePrefix, StringComparison.OrdinalIgnoreCase) ||
+                !fileName.EndsWith(BannerFileExtension, StringComparison.OrdinalIgnoreCase))
+                return false;
+            int digits = fileName.Length - BannerFilePrefix.Length - BannerFileExtension.Length;
+            return digits > 0 && fileName.Substring(BannerFilePrefix.Length, digits).All(c => c >= '0' && c <= '9');
+        }
+
+        /// <summary>
         /// Normalizes a path relative to a variant folder for comparisons and display: directory separators of
         /// the current OS, no leading or trailing separator.
         /// </summary>

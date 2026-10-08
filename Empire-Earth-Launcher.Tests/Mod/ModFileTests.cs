@@ -272,5 +272,21 @@ namespace Empire_Earth_Launcher.Tests.Mod
             Assert.That(EemFormat.GetBannerFileName(12), Is.EqualTo("Banner12.png"));
             Assert.That(() => EemFormat.GetBannerFileName(-1), Throws.TypeOf<ArgumentOutOfRangeException>());
         }
+
+        [TestCase("Banner0.png", true)]
+        [TestCase("Banner12.png", true)]
+        [TestCase("banner3.PNG", true)]
+        [TestCase("Banner.png", false)]
+        [TestCase("BannerSource.png", false)]
+        [TestCase("Banner-1.png", false)]
+        [TestCase("Banner1.png.bak", false)]
+        [TestCase("Banner1.pngx", false)]
+        [TestCase("MyBanner1.png", false)]
+        [TestCase("Banner\uFF11.png", false)]
+        [TestCase(null, false)]
+        public void IsBannerFileName_OnlyTheNamesOfGetBannerFileName(string fileName, bool expected)
+        {
+            Assert.That(EemFormat.IsBannerFileName(fileName), Is.EqualTo(expected));
+        }
     }
 }
