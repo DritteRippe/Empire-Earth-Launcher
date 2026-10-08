@@ -8,7 +8,7 @@ contract shared with the Empire Earth Setup.
 | | |
 |---|---|
 | Status | **Built**: describes v2 as built on branch `v2` in the work packages L-WP1 to L-WP9 (section 15, all done; the launcher items of the contract checklist are ticked there) and, as launcher 1.0.0, the optional additions of contract revision 4 for the suite installer (4.7 and the second table of section 15); what is still open is in section 14 and in the test plan for real Windows. The README describes the launcher as it is |
-| Based on | branch `v2` at `2dc6c43` (refactor/quality-fixes plus the contract), contract version 1 (draft); revised after the design review (ADR amendments of 2026-10-02, ADR 0015, 0016) and after the plan review before L-WP5 (amendments "plan review" of ADR 0007, 0008, 0011, 0012, 0013, 0015, 0016); implementation notes of L-WP2 to L-WP9 in the sections and the ADR amendments |
+| Based on | branch `v2` at `2dc6c43` (refactor/quality-fixes plus the contract), contract version 1 (a draft then, released with launcher 1.0.0; the checklists of section 15 follow its revision 7); revised after the design review (ADR amendments of 2026-10-02, ADR 0015, 0016) and after the plan review before L-WP5 (amendments "plan review" of ADR 0007, 0008, 0011, 0012, 0013, 0015, 0016); implementation notes of L-WP2 to L-WP9 in the sections and the ADR amendments |
 | Scope | the launcher, its UI-free core library, the WON library, the mod library and mod creator, the tests, the build |
 
 Contents: [1. Goals and constraints](#1-goals-and-constraints) · [2. Module map](#2-module-map) ·
@@ -1178,6 +1178,18 @@ real-Windows cases are WP11-01 to WP11-05, WP13-01 to WP13-07 and WP14-01 to WP1
 | [x] | the Play page lists the four games, choosing one selects the installation of its product for every page, a game that is not installed is disabled, the choice is saved with one chosen folder per product (1.4, default selection, revision 6) | `PlayEntryTests`, `ProductChoicesTests`, `InstallationServiceTests`, `PlayModelTests`, `DiscoveryResultSessionProductTests` | WP13-01, WP13-02, WP13-03, WP13-04, WP13-05, WP13-07 |
 | [x] | a second launcher started without an argument brings the running one to the front instead of showing a message (1.4, revision 6) | `InstanceForwardingTests`, `LauncherInstanceTargetTests` | WP13-06 |
 | [x] | the repair advice and an available update open the download page of the product without a request (since 1.1.1 an installation of the suite the release page of the package instead, 4.5), the update API gets only the requests of 4.5, also from the network check (4.3, 4.5, revision 6) | `SetupDownloadPageTests`, `UpdateApiTests`, `NetworkDestinationTests`, `UpdateModelTests` | WP14-01, WP14-02, WP14-03 |
+
+### Launcher checklist of CONTRACT 7, revision 7 additions
+
+The launcher item of "Additions of revision 7 (launcher 1.1.1)" in section 7 of [CONTRACT.md](CONTRACT.md), built in
+launcher 1.1.1 (the review after the release of 1.1.0: the advice sent an installation of the suite to the product
+setup of the community website; section 4.5 and the ADR 0008 amendment of 2026-10-08). The suite part of revision 7 is
+informative and asks nothing of the launcher. `ContractChecklistTests` checks this table like the ones above; the
+real-Windows cases are WP10-06, WP10-11 and WP7-10.
+
+| Done | Contract 7, additions of revision 7 | Unit tests | Test plan |
+|---|---|---|---|
+| [x] | the advice of an installation of the suite and an available update of it lead to the release page of the package, also without `SourceDir`, never to the product pages (1.6, 4.3, 4.4, 4.5) | `SuiteRepairTests`, `SetupDownloadPageTests`, `UpdateModelTests`, `NetworkDestinationTests` | WP10-06, WP10-11, WP7-10 |
 
 ## 16. Not in v2
 
