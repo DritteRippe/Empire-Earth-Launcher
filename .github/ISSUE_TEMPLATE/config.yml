@@ -10,5 +10,5 @@ contact_links:
     url: https://github.com/DritteRippe/Empire-Earth-Launcher/security/policy
     about: Please report security problems privately, never in a public issue.
   - name: What do I send with a report?
-    url: https://github.com/DritteRippe/Empire-Earth-Launcher#-faq-and-known-issues
+    url: https://github.com/DritteRippe/Empire-Earth-Launcher#what-do-i-send-with-a-report
     about: The README FAQ says which logs and which diagnostics report help.

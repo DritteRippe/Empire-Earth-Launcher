@@ -41,6 +41,11 @@ are still to be run on real Windows ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md
   problems to the right place, `SECURITY.md` (supported versions and the direct link for a private report),
   `CONTRIBUTING.md` (ways to help, the rules of the code, the workflow, the local checks, the commit style and the
   CHANGELOG), a pull request template and `.github/CODEOWNERS`.
+- README: a banner for light and dark mode, badges (release, build, license, platform, .NET Framework), a navigation line,
+  "Just want to play?" with the link to the package, "At a glance", "Quick start" for players and developers, "Status"
+  and "Documentation". The long reference parts (the test coverage, the real-machine checks, the project layout, files
+  and settings, the answers of the FAQ) are folded; every heading that other pages link keeps its anchor, and "What do I
+  send with a report?" has its own anchor.
 - `docs/RELEASING.md`: the release checklist, from the version commit (every file with the version number) through the
   green build on `main`, the tag and the release notes to the binaries and the hand-over to the setup and the package.
 

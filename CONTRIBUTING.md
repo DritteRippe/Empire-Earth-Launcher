@@ -13,7 +13,7 @@ Windows computers, translations and code are all welcome.
 
 | You want to ... | Go to |
 |---|---|
-| Report a bug of the launcher or the mod creator | [New issue](https://github.com/DritteRippe/Empire-Earth-Launcher/issues/new/choose) (the form asks for the logs; see [What do I send with a report?](README.md#-faq-and-known-issues)) |
+| Report a bug of the launcher or the mod creator | [New issue](https://github.com/DritteRippe/Empire-Earth-Launcher/issues/new/choose) (the form asks for the logs; see [What do I send with a report?](README.md#what-do-i-send-with-a-report)) |
 | Report a bug of the setups or the suite installer | [Empire-Earth-Setup issues](https://github.com/DritteRippe/Empire-Earth-Setup/issues) |
 | Report a security problem | **Privately**, see [SECURITY.md](SECURITY.md), never in a public issue |
 | Test on a real Windows computer | The German [test plan](docs/TEST-PLAN.de.md); section 4.1 lists the cases that still need a run |
