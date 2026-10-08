@@ -91,6 +91,7 @@ msbuild Empire-Earth.sln /p:Configuration=Release
 - Keep the README, [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and the test plan in step with the code. A decision
   gets a new ADR; a refinement of an accepted one gets a dated *Amendment* section (rules in
   [docs/adr/README.md](docs/adr/README.md)).
+- Releases follow the checklist in [docs/RELEASING.md](docs/RELEASING.md).
 
 ## License
 

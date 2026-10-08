@@ -41,6 +41,8 @@ are still to be run on real Windows ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md
   problems to the right place, `SECURITY.md` (supported versions and the direct link for a private report),
   `CONTRIBUTING.md` (ways to help, the rules of the code, the workflow, the local checks, the commit style and the
   CHANGELOG), a pull request template and `.github/CODEOWNERS`.
+- `docs/RELEASING.md`: the release checklist, from the version commit (every file with the version number) through the
+  green build on `main`, the tag and the release notes to the binaries and the hand-over to the setup and the package.
 
 ### Changed
 

@@ -963,6 +963,8 @@ Decided in [ADR 0001](adr/0001-target-dotnet-framework-4-8.md) and
   `THIRD-PARTY-NOTICES.md` and `licenses/THIRD-PARTY-LICENSES.txt`. Every action of the workflow is pinned to the full
   commit SHA of a release with its version as a comment (`ProjectConventionsTests`); Dependabot proposes newer versions
   once a month in one pull request (`.github/dependabot.yml`).
+- **Release**: a tag `vX.Y.Z` on a commit of `main` with a green CI run (tags start no build), binaries built with MSBuild
+  from that tag and handed to the suite installer of the setup repository; the steps are in [RELEASING.md](RELEASING.md).
 - Runtime requirement: .NET Framework 4.8 (built into Windows 10 1903 and later and Windows 11; an
   installer for Windows 7 SP1, 8.1 and older 10; **not available for Windows 8.0**). `App.config`:
   `<supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.8" />`.

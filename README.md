@@ -684,7 +684,8 @@ testing, not releases. The manual test on a real Windows computer is described i
 [docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md).
 
 **Versioning**: the version of all assemblies is maintained in one place, `SharedAssemblyInfo.cs`
-(currently `1.1.0`, the version the suite installer 1.1.0 packages).
+(currently `1.1.0`, the version the suite installer 1.1.0 packages). How a version is released, from the version
+commit to the package: [docs/RELEASING.md](docs/RELEASING.md).
 
 **Line endings**: `.gitattributes` stores text files with LF and checks C#, `.resx` and other Visual Studio
 files out with CRLF, so no extra `core.autocrlf` configuration is needed.
@@ -709,7 +710,8 @@ CHANGELOG.md                      Changes of each version (Keep a Changelog)
 CONTRIBUTING.md, SECURITY.md      How to contribute; how to report a vulnerability privately
 THIRD-PARTY-NOTICES.md            Vendored code and NuGet dependencies with their licenses
 docs/                             ARCHITECTURE.md (v2 target), CONTRACT.md (shared with the setup), adr/
-                                  (decision records), TEST-PLAN.de.md (manual test on Windows, German),
+                                  (decision records), RELEASING.md (release checklist),
+                                  TEST-PLAN.de.md (manual test on Windows, German),
                                   TRANSLATING.md (languages, how to translate), contract-samples/ (byte samples
                                   of install.ini, files.sha256 and the install record, shared with the setup)
 Empire-Earth-Launcher-Core/       UI-free core library of the launcher (Empire_Earth_Launcher_Core.dll, ADR 0003):
@@ -958,7 +960,7 @@ packages/                         NuGet packages, restored on build (not committ
 
 Contributions are welcome: bug reports, tests on real Windows computers, translations and code. Work happens on a
 short-lived branch with a pull request into `main`; [CONTRIBUTING.md](CONTRIBUTING.md) explains the rules, the local
-checks, the commit style and the CHANGELOG.
+checks, the commit style and the CHANGELOG; [docs/RELEASING.md](docs/RELEASING.md) is the checklist for a release.
 
 - **Bugs**: open an [issue](https://github.com/DritteRippe/Empire-Earth-Launcher/issues/new/choose); the form asks for
   the logs (see [What do I send with a report?](#-faq-and-known-issues)).
