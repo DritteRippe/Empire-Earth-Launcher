@@ -36,8 +36,11 @@ are still to be run on real Windows ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md
   review of the mod library.
 - `.github/dependabot.yml`: monthly version updates for the GitHub Actions of the workflow only, all of them in one
   pull request (prefix `CI`); NuGet packages stay pinned.
-- Issue form for bug reports (`.github/ISSUE_TEMPLATE/`, with the log locations of the launcher, the suite installer and
-  the setups) and `SECURITY.md` (private vulnerability reporting, with a fallback while it is switched off).
+- Community files: issue forms for bug reports (with the log locations of the launcher, the suite installer and the
+  setups) and feature requests, an issue chooser that sends questions about the package, the setups and security
+  problems to the right place, `SECURITY.md` (supported versions and the direct link for a private report),
+  `CONTRIBUTING.md` (ways to help, the rules of the code, the workflow, the local checks, the commit style and the
+  CHANGELOG), a pull request template and `.github/CODEOWNERS`.
 
 ### Changed
 

@@ -222,3 +222,6 @@ advice, a running setup and a second launcher, L-WP5 51 for the game settings, L
   test named in the table above, and notes what sounds wrong.
 - **Other languages**: Portuguese (Brazil), Chinese, Spanish, Italian, Polish, Russian and Korean are game
   languages of the setup; the launcher shows English for them. See [Adding a language](#adding-a-language).
+
+Send corrections as a pull request that changes the `.resx` files, or as an issue that lists the key, the current text
+and your proposal ([CONTRIBUTING.md](../CONTRIBUTING.md)).

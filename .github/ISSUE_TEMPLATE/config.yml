@@ -1,5 +1,14 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Need help with the game package?
+    url: https://github.com/DritteRippe/Empire-Earth-Community/issues
+    about: Installing, starting or updating the package "Empire Earth Community" (German or English).
+  - name: Problem with a setup or the suite installer
+    url: https://github.com/DritteRippe/Empire-Earth-Setup/issues
+    about: The installers of Empire Earth, NeoEE and "Empire Earth Community Setup" live in the setup repository.
+  - name: Report a security vulnerability
+    url: https://github.com/DritteRippe/Empire-Earth-Launcher/security/policy
+    about: Please report security problems privately, never in a public issue.
   - name: What do I send with a report?
     url: https://github.com/DritteRippe/Empire-Earth-Launcher#-faq-and-known-issues
     about: The README FAQ says which logs and which diagnostics report help.

@@ -706,6 +706,7 @@ French (`Properties/Resources*.resx` of its project). How to translate, add a te
 Empire-Earth.sln                  Root solution containing every project
 SharedAssemblyInfo.cs             Version information shared by all assemblies
 CHANGELOG.md                      Changes of each version (Keep a Changelog)
+CONTRIBUTING.md, SECURITY.md      How to contribute; how to report a vulnerability privately
 THIRD-PARTY-NOTICES.md            Vendored code and NuGet dependencies with their licenses
 docs/                             ARCHITECTURE.md (v2 target), CONTRACT.md (shared with the setup), adr/
                                   (decision records), TEST-PLAN.de.md (manual test on Windows, German),
@@ -812,6 +813,8 @@ Empire-Earth-Launcher.RealMachineTests/  Checks of the core against a real insta
 └─ SelfTest/                      The same checks on the in-memory fakes of the unit tests
 packages/                         NuGet packages, restored on build (not committed)
 .github/workflows/build.yml       CI build and test run
+.github/                          dependabot.yml (monthly updates of the actions), ISSUE_TEMPLATE/ (issue forms),
+                                  pull_request_template.md, CODEOWNERS
 ```
 
 ### Configuration and files
@@ -952,10 +955,15 @@ packages/                         NuGet packages, restored on build (not committ
   VirtualStore folder when Windows does not let a standard user write into a game folder below `Program Files`.
 
 ## 🔨 Contributing
-Pull requests are welcome; work happens on a short-lived branch with a pull request into `main`.\
-Bugs go into an [issue](https://github.com/DritteRippe/Empire-Earth-Launcher/issues/new/choose) (the form asks for the logs); security problems are reported privately,
-see [SECURITY.md](SECURITY.md).\
-For major changes, please open an issue first to discuss what you would like to change or discuss with us on Discord.
+
+Contributions are welcome: bug reports, tests on real Windows computers, translations and code. Work happens on a
+short-lived branch with a pull request into `main`; [CONTRIBUTING.md](CONTRIBUTING.md) explains the rules, the local
+checks, the commit style and the CHANGELOG.
+
+- **Bugs**: open an [issue](https://github.com/DritteRippe/Empire-Earth-Launcher/issues/new/choose); the form asks for
+  the logs (see [What do I send with a report?](#-faq-and-known-issues)).
+- **Security problems**: report them privately, see [SECURITY.md](SECURITY.md).
+- **Larger changes**: please open an issue first, so that we can agree on the approach.
 
 ## 📖 License
 [GNU General Public License v3.0](LICENSE)
