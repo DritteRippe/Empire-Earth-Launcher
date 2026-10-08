@@ -107,6 +107,10 @@ are still to be run on real Windows ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md
   published archive. The archive now holds only the documented layout.
 - Mod creator: files and archives of 4 GB or more gave a damaged archive without an error. The build now stops with a
   message, and an existing archive stays as it was.
+- `licenses/THIRD-PARTY-LICENSES.txt`, which every binary copy carries (the CI test builds and the package), named
+  `EE-modders/Empire-Earth-Launcher` as the place of the source code; that repository has not the code of these
+  binaries. It now names the fork `DritteRippe/Empire-Earth-Launcher`, where every release is a tag, and EE-modders as the
+  original project.
 - Mod creator: the chosen icon and banner files stayed locked until the program ended. They are loaded into memory now,
   and a file that is not an image is reported as such instead of "Out of memory.".
 

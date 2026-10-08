@@ -2,7 +2,9 @@ Third-party license texts for binary distributions of Empire Earth Launcher and
 the Empire Earth Mod Creator (including the CI test builds).
 
 Empire Earth Launcher itself is licensed under the GNU General Public License
-v3.0, see LICENSE. The source code is available at
+v3.0, see LICENSE. The source code of these binaries is available at
+https://github.com/DritteRippe/Empire-Earth-Launcher (each release is a tag
+there, for example v1.1.0). It is a fork of the original project
 https://github.com/EE-modders/Empire-Earth-Launcher. Details about the
 components below are in THIRD-PARTY-NOTICES.md.
 
