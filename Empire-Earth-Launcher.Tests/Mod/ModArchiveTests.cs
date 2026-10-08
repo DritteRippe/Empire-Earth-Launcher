@@ -406,6 +406,53 @@ namespace Empire_Earth_Launcher.Tests.Mod
             }
         }
 
+        /// <summary>
+        /// The file list of a mod comes from its author. A path that leaves the product folder would send the code that
+        /// installs the files anywhere on the disk (path traversal, "zip slip"), so the reader rejects the archive.
+        /// </summary>
+        [TestCase(@"EEC\..\..\..\Windows\System32\evil.dll", TestName = "ReadModData_FilePathWithParentFolders_IsRejected")]
+        [TestCase(@"C:\Windows\System32\evil.dll", TestName = "ReadModData_AbsoluteFilePath_IsRejected")]
+        [TestCase("/EEC/Data/units.xml", TestName = "ReadModData_FilePathFromTheRoot_IsRejected")]
+        [TestCase("Data/units.xml", TestName = "ReadModData_FilePathOutsideTheProductFolders_IsRejected")]
+        public void ReadModData_UnsafeFilePath_IsRejected(string relativePath)
+        {
+            var mod = new ModData { Name = "Unsafe", Version = new Version(1, 0) };
+            mod.ModFiles.Add(new ModFile(@"EEC\Data\units.xml", ModFile.ModFileType.ConfigFile, Guid.Empty, string.Empty));
+            mod.ModFiles.Add(new ModFile(relativePath, ModFile.ModFileType.Executable, Guid.Empty, string.Empty));
+
+            using (MemoryStream archive = CreateArchive(Entry(EemFormat.DataEntryName, mod.ToString())))
+            {
+                Assert.That(() => ModArchiveReader.ReadModData(archive),
+                    Throws.TypeOf<InvalidDataException>().With.Message.Contains(relativePath));
+            }
+        }
+
+        [Test]
+        public void ReadModData_EmptyEntryInTheFileList_IsRejected()
+        {
+            var mod = new ModData { Name = "Empty entry", Version = new Version(1, 0) };
+            mod.ModFiles.Add(null);
+
+            using (MemoryStream archive = CreateArchive(Entry(EemFormat.DataEntryName, mod.ToString())))
+            {
+                Assert.That(() => ModArchiveReader.ReadModData(archive), Throws.TypeOf<InvalidDataException>());
+            }
+        }
+
+        [Test]
+        public void ReadModData_FilePathsOfTheModCreator_AreRead()
+        {
+            var mod = new ModData { Name = "Paths", Version = new Version(1, 0) };
+            mod.ModFiles.Add(new ModFile(@"EEC\Data\units.xml", ModFile.ModFileType.ConfigFile, Guid.Empty, string.Empty));
+            mod.ModFiles.Add(new ModFile("all/Data/Textures/grass.tga", ModFile.ModFileType.Data, Guid.Empty, string.Empty));
+
+            using (MemoryStream archive = CreateArchive(Entry(EemFormat.DataEntryName, mod.ToString())))
+            {
+                Assert.That(ModArchiveReader.ReadModData(archive).ModFiles.Select(file => file.RelativeFilePath),
+                    Is.EqualTo(new[] { @"EEC\Data\units.xml", "all/Data/Textures/grass.tga" }));
+            }
+        }
+
         [TestCase("not a zip archive, but longer than the end record of one", TestName = "ReadModData_TextFile_SaysItIsNoZipArchive")]
         [TestCase("PK", TestName = "ReadModData_FileShorterThanAnEndRecord_SaysItIsNoZipArchive")]
         public void ReadModData_NoZipArchive_SaysSo(string content)

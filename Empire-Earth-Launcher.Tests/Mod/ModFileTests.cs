@@ -201,6 +201,70 @@ namespace Empire_Earth_Launcher.Tests.Mod
             Assert.That(EemFormat.GetProductFolder("Banner0.png"), Is.Null);
         }
 
+        /* Paths of mod files: never outside the product folder */
+
+        [TestCase("EEC/Data/units.xml")]
+        [TestCase(@"EEC\Data\units.xml")]
+        [TestCase("all/Data/db/dbobjects.dat")]
+        [TestCase(@"AOC\Tools\Patch.EXE")]
+        [TestCase("eec/file.xml")]
+        [TestCase("ALL/Data/Random Map Scripts/Two Islands.es")]
+        [TestCase("EEC/Users/default/Civilizations/Zoë.civ")]
+        [TestCase("EEC/Data/.hidden")]
+        [TestCase("EEC/Data/..units.xml")]
+        [TestCase("EEC/Data/CONFIG.xml")]
+        [TestCase("EEC/Data/COM10.dat")]
+        [TestCase("EEC/Data/nul_sound.wav")]
+        public void IsValidFilePath_RelativePathInAProductFolder_IsValid(string relativePath)
+        {
+            Assert.That(EemFormat.IsValidFilePath(relativePath), Is.True);
+        }
+
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("EEC", TestName = "{m}(the product folder alone)")]
+        [TestCase("EEC/", TestName = "{m}(an empty file name)")]
+        [TestCase("readme.txt")]
+        [TestCase("Data/EEC/file.xml")]
+        [TestCase("Both/Data/file.xml")]
+        [TestCase("/EEC/Data/file.xml")]
+        [TestCase(@"\EEC\Data\file.xml")]
+        [TestCase(@"\\server\share\EEC\file.xml")]
+        [TestCase("C:/EEC/file.xml")]
+        [TestCase(@"C:\Windows\System32\evil.dll")]
+        [TestCase(@"EEC\..\..\..\Windows\System32\evil.dll")]
+        [TestCase("EEC/../../evil.dll")]
+        [TestCase("EEC/./file.xml")]
+        [TestCase("EEC/Data/..")]
+        [TestCase("EEC/Data/...")]
+        [TestCase("EEC/Data/.. /evil.dll")]
+        [TestCase("EEC//file.xml")]
+        [TestCase("EEC/Data/file.xml:stream")]
+        [TestCase("EEC/Data/file.")]
+        [TestCase("EEC/Data/file ")]
+        [TestCase("EEC/Data/a*b.xml")]
+        [TestCase("EEC/Data/a?b.xml")]
+        [TestCase("EEC/Data/a\"b.xml")]
+        [TestCase("EEC/Data/<b>.xml")]
+        [TestCase("EEC/Data/a|b.xml")]
+        [TestCase("EEC/Data/a\tb.xml", TestName = "{m}(a control character)")]
+        [TestCase("EEC/Data/CON")]
+        [TestCase("EEC/Data/nul.txt")]
+        [TestCase("EEC/Data/Com1.dat")]
+        [TestCase("EEC/Data/aux .log")]
+        [TestCase("all/LPT9")]
+        public void IsValidFilePath_PathThatCanLeaveTheProductFolderOrNoWindowsName_IsInvalid(string relativePath)
+        {
+            // Such a path in the data of a mod archive would send the code that installs its files elsewhere (zip slip).
+            Assert.That(EemFormat.IsValidFilePath(relativePath), Is.False);
+        }
+
+        [Test]
+        public void IsValidFilePath_PathOfTheOs_IsValid()
+        {
+            Assert.That(EemFormat.IsValidFilePath(Path.Combine("all", "Data", "file.xml")), Is.True);
+        }
+
         [Test]
         public void GetBannerFileName_NumbersFromZero()
         {

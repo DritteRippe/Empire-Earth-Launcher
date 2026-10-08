@@ -197,6 +197,22 @@ namespace Empire_Earth_Launcher.Tests.Mod
             }
         }
 
+        [TestCase(@"EEC\..\..\evil.dll")]
+        [TestCase(@"C:\Windows\evil.dll")]
+        [TestCase("readme.txt")]
+        public void ExportModInfos_FilePathOutsideTheProductFolders_WritesNoModData(string relativePath)
+        {
+            // The mod archive reader would reject the archive (EemFormat.IsValidFilePath); a caller of the library that
+            // adds such a file to the mod gets the reason when it builds, not a mod that nobody can load.
+            mod.ModFiles.Add(new ModFile(relativePath, ModFile.ModFileType.Data, Guid.Empty, string.Empty));
+            using (ModPackageBuilder builder = CreateBuilder())
+            {
+                Assert.That(() => builder.ExportModInfos(),
+                    Throws.TypeOf<InvalidOperationException>().With.Message.Contains(relativePath));
+                Assert.That(Path.Combine(builder.WorkingDirectory, EemFormat.DataEntryName), Does.Not.Exist);
+            }
+        }
+
         [Test]
         public void GenerateVariantsFolders_RemovesOnlyFoldersOfRemovedVariants()
         {

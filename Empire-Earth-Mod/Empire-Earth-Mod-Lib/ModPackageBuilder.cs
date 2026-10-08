@@ -230,7 +230,8 @@ namespace Empire_Earth_Mod_Lib
         /// GDI+ images are not thread-safe.
         /// </remarks>
         /// <param name="eemPath">Path of the mod archive to create.</param>
-        /// <exception cref="InvalidOperationException">The mod is not complete (no icon, name or version).</exception>
+        /// <exception cref="InvalidOperationException">The mod is not complete (no icon, name or version), or the path of a
+        /// mod file breaks <see cref="EemFormat.IsValidFilePath"/>.</exception>
         public void Build(string eemPath)
         {
             ThrowIfDisposed();
@@ -281,9 +282,21 @@ namespace Empire_Earth_Mod_Lib
             }
         }
 
+        /// <summary>
+        /// Writes the mod data (<see cref="EemFormat.DataEntryName"/>) into the working directory.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The path of a mod file breaks <see cref="EemFormat.IsValidFilePath"/>:
+        /// <see cref="ModArchiveReader"/> would reject the archive.</exception>
         public void ExportModInfos()
         {
             ThrowIfDisposed();
+            foreach (ModFile modFile in mod.ModFiles)
+            {
+                if (modFile == null || !EemFormat.IsValidFilePath(modFile.RelativeFilePath))
+                    throw new InvalidOperationException("The path of the mod file \"" + modFile?.RelativeFilePath +
+                                                        "\" is not a relative path inside one of the folders " +
+                                                        string.Join(", ", EemFormat.ProductFolders) + ".");
+            }
             File.WriteAllText(Path.Combine(WorkingDirectory, EemFormat.DataEntryName), mod.ToString());
         }
 

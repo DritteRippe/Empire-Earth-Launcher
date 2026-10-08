@@ -33,7 +33,8 @@ namespace Empire_Earth_Mod_Lib
         /// Reads the mod data of a mod archive in a seekable stream. The stream is not closed.
         /// </summary>
         /// <param name="eemStream">Stream containing the mod archive (see <see cref="EemFormat"/>)</param>
-        /// <returns>Mod present in the archive (icon and banners are not loaded)</returns>
+        /// <returns>Mod present in the archive (icon and banners are not loaded); the paths of its files follow
+        /// <see cref="EemFormat.IsValidFilePath"/>.</returns>
         /// <exception cref="IOException">The stream cannot be read.</exception>
         /// <exception cref="InvalidDataException">The stream is not a valid mod archive.</exception>
         public static ModData ReadModData(Stream eemStream)
@@ -69,6 +70,15 @@ namespace Empire_Earth_Mod_Lib
 
             if (modData == null)
                 throw new InvalidDataException("Invalid mod archive: the \"" + EemFormat.DataEntryName + "\" entry is empty.");
+
+            // The file list comes from whoever made the archive. A path that leaves its product folder ("EEC\..\..",
+            // "C:\Windows\...") would send code that installs the files anywhere on the disk.
+            foreach (ModFile modFile in modData.ModFiles)
+            {
+                if (modFile == null || !EemFormat.IsValidFilePath(modFile.RelativeFilePath))
+                    throw new InvalidDataException("Invalid mod archive: the path of the mod file \"" + modFile?.RelativeFilePath +
+                                                   "\" is not a relative path inside a product folder.");
+            }
             return modData;
         }
 
