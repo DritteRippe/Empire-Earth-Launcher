@@ -1,5 +1,13 @@
 ﻿// ZipStorer, by Jaime Olivares
 // Website: http://github.com/jaime-olivares/zipstorer
+// License: MIT, see licenses/THIRD-PARTY-LICENSES.txt
+//
+// Modified by the Empire Earth Launcher contributors (the list is kept in THIRD-PARTY-NOTICES.md):
+// - "using System.Threading;" added (65c9de2).
+// - ReadExtraInfo reads only the extra field of its own entry, backport of the upstream fix of issue #71
+//   (commit 1948dcf, ZipStorer 4.x). It used to go on into the following records of the central directory, so an
+//   entry could get the times of another entry, and some archives that ZipStorer had written itself could not be
+//   read (ArgumentException).
 
 #if NET45_OR_GREATER
     using System.Threading.Tasks;
@@ -431,7 +439,7 @@ namespace System.IO.Compression
 
                 if (extraSize > 0)
                 {
-                    this.ReadExtraInfo(CentralDirImage, pointer + 46 + filenameSize, zfe);
+                    this.ReadExtraInfo(CentralDirImage, pointer + 46 + filenameSize, extraSize, zfe);
                 }
 
                 result.Add(zfe);
@@ -948,15 +956,17 @@ namespace System.IO.Compression
             return buffer;
         }
 
-        private void ReadExtraInfo(byte[] buffer, int offset, ZipFileEntry _zfe)
+        private void ReadExtraInfo(byte[] buffer, int offset, int extraSize, ZipFileEntry _zfe)
         {
             if (buffer.Length < 4)
                 return;
 
+            int start = offset;
             int pos = offset;
             uint tag, size;
 
-            while (pos < buffer.Length - 4)
+            // Modified: stop at the end of the extra field of this entry (upstream issue #71).
+            while (pos < buffer.Length - 4 && pos - start < extraSize)
             {
                 uint extraId = BitConverter.ToUInt16(buffer, pos);
                 uint length = BitConverter.ToUInt16(buffer, pos+2);

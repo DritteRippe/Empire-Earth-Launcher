@@ -240,6 +240,7 @@
     <Compile Include="Mod\ModDataTests.cs" />
     <Compile Include="Mod\ModFileTests.cs" />
     <Compile Include="Mod\ModPackageBuilderTests.cs" />
+    <Compile Include="Mod\ZipStorerTests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\SharedAssemblyInfo.cs">
