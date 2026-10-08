@@ -97,7 +97,10 @@ git push origin vX.Y.Z
 
 ## 5. Release notes
 
-*Releases* > *Draft a new release*, choose the tag `vX.Y.Z`, title `Empire Earth Launcher X.Y.Z`:
+*Actions* > *Publish release* > *Run workflow* with the tag `vX.Y.Z`, the title `Empire Earth Launcher X.Y.Z` and the notes
+(`.github/workflows/publish-release.yml`): it refuses a tag whose commit has no successful run of *Build* for a push to
+`main`, publishes the release without binaries and marks it as the latest (a tag like `vX.Y.Z-rc1` as a pre-release).
+By hand it is *Releases* > *Draft a new release*, the tag `vX.Y.Z`, the title `Empire Earth Launcher X.Y.Z`. Either way:
 
 - [ ] The notes say what the version is for and where players get it: the package release page.
 - [ ] **No branch names.** Branches are deleted after the merge (the notes of 1.1.0 pointed to the branch `v2`, which is

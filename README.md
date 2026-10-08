@@ -818,7 +818,9 @@ proposes a monthly pull request for the GitHub Actions the workflow uses, all of
 stay pinned on purpose. Every action in `build.yml` is pinned to the full commit SHA of a release with the version as a
 comment (`uses: owner/repo@<SHA> # vX.Y.Z`), the form Dependabot updates, and an architecture test
 (`ProjectConventionsTests`) fails on an action that is not pinned this way; the checkout keeps no credentials. On a fork,
-version updates must be enabled once under *Insights* > *Dependency graph* > *Dependabot*.
+version updates must be enabled once under *Insights* > *Dependency graph* > *Dependabot*. `.github/workflows/publish-release.yml`
+publishes the release of a tag by hand, only if its commit has a green *Build* on `main` ([docs/RELEASING.md](docs/RELEASING.md),
+step 5).
 
 **Test builds**: when all tests pass, the CI run also keeps the Release output of both applications for 30 days,
 as the artifacts `Empire-Earth-Launcher-testbuild` and `Empire-Earth-Mod-Creator-testbuild` (open the run under

@@ -26,6 +26,9 @@ open. The test plan records the results when they ran ([docs/TEST-PLAN.de.md](do
 
 ### Added
 
+- Workflow *Publish release* (`.github/workflows/publish-release.yml`, run by hand): publishes the release of an
+  existing tag with its title and notes, only if the tag's commit has a successful run of *Build* for a push to `main`
+  (docs/RELEASING.md, step 5).
 - *Tools* page, section "Updates": the button "Open release page" next to "Check for updates" opens the release page of
   the package "Empire Earth Community" (`https://github.com/DritteRippe/Empire-Earth-Community/releases/latest`) in the
   browser. Like the download pages it is opened only on a click and the launcher sends no request to GitHub; when the
