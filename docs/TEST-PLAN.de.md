@@ -189,15 +189,24 @@ Was auf echter Hardware gelaufen ist und was nicht. Nach jeder Sitzung hier eine
 | Sitzung | Datum | Stand | Ergebnis |
 |---|---|---|---|
 | 1 | 2026-10-07 | Launcher 1.1.0 (Tag `v1.1.0`, Commit `5d256c8`), Laptop mit Windows 11 | Gelaufen sind WP6-13, WP6-18, WP6-19 (a), WP6-21 (a) bis (d) und (g), WP11-01 bis WP11-04 (a), WP11-06, WP11-10, WP12-01 (a), WP12-02, WP12-04, WP13-01, WP13-02, WP13-06, WP13-07, WP14-01 und WP14-02. Festgehalten ist nur das Gesamturteil „bestanden, die Maus geht direkt nach dem Start ohne Alt+Tab“ (WP6-21), keine Ergebnisse je Fall. Auf dieser Grundlage wurde 1.1.0 freigegeben. |
-| 2 | **noch nicht gelaufen** | Launcher 1.1.1 | Geplant vor der Freigabe von 1.1.1, siehe unten. |
+| 2 | **noch nicht gelaufen** | Launcher 1.1.1 (Tag `v1.1.1`) | Lief nicht vor der Freigabe von 1.1.1; offen, siehe unten. |
 
-**Für Sitzung 2 offen** (vor oder mit 1.1.1; ein Fehler, der dabei auftaucht, wird in 1.1.1 behoben):
+**Freigabe von 1.1.1 ohne Test auf echter Hardware:** Der Launcher 1.1.1 wurde am 2026-10-08 als Tag `v1.1.1` freigegeben,
+für das Paket „Empire Earth Community“ 1.1.1, auf Entscheidung des Maintainers. Zum Zeitpunkt des Tags lief **kein** Fall
+dieses Plans mit 1.1.1 auf echter Hardware: weder die neuen oder geänderten Fälle von 1.1.1 (darunter WP1-04, WP1-06 und
+WP2-10 mit der Version 1.1.1) noch die Fälle, die bei 1.1.0 offen blieben (beides in der Liste unten); die Fälle der
+Sitzung 1 liefen nur mit 1.1.0. Sitzung 2 ist weiter offen. Die Ergebnisse kommen in diese Tabelle, wenn die Fälle
+gelaufen sind.
+
+**Für Sitzung 2 offen** (mit dem freigegebenen Launcher 1.1.1; der Tag `v1.1.1` wird nie verschoben, die Korrektur eines
+Fehlers, der dabei auftaucht, bekäme eine neue Patch-Version, [RELEASING.md](RELEASING.md), Schritt 4):
 
 - aus 1.1.0 nicht gelaufen: WP11-04 (b), WP11-05, WP11-07 bis WP11-09, WP12-01 (b) und (c), WP12-03, WP12-05 bis WP12-09,
   WP13-03 bis WP13-05, WP13-08, WP14-03, WP6-19 (b) bis (d), WP6-20 und WP6-21 (e), (f) und (h);
-- neu oder geändert in 1.1.1: WP10-03 (zweiter Start, alle Zeilen in `log.txt`, keine Datei `<GUID>log.txt`), WP10-05,
-  WP10-06 und WP10-11 (Reparaturhinweis einer Suite-Installation mit und ohne Paketordner), WP7-09 bis WP7-11
-  (älteres Setup, Versionsprüfung), WP14-04 (Abschnitt „Updates“, „Release-Seite öffnen“), WP1-07 (Scrollposition) und
+- neu oder geändert in 1.1.1: WP1-04, WP1-06 und WP2-10 (Version 1.1.1 in `log.txt` und in den Dateieigenschaften),
+  WP10-03 (zweiter Start, alle Zeilen in `log.txt`, keine Datei `<GUID>log.txt`), WP10-05, WP10-06 und WP10-11
+  (Reparaturhinweis einer Suite-Installation mit und ohne Paketordner), WP7-09 bis WP7-11 (älteres Setup,
+  Versionsprüfung), WP14-04 (Abschnitt „Updates“, „Release-Seite öffnen“), WP1-07 (Scrollposition) und
   WP15-01 bis WP15-03 (Mod-Creator);
 - das Korrekturlesen der deutschen Texte (Fälle WP3-*, WP4-17, WP5-17, WP6-14, WP7-14, WP8-15, WP9-14; siehe
   [TRANSLATING.md](TRANSLATING.md), Abschnitt *Status*).

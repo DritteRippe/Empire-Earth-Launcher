@@ -4,16 +4,25 @@ All notable changes to Empire Earth Launcher, its libraries and the mod creator 
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). All assemblies carry the version of
-`SharedAssemblyInfo.cs`: 1.1.0 since the one launcher for the four games, 1.0.0 since the optional additions for the suite
-installer, `0.1.0-alpha` before. The fixes of the code review that preceded v2 (branch `refactor/quality-fixes`) are
-described in the git history.
+`SharedAssemblyInfo.cs`: 1.1.1 since the fixes of the review after 1.1.0, 1.1.0 since the one launcher for the four games,
+1.0.0 since the optional additions for the suite installer, `0.1.0-alpha` before. The fixes of the code review that
+preceded v2 (branch `refactor/quality-fixes`) are described in the git history.
 
 ## [Unreleased]
 
-The fixes of the review after the release of 1.1.0, planned as launcher 1.1.1 for the suite package "Empire Earth
-Community" 1.1.1 (contract revision 7). The most visible change: an installation of the package is never sent to the
-setup of empireearth.eu again, which would undo the fixes of the package. Session 2 of the laptop test and the new cases
-are still to be run on real Windows ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md)).
+## [1.1.1] - 2026-10-08
+
+Version 1.1.1 is the launcher of the suite package "Empire Earth Community" 1.1.1 (setup repository, contract revision 7):
+the fixes of the review after the release of 1.1.0. The most visible change: an installation of the package is never sent
+to the setup of empireearth.eu again, which would undo the fixes of the package; the repair advice and an available update
+lead to the release page of the package instead. Released on 2026-10-08 as the tag `v1.1.1`, for the suite package 1.1.1,
+by decision of the maintainer without a test on real hardware: at the time of the tag no case of the test plan had run
+with 1.1.1, and session 2 of the laptop test had not run. Not run on real hardware are the cases new or changed in 1.1.1,
+WP1-04, WP1-06 and WP2-10 (the version), WP1-07, WP7-09 to WP7-11, WP10-03, WP10-05, WP10-06, WP10-11, WP14-04 and
+WP15-01 to WP15-03, and the cases that were left open at the release of 1.1.0, WP11-04 (b), WP11-05, WP11-07 to WP11-09,
+WP12-01 (b) and (c), WP12-03, WP12-05 to WP12-09, WP13-03 to WP13-05, WP13-08, WP14-03, WP6-19 (b) to (d), WP6-20 and
+WP6-21 (e), (f) and (h). The cases of session 1 ran with 1.1.0 only; the German proof-reading and the French review are
+open. The test plan records the results when they ran ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), section 4.1).
 
 ### Added
 
@@ -150,8 +159,8 @@ revision 6): one launcher for Empire Earth, Neo Empire Earth and their expansion
 window that can be resized, the download pages of the website and the activation signal against the dead mouse at the
 start of a game. Released on 2026-10-07 as the tag `v1.1.0`, inside the suite package 1.1.0, after session 1 of the laptop
 test only (the mouse works right after the start without Alt+Tab); session 2 and the optional cases were not run on real
-hardware and are to follow before or with 1.1.1 ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), L-WP11 to L-WP14, WP6-13,
-WP6-18 to WP6-21).
+hardware, and they had not run by the release of 1.1.1 either ([docs/TEST-PLAN.de.md](docs/TEST-PLAN.de.md), L-WP11 to
+L-WP14, WP6-13, WP6-18 to WP6-21).
 
 ### Changed
 
@@ -1083,6 +1092,7 @@ uninstall key (contract revision 5, below). A first build of 1.0.0 without that 
   cleanup reads the tree once more right before each deletion. Test plan: WP8-17 (link, optional) and WP8-18 (a folder
   the launcher may not look at).
 
-[Unreleased]: https://github.com/DritteRippe/Empire-Earth-Launcher/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/DritteRippe/Empire-Earth-Launcher/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/DritteRippe/Empire-Earth-Launcher/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/DritteRippe/Empire-Earth-Launcher/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/DritteRippe/Empire-Earth-Launcher/releases/tag/v1.0.0
